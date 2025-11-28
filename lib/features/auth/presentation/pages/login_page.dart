@@ -266,50 +266,53 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               const SizedBox(height: 60),
               Image.asset('assets/image/seffaflogo.png', height: 100),
-              const SizedBox(height: 40),
+              const SizedBox(height: 80),
 
               // Hoşgeldiniz Mesajı
               Text(
-                "Hoşgeldiniz,",
+                "Hoşgeldiniz",
                 style: GoogleFonts.outfit(fontSize: 24, color: Colors.white70),
               ),
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _targetUser!.name,
-                    style: GoogleFonts.outfit(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+              Padding(
+                padding: const EdgeInsets.only(left: 40.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _targetUser!.name,
+                      style: GoogleFonts.outfit(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.autorenew_sharp,
-                      color: Colors.white,
-                    ),
-                    tooltip: "Kullanıcı Değiştir",
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => UserListPage(
-                            authController: widget.authController,
+                    const SizedBox(width: 5),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.autorenew_sharp,
+                        color: Colors.white,
+                      ),
+                      tooltip: "Kullanıcı Değiştir",
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => UserListPage(
+                              authController: widget.authController,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 60),
 
               // PIN Girişi
               SizedBox(
-                width: 200,
+                width: 300,
                 child: TextField(
                   controller: _pinController,
                   style: const TextStyle(
