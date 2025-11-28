@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/auth_controller.dart';
-import '../../../../home_page.dart'; // AnaSayfa için
+import '../../../../home_page.dart';
 import 'login_page.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/utils/error_handler.dart';
 
 class SignUpPage extends StatefulWidget {
   final AuthController authController;
@@ -19,6 +21,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final _emailController = TextEditingController();
   final _pinController = TextEditingController();
   bool _isPinVisible = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -67,6 +70,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 TextFormField(
                   controller: _nameController,
                   style: const TextStyle(color: Colors.white),
+                  validator: Validators.validateName,
                   decoration: InputDecoration(
                     labelText: "İsim Soyisim",
                     labelStyle: const TextStyle(color: Colors.white70),
@@ -82,13 +86,15 @@ class _SignUpPageState extends State<SignUpPage> {
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Color(0xFF9D00FF)),
                     ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Lütfen isminizi girin';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 20),
 
@@ -97,6 +103,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   controller: _emailController,
                   style: const TextStyle(color: Colors.white),
                   keyboardType: TextInputType.emailAddress,
+                  validator: Validators.validateEmail,
                   decoration: InputDecoration(
                     labelText: "E-posta",
                     labelStyle: const TextStyle(color: Colors.white70),
@@ -117,19 +124,11 @@ class _SignUpPageState extends State<SignUpPage> {
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Color(0xFFCF6679)),
                     ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Lütfen e-posta adresinizi girin';
-                    }
-                    final emailRegex = RegExp(
-                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                    );
-                    if (!emailRegex.hasMatch(value)) {
-                      return 'Geçerli bir e-posta adresi girin';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 20),
 
@@ -140,6 +139,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   keyboardType: TextInputType.number,
                   obscureText: !_isPinVisible,
                   maxLength: 6,
+                  validator: Validators.validatePIN,
                   decoration: InputDecoration(
                     labelText: "PIN (4-6 Rakam)",
                     labelStyle: const TextStyle(color: Colors.white70),
@@ -171,19 +171,11 @@ class _SignUpPageState extends State<SignUpPage> {
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Color(0xFFCF6679)),
                     ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Lütfen bir PIN belirleyin';
-                    }
-                    if (value.length < 4 || value.length > 6) {
-                      return 'PIN 4 ile 6 rakam arasında olmalıdır';
-                    }
-                    if (int.tryParse(value) == null) {
-                      return 'PIN sadece rakamlardan oluşmalıdır';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 40),
 
@@ -192,51 +184,81 @@ class _SignUpPageState extends State<SignUpPage> {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        final success = await widget.authController.register(
-                          _nameController.text,
-                          _emailController.text,
-                          _pinController.text,
-                        );
+                    onPressed: _isLoading
+                        ? null
+                        : () async {
+                            if (!_formKey.currentState!.validate()) {
+                              return;
+                            }
 
-                        if (!context.mounted) return;
+                            setState(() {
+                              _isLoading = true;
+                            });
 
-                        if (success) {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (_) => AnaSayfa(
-                                authController: widget.authController,
-                              ),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                widget.authController.error ??
-                                    "Bir hata oluştu",
-                              ),
-                              backgroundColor: const Color(0xFFCF6679),
-                            ),
-                          );
-                        }
-                      }
-                    },
+                            try {
+                              final success = await widget.authController
+                                  .register(
+                                    _nameController.text.trim(),
+                                    _emailController.text.trim(),
+                                    _pinController.text,
+                                  );
+
+                              if (!mounted) return;
+
+                              if (success) {
+                                ErrorHandler.showSuccessSnackBar(
+                                  context,
+                                  "Kayıt işarılı! Hoş geldiniz! 🎉",
+                                );
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (_) => AnaSayfa(
+                                      authController: widget.authController,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                ErrorHandler.showErrorSnackBar(
+                                  context,
+                                  widget.authController.error ??
+                                      "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.",
+                                );
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                ErrorHandler.handleDatabaseError(context, e);
+                              }
+                            } finally {
+                              if (mounted) {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
+                            }
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF9D00FF),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      "Kayıt Ol",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            "Kayıt Ol",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),

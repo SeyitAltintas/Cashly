@@ -1,51 +1,87 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter/foundation.dart';
 
 class DatabaseHelper {
-  static const String _boxName = 'cashly_box'; // İsim değişti
+  static const String _boxName = 'cashly_box';
   static Box get _box => Hive.box(_boxName);
 
   static Future<void> baslat() async {
-    await Hive.initFlutter();
-    await Hive.openBox(_boxName);
+    try {
+      await Hive.initFlutter();
+      await Hive.openBox(_boxName);
+    } catch (e) {
+      debugPrint('Database initialization error: $e');
+      rethrow;
+    }
   }
 
   // --- HARCAMA İŞLEMLERİ ---
   static List<Map<String, dynamic>> harcamalariGetir(String userId) {
-    final veri = _box.get('harcamalar_$userId', defaultValue: []);
-    return List<Map<String, dynamic>>.from(
-      veri.map((e) => Map<String, dynamic>.from(e)),
-    );
+    try {
+      final veri = _box.get('harcamalar_$userId', defaultValue: []);
+      return List<Map<String, dynamic>>.from(
+        veri.map((e) => Map<String, dynamic>.from(e)),
+      );
+    } catch (e) {
+      debugPrint('Error getting expenses: $e');
+      return [];
+    }
   }
 
   static Future<void> harcamalariKaydet(
     String userId,
     List<Map<String, dynamic>> harcamalar,
   ) async {
-    await _box.put('harcamalar_$userId', harcamalar);
+    try {
+      await _box.put('harcamalar_$userId', harcamalar);
+    } catch (e) {
+      debugPrint('Error saving expenses: $e');
+      rethrow;
+    }
   }
 
   // --- BÜTÇE AYARLARI ---
   static double butceGetir(String userId) {
-    return _box.get('butce_limiti_$userId', defaultValue: 8000.0);
+    try {
+      return _box.get('butce_limiti_$userId', defaultValue: 8000.0);
+    } catch (e) {
+      debugPrint('Error getting budget: $e');
+      return 8000.0;
+    }
   }
 
   static Future<void> butceKaydet(String userId, double yeniLimit) async {
-    await _box.put('butce_limiti_$userId', yeniLimit);
+    try {
+      await _box.put('butce_limiti_$userId', yeniLimit);
+    } catch (e) {
+      debugPrint('Error saving budget: $e');
+      rethrow;
+    }
   }
 
   // --- SABİT GİDER ŞABLONLARI ---
   static List<Map<String, dynamic>> sabitGiderSablonlariGetir(String userId) {
-    final veri = _box.get('sabit_gider_sablonlari_$userId', defaultValue: []);
-    return List<Map<String, dynamic>>.from(
-      veri.map((e) => Map<String, dynamic>.from(e)),
-    );
+    try {
+      final veri = _box.get('sabit_gider_sablonlari_$userId', defaultValue: []);
+      return List<Map<String, dynamic>>.from(
+        veri.map((e) => Map<String, dynamic>.from(e)),
+      );
+    } catch (e) {
+      debugPrint('Error getting fixed expenses: $e');
+      return [];
+    }
   }
 
   static Future<void> sabitGiderSablonlariKaydet(
     String userId,
     List<Map<String, dynamic>> sablonlar,
   ) async {
-    await _box.put('sabit_gider_sablonlari_$userId', sablonlar);
+    try {
+      await _box.put('sabit_gider_sablonlari_$userId', sablonlar);
+    } catch (e) {
+      debugPrint('Error saving fixed expenses: $e');
+      rethrow;
+    }
   }
 
   // --- KATEGORİ YÖNETİMİ ---
@@ -59,21 +95,30 @@ class DatabaseHelper {
   ];
 
   static List<Map<String, dynamic>> kategorileriGetir(String userId) {
-    final veri = _box.get('kategoriler_$userId', defaultValue: null);
-    if (veri == null) {
-      // İlk kullanım, default kategorileri yükle
-      kategorileriKaydet(userId, defaultKategoriler);
+    try {
+      final veri = _box.get('kategoriler_$userId', defaultValue: null);
+      if (veri == null) {
+        kategorileriKaydet(userId, defaultKategoriler);
+        return defaultKategoriler;
+      }
+      return List<Map<String, dynamic>>.from(
+        veri.map((e) => Map<String, dynamic>.from(e)),
+      );
+    } catch (e) {
+      debugPrint('Error getting categories: $e');
       return defaultKategoriler;
     }
-    return List<Map<String, dynamic>>.from(
-      veri.map((e) => Map<String, dynamic>.from(e)),
-    );
   }
 
   static Future<void> kategorileriKaydet(
     String userId,
     List<Map<String, dynamic>> kategoriler,
   ) async {
-    await _box.put('kategoriler_$userId', kategoriler);
+    try {
+      await _box.put('kategoriler_$userId', kategoriler);
+    } catch (e) {
+      debugPrint('Error saving categories: $e');
+      rethrow;
+    }
   }
 }

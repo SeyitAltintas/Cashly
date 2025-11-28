@@ -5,6 +5,8 @@ import '../controllers/auth_controller.dart';
 import '../../../../home_page.dart';
 import 'signup_page.dart';
 import 'user_list_page.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/utils/error_handler.dart';
 
 class LoginPage extends StatefulWidget {
   final AuthController authController;
@@ -21,12 +23,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _pinController = TextEditingController();
   bool _isPinVisible = false;
   UserEntity? _targetUser;
   bool _isLoadingUser = true;
   bool _isGenericLogin = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -97,139 +101,183 @@ class _LoginPageState extends State<LoginPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 60),
-              Image.asset('assets/image/seffaflogo.png', height: 100),
-              const SizedBox(height: 40),
-              Text(
-                "Giriş Yap",
-                style: GoogleFonts.outfit(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 60),
+                Image.asset('assets/image/seffaflogo.png', height: 100),
+                const SizedBox(height: 40),
+                Text(
+                  "Giriş Yap",
+                  style: GoogleFonts.outfit(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 40),
+                const SizedBox(height: 40),
 
-              // Email Field
-              TextField(
-                controller: _emailController,
-                style: const TextStyle(color: Colors.white),
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: "E-posta",
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  prefixIcon: const Icon(
-                    Icons.email_outlined,
-                    color: Color(0xFFBB86FC),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF9D00FF)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // PIN Field
-              TextField(
-                controller: _pinController,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  letterSpacing: 8,
-                ),
-                keyboardType: TextInputType.number,
-                obscureText: !_isPinVisible,
-                maxLength: 6,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  hintText: "PIN",
-                  hintStyle: const TextStyle(
-                    color: Colors.white24,
-                    letterSpacing: 2,
-                  ),
-                  counterText: "",
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPinVisible ? Icons.visibility : Icons.visibility_off,
-                      color: Colors.white70,
-                      size: 20,
+                // Email Field
+                TextFormField(
+                  controller: _emailController,
+                  style: const TextStyle(color: Colors.white),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: Validators.validateEmail,
+                  decoration: InputDecoration(
+                    labelText: "E-posta",
+                    labelStyle: const TextStyle(color: Colors.white70),
+                    prefixIcon: const Icon(
+                      Icons.email_outlined,
+                      color: Color(0xFFBB86FC),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _isPinVisible = !_isPinVisible;
-                      });
-                    },
-                  ),
-                  enabledBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF9D00FF)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // Login Button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (_emailController.text.isEmpty ||
-                        _pinController.text.isEmpty) {
-                      return;
-                    }
-
-                    final success = await widget.authController.loginByEmail(
-                      _emailController.text,
-                      _pinController.text,
-                    );
-
-                    if (!mounted) return;
-
-                    if (success) {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              AnaSayfa(authController: widget.authController),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            widget.authController.error ?? "Giriş başarısız",
-                          ),
-                          backgroundColor: const Color(0xFFCF6679),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF9D00FF),
-                    shape: RoundedRectangleBorder(
+                    enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.white24),
                     ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF9D00FF)),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    ),
+                    errorStyle: const TextStyle(color: Color(0xFFCF6679)),
                   ),
-                  child: const Text(
-                    "Giriş Yap",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                ),
+                const SizedBox(height: 20),
+
+                // PIN Field
+                TextFormField(
+                  controller: _pinController,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    letterSpacing: 8,
+                  ),
+                  keyboardType: TextInputType.number,
+                  obscureText: !_isPinVisible,
+                  maxLength: 6,
+                  textAlign: TextAlign.center,
+                  validator: Validators.validatePIN,
+                  decoration: InputDecoration(
+                    hintText: "PIN",
+                    hintStyle: const TextStyle(
+                      color: Colors.white24,
+                      letterSpacing: 2,
+                    ),
+                    counterText: "",
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPinVisible ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.white70,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPinVisible = !_isPinVisible;
+                        });
+                      },
+                    ),
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white24),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF9D00FF)),
+                    ),
+                    errorBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFCF6679)),
+                    ),
+                    focusedErrorBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFCF6679)),
+                    ),
+                    errorStyle: const TextStyle(
+                      color: Color(0xFFCF6679),
+                      fontSize: 12,
                     ),
                   ),
                 ),
-              ),
+                const SizedBox(height: 40),
+
+                // Login Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : () async {
+                      // Form validation
+                      if (!_formKey.currentState!.validate()) {
+                        return;
+                      }
+
+                      setState(() {
+                        _isLoading = true;
+                      });
+
+                      try {
+                        final success = await widget.authController.loginByEmail(
+                          _emailController.text.trim(),
+                          _pinController.text,
+                        );
+
+                        if (!mounted) return;
+
+                        if (success) {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  AnaSayfa(authController: widget.authController),
+                            ),
+                          );
+                        } else {
+                          ErrorHandler.showErrorSnackBar(
+                            context,
+                            widget.authController.error ?? "Giriş başarısız. E-posta veya PIN hatalı.",
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ErrorHandler.handleDatabaseError(context, e);
+                        }
+                      } finally {
+                        if (mounted) {
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF9D00FF),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            "Giriş Yap",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                ),
               const SizedBox(height: 20),
 
               // Register Link
@@ -252,7 +300,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildUserLogin() {

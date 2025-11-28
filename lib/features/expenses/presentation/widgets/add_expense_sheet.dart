@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/utils/error_handler.dart';
 
 class AddExpenseSheet extends StatefulWidget {
   final Map<String, dynamic>? expenseToEdit;
@@ -18,6 +20,7 @@ class AddExpenseSheet extends StatefulWidget {
 }
 
 class _AddExpenseSheetState extends State<AddExpenseSheet> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   late String _selectedCategory;
@@ -91,15 +94,25 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   }
 
   void _save() {
-    if (_nameController.text.isEmpty || _amountController.text.isEmpty) return;
+    // Form validation
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
     final double? amount = double.tryParse(
       _amountController.text.replaceAll(',', '.'),
     );
-    if (amount == null) return;
+    
+    if (amount == null) {
+      ErrorHandler.showErrorSnackBar(
+        context,
+        'Geçerli bir tutar girin',
+      );
+      return;
+    }
 
     widget.onSave(
-      _nameController.text,
+      _nameController.text.trim(),
       amount,
       _selectedCategory,
       _selectedDate,
@@ -121,70 +134,98 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              widget.expenseToEdit != null
-                  ? "Harcamayı Düzenle"
-                  : "Harcama Ekle",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _nameController,
-              style: const TextStyle(color: Colors.white),
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: "Ne aldın? (Örn: Çiğköfte)",
-                hintStyle: const TextStyle(color: Colors.white54),
-                prefixIcon: const Icon(Icons.edit, color: Color(0xFFBB86FC)),
-                filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.05),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+              const SizedBox(height: 20),
+              Text(
+                widget.expenseToEdit != null
+                    ? "Harcamayı Düzenle"
+                    : "Harcama Ekle",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _amountController,
-              style: const TextStyle(color: Colors.white),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              decoration: InputDecoration(
-                hintText: "Tutar (Örn: 260)",
-                hintStyle: const TextStyle(color: Colors.white54),
-                prefixIcon: const Icon(
-                  Icons.currency_lira,
-                  color: Color(0xFFBB86FC),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _nameController,
+                style: const TextStyle(color: Colors.white),
+                autofocus: true,
+                validator: (value) => Validators.validateItemName(
+                  value,
+                  itemType: 'Harcama',
                 ),
-                filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.05),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                decoration: InputDecoration(
+                  hintText: "Ne aldın? (Örn: Çiğköfte)",
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  prefixIcon: const Icon(Icons.edit, color: Color(0xFFBB86FC)),
+                  filled: true,
+                  fillColor: Colors.white.withValues(alpha: 0.05),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                  ),
+                  errorStyle: const TextStyle(color: Color(0xFFCF6679)),
                 ),
               ),
-            ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _amountController,
+                style: const TextStyle(color: Colors.white),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                validator: (value) => Validators.validateAmount(
+                  value,
+                  maxAmount: 1000000,
+                ),
+                decoration: InputDecoration(
+                  hintText: "Tutar (Örn: 260)",
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  prefixIcon: const Icon(
+                    Icons.currency_lira,
+                    color: Color(0xFFBB86FC),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white.withValues(alpha: 0.05),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                  ),
+                  errorStyle: const TextStyle(color: Color(0xFFCF6679)),
+                ),
+              ),
             const SizedBox(height: 12),
             InkWell(
               onTap: _pickDate,
@@ -280,6 +321,6 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
           ],
         ),
       ),
-    );
+    ));
   }
 }

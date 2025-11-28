@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'services/database_helper.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
+import 'core/utils/validators.dart';
+import 'core/utils/error_handler.dart';
 
 class AyarlarSayfasi extends StatefulWidget {
   final String userId;
@@ -114,36 +116,71 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
   }
 
   void butceyiKaydet() {
-    double? yeniLimit = double.tryParse(tGelir.text);
+    final tutarText = tGelir.text.trim();
+
+    // Validation
+    final validationError = Validators.validateAmount(
+      tutarText,
+      maxAmount: 10000000,
+    );
+
+    if (validationError != null) {
+      ErrorHandler.showErrorSnackBar(context, validationError);
+      return;
+    }
+
+    double? yeniLimit = double.tryParse(tutarText);
     if (yeniLimit != null) {
-      DatabaseHelper.butceKaydet(widget.userId, yeniLimit);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Aylık bütçe güncellendi ✅",
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Color(0xFF9D00FF),
-        ),
-      );
+      try {
+        DatabaseHelper.butceKaydet(widget.userId, yeniLimit);
+        ErrorHandler.showSuccessSnackBar(context, "Aylık bütçe güncellendi ✅");
+      } catch (e) {
+        ErrorHandler.handleDatabaseError(context, e);
+      }
     }
   }
 
   void sabitGiderEkleListeye() {
-    if (tSabitIsim.text.isEmpty || tSabitTutar.text.isEmpty) return;
+    final isim = tSabitIsim.text.trim();
+    final tutarText = tSabitTutar.text.trim();
 
-    setState(() {
-      sabitGiderler.add({
-        "isim": tSabitIsim.text,
-        "tutar": double.parse(tSabitTutar.text),
-        "kategori": "Sabit Giderler",
+    // Validation
+    final isimError = Validators.validateRequired(isim, fieldName: 'Gider adı');
+    if (isimError != null) {
+      ErrorHandler.showErrorSnackBar(context, isimError);
+      return;
+    }
+
+    final tutarError = Validators.validateAmount(tutarText);
+    if (tutarError != null) {
+      ErrorHandler.showErrorSnackBar(context, tutarError);
+      return;
+    }
+
+    final tutar = double.tryParse(tutarText);
+    if (tutar == null) {
+      ErrorHandler.showErrorSnackBar(context, 'Geçerli bir tutar girin');
+      return;
+    }
+
+    try {
+      setState(() {
+        sabitGiderler.add({
+          "isim": isim,
+          "tutar": tutar,
+          "kategori": "Sabit Giderler",
+        });
       });
-    });
 
-    DatabaseHelper.sabitGiderSablonlariKaydet(widget.userId, sabitGiderler);
-    tSabitIsim.clear();
-    tSabitTutar.clear();
-    Navigator.pop(context);
+      DatabaseHelper.sabitGiderSablonlariKaydet(widget.userId, sabitGiderler);
+      tSabitIsim.clear();
+      tSabitTutar.clear();
+      Navigator.pop(context);
+
+      ErrorHandler.showSuccessSnackBar(context, 'Sabit gider eklendi');
+    } catch (e) {
+      ErrorHandler.handleDatabaseError(context, e);
+    }
   }
 
   void sabitGiderSil(int index) {
