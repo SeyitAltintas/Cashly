@@ -94,6 +94,7 @@ class HarcamalarAyarlariSayfasi extends StatefulWidget {
 }
 
 class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
+  final _sabitGiderFormKey = GlobalKey<FormState>();
   final TextEditingController tGelir = TextEditingController();
   final TextEditingController tSabitIsim = TextEditingController();
   final TextEditingController tSabitTutar = TextEditingController();
@@ -141,27 +142,16 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
   }
 
   void sabitGiderEkleListeye() {
+    // Form validation
+    if (!_sabitGiderFormKey.currentState!.validate()) {
+      return;
+    }
+
     final isim = tSabitIsim.text.trim();
     final tutarText = tSabitTutar.text.trim();
-
-    // Validation
-    final isimError = Validators.validateRequired(isim, fieldName: 'Gider adı');
-    if (isimError != null) {
-      ErrorHandler.showErrorSnackBar(context, isimError);
-      return;
-    }
-
-    final tutarError = Validators.validateAmount(tutarText);
-    if (tutarError != null) {
-      ErrorHandler.showErrorSnackBar(context, tutarError);
-      return;
-    }
-
     final tutar = double.tryParse(tutarText);
-    if (tutar == null) {
-      ErrorHandler.showErrorSnackBar(context, 'Geçerli bir tutar girin');
-      return;
-    }
+
+    if (tutar == null) return;
 
     try {
       setState(() {
@@ -239,106 +229,136 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
             border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
           ),
           padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Başlık
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Sabit Gider Tanımla",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+          child: Form(
+            key: _sabitGiderFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Başlık
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Sabit Gider Tanımla",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white54),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // Gider Adı
-              TextField(
-                controller: tSabitIsim,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: "Gider Adı (Örn: Netflix)",
-                  prefixIcon: const Icon(Icons.label, color: Color(0xFFBB86FC)),
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  filled: true,
-                  fillColor: const Color(0xFF1E1E1E),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFBB86FC),
-                      width: 2,
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white54),
+                      onPressed: () => Navigator.pop(context),
                     ),
-                  ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
-              // Tutar
-              TextField(
-                controller: tSabitTutar,
-                keyboardType: TextInputType.number,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: "Tutar (Örn: 200)",
-                  prefixIcon: const Icon(
-                    Icons.currency_lira,
-                    color: Color(0xFFBB86FC),
+                // Gider Adı
+                TextFormField(
+                  controller: tSabitIsim,
+                  style: const TextStyle(color: Colors.white),
+                  validator: (value) => Validators.validateRequired(
+                    value,
+                    fieldName: 'Gider adı',
                   ),
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  filled: true,
-                  fillColor: const Color(0xFF1E1E1E),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
+                  decoration: InputDecoration(
+                    hintText: "Gider Adı (Örn: Netflix)",
+                    prefixIcon: const Icon(
+                      Icons.label,
                       color: Color(0xFFBB86FC),
-                      width: 2,
                     ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Ekle Butonu
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: sabitGiderEkleListeye,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF9D00FF),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
+                    hintStyle: const TextStyle(color: Colors.white54),
+                    filled: true,
+                    fillColor: const Color(0xFF1E1E1E),
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    "Listeye Ekle",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: Color(0xFFBB86FC),
+                        width: 2,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-            ],
+                const SizedBox(height: 16),
+
+                // Tutar
+                TextFormField(
+                  controller: tSabitTutar,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(color: Colors.white),
+                  validator: Validators.validateAmount,
+                  decoration: InputDecoration(
+                    hintText: "Tutar (Örn: 200)",
+                    prefixIcon: const Icon(
+                      Icons.currency_lira,
+                      color: Color(0xFFBB86FC),
+                    ),
+                    hintStyle: const TextStyle(color: Colors.white54),
+                    filled: true,
+                    fillColor: const Color(0xFF1E1E1E),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: Color(0xFFBB86FC),
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Ekle Butonu
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: sabitGiderEkleListeye,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF9D00FF),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      "Listeye Ekle",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
           ),
         ),
       ),

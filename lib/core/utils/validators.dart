@@ -153,7 +153,7 @@ class Validators {
       return '$itemType adı gereklidir';
     }
 
-    if (value.trim().length < 1) {
+    if (value.trim().isEmpty) {
       return '$itemType adı en az 1 karakter olmalıdır';
     }
 
