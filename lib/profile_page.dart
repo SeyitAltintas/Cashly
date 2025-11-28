@@ -1,0 +1,114 @@
+import 'package:flutter/material.dart';
+import 'settings_page.dart';
+import 'features/auth/presentation/controllers/auth_controller.dart';
+import 'features/auth/presentation/pages/login_page.dart';
+
+class ProfilSayfasi extends StatelessWidget {
+  final AuthController authController;
+  final VoidCallback? onRefresh;
+
+  const ProfilSayfasi({
+    super.key,
+    required this.authController,
+    this.onRefresh,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          // Profil Bilgileri
+          Row(
+            children: [
+              const CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.grey,
+                child: Icon(Icons.person, size: 40, color: Colors.white),
+              ),
+              const SizedBox(width: 16),
+              Text(
+                authController.currentUser?.name ?? "Kullanıcı",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          // Ayarlar Butonu
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E1E1E),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                ),
+              ),
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AyarlarSayfasi(userId: authController.currentUser!.id),
+                  ),
+                );
+                if (result == true && onRefresh != null) {
+                  onRefresh!();
+                }
+              },
+              child: const Text(
+                "Ayarlar",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Çıkış Yap Butonu
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E1E1E),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.red.withValues(alpha: 0.5)),
+                ),
+              ),
+              onPressed: () async {
+                await authController.logout();
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (_) => LoginPage(authController: authController),
+                    ),
+                    (route) => false,
+                  );
+                }
+              },
+              child: const Text(
+                "Çıkış Yap",
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

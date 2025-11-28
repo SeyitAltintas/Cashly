@@ -1,0 +1,41 @@
+import '../../domain/entities/user_entity.dart';
+
+class UserModel extends UserEntity {
+  UserModel({
+    required super.id,
+    required super.name,
+    required super.email,
+    required super.pin,
+    super.profileImage,
+  });
+
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    return UserModel(
+      id: map['id'] as String,
+      name: map['name'] as String,
+      email: map['email'] as String,
+      pin: map['pin'] as String,
+      profileImage: map['profileImage'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'pin': pin,
+      'profileImage': profileImage,
+    };
+  }
+
+  factory UserModel.fromEntity(UserEntity entity) {
+    return UserModel(
+      id: entity.id,
+      name: entity.name,
+      email: entity.email,
+      pin: entity.pin,
+      profileImage: entity.profileImage,
+    );
+  }
+}

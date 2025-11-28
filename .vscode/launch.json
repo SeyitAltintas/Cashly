@@ -1,0 +1,45 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "cashly",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "2dec8e12",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "cashly (Chrome)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "chrome",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "cashly (Web Server)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "web-server",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "cashly (profile)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "deviceId": "2dec8e12",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "cashly (release)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "deviceId": "2dec8e12",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
