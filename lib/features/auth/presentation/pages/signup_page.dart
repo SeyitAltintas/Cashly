@@ -4,7 +4,6 @@ import '../controllers/auth_controller.dart';
 import '../../../../home_page.dart';
 import 'login_page.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../core/utils/error_handler.dart';
 
 class SignUpPage extends StatefulWidget {
   final AuthController authController;
@@ -191,6 +190,12 @@ class _SignUpPageState extends State<SignUpPage> {
                               return;
                             }
 
+                            // Context'i async işlemden önce lokal değişkene al
+                            final navigator = Navigator.of(context);
+                            final scaffoldMessenger = ScaffoldMessenger.of(
+                              context,
+                            );
+
                             setState(() {
                               _isLoading = true;
                             });
@@ -206,11 +211,15 @@ class _SignUpPageState extends State<SignUpPage> {
                               if (!mounted) return;
 
                               if (success) {
-                                ErrorHandler.showSuccessSnackBar(
-                                  context,
-                                  "Kayıt işarılı! Hoş geldiniz! 🎉",
+                                scaffoldMessenger.showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Kayıt başarılı! Hoş geldiniz! 🎉",
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
                                 );
-                                Navigator.of(context).pushReplacement(
+                                navigator.pushReplacement(
                                   MaterialPageRoute(
                                     builder: (_) => AnaSayfa(
                                       authController: widget.authController,
@@ -218,16 +227,24 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                 );
                               } else {
-                                ErrorHandler.showErrorSnackBar(
-                                  context,
-                                  widget.authController.error ??
-                                      "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.",
+                                scaffoldMessenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      widget.authController.error ??
+                                          "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.",
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
                                 );
                               }
                             } catch (e) {
-                              if (mounted) {
-                                ErrorHandler.handleDatabaseError(context, e);
-                              }
+                              if (!mounted) return;
+                              scaffoldMessenger.showSnackBar(
+                                SnackBar(
+                                  content: Text("Hata: ${e.toString()}"),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
                             } finally {
                               if (mounted) {
                                 setState(() {
