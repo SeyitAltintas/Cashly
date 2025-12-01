@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 
 import 'services/database_helper.dart';
 import 'recycle_bin_page.dart';
@@ -348,10 +349,14 @@ class _AnaSayfaState extends State<AnaSayfa> {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             return AlertDialog(
-              backgroundColor: const Color(0xFF121212),
+              backgroundColor: Theme.of(context).colorScheme.surface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                side: BorderSide(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
+                ),
               ),
               title: const Center(
                 child: Text(
@@ -370,10 +375,12 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     Expanded(
                       child: Column(
                         children: [
-                          const Text(
+                          Text(
                             "Yıl",
                             style: TextStyle(
-                              color: Colors.white54,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.54),
                               fontSize: 12,
                             ),
                           ),
@@ -390,8 +397,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
                                       "$yil",
                                       style: TextStyle(
                                         color: seciliMi
-                                            ? const Color(0xFFBB86FC)
-                                            : Colors.white70,
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.secondary
+                                            : Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withValues(alpha: 0.7),
                                         fontWeight: seciliMi
                                             ? FontWeight.bold
                                             : FontWeight.normal,
@@ -413,10 +425,12 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     Expanded(
                       child: Column(
                         children: [
-                          const Text(
+                          Text(
                             "Ay",
                             style: TextStyle(
-                              color: Colors.white54,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.54),
                               fontSize: 12,
                             ),
                           ),
@@ -433,8 +447,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
                                       aylarListesi[index],
                                       style: TextStyle(
                                         color: seciliMi
-                                            ? const Color(0xFFBB86FC)
-                                            : Colors.white70,
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.secondary
+                                            : Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withValues(alpha: 0.7),
                                         fontWeight: seciliMi
                                             ? FontWeight.bold
                                             : FontWeight.normal,
@@ -458,14 +477,18 @@ class _AnaSayfaState extends State<AnaSayfa> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text(
+                  child: Text(
                     "İptal",
-                    style: TextStyle(color: Colors.white54),
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.54),
+                    ),
                   ),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF9D00FF),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -554,7 +577,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
           "Harcama çöp kutusuna taşındı 🗑️",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.red.shade900,
+        backgroundColor: ColorConstants.koyuKirmizi,
         duration: const Duration(seconds: 1),
       ),
     );
@@ -628,9 +651,9 @@ class _AnaSayfaState extends State<AnaSayfa> {
     double kalanLimit = butceLimiti - harcanan;
     double asilanMiktar = harcanan - butceLimiti;
 
-    Color barRengi = const Color(0xFFBB86FC);
+    Color barRengi = Theme.of(context).colorScheme.secondary;
     if (dolulukOrani > 0.5) barRengi = Colors.orangeAccent;
-    if (dolulukOrani > 0.8) barRengi = Colors.redAccent;
+    if (dolulukOrani > 0.8) barRengi = ColorConstants.kirmiziVurgu;
 
     Map<String, List<Map<String, dynamic>>> gruplar =
         gunlukGruplanmisHarcamalar;
@@ -643,20 +666,29 @@ class _AnaSayfaState extends State<AnaSayfa> {
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF2E004F), Color(0xFF7F00FF)],
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.primaryContainer,
+                  Theme.of(context).colorScheme.primary,
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF7F00FF).withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
               ],
-              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.1),
+              ),
             ),
             child: Column(
               children: [
@@ -664,9 +696,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_back_ios,
-                        color: Colors.white70,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                         size: 18,
                       ),
                       onPressed: oncekiAy,
@@ -687,18 +721,22 @@ class _AnaSayfaState extends State<AnaSayfa> {
                             ),
                           ),
                           const SizedBox(width: 5),
-                          const Icon(
+                          Icon(
                             Icons.arrow_drop_down,
-                            color: Colors.white70,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
                             size: 20,
                           ),
                         ],
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_forward_ios,
-                        color: Colors.white70,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                         size: 18,
                       ),
                       onPressed: sonrakiAy,
@@ -710,9 +748,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       "Toplam:",
-                      style: TextStyle(color: Colors.white70),
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
                     ),
                     Text(
                       "${toplamTutar.toStringAsFixed(2)} ₺",
@@ -732,9 +774,14 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           "Bütçe Durumu",
-                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
+                            fontSize: 12,
+                          ),
                         ),
                         Text(
                           "%${(dolulukOrani * 100).toStringAsFixed(0)}",
@@ -766,7 +813,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.redAccent,
+                                color: ColorConstants.kirmiziVurgu,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
@@ -780,8 +827,10 @@ class _AnaSayfaState extends State<AnaSayfa> {
                             )
                           : Text(
                               "Kalan Limit: ${kalanLimit.toStringAsFixed(2)} ₺",
-                              style: const TextStyle(
-                                color: Colors.white70,
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.7),
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -841,8 +890,10 @@ class _AnaSayfaState extends State<AnaSayfa> {
                           ),
                           child: Text(
                             gunBasligi.toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white54,
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.54),
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -858,7 +909,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                               padding: const EdgeInsets.only(right: 20),
                               margin: const EdgeInsets.only(bottom: 8),
                               decoration: BoxDecoration(
-                                color: Colors.red.shade900,
+                                color: ColorConstants.koyuKirmizi,
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: const Icon(
@@ -870,13 +921,14 @@ class _AnaSayfaState extends State<AnaSayfa> {
                               harcamaSil(harcama);
                             },
                             child: Card(
-                              color: const Color(0xFF1E1E1E),
+                              color: Theme.of(context).colorScheme.surface,
                               elevation: 0,
                               margin: const EdgeInsets.only(bottom: 8),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 side: BorderSide(
-                                  color: Colors.white.withValues(alpha: 0.05),
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.05),
                                 ),
                               ),
                               child: ListTile(
@@ -887,15 +939,16 @@ class _AnaSayfaState extends State<AnaSayfa> {
                                 leading: Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: const Color(
-                                      0xFF9D00FF,
-                                    ).withValues(alpha: 0.1),
+                                    color: Theme.of(context).colorScheme.primary
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Icon(
                                     kategoriIkonlari[harcama['kategori']] ??
                                         Icons.help,
-                                    color: const Color(0xFFBB86FC),
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.secondary,
                                   ),
                                 ),
                                 title: Text(
@@ -959,10 +1012,14 @@ class _AnaSayfaState extends State<AnaSayfa> {
                 controller: tArama,
                 autofocus: true,
                 style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: "Harcama ara... (Örn: Lahmacun)",
                   border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.white54),
+                  hintStyle: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.54),
+                  ),
                 ),
                 onChanged: (val) => filtreleVeGoster(),
               )
@@ -979,9 +1036,14 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   filtreleVeGoster();
                 });
               },
-              child: const Text(
+              child: Text(
                 "Bugüne git",
-                style: TextStyle(color: Colors.white70, fontSize: 14),
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  fontSize: 14,
+                ),
               ),
             ),
           if (!aramaModu) ...[
@@ -1053,7 +1115,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         "Varlık çöp kutusuna taşındı 🗑️",
                         style: TextStyle(color: Colors.white),
                       ),
-                      backgroundColor: Colors.red.shade900,
+                      backgroundColor: ColorConstants.koyuKirmizi,
                       duration: const Duration(seconds: 1),
                     ),
                   );
@@ -1103,7 +1165,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         "Varlık kalıcı olarak silindi ❌",
                         style: TextStyle(color: Colors.white),
                       ),
-                      backgroundColor: Colors.red.shade900,
+                      backgroundColor: ColorConstants.koyuKirmizi,
                     ),
                   );
                 },
@@ -1117,7 +1179,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         "Çöp kutusu boşaltıldı 🧹",
                         style: TextStyle(color: Colors.white),
                       ),
-                      backgroundColor: Colors.red.shade900,
+                      backgroundColor: ColorConstants.koyuKirmizi,
                     ),
                   );
                 },
@@ -1176,14 +1238,14 @@ class _AnaSayfaState extends State<AnaSayfa> {
             }
           },
           backgroundColor: _selectedIndex == 1
-              ? const Color(0xFF9D00FF)
-              : const Color(0xFF9D00FF),
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.primary,
           shape: const CircleBorder(),
           child: const Icon(Icons.add, color: Colors.white, size: 32),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: BottomAppBar(
-          color: const Color(0xFF1E1E1E),
+          color: Theme.of(context).colorScheme.surface,
           shape: const CircularNotchedRectangle(),
           notchMargin: 8.0,
           child: SizedBox(
@@ -1195,7 +1257,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   icon: Icon(
                     Icons.receipt_long,
                     color: _selectedIndex == 0
-                        ? const Color(0xFFBB86FC)
+                        ? Theme.of(context).colorScheme.secondary
                         : Colors.white24,
                     size: 28,
                   ),
@@ -1210,7 +1272,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   icon: Icon(
                     Icons.account_balance_wallet,
                     color: _selectedIndex == 1
-                        ? const Color(0xFFBB86FC)
+                        ? Theme.of(context).colorScheme.secondary
                         : Colors.white24,
                     size: 28,
                   ),
@@ -1226,7 +1288,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   icon: Icon(
                     Icons.pie_chart,
                     color: _selectedIndex == 2
-                        ? const Color(0xFFBB86FC)
+                        ? Theme.of(context).colorScheme.secondary
                         : Colors.white24,
                     size: 28,
                   ),
@@ -1241,7 +1303,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   icon: Icon(
                     Icons.person,
                     color: _selectedIndex == 3
-                        ? const Color(0xFFBB86FC)
+                        ? Theme.of(context).colorScheme.secondary
                         : Colors.white24,
                     size: 28,
                   ),

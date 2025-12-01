@@ -167,8 +167,8 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
         right: 20,
         top: 20,
       ),
-      decoration: const BoxDecoration(
-        color: Color(0xFF1E1E1E),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(
@@ -191,8 +191,8 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
               const SizedBox(height: 20),
               Text(
                 widget.asset != null ? "Varlık Düzenle" : "Varlık Ekle",
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -202,29 +202,44 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
               // 1. Varlık Adı
               TextFormField(
                 controller: _nameController,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 validator: (value) =>
                     Validators.validateItemName(value, itemType: 'Varlık'),
                 decoration: InputDecoration(
                   labelText: "Varlık Adı",
                   labelStyle: const TextStyle(color: Colors.white70),
                   hintText: "Örn: Gram Altın",
-                  hintStyle: const TextStyle(color: Colors.white24),
+                  hintStyle: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.24),
+                  ),
                   filled: true,
-                  fillColor: Colors.white.withValues(alpha: 0.05),
+                  fillColor: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.05),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
-                  prefixIcon: const Icon(Icons.edit, color: Color(0xFF9D00FF)),
+                  prefixIcon: Icon(
+                    Icons.edit,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -251,10 +266,16 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                         }
                       });
                     },
-                    backgroundColor: Colors.white.withValues(alpha: 0.05),
-                    selectedColor: const Color(0xFF9D00FF),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
+                    selectedColor: Theme.of(context).colorScheme.primary,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : Colors.white70,
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
                       fontWeight: isSelected
                           ? FontWeight.bold
                           : FontWeight.normal,
@@ -264,7 +285,9 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                       side: BorderSide(
                         color: isSelected
                             ? Colors.transparent
-                            : Colors.white.withValues(alpha: 0.1),
+                            : Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.1),
                       ),
                     ),
                   );
@@ -282,7 +305,9 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: DropdownButtonHideUnderline(
@@ -292,8 +317,10 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                         "Seçiniz",
                         style: TextStyle(color: Colors.white54),
                       ),
-                      dropdownColor: const Color(0xFF2C2C2C),
-                      style: const TextStyle(color: Colors.white),
+                      dropdownColor: Theme.of(context).colorScheme.surface,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                       isExpanded: true,
                       items: _types[_selectedCategory]!.map((String type) {
                         return DropdownMenuItem<String>(
@@ -317,7 +344,9 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                   _selectedCategory != 'Döviz') ...[
                 TextFormField(
                   controller: _quantityController,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -328,22 +357,28 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                     hintText: "Örn: 1.0",
                     hintStyle: const TextStyle(color: Colors.white24),
                     filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.05),
+                    fillColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                       Icons.numbers,
-                      color: Color(0xFF9D00FF),
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
@@ -356,7 +391,9 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                   Expanded(
                     child: TextFormField(
                       controller: _amountController,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
@@ -368,26 +405,28 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                         labelText: "Miktar (TL)",
                         labelStyle: const TextStyle(color: Colors.white70),
                         filled: true,
-                        fillColor: Colors.white.withValues(alpha: 0.05),
+                        fillColor: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.05),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFCF6679),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.error,
                           ),
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFCF6679),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.error,
                           ),
                         ),
-                        prefixIcon: const Icon(
+                        prefixIcon: Icon(
                           Icons.currency_lira,
-                          color: Color(0xFF9D00FF),
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
@@ -402,27 +441,29 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                           vertical: 16,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF9D00FF).withValues(alpha: 0.1),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: const Color(
-                              0xFF9D00FF,
-                            ).withValues(alpha: 0.3),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.3),
                           ),
                         ),
                         child: _isLoading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Color(0xFF9D00FF),
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               )
-                            : const Text(
+                            : Text(
                                 "Güncel",
                                 style: TextStyle(
-                                  color: Color(0xFF9D00FF),
+                                  color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -461,8 +502,8 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF9D00FF),
-                    foregroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

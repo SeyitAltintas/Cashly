@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'core/constants/color_constants.dart';
 import 'services/database_helper.dart';
 
 class CopKutusuSayfasi extends StatefulWidget {
@@ -35,11 +36,15 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
     bool? onay = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: const Text("Çöpü Boşalt", style: TextStyle(color: Colors.white)),
-        content: const Text(
+        content: Text(
           "Tüm silinen harcamalar kalıcı olarak yok edilecek. Emin misin?",
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
         ),
         actions: [
           TextButton(
@@ -47,7 +52,9 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
             child: const Text("İptal", style: TextStyle(color: Colors.white)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorConstants.kirmiziVurgu,
+            ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text(
               "Evet, Sil",
@@ -66,7 +73,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              backgroundColor: Colors.red.shade900,
+              backgroundColor: ColorConstants.koyuKirmizi,
               content: const Text(
                 "Çöp kutusu temizlendi.",
                 style: TextStyle(color: Colors.white),
@@ -105,7 +112,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
             "Harcama kalıcı olarak silindi 🗑️",
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Colors.red.shade900,
+          backgroundColor: ColorConstants.koyuKirmizi,
         ),
       );
     }
@@ -128,10 +135,14 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
         ],
       ),
       body: silinenHarcamalar.isEmpty
-          ? const Center(
+          ? Center(
               child: Text(
                 "Silinen harcama yok.",
-                style: TextStyle(color: Colors.white54),
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.54),
+                ),
               ),
             )
           : ListView.builder(
@@ -144,17 +155,19 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
                     DateTime.now();
 
                 return Card(
-                  color: const Color(0xFF1E1E1E),
+                  color: Theme.of(context).colorScheme.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.05),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.05),
                     ),
                   ),
                   child: ListTile(
                     leading: const Icon(
                       Icons.money_off,
-                      color: Colors.redAccent,
+                      color: ColorConstants.kirmiziVurgu,
                     ),
                     title: Text(
                       harcama['isim'] ?? "",
@@ -162,15 +175,19 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
                     ),
                     subtitle: Text(
                       "${harcama['tutar']} ₺ • ${tarih.day}.${tarih.month}.${tarih.year}",
-                      style: const TextStyle(color: Colors.white54),
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.54),
+                      ),
                     ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.restore,
-                            color: Color(0xFFBB86FC),
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                           onPressed: () => harcamayiGeriYukle(harcama),
                           tooltip: "Geri Yükle",
@@ -178,7 +195,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
                         IconButton(
                           icon: const Icon(
                             Icons.delete_forever,
-                            color: Colors.redAccent,
+                            color: ColorConstants.kirmiziVurgu,
                           ),
                           onPressed: () => harcamayiKaliciSil(harcama),
                           tooltip: "Kalıcı Sil",

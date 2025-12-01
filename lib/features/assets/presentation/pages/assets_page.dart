@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 
 import '../../data/models/asset_model.dart';
 import 'asset_recycle_bin_page.dart';
@@ -79,10 +80,14 @@ class _AssetsPageState extends State<AssetsPage> {
 
   Widget _buildAssetList() {
     if (widget.assets.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           "Henüz varlık eklenmedi.",
-          style: TextStyle(color: Colors.white54),
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.54),
+          ),
         ),
       );
     }
@@ -100,7 +105,7 @@ class _AssetsPageState extends State<AssetsPage> {
             padding: const EdgeInsets.only(right: 20),
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
-              color: Colors.red.shade900,
+              color: ColorConstants.koyuKirmizi,
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(Icons.delete, color: Colors.white),
@@ -109,12 +114,16 @@ class _AssetsPageState extends State<AssetsPage> {
             widget.onDelete(asset);
           },
           child: Card(
-            color: const Color(0xFF1E1E1E),
+            color: Theme.of(context).colorScheme.surface,
             elevation: 0,
             margin: const EdgeInsets.only(bottom: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+              side: BorderSide(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.05),
+              ),
             ),
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
@@ -201,7 +210,7 @@ class _AssetsPageState extends State<AssetsPage> {
       case 'gümüş':
         return Colors.blueGrey;
       default:
-        return const Color(0xFFBB86FC);
+        return Theme.of(context).colorScheme.secondary;
     }
   }
 }

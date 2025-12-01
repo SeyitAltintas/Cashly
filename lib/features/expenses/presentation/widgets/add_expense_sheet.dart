@@ -75,11 +75,11 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFF9D00FF),
-              onPrimary: Colors.white,
-              surface: Color(0xFF1E1E1E),
-              onSurface: Colors.white,
+            colorScheme: ColorScheme.dark(
+              primary: Theme.of(context).colorScheme.primary,
+              onPrimary: Theme.of(context).colorScheme.onPrimary,
+              surface: Theme.of(context).colorScheme.surface,
+              onSurface: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           child: child!,
@@ -102,12 +102,9 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     final double? amount = double.tryParse(
       _amountController.text.replaceAll(',', '.'),
     );
-    
+
     if (amount == null) {
-      ErrorHandler.showErrorSnackBar(
-        context,
-        'Geçerli bir tutar girin',
-      );
+      ErrorHandler.showErrorSnackBar(context, 'Geçerli bir tutar girin');
       return;
     }
 
@@ -129,8 +126,8 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
         left: 20,
         right: 20,
       ),
-      decoration: const BoxDecoration(
-        color: Color(0xFF1E1E1E),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(
@@ -155,8 +152,8 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                 widget.expenseToEdit != null
                     ? "Harcamayı Düzenle"
                     : "Harcama Ekle",
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -164,163 +161,206 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
-                style: const TextStyle(color: Colors.white),
-                autofocus: true,
-                validator: (value) => Validators.validateItemName(
-                  value,
-                  itemType: 'Harcama',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
+                autofocus: true,
+                validator: (value) =>
+                    Validators.validateItemName(value, itemType: 'Harcama'),
                 decoration: InputDecoration(
                   hintText: "Ne aldın? (Örn: Çiğköfte)",
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  prefixIcon: const Icon(Icons.edit, color: Color(0xFFBB86FC)),
+                  hintStyle: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.54),
+                  ),
+                  prefixIcon: Icon(
+                    Icons.edit,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
                   filled: true,
-                  fillColor: Colors.white.withValues(alpha: 0.05),
+                  fillColor: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.05),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
-                  errorStyle: const TextStyle(color: Color(0xFFCF6679)),
+                  errorStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _amountController,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                validator: (value) => Validators.validateAmount(
-                  value,
-                  maxAmount: 1000000,
-                ),
+                validator: (value) =>
+                    Validators.validateAmount(value, maxAmount: 1000000),
                 decoration: InputDecoration(
                   hintText: "Tutar (Örn: 260)",
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  prefixIcon: const Icon(
+                  hintStyle: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.54),
+                  ),
+                  prefixIcon: Icon(
                     Icons.currency_lira,
-                    color: Color(0xFFBB86FC),
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                   filled: true,
-                  fillColor: Colors.white.withValues(alpha: 0.05),
+                  fillColor: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.05),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
-                  errorStyle: const TextStyle(color: Color(0xFFCF6679)),
+                  errorStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
                 ),
               ),
-            const SizedBox(height: 12),
-            InkWell(
-              onTap: _pickDate,
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 14,
-                  horizontal: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.calendar_month, color: Color(0xFFBB86FC)),
-                    const SizedBox(width: 10),
-                    Text(
-                      "${_selectedDate.day} ${_months[_selectedDate.month - 1]} ${_selectedDate.year}",
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                    const Spacer(),
-                    const Text(
-                      "Değiştir",
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+              const SizedBox(height: 12),
+              InkWell(
+                onTap: _pickDate,
                 borderRadius: BorderRadius.circular(12),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _selectedCategory,
-                  dropdownColor: const Color(0xFF2C2C2C),
-                  style: const TextStyle(color: Colors.white),
-                  isExpanded: true,
-                  icon: const Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.white70,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 12,
                   ),
-                  items: _categoryIcons.keys.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Row(
-                        children: [
-                          Icon(
-                            _categoryIcons[value],
-                            color: const Color(0xFFBB86FC),
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(value, style: const TextStyle(fontSize: 16)),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedCategory = newValue!;
-                    });
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF9D00FF),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  elevation: 0,
-                ),
-                onPressed: _save,
-                child: const Text(
-                  "Kaydet",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_month,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        "${_selectedDate.day} ${_months[_selectedDate.month - 1]} ${_selectedDate.year}",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const Spacer(),
+                      const Text(
+                        "Değiştir",
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-          ],
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _selectedCategory,
+                    dropdownColor: Theme.of(context).colorScheme.surface,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    isExpanded: true,
+                    icon: const Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.white70,
+                    ),
+                    items: _categoryIcons.keys.map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Row(
+                          children: [
+                            Icon(
+                              _categoryIcons[value],
+                              color: Theme.of(context).colorScheme.secondary,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(value, style: const TextStyle(fontSize: 16)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedCategory = newValue!;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: _save,
+                  child: const Text(
+                    "Kaydet",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 }

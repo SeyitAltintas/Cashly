@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../assets/data/models/asset_model.dart';
 
@@ -22,17 +23,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _touchedIndex = -1;
-
-  final Map<String, Color> categoryColors = {
-    "Yemek & Kafe": Colors.orangeAccent,
-    "Market & Atıştırmalık": Colors.greenAccent,
-    "Araç & Ulaşım": Colors.blueAccent,
-    "Hediye & Özel": Colors.purpleAccent,
-    "Sabit Giderler": Colors.redAccent,
-    "Diğer": Colors.grey,
-  };
-
-  // assetTypeColors removed to use dynamic colors
+  late Map<String, Color> categoryColors;
 
   @override
   void initState() {
@@ -47,6 +38,17 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    categoryColors = {
+      'Gelir': Colors.green,
+      'Gider': Colors.red,
+      'Yatırım': Colors.blue,
+      'Diğer': Theme.of(context).colorScheme.surfaceContainerHighest,
+    };
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -57,9 +59,11 @@ class _AnalysisPageState extends State<AnalysisPage>
         title: const Text("Analiz ve Raporlar"),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: const Color(0xFFBB86FC),
-          labelColor: const Color(0xFFBB86FC),
-          unselectedLabelColor: Colors.white54,
+          indicatorColor: Theme.of(context).colorScheme.secondary,
+          labelColor: Theme.of(context).colorScheme.secondary,
+          unselectedLabelColor: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.54),
           tabs: const [
             Tab(text: "Harcamalar"),
             Tab(text: "Varlıklar"),
@@ -104,7 +108,9 @@ class _AnalysisPageState extends State<AnalysisPage>
       final isTouched = index == _touchedIndex;
       final fontSize = isTouched ? 18.0 : 14.0;
       final radius = isTouched ? 110.0 : 100.0;
-      final color = categoryColors[key] ?? Colors.grey;
+      final color =
+          categoryColors[key] ??
+          Theme.of(context).colorScheme.surfaceContainerHighest;
 
       sections.add(
         PieChartSectionData(
@@ -157,14 +163,15 @@ class _AnalysisPageState extends State<AnalysisPage>
           _buildSummaryCard(
             "Toplam Harcama",
             "${totalAmount.toStringAsFixed(2)} ₺",
-            Colors.redAccent,
+            ColorConstants.kirmiziVurgu,
           ),
           const SizedBox(height: 20),
           ...totals.entries.map(
             (e) => _buildLegendItem(
               e.key,
               e.value,
-              categoryColors[e.key] ?? Colors.grey,
+              categoryColors[e.key] ??
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
               totalAmount,
             ),
           ),
@@ -213,7 +220,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     List<PieChartSectionData> sections = [];
     int index = 0;
     final List<Color> vibrantColors = [
-      const Color(0xFFBB86FC),
+      Theme.of(context).colorScheme.secondary,
       const Color(0xFF03DAC6),
       const Color(0xFFCF6679),
       const Color(0xFF3700B3),
@@ -305,7 +312,12 @@ class _AnalysisPageState extends State<AnalysisPage>
           const SizedBox(height: 16),
           Text(
             message,
-            style: const TextStyle(color: Colors.white54, fontSize: 16),
+            style: TextStyle(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.54),
+              fontSize: 16,
+            ),
           ),
         ],
       ),
@@ -316,7 +328,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white10),
         boxShadow: [
@@ -332,7 +344,12 @@ class _AnalysisPageState extends State<AnalysisPage>
         children: [
           Text(
             title,
-            style: const TextStyle(color: Colors.white70, fontSize: 16),
+            style: TextStyle(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
+              fontSize: 16,
+            ),
           ),
           Text(
             amount,
@@ -381,7 +398,12 @@ class _AnalysisPageState extends State<AnalysisPage>
               ),
               Text(
                 "%${(value / total * 100).toStringAsFixed(1)}",
-                style: const TextStyle(color: Colors.white54, fontSize: 12),
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.54),
+                  fontSize: 12,
+                ),
               ),
             ],
           ),

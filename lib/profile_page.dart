@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'settings_page.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/auth/presentation/pages/login_page.dart';
+import 'core/constants/color_constants.dart';
 
 class ProfilSayfasi extends StatelessWidget {
   final AuthController authController;
@@ -22,10 +23,16 @@ class ProfilSayfasi extends StatelessWidget {
           // Profil Bilgileri
           Row(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 30,
-                backgroundColor: Colors.grey,
-                child: Icon(Icons.person, size: 40, color: Colors.white),
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
+                child: Icon(
+                  Icons.person,
+                  size: 40,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               const SizedBox(width: 16),
               Text(
@@ -44,11 +51,15 @@ class ProfilSayfasi extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E1E1E),
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                  side: BorderSide(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  ),
                 ),
               ),
               onPressed: () async {
@@ -79,11 +90,13 @@ class ProfilSayfasi extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E1E1E),
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: Colors.red.withValues(alpha: 0.5)),
+                  side: BorderSide(
+                    color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.5),
+                  ),
                 ),
               ),
               onPressed: () async {
@@ -100,7 +113,7 @@ class ProfilSayfasi extends StatelessWidget {
               child: const Text(
                 "Çıkış Yap",
                 style: TextStyle(
-                  color: Colors.redAccent,
+                  color: ColorConstants.kirmiziVurgu,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),

@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'services/database_helper.dart';
 import 'home_page.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/auth/presentation/pages/login_page.dart';
+import 'package:provider/provider.dart';
+import 'core/theme/theme_manager.dart';
 
-void main() {
+void main() async {
   // Hata yakalama bloğu
   try {
     WidgetsFlutterBinding.ensureInitialized();
-    runApp(const CashlyApp());
+    await Hive.initFlutter();
+    runApp(
+      ChangeNotifierProvider(
+        create: (_) => ThemeManager(),
+        child: const CashlyApp(),
+      ),
+    );
   } catch (e, stackTrace) {
     debugPrint('HATA: Uygulama başlatılırken bir sorun oluştu: $e');
     debugPrint('Stack Trace: $stackTrace');
@@ -87,6 +96,8 @@ class _CashlyAppState extends State<CashlyApp> {
   Widget build(BuildContext context) {
     // Henüz başlatılmadıysa veya başlatılıyor ise Loading ekranı göster
     if (!_isInitialized) {
+      // ThemeManager'a erişim (Context henüz tam oluşmadığı için main'deki provider'dan alıyoruz)
+      final themeManager = Provider.of<ThemeManager>(context, listen: false);
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
@@ -97,7 +108,9 @@ class _CashlyAppState extends State<CashlyApp> {
               children: [
                 Image.asset('assets/image/seffaflogo.png', height: 100),
                 const SizedBox(height: 20),
-                const CircularProgressIndicator(color: Color(0xFF9D00FF)),
+                CircularProgressIndicator(
+                  color: themeManager.currentTheme.colorScheme.primary,
+                ),
               ],
             ),
           ),
@@ -107,6 +120,7 @@ class _CashlyAppState extends State<CashlyApp> {
 
     // Başlatma sırasında hata olduysa
     if (_initError != null) {
+      final themeManager = Provider.of<ThemeManager>(context, listen: false);
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
@@ -143,7 +157,8 @@ class _CashlyAppState extends State<CashlyApp> {
                       _initializeApp();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF9D00FF),
+                      backgroundColor:
+                          themeManager.currentTheme.colorScheme.primary,
                     ),
                     child: const Text(
                       "Tekrar Dene",
@@ -159,43 +174,35 @@ class _CashlyAppState extends State<CashlyApp> {
     }
 
     // Başarılı başlatma
-    return AnimatedBuilder(
-      animation: _authController!,
-      builder: (context, child) {
-        return MaterialApp(
-          title: 'Cashly',
-          debugShowCheckedModeBanner: false,
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [Locale('tr', 'TR')],
-          theme: ThemeData.dark().copyWith(
-            scaffoldBackgroundColor: const Color(0xFF000000), // Pure Black
-            textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFF9D00FF), // Neon Violet
-              secondary: Color(0xFFBB86FC), // Light Violet
-              surface: Color(0xFF121212), // Dark Surface
-              error: Color(0xFFCF6679),
-            ),
-            appBarTheme: const AppBarTheme(
-              backgroundColor: Color(0xFF000000),
-              elevation: 0,
-              centerTitle: true,
-            ),
-          ),
-          home: _authController!.isLoading
-              ? const Scaffold(
-                  backgroundColor: Colors.black,
-                  body: Center(
-                    child: CircularProgressIndicator(color: Color(0xFF9D00FF)),
-                  ),
-                )
-              : _authController!.currentUser != null
-              ? AnaSayfa(authController: _authController!)
-              : LoginPage(authController: _authController!),
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        return AnimatedBuilder(
+          animation: _authController!,
+          builder: (context, child) {
+            return MaterialApp(
+              title: 'Cashly',
+              debugShowCheckedModeBanner: false,
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [Locale('tr', 'TR')],
+              theme: themeManager.currentTheme,
+              home: _authController!.isLoading
+                  ? Scaffold(
+                      backgroundColor: Colors.black,
+                      body: Center(
+                        child: CircularProgressIndicator(
+                          color: themeManager.currentTheme.colorScheme.primary,
+                        ),
+                      ),
+                    )
+                  : _authController!.currentUser != null
+                  ? AnaSayfa(authController: _authController!)
+                  : LoginPage(authController: _authController!),
+            );
+          },
         );
       },
     );

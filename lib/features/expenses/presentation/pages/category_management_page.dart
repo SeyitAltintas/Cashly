@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import '../../../../services/database_helper.dart';
 
 class KategoriYonetimiSayfasi extends StatefulWidget {
@@ -256,9 +257,9 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
     Navigator.pop(context);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text('Kategori eklendi ✅'),
-        backgroundColor: Color(0xFF9D00FF),
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
     );
   }
@@ -269,19 +270,30 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: const Text(
           'Kategoriyi Sil',
           style: TextStyle(color: Colors.white),
         ),
         content: Text(
           '"$kategoriIsmi" kategorisini silmek istediğinizden emin misiniz?',
-          style: const TextStyle(color: Colors.white70),
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('İptal', style: TextStyle(color: Colors.white54)),
+            child: Text(
+              'İptal',
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.54),
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -294,11 +306,13 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Kategori silindi'),
-                  backgroundColor: Colors.redAccent,
+                  backgroundColor: ColorConstants.kirmiziVurgu,
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorConstants.kirmiziVurgu,
+            ),
             child: const Text('Sil', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -310,19 +324,30 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: const Text(
           'Varsayılana Dön',
           style: TextStyle(color: Colors.white),
         ),
-        content: const Text(
+        content: Text(
           'Tüm özel kategorileriniz silinecek ve varsayılan kategoriler yüklenecek. Emin misiniz?',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('İptal', style: TextStyle(color: Colors.white54)),
+            child: Text(
+              'İptal',
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.54),
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -333,14 +358,14 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
               Navigator.pop(context);
 
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
+                SnackBar(
                   content: Text('Varsayılan kategoriler yüklendi'),
-                  backgroundColor: Color(0xFF9D00FF),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF9D00FF),
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
             child: const Text(
               'Evet, Sıfırla',
@@ -361,7 +386,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) {
           return AlertDialog(
-            backgroundColor: const Color(0xFF1E1E1E),
+            backgroundColor: Theme.of(context).colorScheme.surface,
             title: const Text(
               'Yeni Kategori Ekle',
               style: TextStyle(color: Colors.white),
@@ -372,16 +397,35 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                 TextField(
                   controller: tKategoriIsmi,
                   style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Kategori Adı',
-                    hintStyle: TextStyle(color: Colors.white54),
-                    prefixIcon: Icon(Icons.label, color: Color(0xFFBB86FC)),
+                    hintStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.54),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.label,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary,
+                        width: 2,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'İkon Seç:',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    fontSize: 12,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
@@ -409,19 +453,23 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: seciliMi
-                                ? const Color(0xFF9D00FF)
+                                ? Theme.of(context).colorScheme.primary
                                 : const Color(0xFF2E2E2E),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: seciliMi
-                                  ? const Color(0xFFBB86FC)
-                                  : Colors.white10,
+                                  ? Theme.of(context).colorScheme.secondary
+                                  : Theme.of(context).colorScheme.onSurface
+                                        .withValues(alpha: 0.1),
                               width: seciliMi ? 2 : 1,
                             ),
                           ),
                           child: Icon(
                             ikon,
-                            color: seciliMi ? Colors.white : Colors.white54,
+                            color: seciliMi
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.54),
                             size: 28,
                           ),
                         ),
@@ -434,15 +482,19 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text(
+                child: Text(
                   'İptal',
-                  style: TextStyle(color: Colors.white54),
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.54),
+                  ),
                 ),
               ),
               ElevatedButton(
                 onPressed: kategoriEkle,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF9D00FF),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
                 child: const Text(
                   'Ekle',
@@ -479,19 +531,28 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'KATEGORİLERİM',
                   style: TextStyle(
-                    color: Color(0xFFBB86FC),
+                    color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 TextButton.icon(
                   onPressed: kategoriEkleDialogAc,
-                  icon: const Icon(Icons.add, color: Colors.white70),
-                  label: const Text(
+                  icon: Icon(
+                    Icons.add,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                  label: Text(
                     'Yeni Ekle',
-                    style: TextStyle(color: Colors.white70),
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
                   ),
                 ),
               ],
@@ -505,10 +566,13 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                   final ikon = ikonlar[kategori['ikon']] ?? Icons.category;
 
                   return Card(
-                    color: const Color(0xFF1E1E1E),
+                    color: Theme.of(context).colorScheme.surface,
                     margin: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
-                      leading: Icon(ikon, color: const Color(0xFFBB86FC)),
+                      leading: Icon(
+                        ikon,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                       title: Text(
                         kategori['isim'],
                         style: const TextStyle(color: Colors.white),
@@ -516,7 +580,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                       trailing: IconButton(
                         icon: const Icon(
                           Icons.delete_outline,
-                          color: Colors.redAccent,
+                          color: ColorConstants.kirmiziVurgu,
                         ),
                         onPressed: () => kategoriSil(index),
                       ),

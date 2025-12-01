@@ -37,7 +37,7 @@ class _UserListPageState extends State<UserListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           "Kullanıcılar",
@@ -49,8 +49,10 @@ class _UserListPageState extends State<UserListPage> {
         ),
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF9D00FF)),
+          ? Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
+              ),
             )
           : _users.isEmpty
           ? Center(
@@ -65,25 +67,27 @@ class _UserListPageState extends State<UserListPage> {
               itemBuilder: (context, index) {
                 final user = _users[index];
                 return Card(
-                  color: const Color(0xFF1E1E1E),
+                  color: Theme.of(context).colorScheme.surface,
                   margin: const EdgeInsets.only(bottom: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.05),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.05),
                     ),
                   ),
                   child: ListTile(
                     contentPadding: const EdgeInsets.all(16),
                     leading: CircleAvatar(
                       radius: 24,
-                      backgroundColor: const Color(
-                        0xFF9D00FF,
-                      ).withValues(alpha: 0.2),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.2),
                       child: Text(
                         user.name[0].toUpperCase(),
-                        style: const TextStyle(
-                          color: Color(0xFFBB86FC),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),
@@ -92,7 +96,7 @@ class _UserListPageState extends State<UserListPage> {
                     title: Text(
                       user.name,
                       style: GoogleFonts.outfit(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
                       ),
@@ -139,19 +143,22 @@ class _UserListPageState extends State<UserListPage> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E1E1E),
+              backgroundColor: Theme.of(context).colorScheme.surface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFF9D00FF)),
+                side: BorderSide(color: Theme.of(context).colorScheme.primary),
               ),
             ),
-            icon: const Icon(Icons.add, color: Color(0xFFBB86FC)),
-            label: const Text(
+            icon: Icon(
+              Icons.add,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            label: Text(
               "Yeni Kullanıcı Ekle",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),

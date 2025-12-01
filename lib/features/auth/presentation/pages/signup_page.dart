@@ -33,7 +33,7 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -52,7 +52,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   style: GoogleFonts.outfit(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -60,7 +60,9 @@ class _SignUpPageState extends State<SignUpPage> {
                   "Harcamalarınızı yönetmeye başlamak için kayıt olun.",
                   style: GoogleFonts.outfit(
                     fontSize: 16,
-                    color: Colors.white70,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -68,30 +70,46 @@ class _SignUpPageState extends State<SignUpPage> {
                 // İsim Soyisim
                 TextFormField(
                   controller: _nameController,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   validator: Validators.validateName,
                   decoration: InputDecoration(
                     labelText: "İsim Soyisim",
-                    labelStyle: const TextStyle(color: Colors.white70),
-                    prefixIcon: const Icon(
+                    labelStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    prefixIcon: Icon(
                       Icons.person_outline,
-                      color: Color(0xFFBB86FC),
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.white24),
+                      borderSide: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.24),
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF9D00FF)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ),
                 ),
@@ -100,32 +118,50 @@ class _SignUpPageState extends State<SignUpPage> {
                 // E-posta
                 TextFormField(
                   controller: _emailController,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   keyboardType: TextInputType.emailAddress,
                   validator: Validators.validateEmail,
                   decoration: InputDecoration(
                     labelText: "E-posta",
-                    labelStyle: const TextStyle(color: Colors.white70),
-                    prefixIcon: const Icon(
+                    labelStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    prefixIcon: Icon(
                       Icons.email_outlined,
-                      color: Color(0xFFBB86FC),
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.white24),
+                      borderSide: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.24),
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF9D00FF)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
-                    errorStyle: const TextStyle(color: Color(0xFFCF6679)),
+                    errorStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ),
                 ),
@@ -134,22 +170,30 @@ class _SignUpPageState extends State<SignUpPage> {
                 // PIN
                 TextFormField(
                   controller: _pinController,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   keyboardType: TextInputType.number,
                   obscureText: !_isPinVisible,
                   maxLength: 6,
                   validator: Validators.validatePIN,
                   decoration: InputDecoration(
                     labelText: "PIN (4-6 Rakam)",
-                    labelStyle: const TextStyle(color: Colors.white70),
-                    prefixIcon: const Icon(
+                    labelStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    prefixIcon: Icon(
                       Icons.lock_outline,
-                      color: Color(0xFFBB86FC),
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isPinVisible ? Icons.visibility : Icons.visibility_off,
-                        color: Colors.white70,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                       onPressed: () {
                         setState(() {
@@ -159,20 +203,32 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.white24),
+                      borderSide: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.24),
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF9D00FF)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
-                    errorStyle: const TextStyle(color: Color(0xFFCF6679)),
+                    errorStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ),
                 ),
@@ -195,6 +251,12 @@ class _SignUpPageState extends State<SignUpPage> {
                             final scaffoldMessenger = ScaffoldMessenger.of(
                               context,
                             );
+                            final primaryColor = Theme.of(
+                              context,
+                            ).colorScheme.primary;
+                            final errorColor = Theme.of(
+                              context,
+                            ).colorScheme.error;
 
                             setState(() {
                               _isLoading = true;
@@ -212,13 +274,14 @@ class _SignUpPageState extends State<SignUpPage> {
 
                               if (success) {
                                 scaffoldMessenger.showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
+                                  SnackBar(
+                                    content: const Text(
                                       "Kayıt başarılı! Hoş geldiniz! 🎉",
                                     ),
-                                    backgroundColor: Colors.green,
+                                    backgroundColor: primaryColor,
                                   ),
                                 );
+                                if (!mounted) return;
                                 navigator.pushReplacement(
                                   MaterialPageRoute(
                                     builder: (_) => AnaSayfa(
@@ -233,7 +296,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                       widget.authController.error ??
                                           "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.",
                                     ),
-                                    backgroundColor: Colors.red,
+                                    backgroundColor: errorColor,
                                   ),
                                 );
                               }
@@ -242,7 +305,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               scaffoldMessenger.showSnackBar(
                                 SnackBar(
                                   content: Text("Hata: ${e.toString()}"),
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: errorColor,
                                 ),
                               );
                             } finally {
@@ -254,26 +317,26 @@ class _SignUpPageState extends State<SignUpPage> {
                             }
                           },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF9D00FF),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: _isLoading
-                        ? const SizedBox(
+                        ? SizedBox(
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           )
-                        : const Text(
+                        : Text(
                             "Kayıt Ol",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           ),
                   ),
@@ -292,9 +355,11 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                       );
                     },
-                    child: const Text(
+                    child: Text(
                       "Zaten hesabınız var mı? Giriş Yap",
-                      style: TextStyle(color: Color(0xFFBB86FC)),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                     ),
                   ),
                 ),

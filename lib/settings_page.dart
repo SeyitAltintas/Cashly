@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+
 import 'services/database_helper.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
 import 'core/utils/validators.dart';
 import 'core/utils/error_handler.dart';
+import 'package:provider/provider.dart';
+import 'core/theme/theme_manager.dart';
+import 'core/theme/app_theme.dart';
 
 class AyarlarSayfasi extends StatefulWidget {
   final String userId;
@@ -42,12 +46,14 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E1E1E),
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.1),
                       ),
                     ),
                   ),
@@ -75,10 +81,107 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                   ),
                 ),
               ),
+              const SizedBox(height: 30),
+              _buildThemeSelection(context),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildThemeSelection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "GÖRÜNÜM & TEMA",
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.secondary,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.1),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Tema Rengi",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Uygulamanın genel renk temasını seçin",
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.54),
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 60,
+                child: Consumer<ThemeManager>(
+                  builder: (context, themeManager, child) {
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: AppTheme.allThemes.length,
+                      itemBuilder: (context, index) {
+                        final theme = AppTheme.allThemes[index];
+                        final isSelected = themeManager.themeIndex == index;
+                        final primaryColor = theme.colorScheme.primary;
+
+                        return GestureDetector(
+                          onTap: () => themeManager.setTheme(index),
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            margin: const EdgeInsets.only(right: 12),
+                            decoration: BoxDecoration(
+                              color: primaryColor,
+                              shape: BoxShape.circle,
+                              border: isSelected
+                                  ? Border.all(color: Colors.white, width: 3)
+                                  : null,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: primaryColor.withValues(alpha: 0.4),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: isSelected
+                                ? const Icon(Icons.check, color: Colors.white)
+                                : null,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -203,9 +306,9 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
       SnackBar(
         content: Text(
           "${sabitGiderler.length} adet sabit gider bu aya eklendi! 🚀",
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
         ),
-        backgroundColor: const Color(0xFF9D00FF),
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
     );
   }
@@ -221,12 +324,16 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF121212),
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.1),
+            ),
           ),
           padding: const EdgeInsets.all(24),
           child: Form(
@@ -239,16 +346,21 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       "Sabit Gider Tanımla",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white54),
+                      icon: Icon(
+                        Icons.close,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.54),
+                      ),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -258,36 +370,46 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                 // Gider Adı
                 TextFormField(
                   controller: tSabitIsim,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   validator: (value) => Validators.validateRequired(
                     value,
                     fieldName: 'Gider adı',
                   ),
                   decoration: InputDecoration(
                     hintText: "Gider Adı (Örn: Netflix)",
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                       Icons.label,
-                      color: Color(0xFFBB86FC),
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
-                    hintStyle: const TextStyle(color: Colors.white54),
+                    hintStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.54),
+                    ),
                     filled: true,
-                    fillColor: const Color(0xFF1E1E1E),
+                    fillColor: Theme.of(context).colorScheme.surface,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Color(0xFFBB86FC),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary,
                         width: 2,
                       ),
                     ),
@@ -299,33 +421,43 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                 TextFormField(
                   controller: tSabitTutar,
                   keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   validator: Validators.validateAmount,
                   decoration: InputDecoration(
                     hintText: "Tutar (Örn: 200)",
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                       Icons.currency_lira,
-                      color: Color(0xFFBB86FC),
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
-                    hintStyle: const TextStyle(color: Colors.white54),
+                    hintStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.54),
+                    ),
                     filled: true,
-                    fillColor: const Color(0xFF1E1E1E),
+                    fillColor: Theme.of(context).colorScheme.surface,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFCF6679)),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Color(0xFFBB86FC),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary,
                         width: 2,
                       ),
                     ),
@@ -339,8 +471,8 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                   child: ElevatedButton(
                     onPressed: sabitGiderEkleListeye,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF9D00FF),
-                      foregroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -388,10 +520,10 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "AYLIK GELİR (BÜTÇE LİMİTİ)",
                 style: TextStyle(
-                  color: Color(0xFFBB86FC),
+                  color: Theme.of(context).colorScheme.secondary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -399,7 +531,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E1E),
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.white10),
                 ),
@@ -409,8 +541,8 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                       child: TextField(
                         controller: tGelir,
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -422,7 +554,10 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.save, color: Color(0xFFBB86FC)),
+                      icon: Icon(
+                        Icons.save,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                       onPressed: butceyiKaydet,
                       tooltip: "Kaydet",
                     ),
@@ -433,40 +568,55 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "SABİT GİDERLERİM",
                     style: TextStyle(
-                      color: Color(0xFFBB86FC),
+                      color: Theme.of(context).colorScheme.secondary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   TextButton.icon(
                     onPressed: pencereAc,
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.add,
                       size: 18,
-                      color: Colors.white70,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
-                    label: const Text(
+                    label: Text(
                       "Yeni Ekle",
-                      style: TextStyle(color: Colors.white70),
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 5),
-              const Text(
+              Text(
                 "Buraya eklediklerin otomatik düşmez. Her ay başında aşağıdaki butona basarak hepsini tek seferde ekleyebilirsin.",
-                style: TextStyle(color: Colors.white38, fontSize: 12),
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.38),
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(height: 10),
               sabitGiderler.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.all(20.0),
+                  ? Padding(
+                      padding: const EdgeInsets.all(20.0),
                       child: Center(
                         child: Text(
                           "Henüz sabit gider tanımlamadın.",
-                          style: TextStyle(color: Colors.white24),
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.24),
+                          ),
                         ),
                       ),
                     )
@@ -477,7 +627,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                       itemBuilder: (context, index) {
                         final gider = sabitGiderler[index];
                         return Card(
-                          color: const Color(0xFF1E1E1E),
+                          color: Theme.of(context).colorScheme.surface,
                           margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
                             leading: const Icon(
@@ -486,23 +636,28 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                             ),
                             title: Text(
                               gider['isim'],
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                             ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
                                   "${gider['tutar']} ₺",
-                                  style: const TextStyle(
-                                    color: Colors.white70,
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.7),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 const SizedBox(width: 10),
                                 IconButton(
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.delete_outline,
-                                    color: Colors.redAccent,
+                                    color: Theme.of(context).colorScheme.error,
                                   ),
                                   onPressed: () => sabitGiderSil(index),
                                 ),
@@ -519,15 +674,20 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF2E004F), Color(0xFF7F00FF)],
+                    gradient: LinearGradient(
+                      colors: [
+                        Theme.of(context).colorScheme.primaryContainer,
+                        Theme.of(context).colorScheme.primary,
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF7F00FF).withValues(alpha: 0.3),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.3),
                         blurRadius: 15,
                         offset: const Offset(0, 8),
                       ),
@@ -551,16 +711,16 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.calendar_month,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onPrimary,
                           size: 24,
                         ),
                         const SizedBox(width: 12),
-                        const Text(
+                        Text(
                           "Tüm Sabit Giderleri Bu Aya Ekle",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onPrimary,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -575,10 +735,10 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "KATEGORİ YÖNETİMİ",
                     style: TextStyle(
-                      color: Color(0xFFBB86FC),
+                      color: Theme.of(context).colorScheme.secondary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -588,24 +748,34 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E1E),
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.white10),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.category, color: Color(0xFFBB86FC)),
+                    Icon(
+                      Icons.category,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         "Harcama kategorilerini özelleştirin",
-                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                          fontSize: 14,
+                        ),
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_forward_ios,
-                        color: Colors.white54,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.54),
                         size: 18,
                       ),
                       onPressed: () {

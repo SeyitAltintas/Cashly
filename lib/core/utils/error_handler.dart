@@ -19,7 +19,7 @@ class ErrorHandler {
             ),
           ],
         ),
-        backgroundColor: const Color(0xFFCF6679),
+        backgroundColor: Theme.of(context).colorScheme.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 3),
@@ -37,14 +37,22 @@ class ErrorHandler {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.check_circle_outline, color: Colors.white),
+            Icon(
+              Icons.check_circle_outline,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(message, style: const TextStyle(color: Colors.white)),
+              child: Text(
+                message,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF9D00FF),
+        backgroundColor: Theme.of(context).colorScheme.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 2),
@@ -141,15 +149,29 @@ class ErrorHandler {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
-        title: Text(title, style: const TextStyle(color: Colors.white)),
-        content: Text(message, style: const TextStyle(color: Colors.white70)),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: Text(
+          title,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        ),
+        content: Text(
+          message,
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(
               cancelText,
-              style: const TextStyle(color: Colors.white70),
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
             ),
           ),
           TextButton(
@@ -158,8 +180,8 @@ class ErrorHandler {
               confirmText,
               style: TextStyle(
                 color: isDanger
-                    ? const Color(0xFFCF6679)
-                    : const Color(0xFFBB86FC),
+                    ? Theme.of(context).colorScheme.error
+                    : Theme.of(context).colorScheme.primary,
               ),
             ),
           ),
@@ -190,16 +212,23 @@ class ErrorHandler {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E1E1E),
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(color: Color(0xFF9D00FF)),
+                CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 if (message != null) ...[
                   const SizedBox(height: 16),
-                  Text(message, style: const TextStyle(color: Colors.white)),
+                  Text(
+                    message,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
                 ],
               ],
             ),
