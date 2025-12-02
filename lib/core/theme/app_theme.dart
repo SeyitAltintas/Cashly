@@ -13,8 +13,8 @@ class AppTheme {
       scaffoldBackgroundColor: const Color(0xFF000000), // Saf Siyah
       textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF9D00FF), // Neon Violet
-        secondary: Color(0xFFBB86FC), // Light Violet
+        primary: Color(0xFF7B2CBF), // Darker Purple
+        secondary: Color(0xFF9D4EDD), // Medium Purple
         surface: Color(0xFF121212), // Dark Surface
         error: Color(0xFFCF6679),
         brightness: Brightness.dark,
@@ -23,7 +23,7 @@ class AppTheme {
         backgroundColor: Color(0xFF000000),
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Color(0xFF9D00FF)),
+        iconTheme: IconThemeData(color: Color(0xFF7B2CBF)),
       ),
       cardTheme: const CardThemeData(
         color: Color(0xFF121212),
@@ -33,7 +33,7 @@ class AppTheme {
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Color(0xFF9D00FF),
+        backgroundColor: Color(0xFF7B2CBF),
         foregroundColor: Colors.white,
       ),
     );
@@ -211,12 +211,12 @@ class AppTheme {
 
   /// Tema isimlerinin listesi (tema seçimi için)
   static List<String> get themeNames => [
-    'Koyu Mor',
-    'Koyu Yeşil',
-    'Koyu Mavi',
-    'Koyu Kırmızı',
-    'Koyu Turuncu',
-    'Koyu Camgöbeği',
+    'Lavanta',
+    'Zümrüt',
+    'Anadolu',
+    'Nar',
+    'Safran',
+    'Turkuaz',
   ];
 
   /// Index'e göre tema getir

@@ -56,7 +56,77 @@ class _AnaSayfaState extends State<AnaSayfa> {
     super.initState();
     kategorileriYukle();
     verileriOku();
-    varliklar = [];
+
+    // ÖRNEK VERİLER - DAHA SONRA SİLİNECEK
+    DateTime now = DateTime.now();
+    tumHarcamalar.addAll([
+      {
+        "isim": "Market Alışverişi",
+        "tutar": 450.0,
+        "kategori": "Market & Atıştırmalık",
+        "tarih": now.toString(),
+        "silindi": false,
+      },
+      {
+        "isim": "Benzin",
+        "tutar": 380.0,
+        "kategori": "Araç & Ulaşım",
+        "tarih": now.subtract(const Duration(days: 1)).toString(),
+        "silindi": false,
+      },
+      {
+        "isim": "Restoran Yemeği",
+        "tutar": 250.0,
+        "kategori": "Yemek & Kafe",
+        "tarih": now.subtract(const Duration(days: 2)).toString(),
+        "silindi": false,
+      },
+      {
+        "isim": "Doğum Günü Hediyesi",
+        "tutar": 200.0,
+        "kategori": "Hediye & Özel",
+        "tarih": now.subtract(const Duration(days: 3)).toString(),
+        "silindi": false,
+      },
+      {
+        "isim": "Elektrik Faturası",
+        "tutar": 350.0,
+        "kategori": "Sabit Giderler",
+        "tarih": now.subtract(const Duration(days: 5)).toString(),
+        "silindi": false,
+      },
+    ]);
+
+    varliklar = [
+      Asset(
+        id: '1',
+        name: 'Altın',
+        category: 'Altın',
+        type: 'Cumhuriyet',
+        amount: 15000.0,
+        quantity: 5,
+        lastUpdated: now,
+      ),
+      Asset(
+        id: '2',
+        name: 'Dolar',
+        category: 'Döviz',
+        type: 'USD',
+        amount: 8500.0,
+        quantity: 250,
+        lastUpdated: now,
+      ),
+      Asset(
+        id: '3',
+        name: 'Banka Hesabı',
+        category: 'Banka',
+        amount: 25000.0,
+        quantity: 1,
+        lastUpdated: now,
+      ),
+    ];
+
+    filtreleVeGoster();
   }
 
   void kategorileriYukle() {

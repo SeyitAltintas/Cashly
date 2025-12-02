@@ -123,9 +123,9 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.restore,
-                            color: Color(0xFFBB86FC),
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           onPressed: () {
                             widget.onRestore(asset);

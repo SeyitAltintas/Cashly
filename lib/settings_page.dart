@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'services/database_helper.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
+import 'features/settings/presentation/pages/appearance_page.dart';
 import 'core/utils/validators.dart';
 import 'core/utils/error_handler.dart';
-import 'package:provider/provider.dart';
-import 'core/theme/theme_manager.dart';
-import 'core/theme/app_theme.dart';
 
 class AyarlarSayfasi extends StatefulWidget {
   final String userId;
@@ -33,6 +31,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           title: const Text("Ayarlar"),
           backgroundColor: Colors.transparent,
           elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context, _needsRefresh),
@@ -42,6 +41,40 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.1),
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AppearancePage(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    "Görünüm",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -81,107 +114,10 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
-              _buildThemeSelection(context),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildThemeSelection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "GÖRÜNÜM & TEMA",
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.secondary,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.1),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Tema Rengi",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "Uygulamanın genel renk temasını seçin",
-                style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.54),
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 60,
-                child: Consumer<ThemeManager>(
-                  builder: (context, themeManager, child) {
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: AppTheme.allThemes.length,
-                      itemBuilder: (context, index) {
-                        final theme = AppTheme.allThemes[index];
-                        final isSelected = themeManager.themeIndex == index;
-                        final primaryColor = theme.colorScheme.primary;
-
-                        return GestureDetector(
-                          onTap: () => themeManager.setTheme(index),
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            margin: const EdgeInsets.only(right: 12),
-                            decoration: BoxDecoration(
-                              color: primaryColor,
-                              shape: BoxShape.circle,
-                              border: isSelected
-                                  ? Border.all(color: Colors.white, width: 3)
-                                  : null,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: primaryColor.withValues(alpha: 0.4),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: isSelected
-                                ? const Icon(Icons.check, color: Colors.white)
-                                : null,
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
@@ -510,6 +446,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
           title: const Text("Gelir ve Gider Ayarları"),
           backgroundColor: Colors.transparent,
           elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context, categoryChanged),
