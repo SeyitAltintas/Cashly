@@ -43,7 +43,7 @@ class _AssetsPageState extends State<AssetsPage> {
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(Icons.delete_outline, color: Colors.white),
             tooltip: "Çöp Kutusu",
             onPressed: () {
               Navigator.push(

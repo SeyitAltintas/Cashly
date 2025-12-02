@@ -1048,7 +1048,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
             ),
           if (!aramaModu) ...[
             IconButton(
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete_outline, color: Colors.white),
               tooltip: "Çöp Kutusu",
               onPressed: () {
                 Navigator.push(
@@ -1065,7 +1065,10 @@ class _AnaSayfaState extends State<AnaSayfa> {
             ),
           ],
           IconButton(
-            icon: Icon(aramaModu ? Icons.close : Icons.search),
+            icon: Icon(
+              aramaModu ? Icons.close : Icons.search,
+              color: Colors.white,
+            ),
             onPressed: () {
               setState(() {
                 aramaModu = !aramaModu;

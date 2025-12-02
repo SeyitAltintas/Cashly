@@ -28,9 +28,10 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete_sweep),
+            icon: const Icon(Icons.delete_sweep, color: Colors.white),
             tooltip: "Çöpü Boşalt",
             onPressed: () {
               if (widget.deletedAssets.isEmpty) return;

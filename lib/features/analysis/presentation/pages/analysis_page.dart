@@ -102,15 +102,28 @@ class _AnalysisPageState extends State<AnalysisPage>
       totalAmount += amount;
     }
 
+    final List<Color> vibrantColors = [
+      Theme.of(context).colorScheme.primary,
+      Theme.of(context).colorScheme.secondary,
+      Theme.of(context).colorScheme.tertiary,
+      Colors.orange,
+      Colors.teal,
+      Colors.pink,
+      Colors.indigo,
+      Colors.amber,
+      Colors.cyan,
+      Colors.deepOrange,
+      Colors.purple,
+      Colors.lime,
+    ];
+
     List<PieChartSectionData> sections = [];
     int index = 0;
     totals.forEach((key, value) {
       final isTouched = index == _touchedIndex;
       final fontSize = isTouched ? 18.0 : 14.0;
       final radius = isTouched ? 110.0 : 100.0;
-      final color =
-          categoryColors[key] ??
-          Theme.of(context).colorScheme.surfaceContainerHighest;
+      final color = vibrantColors[index % vibrantColors.length];
 
       sections.add(
         PieChartSectionData(
@@ -166,15 +179,12 @@ class _AnalysisPageState extends State<AnalysisPage>
             ColorConstants.kirmiziVurgu,
           ),
           const SizedBox(height: 20),
-          ...totals.entries.map(
-            (e) => _buildLegendItem(
-              e.key,
-              e.value,
-              categoryColors[e.key] ??
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
-              totalAmount,
-            ),
-          ),
+          ...totals.entries.toList().asMap().entries.map((entry) {
+            int idx = entry.key;
+            var e = entry.value;
+            final color = vibrantColors[idx % vibrantColors.length];
+            return _buildLegendItem(e.key, e.value, color, totalAmount);
+          }),
         ],
       ),
     );

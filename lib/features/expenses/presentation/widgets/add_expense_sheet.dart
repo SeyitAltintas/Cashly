@@ -352,7 +352,11 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   onPressed: _save,
                   child: const Text(
                     "Kaydet",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),

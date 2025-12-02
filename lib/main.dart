@@ -94,88 +94,89 @@ class _CashlyAppState extends State<CashlyApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Henüz başlatılmadıysa veya başlatılıyor ise Loading ekranı göster
-    if (!_isInitialized) {
-      // ThemeManager'a erişim (Context henüz tam oluşmadığı için main'deki provider'dan alıyoruz)
-      final themeManager = Provider.of<ThemeManager>(context, listen: false);
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          backgroundColor: Colors.black,
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset('assets/image/seffaflogo.png', height: 100),
-                const SizedBox(height: 20),
-                CircularProgressIndicator(
-                  color: themeManager.currentTheme.colorScheme.primary,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Başlatma sırasında hata olduysa
-    if (_initError != null) {
-      final themeManager = Provider.of<ThemeManager>(context, listen: false);
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          backgroundColor: Colors.black,
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "Uygulama başlatılamadı",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _initError!,
-                    style: const TextStyle(color: Colors.white70),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isInitialized = false;
-                        _initError = null;
-                      });
-                      _initializeApp();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          themeManager.currentTheme.colorScheme.primary,
-                    ),
-                    child: const Text(
-                      "Tekrar Dene",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Başarılı başlatma
     return Consumer<ThemeManager>(
       builder: (context, themeManager, child) {
+        // Henüz başlatılmadıysa veya başlatılıyor ise Loading ekranı göster
+        if (!_isInitialized) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              backgroundColor: Colors.black,
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('assets/image/seffaflogo.png', height: 100),
+                    const SizedBox(height: 20),
+                    CircularProgressIndicator(
+                      color: themeManager.currentTheme.colorScheme.primary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        // Başlatma sırasında hata olduysa
+        if (_initError != null) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              backgroundColor: Colors.black,
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 48,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        "Uygulama başlatılamadı",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _initError!,
+                        style: const TextStyle(color: Colors.white70),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _isInitialized = false;
+                            _initError = null;
+                          });
+                          _initializeApp();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              themeManager.currentTheme.colorScheme.primary,
+                        ),
+                        child: const Text(
+                          "Tekrar Dene",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        // Başarılı başlatma
         return AnimatedBuilder(
           animation: _authController!,
           builder: (context, child) {

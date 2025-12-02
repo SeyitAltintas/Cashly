@@ -45,9 +45,9 @@ class AppTheme {
       scaffoldBackgroundColor: const Color(0xFF000000), // Saf Siyah
       textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF00C853), // Neon Green
-        secondary: Color(0xFF69F0AE), // Light Green
-        surface: Color(0xFF121212), // Dark Surface
+        primary: Color(0xFF2E7D32), // Green 800
+        secondary: Color(0xFF43A047), // Green 600
+        surface: Color(0xFF0A0A0A), // Slightly Lighter Surface
         error: Color(0xFFCF6679),
         brightness: Brightness.dark,
       ),
@@ -55,17 +55,17 @@ class AppTheme {
         backgroundColor: Color(0xFF000000),
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Color(0xFF00C853)),
+        iconTheme: IconThemeData(color: Color(0xFF2E7D32)),
       ),
       cardTheme: const CardThemeData(
-        color: Color(0xFF121212),
+        color: Color(0xFF0A0A0A),
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Color(0xFF00C853),
+        backgroundColor: Color(0xFF2E7D32),
         foregroundColor: Colors.white,
       ),
     );
@@ -77,9 +77,9 @@ class AppTheme {
       scaffoldBackgroundColor: const Color(0xFF000000), // Saf Siyah
       textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF00B0FF), // Neon Blue
-        secondary: Color(0xFF82B1FF), // Light Blue
-        surface: Color(0xFF121212), // Dark Surface
+        primary: Color(0xFF1565C0), // Blue 800
+        secondary: Color(0xFF42A5F5), // Blue 400
+        surface: Color(0xFF0A0A0A), // Slightly Lighter Surface
         error: Color(0xFFCF6679),
         brightness: Brightness.dark,
       ),
@@ -87,17 +87,17 @@ class AppTheme {
         backgroundColor: Color(0xFF000000),
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Color(0xFF00B0FF)),
+        iconTheme: IconThemeData(color: Color(0xFF1565C0)),
       ),
       cardTheme: const CardThemeData(
-        color: Color(0xFF121212),
+        color: Color(0xFF0A0A0A),
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Color(0xFF00B0FF),
+        backgroundColor: Color(0xFF1565C0),
         foregroundColor: Colors.white,
       ),
     );
@@ -109,9 +109,9 @@ class AppTheme {
       scaffoldBackgroundColor: const Color(0xFF000000), // Saf Siyah
       textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFFFF1744), // Neon Red
-        secondary: Color(0xFFFF5252), // Light Red
-        surface: Color(0xFF121212), // Dark Surface
+        primary: Color(0xFFC62828), // Red 800
+        secondary: Color(0xFFEF5350), // Red 400
+        surface: Color(0xFF0A0A0A), // Slightly Lighter Surface
         error: Color(0xFFCF6679),
         brightness: Brightness.dark,
       ),
@@ -119,17 +119,17 @@ class AppTheme {
         backgroundColor: Color(0xFF000000),
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Color(0xFFFF1744)),
+        iconTheme: IconThemeData(color: Color(0xFFC62828)),
       ),
       cardTheme: const CardThemeData(
-        color: Color(0xFF121212),
+        color: Color(0xFF0A0A0A),
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Color(0xFFFF1744),
+        backgroundColor: Color(0xFFC62828),
         foregroundColor: Colors.white,
       ),
     );
@@ -141,9 +141,9 @@ class AppTheme {
       scaffoldBackgroundColor: const Color(0xFF000000), // Saf Siyah
       textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFFFF6D00), // Neon Orange
-        secondary: Color(0xFFFF9E40), // Light Orange
-        surface: Color(0xFF121212), // Dark Surface
+        primary: Color(0xFFEF6C00), // Orange 800
+        secondary: Color(0xFFFFA726), // Orange 400
+        surface: Color(0xFF0A0A0A), // Slightly Lighter Surface
         error: Color(0xFFCF6679),
         brightness: Brightness.dark,
       ),
@@ -151,17 +151,17 @@ class AppTheme {
         backgroundColor: Color(0xFF000000),
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Color(0xFFFF6D00)),
+        iconTheme: IconThemeData(color: Color(0xFFEF6C00)),
       ),
       cardTheme: const CardThemeData(
-        color: Color(0xFF121212),
+        color: Color(0xFF0A0A0A),
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Color(0xFFFF6D00),
+        backgroundColor: Color(0xFFEF6C00),
         foregroundColor: Colors.white,
       ),
     );
@@ -173,9 +173,9 @@ class AppTheme {
       scaffoldBackgroundColor: const Color(0xFF000000), // Saf Siyah
       textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
       colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF00E5FF), // Neon Cyan
-        secondary: Color(0xFF84FFFF), // Light Cyan
-        surface: Color(0xFF121212), // Dark Surface
+        primary: Color(0xFF00838F), // Cyan 800
+        secondary: Color(0xFF26C6DA), // Cyan 400
+        surface: Color(0xFF0A0A0A), // Slightly Lighter Surface
         error: Color(0xFFCF6679),
         brightness: Brightness.dark,
       ),
@@ -183,18 +183,18 @@ class AppTheme {
         backgroundColor: Color(0xFF000000),
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Color(0xFF00E5FF)),
+        iconTheme: IconThemeData(color: Color(0xFF00838F)),
       ),
       cardTheme: const CardThemeData(
-        color: Color(0xFF121212),
+        color: Color(0xFF0A0A0A),
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Color(0xFF00E5FF),
-        foregroundColor: Colors.black,
+        backgroundColor: Color(0xFF00838F),
+        foregroundColor: Colors.white,
       ),
     );
   }
