@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../domain/entities/user_entity.dart';
@@ -350,7 +351,29 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               const SizedBox(height: 60),
               Image.asset('assets/image/seffaflogo.png', height: 100),
-              const SizedBox(height: 80),
+              const SizedBox(height: 40),
+
+              // Profil Resmi
+              CircleAvatar(
+                radius: 50,
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
+                backgroundImage: _targetUser?.profileImage != null
+                    ? (_targetUser!.profileImage!.startsWith('http')
+                              ? NetworkImage(_targetUser!.profileImage!)
+                              : FileImage(File(_targetUser!.profileImage!)))
+                          as ImageProvider
+                    : null,
+                child: _targetUser?.profileImage == null
+                    ? Icon(
+                        Icons.person,
+                        size: 60,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      )
+                    : null,
+              ),
+              const SizedBox(height: 20),
 
               // Hoşgeldiniz Mesajı
               Text(

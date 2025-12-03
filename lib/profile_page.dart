@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'settings_page.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
@@ -28,11 +29,28 @@ class ProfilSayfasi extends StatelessWidget {
                 backgroundColor: Theme.of(
                   context,
                 ).colorScheme.surfaceContainerHighest,
-                child: Icon(
-                  Icons.person,
-                  size: 40,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                backgroundImage:
+                    authController.currentUser?.profileImage != null
+                    ? (authController.currentUser!.profileImage!.startsWith(
+                                'http',
+                              )
+                              ? NetworkImage(
+                                  authController.currentUser!.profileImage!,
+                                )
+                              : FileImage(
+                                  File(
+                                    authController.currentUser!.profileImage!,
+                                  ),
+                                ))
+                          as ImageProvider
+                    : null,
+                child: authController.currentUser?.profileImage == null
+                    ? Icon(
+                        Icons.person,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      )
+                    : null,
               ),
               const SizedBox(width: 16),
               Text(
@@ -67,7 +85,7 @@ class ProfilSayfasi extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        AyarlarSayfasi(userId: authController.currentUser!.id),
+                        AyarlarSayfasi(authController: authController),
                   ),
                 );
                 if (result == true && onRefresh != null) {

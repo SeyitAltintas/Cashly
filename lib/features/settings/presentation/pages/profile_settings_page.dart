@@ -1,12 +1,16 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../auth/data/repositories/auth_repository_impl.dart';
+
 import '../../../auth/domain/entities/user_entity.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 
 class ProfileSettingsPage extends StatefulWidget {
-  final String userId;
+  final AuthController authController;
 
-  const ProfileSettingsPage({super.key, required this.userId});
+  const ProfileSettingsPage({super.key, required this.authController});
 
   @override
   State<ProfileSettingsPage> createState() => _ProfileSettingsPageState();
@@ -34,16 +38,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   Future<void> _loadUserData() async {
     setState(() => _isLoading = true);
     try {
-      // Get user from repository
-      // Since we have userId, we can try to get it directly or via getCurrentUser if it matches
-      final user = await _authRepository.getCurrentUser();
-      if (user != null && user.id == widget.userId) {
-        _currentUser = user;
-      } else {
-        // Fallback or specific fetch if needed (repository doesn't have getUserById exposed but login does)
-        // For now assuming current user is the target
-        _currentUser = user;
-      }
+      _currentUser = widget.authController.currentUser;
     } catch (e) {
       if (mounted) {
         ErrorHandler.showErrorSnackBar(
@@ -74,8 +69,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
     try {
       await _authRepository.updateUser(updatedUser);
+      await widget.authController.checkAuth();
       setState(() {
-        _currentUser = updatedUser;
+        _currentUser = widget.authController.currentUser;
       });
       if (mounted) {
         ErrorHandler.showSuccessSnackBar(
@@ -87,6 +83,19 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       if (mounted) {
         ErrorHandler.showErrorSnackBar(context, "Güncelleme başarısız: $e");
       }
+    }
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      _updateUser(
+        profileImage: image.path,
+        successMessage: "Profil resmi güncellendi",
+      );
+      if (mounted) Navigator.pop(context);
     }
   }
 
@@ -122,7 +131,23 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 ),
               ],
             ),
+
             const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _pickImageFromGallery,
+                icon: const Icon(Icons.photo_library),
+                label: const Text("Galeriden Seç"),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             Expanded(
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -135,7 +160,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   final styleIndex = index ~/ 3;
                   final variationIndex = index % 3;
                   final style = _avatarStyles[styleIndex];
-                  final seed = "${widget.userId}_$variationIndex";
+                  final seed =
+                      "${widget.authController.currentUser?.id ?? 'user'}_$variationIndex";
                   final url =
                       "https://api.dicebear.com/7.x/$style/png?seed=$seed";
 
@@ -181,6 +207,44 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     ),
                   );
                 },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showFullScreenImage() {
+    if (_currentUser?.profileImage == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.zero,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.black.withValues(alpha: 0.8),
+              ),
+            ),
+            InteractiveViewer(
+              child: _currentUser!.profileImage!.startsWith('http')
+                  ? Image.network(_currentUser!.profileImage!)
+                  : Image.file(File(_currentUser!.profileImage!)),
+            ),
+            Positioned(
+              top: 40,
+              right: 20,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                onPressed: () => Navigator.pop(context),
               ),
             ),
           ],
@@ -617,12 +681,13 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         child: Column(
           children: [
             // Profil Resmi
+            SizedBox(height: 20),
             Center(
-              child: GestureDetector(
-                onTap: _showAvatarSelectionDialog,
-                child: Stack(
-                  children: [
-                    Container(
+              child: Stack(
+                children: [
+                  GestureDetector(
+                    onTap: _showFullScreenImage,
+                    child: Container(
                       width: 120,
                       height: 120,
                       decoration: BoxDecoration(
@@ -634,9 +699,15 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         ),
                         image: _currentUser!.profileImage != null
                             ? DecorationImage(
-                                image: NetworkImage(
-                                  _currentUser!.profileImage!,
-                                ),
+                                image:
+                                    _currentUser!.profileImage!.startsWith(
+                                      'http',
+                                    )
+                                    ? NetworkImage(_currentUser!.profileImage!)
+                                    : FileImage(
+                                            File(_currentUser!.profileImage!),
+                                          )
+                                          as ImageProvider,
                                 fit: BoxFit.cover,
                               )
                             : null,
@@ -649,9 +720,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             )
                           : null,
                     ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: _showAvatarSelectionDialog,
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -665,11 +739,11 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
 
             // İsim Değiştirme Kartı
             _buildSettingsCard(
