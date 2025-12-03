@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../domain/entities/user_entity.dart';
@@ -84,14 +85,22 @@ class _UserListPageState extends State<UserListPage> {
                       backgroundColor: Theme.of(
                         context,
                       ).colorScheme.primary.withValues(alpha: 0.2),
-                      child: Text(
-                        user.name[0].toUpperCase(),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
+                      backgroundImage: user.profileImage != null
+                          ? (user.profileImage!.startsWith('http')
+                                    ? NetworkImage(user.profileImage!)
+                                    : FileImage(File(user.profileImage!)))
+                                as ImageProvider
+                          : null,
+                      child: user.profileImage == null
+                          ? Text(
+                              user.name[0].toUpperCase(),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            )
+                          : null,
                     ),
                     title: Text(
                       user.name,

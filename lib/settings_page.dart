@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import 'services/database_helper.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
 import 'features/settings/presentation/pages/appearance_page.dart';
+
+import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'core/utils/validators.dart';
 import 'core/utils/error_handler.dart';
 
 class AyarlarSayfasi extends StatefulWidget {
-  final String userId;
+  final AuthController authController;
 
-  const AyarlarSayfasi({super.key, required this.userId});
+  const AyarlarSayfasi({super.key, required this.authController});
 
   @override
   State<AyarlarSayfasi> createState() => _AyarlarSayfasiState();
@@ -94,8 +96,9 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                     final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            HarcamalarAyarlariSayfasi(userId: widget.userId),
+                        builder: (context) => HarcamalarAyarlariSayfasi(
+                          userId: widget.authController.currentUser!.id,
+                        ),
                       ),
                     );
                     if (result == true) {
