@@ -653,7 +653,15 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                             ),
                             onPressed: () => kategoriSil(index),
                           ),
-                          const SizedBox(width: 12),
+                          ReorderableDragStartListener(
+                            index: index,
+                            child: Icon(
+                              Icons.drag_handle,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.54),
+                            ),
+                          ),
                         ],
                       ),
                     ),
