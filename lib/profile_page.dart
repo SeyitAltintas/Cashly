@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'settings_page.dart';
+import 'features/settings/presentation/pages/profile_settings_page.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'core/constants/color_constants.dart';
@@ -64,6 +65,42 @@ class ProfilSayfasi extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 32),
+          // Kullanıcı Bilgileri Butonu
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ProfileSettingsPage(authController: authController),
+                  ),
+                );
+              },
+              child: const Text(
+                "Kullanıcı Bilgileri",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           // Ayarlar Butonu
           SizedBox(
             width: double.infinity,

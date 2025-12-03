@@ -4,7 +4,6 @@ import 'services/database_helper.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
 import 'features/settings/presentation/pages/appearance_page.dart';
 
-import 'features/settings/presentation/pages/profile_settings_page.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'core/utils/validators.dart';
 import 'core/utils/error_handler.dart';
@@ -44,42 +43,6 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.1),
-                      ),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProfileSettingsPage(
-                          authController: widget.authController,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    "Profil Ayarları",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
