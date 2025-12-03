@@ -856,7 +856,9 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         Text(
                           "%${(dolulukOrani * 100).toStringAsFixed(0)}",
                           style: TextStyle(
-                            color: barRengi,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),

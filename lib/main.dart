@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'services/database_helper.dart';
 import 'home_page.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
+import 'features/auth/data/initialize_default_user.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'package:provider/provider.dart';
@@ -66,6 +67,9 @@ class _CashlyAppState extends State<CashlyApp> {
 
       // Veritabanını başlat
       await DatabaseHelper.baslat();
+
+      // Varsayılan test kullanıcısını oluştur (geçici)
+      await initializeDefaultUser();
 
       // Auth repository ve controller'ı oluştur
       final authRepository = AuthRepositoryImpl();
