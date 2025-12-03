@@ -176,7 +176,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Kategori eklendi ✅'),
+        content: const Text('Kategori eklendi ✅'),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
     );
@@ -277,7 +277,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
 
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Varsayılan kategoriler yüklendi'),
+                  content: const Text('Varsayılan kategoriler yüklendi'),
                   backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
               );
@@ -299,10 +299,15 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
     secilenIkon = 'category';
     tKategoriIsmi.clear();
 
+    // Arama controller
+    final TextEditingController aramaController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) {
+          final aramaMetni = aramaController.text.toLowerCase().trim();
+
           return AlertDialog(
             backgroundColor: Theme.of(context).colorScheme.surface,
             title: const Text(
@@ -336,14 +341,78 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  'İkon Seç:',
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    fontSize: 12,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      'İkon Seç:',
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: SizedBox(
+                        height: 36,
+                        child: TextField(
+                          controller: aramaController,
+                          onChanged: (value) {
+                            setStateDialog(() {}); // Rebuild dialog
+                          },
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Ara...',
+                            hintStyle: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.38),
+                              fontSize: 11,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              size: 18,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.54),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.2),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.2),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.secondary,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
@@ -355,12 +424,28 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                       final kategoriAdi = ikonKategorileri.keys.elementAt(
                         katIndex,
                       );
-                      final ikonListesi = ikonKategorileri[kategoriAdi]!;
+                      final tumIkonlar = ikonKategorileri[kategoriAdi]!;
+
+                      // Arama metnine göre filtrele
+                      final ikonListesi = aramaMetni.isEmpty
+                          ? tumIkonlar
+                          : tumIkonlar.where((ikon) {
+                              final ikonAdi = ikon['key'] as String;
+                              return kategoriAdi.toLowerCase().contains(
+                                    aramaMetni,
+                                  ) ||
+                                  ikonAdi.toLowerCase().contains(aramaMetni);
+                            }).toList();
+
+                      // Eğer filtreleme sonrası liste boşsa bu kategoriyi gösterme
+                      if (ikonListesi.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (katIndex > 0)
+                          if (katIndex > 0 && aramaMetni.isEmpty)
                             Divider(
                               color: Theme.of(
                                 context,
