@@ -21,12 +21,16 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   UserEntity? _currentUser;
   bool _isLoading = true;
 
-  final List<String> _avatarStyles = [
-    'avataaars',
-    'bottts',
-    'initials',
-    'micah',
-    'notionists',
+  final List<String> _localProfileImages = [
+    'lib/features/assets/profil_images/babaanne_kedi.jpg',
+    'lib/features/assets/profil_images/entelektuel_kedi.jpg',
+    'lib/features/assets/profil_images/karmasik_kafa.jpg',
+    'lib/features/assets/profil_images/kuzu.jpg',
+    'lib/features/assets/profil_images/mrbean_gta.jpg',
+    'lib/features/assets/profil_images/mumin_cj.jpg',
+    'lib/features/assets/profil_images/mumin_kedi.jpg',
+    'lib/features/assets/profil_images/pilot_kedi.jpg',
+    'lib/features/assets/profil_images/ucan_kedi.jpg',
   ];
 
   @override
@@ -48,6 +52,16 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       }
     } finally {
       setState(() => _isLoading = false);
+    }
+  }
+
+  ImageProvider _getImageProvider(String path) {
+    if (path.startsWith('http')) {
+      return NetworkImage(path);
+    } else if (path.startsWith('lib/') || path.startsWith('assets/')) {
+      return AssetImage(path);
+    } else {
+      return FileImage(File(path));
     }
   }
 
@@ -155,20 +169,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
-                itemCount: _avatarStyles.length * 3,
+                itemCount: _localProfileImages.length,
                 itemBuilder: (context, index) {
-                  final styleIndex = index ~/ 3;
-                  final variationIndex = index % 3;
-                  final style = _avatarStyles[styleIndex];
-                  final seed =
-                      "${widget.authController.currentUser?.id ?? 'user'}_$variationIndex";
-                  final url =
-                      "https://api.dicebear.com/7.x/$style/png?seed=$seed";
+                  final imagePath = _localProfileImages[index];
 
                   return GestureDetector(
                     onTap: () {
                       _updateUser(
-                        profileImage: url,
+                        profileImage: imagePath,
                         successMessage: "Profil resmi güncellendi",
                       );
                       Navigator.pop(context);
@@ -184,22 +192,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         ),
                       ),
                       child: ClipOval(
-                        child: Image.network(
-                          url,
+                        child: Image.asset(
+                          imagePath,
                           fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value:
-                                    loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                    : null,
-                                strokeWidth: 2,
-                              ),
-                            );
-                          },
                           errorBuilder: (context, error, stackTrace) =>
                               const Icon(Icons.error),
                         ),
@@ -235,9 +230,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               ),
             ),
             InteractiveViewer(
-              child: _currentUser!.profileImage!.startsWith('http')
-                  ? Image.network(_currentUser!.profileImage!)
-                  : Image.file(File(_currentUser!.profileImage!)),
+              child: Image(
+                image: _getImageProvider(_currentUser!.profileImage!),
+                fit: BoxFit.contain,
+              ),
             ),
             Positioned(
               top: 40,
@@ -429,7 +425,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           TextFormField(
                             controller: currentPinController,
                             keyboardType: TextInputType.number,
-                            maxLength: 4,
+                            maxLength: 6,
                             obscureText: !isCurrentPinVisible,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface,
@@ -472,8 +468,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                               ),
                             ),
                             validator: (value) {
-                              if (value == null || value.length != 4) {
-                                return "4 haneli PIN giriniz";
+                              if (value == null ||
+                                  value.length < 4 ||
+                                  value.length > 6) {
+                                return "4-6 haneli PIN giriniz";
                               }
                               if (value != _currentUser!.pin) {
                                 return "PIN hatalı";
@@ -485,7 +483,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           TextFormField(
                             controller: newPinController,
                             keyboardType: TextInputType.number,
-                            maxLength: 4,
+                            maxLength: 6,
                             obscureText: !isNewPinVisible,
                             autofocus: true,
                             style: TextStyle(
@@ -529,8 +527,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                               ),
                             ),
                             validator: (value) {
-                              if (value == null || value.length != 4) {
-                                return "4 haneli PIN giriniz";
+                              if (value == null ||
+                                  value.length < 4 ||
+                                  value.length > 6) {
+                                return "4-6 haneli PIN giriniz";
                               }
                               return null;
                             },
@@ -539,7 +539,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           TextFormField(
                             controller: confirmPinController,
                             keyboardType: TextInputType.number,
-                            maxLength: 4,
+                            maxLength: 6,
                             obscureText: !isConfirmPinVisible,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface,
@@ -699,15 +699,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         ),
                         image: _currentUser!.profileImage != null
                             ? DecorationImage(
-                                image:
-                                    _currentUser!.profileImage!.startsWith(
-                                      'http',
-                                    )
-                                    ? NetworkImage(_currentUser!.profileImage!)
-                                    : FileImage(
-                                            File(_currentUser!.profileImage!),
-                                          )
-                                          as ImageProvider,
+                                image: _getImageProvider(
+                                  _currentUser!.profileImage!,
+                                ),
                                 fit: BoxFit.cover,
                               )
                             : null,

@@ -38,6 +38,13 @@ class ProfilSayfasi extends StatelessWidget {
                               ? NetworkImage(
                                   authController.currentUser!.profileImage!,
                                 )
+                              : (authController.currentUser!.profileImage!
+                                        .startsWith('lib/') ||
+                                    authController.currentUser!.profileImage!
+                                        .startsWith('assets/'))
+                              ? AssetImage(
+                                  authController.currentUser!.profileImage!,
+                                )
                               : FileImage(
                                   File(
                                     authController.currentUser!.profileImage!,

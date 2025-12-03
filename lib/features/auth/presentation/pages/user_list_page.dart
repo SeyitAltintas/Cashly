@@ -88,6 +88,11 @@ class _UserListPageState extends State<UserListPage> {
                       backgroundImage: user.profileImage != null
                           ? (user.profileImage!.startsWith('http')
                                     ? NetworkImage(user.profileImage!)
+                                    : (user.profileImage!.startsWith('lib/') ||
+                                          user.profileImage!.startsWith(
+                                            'assets/',
+                                          ))
+                                    ? AssetImage(user.profileImage!)
                                     : FileImage(File(user.profileImage!)))
                                 as ImageProvider
                           : null,
