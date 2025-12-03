@@ -182,84 +182,121 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     );
   }
 
-  void _showNameChangeDialog() {
+  void _showNameChangeBottomSheet() {
     if (_currentUser == null) return;
     final TextEditingController nameController = TextEditingController(
       text: _currentUser!.name,
     );
     final formKey = GlobalKey<FormState>();
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        title: Text(
-          "İsim Değiştir",
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        content: Form(
-          key: formKey,
-          child: TextFormField(
-            controller: nameController,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-            decoration: InputDecoration(
-              hintText: "Yeni İsim",
-              hintStyle: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.5),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "İsim Değiştir",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
               ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.2),
+              const SizedBox(height: 24),
+              Form(
+                key: formKey,
+                child: TextFormField(
+                  controller: nameController,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: "Yeni İsim",
+                    labelStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(context).colorScheme.surface,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "İsim boş olamaz";
+                    }
+                    return null;
+                  },
                 ),
               ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      _updateUser(name: nameController.text.trim());
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Kaydet",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
-            ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return "İsim boş olamaz";
-              }
-              return null;
-            },
+              const SizedBox(height: 16),
+            ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              "İptal",
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                _updateUser(name: nameController.text.trim());
-                Navigator.pop(context);
-              }
-            },
-            child: Text(
-              "Kaydet",
-              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  void _showPinChangeDialog() {
+  void _showPinChangeBottomSheet() {
     if (_currentUser == null) return;
     final TextEditingController currentPinController = TextEditingController();
     final TextEditingController newPinController = TextEditingController();
@@ -267,133 +304,211 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     final formKey = GlobalKey<FormState>();
     int step = 1;
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
-        builder: (context, setStateDialog) {
-          return AlertDialog(
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            title: Text(
-              step == 1 ? "Mevcut PIN" : "Yeni PIN",
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        builder: (context, setStateBottomSheet) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
-            content: Form(
-              key: formKey,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+              ),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (step == 1)
-                    TextFormField(
-                      controller: currentPinController,
-                      keyboardType: TextInputType.number,
-                      maxLength: 4,
-                      obscureText: true,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: "Mevcut PIN'inizi girin",
-                        hintStyle: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        step == 1 ? "Mevcut PIN" : "Yeni PIN",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.length != 4) {
-                          return "4 haneli PIN giriniz";
-                        }
-                        if (value != _currentUser!.pin) {
-                          return "PIN hatalı";
-                        }
-                        return null;
-                      },
-                    ),
-                  if (step == 2) ...[
-                    TextFormField(
-                      controller: newPinController,
-                      keyboardType: TextInputType.number,
-                      maxLength: 4,
-                      obscureText: true,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
                       ),
-                      decoration: InputDecoration(
-                        hintText: "Yeni PIN",
-                        hintStyle: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Form(
+                    key: formKey,
+                    child: Column(
+                      children: [
+                        if (step == 1)
+                          TextFormField(
+                            controller: currentPinController,
+                            keyboardType: TextInputType.number,
+                            maxLength: 4,
+                            obscureText: true,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: "Mevcut PIN",
+                              labelStyle: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.2),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.length != 4) {
+                                return "4 haneli PIN giriniz";
+                              }
+                              if (value != _currentUser!.pin) {
+                                return "PIN hatalı";
+                              }
+                              return null;
+                            },
+                          ),
+                        if (step == 2) ...[
+                          TextFormField(
+                            controller: newPinController,
+                            keyboardType: TextInputType.number,
+                            maxLength: 4,
+                            obscureText: true,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: "Yeni PIN",
+                              labelStyle: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.2),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.length != 4) {
+                                return "4 haneli PIN giriniz";
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: confirmPinController,
+                            keyboardType: TextInputType.number,
+                            maxLength: 4,
+                            obscureText: true,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: "Yeni PIN (Tekrar)",
+                              labelStyle: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.2),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.surface,
+                            ),
+                            validator: (value) {
+                              if (value != newPinController.text) {
+                                return "PIN'ler eşleşmiyor";
+                              }
+                              return null;
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (formKey.currentState!.validate()) {
+                          if (step == 1) {
+                            setStateBottomSheet(() {
+                              step = 2;
+                            });
+                          } else {
+                            _updateUser(pin: newPinController.text);
+                            Navigator.pop(context);
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.length != 4) {
-                          return "4 haneli PIN giriniz";
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: confirmPinController,
-                      keyboardType: TextInputType.number,
-                      maxLength: 4,
-                      obscureText: true,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: "Yeni PIN (Tekrar)",
-                        hintStyle: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.5),
+                      child: Text(
+                        step == 1 ? "İleri" : "Kaydet",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      validator: (value) {
-                        if (value != newPinController.text) {
-                          return "PIN'ler eşleşmiyor";
-                        }
-                        return null;
-                      },
                     ),
-                  ],
+                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  "İptal",
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (formKey.currentState!.validate()) {
-                    if (step == 1) {
-                      setStateDialog(() {
-                        step = 2;
-                      });
-                    } else {
-                      _updateUser(pin: newPinController.text);
-                      Navigator.pop(context);
-                    }
-                  }
-                },
-                child: Text(
-                  step == 1 ? "İleri" : "Kaydet",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-            ],
           );
         },
       ),
@@ -503,7 +618,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               title: "İsim Soyisim",
               subtitle: _currentUser!.name,
               icon: Icons.person_outline,
-              onTap: _showNameChangeDialog,
+              onTap: _showNameChangeBottomSheet,
             ),
             const SizedBox(height: 16),
 
@@ -523,7 +638,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               title: "Güvenlik PIN'i",
               subtitle: "****",
               icon: Icons.lock_outline,
-              onTap: _showPinChangeDialog,
+              onTap: _showPinChangeBottomSheet,
             ),
           ],
         ),
