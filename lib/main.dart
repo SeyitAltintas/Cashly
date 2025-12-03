@@ -63,7 +63,7 @@ class _CashlyAppState extends State<CashlyApp> {
   Future<void> _initializeApp() async {
     try {
       // UI'ın çizilmesi için bekle (büyük asset yükleme süresini kapsasın)
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 300));
 
       // Veritabanını başlat
       await DatabaseHelper.baslat();
@@ -181,34 +181,46 @@ class _CashlyAppState extends State<CashlyApp> {
         }
 
         // Başarılı başlatma
-        return AnimatedBuilder(
-          animation: _authController!,
-          builder: (context, child) {
-            return MaterialApp(
-              title: 'Cashly',
-              debugShowCheckedModeBanner: false,
-              localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [Locale('tr', 'TR')],
-              theme: themeManager.currentTheme,
-              home: _authController!.isLoading
-                  ? Scaffold(
-                      backgroundColor: Colors.black,
-                      body: Center(
-                        child: CircularProgressIndicator(
-                          color: themeManager.currentTheme.colorScheme.primary,
-                        ),
-                      ),
-                    )
-                  : _authController!.currentUser != null
-                  ? AnaSayfa(authController: _authController!)
-                  : LoginPage(authController: _authController!),
-            );
-          },
+        return MaterialApp(
+          title: 'Cashly',
+          debugShowCheckedModeBanner: false,
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('tr', 'TR')],
+          theme: themeManager.currentTheme,
+          home: AuthWrapper(authController: _authController!),
         );
+      },
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  final AuthController authController;
+
+  const AuthWrapper({super.key, required this.authController});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: authController,
+      builder: (context, child) {
+        if (authController.isLoading) {
+          return Scaffold(
+            backgroundColor: Colors.black,
+            body: Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          );
+        }
+        return authController.currentUser != null
+            ? AnaSayfa(authController: authController)
+            : LoginPage(authController: authController);
       },
     );
   }

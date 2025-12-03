@@ -31,6 +31,15 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> updateUser(UserEntity user) async {
+    final box = await _getUsersBox();
+    final userModel = UserModel.fromEntity(user);
+    await box.put(user.id, userModel.toMap());
+
+    // If updating current user, refresh session if needed (though session stores ID which doesn't change)
+  }
+
+  @override
   Future<UserEntity?> loginUser(String id, String pin) async {
     final box = await _getUsersBox();
     final userData = box.get(id);
