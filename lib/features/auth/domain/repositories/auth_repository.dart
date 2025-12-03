@@ -10,5 +10,4 @@ abstract class AuthRepository {
   Future<void> setCurrentUser(String id);
   Future<String?> getLastUserId();
   Future<void> setLastUserId(String id);
-  Future<void> updateUser(UserEntity user);
 }

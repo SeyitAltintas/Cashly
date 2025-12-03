@@ -108,11 +108,4 @@ class AuthRepositoryImpl implements AuthRepository {
     await sessionBox.put('last_user_id', id);
     await sessionBox.flush();
   }
-
-  @override
-  Future<void> updateUser(UserEntity user) async {
-    final box = await _getUsersBox();
-    final userModel = UserModel.fromEntity(user);
-    await box.put(user.id, userModel.toMap());
-  }
 }
