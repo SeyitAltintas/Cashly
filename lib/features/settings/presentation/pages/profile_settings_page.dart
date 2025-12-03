@@ -60,6 +60,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     String? name,
     String? pin,
     String? profileImage,
+    String? successMessage,
   }) async {
     if (_currentUser == null) return;
 
@@ -77,7 +78,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         _currentUser = updatedUser;
       });
       if (mounted) {
-        ErrorHandler.showSuccessSnackBar(context, "Profil güncellendi");
+        ErrorHandler.showSuccessSnackBar(
+          context,
+          successMessage ?? "Profil güncellendi",
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -137,7 +141,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
                   return GestureDetector(
                     onTap: () {
-                      _updateUser(profileImage: url);
+                      _updateUser(
+                        profileImage: url,
+                        successMessage: "Profil resmi güncellendi",
+                      );
                       Navigator.pop(context);
                     },
                     child: Container(
@@ -270,7 +277,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
-                      _updateUser(name: nameController.text.trim());
+                      _updateUser(
+                        name: nameController.text.trim(),
+                        successMessage: "İsim Soyisim Güncellendi",
+                      );
                       Navigator.pop(context);
                     }
                   },
@@ -303,6 +313,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     final TextEditingController confirmPinController = TextEditingController();
     final formKey = GlobalKey<FormState>();
     int step = 1;
+    bool isCurrentPinVisible = false;
+    bool isNewPinVisible = false;
+    bool isConfirmPinVisible = false;
 
     showModalBottomSheet(
       context: context,
@@ -353,7 +366,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             controller: currentPinController,
                             keyboardType: TextInputType.number,
                             maxLength: 4,
-                            obscureText: true,
+                            obscureText: !isCurrentPinVisible,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
@@ -379,6 +392,20 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                               ),
                               filled: true,
                               fillColor: Theme.of(context).colorScheme.surface,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  isCurrentPinVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
+                                onPressed: () {
+                                  setStateBottomSheet(() {
+                                    isCurrentPinVisible = !isCurrentPinVisible;
+                                  });
+                                },
+                              ),
                             ),
                             validator: (value) {
                               if (value == null || value.length != 4) {
@@ -395,7 +422,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             controller: newPinController,
                             keyboardType: TextInputType.number,
                             maxLength: 4,
-                            obscureText: true,
+                            obscureText: !isNewPinVisible,
+                            autofocus: true,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
@@ -421,6 +449,20 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                               ),
                               filled: true,
                               fillColor: Theme.of(context).colorScheme.surface,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  isNewPinVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
+                                onPressed: () {
+                                  setStateBottomSheet(() {
+                                    isNewPinVisible = !isNewPinVisible;
+                                  });
+                                },
+                              ),
                             ),
                             validator: (value) {
                               if (value == null || value.length != 4) {
@@ -434,7 +476,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             controller: confirmPinController,
                             keyboardType: TextInputType.number,
                             maxLength: 4,
-                            obscureText: true,
+                            obscureText: !isConfirmPinVisible,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
@@ -460,6 +502,20 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                               ),
                               filled: true,
                               fillColor: Theme.of(context).colorScheme.surface,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  isConfirmPinVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
+                                onPressed: () {
+                                  setStateBottomSheet(() {
+                                    isConfirmPinVisible = !isConfirmPinVisible;
+                                  });
+                                },
+                              ),
                             ),
                             validator: (value) {
                               if (value != newPinController.text) {
@@ -483,7 +539,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                               step = 2;
                             });
                           } else {
-                            _updateUser(pin: newPinController.text);
+                            _updateUser(
+                              pin: newPinController.text,
+                              successMessage: "PIN Güncellendi",
+                            );
                             Navigator.pop(context);
                           }
                         }
