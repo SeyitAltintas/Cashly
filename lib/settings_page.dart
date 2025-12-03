@@ -649,16 +649,16 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.calendar_month,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: Colors.white,
                           size: 24,
                         ),
                         const SizedBox(width: 12),
                         Text(
                           "Tüm Sabit Giderleri Bu Aya Ekle",
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onPrimary,
+                          style: const TextStyle(
+                            color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),

@@ -17,220 +17,138 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
   final TextEditingController tKategoriIsmi = TextEditingController();
   String secilenIkon = 'category';
 
-  // Kullanılabilir ikonlar (100+ adet)
-  final Map<String, IconData> ikonlar = {
-    // Yemek & İçecek
-    'restaurant': Icons.restaurant,
-    'local_cafe': Icons.local_cafe,
-    'local_bar': Icons.local_bar,
-    'local_pizza': Icons.local_pizza,
-    'lunch_dining': Icons.lunch_dining,
-    'dinner_dining': Icons.dinner_dining,
-    'breakfast_dining': Icons.breakfast_dining,
-    'fastfood': Icons.fastfood,
-    'bakery_dining': Icons.bakery_dining,
-    'icecream': Icons.icecream,
-    'coffee': Icons.coffee,
-    'emoji_food_beverage': Icons.emoji_food_beverage,
-    'cake': Icons.cake,
-    'restaurant_menu': Icons.restaurant_menu,
-    'ramen_dining': Icons.ramen_dining,
-    'wine_bar': Icons.wine_bar,
-    'liquor': Icons.liquor,
-    'local_drink': Icons.local_drink,
-
-    // Alışveriş
-    'shopping_basket': Icons.shopping_basket,
-    'shopping_cart': Icons.shopping_cart,
-    'shopping_bag': Icons.shopping_bag,
-    'local_mall': Icons.local_mall,
-    'storefront': Icons.storefront,
-    'store': Icons.store,
-    'local_grocery_store': Icons.local_grocery_store,
-    'local_convenience_store': Icons.local_convenience_store,
-    'local_offer': Icons.local_offer,
-    'loyalty': Icons.loyalty,
-    'redeem': Icons.redeem,
-    'card_giftcard': Icons.card_giftcard,
-
-    // Ulaşım
-    'two_wheeler': Icons.two_wheeler,
-    'directions_car': Icons.directions_car,
-    'directions_bus': Icons.directions_bus,
-    'directions_subway': Icons.directions_subway,
-    'train': Icons.train,
-    'tram': Icons.tram,
-    'local_taxi': Icons.local_taxi,
-    'airport_shuttle': Icons.airport_shuttle,
-    'flight': Icons.flight,
-    'flight_takeoff': Icons.flight_takeoff,
-    'flight_land': Icons.flight_land,
-    'directions_bike': Icons.directions_bike,
-    'electric_scooter': Icons.electric_scooter,
-    'electric_bike': Icons.electric_bike,
-    'electric_car': Icons.electric_car,
-    'local_gas_station': Icons.local_gas_station,
-    'local_parking': Icons.local_parking,
-    'ev_station': Icons.ev_station,
-    'car_rental': Icons.car_rental,
-    'commute': Icons.commute,
-    'directions_walk': Icons.directions_walk,
-    'directions_run': Icons.directions_run,
-
-    // Ev & Yaşam
-    'home': Icons.home,
-    'house': Icons.house,
-    'apartment': Icons.apartment,
-    'cottage': Icons.cottage,
-    'hotel': Icons.hotel,
-    'bed': Icons.bed,
-    'living': Icons.living,
-    'kitchen': Icons.kitchen,
-    'bathroom': Icons.bathroom,
-    'garage': Icons.garage,
-    'chair': Icons.chair,
-    'table_bar': Icons.table_bar,
-    'light': Icons.light,
-    'lightbulb': Icons.lightbulb,
-
-    // Finans & Ödeme
-    'credit_card': Icons.credit_card,
-    'payment': Icons.payment,
-    'account_balance': Icons.account_balance,
-    'account_balance_wallet': Icons.account_balance_wallet,
-    'attach_money': Icons.attach_money,
-    'money': Icons.money,
-    'paid': Icons.paid,
-    'savings': Icons.savings,
-    'currency_exchange': Icons.currency_exchange,
-    'price_change': Icons.price_change,
-    'receipt': Icons.receipt,
-    'receipt_long': Icons.receipt_long,
-
-    // Eğitim & Okul
-    'school': Icons.school,
-    'menu_book': Icons.menu_book,
-    'book': Icons.book,
-    'library_books': Icons.library_books,
-    'auto_stories': Icons.auto_stories,
-    'backpack': Icons.backpack,
-    'calculate': Icons.calculate,
-    'edit': Icons.edit,
-    'draw': Icons.draw,
-    'science': Icons.science,
-
-    // Sağlık & Fitness
-    'medical_services': Icons.medical_services,
-    'local_hospital': Icons.local_hospital,
-    'local_pharmacy': Icons.local_pharmacy,
-    'healing': Icons.healing,
-    'medication': Icons.medication,
-    'vaccines': Icons.vaccines,
-    'fitness_center': Icons.fitness_center,
-    'sports_gymnastics': Icons.sports_gymnastics,
-    'sports_martial_arts': Icons.sports_martial_arts,
-    'self_improvement': Icons.self_improvement,
-    'spa': Icons.spa,
-    'hot_tub': Icons.hot_tub,
-    'pool': Icons.pool,
-    'sports': Icons.sports,
-    'sports_soccer': Icons.sports_soccer,
-    'sports_basketball': Icons.sports_basketball,
-    'sports_tennis': Icons.sports_tennis,
-    'sports_football': Icons.sports_football,
-    'sports_baseball': Icons.sports_baseball,
-    'sports_volleyball': Icons.sports_volleyball,
-    'sports_golf': Icons.sports_golf,
-    'sports_hockey': Icons.sports_hockey,
-    'sports_cricket': Icons.sports_cricket,
-
-    // Eğlence & Hobi
-    'sports_esports': Icons.sports_esports,
-    'videogame_asset': Icons.videogame_asset,
-    'casino': Icons.casino,
-    'movie': Icons.movie,
-    'theaters': Icons.theaters,
-    'local_movies': Icons.local_movies,
-    'music_note': Icons.music_note,
-    'headphones': Icons.headphones,
-    'album': Icons.album,
-    'library_music': Icons.library_music,
-    'piano': Icons.piano,
-    'mic': Icons.mic,
-    'palette': Icons.palette,
-    'brush': Icons.brush,
-    'color_lens': Icons.color_lens,
-    'photo_camera': Icons.photo_camera,
-    'camera_alt': Icons.camera_alt,
-    'videocam': Icons.videocam,
-    'celebration': Icons.celebration,
-    'party_mode': Icons.party_mode,
-
-    // Teknoloji & Elektronik
-    'phone_android': Icons.phone_android,
-    'phone_iphone': Icons.phone_iphone,
-    'smartphone': Icons.smartphone,
-    'tablet': Icons.tablet,
-    'computer': Icons.computer,
-    'laptop': Icons.laptop,
-    'desktop_windows': Icons.desktop_windows,
-    'keyboard': Icons.keyboard,
-    'mouse': Icons.mouse,
-    'headset': Icons.headset,
-    'watch': Icons.watch,
-    'devices': Icons.devices,
-    'router': Icons.router,
-    'wifi': Icons.wifi,
-    'bluetooth': Icons.bluetooth,
-    'battery_charging_full': Icons.battery_charging_full,
-
-    // Kişisel Bakım
-    'face': Icons.face,
-    'face_retouching_natural': Icons.face_retouching_natural,
-    'checkroom': Icons.checkroom,
-    'dry_cleaning': Icons.dry_cleaning,
-    'iron': Icons.iron,
-    'wash': Icons.wash,
-    'content_cut': Icons.content_cut,
-
-    // Hayvanlar
-    'pets': Icons.pets,
-    'cruelty_free': Icons.cruelty_free,
-
-    // Doğa & Bahçe
-    'local_florist': Icons.local_florist,
-    'eco': Icons.eco,
-    'park': Icons.park,
-    'forest': Icons.forest,
-    'grass': Icons.grass,
-    'yard': Icons.yard,
-
-    // Genel & Diğer
-    'category': Icons.category,
-    'label': Icons.label,
-    'bookmark': Icons.bookmark,
-    'favorite': Icons.favorite,
-    'star': Icons.star,
-    'workspace_premium': Icons.workspace_premium,
-    'diamond': Icons.diamond,
-    'build': Icons.build,
-    'handyman': Icons.handyman,
-    'construction': Icons.construction,
-    'plumbing': Icons.plumbing,
-    'electrical_services': Icons.electrical_services,
-    'cleaning_services': Icons.cleaning_services,
-    'business': Icons.business,
-    'work': Icons.work,
-    'card_travel': Icons.card_travel,
-    'luggage': Icons.luggage,
-    'beach_access': Icons.beach_access,
-    'child_care': Icons.child_care,
-    'toys': Icons.toys,
-    'notifications': Icons.notifications,
-    'campaign': Icons.campaign,
-    'mail': Icons.mail,
-    'send': Icons.send,
+  // Kategorilere göre gruplandırılmış ikonlar
+  final Map<String, List<Map<String, dynamic>>> ikonKategorileri = {
+    'Yemek & İçecek': [
+      {'key': 'restaurant', 'icon': Icons.restaurant},
+      {'key': 'local_cafe', 'icon': Icons.local_cafe},
+      {'key': 'local_pizza', 'icon': Icons.local_pizza},
+      {'key': 'fastfood', 'icon': Icons.fastfood},
+      {'key': 'lunch_dining', 'icon': Icons.lunch_dining},
+      {'key': 'dinner_dining', 'icon': Icons.dinner_dining},
+      {'key': 'breakfast_dining', 'icon': Icons.breakfast_dining},
+      {'key': 'ramen_dining', 'icon': Icons.ramen_dining},
+      {'key': 'bakery_dining', 'icon': Icons.bakery_dining},
+      {'key': 'icecream', 'icon': Icons.icecream},
+      {'key': 'cake', 'icon': Icons.cake},
+      {'key': 'coffee', 'icon': Icons.coffee},
+      {'key': 'local_bar', 'icon': Icons.local_bar},
+      {'key': 'wine_bar', 'icon': Icons.wine_bar},
+    ],
+    'Alışveriş': [
+      {'key': 'shopping_cart', 'icon': Icons.shopping_cart},
+      {'key': 'shopping_bag', 'icon': Icons.shopping_bag},
+      {'key': 'shopping_basket', 'icon': Icons.shopping_basket},
+      {'key': 'local_mall', 'icon': Icons.local_mall},
+      {'key': 'storefront', 'icon': Icons.storefront},
+      {'key': 'local_grocery_store', 'icon': Icons.local_grocery_store},
+      {'key': 'card_giftcard', 'icon': Icons.card_giftcard},
+      {'key': 'redeem', 'icon': Icons.redeem},
+    ],
+    'Ulaşım': [
+      {'key': 'directions_car', 'icon': Icons.directions_car},
+      {'key': 'two_wheeler', 'icon': Icons.two_wheeler},
+      {'key': 'directions_bike', 'icon': Icons.directions_bike},
+      {'key': 'directions_bus', 'icon': Icons.directions_bus},
+      {'key': 'train', 'icon': Icons.train},
+      {'key': 'local_taxi', 'icon': Icons.local_taxi},
+      {'key': 'flight', 'icon': Icons.flight},
+      {'key': 'local_gas_station', 'icon': Icons.local_gas_station},
+      {'key': 'local_parking', 'icon': Icons.local_parking},
+      {'key': 'electric_car', 'icon': Icons.electric_car},
+    ],
+    'Ev & Yaşam': [
+      {'key': 'home', 'icon': Icons.home},
+      {'key': 'apartment', 'icon': Icons.apartment},
+      {'key': 'bed', 'icon': Icons.bed},
+      {'key': 'kitchen', 'icon': Icons.kitchen},
+      {'key': 'chair', 'icon': Icons.chair},
+      {'key': 'lightbulb', 'icon': Icons.lightbulb},
+      {'key': 'cleaning_services', 'icon': Icons.cleaning_services},
+      {'key': 'plumbing', 'icon': Icons.plumbing},
+      {'key': 'electrical_services', 'icon': Icons.electrical_services},
+    ],
+    'Finans & Ödeme': [
+      {'key': 'credit_card', 'icon': Icons.credit_card},
+      {'key': 'payment', 'icon': Icons.payment},
+      {'key': 'account_balance', 'icon': Icons.account_balance},
+      {'key': 'account_balance_wallet', 'icon': Icons.account_balance_wallet},
+      {'key': 'savings', 'icon': Icons.savings},
+      {'key': 'currency_exchange', 'icon': Icons.currency_exchange},
+      {'key': 'receipt', 'icon': Icons.receipt},
+      {'key': 'paid', 'icon': Icons.paid},
+    ],
+    'Eğitim': [
+      {'key': 'school', 'icon': Icons.school},
+      {'key': 'menu_book', 'icon': Icons.menu_book},
+      {'key': 'library_books', 'icon': Icons.library_books},
+      {'key': 'backpack', 'icon': Icons.backpack},
+      {'key': 'calculate', 'icon': Icons.calculate},
+      {'key': 'science', 'icon': Icons.science},
+      {'key': 'draw', 'icon': Icons.draw},
+    ],
+    'Sağlık & Spor': [
+      {'key': 'medical_services', 'icon': Icons.medical_services},
+      {'key': 'local_hospital', 'icon': Icons.local_hospital},
+      {'key': 'local_pharmacy', 'icon': Icons.local_pharmacy},
+      {'key': 'fitness_center', 'icon': Icons.fitness_center},
+      {'key': 'pool', 'icon': Icons.pool},
+      {'key': 'spa', 'icon': Icons.spa},
+      {'key': 'sports_soccer', 'icon': Icons.sports_soccer},
+      {'key': 'sports_basketball', 'icon': Icons.sports_basketball},
+      {'key': 'sports_tennis', 'icon': Icons.sports_tennis},
+    ],
+    'Eğlence & Hobi': [
+      {'key': 'sports_esports', 'icon': Icons.sports_esports},
+      {'key': 'videogame_asset', 'icon': Icons.videogame_asset},
+      {'key': 'movie', 'icon': Icons.movie},
+      {'key': 'music_note', 'icon': Icons.music_note},
+      {'key': 'headphones', 'icon': Icons.headphones},
+      {'key': 'mic', 'icon': Icons.mic},
+      {'key': 'photo_camera', 'icon': Icons.photo_camera},
+      {'key': 'palette', 'icon': Icons.palette},
+      {'key': 'celebration', 'icon': Icons.celebration},
+    ],
+    'Teknoloji': [
+      {'key': 'smartphone', 'icon': Icons.smartphone},
+      {'key': 'laptop', 'icon': Icons.laptop},
+      {'key': 'computer', 'icon': Icons.computer},
+      {'key': 'tablet', 'icon': Icons.tablet},
+      {'key': 'watch', 'icon': Icons.watch},
+      {'key': 'headset', 'icon': Icons.headset},
+      {'key': 'wifi', 'icon': Icons.wifi},
+      {'key': 'router', 'icon': Icons.router},
+    ],
+    'Kişisel Bakım': [
+      {'key': 'face', 'icon': Icons.face},
+      {'key': 'content_cut', 'icon': Icons.content_cut},
+      {'key': 'checkroom', 'icon': Icons.checkroom},
+      {'key': 'dry_cleaning', 'icon': Icons.dry_cleaning},
+    ],
+    'Diğer': [
+      {'key': 'category', 'icon': Icons.category},
+      {'key': 'star', 'icon': Icons.star},
+      {'key': 'favorite', 'icon': Icons.favorite},
+      {'key': 'pets', 'icon': Icons.pets},
+      {'key': 'local_florist', 'icon': Icons.local_florist},
+      {'key': 'business', 'icon': Icons.business},
+      {'key': 'work', 'icon': Icons.work},
+      {'key': 'build', 'icon': Icons.build},
+      {'key': 'child_care', 'icon': Icons.child_care},
+      {'key': 'toys', 'icon': Icons.toys},
+    ],
   };
+
+  // Tüm ikonları tek bir map'te tut (uyumluluk için)
+  Map<String, IconData> get ikonlar {
+    final Map<String, IconData> tumIkonlar = {};
+    ikonKategorileri.forEach((kategori, ikonListesi) {
+      for (var ikon in ikonListesi) {
+        tumIkonlar[ikon['key']] = ikon['icon'];
+      }
+    });
+    return tumIkonlar;
+  }
 
   @override
   void initState() {
@@ -429,50 +347,94 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
-                  height: 200,
+                  height: 300,
                   width: double.maxFinite,
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 5,
-                          mainAxisSpacing: 8,
-                          crossAxisSpacing: 8,
-                        ),
-                    itemCount: ikonlar.length,
-                    itemBuilder: (context, index) {
-                      final ikonAdi = ikonlar.keys.elementAt(index);
-                      final ikon = ikonlar[ikonAdi]!;
-                      final seciliMi = secilenIkon == ikonAdi;
+                  child: ListView.builder(
+                    itemCount: ikonKategorileri.length,
+                    itemBuilder: (context, katIndex) {
+                      final kategoriAdi = ikonKategorileri.keys.elementAt(
+                        katIndex,
+                      );
+                      final ikonListesi = ikonKategorileri[kategoriAdi]!;
 
-                      return GestureDetector(
-                        onTap: () {
-                          setStateDialog(() {
-                            secilenIkon = ikonAdi;
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: seciliMi
-                                ? Theme.of(context).colorScheme.primary
-                                : const Color(0xFF2E2E2E),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: seciliMi
-                                  ? Theme.of(context).colorScheme.secondary
-                                  : Theme.of(context).colorScheme.onSurface
-                                        .withValues(alpha: 0.1),
-                              width: seciliMi ? 2 : 1,
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (katIndex > 0)
+                            Divider(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.12),
+                              thickness: 1,
+                              height: 20,
+                            ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Text(
+                              kategoriAdi,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                          child: Icon(
-                            ikon,
-                            color: seciliMi
-                                ? Colors.white
-                                : Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.54),
-                            size: 28,
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 5,
+                                  mainAxisSpacing: 8,
+                                  crossAxisSpacing: 8,
+                                  childAspectRatio: 1,
+                                ),
+                            itemCount: ikonListesi.length,
+                            itemBuilder: (context, index) {
+                              final ikonData = ikonListesi[index];
+                              final ikonAdi = ikonData['key'];
+                              final ikon = ikonData['icon'];
+                              final seciliMi = secilenIkon == ikonAdi;
+
+                              return GestureDetector(
+                                onTap: () {
+                                  setStateDialog(() {
+                                    secilenIkon = ikonAdi;
+                                  });
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: seciliMi
+                                        ? Theme.of(context).colorScheme.primary
+                                        : const Color(0xFF2E2E2E),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: seciliMi
+                                          ? Theme.of(
+                                              context,
+                                            ).colorScheme.secondary
+                                          : Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withValues(alpha: 0.1),
+                                      width: seciliMi ? 2 : 1,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    ikon,
+                                    color: seciliMi
+                                        ? Colors.white
+                                        : Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.54),
+                                    size: 24,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        ),
+                        ],
                       );
                     },
                   ),
@@ -559,13 +521,32 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
             ),
             const SizedBox(height: 10),
             Expanded(
-              child: ListView.builder(
+              child: ReorderableListView.builder(
                 itemCount: kategoriler.length,
+                onReorder: (oldIndex, newIndex) {
+                  setState(() {
+                    if (newIndex > oldIndex) {
+                      newIndex -= 1;
+                    }
+                    final kategori = kategoriler.removeAt(oldIndex);
+                    kategoriler.insert(newIndex, kategori);
+                  });
+                  DatabaseHelper.kategorileriKaydet(widget.userId, kategoriler);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Kategori sırası güncellendi'),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                },
                 itemBuilder: (context, index) {
                   final kategori = kategoriler[index];
                   final ikon = ikonlar[kategori['ikon']] ?? Icons.category;
 
                   return Card(
+                    key: Key('kategori_${kategori['isim']}_$index'),
                     color: Theme.of(context).colorScheme.surface,
                     margin: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
@@ -577,12 +558,18 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                         kategori['isim'],
                         style: const TextStyle(color: Colors.white),
                       ),
-                      trailing: IconButton(
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: ColorConstants.kirmiziVurgu,
-                        ),
-                        onPressed: () => kategoriSil(index),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: ColorConstants.kirmiziVurgu,
+                            ),
+                            onPressed: () => kategoriSil(index),
+                          ),
+                          const SizedBox(width: 12),
+                        ],
                       ),
                     ),
                   );

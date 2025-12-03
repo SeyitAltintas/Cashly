@@ -103,18 +103,20 @@ class _AnalysisPageState extends State<AnalysisPage>
     }
 
     final List<Color> vibrantColors = [
-      Theme.of(context).colorScheme.primary,
-      Theme.of(context).colorScheme.secondary,
-      Theme.of(context).colorScheme.tertiary,
-      Colors.orange,
-      Colors.teal,
-      Colors.pink,
-      Colors.indigo,
-      Colors.amber,
-      Colors.cyan,
-      Colors.deepOrange,
-      Colors.purple,
-      Colors.lime,
+      const Color(0xFFFF5252), // Canlı Kırmızı
+      const Color(0xFFFF6F00), // Koyu Turuncu
+      const Color(0xFFFFC107), // Sarı/Amber
+      const Color(0xFF00C853), // Canlı Yeşil
+      const Color(0xFF00BCD4), // Cyan
+      const Color(0xFF2196F3), // Mavi
+      const Color(0xFF9C27B0), // Mor
+      const Color(0xFFE91E63), // Pembe
+      const Color(0xFF4CAF50), // Yeşil
+      const Color(0xFFFF9800), // Turuncu
+      const Color(0xFF673AB7), // Derin Mor
+      const Color(0xFF03A9F4), // Açık Mavi
+      const Color(0xFFCDDC39), // Lime
+      const Color(0xFFFF5722), // Derin Turuncu
     ];
 
     List<PieChartSectionData> sections = [];
