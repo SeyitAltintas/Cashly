@@ -2,8 +2,11 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/utils/error_handler.dart';
+import '../../../../services/database_helper.dart';
 import '../../../auth/data/repositories/auth_repository_impl.dart';
+import '../../../auth/presentation/pages/login_page.dart';
 
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
@@ -103,6 +106,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       email: _currentUser!.email,
       pin: pin ?? _currentUser!.pin,
       profileImage: profileImage ?? _currentUser!.profileImage,
+      createdAt: _currentUser!.createdAt,
+      lastLoginAt: _currentUser!.lastLoginAt,
     );
 
     try {
@@ -128,6 +133,11 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     final random = Random();
     final List<String> shuffled = List.from(_profileImageUrls)..shuffle(random);
     return shuffled.take(9).toList();
+  }
+
+  String _formatDate(DateTime date) {
+    final formatter = DateFormat('d MMMM yyyy, HH:mm', 'tr_TR');
+    return formatter.format(date);
   }
 
   Future<void> _pickImageFromGallery() async {
@@ -701,6 +711,301 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     );
   }
 
+  void _showDeleteAccountDialog() {
+    if (_currentUser == null) return;
+    final TextEditingController pinController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isPinVisible = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateBottomSheet) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+              ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Hesabı Sil",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.red.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.warning_amber_rounded,
+                          color: Colors.red,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            "Bu işlem geri alınamaz! Tüm verileriniz kalıcı olarak silinecektir.",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Form(
+                    key: formKey,
+                    child: TextFormField(
+                      controller: pinController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      obscureText: !isPinVisible,
+                      autofocus: true,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: "PIN Doğrulaması",
+                        labelStyle: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.red),
+                        ),
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surface,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            isPinVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                          onPressed: () {
+                            setStateBottomSheet(() {
+                              isPinVisible = !isPinVisible;
+                            });
+                          },
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null ||
+                            value.length < 4 ||
+                            value.length > 6) {
+                          return "4-6 haneli PIN giriniz";
+                        }
+                        if (value != _currentUser!.pin) {
+                          return "PIN hatalı";
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (formKey.currentState!.validate()) {
+                          Navigator.pop(context);
+
+                          // Capture navigator BEFORE showing dialog (while context is still valid)
+                          final navigator = Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          );
+                          final scaffoldMessenger = ScaffoldMessenger.of(
+                            context,
+                          );
+
+                          // Final confirmation dialog
+                          final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.surface,
+                              title: Row(
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber_rounded,
+                                    color: Colors.red,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    "Son Onay",
+                                    style: TextStyle(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              content: Text(
+                                "Hesabınızı kalıcı olarak silmek istediğinizden emin misiniz?",
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text("İptal"),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text("Evet, Sil"),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (confirmed == true) {
+                            try {
+                              final userId = _currentUser!.id;
+                              debugPrint(
+                                '🗑️ Starting account deletion for user: $userId',
+                              );
+
+                              // Delete user data
+                              await DatabaseHelper.deleteUserData(userId);
+                              debugPrint('✅ User data deleted');
+
+                              // Delete user account
+                              await _authRepository.deleteUser(userId);
+                              debugPrint('✅ User account deleted');
+
+                              // Logout
+                              await widget.authController.logout();
+                              debugPrint('✅ Logout completed');
+
+                              // Navigate to login page using captured navigator
+                              debugPrint('🔄 Navigating to LoginPage...');
+                              navigator.pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (newContext) {
+                                    debugPrint('📱 Building LoginPage');
+                                    // Show success message after login page is built
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                          ScaffoldMessenger.of(
+                                            newContext,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                "Hesabınız başarıyla silindi",
+                                              ),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+                                        });
+                                    return LoginPage(
+                                      authController: widget.authController,
+                                    );
+                                  },
+                                ),
+                                (route) => false,
+                              );
+                              debugPrint('✅ Navigation completed');
+                            } catch (e, stackTrace) {
+                              debugPrint('❌ Error during account deletion: $e');
+                              debugPrint('Stack trace: $stackTrace');
+                              // Use captured scaffoldMessenger instead of context
+                              scaffoldMessenger.showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Hesap silinirken hata oluştu: $e",
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Hesabı Kalıcı Olarak Sil",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -829,6 +1134,79 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               subtitle: "****",
               icon: Icons.lock_outline,
               onTap: _showPinChangeBottomSheet,
+            ),
+            const SizedBox(height: 16),
+
+            // Hesap Oluşturulma Tarihi
+            _buildSettingsCard(
+              context,
+              title: "Hesap Oluşturulma Tarihi",
+              subtitle: _formatDate(_currentUser!.createdAt),
+              icon: Icons.calendar_today_outlined,
+              onTap: null,
+            ),
+            const SizedBox(height: 16),
+
+            // Son Giriş Tarihi
+            _buildSettingsCard(
+              context,
+              title: "Son Giriş Tarihi",
+              subtitle: _currentUser!.lastLoginAt != null
+                  ? _formatDate(_currentUser!.lastLoginAt!)
+                  : "Bilinmiyor",
+              icon: Icons.login_outlined,
+              onTap: null,
+            ),
+            const SizedBox(height: 40),
+
+            // Tehlikeli Bölge
+            Text(
+              "Tehlikeli Bölge",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Hesabı Sil
+            Card(
+              color: Colors.red.withValues(alpha: 0.1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: Colors.red.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.delete_forever, color: Colors.red),
+                ),
+                title: Text(
+                  "Hesabı Sil",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Text(
+                  "Hesabınızı ve tüm verilerinizi kalıcı olarak silin",
+                  style: TextStyle(color: Colors.red.withValues(alpha: 0.7)),
+                ),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.red.withValues(alpha: 0.5),
+                ),
+                onTap: _showDeleteAccountDialog,
+              ),
             ),
           ],
         ),

@@ -121,4 +121,18 @@ class DatabaseHelper {
       rethrow;
     }
   }
+
+  // --- KULLANICI VERİLERİNİ SİLME ---
+  static Future<void> deleteUserData(String userId) async {
+    try {
+      await _box.delete('harcamalar_$userId');
+      await _box.delete('butce_limiti_$userId');
+      await _box.delete('sabit_gider_sablonlari_$userId');
+      await _box.delete('kategoriler_$userId');
+      debugPrint('✓ User data deleted for: $userId');
+    } catch (e) {
+      debugPrint('Error deleting user data: $e');
+      rethrow;
+    }
+  }
 }
