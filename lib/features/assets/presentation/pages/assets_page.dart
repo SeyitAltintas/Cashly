@@ -29,14 +29,67 @@ class AssetsPage extends StatefulWidget {
 }
 
 class _AssetsPageState extends State<AssetsPage> {
-  // touchedIndex and totalNetWorth removed as they were only used in the removed card
+  bool _aramaModu = false;
+  final TextEditingController _aramaController = TextEditingController();
+  List<Asset> _filtrelenmisVarliklar = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _filtrelenmisVarliklar = widget.assets;
+  }
+
+  @override
+  void didUpdateWidget(covariant AssetsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.assets != oldWidget.assets) {
+      _filtrele();
+    }
+  }
+
+  void _filtrele() {
+    setState(() {
+      if (_aramaModu && _aramaController.text.isNotEmpty) {
+        String aranan = _aramaController.text.toLowerCase();
+        _filtrelenmisVarliklar = widget.assets.where((asset) {
+          return asset.name.toLowerCase().contains(aranan) ||
+              asset.category.toLowerCase().contains(aranan) ||
+              (asset.type?.toLowerCase().contains(aranan) ?? false);
+        }).toList();
+      } else {
+        _filtrelenmisVarliklar = widget.assets;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _aramaController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text("Varlıklarım"),
+        title: _aramaModu
+            ? TextField(
+                controller: _aramaController,
+                onChanged: (value) => _filtrele(),
+                autofocus: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: "Varlık ara...",
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              )
+            : const Text("Varlıklarım"),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
@@ -59,30 +112,39 @@ class _AssetsPageState extends State<AssetsPage> {
               ).then((_) => setState(() {}));
             },
           ),
+          IconButton(
+            icon: Icon(
+              _aramaModu ? Icons.close : Icons.search,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                _aramaModu = !_aramaModu;
+                if (!_aramaModu) {
+                  _aramaController.clear();
+                  _filtrelenmisVarliklar = widget.assets;
+                }
+              });
+            },
+          ),
         ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          children: [
-            // _buildNetWorthCard() removed as per request
-            const SizedBox(height: 24),
-            _buildAssetList(),
-          ],
+          children: [const SizedBox(height: 24), _buildAssetList()],
         ),
       ),
     );
   }
 
-  // _buildNetWorthCard removed
-
-  // _showingSections and _getColor removed
-
   Widget _buildAssetList() {
-    if (widget.assets.isEmpty) {
+    if (_filtrelenmisVarliklar.isEmpty) {
       return Center(
         child: Text(
-          "Henüz varlık eklenmedi.",
+          _aramaModu && _aramaController.text.isNotEmpty
+              ? "Sonuç bulunamadı."
+              : "Henüz varlık eklenmedi.",
           style: TextStyle(
             color: Theme.of(
               context,
@@ -94,9 +156,9 @@ class _AssetsPageState extends State<AssetsPage> {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: widget.assets.length,
+      itemCount: _filtrelenmisVarliklar.length,
       itemBuilder: (context, index) {
-        final asset = widget.assets[index];
+        final asset = _filtrelenmisVarliklar[index];
         return Dismissible(
           key: Key(asset.id),
           direction: DismissDirection.endToStart,

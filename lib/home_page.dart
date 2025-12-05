@@ -56,76 +56,6 @@ class _AnaSayfaState extends State<AnaSayfa> {
     super.initState();
     kategorileriYukle();
     verileriOku();
-
-    // ÖRNEK VERİLER - DAHA SONRA SİLİNECEK
-    DateTime now = DateTime.now();
-    tumHarcamalar.addAll([
-      {
-        "isim": "Market Alışverişi",
-        "tutar": 450.0,
-        "kategori": "Market & Atıştırmalık",
-        "tarih": now.toString(),
-        "silindi": false,
-      },
-      {
-        "isim": "Benzin",
-        "tutar": 380.0,
-        "kategori": "Araç & Ulaşım",
-        "tarih": now.subtract(const Duration(days: 1)).toString(),
-        "silindi": false,
-      },
-      {
-        "isim": "Restoran Yemeği",
-        "tutar": 250.0,
-        "kategori": "Yemek & Kafe",
-        "tarih": now.subtract(const Duration(days: 2)).toString(),
-        "silindi": false,
-      },
-      {
-        "isim": "Doğum Günü Hediyesi",
-        "tutar": 200.0,
-        "kategori": "Hediye & Özel",
-        "tarih": now.subtract(const Duration(days: 3)).toString(),
-        "silindi": false,
-      },
-      {
-        "isim": "Elektrik Faturası",
-        "tutar": 350.0,
-        "kategori": "Sabit Giderler",
-        "tarih": now.subtract(const Duration(days: 5)).toString(),
-        "silindi": false,
-      },
-    ]);
-
-    varliklar = [
-      Asset(
-        id: '1',
-        name: 'Altın',
-        category: 'Altın',
-        type: 'Cumhuriyet',
-        amount: 15000.0,
-        quantity: 5,
-        lastUpdated: now,
-      ),
-      Asset(
-        id: '2',
-        name: 'Dolar',
-        category: 'Döviz',
-        type: 'USD',
-        amount: 8500.0,
-        quantity: 250,
-        lastUpdated: now,
-      ),
-      Asset(
-        id: '3',
-        name: 'Banka Hesabı',
-        category: 'Banka',
-        amount: 25000.0,
-        quantity: 1,
-        lastUpdated: now,
-      ),
-    ];
-
     filtreleVeGoster();
   }
 
@@ -350,6 +280,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
 
   void verileriOku() {
     String userId = widget.authController.currentUser!.id;
+
+    // Harcamaları oku
     List<Map<String, dynamic>> gelen = DatabaseHelper.harcamalariGetir(userId);
     double kayitliButce = DatabaseHelper.butceGetir(userId);
 
@@ -361,9 +293,18 @@ class _AnaSayfaState extends State<AnaSayfa> {
       return tarihB.compareTo(tarihA);
     });
 
+    // Varlıkları oku
+    List<Map<String, dynamic>> varlikVerileri = DatabaseHelper.varliklariGetir(
+      userId,
+    );
+    List<Asset> okunanVarliklar = varlikVerileri
+        .map((map) => Asset.fromMap(map))
+        .toList();
+
     setState(() {
       tumHarcamalar = gelen;
       butceLimiti = kayitliButce;
+      varliklar = okunanVarliklar;
       filtreleVeGoster();
     });
   }
@@ -393,6 +334,15 @@ class _AnaSayfaState extends State<AnaSayfa> {
   void verileriKaydet() {
     String userId = widget.authController.currentUser!.id;
     DatabaseHelper.harcamalariKaydet(userId, tumHarcamalar);
+  }
+
+  /// Varlıkları veritabanına kaydeder
+  void varliklariKaydet() {
+    String userId = widget.authController.currentUser!.id;
+    List<Map<String, dynamic>> varlikMapleri = varliklar
+        .map((asset) => asset.toMap())
+        .toList();
+    DatabaseHelper.varliklariKaydet(userId, varlikMapleri);
   }
 
   void oncekiAy() {
@@ -1085,7 +1035,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                 autofocus: true,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: "Harcama ara... (Örn: Lahmacun)",
+                  hintText: "Harcama ara...",
                   border: InputBorder.none,
                   hintStyle: TextStyle(
                     color: Theme.of(
@@ -1184,6 +1134,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   setState(() {
                     asset.isDeleted = true;
                   });
+                  varliklariKaydet();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text(
@@ -1218,6 +1169,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                             );
                           }
                         });
+                        varliklariKaydet();
                       },
                     ),
                   );
@@ -1226,6 +1178,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   setState(() {
                     asset.isDeleted = false;
                   });
+                  varliklariKaydet();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Varlık geri yüklendi ♻️")),
                   );
@@ -1234,6 +1187,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   setState(() {
                     varliklar.remove(asset);
                   });
+                  varliklariKaydet();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text(
@@ -1248,6 +1202,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   setState(() {
                     varliklar.removeWhere((a) => a.isDeleted);
                   });
+                  varliklariKaydet();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text(
@@ -1296,6 +1251,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         ),
                       );
                     });
+                    varliklariKaydet();
                   },
                 ),
               );

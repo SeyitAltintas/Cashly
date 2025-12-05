@@ -44,11 +44,17 @@ class AuthRepositoryImpl implements AuthRepository {
     final box = await _getUsersBox();
     await box.delete(userId);
 
-    // If deleting current user, clear session
+    // Clear session data for deleted user
     final sessionBox = await _getSessionBox();
     final currentUserId = sessionBox.get(_currentUserKey);
     if (currentUserId == userId) {
       await logout();
+    }
+
+    // Clear last_user_id if it was set to the deleted user
+    final lastUserId = sessionBox.get('last_user_id');
+    if (lastUserId == userId) {
+      await sessionBox.delete('last_user_id');
     }
   }
 

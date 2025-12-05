@@ -122,16 +122,57 @@ class DatabaseHelper {
     }
   }
 
+  // --- VARLIK YÖNETİMİ ---
+  /// Kullanıcının varlıklarını getirir
+  static List<Map<String, dynamic>> varliklariGetir(String userId) {
+    try {
+      final veri = _box.get('varliklar_$userId', defaultValue: []);
+      return List<Map<String, dynamic>>.from(
+        veri.map((e) => Map<String, dynamic>.from(e)),
+      );
+    } catch (e) {
+      debugPrint('Varlıklar getirilirken hata: $e');
+      return [];
+    }
+  }
+
+  /// Kullanıcının varlıklarını kaydeder
+  static Future<void> varliklariKaydet(
+    String userId,
+    List<Map<String, dynamic>> varliklar,
+  ) async {
+    try {
+      await _box.put('varliklar_$userId', varliklar);
+    } catch (e) {
+      debugPrint('Varlıklar kaydedilirken hata: $e');
+      rethrow;
+    }
+  }
+
   // --- KULLANICI VERİLERİNİ SİLME ---
+  /// Kullanıcıya ait tüm verileri siler
+  /// Bu fonksiyon hesap silme işleminde çağrılır
   static Future<void> deleteUserData(String userId) async {
     try {
+      // Harcama verileri
       await _box.delete('harcamalar_$userId');
+
+      // Bütçe ayarları
       await _box.delete('butce_limiti_$userId');
+
+      // Sabit gider şablonları
       await _box.delete('sabit_gider_sablonlari_$userId');
+
+      // Kullanıcı kategorileri
       await _box.delete('kategoriler_$userId');
-      debugPrint('✓ User data deleted for: $userId');
+
+      // Varlıklar (assets) - gelecekte eklenirse
+      await _box.delete('varliklar_$userId');
+      await _box.delete('silinen_varliklar_$userId');
+
+      debugPrint('✓ Tüm kullanıcı verileri silindi: $userId');
     } catch (e) {
-      debugPrint('Error deleting user data: $e');
+      debugPrint('Kullanıcı verileri silinirken hata: $e');
       rethrow;
     }
   }
