@@ -89,7 +89,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         if (mounted) {
           setState(() {
             _recognizedText = text;
-            // Canlı olarak parse et (sadece tutar ve isim için)
+            // Canlı olarak parse et (tutar, isim ve kategori tahmini)
             _parseResult = _speechService.parseText(
               text,
               widget.categoryIcons.keys.toList(),
@@ -99,7 +99,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               _tutarController.text = _parseResult!.tutar!.toStringAsFixed(2);
               _isimController.text =
                   _parseResult!.harcamaIsmi ?? _recognizedText;
-              // Kategori otomatik seçilmeyecek - kullanıcı seçecek
+              // Kategori tahmini varsa seç, yoksa mevcut seçimi koru
+              if (_parseResult!.kategori != null) {
+                _selectedCategory = _parseResult!.kategori!;
+              }
             }
           });
         }
@@ -269,6 +272,20 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
 
             // KATEGORİ SEÇİMİ - Her zaman görünür ve düzenlenebilir
             if (_parseResult != null && _parseResult!.basarili) ...[
+              // Bilgi notu - sola yaslı ve silik
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Kategori tahmini yapıldı, değiştirebilirsiniz.',
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.4),
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
               _buildCategorySelector(),
               const SizedBox(height: 20),
             ],
