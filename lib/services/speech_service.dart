@@ -3,6 +3,37 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+/// Sesli komut türleri
+enum VoiceCommandType {
+  /// Normal harcama ekleme
+  harcamaEkle,
+
+  /// "Son harcamayı sil" komutu
+  sonHarcamayiSil,
+
+  /// "Bu ay ne kadar harcadım?" komutu
+  buAyNeKadarHarcadim,
+
+  /// "En çok hangi kategoride harcamışım?" komutu
+  enCokHangiKategori,
+
+  /// Tanınmayan komut
+  bilinmiyor,
+}
+
+/// Sesli komut sonuç modeli
+class VoiceCommandResult {
+  final VoiceCommandType komutTuru;
+  final String rawText;
+  final bool komutAlgilandi;
+
+  VoiceCommandResult({
+    required this.komutTuru,
+    required this.rawText,
+    required this.komutAlgilandi,
+  });
+}
+
 /// Sesli harcama girişi için parse edilmiş sonuç modeli
 class SpeechParseResult {
   final double? tutar;
@@ -72,6 +103,129 @@ class SpeechService {
   /// Dinlemeyi durdur
   Future<void> stopListening() async {
     await _speech.stop();
+  }
+
+  /// Sesli komutu algıla
+  /// Metni analiz ederek komut türünü belirler
+  VoiceCommandResult detectVoiceCommand(String text) {
+    if (text.isEmpty) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.bilinmiyor,
+        rawText: text,
+        komutAlgilandi: false,
+      );
+    }
+
+    String normalizedText = text.toLowerCase().trim();
+
+    // "Son harcamayı sil" komutu
+    if (_matchesSonHarcamayiSil(normalizedText)) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.sonHarcamayiSil,
+        rawText: text,
+        komutAlgilandi: true,
+      );
+    }
+
+    // "Bu ay ne kadar harcadım?" komutu
+    if (_matchesBuAyNeKadarHarcadim(normalizedText)) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.buAyNeKadarHarcadim,
+        rawText: text,
+        komutAlgilandi: true,
+      );
+    }
+
+    // "En çok hangi kategoride harcamışım?" komutu
+    if (_matchesEnCokHangiKategori(normalizedText)) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.enCokHangiKategori,
+        rawText: text,
+        komutAlgilandi: true,
+      );
+    }
+
+    // Komut algılanmadı - normal harcama girişi olarak değerlendir
+    return VoiceCommandResult(
+      komutTuru: VoiceCommandType.harcamaEkle,
+      rawText: text,
+      komutAlgilandi: false,
+    );
+  }
+
+  /// "Son harcamayı sil" komutunu kontrol et
+  bool _matchesSonHarcamayiSil(String text) {
+    List<String> patterns = [
+      'son harcamayı sil',
+      'son harcamayı silsene',
+      'son harcamayı kaldır',
+      'son harcamamı sil',
+      'son eklediğimi sil',
+      'son eklenen harcamayı sil',
+      'son girdiğim harcamayı sil',
+      'en son harcamayı sil',
+      'en son eklediğimi sil',
+      'sonuncuyu sil',
+      'son kaydı sil',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// "Bu ay ne kadar harcadım?" komutunu kontrol et
+  bool _matchesBuAyNeKadarHarcadim(String text) {
+    List<String> patterns = [
+      'bu ay ne kadar harcadım',
+      'bu ay ne kadar harcamışım',
+      'bu ay toplam harcamam',
+      'bu ayki harcamam ne kadar',
+      'bu ay kaç lira harcadım',
+      'bu ay kaç para harcadım',
+      'aylık harcamam ne kadar',
+      'bu ayın toplamı',
+      'bu ay harcama toplamı',
+      'ne kadar harcamışım',
+      'toplam harcamam ne kadar',
+      'harcamalarım ne kadar',
+      'harcamam ne kadar',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// "En çok hangi kategoride harcamışım?" komutunu kontrol et
+  bool _matchesEnCokHangiKategori(String text) {
+    List<String> patterns = [
+      'en çok hangi kategoride',
+      'en çok hangi kategori',
+      'en çok nereye harcadım',
+      'en çok nereye harcamışım',
+      'en fazla hangi kategoride',
+      'en fazla hangi kategori',
+      'hangi kategoride çok harcamışım',
+      'hangi kategoride en çok',
+      'en yüksek harcama kategorisi',
+      'en çok para harcadığım kategori',
+      'en fazla harcama nerede',
+      'en çok harcama hangi',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /// Metni parse et ve tutar/kategori çıkar

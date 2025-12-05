@@ -8,11 +8,19 @@ class VoiceInputSheet extends StatefulWidget {
   final Function(String name, double amount, String category) onConfirm;
   final String? userId;
 
+  /// Sesli komut callback'leri
+  final Future<Map<String, dynamic>?> Function()? onDeleteLastExpense;
+  final double Function()? onGetMonthlyTotal;
+  final Map<String, dynamic>? Function()? onGetTopCategory;
+
   const VoiceInputSheet({
     super.key,
     required this.categoryIcons,
     required this.onConfirm,
     this.userId,
+    this.onDeleteLastExpense,
+    this.onGetMonthlyTotal,
+    this.onGetTopCategory,
   });
 
   @override
@@ -28,6 +36,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
   bool _isInitializing = true;
   bool _hasError = false;
   bool _isEditingValues = false; // Sadece tutar ve isim düzenleme modu
+  bool _isCommandMode = false; // Sesli komut modunda mı?
   String _errorMessage = '';
   String _recognizedText = '';
   SpeechParseResult? _parseResult;
@@ -83,6 +92,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     setState(() {
       _isListening = true;
       _isEditingValues = false;
+      _isCommandMode = false; // Komut modu sıfırla
       _recognizedText = '';
       _parseResult = null;
       _hasError = false;
@@ -91,24 +101,38 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     await _speechService.startListening(
       onResult: (text) {
         if (mounted) {
-          setState(() {
-            _recognizedText = text;
-            // Canlı olarak parse et (tutar, isim ve kategori tahmini)
-            _parseResult = _speechService.parseText(
-              text,
-              widget.categoryIcons.keys.toList(),
-            );
-            // Parse sonucunu düzenleme alanlarına aktar
-            if (_parseResult != null && _parseResult!.basarili) {
-              _tutarController.text = _parseResult!.tutar!.toStringAsFixed(2);
-              _isimController.text =
-                  _parseResult!.harcamaIsmi ?? _recognizedText;
-              // Kategori tahmini varsa seç, yoksa mevcut seçimi koru
-              if (_parseResult!.kategori != null) {
-                _selectedCategory = _parseResult!.kategori!;
+          // Önce sesli komut olup olmadığını kontrol et
+          final commandResult = _speechService.detectVoiceCommand(text);
+
+          if (commandResult.komutAlgilandi) {
+            // Komut algılandı - UI'ı güncelle ve işle
+            setState(() {
+              _recognizedText = text;
+              _isCommandMode = true;
+              _parseResult = null; // Harcama ekleme UI'ını gösterme
+            });
+            _handleVoiceCommand(commandResult);
+          } else {
+            // Normal harcama girişi - parse et
+            setState(() {
+              _recognizedText = text;
+              _isCommandMode = false;
+              _parseResult = _speechService.parseText(
+                text,
+                widget.categoryIcons.keys.toList(),
+              );
+              // Parse sonucunu düzenleme alanlarına aktar
+              if (_parseResult != null && _parseResult!.basarili) {
+                _tutarController.text = _parseResult!.tutar!.toStringAsFixed(2);
+                _isimController.text =
+                    _parseResult!.harcamaIsmi ?? _recognizedText;
+                // Kategori tahmini varsa seç, yoksa mevcut seçimi koru
+                if (_parseResult!.kategori != null) {
+                  _selectedCategory = _parseResult!.kategori!;
+                }
               }
-            }
-          });
+            });
+          }
         }
       },
       onDone: () {
@@ -119,6 +143,105 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         }
       },
     );
+  }
+
+  /// Sesli komutu işle
+  Future<void> _handleVoiceCommand(VoiceCommandResult command) async {
+    // Dinlemeyi durdur
+    await _speechService.stopListening();
+
+    setState(() {
+      _isListening = false;
+    });
+
+    switch (command.komutTuru) {
+      case VoiceCommandType.sonHarcamayiSil:
+        await _handleDeleteLastExpense();
+        break;
+      case VoiceCommandType.buAyNeKadarHarcadim:
+        await _handleGetMonthlyTotal();
+        break;
+      case VoiceCommandType.enCokHangiKategori:
+        await _handleGetTopCategory();
+        break;
+      default:
+        // Normal harcama ekleme veya bilinmeyen komut
+        break;
+    }
+  }
+
+  /// "Son harcamayı sil" komutunu işle
+  Future<void> _handleDeleteLastExpense() async {
+    if (widget.onDeleteLastExpense != null) {
+      final deletedExpense = await widget.onDeleteLastExpense!();
+
+      if (deletedExpense != null && mounted) {
+        await _ttsService.harcamaSilindiBildirimi(
+          harcamaIsmi: deletedExpense['isim'] ?? 'Harcama',
+          tutar: (deletedExpense['tutar'] as num?)?.toDouble() ?? 0,
+          userId: widget.userId,
+        );
+
+        // SnackBar göster ve sheet'i kapat
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${deletedExpense['isim']} silindi',
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.red.shade700,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          Navigator.pop(context);
+        }
+      } else if (mounted) {
+        await _ttsService.harcamaBulunamadiBildirimi(userId: widget.userId);
+      }
+    }
+  }
+
+  /// "Bu ay ne kadar harcadım?" komutunu işle
+  Future<void> _handleGetMonthlyTotal() async {
+    if (widget.onGetMonthlyTotal != null) {
+      final total = widget.onGetMonthlyTotal!();
+
+      await _ttsService.buAyHarcamaBildirimi(
+        toplam: total,
+        userId: widget.userId,
+      );
+
+      // Sheet'i kapat
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  /// "En çok hangi kategoride harcamışım?" komutunu işle
+  Future<void> _handleGetTopCategory() async {
+    if (widget.onGetTopCategory != null) {
+      final topCategory = widget.onGetTopCategory!();
+
+      if (topCategory != null) {
+        await _ttsService.enCokKategoriBildirimi(
+          kategori: topCategory['kategori'] ?? 'Bilinmiyor',
+          tutar: (topCategory['tutar'] as num?)?.toDouble() ?? 0,
+          userId: widget.userId,
+        );
+      } else {
+        await _ttsService.speak(
+          'Henüz harcama bulunmuyor',
+          userId: widget.userId,
+        );
+      }
+
+      // Sheet'i kapat
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
   }
 
   Future<void> _stopListening() async {
@@ -165,6 +288,140 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     Navigator.pop(context);
   }
 
+  /// Yardım dialog'unu göster
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(
+              Icons.help_outline,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Sesli Asistan',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHelpSection(
+                context,
+                icon: Icons.add_circle_outline,
+                title: 'Harcama Eklemek İçin',
+                examples: [
+                  '"100 lira market"',
+                  '"50 TL kahve"',
+                  '"1000 lira protein tozu spor"',
+                ],
+              ),
+              const SizedBox(height: 16),
+              _buildHelpSection(
+                context,
+                icon: Icons.delete_outline,
+                title: 'Son Harcamayı Silmek İçin',
+                examples: ['"Son harcamayı sil"', '"Sonuncuyu sil"'],
+              ),
+              const SizedBox(height: 16),
+              _buildHelpSection(
+                context,
+                icon: Icons.account_balance_wallet,
+                title: 'Toplam Harcamayı Öğrenmek İçin',
+                examples: [
+                  '"Bu ay ne kadar harcadım?"',
+                  '"Toplam harcamam ne kadar?"',
+                ],
+              ),
+              const SizedBox(height: 16),
+              _buildHelpSection(
+                context,
+                icon: Icons.pie_chart,
+                title: 'En Çok Harcanan Kategoriyi Öğrenmek İçin',
+                examples: [
+                  '"En çok hangi kategoride harcamışım?"',
+                  '"En çok nereye harcadım?"',
+                ],
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Anladım',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Yardım bölümü widget'ı
+  Widget _buildHelpSection(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required List<String> examples,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ...examples.map(
+          (example) => Padding(
+            padding: const EdgeInsets.only(left: 26, bottom: 4),
+            child: Text(
+              example,
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                fontSize: 13,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   void dispose() {
     _pulseController.dispose();
@@ -206,24 +463,33 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             ),
             const SizedBox(height: 20),
 
-            // Başlık
-            Text(
-              'Sesli Harcama Girişi',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '"100 lira market" gibi söyleyin',
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.54),
-                fontSize: 14,
-              ),
+            // Başlık ve Info butonu
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(width: 40), // Simetri için boşluk
+                Expanded(
+                  child: Text(
+                    'Sesli Asistan',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.info_outline,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                  onPressed: _showHelpDialog,
+                  tooltip: 'Nasıl kullanılır?',
+                ),
+              ],
             ),
             const SizedBox(height: 20),
 
@@ -274,8 +540,51 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               const SizedBox(height: 12),
             ],
 
+            // Komut modunda işlem bilgisi göster
+            if (_isCommandMode && _recognizedText.isNotEmpty) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Komut işleniyor...',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+
             // Parse sonucu (Tutar ve İsim) - önizleme veya düzenleme
-            if (_parseResult != null && _parseResult!.basarili) ...[
+            // Sadece komut modunda değilse göster
+            if (!_isCommandMode &&
+                _parseResult != null &&
+                _parseResult!.basarili) ...[
               if (_isEditingValues)
                 _buildValuesEditForm()
               else
@@ -284,7 +593,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             ],
 
             // KATEGORİ SEÇİMİ - Her zaman görünür ve düzenlenebilir
-            if (_parseResult != null && _parseResult!.basarili) ...[
+            // Sadece komut modunda değilse göster
+            if (!_isCommandMode &&
+                _parseResult != null &&
+                _parseResult!.basarili) ...[
               // Bilgi notu - sola yaslı ve silik
               Align(
                 alignment: Alignment.centerLeft,
@@ -304,51 +616,76 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             ],
 
             // Butonlar
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Theme.of(
+            if (_isCommandMode)
+              // Komut modunda sadece Kapat butonu
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    side: BorderSide(
+                      color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
-                      side: BorderSide(
-                        color: Theme.of(
+                      ).colorScheme.onSurface.withValues(alpha: 0.2),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Kapat'),
+                ),
+              )
+            else
+              // Normal modda İptal ve Onayla butonları
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.2),
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        side: BorderSide(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.2),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('İptal'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: canConfirm ? _confirm : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      disabledBackgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.1),
-                    ),
-                    child: const Text(
-                      'Onayla',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      child: const Text('İptal'),
                     ),
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: canConfirm ? _confirm : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        disabledBackgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.1),
+                      ),
+                      child: const Text(
+                        'Onayla',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             const SizedBox(height: 20),
           ],
         ),
@@ -673,7 +1010,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
           ),
           const SizedBox(height: 12),
           Text(
-            _isListening ? 'Dinleniyor...' : 'Tekrar dinlemek için dokunun',
+            _isListening ? 'Dinleniyor...' : 'Tekrar konuşmak için dokunun',
             style: TextStyle(
               color: Theme.of(
                 context,

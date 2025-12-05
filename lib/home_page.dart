@@ -1135,6 +1135,70 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         ),
                       );
                     },
+                    // Sesli komut: Son harcamayı sil
+                    onDeleteLastExpense: () async {
+                      // Bu ayın harcamalarından son eklenen (silindi=false) olanı bul
+                      final buAyHarcamalari = tumHarcamalar.where((h) {
+                        if (h['silindi'] == true) return false;
+                        DateTime? tarih = DateTime.tryParse(
+                          h['tarih'].toString(),
+                        );
+                        if (tarih == null) return false;
+                        return tarih.year == secilenAy.year &&
+                            tarih.month == secilenAy.month;
+                      }).toList();
+
+                      if (buAyHarcamalari.isEmpty) return null;
+
+                      // En son eklenen harcamayı bul (tarihe göre sırala)
+                      buAyHarcamalari.sort((a, b) {
+                        DateTime tarihA =
+                            DateTime.tryParse(a['tarih'].toString()) ??
+                            DateTime.now();
+                        DateTime tarihB =
+                            DateTime.tryParse(b['tarih'].toString()) ??
+                            DateTime.now();
+                        return tarihB.compareTo(tarihA);
+                      });
+
+                      final sonHarcama = buAyHarcamalari.first;
+
+                      // Harcamayı sil (soft delete)
+                      setState(() {
+                        sonHarcama['silindi'] = true;
+                        filtreleVeGoster();
+                      });
+                      verileriKaydet();
+
+                      return sonHarcama;
+                    },
+                    // Sesli komut: Bu ay ne kadar harcadım?
+                    onGetMonthlyTotal: () {
+                      return toplamTutar;
+                    },
+                    // Sesli komut: En çok hangi kategoride harcamışım?
+                    onGetTopCategory: () {
+                      if (kategoriToplamlari.isEmpty) return null;
+
+                      String? enCokKategori;
+                      double enYuksekTutar = 0;
+
+                      kategoriToplamlari.forEach((kategori, tutar) {
+                        if (tutar > enYuksekTutar) {
+                          enYuksekTutar = tutar;
+                          enCokKategori = kategori;
+                        }
+                      });
+
+                      if (enCokKategori == null || enYuksekTutar == 0) {
+                        return null;
+                      }
+
+                      return {
+                        'kategori': enCokKategori,
+                        'tutar': enYuksekTutar,
+                      };
+                    },
                   ),
                 );
               },

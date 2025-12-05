@@ -87,6 +87,44 @@ class TtsService {
     await _flutterTts.speak('Sesli asistan aktif');
   }
 
+  /// Son harcama silindi bildirimi
+  Future<void> harcamaSilindiBildirimi({
+    required String harcamaIsmi,
+    required double tutar,
+    String? userId,
+  }) async {
+    String tutarStr = tutar.toStringAsFixed(0);
+    String mesaj = '$harcamaIsmi, $tutarStr lira silindi';
+    await speak(mesaj, userId: userId);
+  }
+
+  /// Bu ay toplam harcama bildirimi
+  Future<void> buAyHarcamaBildirimi({
+    required double toplam,
+    String? userId,
+  }) async {
+    String toplamStr = toplam.toStringAsFixed(0);
+    String mesaj = 'Bu ay toplam $toplamStr lira harcadınız';
+    await speak(mesaj, userId: userId);
+  }
+
+  /// En çok harcanan kategori bildirimi
+  Future<void> enCokKategoriBildirimi({
+    required String kategori,
+    required double tutar,
+    String? userId,
+  }) async {
+    String tutarStr = tutar.toStringAsFixed(0);
+    String mesaj = 'En çok $kategori kategorisinde, $tutarStr lira harcadınız';
+    await speak(mesaj, userId: userId);
+  }
+
+  /// Harcama bulunamadı bildirimi
+  Future<void> harcamaBulunamadiBildirimi({String? userId}) async {
+    String mesaj = 'Silinecek harcama bulunamadı';
+    await speak(mesaj, userId: userId);
+  }
+
   /// Servisi temizle
   void dispose() {
     _flutterTts.stop();
