@@ -1096,7 +1096,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
                   builder: (context) => VoiceInputSheet(
-                    categories: kategoriIkonlari.keys.toList(),
+                    categoryIcons: kategoriIkonlari,
                     onConfirm: (name, amount, category) {
                       setState(() {
                         tumHarcamalar.add({

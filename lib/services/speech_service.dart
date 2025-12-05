@@ -105,22 +105,64 @@ class SpeechService {
   /// Metinden tutarı çıkar
   double? _extractAmount(String text) {
     // Farklı sayı formatlarını yakala
-    // "100 lira", "100,50 tl", "100.50 ₺", "yüz lira" vb.
+    // "100 lira", "100,50 tl", "150 bin tl", "2 milyon lira" vb.
 
-    // Önce rakamları dene
-    RegExp amountRegex = RegExp(
-      r'(\d+[.,]?\d*)\s*(lira|tl|₺)?',
+    // Önce "X bin" veya "X milyon" kalıplarını kontrol et
+    // Örn: "150 bin", "2 milyon", "1.5 milyon", "500 bin lira"
+
+    // Bin kalıbı: "150 bin", "1,5 bin"
+    RegExp binRegex = RegExp(r'(\d+[.,]?\d*)\s*bin', caseSensitive: false);
+    Match? binMatch = binRegex.firstMatch(text);
+    if (binMatch != null) {
+      String amountStr = binMatch.group(1)!.replaceAll(',', '.');
+      double? baseAmount = double.tryParse(amountStr);
+      if (baseAmount != null) {
+        return baseAmount * 1000;
+      }
+    }
+
+    // Milyon kalıbı: "2 milyon", "1.5 milyon"
+    RegExp milyonRegex = RegExp(
+      r'(\d+[.,]?\d*)\s*milyon',
       caseSensitive: false,
     );
-    Match? match = amountRegex.firstMatch(text);
+    Match? milyonMatch = milyonRegex.firstMatch(text);
+    if (milyonMatch != null) {
+      String amountStr = milyonMatch.group(1)!.replaceAll(',', '.');
+      double? baseAmount = double.tryParse(amountStr);
+      if (baseAmount != null) {
+        return baseAmount * 1000000;
+      }
+    }
 
-    if (match != null) {
-      String amountStr = match.group(1)!.replaceAll(',', '.');
-      return double.tryParse(amountStr);
+    // Basit rakamları dene (bin/milyon olmadan)
+    // Ama "bin" veya "milyon" kelimesi geçmiyorsa
+    if (!text.contains('bin') && !text.contains('milyon')) {
+      RegExp amountRegex = RegExp(
+        r'(\d+[.,]?\d*)\s*(lira|tl|₺)?',
+        caseSensitive: false,
+      );
+      Match? match = amountRegex.firstMatch(text);
+
+      if (match != null) {
+        String amountStr = match.group(1)!.replaceAll(',', '.');
+        return double.tryParse(amountStr);
+      }
     }
 
     // Yazıyla yazılmış sayıları kontrol et
+    // Önce çarpanları kontrol et
+    double carpan = 1;
+    if (text.contains('milyon')) {
+      carpan = 1000000;
+    } else if (text.contains('bin')) {
+      carpan = 1000;
+    }
+
+    // Temel sayıları kontrol et
     Map<String, double> yaziSayilar = {
+      'yarım': 0.5,
+      'buçuk': 0.5,
       'bir': 1,
       'iki': 2,
       'üç': 3,
@@ -140,14 +182,18 @@ class SpeechService {
       'seksen': 80,
       'doksan': 90,
       'yüz': 100,
-      'bin': 1000,
     };
 
-    // Basit yazı-sayı dönüşümü
+    // Basit yazı-sayı dönüşümü (çarpan ile)
     for (var entry in yaziSayilar.entries) {
       if (text.contains(entry.key)) {
-        return entry.value;
+        return entry.value * carpan;
       }
+    }
+
+    // Sadece "bin" veya "milyon" geçiyorsa
+    if (carpan > 1) {
+      return carpan; // 1 bin = 1000, 1 milyon = 1000000
     }
 
     return null;
@@ -155,9 +201,52 @@ class SpeechService {
 
   /// Metinden kategoriyi bul
   String? _findCategory(String text, List<String> mevcutKategoriler) {
-    // Kategori eşleştirmeleri (metin içinde aranacak anahtar kelimeler)
-    Map<String, List<String>> kategoriAnahtarlari = {
-      'Market': [
+    // Genişletilmiş kategori eşleştirmeleri
+    // Her ana kategori için alternatif isimler ve ilgili anahtar kelimeler
+    Map<List<String>, List<String>> kategoriAnahtarlari = {
+      // Spor & Fitness
+      ['Spor', 'Fitness', 'Sağlık & Spor', 'Spor & Fitness', 'Gym']: [
+        'spor',
+        'fitness',
+        'gym',
+        'antrenman',
+        'egzersiz',
+        'protein',
+        'whey',
+        'kreatin',
+        'bcaa',
+        'amino',
+        'supplement',
+        'takviye',
+        'dambıl',
+        'halter',
+        'ağırlık',
+        'koşu',
+        'yüzme',
+        'pilates',
+        'yoga',
+        'futbol',
+        'basketbol',
+        'voleybol',
+        'tenis',
+        'golf',
+        'spor salonu',
+        'jimnastik',
+        'boks',
+        'kickbox',
+        'mma',
+        'bisiklet',
+        'koşu bandı',
+        'spor ayakkabı',
+        'eşofman',
+        'kas',
+        'form',
+        'diyet',
+        'zayıflama',
+      ],
+
+      // Market & Alışveriş
+      ['Market', 'Alışveriş', 'Gıda']: [
         'market',
         'alışveriş',
         'migros',
@@ -165,45 +254,566 @@ class SpeechService {
         'a101',
         'şok',
         'carrefour',
+        'metro',
+        'macro',
+        'file',
+        'happy center',
+        'gratis',
+        'süt',
+        'ekmek',
+        'yumurta',
+        'peynir',
+        'meyve',
+        'sebze',
+        'deterjan',
+        'temizlik',
+        'hijyen',
+        'bakkal',
+        'manav',
       ],
-      'Yemek': [
+
+      // Yemek & Restoran
+      ['Yemek', 'Restoran', 'Yeme-İçme', 'Yiyecek']: [
         'yemek',
         'restoran',
         'lokanta',
         'kebap',
         'pizza',
         'burger',
+        'hamburger',
         'döner',
         'lahmacun',
+        'pide',
+        'tantuni',
+        'kokoreç',
+        'midye',
+        'sushi',
+        'çin yemeği',
+        'hint yemeği',
+        'italyan',
+        'meksika',
+        'fast food',
+        'mcdonalds',
+        'burger king',
+        'kfc',
+        'popeyes',
+        'yemeksepeti',
+        'getir yemek',
+        'trendyol yemek',
+        'kahvaltı',
+        'öğle yemeği',
+        'akşam yemeği',
+        'brunch',
       ],
-      'Kahve': ['kahve', 'kafe', 'starbucks', 'cafe', 'çay'],
-      'Ulaşım': [
+
+      // Kahve & Cafe
+      ['Kahve', 'Cafe', 'Kafe', 'İçecek']: [
+        'kahve',
+        'kafe',
+        'cafe',
+        'starbucks',
+        'gloria jeans',
+        'caribou',
+        'espresso',
+        'latte',
+        'cappuccino',
+        'americano',
+        'mocha',
+        'frappe',
+        'çay',
+        'bitki çayı',
+        'nescafe',
+        'filtre kahve',
+        'kahveci',
+        'çay bahçesi',
+        'pastane',
+      ],
+
+      // Ulaşım & Araç
+      ['Ulaşım', 'Araç', 'Otopark', 'Yakıt']: [
         'ulaşım',
         'taksi',
         'uber',
+        'bolt',
+        'bitaksi',
         'benzin',
         'yakıt',
+        'motorin',
+        'lpg',
+        'shell',
+        'opet',
+        'bp',
+        'petrol ofisi',
         'otobüs',
         'metro',
+        'metrobüs',
+        'tramvay',
+        'vapur',
+        'marmaray',
         'akbil',
+        'istanbulkart',
+        'ankarakart',
+        'kentkart',
+        'otopark',
+        'park',
+        'araç yıkama',
+        'oto yıkama',
+        'sigorta',
+        'kasko',
+        'trafik sigortası',
+        'muayene',
+        'lastik',
+        'yağ değişimi',
+        'bakım',
+        'servis',
+        'tamir',
+        'uçak',
+        'bilet',
+        'thy',
+        'pegasus',
+        'anadolujet',
       ],
-      'Fatura': ['fatura', 'elektrik', 'su', 'doğalgaz', 'internet', 'telefon'],
-      'Kira': ['kira', 'ev', 'konut'],
-      'Sağlık': ['sağlık', 'ilaç', 'eczane', 'doktor', 'hastane'],
-      'Eğlence': ['eğlence', 'sinema', 'film', 'konser', 'oyun'],
-      'Giyim': ['giyim', 'kıyafet', 'ayakkabı', 'çanta', 'elbise'],
-      'Teknoloji': ['teknoloji', 'telefon', 'bilgisayar', 'laptop', 'tablet'],
+
+      // Fatura & Abonelik
+      ['Fatura', 'Faturalar', 'Abonelik', 'Ödemeler']: [
+        'fatura',
+        'elektrik',
+        'su',
+        'doğalgaz',
+        'doğal gaz',
+        'internet',
+        'wifi',
+        'telefon',
+        'hat',
+        'turkcell',
+        'vodafone',
+        'türk telekom',
+        'netflix',
+        'spotify',
+        'youtube',
+        'amazon prime',
+        'disney',
+        'exxen',
+        'blutv',
+        'dask',
+        'aidat',
+        'apartman',
+        'site aidatı',
+        'vergi',
+        'harç',
+        'ceza',
+      ],
+
+      // Kira & Ev
+      ['Kira', 'Ev', 'Konut', 'Ev Giderleri']: [
+        'kira',
+        'konut',
+        'ev',
+        'daire',
+        'apartman',
+        'depozito',
+        'kontrat',
+        'emlak',
+        'komisyon',
+      ],
+
+      // Sağlık & Medikal
+      ['Sağlık', 'Medikal', 'Hastane', 'Eczane']: [
+        'sağlık',
+        'ilaç',
+        'eczane',
+        'doktor',
+        'hastane',
+        'klinik',
+        'muayene',
+        'tetkik',
+        'tahlil',
+        'röntgen',
+        'mr',
+        'tomografi',
+        'diş',
+        'dişçi',
+        'ortodonti',
+        'implant',
+        'göz',
+        'gözlük',
+        'lens',
+        'optik',
+        'vitamin',
+        'mineral',
+        'gıda takviyesi',
+        'psikoloji',
+        'terapi',
+        'psikolog',
+        'psikiyatri',
+        'fizyoterapi',
+        'masaj',
+        'akupunktur',
+        'sgk',
+        'özel sağlık',
+        'sigorta',
+      ],
+
+      // Eğitim & Kurs
+      ['Eğitim', 'Kurs', 'Okul', 'Eğitim Giderleri']: [
+        'eğitim',
+        'kurs',
+        'okul',
+        'üniversite',
+        'lise',
+        'ilkokul',
+        'harç',
+        'kayıt',
+        'özel ders',
+        'dershane',
+        'etüt',
+        'ingilizce',
+        'almanca',
+        'dil kursu',
+        'yabancı dil',
+        'udemy',
+        'coursera',
+        'online kurs',
+        'sertifika',
+        'kitap',
+        'ders kitabı',
+        'kırtasiye',
+        'defter',
+        'kalem',
+        'sınav',
+        'yks',
+        'kpss',
+        'ales',
+        'toefl',
+        'ielts',
+      ],
+
+      // Eğlence & Hobi
+      ['Eğlence', 'Hobi', 'Aktivite', 'Etkinlik']: [
+        'eğlence',
+        'hobi',
+        'aktivite',
+        'etkinlik',
+        'sinema',
+        'film',
+        'tiyatro',
+        'konser',
+        'festival',
+        'müze',
+        'oyun',
+        'playstation',
+        'xbox',
+        'nintendo',
+        'steam',
+        'epic games',
+        'bowling',
+        'bilardo',
+        'dart',
+        'karaoke',
+        'lunapark',
+        'tema park',
+        'aqua park',
+        'eğlence merkezi',
+        'biletix',
+        'passo',
+        'biletinial',
+        'fotoğrafçılık',
+        'resim',
+        'müzik',
+        'enstrüman',
+        'gitar',
+        'piyano',
+      ],
+
+      // Giyim & Moda
+      ['Giyim', 'Moda', 'Kıyafet', 'Giysi']: [
+        'giyim',
+        'kıyafet',
+        'giysi',
+        'moda',
+        'ayakkabı',
+        'çanta',
+        'elbise',
+        'pantolon',
+        'gömlek',
+        'tişört',
+        'ceket',
+        'mont',
+        'kaban',
+        'kazak',
+        'hırka',
+        'iç çamaşır',
+        'çorap',
+        'kemer',
+        'şapka',
+        'atkı',
+        'eldiven',
+        'zara',
+        'h&m',
+        'mango',
+        'lcw',
+        'koton',
+        'defacto',
+        'mavi',
+        'colins',
+        'nike',
+        'adidas',
+        'puma',
+        'new balance',
+        'converse',
+        'vans',
+        'takım elbise',
+        'kravat',
+        'aksesuar',
+        'takı',
+        'saat',
+      ],
+
+      // Teknoloji & Elektronik
+      ['Teknoloji', 'Elektronik', 'Bilgisayar', 'Telefon']: [
+        'teknoloji',
+        'elektronik',
+        'bilgisayar',
+        'laptop',
+        'notebook',
+        'pc',
+        'telefon',
+        'cep telefonu',
+        'iphone',
+        'samsung',
+        'xiaomi',
+        'huawei',
+        'tablet',
+        'ipad',
+        'akıllı saat',
+        'apple watch',
+        'kulaklık',
+        'airpods',
+        'hoparlör',
+        'ses sistemi',
+        'televizyon',
+        'tv',
+        'monitör',
+        'ekran',
+        'klavye',
+        'mouse',
+        'fare',
+        'webcam',
+        'kamera',
+        'hard disk',
+        'ssd',
+        'ram',
+        'ekran kartı',
+        'işlemci',
+        'şarj aleti',
+        'powerbank',
+        'kablo',
+        'adaptör',
+        'yazıcı',
+        'tarayıcı',
+        'projeksiyon',
+        'mediamarkt',
+        'teknosa',
+        'vatan',
+        'hepsiburada',
+        'trendyol',
+        'amazon',
+      ],
+
+      // Kişisel Bakım & Kozmetik
+      ['Kişisel Bakım', 'Kozmetik', 'Güzellik', 'Bakım']: [
+        'kişisel bakım',
+        'kozmetik',
+        'güzellik',
+        'bakım',
+        'kuaför',
+        'berber',
+        'saç kesimi',
+        'saç boyası',
+        'perma',
+        'manikür',
+        'pedikür',
+        'cilt bakımı',
+        'yüz bakımı',
+        'makyaj',
+        'ruj',
+        'fondöten',
+        'maskara',
+        'far',
+        'parfüm',
+        'deodorant',
+        'krem',
+        'losyon',
+        'şampuan',
+        'saç kremi',
+        'saç spreyi',
+        'jöle',
+        'diş macunu',
+        'diş fırçası',
+        'ağız bakımı',
+        'tıraş',
+        'jilet',
+        'tıraş köpüğü',
+        'watsons',
+        'gratis',
+        'sephora',
+        'mac',
+        'loreal',
+      ],
+
+      // Bebek & Çocuk
+      ['Bebek', 'Çocuk', 'Anne-Bebek']: [
+        'bebek',
+        'çocuk',
+        'anne',
+        'bebek bezi',
+        'pampers',
+        'prima',
+        'mama',
+        'biberon',
+        'emzik',
+        'bebek maması',
+        'bebek arabası',
+        'puset',
+        'ana kucağı',
+        'oto koltuğu',
+        'oyuncak',
+        'lego',
+        'bebek oyuncağı',
+        'kreş',
+        'anaokulu',
+        'bakıcı',
+        'dadı',
+        'çocuk kıyafeti',
+        'bebek kıyafeti',
+      ],
+
+      // Evcil Hayvan
+      ['Evcil Hayvan', 'Pet', 'Hayvan']: [
+        'evcil hayvan',
+        'pet',
+        'hayvan',
+        'kedi',
+        'köpek',
+        'kuş',
+        'balık',
+        'hamster',
+        'tavşan',
+        'mama',
+        'kedi maması',
+        'köpek maması',
+        'petshop',
+        'pet shop',
+        'veteriner',
+        'aşı',
+        'kısırlaştırma',
+        'tasma',
+        'kafes',
+        'akvaryum',
+        'kum',
+        'kedi kumu',
+      ],
+
+      // Hediye & Özel Gün
+      ['Hediye', 'Özel Gün', 'Kutlama']: [
+        'hediye',
+        'özel gün',
+        'kutlama',
+        'doğum günü',
+        'yıldönümü',
+        'düğün',
+        'nişan',
+        'bebek',
+        'sünnet',
+        'sevgililer günü',
+        'anneler günü',
+        'babalar günü',
+        'yılbaşı',
+        'bayram',
+        'ramazan',
+        'çiçek',
+        'buket',
+        'pasta',
+        'balon',
+        'süsleme',
+      ],
+
+      // Sigorta & Finans
+      ['Sigorta', 'Finans', 'Banka']: [
+        'sigorta',
+        'finans',
+        'banka',
+        'kredi',
+        'hayat sigortası',
+        'sağlık sigortası',
+        'bireysel emeklilik',
+        'bes',
+        'kredi kartı',
+        'faiz',
+        'komisyon',
+        'havale',
+        'eft',
+        'yatırım',
+        'borsa',
+        'hisse',
+        'altın',
+        'döviz',
+      ],
+
+      // Seyahat & Tatil
+      ['Seyahat', 'Tatil', 'Gezi', 'Konaklama']: [
+        'seyahat',
+        'tatil',
+        'gezi',
+        'tur',
+        'otel',
+        'konaklama',
+        'pansiyon',
+        'apart',
+        'airbnb',
+        'booking',
+        'uçak bileti',
+        'otobüs bileti',
+        'tren bileti',
+        'vize',
+        'pasaport',
+        'transfer',
+        'bavul',
+        'valiz',
+        'seyahat çantası',
+        'plaj',
+        'deniz',
+        'kayak',
+        'kamp',
+      ],
     };
 
     // Önce anahtar kelimeleri kontrol et
     for (var entry in kategoriAnahtarlari.entries) {
-      for (var anahtar in entry.value) {
+      List<String> kategoriIsimleri = entry.key;
+      List<String> anahtarKelimeler = entry.value;
+
+      for (var anahtar in anahtarKelimeler) {
         if (text.contains(anahtar)) {
-          // Bu kategori mevcut kategorilerde var mı?
+          // Bu kategoriye uyan mevcut kategori var mı?
           for (var mevcutKat in mevcutKategoriler) {
-            if (mevcutKat.toLowerCase() == entry.key.toLowerCase() ||
-                mevcutKat.toLowerCase().contains(entry.key.toLowerCase())) {
-              return mevcutKat;
+            String mevcutKatLower = mevcutKat.toLowerCase();
+
+            // Kategori isimlerinden biri ile eşleşiyor mu?
+            for (var kategoriIsmi in kategoriIsimleri) {
+              if (mevcutKatLower == kategoriIsmi.toLowerCase() ||
+                  mevcutKatLower.contains(kategoriIsmi.toLowerCase()) ||
+                  kategoriIsmi.toLowerCase().contains(mevcutKatLower)) {
+                return mevcutKat;
+              }
+            }
+
+            // Anahtar kelimelerden biri kategori isminde geçiyor mu?
+            for (var kw in anahtarKelimeler.take(5)) {
+              // İlk 5 ana anahtar kelime
+              if (mevcutKatLower.contains(kw)) {
+                return mevcutKat;
+              }
             }
           }
         }
