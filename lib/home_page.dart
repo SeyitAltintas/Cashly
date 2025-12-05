@@ -10,6 +10,7 @@ import 'features/assets/data/models/asset_model.dart';
 import 'features/assets/presentation/widgets/add_asset_sheet.dart';
 import 'features/analysis/presentation/pages/analysis_page.dart';
 import 'features/expenses/presentation/widgets/add_expense_sheet.dart';
+import 'features/expenses/presentation/widgets/voice_input_sheet.dart';
 
 class AnaSayfa extends StatefulWidget {
   final AuthController authController;
@@ -1083,6 +1084,58 @@ class _AnaSayfaState extends State<AnaSayfa> {
                 ).then((_) {
                   verileriOku();
                 });
+              },
+            ),
+            // Sesli harcama girişi butonu
+            IconButton(
+              icon: const Icon(Icons.mic, color: Colors.white),
+              tooltip: "Sesli Giriş",
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => VoiceInputSheet(
+                    categories: kategoriIkonlari.keys.toList(),
+                    onConfirm: (name, amount, category) {
+                      setState(() {
+                        tumHarcamalar.add({
+                          "isim": name,
+                          "tutar": amount,
+                          "kategori": category,
+                          "tarih": DateTime.now().toString(),
+                          "silindi": false,
+                        });
+
+                        tumHarcamalar.sort((a, b) {
+                          DateTime tarihA =
+                              DateTime.tryParse(a['tarih'].toString()) ??
+                              DateTime.now();
+                          DateTime tarihB =
+                              DateTime.tryParse(b['tarih'].toString()) ??
+                              DateTime.now();
+                          return tarihB.compareTo(tarihA);
+                        });
+
+                        filtreleVeGoster();
+                      });
+                      verileriKaydet();
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Harcama eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primary,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                  ),
+                );
               },
             ),
           ],
