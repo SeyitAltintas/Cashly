@@ -1097,6 +1097,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   backgroundColor: Colors.transparent,
                   builder: (context) => VoiceInputSheet(
                     categoryIcons: kategoriIkonlari,
+                    userId: widget.authController.currentUser?.id,
                     onConfirm: (name, amount, category) {
                       setState(() {
                         tumHarcamalar.add({

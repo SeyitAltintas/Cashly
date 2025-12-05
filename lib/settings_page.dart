@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'services/database_helper.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
 import 'features/settings/presentation/pages/appearance_page.dart';
+import 'features/settings/presentation/pages/voice_assistant_page.dart';
 
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'core/utils/validators.dart';
@@ -68,6 +69,43 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                   },
                   child: const Text(
                     "Görünüm",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Sesli Asistan butonu
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.1),
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VoiceAssistantPage(
+                          authController: widget.authController,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    "Sesli Asistan",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,

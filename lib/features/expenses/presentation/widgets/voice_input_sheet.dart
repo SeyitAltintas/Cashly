@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../../services/speech_service.dart';
+import '../../../../services/tts_service.dart';
 
 /// Sesli harcama girişi için modal bottom sheet widget'ı
 class VoiceInputSheet extends StatefulWidget {
   final Map<String, IconData> categoryIcons;
   final Function(String name, double amount, String category) onConfirm;
+  final String? userId;
 
   const VoiceInputSheet({
     super.key,
     required this.categoryIcons,
     required this.onConfirm,
+    this.userId,
   });
 
   @override
@@ -19,6 +22,7 @@ class VoiceInputSheet extends StatefulWidget {
 class _VoiceInputSheetState extends State<VoiceInputSheet>
     with SingleTickerProviderStateMixin {
   final SpeechService _speechService = SpeechService();
+  final TtsService _ttsService = TtsService();
 
   bool _isListening = false;
   bool _isInitializing = true;
@@ -149,6 +153,15 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     }
 
     widget.onConfirm(isim, tutar, _selectedCategory);
+
+    // Sesli geri bildirim
+    _ttsService.harcamaEklendiBildirimi(
+      tutar: tutar,
+      harcamaIsmi: isim,
+      kategori: _selectedCategory,
+      userId: widget.userId,
+    );
+
     Navigator.pop(context);
   }
 
