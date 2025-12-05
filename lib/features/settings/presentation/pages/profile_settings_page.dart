@@ -1105,7 +1105,17 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 24),
+            // Silik çizgi
+            Divider(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.1),
+              thickness: 2,
+              indent: 40,
+              endIndent: 40,
+            ),
+            const SizedBox(height: 24),
 
             // İsim Değiştirme Kartı
             _buildSettingsCard(
