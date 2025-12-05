@@ -71,6 +71,7 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
   };
 
   bool _isLoading = false;
+  String? _errorMessage;
   final PriceService _priceService = PriceService();
 
   @override
@@ -90,6 +91,7 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
   Future<void> _fetchLivePrice() async {
     setState(() {
       _isLoading = true;
+      _errorMessage = null;
     });
 
     double? unitPrice;
@@ -137,11 +139,9 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
             double quantity = double.tryParse(_quantityController.text) ?? 1.0;
             double totalAmount = unitPrice * quantity;
             _amountController.text = totalAmount.toStringAsFixed(2);
+            _errorMessage = null;
           } else {
-            ErrorHandler.showErrorSnackBar(
-              context,
-              'Fiyat çekilemedi, lütfen manuel giriniz.',
-            );
+            _errorMessage = 'Fiyat çekilemedi, lütfen manuel giriniz.';
           }
         });
       }
@@ -149,11 +149,8 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _errorMessage = 'Fiyat alınırken hata oluştu. Lütfen manuel giriniz.';
         });
-        ErrorHandler.showErrorSnackBar(
-          context,
-          'Fiyat alınırken hata oluştu: ${e.toString()}',
-        );
       }
     }
   }
@@ -472,6 +469,40 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                   ],
                 ],
               ),
+
+              // Hata mesajı
+              if (_errorMessage != null) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.red.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.red,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
 
               const SizedBox(height: 24),
               SizedBox(

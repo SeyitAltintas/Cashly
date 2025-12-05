@@ -4,6 +4,8 @@ class UserEntity {
   final String email;
   final String pin;
   final String? profileImage;
+  final DateTime createdAt;
+  final DateTime? lastLoginAt;
 
   UserEntity({
     required this.id,
@@ -11,5 +13,7 @@ class UserEntity {
     required this.email,
     required this.pin,
     this.profileImage,
+    required this.createdAt,
+    this.lastLoginAt,
   });
 }

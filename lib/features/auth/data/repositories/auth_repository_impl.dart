@@ -40,6 +40,25 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> deleteUser(String userId) async {
+    final box = await _getUsersBox();
+    await box.delete(userId);
+
+    // Clear session data for deleted user
+    final sessionBox = await _getSessionBox();
+    final currentUserId = sessionBox.get(_currentUserKey);
+    if (currentUserId == userId) {
+      await logout();
+    }
+
+    // Clear last_user_id if it was set to the deleted user
+    final lastUserId = sessionBox.get('last_user_id');
+    if (lastUserId == userId) {
+      await sessionBox.delete('last_user_id');
+    }
+  }
+
+  @override
   Future<UserEntity?> loginUser(String id, String pin) async {
     final box = await _getUsersBox();
     final userData = box.get(id);
@@ -47,8 +66,19 @@ class AuthRepositoryImpl implements AuthRepository {
     if (userData != null) {
       final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
       if (user.pin == pin) {
+        // Update lastLoginAt
+        final updatedUser = UserModel(
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          pin: user.pin,
+          profileImage: user.profileImage,
+          createdAt: user.createdAt,
+          lastLoginAt: DateTime.now(),
+        );
+        await box.put(id, updatedUser.toMap());
         await setCurrentUser(user.id);
-        return user;
+        return updatedUser;
       }
     }
     return null;

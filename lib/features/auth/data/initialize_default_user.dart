@@ -23,6 +23,7 @@ Future<void> initializeDefaultUser() async {
         email: defaultEmail,
         pin: '8520',
         profileImage: null,
+        createdAt: DateTime.now(),
       );
 
       // Kullanıcıyı kaydet

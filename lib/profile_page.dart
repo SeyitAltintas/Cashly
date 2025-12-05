@@ -22,47 +22,135 @@ class ProfilSayfasi extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Profil Bilgileri
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest,
-                backgroundImage:
-                    authController.currentUser?.profileImage != null
-                    ? (authController.currentUser!.profileImage!.startsWith(
-                                'http',
-                              )
-                              ? NetworkImage(
-                                  authController.currentUser!.profileImage!,
-                                )
-                              : FileImage(
-                                  File(
-                                    authController.currentUser!.profileImage!,
-                                  ),
-                                ))
-                          as ImageProvider
-                    : null,
-                child: authController.currentUser?.profileImage == null
-                    ? Icon(
-                        Icons.person,
-                        size: 40,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      )
-                    : null,
+          // Profil Bilgileri - Modern Tasarım
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                  Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.6),
+                  Theme.of(
+                    context,
+                  ).colorScheme.secondary.withValues(alpha: 0.4),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                stops: const [0.0, 0.5, 1.0],
               ),
-              const SizedBox(width: 16),
-              Text(
-                authController.currentUser?.name ?? "Kullanıcı",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.15),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.4),
+                  blurRadius: 25,
+                  offset: const Offset(0, 12),
+                  spreadRadius: -5,
                 ),
-              ),
-            ],
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // Profil Resmi (Sol)
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      width: 3,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                    backgroundImage:
+                        authController.currentUser?.profileImage != null
+                        ? (authController.currentUser!.profileImage!.startsWith(
+                                    'http',
+                                  )
+                                  ? NetworkImage(
+                                      authController.currentUser!.profileImage!,
+                                    )
+                                  : (authController.currentUser!.profileImage!
+                                            .startsWith('lib/') ||
+                                        authController
+                                            .currentUser!
+                                            .profileImage!
+                                            .startsWith('assets/'))
+                                  ? AssetImage(
+                                      authController.currentUser!.profileImage!,
+                                    )
+                                  : FileImage(
+                                      File(
+                                        authController
+                                            .currentUser!
+                                            .profileImage!,
+                                      ),
+                                    ))
+                              as ImageProvider
+                        : null,
+                    child: authController.currentUser?.profileImage == null
+                        ? Icon(
+                            Icons.person,
+                            size: 40,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          )
+                        : null,
+                  ),
+                ),
+                const SizedBox(width: 20),
+                // Kullanıcı Bilgileri (Sağ)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Kullanıcı Adı
+                      Text(
+                        authController.currentUser?.name ?? "Kullanıcı",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      // E-posta
+                      if (authController.currentUser?.email != null)
+                        Text(
+                          authController.currentUser!.email,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.8),
+                            fontSize: 14,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 32),
           // Kullanıcı Bilgileri Butonu

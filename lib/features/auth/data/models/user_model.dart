@@ -7,6 +7,8 @@ class UserModel extends UserEntity {
     required super.email,
     required super.pin,
     super.profileImage,
+    required super.createdAt,
+    super.lastLoginAt,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -16,6 +18,12 @@ class UserModel extends UserEntity {
       email: map['email'] as String,
       pin: map['pin'] as String,
       profileImage: map['profileImage'] as String?,
+      createdAt: map['createdAt'] != null
+          ? DateTime.parse(map['createdAt'] as String)
+          : DateTime.now(), // Fallback for existing users
+      lastLoginAt: map['lastLoginAt'] != null
+          ? DateTime.parse(map['lastLoginAt'] as String)
+          : null,
     );
   }
 
@@ -26,6 +34,8 @@ class UserModel extends UserEntity {
       'email': email,
       'pin': pin,
       'profileImage': profileImage,
+      'createdAt': createdAt.toIso8601String(),
+      'lastLoginAt': lastLoginAt?.toIso8601String(),
     };
   }
 
@@ -36,6 +46,8 @@ class UserModel extends UserEntity {
       email: entity.email,
       pin: entity.pin,
       profileImage: entity.profileImage,
+      createdAt: entity.createdAt,
+      lastLoginAt: entity.lastLoginAt,
     );
   }
 }

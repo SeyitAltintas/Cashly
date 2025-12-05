@@ -362,6 +362,13 @@ class _LoginPageState extends State<LoginPage> {
                 backgroundImage: _targetUser?.profileImage != null
                     ? (_targetUser!.profileImage!.startsWith('http')
                               ? NetworkImage(_targetUser!.profileImage!)
+                              : (_targetUser!.profileImage!.startsWith(
+                                      'lib/',
+                                    ) ||
+                                    _targetUser!.profileImage!.startsWith(
+                                      'assets/',
+                                    ))
+                              ? AssetImage(_targetUser!.profileImage!)
                               : FileImage(File(_targetUser!.profileImage!)))
                           as ImageProvider
                     : null,

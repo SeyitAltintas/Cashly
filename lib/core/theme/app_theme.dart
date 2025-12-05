@@ -199,6 +199,198 @@ class AppTheme {
     );
   }
 
+  /// Koyu Pembe Tema (Rose Night)
+  static ThemeData get darkPinkTheme {
+    return ThemeData.dark().copyWith(
+      scaffoldBackgroundColor: const Color(0xFF000000),
+      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
+      colorScheme: const ColorScheme.dark(
+        primary: Color(0xFFC2185B), // Pink 700
+        secondary: Color(0xFFEC407A), // Pink 400
+        surface: Color(0xFF0A0A0A),
+        error: Color(0xFFCF6679),
+        brightness: Brightness.dark,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF000000),
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Color(0xFFC2185B)),
+      ),
+      cardTheme: const CardThemeData(
+        color: Color(0xFF0A0A0A),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: Color(0xFFC2185B),
+        foregroundColor: Colors.white,
+      ),
+    );
+  }
+
+  /// Koyu İndigo Tema (Midnight Indigo)
+  static ThemeData get darkIndigoTheme {
+    return ThemeData.dark().copyWith(
+      scaffoldBackgroundColor: const Color(0xFF000000),
+      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
+      colorScheme: const ColorScheme.dark(
+        primary: Color(0xFF303F9F), // Indigo 700
+        secondary: Color(0xFF5C6BC0), // Indigo 400
+        surface: Color(0xFF0A0A0A),
+        error: Color(0xFFCF6679),
+        brightness: Brightness.dark,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF000000),
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Color(0xFF303F9F)),
+      ),
+      cardTheme: const CardThemeData(
+        color: Color(0xFF0A0A0A),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: Color(0xFF303F9F),
+        foregroundColor: Colors.white,
+      ),
+    );
+  }
+
+  /// Koyu Deniz Tema (Teal Ocean)
+  static ThemeData get darkTealTheme {
+    return ThemeData.dark().copyWith(
+      scaffoldBackgroundColor: const Color(0xFF000000),
+      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
+      colorScheme: const ColorScheme.dark(
+        primary: Color(0xFF00695C), // Teal 800
+        secondary: Color(0xFF26A69A), // Teal 400
+        surface: Color(0xFF0A0A0A),
+        error: Color(0xFFCF6679),
+        brightness: Brightness.dark,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF000000),
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Color(0xFF00695C)),
+      ),
+      cardTheme: const CardThemeData(
+        color: Color(0xFF0A0A0A),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: Color(0xFF00695C),
+        foregroundColor: Colors.white,
+      ),
+    );
+  }
+
+  /// Koyu Menekşe Tema (Deep Violet)
+  static ThemeData get darkDeepPurpleTheme {
+    return ThemeData.dark().copyWith(
+      scaffoldBackgroundColor: const Color(0xFF000000),
+      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
+      colorScheme: const ColorScheme.dark(
+        primary: Color(0xFF4527A0), // Deep Purple 800
+        secondary: Color(0xFF7E57C2), // Deep Purple 400
+        surface: Color(0xFF0A0A0A),
+        error: Color(0xFFCF6679),
+        brightness: Brightness.dark,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF000000),
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Color(0xFF4527A0)),
+      ),
+      cardTheme: const CardThemeData(
+        color: Color(0xFF0A0A0A),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: Color(0xFF4527A0),
+        foregroundColor: Colors.white,
+      ),
+    );
+  }
+
+  /// Koyu Kahverengi Tema (Amber Earth)
+  static ThemeData get darkBrownTheme {
+    return ThemeData.dark().copyWith(
+      scaffoldBackgroundColor: const Color(0xFF000000),
+      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
+      colorScheme: const ColorScheme.dark(
+        primary: Color(0xFF6D4C41), // Brown 600
+        secondary: Color(0xFF8D6E63), // Brown 400
+        surface: Color(0xFF0A0A0A),
+        error: Color(0xFFCF6679),
+        brightness: Brightness.dark,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF000000),
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Color(0xFF6D4C41)),
+      ),
+      cardTheme: const CardThemeData(
+        color: Color(0xFF0A0A0A),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: Color(0xFF6D4C41),
+        foregroundColor: Colors.white,
+      ),
+    );
+  }
+
+  /// Koyu Gri Tema (Slate Dark)
+  static ThemeData get darkGreyTheme {
+    return ThemeData.dark().copyWith(
+      scaffoldBackgroundColor: const Color(0xFF000000),
+      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
+      colorScheme: const ColorScheme.dark(
+        primary: Color(0xFF455A64), // BlueGrey 700
+        secondary: Color(0xFF78909C), // BlueGrey 400
+        surface: Color(0xFF0A0A0A),
+        error: Color(0xFFCF6679),
+        brightness: Brightness.dark,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF000000),
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Color(0xFF455A64)),
+      ),
+      cardTheme: const CardThemeData(
+        color: Color(0xFF0A0A0A),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: Color(0xFF455A64),
+        foregroundColor: Colors.white,
+      ),
+    );
+  }
+
   /// Tüm mevcut temaların listesi
   static List<ThemeData> get allThemes => [
     darkPurpleTheme,
@@ -207,6 +399,12 @@ class AppTheme {
     darkRedTheme,
     darkOrangeTheme,
     darkCyanTheme,
+    darkPinkTheme,
+    darkIndigoTheme,
+    darkTealTheme,
+    darkDeepPurpleTheme,
+    darkBrownTheme,
+    darkGreyTheme,
   ];
 
   /// Tema isimlerinin listesi (tema seçimi için)
@@ -217,6 +415,12 @@ class AppTheme {
     'Nar',
     'Safran',
     'Turkuaz',
+    'Gül',
+    'Gece',
+    'Deniz',
+    'Menekşe',
+    'Toprak',
+    'Kayrak',
   ];
 
   /// Index'e göre tema getir
