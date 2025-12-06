@@ -40,124 +40,189 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             onPressed: () => Navigator.pop(context, _needsRefresh),
           ),
         ),
-        body: Padding(
+        body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.1),
-                      ),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AppearancePage(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    "Görünüm",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+              // Ayarlar başlığı
+              Text(
+                'Uygulama Ayarları',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: 16),
-              // Sesli Asistan butonu
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.1),
-                      ),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
+              const SizedBox(height: 12),
+
+              // Ayar kartları container
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Theme.of(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => VoiceAssistantPage(
-                          authController: widget.authController,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    "Sesli Asistan",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    ).colorScheme.onSurface.withValues(alpha: 0.08),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: Theme.of(
+                child: Column(
+                  children: [
+                    // Görünüm
+                    _buildSettingsTile(
+                      icon: Icons.palette_outlined,
+                      iconColor: Colors.purple,
+                      title: 'Görünüm',
+                      subtitle: 'Tema ve renk ayarları',
+                      onTap: () {
+                        Navigator.push(
                           context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.1),
-                      ),
+                          MaterialPageRoute(
+                            builder: (context) => const AppearancePage(),
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                  onPressed: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HarcamalarAyarlariSayfasi(
-                          userId: widget.authController.currentUser!.id,
-                        ),
-                      ),
-                    );
-                    if (result == true) {
-                      setState(() {
-                        _needsRefresh = true;
-                      });
-                    }
-                  },
-                  child: const Text(
-                    "Harcamalar",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                    _buildDivider(),
+
+                    // Sesli Asistan
+                    _buildSettingsTile(
+                      icon: Icons.mic_outlined,
+                      iconColor: Colors.orange,
+                      title: 'Sesli Asistan',
+                      subtitle: 'Ses komutları ve geri bildirim',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => VoiceAssistantPage(
+                              authController: widget.authController,
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  ),
+                    _buildDivider(),
+
+                    // Harcamalar
+                    _buildSettingsTile(
+                      icon: Icons.account_balance_wallet_outlined,
+                      iconColor: Colors.green,
+                      title: 'Harcamalar',
+                      subtitle: 'Bütçe, kategoriler ve sabit giderler',
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HarcamalarAyarlariSayfasi(
+                              userId: widget.authController.currentUser!.id,
+                            ),
+                          ),
+                        );
+                        if (result == true) {
+                          setState(() {
+                            _needsRefresh = true;
+                          });
+                        }
+                      },
+                      isLast: true,
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    bool isLast = false,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: isLast
+            ? const BorderRadius.only(
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              )
+            : null,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: iconColor, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.3),
+                size: 22,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 72),
+      child: Divider(
+        height: 1,
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
       ),
     );
   }

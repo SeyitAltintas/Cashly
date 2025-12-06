@@ -426,9 +426,39 @@ class AppTheme {
   /// Index'e göre tema getir
   static ThemeData getThemeByIndex(int index) {
     if (index < 0 || index >= allThemes.length) {
-      return darkPurpleTheme; // Varsayılan tema
+      return _applyNoSplash(darkPurpleTheme); // Varsayılan tema
     }
-    return allThemes[index];
+    return _applyNoSplash(allThemes[index]);
+  }
+
+  /// Temaya ripple/splash kaldırma uygula
+  static ThemeData _applyNoSplash(ThemeData theme) {
+    return theme.copyWith(
+      splashFactory: NoSplash.splashFactory,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
+        ).merge(theme.elevatedButtonTheme.style),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
+        ).merge(theme.textButtonTheme.style),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
+        ).merge(theme.outlinedButtonTheme.style),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
+        ).merge(theme.iconButtonTheme.style),
+      ),
+    );
   }
 
   /// Tema adına göre tema getir

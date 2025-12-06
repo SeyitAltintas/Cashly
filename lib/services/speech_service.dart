@@ -32,6 +32,9 @@ enum VoiceCommandType {
   /// "Markete ne kadar harcadım?" gibi kategori bazlı sorgu
   kategoriHarcamasi,
 
+  /// "Sabit giderleri ekle" komutu
+  sabitGiderleriEkle,
+
   /// Tanınmayan komut
   bilinmiyor,
 }
@@ -215,6 +218,15 @@ class SpeechService {
           kategori: bulunanKategori,
         );
       }
+    }
+
+    // "Sabit giderleri ekle" komutu
+    if (_matchesSabitGiderleriEkle(normalizedText)) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.sabitGiderleriEkle,
+        rawText: text,
+        komutAlgilandi: true,
+      );
     }
 
     // Komut algılanmadı - normal harcama girişi olarak değerlendir
@@ -437,6 +449,29 @@ class SpeechService {
     }
 
     return null;
+  }
+
+  /// "Sabit giderleri ekle" komutunu kontrol et
+  bool _matchesSabitGiderleriEkle(String text) {
+    List<String> patterns = [
+      'sabit giderleri ekle',
+      'sabit giderleri bu aya ekle',
+      'sabit giderleri kaydet',
+      'sabit giderlerimi ekle',
+      'sabit harcamaları ekle',
+      'aylık giderleri ekle',
+      'düzenli giderleri ekle',
+      'sabit ödemeleri ekle',
+      'faturalarımı ekle',
+      'faturaları ekle',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /// Metni parse et ve tutar/kategori çıkar

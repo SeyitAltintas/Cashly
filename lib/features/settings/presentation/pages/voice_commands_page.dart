@@ -171,6 +171,23 @@ class VoiceCommandsPage extends StatelessWidget {
               ],
             ),
 
+            const SizedBox(height: 16),
+
+            // Sabit Giderleri Ekle
+            _buildCommandSection(
+              context,
+              icon: Icons.repeat,
+              title: 'Sabit Giderleri Ekle',
+              description:
+                  'Ayarlardan tanımladığınız sabit giderleri bu aya ekleyin.',
+              examples: [
+                'Sabit giderleri ekle',
+                'Sabit giderleri bu aya ekle',
+                'Faturaları ekle',
+                'Düzenli giderleri ekle',
+              ],
+            ),
+
             const SizedBox(height: 32),
 
             // İpucu

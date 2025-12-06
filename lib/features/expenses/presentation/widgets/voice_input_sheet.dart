@@ -19,6 +19,7 @@ class VoiceInputSheet extends StatefulWidget {
   final List<Map<String, dynamic>> Function()? onGetLastExpenses;
   final Map<String, dynamic> Function()? onCheckBudget;
   final double Function(String kategori)? onGetCategoryTotal;
+  final Future<Map<String, dynamic>> Function()? onAddFixedExpenses;
 
   const VoiceInputSheet({
     super.key,
@@ -33,6 +34,7 @@ class VoiceInputSheet extends StatefulWidget {
     this.onGetLastExpenses,
     this.onCheckBudget,
     this.onGetCategoryTotal,
+    this.onAddFixedExpenses,
   });
 
   @override
@@ -193,6 +195,9 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         break;
       case VoiceCommandType.kategoriHarcamasi:
         await _handleGetCategoryTotal(command.kategori);
+        break;
+      case VoiceCommandType.sabitGiderleriEkle:
+        await _handleAddFixedExpenses();
         break;
       default:
         // Normal harcama ekleme veya bilinmeyen komut
@@ -391,6 +396,43 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       );
 
       if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  /// "Sabit giderleri ekle" komutunu işle
+  Future<void> _handleAddFixedExpenses() async {
+    if (widget.onAddFixedExpenses != null) {
+      final result = await widget.onAddFixedExpenses!();
+
+      await _ttsService.sabitGiderlerEklendiBildirimi(
+        adet: (result['adet'] as int?) ?? 0,
+        toplam: (result['toplam'] as num?)?.toDouble() ?? 0,
+        userId: widget.userId,
+      );
+
+      if (mounted) {
+        if ((result['adet'] as int?) != null && (result['adet'] as int) > 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '${result['adet']} adet sabit gider eklendi!',
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.green.shade700,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
         Navigator.pop(context);
       }
     } else {

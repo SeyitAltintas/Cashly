@@ -202,6 +202,19 @@ class TtsService {
     await speak(mesaj, userId: userId);
   }
 
+  /// Sabit giderler eklendi bildirimi
+  Future<void> sabitGiderlerEklendiBildirimi({
+    required int adet,
+    required double toplam,
+    String? userId,
+  }) async {
+    String toplamStr = toplam.toStringAsFixed(0);
+    String mesaj = adet == 0
+        ? 'Eklenecek sabit gider bulunamadı. Önce ayarlardan sabit gider tanımlayın.'
+        : '$adet adet sabit gider eklendi. Toplam $toplamStr lira.';
+    await speak(mesaj, userId: userId);
+  }
+
   /// Servisi temizle
   void dispose() {
     _flutterTts.stop();

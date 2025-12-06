@@ -1283,6 +1283,40 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     onGetCategoryTotal: (String kategori) {
                       return kategoriToplamlari[kategori] ?? 0.0;
                     },
+                    // Sesli komut: Sabit giderleri ekle
+                    onAddFixedExpenses: () async {
+                      final sabitGiderler =
+                          DatabaseHelper.sabitGiderSablonlariGetir(
+                            widget.authController.currentUser!.id,
+                          );
+
+                      if (sabitGiderler.isEmpty) {
+                        return {'adet': 0, 'toplam': 0.0};
+                      }
+
+                      DateTime simdi = DateTime.now();
+                      double toplam = 0;
+
+                      for (var sablon in sabitGiderler) {
+                        double tutar =
+                            (sablon['tutar'] as num?)?.toDouble() ?? 0;
+                        toplam += tutar;
+                        tumHarcamalar.add({
+                          'isim': sablon['isim'],
+                          'tutar': tutar,
+                          'kategori': 'Sabit Giderler',
+                          'tarih': simdi.toString(),
+                          'silindi': false,
+                        });
+                      }
+
+                      verileriKaydet();
+                      setState(() {
+                        filtreleVeGoster();
+                      });
+
+                      return {'adet': sabitGiderler.length, 'toplam': toplam};
+                    },
                   ),
                 );
               },
