@@ -125,6 +125,83 @@ class TtsService {
     await speak(mesaj, userId: userId);
   }
 
+  /// Bu hafta toplam harcama bildirimi
+  Future<void> buHaftaHarcamaBildirimi({
+    required double toplam,
+    String? userId,
+  }) async {
+    String toplamStr = toplam.toStringAsFixed(0);
+    String mesaj = 'Bu hafta toplam $toplamStr lira harcadınız';
+    await speak(mesaj, userId: userId);
+  }
+
+  /// Bugün toplam harcama bildirimi
+  Future<void> bugunHarcamaBildirimi({
+    required double toplam,
+    String? userId,
+  }) async {
+    String toplamStr = toplam.toStringAsFixed(0);
+    String mesaj = toplam == 0
+        ? 'Bugün henüz harcama yapmadınız'
+        : 'Bugün toplam $toplamStr lira harcadınız';
+    await speak(mesaj, userId: userId);
+  }
+
+  /// Son harcamalar bildirimi
+  Future<void> sonHarcamalarBildirimi({
+    required List<Map<String, dynamic>> harcamalar,
+    String? userId,
+  }) async {
+    if (harcamalar.isEmpty) {
+      await speak('Henüz harcama bulunmuyor', userId: userId);
+      return;
+    }
+
+    // En fazla 5 harcama söyle
+    int adet = harcamalar.length > 5 ? 5 : harcamalar.length;
+    StringBuffer mesaj = StringBuffer('Son $adet harcamanız: ');
+
+    for (int i = 0; i < adet; i++) {
+      var h = harcamalar[i];
+      String isim = h['isim'] ?? 'Harcama';
+      double tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
+      mesaj.write('$isim ${tutar.toStringAsFixed(0)} lira');
+      if (i < adet - 1) mesaj.write(', ');
+    }
+
+    await speak(mesaj.toString(), userId: userId);
+  }
+
+  /// Bütçe durumu bildirimi
+  Future<void> butceDurumBildirimi({
+    required double kalanLimit,
+    required double asilanMiktar,
+    String? userId,
+  }) async {
+    String mesaj;
+    if (asilanMiktar > 0) {
+      mesaj = 'Bütçenizi ${asilanMiktar.toStringAsFixed(0)} lira aştınız';
+    } else if (kalanLimit > 0) {
+      mesaj = 'Bütçenizden ${kalanLimit.toStringAsFixed(0)} lira kaldı';
+    } else {
+      mesaj = 'Bütçeniz tam olarak harcandı';
+    }
+    await speak(mesaj, userId: userId);
+  }
+
+  /// Kategori bazlı harcama bildirimi
+  Future<void> kategoriHarcamaBildirimi({
+    required String kategori,
+    required double toplam,
+    String? userId,
+  }) async {
+    String toplamStr = toplam.toStringAsFixed(0);
+    String mesaj = toplam == 0
+        ? '$kategori kategorisinde henüz harcama yok'
+        : '$kategori kategorisinde toplam $toplamStr lira harcadınız';
+    await speak(mesaj, userId: userId);
+  }
+
   /// Servisi temizle
   void dispose() {
     _flutterTts.stop();

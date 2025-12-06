@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../services/database_helper.dart';
 import '../../../../services/tts_service.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
+import 'voice_commands_page.dart';
 
 /// Sesli Asistan ayarları sayfası
 class VoiceAssistantPage extends StatefulWidget {
@@ -268,6 +269,38 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Tüm Komutları Görüntüle butonu
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const VoiceCommandsPage(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.list_alt, color: Colors.white),
+                      label: const Text(
+                        'Tüm Sesli Komutları Görüntüle',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                     ),
                   ),
                 ],

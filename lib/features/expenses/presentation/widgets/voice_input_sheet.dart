@@ -8,10 +8,17 @@ class VoiceInputSheet extends StatefulWidget {
   final Function(String name, double amount, String category) onConfirm;
   final String? userId;
 
-  /// Sesli komut callback'leri
+  /// Mevcut sesli komut callback'leri
   final Future<Map<String, dynamic>?> Function()? onDeleteLastExpense;
   final double Function()? onGetMonthlyTotal;
   final Map<String, dynamic>? Function()? onGetTopCategory;
+
+  /// Yeni sesli komut callback'leri
+  final double Function()? onGetWeeklyTotal;
+  final double Function()? onGetDailyTotal;
+  final List<Map<String, dynamic>> Function()? onGetLastExpenses;
+  final Map<String, dynamic> Function()? onCheckBudget;
+  final double Function(String kategori)? onGetCategoryTotal;
 
   const VoiceInputSheet({
     super.key,
@@ -21,6 +28,11 @@ class VoiceInputSheet extends StatefulWidget {
     this.onDeleteLastExpense,
     this.onGetMonthlyTotal,
     this.onGetTopCategory,
+    this.onGetWeeklyTotal,
+    this.onGetDailyTotal,
+    this.onGetLastExpenses,
+    this.onCheckBudget,
+    this.onGetCategoryTotal,
   });
 
   @override
@@ -102,7 +114,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       onResult: (text) {
         if (mounted) {
           // Önce sesli komut olup olmadığını kontrol et
-          final commandResult = _speechService.detectVoiceCommand(text);
+          final commandResult = _speechService.detectVoiceCommand(
+            text,
+            mevcutKategoriler: widget.categoryIcons.keys.toList(),
+          );
 
           if (commandResult.komutAlgilandi) {
             // Komut algılandı - UI'ı güncelle ve işle
@@ -163,6 +178,21 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         break;
       case VoiceCommandType.enCokHangiKategori:
         await _handleGetTopCategory();
+        break;
+      case VoiceCommandType.buHaftaNeKadarHarcadim:
+        await _handleGetWeeklyTotal();
+        break;
+      case VoiceCommandType.bugunNeKadarHarcadim:
+        await _handleGetDailyTotal();
+        break;
+      case VoiceCommandType.sonHarcamalariListele:
+        await _handleListLastExpenses();
+        break;
+      case VoiceCommandType.butceyiAstimMi:
+        await _handleCheckBudget();
+        break;
+      case VoiceCommandType.kategoriHarcamasi:
+        await _handleGetCategoryTotal(command.kategori);
         break;
       default:
         // Normal harcama ekleme veya bilinmeyen komut
@@ -244,6 +274,136 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     }
   }
 
+  /// "Bu hafta ne kadar harcadım?" komutunu işle
+  Future<void> _handleGetWeeklyTotal() async {
+    if (widget.onGetWeeklyTotal != null) {
+      final total = widget.onGetWeeklyTotal!();
+
+      await _ttsService.buHaftaHarcamaBildirimi(
+        toplam: total,
+        userId: widget.userId,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  /// "Bugün ne kadar harcadım?" komutunu işle
+  Future<void> _handleGetDailyTotal() async {
+    if (widget.onGetDailyTotal != null) {
+      final total = widget.onGetDailyTotal!();
+
+      await _ttsService.bugunHarcamaBildirimi(
+        toplam: total,
+        userId: widget.userId,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  /// "Son harcamalarım neler?" komutunu işle
+  Future<void> _handleListLastExpenses() async {
+    if (widget.onGetLastExpenses != null) {
+      final harcamalar = widget.onGetLastExpenses!();
+
+      await _ttsService.sonHarcamalarBildirimi(
+        harcamalar: harcamalar,
+        userId: widget.userId,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  /// "Bütçemi aştım mı?" komutunu işle
+  Future<void> _handleCheckBudget() async {
+    if (widget.onCheckBudget != null) {
+      final budgetInfo = widget.onCheckBudget!();
+
+      await _ttsService.butceDurumBildirimi(
+        kalanLimit: (budgetInfo['kalanLimit'] as num?)?.toDouble() ?? 0,
+        asilanMiktar: (budgetInfo['asilanMiktar'] as num?)?.toDouble() ?? 0,
+        userId: widget.userId,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  /// Kategori bazlı harcama sorgusunu işle
+  Future<void> _handleGetCategoryTotal(String? kategori) async {
+    if (kategori == null) {
+      await _ttsService.speak('Kategori anlaşılamadı', userId: widget.userId);
+      if (mounted) {
+        Navigator.pop(context);
+      }
+      return;
+    }
+
+    if (widget.onGetCategoryTotal != null) {
+      final total = widget.onGetCategoryTotal!(kategori);
+
+      await _ttsService.kategoriHarcamaBildirimi(
+        kategori: kategori,
+        toplam: total,
+        userId: widget.userId,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
   Future<void> _stopListening() async {
     await _speechService.stopListening();
     setState(() {
@@ -297,10 +457,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            Icon(
-              Icons.help_outline,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+            Icon(Icons.mic, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 12),
             Text(
               'Sesli Asistan',
@@ -311,56 +468,69 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             ),
           ],
         ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildHelpSection(
-                context,
-                icon: Icons.add_circle_outline,
-                title: 'Harcama Eklemek İçin',
-                examples: [
-                  '"100 lira market"',
-                  '"50 TL kahve"',
-                  '"1000 lira protein tozu spor"',
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Sesli asistan ile şunları yapabilirsiniz:',
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildFeatureItem(
+              context,
+              Icons.add_circle_outline,
+              'Harcama ekleme',
+            ),
+            _buildFeatureItem(context, Icons.delete_outline, 'Harcama silme'),
+            _buildFeatureItem(
+              context,
+              Icons.account_balance_wallet,
+              'Harcama sorgulama',
+            ),
+            _buildFeatureItem(context, Icons.pie_chart, 'Kategori analizi'),
+            _buildFeatureItem(context, Icons.warning_amber, 'Bütçe kontrolü'),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.lightbulb_outline,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Detaylı komut listesi için:\nAyarlar → Sesli Asistan → Tüm Komutlar',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 16),
-              _buildHelpSection(
-                context,
-                icon: Icons.delete_outline,
-                title: 'Son Harcamayı Silmek İçin',
-                examples: ['"Son harcamayı sil"', '"Sonuncuyu sil"'],
-              ),
-              const SizedBox(height: 16),
-              _buildHelpSection(
-                context,
-                icon: Icons.account_balance_wallet,
-                title: 'Toplam Harcamayı Öğrenmek İçin',
-                examples: [
-                  '"Bu ay ne kadar harcadım?"',
-                  '"Toplam harcamam ne kadar?"',
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildHelpSection(
-                context,
-                icon: Icons.pie_chart,
-                title: 'En Çok Harcanan Kategoriyi Öğrenmek İçin',
-                examples: [
-                  '"En çok hangi kategoride harcamışım?"',
-                  '"En çok nereye harcadım?"',
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Anladım',
+              'Tamam',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
@@ -372,53 +542,23 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     );
   }
 
-  /// Yardım bölümü widget'ı
-  Widget _buildHelpSection(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required List<String> examples,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(
-              icon,
-              size: 18,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        ...examples.map(
-          (example) => Padding(
-            padding: const EdgeInsets.only(left: 26, bottom: 4),
-            child: Text(
-              example,
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-                fontSize: 13,
-                fontStyle: FontStyle.italic,
-              ),
+  /// Özellik satırı widget'ı
+  Widget _buildFeatureItem(BuildContext context, IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: Theme.of(context).colorScheme.secondary),
+          const SizedBox(width: 10),
+          Text(
+            text,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 14,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -17,6 +17,21 @@ enum VoiceCommandType {
   /// "En çok hangi kategoride harcamışım?" komutu
   enCokHangiKategori,
 
+  /// "Bu hafta ne kadar harcadım?" komutu
+  buHaftaNeKadarHarcadim,
+
+  /// "Bugün ne kadar harcadım?" komutu
+  bugunNeKadarHarcadim,
+
+  /// "Son harcamalarım neler?" komutu
+  sonHarcamalariListele,
+
+  /// "Bütçemi aştım mı?" komutu
+  butceyiAstimMi,
+
+  /// "Markete ne kadar harcadım?" gibi kategori bazlı sorgu
+  kategoriHarcamasi,
+
   /// Tanınmayan komut
   bilinmiyor,
 }
@@ -26,11 +41,13 @@ class VoiceCommandResult {
   final VoiceCommandType komutTuru;
   final String rawText;
   final bool komutAlgilandi;
+  final String? kategori; // Kategori bazlı sorgular için
 
   VoiceCommandResult({
     required this.komutTuru,
     required this.rawText,
     required this.komutAlgilandi,
+    this.kategori,
   });
 }
 
@@ -107,7 +124,10 @@ class SpeechService {
 
   /// Sesli komutu algıla
   /// Metni analiz ederek komut türünü belirler
-  VoiceCommandResult detectVoiceCommand(String text) {
+  VoiceCommandResult detectVoiceCommand(
+    String text, {
+    List<String>? mevcutKategoriler,
+  }) {
     if (text.isEmpty) {
       return VoiceCommandResult(
         komutTuru: VoiceCommandType.bilinmiyor,
@@ -143,6 +163,58 @@ class SpeechService {
         rawText: text,
         komutAlgilandi: true,
       );
+    }
+
+    // "Bu hafta ne kadar harcadım?" komutu
+    if (_matchesBuHaftaNeKadarHarcadim(normalizedText)) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.buHaftaNeKadarHarcadim,
+        rawText: text,
+        komutAlgilandi: true,
+      );
+    }
+
+    // "Bugün ne kadar harcadım?" komutu
+    if (_matchesBugunNeKadarHarcadim(normalizedText)) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.bugunNeKadarHarcadim,
+        rawText: text,
+        komutAlgilandi: true,
+      );
+    }
+
+    // "Son harcamalarım neler?" komutu
+    if (_matchesSonHarcamalariListele(normalizedText)) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.sonHarcamalariListele,
+        rawText: text,
+        komutAlgilandi: true,
+      );
+    }
+
+    // "Bütçemi aştım mı?" komutu
+    if (_matchesButceyiAstimMi(normalizedText)) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.butceyiAstimMi,
+        rawText: text,
+        komutAlgilandi: true,
+      );
+    }
+
+    // Kategori bazlı harcama sorgusu ("Markete ne kadar harcadım?")
+    if (mevcutKategoriler != null) {
+      String? bulunanKategori = _matchesKategoriHarcamasi(
+        normalizedText,
+        mevcutKategoriler,
+      );
+      if (bulunanKategori != null) {
+        return VoiceCommandResult(
+          komutTuru: VoiceCommandType.kategoriHarcamasi,
+          rawText: text,
+          komutAlgilandi: true,
+          kategori: bulunanKategori,
+        );
+      }
     }
 
     // Komut algılanmadı - normal harcama girişi olarak değerlendir
@@ -226,6 +298,145 @@ class SpeechService {
       }
     }
     return false;
+  }
+
+  /// "Bu hafta ne kadar harcadım?" komutunu kontrol et
+  bool _matchesBuHaftaNeKadarHarcadim(String text) {
+    List<String> patterns = [
+      'bu hafta ne kadar harcadım',
+      'bu hafta ne kadar harcamışım',
+      'bu hafta toplam harcamam',
+      'bu haftaki harcamam',
+      'haftalık harcamam',
+      'bu hafta kaç lira harcadım',
+      'bu hafta kaç para harcadım',
+      'haftanın toplamı',
+      'bu hafta harcama toplamı',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// "Bugün ne kadar harcadım?" komutunu kontrol et
+  bool _matchesBugunNeKadarHarcadim(String text) {
+    List<String> patterns = [
+      'bugün ne kadar harcadım',
+      'bugün ne kadar harcamışım',
+      'bugün toplam harcamam',
+      'bugünkü harcamam',
+      'bugün kaç lira harcadım',
+      'bugün kaç para harcadım',
+      'bugünün toplamı',
+      'bugün harcama toplamı',
+      'bugünkü harcamalarım',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// "Son harcamalarım neler?" komutunu kontrol et
+  bool _matchesSonHarcamalariListele(String text) {
+    List<String> patterns = [
+      'son harcamalarım',
+      'son harcamalarım neler',
+      'son harcamalarımı söyle',
+      'son harcamalarımı listele',
+      'son eklediğim harcamalar',
+      'son girdiğim harcamalar',
+      'son 5 harcamam',
+      'son beş harcamam',
+      'son harcama listesi',
+      'son harcamaları söyle',
+      'son harcamaları listele',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// "Bütçemi aştım mı?" komutunu kontrol et
+  bool _matchesButceyiAstimMi(String text) {
+    List<String> patterns = [
+      'bütçemi aştım mı',
+      'bütçeyi aştım mı',
+      'limiti geçtim mi',
+      'limitimi geçtim mi',
+      'limiti aştım mı',
+      'limitimi aştım mı',
+      'bütçe durumum',
+      'bütçe durumu',
+      'limit durumum',
+      'limit durumu',
+      'harcama limitim',
+      'bütçe ne durumda',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Kategori bazlı harcama sorgusunu kontrol et
+  /// Örnek: "Markete ne kadar harcadım?", "Yemek kategorisinde ne kadar?"
+  String? _matchesKategoriHarcamasi(
+    String text,
+    List<String> mevcutKategoriler,
+  ) {
+    // Önce pattern kontrolü yap
+    List<String> sorguPatternleri = [
+      'ne kadar harcadım',
+      'ne kadar harcamışım',
+      'kategorisinde ne kadar',
+      'ne harcadım',
+      'harcamam ne kadar',
+      'toplam harcama',
+      'kaç lira harcadım',
+      'kaç para harcadım',
+    ];
+
+    bool sorguVar = false;
+    for (var pattern in sorguPatternleri) {
+      if (text.contains(pattern)) {
+        sorguVar = true;
+        break;
+      }
+    }
+
+    if (!sorguVar) return null;
+
+    // Mevcut kategorileri kontrol et
+    for (var kategori in mevcutKategoriler) {
+      String kategoriLower = kategori.toLowerCase();
+      // Kategori ismi veya varyasyonları metinde geçiyor mu?
+      if (text.contains(kategoriLower) ||
+          text.contains('${kategoriLower}e') || // markete
+          text.contains('${kategoriLower}a') || // yemeğe
+          text.contains('${kategoriLower}de') || // markette
+          text.contains('${kategoriLower}da') || // yemekte
+          text.contains('${kategoriLower}te') ||
+          text.contains('${kategoriLower}ta')) {
+        return kategori; // Orijinal kategori ismini döndür
+      }
+    }
+
+    return null;
   }
 
   /// Metni parse et ve tutar/kategori çıkar

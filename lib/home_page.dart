@@ -1199,6 +1199,90 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         'tutar': enYuksekTutar,
                       };
                     },
+                    // Sesli komut: Bu hafta ne kadar harcadım?
+                    onGetWeeklyTotal: () {
+                      final now = DateTime.now();
+                      final weekStart = now.subtract(
+                        Duration(days: now.weekday - 1),
+                      );
+
+                      double haftalikToplam = 0;
+                      for (var h in tumHarcamalar) {
+                        if (h['silindi'] == true) continue;
+                        DateTime? tarih = DateTime.tryParse(
+                          h['tarih'].toString(),
+                        );
+                        if (tarih != null &&
+                            tarih.isAfter(
+                              weekStart.subtract(const Duration(days: 1)),
+                            ) &&
+                            tarih.isBefore(now.add(const Duration(days: 1)))) {
+                          haftalikToplam +=
+                              (h['tutar'] as num?)?.toDouble() ?? 0;
+                        }
+                      }
+                      return haftalikToplam;
+                    },
+                    // Sesli komut: Bugün ne kadar harcadım?
+                    onGetDailyTotal: () {
+                      final now = DateTime.now();
+                      final today = DateTime(now.year, now.month, now.day);
+
+                      double gunlukToplam = 0;
+                      for (var h in tumHarcamalar) {
+                        if (h['silindi'] == true) continue;
+                        DateTime? tarih = DateTime.tryParse(
+                          h['tarih'].toString(),
+                        );
+                        if (tarih != null) {
+                          final harcamaTarihi = DateTime(
+                            tarih.year,
+                            tarih.month,
+                            tarih.day,
+                          );
+                          if (harcamaTarihi.isAtSameMomentAs(today)) {
+                            gunlukToplam +=
+                                (h['tutar'] as num?)?.toDouble() ?? 0;
+                          }
+                        }
+                      }
+                      return gunlukToplam;
+                    },
+                    // Sesli komut: Son harcamalarım neler?
+                    onGetLastExpenses: () {
+                      final buAyHarcamalari = tumHarcamalar.where((h) {
+                        if (h['silindi'] == true) return false;
+                        DateTime? tarih = DateTime.tryParse(
+                          h['tarih'].toString(),
+                        );
+                        if (tarih == null) return false;
+                        return tarih.year == secilenAy.year &&
+                            tarih.month == secilenAy.month;
+                      }).toList();
+
+                      buAyHarcamalari.sort((a, b) {
+                        DateTime tarihA =
+                            DateTime.tryParse(a['tarih'].toString()) ??
+                            DateTime.now();
+                        DateTime tarihB =
+                            DateTime.tryParse(b['tarih'].toString()) ??
+                            DateTime.now();
+                        return tarihB.compareTo(tarihA);
+                      });
+
+                      return buAyHarcamalari.take(5).toList();
+                    },
+                    // Sesli komut: Bütçemi aştım mı?
+                    onCheckBudget: () {
+                      return {
+                        'kalanLimit': kalanLimit > 0 ? kalanLimit : 0,
+                        'asilanMiktar': asilanMiktar,
+                      };
+                    },
+                    // Sesli komut: Kategoride ne kadar harcadım?
+                    onGetCategoryTotal: (String kategori) {
+                      return kategoriToplamlari[kategori] ?? 0.0;
+                    },
                   ),
                 );
               },
