@@ -5,7 +5,8 @@ import '../../../../services/tts_service.dart';
 /// Sesli harcama girişi için modal bottom sheet widget'ı
 class VoiceInputSheet extends StatefulWidget {
   final Map<String, IconData> categoryIcons;
-  final Function(String name, double amount, String category) onConfirm;
+  final Function(String name, double amount, String category, DateTime date)
+  onConfirm;
   final String? userId;
 
   /// Mevcut sesli komut callback'leri
@@ -20,6 +21,8 @@ class VoiceInputSheet extends StatefulWidget {
   final Map<String, dynamic> Function()? onCheckBudget;
   final double Function(String kategori)? onGetCategoryTotal;
   final Future<Map<String, dynamic>> Function()? onAddFixedExpenses;
+  final Future<Map<String, dynamic>?> Function(double yeniTutar)?
+  onEditLastExpense;
 
   const VoiceInputSheet({
     super.key,
@@ -35,6 +38,7 @@ class VoiceInputSheet extends StatefulWidget {
     this.onCheckBudget,
     this.onGetCategoryTotal,
     this.onAddFixedExpenses,
+    this.onEditLastExpense,
   });
 
   @override
@@ -167,9 +171,11 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     // Dinlemeyi durdur
     await _speechService.stopListening();
 
-    setState(() {
-      _isListening = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isListening = false;
+      });
+    }
 
     switch (command.komutTuru) {
       case VoiceCommandType.sonHarcamayiSil:
@@ -198,6 +204,9 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         break;
       case VoiceCommandType.sabitGiderleriEkle:
         await _handleAddFixedExpenses();
+        break;
+      case VoiceCommandType.sonHarcamayiDuzenle:
+        await _handleEditLastExpense(command.yeniTutar);
         break;
       default:
         // Normal harcama ekleme veya bilinmeyen komut
@@ -446,11 +455,97 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     }
   }
 
+  /// "Son harcamayı X lira yap" komutunu işle
+  Future<void> _handleEditLastExpense(double? yeniTutar) async {
+    if (yeniTutar == null) {
+      await _ttsService.speak(
+        'Yeni tutarı anlayamadım. Örneğin "Son harcamayı 100 lira yap" diyebilirsiniz.',
+        userId: widget.userId,
+      );
+      if (mounted) Navigator.pop(context);
+      return;
+    }
+
+    if (widget.onEditLastExpense != null) {
+      Map<String, dynamic>? result;
+      try {
+        result = await widget.onEditLastExpense!(yeniTutar);
+      } catch (e) {
+        // Hata durumunda (harcama bulunamadı vb.)
+        await _ttsService.harcamaBulunamadiBildirimi(userId: widget.userId);
+        if (mounted) Navigator.pop(context);
+        return;
+      }
+
+      if (result != null) {
+        final harcamaIsmi = result['isim'] ?? 'Harcama';
+        final eskiTutar = (result['eskiTutar'] as num?)?.toDouble() ?? 0;
+        final silindi = result['silindi'] == true;
+
+        if (silindi) {
+          // 0 TL ile silme durumu
+          await _ttsService.harcamaSilindiBildirimi(
+            harcamaIsmi: harcamaIsmi,
+            tutar: eskiTutar,
+            userId: widget.userId,
+          );
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '$harcamaIsmi silindi',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Colors.red.shade700,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            Navigator.pop(context);
+          }
+        } else {
+          // Normal güncelleme
+          await _ttsService.harcamaDuzenlendiBildirimi(
+            harcamaIsmi: harcamaIsmi,
+            eskiTutar: eskiTutar,
+            yeniTutar: yeniTutar,
+            userId: widget.userId,
+          );
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '$harcamaIsmi güncellendi: ${yeniTutar.toStringAsFixed(0)} ₺',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Colors.blue.shade700,
+                duration: const Duration(seconds: 2),
+              ),
+            );
+            Navigator.pop(context);
+          }
+        }
+      } else {
+        await _ttsService.harcamaBulunamadiBildirimi(userId: widget.userId);
+        if (mounted) Navigator.pop(context);
+      }
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) Navigator.pop(context);
+    }
+  }
+
   Future<void> _stopListening() async {
     await _speechService.stopListening();
-    setState(() {
-      _isListening = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isListening = false;
+      });
+    }
   }
 
   void _enableEditingValues() {
@@ -477,7 +572,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       isim = _recognizedText.isNotEmpty ? _recognizedText : 'Harcama';
     }
 
-    widget.onConfirm(isim, tutar, _selectedCategory);
+    // Tarih: parseResult'tan gelen tarih veya bugün
+    final DateTime tarih = _parseResult?.tarih ?? DateTime.now();
+
+    widget.onConfirm(isim, tutar, _selectedCategory, tarih);
 
     // Sesli geri bildirim
     _ttsService.harcamaEklendiBildirimi(
@@ -485,6 +583,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       harcamaIsmi: isim,
       kategori: _selectedCategory,
       userId: widget.userId,
+      tarih: _parseResult?.tarih,
     );
 
     Navigator.pop(context);

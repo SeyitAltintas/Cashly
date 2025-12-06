@@ -1098,13 +1098,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   builder: (context) => VoiceInputSheet(
                     categoryIcons: kategoriIkonlari,
                     userId: widget.authController.currentUser?.id,
-                    onConfirm: (name, amount, category) {
+                    onConfirm: (name, amount, category, date) {
                       setState(() {
                         tumHarcamalar.add({
                           "isim": name,
                           "tutar": amount,
                           "kategori": category,
-                          "tarih": DateTime.now().toString(),
+                          "tarih": date.toString(),
                           "silindi": false,
                         });
 
@@ -1316,6 +1316,64 @@ class _AnaSayfaState extends State<AnaSayfa> {
                       });
 
                       return {'adet': sabitGiderler.length, 'toplam': toplam};
+                    },
+                    // Sesli komut: Son harcamayı düzenle
+                    onEditLastExpense: (double yeniTutar) async {
+                      // Bu ayın harcamalarından son eklenen (silindi=false) olanı bul
+                      final buAyHarcamalari = tumHarcamalar.where((h) {
+                        if (h['silindi'] == true) return false;
+                        DateTime? tarih = DateTime.tryParse(
+                          h['tarih'].toString(),
+                        );
+                        if (tarih == null) return false;
+                        return tarih.year == secilenAy.year &&
+                            tarih.month == secilenAy.month;
+                      }).toList();
+
+                      if (buAyHarcamalari.isEmpty) return null;
+
+                      // Son harcamayı bul (tarih sıralı)
+                      buAyHarcamalari.sort((a, b) {
+                        DateTime tarihA =
+                            DateTime.tryParse(a['tarih'].toString()) ??
+                            DateTime.now();
+                        DateTime tarihB =
+                            DateTime.tryParse(b['tarih'].toString()) ??
+                            DateTime.now();
+                        return tarihB.compareTo(tarihA);
+                      });
+
+                      final sonHarcama = buAyHarcamalari.first;
+                      final eskiTutar =
+                          (sonHarcama['tutar'] as num?)?.toDouble() ?? 0;
+                      final isim = sonHarcama['isim'] ?? 'Harcama';
+
+                      // 0 TL ise harcamayı sil
+                      if (yeniTutar == 0) {
+                        sonHarcama['silindi'] = true;
+                      } else {
+                        // Tutarı güncelle
+                        sonHarcama['tutar'] = yeniTutar;
+                      }
+
+                      // Veriyi kaydet - setState bottom sheet kapandıktan sonra çağrılacak
+                      verileriKaydet();
+
+                      // setState'i erteleyerek çağır (bottom sheet kapandıktan sonra)
+                      Future.delayed(const Duration(milliseconds: 100), () {
+                        if (mounted) {
+                          setState(() {
+                            filtreleVeGoster();
+                          });
+                        }
+                      });
+
+                      return {
+                        'isim': isim,
+                        'eskiTutar': eskiTutar,
+                        'yeniTutar': yeniTutar,
+                        'silindi': yeniTutar == 0,
+                      };
                     },
                   ),
                 );

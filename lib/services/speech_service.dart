@@ -35,6 +35,9 @@ enum VoiceCommandType {
   /// "Sabit giderleri ekle" komutu
   sabitGiderleriEkle,
 
+  /// "Son harcamayı 150 lira yap" komutu
+  sonHarcamayiDuzenle,
+
   /// Tanınmayan komut
   bilinmiyor,
 }
@@ -45,12 +48,14 @@ class VoiceCommandResult {
   final String rawText;
   final bool komutAlgilandi;
   final String? kategori; // Kategori bazlı sorgular için
+  final double? yeniTutar; // Harcama düzenleme için yeni tutar
 
   VoiceCommandResult({
     required this.komutTuru,
     required this.rawText,
     required this.komutAlgilandi,
     this.kategori,
+    this.yeniTutar,
   });
 }
 
@@ -61,6 +66,7 @@ class SpeechParseResult {
   final String? harcamaIsmi;
   final String rawText;
   final bool basarili;
+  final DateTime? tarih; // Tarihli harcama girişi için
 
   SpeechParseResult({
     this.tutar,
@@ -68,6 +74,7 @@ class SpeechParseResult {
     this.harcamaIsmi,
     required this.rawText,
     required this.basarili,
+    this.tarih,
   });
 }
 
@@ -226,6 +233,17 @@ class SpeechService {
         komutTuru: VoiceCommandType.sabitGiderleriEkle,
         rawText: text,
         komutAlgilandi: true,
+      );
+    }
+
+    // "Son harcamayı 150 lira yap" komutu
+    final duzenlemeResult = _matchesSonHarcamayiDuzenle(normalizedText);
+    if (duzenlemeResult != null) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.sonHarcamayiDuzenle,
+        rawText: text,
+        komutAlgilandi: true,
+        yeniTutar: duzenlemeResult,
       );
     }
 
@@ -482,6 +500,9 @@ class SpeechService {
 
     String normalizedText = text.toLowerCase().trim();
 
+    // Tarihi çıkar (örn: "dün", "önceki gün", "geçen pazartesi")
+    DateTime? tarih = _extractDate(normalizedText);
+
     // Tutarı çıkar
     double? tutar = _extractAmount(normalizedText);
 
@@ -491,6 +512,11 @@ class SpeechService {
     // Harcama ismini çıkar (tutar ve para birimi ifadelerini çıkar)
     String? harcamaIsmi = _extractExpenseName(normalizedText, kategori);
 
+    // Tarih ifadelerini harcama isminden çıkar
+    if (harcamaIsmi != null && tarih != null) {
+      harcamaIsmi = _removeDateExpressions(harcamaIsmi);
+    }
+
     bool basarili = tutar != null;
 
     return SpeechParseResult(
@@ -499,7 +525,118 @@ class SpeechService {
       harcamaIsmi: harcamaIsmi,
       rawText: text,
       basarili: basarili,
+      tarih: tarih,
     );
+  }
+
+  /// Metinden tarih ifadesi çıkar
+  DateTime? _extractDate(String text) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // Dün
+    if (text.contains('dün') || text.contains('düne')) {
+      return today.subtract(const Duration(days: 1));
+    }
+
+    // Önceki gün / evvelsi gün
+    if (text.contains('önceki gün') ||
+        text.contains('evvelsi') ||
+        text.contains('evvelki gün') ||
+        text.contains('iki gün önce')) {
+      return today.subtract(const Duration(days: 2));
+    }
+
+    // 3 gün önce
+    if (text.contains('üç gün önce') || text.contains('3 gün önce')) {
+      return today.subtract(const Duration(days: 3));
+    }
+
+    // Geçen hafta
+    if (text.contains('geçen hafta')) {
+      return today.subtract(const Duration(days: 7));
+    }
+
+    // Gün isimleri (geçen pazartesi, salı, vb.)
+    final gunler = {
+      'pazartesi': DateTime.monday,
+      'salı': DateTime.tuesday,
+      'çarşamba': DateTime.wednesday,
+      'perşembe': DateTime.thursday,
+      'cuma': DateTime.friday,
+      'cumartesi': DateTime.saturday,
+      'pazar': DateTime.sunday,
+    };
+
+    for (var entry in gunler.entries) {
+      if (text.contains('geçen ${entry.key}') ||
+          text.contains('önceki ${entry.key}')) {
+        // Geçen haftanın o gününü bul
+        int hedefGun = entry.value;
+        int bugunGunu = now.weekday;
+        int fark = bugunGunu - hedefGun;
+        if (fark <= 0) fark += 7;
+        fark += 7; // Geçen haftaya git
+        return today.subtract(Duration(days: fark));
+      } else if (text.contains(entry.key)) {
+        // Bu haftanın o günü veya geçen hafta (geçmişte ise)
+        int hedefGun = entry.value;
+        int bugunGunu = now.weekday;
+        int fark = bugunGunu - hedefGun;
+        if (fark <= 0) fark += 7;
+        return today.subtract(Duration(days: fark));
+      }
+    }
+
+    return null; // Tarih bulunamadı, bugün olarak kabul edilecek
+  }
+
+  /// Tarih ifadelerini metinden çıkar
+  String _removeDateExpressions(String text) {
+    List<String> tarihIfadeleri = [
+      'dün',
+      'düne',
+      'önceki gün',
+      'evvelsi',
+      'evvelki gün',
+      'iki gün önce',
+      'üç gün önce',
+      '3 gün önce',
+      'geçen hafta',
+      'geçen pazartesi',
+      'geçen salı',
+      'geçen çarşamba',
+      'geçen perşembe',
+      'geçen cuma',
+      'geçen cumartesi',
+      'geçen pazar',
+      'önceki pazartesi',
+      'önceki salı',
+      'önceki çarşamba',
+      'önceki perşembe',
+      'önceki cuma',
+      'önceki cumartesi',
+      'önceki pazar',
+      'pazartesi',
+      'salı',
+      'çarşamba',
+      'perşembe',
+      'cuma',
+      'cumartesi',
+      'pazar',
+    ];
+
+    String temiz = text.toLowerCase();
+    for (var ifade in tarihIfadeleri) {
+      temiz = temiz.replaceAll(ifade, '');
+    }
+
+    temiz = temiz.trim();
+    if (temiz.isNotEmpty) {
+      temiz = temiz[0].toUpperCase() + temiz.substring(1);
+    }
+
+    return temiz;
   }
 
   /// Metinden tutarı çıkar
@@ -1258,6 +1395,48 @@ class SpeechService {
     }
 
     return cleaned.isNotEmpty ? cleaned : null;
+  }
+
+  /// "Son harcamayı 150 lira yap" komutunu kontrol et
+  /// Eğer eşleşirse yeni tutarı döndürür, yoksa null
+  double? _matchesSonHarcamayiDuzenle(String text) {
+    // Pattern'ler: "son harcamayı X lira yap", "sonuncuyu X TL yap", vb.
+    List<RegExp> patterns = [
+      RegExp(
+        r'son harcamayı\s+(\d+(?:[.,]\d+)?)\s*(lira|tl|₺)?\s*(yap|değiştir|güncelle)',
+        caseSensitive: false,
+      ),
+      RegExp(
+        r'sonuncuyu\s+(\d+(?:[.,]\d+)?)\s*(lira|tl|₺)?\s*(yap|değiştir|güncelle)',
+        caseSensitive: false,
+      ),
+      RegExp(
+        r'son harcamamı\s+(\d+(?:[.,]\d+)?)\s*(lira|tl|₺)?\s*(yap|değiştir|güncelle)',
+        caseSensitive: false,
+      ),
+      RegExp(
+        r'son kaydı\s+(\d+(?:[.,]\d+)?)\s*(lira|tl|₺)?\s*(yap|değiştir|güncelle)',
+        caseSensitive: false,
+      ),
+      RegExp(
+        r'son harcamayı\s+(\d+(?:[.,]\d+)?)\s*(lira|tl|₺)?$',
+        caseSensitive: false,
+      ),
+      RegExp(
+        r'sonuncuyu\s+(\d+(?:[.,]\d+)?)\s*(lira|tl|₺)?$',
+        caseSensitive: false,
+      ),
+    ];
+
+    for (var pattern in patterns) {
+      final match = pattern.firstMatch(text);
+      if (match != null) {
+        String tutarStr = match.group(1)!.replaceAll(',', '.');
+        return double.tryParse(tutarStr);
+      }
+    }
+
+    return null;
   }
 
   /// Servisi temizle

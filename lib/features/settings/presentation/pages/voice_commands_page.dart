@@ -62,13 +62,14 @@ class VoiceCommandsPage extends StatelessWidget {
               context,
               icon: Icons.add_circle_outline,
               title: 'Harcama Ekleme',
-              description: 'Tutarı ve kategoriyi söyleyerek harcama ekleyin.',
+              description:
+                  'Tutarı, kategoriyi ve opsiyonel olarak tarihi söyleyerek harcama ekleyin.',
               examples: [
                 '100 lira market',
                 '50 TL kahve',
-                '1000 lira protein tozu spor',
-                '250 lira yemek',
-                '500 lira benzin',
+                'Dün 80 lira market',
+                'Geçen pazartesi 200 TL benzin',
+                'Önceki gün 150 lira yemek',
               ],
             ),
 
@@ -85,6 +86,22 @@ class VoiceCommandsPage extends StatelessWidget {
                 'Sonuncuyu sil',
                 'Son eklediğimi sil',
                 'Son kaydı sil',
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Harcama Düzenleme
+            _buildCommandSection(
+              context,
+              icon: Icons.edit,
+              title: 'Harcama Düzenleme',
+              description: 'Son harcamanızın tutarını değiştirin.',
+              examples: [
+                'Son harcamayı 100 lira yap',
+                'Sonuncuyu 50 TL yap',
+                'Son harcamayı 200 lira güncelle',
+                'Son kaydı 75 lira değiştir',
               ],
             ),
 

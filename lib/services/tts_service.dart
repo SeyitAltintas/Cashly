@@ -64,10 +64,46 @@ class TtsService {
     required String harcamaIsmi,
     required String kategori,
     String? userId,
+    DateTime? tarih,
   }) async {
     String tutarStr = tutar.toStringAsFixed(0);
-    String mesaj = '$tutarStr lira $harcamaIsmi $kategori kategorisine eklendi';
+    String tarihStr = _formatDateForSpeech(tarih);
+    String mesaj =
+        '$tutarStr lira $harcamaIsmi $kategori kategorisine$tarihStr eklendi';
     await speak(mesaj, userId: userId);
+  }
+
+  /// Tarihi konuşma için formatla
+  String _formatDateForSpeech(DateTime? tarih) {
+    if (tarih == null) return '';
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final targetDate = DateTime(tarih.year, tarih.month, tarih.day);
+    final difference = today.difference(targetDate).inDays;
+
+    if (difference == 0) {
+      return ''; // Bugün - ek bilgi verme
+    } else if (difference == 1) {
+      return ' dün tarihiyle';
+    } else if (difference == 2) {
+      return ' önceki gün tarihiyle';
+    } else if (difference <= 7) {
+      // Gün ismini bul
+      final gunIsimleri = [
+        'Pazartesi',
+        'Salı',
+        'Çarşamba',
+        'Perşembe',
+        'Cuma',
+        'Cumartesi',
+        'Pazar',
+      ];
+      final gunIsmi = gunIsimleri[tarih.weekday - 1];
+      return ' $gunIsmi günü tarihiyle';
+    } else {
+      return ' ${tarih.day}/${tarih.month} tarihiyle';
+    }
   }
 
   /// Sesi durdur
@@ -212,6 +248,19 @@ class TtsService {
     String mesaj = adet == 0
         ? 'Eklenecek sabit gider bulunamadı. Önce ayarlardan sabit gider tanımlayın.'
         : '$adet adet sabit gider eklendi. Toplam $toplamStr lira.';
+    await speak(mesaj, userId: userId);
+  }
+
+  /// Harcama düzenlendi bildirimi
+  Future<void> harcamaDuzenlendiBildirimi({
+    required String harcamaIsmi,
+    required double eskiTutar,
+    required double yeniTutar,
+    String? userId,
+  }) async {
+    String eskiStr = eskiTutar.toStringAsFixed(0);
+    String yeniStr = yeniTutar.toStringAsFixed(0);
+    String mesaj = '$harcamaIsmi, $eskiStr liradan $yeniStr liraya güncellendi';
     await speak(mesaj, userId: userId);
   }
 
