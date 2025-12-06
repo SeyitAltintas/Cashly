@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../../services/speech_service.dart';
 import '../../../../services/tts_service.dart';
 
@@ -107,6 +108,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
   }
 
   Future<void> _startListening() async {
+    // Android sistem sesi çal - dinleme başladı
+    await SystemSound.play(SystemSoundType.click);
+    await HapticFeedback.lightImpact();
+
     setState(() {
       _isListening = true;
       _isEditingValues = false;
@@ -541,6 +546,11 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
 
   Future<void> _stopListening() async {
     await _speechService.stopListening();
+
+    // Android sistem sesi çal - dinleme durdu
+    await SystemSound.play(SystemSoundType.click);
+    await HapticFeedback.mediumImpact();
+
     if (mounted) {
       setState(() {
         _isListening = false;
