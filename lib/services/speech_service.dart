@@ -53,6 +53,15 @@ enum VoiceCommandType {
   /// "Dün markete ne kadar harcadım?" gibi tarihli kategori sorgusu
   tarihliKategoriHarcamasi,
 
+  /// "Kalan bütçem ne kadar?" komutu
+  kalanButce,
+
+  /// "Aylık limitimi 5000 lira yap" komutu
+  limitBelirle,
+
+  /// "Bu ay ne kadar tasarruf ettim?" komutu
+  tasarrufHesapla,
+
   /// Tanınmayan komut
   bilinmiyor,
 }
@@ -64,6 +73,7 @@ class VoiceCommandResult {
   final bool komutAlgilandi;
   final String? kategori; // Kategori bazlı sorgular için
   final double? yeniTutar; // Harcama düzenleme için yeni tutar
+  final double? yeniLimit; // Bütçe limiti belirleme için
   final DateTime? baslangicTarihi; // Tarihli sorgular için başlangıç
   final DateTime? bitisTarihi; // Tarihli sorgular için bitiş
 
@@ -73,6 +83,7 @@ class VoiceCommandResult {
     required this.komutAlgilandi,
     this.kategori,
     this.yeniTutar,
+    this.yeniLimit,
     this.baslangicTarihi,
     this.bitisTarihi,
   });
@@ -349,6 +360,35 @@ class SpeechService {
           bitisTarihi: tarihliKategoriResult['bitis'],
         );
       }
+    }
+
+    // "Kalan bütçem ne kadar?" komutu
+    if (_matchesKalanButce(normalizedText)) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.kalanButce,
+        rawText: text,
+        komutAlgilandi: true,
+      );
+    }
+
+    // "Aylık limitimi X lira yap" komutu
+    final limitResult = _matchesLimitBelirle(normalizedText);
+    if (limitResult != null) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.limitBelirle,
+        rawText: text,
+        komutAlgilandi: true,
+        yeniLimit: limitResult,
+      );
+    }
+
+    // "Bu ay ne kadar tasarruf ettim?" komutu
+    if (_matchesTasarrufHesapla(normalizedText)) {
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.tasarrufHesapla,
+        rawText: text,
+        komutAlgilandi: true,
+      );
     }
 
     // Komut algılanmadı - normal harcama girişi olarak değerlendir
@@ -761,6 +801,96 @@ class SpeechService {
     return null;
   }
 
+  /// "Kalan bütçem ne kadar?" komutunu kontrol et
+  bool _matchesKalanButce(String text) {
+    List<String> patterns = [
+      'kalan bütçem',
+      'kalan bütçe',
+      'ne kadar bütçem kaldı',
+      'ne kadar kaldı bütçem',
+      'bütçemden ne kadar kaldı',
+      'kalan limit',
+      'kalan limitim',
+      'ne kadar limitim kaldı',
+      'harcayabileceğim ne kadar',
+      'ne kadar harcayabilirim',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// "Aylık limitimi X lira yap" komutunu kontrol et
+  /// Tutar bulunursa döndürür
+  double? _matchesLimitBelirle(String text) {
+    List<String> patterns = [
+      'limitimi',
+      'bütçemi',
+      'aylık limit',
+      'aylık bütçe',
+      'limit olarak',
+      'bütçe olarak',
+    ];
+
+    List<String> actionPatterns = [
+      'yap',
+      'ayarla',
+      'belirle',
+      'güncelle',
+      'olsun',
+    ];
+
+    bool patternBulundu = false;
+    bool actionBulundu = false;
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        patternBulundu = true;
+        break;
+      }
+    }
+
+    for (var action in actionPatterns) {
+      if (text.contains(action)) {
+        actionBulundu = true;
+        break;
+      }
+    }
+
+    if (patternBulundu && actionBulundu) {
+      // Tutarı çıkar
+      return _extractAmount(text);
+    }
+
+    return null;
+  }
+
+  /// "Bu ay ne kadar tasarruf ettim?" komutunu kontrol et
+  bool _matchesTasarrufHesapla(String text) {
+    List<String> patterns = [
+      'ne kadar tasarruf',
+      'tasarrufum ne kadar',
+      'tasarrufum',
+      'tasarruf ettim',
+      'biriktirdim',
+      'ne kadar biriktirdim',
+      'para biriktirdim mi',
+      'artıda mıyım',
+      'ekside miyim',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /// Metni parse et ve tutar/kategori çıkar
   SpeechParseResult parseText(String text, List<String> mevcutKategoriler) {
     if (text.isEmpty) {
@@ -911,97 +1041,199 @@ class SpeechService {
   /// Metinden tutarı çıkar
   double? _extractAmount(String text) {
     // Farklı sayı formatlarını yakala
-    // "100 lira", "100,50 tl", "150 bin tl", "2 milyon lira" vb.
+    // "100 lira", "100,50 tl", "150 bin tl", "2 milyon lira", "on bin lira" vb.
 
-    // Önce "X bin" veya "X milyon" kalıplarını kontrol et
-    // Örn: "150 bin", "2 milyon", "1.5 milyon", "500 bin lira"
+    debugPrint('_extractAmount çağrıldı: "$text"');
 
-    // Bin kalıbı: "150 bin", "1,5 bin"
-    RegExp binRegex = RegExp(r'(\d+[.,]?\d*)\s*bin', caseSensitive: false);
-    Match? binMatch = binRegex.firstMatch(text);
-    if (binMatch != null) {
-      String amountStr = binMatch.group(1)!.replaceAll(',', '.');
-      double? baseAmount = double.tryParse(amountStr);
-      if (baseAmount != null) {
-        return baseAmount * 1000;
-      }
-    }
-
-    // Milyon kalıbı: "2 milyon", "1.5 milyon"
-    RegExp milyonRegex = RegExp(
-      r'(\d+[.,]?\d*)\s*milyon',
-      caseSensitive: false,
-    );
-    Match? milyonMatch = milyonRegex.firstMatch(text);
-    if (milyonMatch != null) {
-      String amountStr = milyonMatch.group(1)!.replaceAll(',', '.');
-      double? baseAmount = double.tryParse(amountStr);
-      if (baseAmount != null) {
-        return baseAmount * 1000000;
-      }
-    }
-
-    // Basit rakamları dene (bin/milyon olmadan)
-    // Ama "bin" veya "milyon" kelimesi geçmiyorsa
-    if (!text.contains('bin') && !text.contains('milyon')) {
-      RegExp amountRegex = RegExp(
-        r'(\d+[.,]?\d*)\s*(lira|tl|₺)?',
-        caseSensitive: false,
-      );
-      Match? match = amountRegex.firstMatch(text);
-
-      if (match != null) {
-        String amountStr = match.group(1)!.replaceAll(',', '.');
-        return double.tryParse(amountStr);
-      }
-    }
-
-    // Yazıyla yazılmış sayıları kontrol et
     // Önce çarpanları kontrol et
     double carpan = 1;
-    if (text.contains('milyon')) {
+    bool binVar = text.contains('bin');
+    bool milyonVar = text.contains('milyon');
+
+    if (milyonVar) {
       carpan = 1000000;
-    } else if (text.contains('bin')) {
+    } else if (binVar) {
       carpan = 1000;
     }
 
-    // Temel sayıları kontrol et
+    debugPrint('Çarpan: $carpan (bin: $binVar, milyon: $milyonVar)');
+
+    // Çarpan varsa (bin veya milyon)
+    if (carpan > 1) {
+      // 1. Önce rakam ile bin/milyon kontrolü: "10 bin", "150 bin", "1,5 milyon"
+      RegExp rakamCarpanRegex = RegExp(
+        r'(\d+[.,]?\d*)\s*(bin|milyon)',
+        caseSensitive: false,
+      );
+      Match? rakamMatch = rakamCarpanRegex.firstMatch(text);
+      if (rakamMatch != null) {
+        String amountStr = rakamMatch.group(1)!.replaceAll(',', '.');
+        double? baseAmount = double.tryParse(amountStr);
+        if (baseAmount != null) {
+          debugPrint(
+            'Rakam+çarpan bulundu: $baseAmount * $carpan = ${baseAmount * carpan}',
+          );
+          return baseAmount * carpan;
+        }
+      }
+
+      // 2. Yazılı onluklar ile bin/milyon: "on bin", "yirmi bin", "elli milyon"
+      // Sıralı liste kullan (Map sırası garanti değil)
+      List<MapEntry<String, double>> onluklar = [
+        MapEntry('doksan', 90),
+        MapEntry('seksen', 80),
+        MapEntry('yetmiş', 70),
+        MapEntry('altmış', 60),
+        MapEntry('elli', 50),
+        MapEntry('kırk', 40),
+        MapEntry('otuz', 30),
+        MapEntry('yirmi', 20),
+        MapEntry('on', 10),
+      ];
+
+      List<MapEntry<String, double>> birlikler = [
+        MapEntry('dokuz', 9),
+        MapEntry('sekiz', 8),
+        MapEntry('yedi', 7),
+        MapEntry('altı', 6),
+        MapEntry('beş', 5),
+        MapEntry('dört', 4),
+        MapEntry('üç', 3),
+        MapEntry('iki', 2),
+        MapEntry('bir', 1),
+      ];
+
+      // 2a. Bileşik sayılar: "on beş bin", "yirmi üç milyon"
+      for (var onluk in onluklar) {
+        for (var birlik in birlikler) {
+          String pattern1 = '${onluk.key} ${birlik.key} bin';
+          String pattern2 = '${onluk.key} ${birlik.key} milyon';
+          String pattern3 = '${onluk.key}${birlik.key} bin';
+          String pattern4 = '${onluk.key}${birlik.key} milyon';
+
+          if (text.contains(pattern1) ||
+              text.contains(pattern2) ||
+              text.contains(pattern3) ||
+              text.contains(pattern4)) {
+            double toplam = onluk.value + birlik.value;
+            debugPrint(
+              'Bileşik sayı bulundu: ${onluk.key} ${birlik.key} = $toplam * $carpan',
+            );
+            return toplam * carpan;
+          }
+        }
+      }
+
+      // 2b. Sadece onluklar: "on bin", "yirmi milyon"
+      for (var onluk in onluklar) {
+        if (text.contains('${onluk.key} bin') ||
+            text.contains('${onluk.key}bin') ||
+            text.contains('${onluk.key} milyon') ||
+            text.contains('${onluk.key}milyon')) {
+          debugPrint(
+            'Onluk+çarpan bulundu: ${onluk.key} = ${onluk.value} * $carpan',
+          );
+          return onluk.value * carpan;
+        }
+      }
+
+      // 2c. Sadece birlikler: "beş bin", "üç milyon"
+      for (var birlik in birlikler) {
+        if (text.contains('${birlik.key} bin') ||
+            text.contains('${birlik.key}bin') ||
+            text.contains('${birlik.key} milyon') ||
+            text.contains('${birlik.key}milyon')) {
+          debugPrint(
+            'Birlik+çarpan bulundu: ${birlik.key} = ${birlik.value} * $carpan',
+          );
+          return birlik.value * carpan;
+        }
+      }
+
+      // 2d. Yüz ile: "yüz bin", "iki yüz bin"
+      if (text.contains('yüz')) {
+        // "iki yüz bin" = 200,000
+        for (var birlik in birlikler) {
+          if (text.contains('${birlik.key} yüz')) {
+            debugPrint('Birlik+yüz+çarpan: ${birlik.value} * 100 * $carpan');
+            return birlik.value * 100 * carpan;
+          }
+        }
+        // Sadece "yüz bin" = 100,000
+        debugPrint('Yüz+çarpan: 100 * $carpan');
+        return 100 * carpan;
+      }
+
+      // 3. Sadece "bin" veya "milyon" varsa = 1000 veya 1000000
+      debugPrint('Sadece çarpan: $carpan');
+      return carpan;
+    }
+
+    // Çarpan yoksa basit rakamları dene
+    // Türkçe binlik formatını destekle: 10.000 = 10000, 5.000 = 5000
+    // Önce Türkçe binlik formatını kontrol et (X.XXX veya X.XXX.XXX)
+    RegExp turkishThousandRegex = RegExp(
+      r'(\d{1,3}(?:\.\d{3})+)\s*(lira|tl|₺)?',
+      caseSensitive: false,
+    );
+    Match? turkishMatch = turkishThousandRegex.firstMatch(text);
+    if (turkishMatch != null) {
+      // Noktaları kaldır (binlik ayıracı)
+      String amountStr = turkishMatch.group(1)!.replaceAll('.', '');
+      double? result = double.tryParse(amountStr);
+      debugPrint(
+        'Türkçe binlik format bulundu: ${turkishMatch.group(1)} → $result',
+      );
+      return result;
+    }
+
+    // Normal rakam formatı
+    RegExp amountRegex = RegExp(
+      r'(\d+[,]?\d*)\s*(lira|tl|₺)?',
+      caseSensitive: false,
+    );
+    Match? match = amountRegex.firstMatch(text);
+
+    if (match != null) {
+      String amountStr = match.group(1)!.replaceAll(',', '.');
+      double? result = double.tryParse(amountStr);
+      debugPrint('Basit rakam bulundu: $result');
+      return result;
+    }
+
+    // Yazıyla yazılmış basit sayılar (çarpan olmadan)
     Map<String, double> yaziSayilar = {
+      'yüz': 100,
+      'doksan': 90,
+      'seksen': 80,
+      'yetmiş': 70,
+      'altmış': 60,
+      'elli': 50,
+      'kırk': 40,
+      'otuz': 30,
+      'yirmi': 20,
+      'on': 10,
+      'dokuz': 9,
+      'sekiz': 8,
+      'yedi': 7,
+      'altı': 6,
+      'beş': 5,
+      'dört': 4,
+      'üç': 3,
+      'iki': 2,
+      'bir': 1,
       'yarım': 0.5,
       'buçuk': 0.5,
-      'bir': 1,
-      'iki': 2,
-      'üç': 3,
-      'dört': 4,
-      'beş': 5,
-      'altı': 6,
-      'yedi': 7,
-      'sekiz': 8,
-      'dokuz': 9,
-      'on': 10,
-      'yirmi': 20,
-      'otuz': 30,
-      'kırk': 40,
-      'elli': 50,
-      'altmış': 60,
-      'yetmiş': 70,
-      'seksen': 80,
-      'doksan': 90,
-      'yüz': 100,
     };
 
-    // Basit yazı-sayı dönüşümü (çarpan ile)
     for (var entry in yaziSayilar.entries) {
       if (text.contains(entry.key)) {
-        return entry.value * carpan;
+        debugPrint('Yazılı sayı bulundu: ${entry.key} = ${entry.value}');
+        return entry.value;
       }
     }
 
-    // Sadece "bin" veya "milyon" geçiyorsa
-    if (carpan > 1) {
-      return carpan; // 1 bin = 1000, 1 milyon = 1000000
-    }
-
+    debugPrint('Tutar bulunamadı');
     return null;
   }
 

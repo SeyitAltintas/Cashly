@@ -190,6 +190,54 @@ class VoiceCommandsPage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
+            // Kalan Bütçe
+            _buildCommandSection(
+              context,
+              icon: Icons.account_balance_wallet,
+              title: 'Kalan Bütçe Sorgulama',
+              description: 'Bütçenizden ne kadar kaldığını öğrenin.',
+              examples: [
+                'Kalan bütçem ne kadar?',
+                'Ne kadar harcayabilirim?',
+                'Kalan limitim',
+                'Bütçemden ne kadar kaldı?',
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Limit Belirleme
+            _buildCommandSection(
+              context,
+              icon: Icons.edit_note,
+              title: 'Bütçe Limiti Belirleme',
+              description: 'Sesli olarak aylık bütçenizi güncelleyin.',
+              examples: [
+                'Aylık limitimi 10000 lira yap',
+                'Bütçemi 5000 lira olarak ayarla',
+                'Limitimi 8000 lira güncelle',
+                'Aylık bütçe 15000 lira olsun',
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Tasarruf Hesaplama
+            _buildCommandSection(
+              context,
+              icon: Icons.savings,
+              title: 'Tasarruf Hesaplama',
+              description: 'Bu ay ne kadar tasarruf ettiğinizi öğrenin.',
+              examples: [
+                'Bu ay ne kadar tasarruf ettim?',
+                'Tasarrufum ne kadar?',
+                'Ne kadar biriktirdim?',
+                'Artıda mıyım?',
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
             // Sabit Giderleri Ekle
             _buildCommandSection(
               context,

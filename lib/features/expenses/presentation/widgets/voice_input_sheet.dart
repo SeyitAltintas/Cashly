@@ -31,6 +31,10 @@ class VoiceInputSheet extends StatefulWidget {
   final double Function(DateTime baslangic, DateTime bitis, String kategori)?
   onGetDateRangeCategoryTotal;
 
+  /// Bütçe ve hedef komutları callback'leri
+  final Future<void> Function(double yeniLimit)? onSetBudgetLimit;
+  final Map<String, dynamic> Function()? onGetSavings;
+
   const VoiceInputSheet({
     super.key,
     required this.categoryIcons,
@@ -48,6 +52,8 @@ class VoiceInputSheet extends StatefulWidget {
     this.onEditLastExpense,
     this.onGetDateRangeTotal,
     this.onGetDateRangeCategoryTotal,
+    this.onSetBudgetLimit,
+    this.onGetSavings,
   });
 
   @override
@@ -67,6 +73,12 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
   String _errorMessage = '';
   String _recognizedText = '';
   SpeechParseResult? _parseResult;
+
+  // Onay modu için değişkenler
+  bool _pendingConfirmation = false;
+  String _confirmationTitle = '';
+  String _confirmationMessage = '';
+  Future<void> Function()? _onConfirmCallback;
 
   // Düzenleme için controller'lar
   final TextEditingController _tutarController = TextEditingController();
@@ -140,12 +152,16 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
 
           if (commandResult.komutAlgilandi) {
             // Komut algılandı - UI'ı güncelle ve işle
+            debugPrint('Komut algılandı: ${commandResult.komutTuru}');
             setState(() {
               _recognizedText = text;
               _isCommandMode = true;
               _parseResult = null; // Harcama ekleme UI'ını gösterme
             });
-            _handleVoiceCommand(commandResult);
+            // Async olarak işle (callback içinde await yapamıyoruz)
+            _handleVoiceCommand(commandResult).catchError((e) {
+              debugPrint('_handleVoiceCommand hatası: $e');
+            });
           } else {
             // Normal harcama girişi - parse et
             setState(() {
@@ -249,6 +265,15 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
           command.kategori,
         );
         break;
+      case VoiceCommandType.kalanButce:
+        await _handleKalanButce();
+        break;
+      case VoiceCommandType.limitBelirle:
+        await _handleLimitBelirle(command.yeniLimit);
+        break;
+      case VoiceCommandType.tasarrufHesapla:
+        await _handleTasarrufHesapla();
+        break;
       default:
         // Normal harcama ekleme veya bilinmeyen komut
         break;
@@ -258,32 +283,42 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
   /// "Son harcamayı sil" komutunu işle
   Future<void> _handleDeleteLastExpense() async {
     if (widget.onDeleteLastExpense != null) {
-      final deletedExpense = await widget.onDeleteLastExpense!();
+      // Inline onay iste
+      _requestConfirmation(
+        baslik: 'Harcama Silme',
+        mesaj: 'Son eklenen harcamayı silmek istediğinizden emin misiniz?',
+        onConfirm: () async {
+          final deletedExpense = await widget.onDeleteLastExpense!();
 
-      if (deletedExpense != null && mounted) {
-        await _ttsService.harcamaSilindiBildirimi(
-          harcamaIsmi: deletedExpense['isim'] ?? 'Harcama',
-          tutar: (deletedExpense['tutar'] as num?)?.toDouble() ?? 0,
-          userId: widget.userId,
-        );
+          if (deletedExpense != null && mounted) {
+            await _ttsService.harcamaSilindiBildirimi(
+              harcamaIsmi: deletedExpense['isim'] ?? 'Harcama',
+              tutar: (deletedExpense['tutar'] as num?)?.toDouble() ?? 0,
+              userId: widget.userId,
+            );
 
-        // SnackBar göster ve sheet'i kapat
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '${deletedExpense['isim']} silindi',
-                style: const TextStyle(color: Colors.white),
-              ),
-              backgroundColor: Colors.red.shade700,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-          Navigator.pop(context);
-        }
-      } else if (mounted) {
-        await _ttsService.harcamaBulunamadiBildirimi(userId: widget.userId);
-      }
+            // SnackBar göster ve sheet'i kapat
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '${deletedExpense['isim']} silindi',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.red.shade700,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+              Navigator.pop(context);
+            }
+          } else if (mounted) {
+            await _ttsService.harcamaBulunamadiBildirimi(userId: widget.userId);
+            if (mounted) Navigator.pop(context);
+          }
+        },
+      );
+    } else {
+      if (mounted) Navigator.pop(context);
     }
   }
 
@@ -462,29 +497,37 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
   /// "Sabit giderleri ekle" komutunu işle
   Future<void> _handleAddFixedExpenses() async {
     if (widget.onAddFixedExpenses != null) {
-      final result = await widget.onAddFixedExpenses!();
+      // Inline onay iste
+      _requestConfirmation(
+        baslik: 'Sabit Giderler',
+        mesaj: 'Tanımlı sabit giderleri bu aya eklemek istiyor musunuz?',
+        onConfirm: () async {
+          final result = await widget.onAddFixedExpenses!();
 
-      await _ttsService.sabitGiderlerEklendiBildirimi(
-        adet: (result['adet'] as int?) ?? 0,
-        toplam: (result['toplam'] as num?)?.toDouble() ?? 0,
-        userId: widget.userId,
-      );
-
-      if (mounted) {
-        if ((result['adet'] as int?) != null && (result['adet'] as int) > 0) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '${result['adet']} adet sabit gider eklendi!',
-                style: const TextStyle(color: Colors.white),
-              ),
-              backgroundColor: Colors.green.shade700,
-              duration: const Duration(seconds: 2),
-            ),
+          await _ttsService.sabitGiderlerEklendiBildirimi(
+            adet: (result['adet'] as int?) ?? 0,
+            toplam: (result['toplam'] as num?)?.toDouble() ?? 0,
+            userId: widget.userId,
           );
-        }
-        Navigator.pop(context);
-      }
+
+          if (mounted) {
+            if ((result['adet'] as int?) != null &&
+                (result['adet'] as int) > 0) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '${result['adet']} adet sabit gider eklendi!',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.green.shade700,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            }
+            Navigator.pop(context);
+          }
+        },
+      );
     } else {
       await _ttsService.speak(
         'Bu komut henüz desteklenmiyor',
@@ -737,6 +780,164 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         'Bu komut henüz desteklenmiyor',
         userId: widget.userId,
       );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  /// "Kalan bütçem ne kadar?" komutunu işle
+  Future<void> _handleKalanButce() async {
+    debugPrint('_handleKalanButce başladı');
+    try {
+      if (widget.onCheckBudget != null) {
+        debugPrint('onCheckBudget mevcut, çağrılıyor...');
+        final budgetInfo = widget.onCheckBudget!();
+        debugPrint('budgetInfo: $budgetInfo');
+        final kalanLimit = (budgetInfo['kalanLimit'] as num?)?.toDouble() ?? 0;
+        final butceLimiti =
+            (budgetInfo['butceLimiti'] as num?)?.toDouble() ?? 8000;
+        debugPrint('kalanLimit: $kalanLimit, butceLimiti: $butceLimiti');
+
+        await _ttsService.kalanButceBildirimi(
+          kalanButce: kalanLimit,
+          butceLimiti: butceLimiti,
+          userId: widget.userId,
+        );
+        debugPrint('TTS bildirimi tamamlandı');
+      } else {
+        debugPrint('onCheckBudget null!');
+        await _ttsService.speak(
+          'Bu komut henüz desteklenmiyor',
+          userId: widget.userId,
+        );
+      }
+    } catch (e, stackTrace) {
+      debugPrint('_handleKalanButce hatası: $e');
+      debugPrint('Stack trace: $stackTrace');
+      await _ttsService.speak('Bir hata oluştu', userId: widget.userId);
+    } finally {
+      debugPrint('_handleKalanButce finally bloğu, mounted: $mounted');
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  /// "Aylık limitimi X lira yap" komutunu işle
+  Future<void> _handleLimitBelirle(double? yeniLimit) async {
+    if (yeniLimit == null || yeniLimit <= 0) {
+      await _ttsService.speak(
+        'Limit tutarını anlayamadım. Örneğin "Aylık limitimi 10000 lira yap" diyebilirsiniz.',
+        userId: widget.userId,
+      );
+      if (mounted) Navigator.pop(context);
+      return;
+    }
+
+    if (widget.onSetBudgetLimit != null) {
+      // Inline onay iste
+      _requestConfirmation(
+        baslik: 'Bütçe Limiti Güncelleme',
+        mesaj:
+            'Aylık bütçeniz ${yeniLimit.toStringAsFixed(0)} ₺ olarak güncellensin mi?',
+        onConfirm: () async {
+          try {
+            await widget.onSetBudgetLimit!(yeniLimit);
+
+            await _ttsService.limitGuncellendiBildirimi(
+              yeniLimit: yeniLimit,
+              userId: widget.userId,
+            );
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Aylık bütçe ${yeniLimit.toStringAsFixed(0)} ₺ olarak güncellendi',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.green.shade700,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+              Navigator.pop(context);
+            }
+          } catch (e) {
+            debugPrint('Limit güncelleme hatası: $e');
+            await _ttsService.speak(
+              'Limit güncellenirken bir hata oluştu',
+              userId: widget.userId,
+            );
+            if (mounted) Navigator.pop(context);
+          }
+        },
+      );
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) Navigator.pop(context);
+    }
+  }
+
+  /// Inline onay iste (BottomSheet içinde gösterilir)
+  void _requestConfirmation({
+    required String baslik,
+    required String mesaj,
+    required Future<void> Function() onConfirm,
+  }) {
+    setState(() {
+      _pendingConfirmation = true;
+      _confirmationTitle = baslik;
+      _confirmationMessage = mesaj;
+      _onConfirmCallback = onConfirm;
+    });
+  }
+
+  /// Onay verildi
+  Future<void> _handleConfirm() async {
+    if (_onConfirmCallback != null) {
+      await _onConfirmCallback!();
+    }
+    _resetConfirmation();
+  }
+
+  /// Onay durumunu sıfırla
+  void _resetConfirmation() {
+    setState(() {
+      _pendingConfirmation = false;
+      _confirmationTitle = '';
+      _confirmationMessage = '';
+      _onConfirmCallback = null;
+    });
+  }
+
+  /// "Bu ay ne kadar tasarruf ettim?" komutunu işle
+  Future<void> _handleTasarrufHesapla() async {
+    try {
+      if (widget.onGetSavings != null) {
+        final savingsInfo = widget.onGetSavings!();
+        final tasarruf = (savingsInfo['tasarruf'] as num?)?.toDouble() ?? 0;
+        final butceLimiti =
+            (savingsInfo['butceLimiti'] as num?)?.toDouble() ?? 8000;
+
+        await _ttsService.tasarrufBildirimi(
+          tasarruf: tasarruf,
+          butceLimiti: butceLimiti,
+          userId: widget.userId,
+        );
+      } else {
+        await _ttsService.speak(
+          'Bu komut henüz desteklenmiyor',
+          userId: widget.userId,
+        );
+      }
+    } catch (e) {
+      debugPrint('_handleTasarrufHesapla hatası: $e');
+      await _ttsService.speak('Bir hata oluştu', userId: widget.userId);
+    } finally {
       if (mounted) {
         Navigator.pop(context);
       }
@@ -1030,43 +1231,117 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               const SizedBox(height: 12),
             ],
 
-            // Komut modunda işlem bilgisi göster
+            // Komut modunda işlem bilgisi veya onay UI göster
             if (_isCommandMode && _recognizedText.isNotEmpty) ...[
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
+              // Onay bekleniyorsa onay UI göster
+              if (_pendingConfirmation) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
                     color: Theme.of(
                       context,
-                    ).colorScheme.primary.withValues(alpha: 0.3),
+                    ).colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Başlık
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.help_outline,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 24,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _confirmationTitle,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      // Mesaj
+                      Text(
+                        _confirmationMessage,
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.8),
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Onay butonu
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _handleConfirm,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text('Onayla'),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+              ] else ...[
+                // Onay beklenmiyorsa işleniyor göster
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.3),
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Komut işleniyor...',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w500,
+                  ),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 12),
+                      Text(
+                        'Komut işleniyor...',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: 12),
             ],
 

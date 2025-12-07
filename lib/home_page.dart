@@ -1272,11 +1272,12 @@ class _AnaSayfaState extends State<AnaSayfa> {
 
                       return buAyHarcamalari.take(5).toList();
                     },
-                    // Sesli komut: Bütçemi aştım mı?
+                    // Sesli komut: Bütçemi aştım mı? / Kalan bütçem ne kadar?
                     onCheckBudget: () {
                       return {
                         'kalanLimit': kalanLimit > 0 ? kalanLimit : 0,
                         'asilanMiktar': asilanMiktar,
+                        'butceLimiti': butceLimiti,
                       };
                     },
                     // Sesli komut: Kategoride ne kadar harcadım?
@@ -1449,6 +1450,23 @@ class _AnaSayfaState extends State<AnaSayfa> {
                           }
                           return toplam;
                         },
+                    // Sesli komut: Aylık limitimi X lira yap
+                    onSetBudgetLimit: (double yeniLimit) async {
+                      await DatabaseHelper.butceKaydet(
+                        widget.authController.currentUser!.id,
+                        yeniLimit,
+                      );
+                      setState(() {
+                        butceLimiti = yeniLimit;
+                        filtreleVeGoster();
+                      });
+                    },
+                    // Sesli komut: Bu ay ne kadar tasarruf ettim?
+                    onGetSavings: () {
+                      // Tasarruf = Bütçe - Harcama
+                      final tasarruf = butceLimiti - toplamTutar;
+                      return {'tasarruf': tasarruf, 'butceLimiti': butceLimiti};
+                    },
                   ),
                 );
               },

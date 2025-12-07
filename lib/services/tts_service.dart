@@ -326,6 +326,55 @@ class TtsService {
     await speak(mesaj, userId: userId);
   }
 
+  /// Kalan bütçe bildirimi
+  Future<void> kalanButceBildirimi({
+    required double kalanButce,
+    required double butceLimiti,
+    String? userId,
+  }) async {
+    String kalanStr = kalanButce.toStringAsFixed(0);
+    String limitStr = butceLimiti.toStringAsFixed(0);
+    String mesaj;
+
+    if (kalanButce > 0) {
+      mesaj = '$limitStr liralık bütçenizden $kalanStr lira kaldı.';
+    } else if (kalanButce < 0) {
+      mesaj = 'Bütçenizi ${(-kalanButce).toStringAsFixed(0)} lira aştınız.';
+    } else {
+      mesaj = 'Bütçeniz tam olarak tükendi.';
+    }
+    await speak(mesaj, userId: userId);
+  }
+
+  /// Limit güncellendi bildirimi
+  Future<void> limitGuncellendiBildirimi({
+    required double yeniLimit,
+    String? userId,
+  }) async {
+    String limitStr = yeniLimit.toStringAsFixed(0);
+    String mesaj = 'Aylık bütçeniz $limitStr lira olarak güncellendi.';
+    await speak(mesaj, userId: userId);
+  }
+
+  /// Tasarruf bildirimi
+  Future<void> tasarrufBildirimi({
+    required double tasarruf,
+    required double butceLimiti,
+    String? userId,
+  }) async {
+    String tasarrufStr = tasarruf.abs().toStringAsFixed(0);
+    String mesaj;
+
+    if (tasarruf > 0) {
+      mesaj = 'Bu ay $tasarrufStr lira tasarruf ettiniz. Tebrikler!';
+    } else if (tasarruf < 0) {
+      mesaj = 'Bu ay $tasarrufStr lira açık verdiniz. Dikkatli olun.';
+    } else {
+      mesaj = 'Bu ay tam bütçeniz kadar harcadınız.';
+    }
+    await speak(mesaj, userId: userId);
+  }
+
   /// Servisi temizle
   void dispose() {
     _flutterTts.stop();
