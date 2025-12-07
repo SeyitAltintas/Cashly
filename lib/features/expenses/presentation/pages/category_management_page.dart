@@ -181,6 +181,9 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.green.shade700,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(12),
       ),
     );
   }
@@ -231,6 +234,11 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                     style: TextStyle(color: Colors.white),
                   ),
                   backgroundColor: Colors.red.shade800,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  margin: const EdgeInsets.all(12),
                 ),
               );
             },
@@ -288,6 +296,11 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                     style: TextStyle(color: Colors.white),
                   ),
                   backgroundColor: Colors.green.shade700,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  margin: const EdgeInsets.all(12),
                 ),
               );
             },
@@ -634,6 +647,11 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                         style: TextStyle(color: Colors.white),
                       ),
                       backgroundColor: Colors.green.shade700,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(12),
                       duration: const Duration(seconds: 1),
                     ),
                   );

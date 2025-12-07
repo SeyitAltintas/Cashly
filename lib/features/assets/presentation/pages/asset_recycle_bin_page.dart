@@ -57,7 +57,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
+                        backgroundColor: Colors.red.shade800,
                       ),
                       onPressed: () {
                         widget.onEmptyBin();

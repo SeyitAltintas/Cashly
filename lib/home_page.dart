@@ -599,6 +599,9 @@ class _AnaSayfaState extends State<AnaSayfa> {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: ColorConstants.koyuKirmizi,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(12),
         duration: const Duration(seconds: 1),
       ),
     );
@@ -1128,9 +1131,12 @@ class _AnaSayfaState extends State<AnaSayfa> {
                             'Harcama eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
                             style: const TextStyle(color: Colors.white),
                           ),
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.primary,
+                          backgroundColor: Colors.green.shade700,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          margin: const EdgeInsets.all(12),
                           duration: const Duration(seconds: 2),
                         ),
                       );
@@ -1528,6 +1534,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         style: TextStyle(color: Colors.white),
                       ),
                       backgroundColor: ColorConstants.koyuKirmizi,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(12),
                       duration: const Duration(seconds: 1),
                     ),
                   );
@@ -1566,7 +1577,18 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   });
                   varliklariKaydet();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Varlık geri yüklendi ♻️")),
+                    SnackBar(
+                      content: const Text(
+                        "Varlık geri yüklendi ♻️",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.green.shade700,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(12),
+                    ),
                   );
                 },
                 onPermanentDelete: (asset) {
@@ -1581,6 +1603,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         style: TextStyle(color: Colors.white),
                       ),
                       backgroundColor: ColorConstants.koyuKirmizi,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(12),
                     ),
                   );
                 },
@@ -1596,6 +1623,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         style: TextStyle(color: Colors.white),
                       ),
                       backgroundColor: ColorConstants.koyuKirmizi,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(12),
                     ),
                   );
                 },

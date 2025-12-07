@@ -53,7 +53,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: ColorConstants.kirmiziVurgu,
+              backgroundColor: Colors.red.shade800,
             ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text(
@@ -78,6 +78,11 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
                 "Çöp kutusu temizlendi.",
                 style: TextStyle(color: Colors.white),
               ),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: const EdgeInsets.all(12),
             ),
           );
         }
@@ -93,9 +98,20 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
     });
     DatabaseHelper.harcamalariKaydet(widget.userId, tumHarcamalarHam);
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Harcama geri yüklendi ♻️")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            "Harcama geri yüklendi ♻️",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.green.shade700,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(12),
+        ),
+      );
     }
   }
 
@@ -113,6 +129,11 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
             style: TextStyle(color: Colors.white),
           ),
           backgroundColor: ColorConstants.koyuKirmizi,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(12),
         ),
       );
     }

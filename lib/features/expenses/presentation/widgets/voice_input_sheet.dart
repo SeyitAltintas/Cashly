@@ -306,6 +306,11 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                     style: const TextStyle(color: Colors.white),
                   ),
                   backgroundColor: Colors.red.shade700,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  margin: const EdgeInsets.all(12),
                   duration: const Duration(seconds: 2),
                 ),
               );
@@ -520,6 +525,11 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                     style: const TextStyle(color: Colors.white),
                   ),
                   backgroundColor: Colors.green.shade700,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  margin: const EdgeInsets.all(12),
                   duration: const Duration(seconds: 2),
                 ),
               );
@@ -582,6 +592,11 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   style: const TextStyle(color: Colors.white),
                 ),
                 backgroundColor: Colors.red.shade700,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: const EdgeInsets.all(12),
                 duration: const Duration(seconds: 2),
               ),
             );
@@ -604,6 +619,11 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   style: const TextStyle(color: Colors.white),
                 ),
                 backgroundColor: Colors.blue.shade700,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: const EdgeInsets.all(12),
                 duration: const Duration(seconds: 2),
               ),
             );
@@ -858,6 +878,11 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                     style: const TextStyle(color: Colors.white),
                   ),
                   backgroundColor: Colors.green.shade700,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  margin: const EdgeInsets.all(12),
                   duration: const Duration(seconds: 2),
                 ),
               );
@@ -970,9 +995,17 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
 
     if (tutar == null || tutar <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Geçerli bir tutar girin'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text(
+            'Geçerli bir tutar girin',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red.shade700,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(12),
         ),
       );
       return;
