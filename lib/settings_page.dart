@@ -279,6 +279,9 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
     if (yeniLimit != null) {
       try {
         DatabaseHelper.butceKaydet(widget.userId, yeniLimit);
+        setState(() {
+          categoryChanged = true; // Ana sayfanın yenilenmesi için
+        });
         ErrorHandler.showSuccessSnackBar(context, "Aylık bütçe güncellendi ✅");
       } catch (e) {
         ErrorHandler.handleDatabaseError(context, e);
@@ -348,9 +351,9 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
       SnackBar(
         content: Text(
           "${sabitGiderler.length} adet sabit gider bu aya eklendi! 🚀",
-          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+          style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Colors.green.shade700,
       ),
     );
   }

@@ -176,8 +176,11 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Kategori eklendi ✅'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        content: const Text(
+          'Kategori eklendi ✅',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.green.shade700,
       ),
     );
   }
@@ -222,14 +225,17 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
               Navigator.pop(context);
 
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Kategori silindi'),
-                  backgroundColor: ColorConstants.kirmiziVurgu,
+                SnackBar(
+                  content: const Text(
+                    'Kategori silindi',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.red.shade800,
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: ColorConstants.kirmiziVurgu,
+              backgroundColor: Colors.red.shade800,
             ),
             child: const Text('Sil', style: TextStyle(color: Colors.white)),
           ),
@@ -277,8 +283,11 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
 
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: const Text('Varsayılan kategoriler yüklendi'),
-                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  content: const Text(
+                    'Varsayılan kategoriler yüklendi',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Colors.green.shade700,
                 ),
               );
             },
@@ -620,8 +629,11 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Kategori sırası güncellendi'),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      content: const Text(
+                        'Kategori sırası güncellendi',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.green.shade700,
                       duration: const Duration(seconds: 1),
                     ),
                   );
