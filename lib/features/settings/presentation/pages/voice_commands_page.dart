@@ -230,7 +230,7 @@ class VoiceCommandsPage extends StatelessWidget {
                       style: TextStyle(
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ).colorScheme.onSurface.withValues(alpha: 0.8),
                         fontSize: 12,
                       ),
                     ),
@@ -276,7 +276,9 @@ class VoiceCommandsPage extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.8),
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -291,7 +293,7 @@ class VoiceCommandsPage extends StatelessWidget {
             style: TextStyle(
               color: Theme.of(
                 context,
-              ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ).colorScheme.onSurface.withValues(alpha: 0.8),
               fontSize: 13,
             ),
           ),
@@ -317,7 +319,9 @@ class VoiceCommandsPage extends StatelessWidget {
                     child: Text(
                       '"$example"',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.8),
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
                       ),

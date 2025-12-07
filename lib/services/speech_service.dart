@@ -38,6 +38,21 @@ enum VoiceCommandType {
   /// "Son harcamayı 150 lira yap" komutu
   sonHarcamayiDuzenle,
 
+  /// "Dün ne kadar harcadım?" komutu
+  dunNeKadarHarcadim,
+
+  /// "Geçen hafta ne kadar harcadım?" komutu
+  gecenHaftaNeKadarHarcadim,
+
+  /// "Geçen ay ne kadar harcadım?" komutu
+  gecenAyNeKadarHarcadim,
+
+  /// "Bu yıl ne kadar harcadım?" komutu
+  buYilNeKadarHarcadim,
+
+  /// "Dün markete ne kadar harcadım?" gibi tarihli kategori sorgusu
+  tarihliKategoriHarcamasi,
+
   /// Tanınmayan komut
   bilinmiyor,
 }
@@ -49,6 +64,8 @@ class VoiceCommandResult {
   final bool komutAlgilandi;
   final String? kategori; // Kategori bazlı sorgular için
   final double? yeniTutar; // Harcama düzenleme için yeni tutar
+  final DateTime? baslangicTarihi; // Tarihli sorgular için başlangıç
+  final DateTime? bitisTarihi; // Tarihli sorgular için bitiş
 
   VoiceCommandResult({
     required this.komutTuru,
@@ -56,6 +73,8 @@ class VoiceCommandResult {
     required this.komutAlgilandi,
     this.kategori,
     this.yeniTutar,
+    this.baslangicTarihi,
+    this.bitisTarihi,
   });
 }
 
@@ -245,6 +264,91 @@ class SpeechService {
         komutAlgilandi: true,
         yeniTutar: duzenlemeResult,
       );
+    }
+
+    // "Dün ne kadar harcadım?" komutu
+    if (_matchesDunNeKadarHarcadim(normalizedText)) {
+      final now = DateTime.now();
+      final dun = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(const Duration(days: 1));
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.dunNeKadarHarcadim,
+        rawText: text,
+        komutAlgilandi: true,
+        baslangicTarihi: dun,
+        bitisTarihi: dun,
+      );
+    }
+
+    // "Geçen hafta ne kadar harcadım?" komutu
+    if (_matchesGecenHaftaNeKadarHarcadim(normalizedText)) {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      // Geçen haftanın pazartesisi
+      final thisMondayOffset = now.weekday - 1;
+      final lastMonday = today.subtract(Duration(days: thisMondayOffset + 7));
+      final lastSunday = lastMonday.add(const Duration(days: 6));
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.gecenHaftaNeKadarHarcadim,
+        rawText: text,
+        komutAlgilandi: true,
+        baslangicTarihi: lastMonday,
+        bitisTarihi: lastSunday,
+      );
+    }
+
+    // "Geçen ay ne kadar harcadım?" komutu
+    if (_matchesGecenAyNeKadarHarcadim(normalizedText)) {
+      final now = DateTime.now();
+      // Geçen ayın ilk ve son günü
+      final gecenAyBas = DateTime(now.year, now.month - 1, 1);
+      final gecenAySon = DateTime(
+        now.year,
+        now.month,
+        0,
+      ); // Geçen ayın son günü
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.gecenAyNeKadarHarcadim,
+        rawText: text,
+        komutAlgilandi: true,
+        baslangicTarihi: gecenAyBas,
+        bitisTarihi: gecenAySon,
+      );
+    }
+
+    // "Bu yıl ne kadar harcadım?" komutu
+    if (_matchesBuYilNeKadarHarcadim(normalizedText)) {
+      final now = DateTime.now();
+      final yilBas = DateTime(now.year, 1, 1);
+      final bugun = DateTime(now.year, now.month, now.day);
+      return VoiceCommandResult(
+        komutTuru: VoiceCommandType.buYilNeKadarHarcadim,
+        rawText: text,
+        komutAlgilandi: true,
+        baslangicTarihi: yilBas,
+        bitisTarihi: bugun,
+      );
+    }
+
+    // Tarihli kategori sorgusu ("Dün markete ne kadar harcadım?")
+    if (mevcutKategoriler != null) {
+      final tarihliKategoriResult = _matchesTarihliKategoriHarcamasi(
+        normalizedText,
+        mevcutKategoriler,
+      );
+      if (tarihliKategoriResult != null) {
+        return VoiceCommandResult(
+          komutTuru: VoiceCommandType.tarihliKategoriHarcamasi,
+          rawText: text,
+          komutAlgilandi: true,
+          kategori: tarihliKategoriResult['kategori'],
+          baslangicTarihi: tarihliKategoriResult['baslangic'],
+          bitisTarihi: tarihliKategoriResult['bitis'],
+        );
+      }
     }
 
     // Komut algılanmadı - normal harcama girişi olarak değerlendir
@@ -490,6 +594,171 @@ class SpeechService {
       }
     }
     return false;
+  }
+
+  /// "Dün ne kadar harcadım?" komutunu kontrol et
+  bool _matchesDunNeKadarHarcadim(String text) {
+    List<String> patterns = [
+      'dün ne kadar harcadım',
+      'dün ne kadar harcamışım',
+      'dünkü harcamam',
+      'dün toplam harcamam',
+      'dün kaç lira harcadım',
+      'dün kaç para harcadım',
+      'dünün toplamı',
+      'dün harcama toplamı',
+      'dünkü harcamalarım',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// "Geçen hafta ne kadar harcadım?" komutunu kontrol et
+  bool _matchesGecenHaftaNeKadarHarcadim(String text) {
+    List<String> patterns = [
+      'geçen hafta ne kadar harcadım',
+      'geçen hafta ne kadar harcamışım',
+      'geçen hafta toplam harcamam',
+      'geçen haftaki harcamam',
+      'geçen hafta kaç lira harcadım',
+      'geçen hafta kaç para harcadım',
+      'geçen haftanın toplamı',
+      'geçen hafta harcama toplamı',
+      'önceki hafta ne kadar harcadım',
+      'önceki hafta harcamam',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// "Geçen ay ne kadar harcadım?" komutunu kontrol et
+  bool _matchesGecenAyNeKadarHarcadim(String text) {
+    List<String> patterns = [
+      'geçen ay ne kadar harcadım',
+      'geçen ay ne kadar harcamışım',
+      'geçen ay toplam harcamam',
+      'geçen ayki harcamam',
+      'geçen ay kaç lira harcadım',
+      'geçen ay kaç para harcadım',
+      'geçen ayın toplamı',
+      'geçen ay harcama toplamı',
+      'önceki ay ne kadar harcadım',
+      'önceki ay harcamam',
+      'önceki ayki harcamam',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// "Bu yıl ne kadar harcadım?" komutunu kontrol et
+  bool _matchesBuYilNeKadarHarcadim(String text) {
+    List<String> patterns = [
+      'bu yıl ne kadar harcadım',
+      'bu yıl ne kadar harcamışım',
+      'bu yıl toplam harcamam',
+      'bu yılki harcamam',
+      'bu yıl kaç lira harcadım',
+      'bu yıl kaç para harcadım',
+      'bu yılın toplamı',
+      'yıllık harcamam',
+      'yıllık toplam harcamam',
+      'bu sene ne kadar harcadım',
+      'bu sene harcamam',
+    ];
+
+    for (var pattern in patterns) {
+      if (text.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Tarihli kategori harcama sorgusunu kontrol et
+  /// Örnek: "Dün markete ne kadar harcadım?", "Geçen hafta yakıt harcamam"
+  Map<String, dynamic>? _matchesTarihliKategoriHarcamasi(
+    String text,
+    List<String> mevcutKategoriler,
+  ) {
+    // Önce tarih ifadesini kontrol et
+    DateTime? baslangic;
+    DateTime? bitis;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // Tarih ifadeleri
+    if (text.contains('dün')) {
+      final dun = today.subtract(const Duration(days: 1));
+      baslangic = dun;
+      bitis = dun;
+    } else if (text.contains('geçen hafta') || text.contains('önceki hafta')) {
+      final thisMondayOffset = now.weekday - 1;
+      final lastMonday = today.subtract(Duration(days: thisMondayOffset + 7));
+      final lastSunday = lastMonday.add(const Duration(days: 6));
+      baslangic = lastMonday;
+      bitis = lastSunday;
+    } else if (text.contains('geçen ay') || text.contains('önceki ay')) {
+      baslangic = DateTime(now.year, now.month - 1, 1);
+      bitis = DateTime(now.year, now.month, 0);
+    } else if (text.contains('bu hafta')) {
+      final thisMondayOffset = now.weekday - 1;
+      baslangic = today.subtract(Duration(days: thisMondayOffset));
+      bitis = today;
+    }
+
+    // Tarih yoksa bu tarihli kategori sorgusu değil
+    if (baslangic == null) return null;
+
+    // Harcama sorgusu pattern kontrolü
+    List<String> sorguPatternleri = [
+      'ne kadar harcadım',
+      'ne kadar harcamışım',
+      'harcamam',
+      'ne harcadım',
+      'kaç lira harcadım',
+      'kaç para harcadım',
+    ];
+
+    bool sorguVar = false;
+    for (var pattern in sorguPatternleri) {
+      if (text.contains(pattern)) {
+        sorguVar = true;
+        break;
+      }
+    }
+
+    if (!sorguVar) return null;
+
+    // Mevcut kategorileri kontrol et
+    for (var kategori in mevcutKategoriler) {
+      String kategoriLower = kategori.toLowerCase();
+      if (text.contains(kategoriLower) ||
+          text.contains('${kategoriLower}e') ||
+          text.contains('${kategoriLower}a') ||
+          text.contains('${kategoriLower}de') ||
+          text.contains('${kategoriLower}da') ||
+          text.contains('${kategoriLower}te') ||
+          text.contains('${kategoriLower}ta')) {
+        return {'kategori': kategori, 'baslangic': baslangic, 'bitis': bitis};
+      }
+    }
+
+    return null;
   }
 
   /// Metni parse et ve tutar/kategori çıkar

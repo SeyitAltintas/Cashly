@@ -1375,6 +1375,80 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         'silindi': yeniTutar == 0,
                       };
                     },
+                    // Sesli komut: Tarihli harcama sorgusu
+                    onGetDateRangeTotal: (DateTime baslangic, DateTime bitis) {
+                      double toplam = 0;
+                      final baslangicGun = DateTime(
+                        baslangic.year,
+                        baslangic.month,
+                        baslangic.day,
+                      );
+                      final bitisGun = DateTime(
+                        bitis.year,
+                        bitis.month,
+                        bitis.day,
+                      );
+
+                      for (var h in tumHarcamalar) {
+                        if (h['silindi'] == true) continue;
+                        DateTime? tarih = DateTime.tryParse(
+                          h['tarih'].toString(),
+                        );
+                        if (tarih != null) {
+                          final harcamaTarihi = DateTime(
+                            tarih.year,
+                            tarih.month,
+                            tarih.day,
+                          );
+                          if ((harcamaTarihi.isAtSameMomentAs(baslangicGun) ||
+                                  harcamaTarihi.isAfter(baslangicGun)) &&
+                              (harcamaTarihi.isAtSameMomentAs(bitisGun) ||
+                                  harcamaTarihi.isBefore(bitisGun))) {
+                            toplam += (h['tutar'] as num?)?.toDouble() ?? 0;
+                          }
+                        }
+                      }
+                      return toplam;
+                    },
+                    // Sesli komut: Tarihli kategori sorgusu
+                    onGetDateRangeCategoryTotal:
+                        (DateTime baslangic, DateTime bitis, String kategori) {
+                          double toplam = 0;
+                          final baslangicGun = DateTime(
+                            baslangic.year,
+                            baslangic.month,
+                            baslangic.day,
+                          );
+                          final bitisGun = DateTime(
+                            bitis.year,
+                            bitis.month,
+                            bitis.day,
+                          );
+
+                          for (var h in tumHarcamalar) {
+                            if (h['silindi'] == true) continue;
+                            if (h['kategori'] != kategori) continue;
+                            DateTime? tarih = DateTime.tryParse(
+                              h['tarih'].toString(),
+                            );
+                            if (tarih != null) {
+                              final harcamaTarihi = DateTime(
+                                tarih.year,
+                                tarih.month,
+                                tarih.day,
+                              );
+                              if ((harcamaTarihi.isAtSameMomentAs(
+                                        baslangicGun,
+                                      ) ||
+                                      harcamaTarihi.isAfter(baslangicGun)) &&
+                                  (harcamaTarihi.isAtSameMomentAs(bitisGun) ||
+                                      harcamaTarihi.isBefore(bitisGun))) {
+                                toplam += (h['tutar'] as num?)?.toDouble() ?? 0;
+                              }
+                            }
+                          }
+                          return toplam;
+                        },
                   ),
                 );
               },

@@ -264,6 +264,68 @@ class TtsService {
     await speak(mesaj, userId: userId);
   }
 
+  /// Dün toplam harcama bildirimi
+  Future<void> dunHarcamaBildirimi({
+    required double toplam,
+    String? userId,
+  }) async {
+    String toplamStr = toplam.toStringAsFixed(0);
+    String mesaj = toplam == 0
+        ? 'Dün harcama yapmadınız'
+        : 'Dün toplam $toplamStr lira harcadınız';
+    await speak(mesaj, userId: userId);
+  }
+
+  /// Geçen hafta toplam harcama bildirimi
+  Future<void> gecenHaftaHarcamaBildirimi({
+    required double toplam,
+    String? userId,
+  }) async {
+    String toplamStr = toplam.toStringAsFixed(0);
+    String mesaj = toplam == 0
+        ? 'Geçen hafta harcama yapmadınız'
+        : 'Geçen hafta toplam $toplamStr lira harcadınız';
+    await speak(mesaj, userId: userId);
+  }
+
+  /// Geçen ay toplam harcama bildirimi
+  Future<void> gecenAyHarcamaBildirimi({
+    required double toplam,
+    String? userId,
+  }) async {
+    String toplamStr = toplam.toStringAsFixed(0);
+    String mesaj = toplam == 0
+        ? 'Geçen ay harcama yapmadınız'
+        : 'Geçen ay toplam $toplamStr lira harcadınız';
+    await speak(mesaj, userId: userId);
+  }
+
+  /// Bu yıl toplam harcama bildirimi
+  Future<void> buYilHarcamaBildirimi({
+    required double toplam,
+    String? userId,
+  }) async {
+    String toplamStr = toplam.toStringAsFixed(0);
+    String mesaj = toplam == 0
+        ? 'Bu yıl henüz harcama yapmadınız'
+        : 'Bu yıl toplam $toplamStr lira harcadınız';
+    await speak(mesaj, userId: userId);
+  }
+
+  /// Tarihli kategori harcama bildirimi
+  Future<void> tarihliKategoriHarcamaBildirimi({
+    required String donem,
+    required String kategori,
+    required double toplam,
+    String? userId,
+  }) async {
+    String toplamStr = toplam.toStringAsFixed(0);
+    String mesaj = toplam == 0
+        ? '$donem $kategori kategorisinde harcama yapmadınız'
+        : '$donem $kategori kategorisinde $toplamStr lira harcadınız';
+    await speak(mesaj, userId: userId);
+  }
+
   /// Servisi temizle
   void dispose() {
     _flutterTts.stop();

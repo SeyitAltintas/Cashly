@@ -25,6 +25,12 @@ class VoiceInputSheet extends StatefulWidget {
   final Future<Map<String, dynamic>?> Function(double yeniTutar)?
   onEditLastExpense;
 
+  /// Tarihli harcama sorgusu callback'leri
+  final double Function(DateTime baslangic, DateTime bitis)?
+  onGetDateRangeTotal;
+  final double Function(DateTime baslangic, DateTime bitis, String kategori)?
+  onGetDateRangeCategoryTotal;
+
   const VoiceInputSheet({
     super.key,
     required this.categoryIcons,
@@ -40,6 +46,8 @@ class VoiceInputSheet extends StatefulWidget {
     this.onGetCategoryTotal,
     this.onAddFixedExpenses,
     this.onEditLastExpense,
+    this.onGetDateRangeTotal,
+    this.onGetDateRangeCategoryTotal,
   });
 
   @override
@@ -212,6 +220,34 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         break;
       case VoiceCommandType.sonHarcamayiDuzenle:
         await _handleEditLastExpense(command.yeniTutar);
+        break;
+      case VoiceCommandType.dunNeKadarHarcadim:
+        await _handleDunNeKadarHarcadim(command.baslangicTarihi!);
+        break;
+      case VoiceCommandType.gecenHaftaNeKadarHarcadim:
+        await _handleGecenHaftaNeKadarHarcadim(
+          command.baslangicTarihi!,
+          command.bitisTarihi!,
+        );
+        break;
+      case VoiceCommandType.gecenAyNeKadarHarcadim:
+        await _handleGecenAyNeKadarHarcadim(
+          command.baslangicTarihi!,
+          command.bitisTarihi!,
+        );
+        break;
+      case VoiceCommandType.buYilNeKadarHarcadim:
+        await _handleBuYilNeKadarHarcadim(
+          command.baslangicTarihi!,
+          command.bitisTarihi!,
+        );
+        break;
+      case VoiceCommandType.tarihliKategoriHarcamasi:
+        await _handleTarihliKategoriHarcamasi(
+          command.baslangicTarihi!,
+          command.bitisTarihi!,
+          command.kategori,
+        );
         break;
       default:
         // Normal harcama ekleme veya bilinmeyen komut
@@ -541,6 +577,169 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         userId: widget.userId,
       );
       if (mounted) Navigator.pop(context);
+    }
+  }
+
+  /// "Dün ne kadar harcadım?" komutunu işle
+  Future<void> _handleDunNeKadarHarcadim(DateTime tarih) async {
+    if (widget.onGetDateRangeTotal != null) {
+      final total = widget.onGetDateRangeTotal!(tarih, tarih);
+
+      await _ttsService.dunHarcamaBildirimi(
+        toplam: total,
+        userId: widget.userId,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  /// "Geçen hafta ne kadar harcadım?" komutunu işle
+  Future<void> _handleGecenHaftaNeKadarHarcadim(
+    DateTime baslangic,
+    DateTime bitis,
+  ) async {
+    if (widget.onGetDateRangeTotal != null) {
+      final total = widget.onGetDateRangeTotal!(baslangic, bitis);
+
+      await _ttsService.gecenHaftaHarcamaBildirimi(
+        toplam: total,
+        userId: widget.userId,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  /// "Geçen ay ne kadar harcadım?" komutunu işle
+  Future<void> _handleGecenAyNeKadarHarcadim(
+    DateTime baslangic,
+    DateTime bitis,
+  ) async {
+    if (widget.onGetDateRangeTotal != null) {
+      final total = widget.onGetDateRangeTotal!(baslangic, bitis);
+
+      await _ttsService.gecenAyHarcamaBildirimi(
+        toplam: total,
+        userId: widget.userId,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  /// "Bu yıl ne kadar harcadım?" komutunu işle
+  Future<void> _handleBuYilNeKadarHarcadim(
+    DateTime baslangic,
+    DateTime bitis,
+  ) async {
+    if (widget.onGetDateRangeTotal != null) {
+      final total = widget.onGetDateRangeTotal!(baslangic, bitis);
+
+      await _ttsService.buYilHarcamaBildirimi(
+        toplam: total,
+        userId: widget.userId,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  /// Tarihli kategori sorgusunu işle ("Dün markete ne kadar harcadım?")
+  Future<void> _handleTarihliKategoriHarcamasi(
+    DateTime baslangic,
+    DateTime bitis,
+    String? kategori,
+  ) async {
+    if (kategori == null) {
+      await _ttsService.speak('Kategori anlaşılamadı', userId: widget.userId);
+      if (mounted) {
+        Navigator.pop(context);
+      }
+      return;
+    }
+
+    if (widget.onGetDateRangeCategoryTotal != null) {
+      final total = widget.onGetDateRangeCategoryTotal!(
+        baslangic,
+        bitis,
+        kategori,
+      );
+
+      // Dönem adını belirle
+      String donem;
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final dateDiff = today.difference(baslangic).inDays;
+
+      if (dateDiff == 1 && baslangic == bitis) {
+        donem = 'Dün';
+      } else if (dateDiff <= 7) {
+        donem = 'Bu hafta';
+      } else if (dateDiff <= 14) {
+        donem = 'Geçen hafta';
+      } else {
+        donem = 'Geçen ay';
+      }
+
+      await _ttsService.tarihliKategoriHarcamaBildirimi(
+        donem: donem,
+        kategori: kategori,
+        toplam: total,
+        userId: widget.userId,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } else {
+      await _ttsService.speak(
+        'Bu komut henüz desteklenmiyor',
+        userId: widget.userId,
+      );
+      if (mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 
