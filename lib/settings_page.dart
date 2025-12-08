@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'services/database_helper.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
 import 'features/settings/presentation/pages/appearance_page.dart';
+import 'features/settings/presentation/pages/voice_assistant_page.dart';
 
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'core/utils/validators.dart';
@@ -39,87 +40,189 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             onPressed: () => Navigator.pop(context, _needsRefresh),
           ),
         ),
-        body: Padding(
+        body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.1),
-                      ),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AppearancePage(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    "Görünüm",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+              // Ayarlar başlığı
+              Text(
+                'Uygulama Ayarları',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.1),
-                      ),
-                    ),
-                  ),
-                  onPressed: () async {
-                    final result = await Navigator.push(
+              const SizedBox(height: 12),
+
+              // Ayar kartları container
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Theme.of(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => HarcamalarAyarlariSayfasi(
-                          userId: widget.authController.currentUser!.id,
-                        ),
-                      ),
-                    );
-                    if (result == true) {
-                      setState(() {
-                        _needsRefresh = true;
-                      });
-                    }
-                  },
-                  child: const Text(
-                    "Harcamalar",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    ).colorScheme.onSurface.withValues(alpha: 0.08),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    // Görünüm
+                    _buildSettingsTile(
+                      icon: Icons.palette_outlined,
+                      iconColor: Colors.purple,
+                      title: 'Görünüm',
+                      subtitle: 'Tema ve renk ayarları',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AppearancePage(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildDivider(),
+
+                    // Sesli Asistan
+                    _buildSettingsTile(
+                      icon: Icons.mic_outlined,
+                      iconColor: Colors.orange,
+                      title: 'Sesli Asistan',
+                      subtitle: 'Ses komutları ve geri bildirim',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => VoiceAssistantPage(
+                              authController: widget.authController,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildDivider(),
+
+                    // Harcamalar
+                    _buildSettingsTile(
+                      icon: Icons.account_balance_wallet_outlined,
+                      iconColor: Colors.green,
+                      title: 'Harcamalar',
+                      subtitle: 'Bütçe, kategoriler ve sabit giderler',
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HarcamalarAyarlariSayfasi(
+                              userId: widget.authController.currentUser!.id,
+                            ),
+                          ),
+                        );
+                        if (result == true) {
+                          setState(() {
+                            _needsRefresh = true;
+                          });
+                        }
+                      },
+                      isLast: true,
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    bool isLast = false,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: isLast
+            ? const BorderRadius.only(
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              )
+            : null,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: iconColor, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.3),
+                size: 22,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 72),
+      child: Divider(
+        height: 1,
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
       ),
     );
   }
@@ -176,6 +279,9 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
     if (yeniLimit != null) {
       try {
         DatabaseHelper.butceKaydet(widget.userId, yeniLimit);
+        setState(() {
+          categoryChanged = true; // Ana sayfanın yenilenmesi için
+        });
         ErrorHandler.showSuccessSnackBar(context, "Aylık bütçe güncellendi ✅");
       } catch (e) {
         ErrorHandler.handleDatabaseError(context, e);
@@ -245,9 +351,12 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
       SnackBar(
         content: Text(
           "${sabitGiderler.length} adet sabit gider bu aya eklendi! 🚀",
-          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+          style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Colors.green.shade700,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(12),
       ),
     );
   }
@@ -461,6 +570,46 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Başlık
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: const Duration(milliseconds: 600),
+                builder: (context, value, child) {
+                  return Opacity(
+                    opacity: value,
+                    child: Transform.translate(
+                      offset: Offset(0, 20 * (1 - value)),
+                      child: child,
+                    ),
+                  );
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Gelir ve Gider",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Bütçenizi ve harcama tercihlerinizi yönetin",
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.54),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+
               Text(
                 "AYLIK GELİR (BÜTÇE LİMİTİ)",
                 style: TextStyle(

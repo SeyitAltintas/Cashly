@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cashly/core/theme/theme_manager.dart';
 import 'package:cashly/core/constants/color_constants.dart';
+import 'package:cashly/core/widgets/money_animation.dart';
 
 import 'services/database_helper.dart';
 import 'recycle_bin_page.dart';
@@ -10,6 +13,7 @@ import 'features/assets/data/models/asset_model.dart';
 import 'features/assets/presentation/widgets/add_asset_sheet.dart';
 import 'features/analysis/presentation/pages/analysis_page.dart';
 import 'features/expenses/presentation/widgets/add_expense_sheet.dart';
+import 'features/expenses/presentation/widgets/voice_input_sheet.dart';
 
 class AnaSayfa extends StatefulWidget {
   final AuthController authController;
@@ -598,6 +602,9 @@ class _AnaSayfaState extends State<AnaSayfa> {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: ColorConstants.koyuKirmizi,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(12),
         duration: const Duration(seconds: 1),
       ),
     );
@@ -645,6 +652,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
             filtreleVeGoster();
           });
           verileriKaydet();
+
+          // Yeni harcama eklendiyse para animasyonu göster
+          if (duzenlenecekHarcama == null) {
+            if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
+              MoneyAnimationOverlay.show(context);
+            }
+          }
         },
       ),
     );
@@ -1085,6 +1099,401 @@ class _AnaSayfaState extends State<AnaSayfa> {
                 });
               },
             ),
+            // Sesli harcama girişi butonu
+            IconButton(
+              icon: const Icon(Icons.mic, color: Colors.white),
+              tooltip: "Sesli Giriş",
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => VoiceInputSheet(
+                    categoryIcons: kategoriIkonlari,
+                    userId: widget.authController.currentUser?.id,
+                    onConfirm: (name, amount, category, date) {
+                      setState(() {
+                        tumHarcamalar.add({
+                          "isim": name,
+                          "tutar": amount,
+                          "kategori": category,
+                          "tarih": date.toString(),
+                          "silindi": false,
+                        });
+
+                        tumHarcamalar.sort((a, b) {
+                          DateTime tarihA =
+                              DateTime.tryParse(a['tarih'].toString()) ??
+                              DateTime.now();
+                          DateTime tarihB =
+                              DateTime.tryParse(b['tarih'].toString()) ??
+                              DateTime.now();
+                          return tarihB.compareTo(tarihA);
+                        });
+
+                        filtreleVeGoster();
+                      });
+                      verileriKaydet();
+
+                      // Para animasyonu göster 💰
+                      if (context
+                          .read<ThemeManager>()
+                          .isMoneyAnimationEnabled) {
+                        MoneyAnimationOverlay.show(context);
+                      }
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Harcama eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          backgroundColor: Colors.green.shade700,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          margin: const EdgeInsets.all(12),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    // Sesli komut: Son harcamayı sil
+                    onDeleteLastExpense: () async {
+                      // Bu ayın harcamalarından son eklenen (silindi=false) olanı bul
+                      final buAyHarcamalari = tumHarcamalar.where((h) {
+                        if (h['silindi'] == true) return false;
+                        DateTime? tarih = DateTime.tryParse(
+                          h['tarih'].toString(),
+                        );
+                        if (tarih == null) return false;
+                        return tarih.year == secilenAy.year &&
+                            tarih.month == secilenAy.month;
+                      }).toList();
+
+                      if (buAyHarcamalari.isEmpty) return null;
+
+                      // En son eklenen harcamayı bul (tarihe göre sırala)
+                      buAyHarcamalari.sort((a, b) {
+                        DateTime tarihA =
+                            DateTime.tryParse(a['tarih'].toString()) ??
+                            DateTime.now();
+                        DateTime tarihB =
+                            DateTime.tryParse(b['tarih'].toString()) ??
+                            DateTime.now();
+                        return tarihB.compareTo(tarihA);
+                      });
+
+                      final sonHarcama = buAyHarcamalari.first;
+
+                      // Harcamayı sil (soft delete)
+                      setState(() {
+                        sonHarcama['silindi'] = true;
+                        filtreleVeGoster();
+                      });
+                      verileriKaydet();
+
+                      return sonHarcama;
+                    },
+                    // Sesli komut: Bu ay ne kadar harcadım?
+                    onGetMonthlyTotal: () {
+                      return toplamTutar;
+                    },
+                    // Sesli komut: En çok hangi kategoride harcamışım?
+                    onGetTopCategory: () {
+                      if (kategoriToplamlari.isEmpty) return null;
+
+                      String? enCokKategori;
+                      double enYuksekTutar = 0;
+
+                      kategoriToplamlari.forEach((kategori, tutar) {
+                        if (tutar > enYuksekTutar) {
+                          enYuksekTutar = tutar;
+                          enCokKategori = kategori;
+                        }
+                      });
+
+                      if (enCokKategori == null || enYuksekTutar == 0) {
+                        return null;
+                      }
+
+                      return {
+                        'kategori': enCokKategori,
+                        'tutar': enYuksekTutar,
+                      };
+                    },
+                    // Sesli komut: Bu hafta ne kadar harcadım?
+                    onGetWeeklyTotal: () {
+                      final now = DateTime.now();
+                      final weekStart = now.subtract(
+                        Duration(days: now.weekday - 1),
+                      );
+
+                      double haftalikToplam = 0;
+                      for (var h in tumHarcamalar) {
+                        if (h['silindi'] == true) continue;
+                        DateTime? tarih = DateTime.tryParse(
+                          h['tarih'].toString(),
+                        );
+                        if (tarih != null &&
+                            tarih.isAfter(
+                              weekStart.subtract(const Duration(days: 1)),
+                            ) &&
+                            tarih.isBefore(now.add(const Duration(days: 1)))) {
+                          haftalikToplam +=
+                              (h['tutar'] as num?)?.toDouble() ?? 0;
+                        }
+                      }
+                      return haftalikToplam;
+                    },
+                    // Sesli komut: Bugün ne kadar harcadım?
+                    onGetDailyTotal: () {
+                      final now = DateTime.now();
+                      final today = DateTime(now.year, now.month, now.day);
+
+                      double gunlukToplam = 0;
+                      for (var h in tumHarcamalar) {
+                        if (h['silindi'] == true) continue;
+                        DateTime? tarih = DateTime.tryParse(
+                          h['tarih'].toString(),
+                        );
+                        if (tarih != null) {
+                          final harcamaTarihi = DateTime(
+                            tarih.year,
+                            tarih.month,
+                            tarih.day,
+                          );
+                          if (harcamaTarihi.isAtSameMomentAs(today)) {
+                            gunlukToplam +=
+                                (h['tutar'] as num?)?.toDouble() ?? 0;
+                          }
+                        }
+                      }
+                      return gunlukToplam;
+                    },
+                    // Sesli komut: Son harcamalarım neler?
+                    onGetLastExpenses: () {
+                      final buAyHarcamalari = tumHarcamalar.where((h) {
+                        if (h['silindi'] == true) return false;
+                        DateTime? tarih = DateTime.tryParse(
+                          h['tarih'].toString(),
+                        );
+                        if (tarih == null) return false;
+                        return tarih.year == secilenAy.year &&
+                            tarih.month == secilenAy.month;
+                      }).toList();
+
+                      buAyHarcamalari.sort((a, b) {
+                        DateTime tarihA =
+                            DateTime.tryParse(a['tarih'].toString()) ??
+                            DateTime.now();
+                        DateTime tarihB =
+                            DateTime.tryParse(b['tarih'].toString()) ??
+                            DateTime.now();
+                        return tarihB.compareTo(tarihA);
+                      });
+
+                      return buAyHarcamalari.take(5).toList();
+                    },
+                    // Sesli komut: Bütçemi aştım mı? / Kalan bütçem ne kadar?
+                    onCheckBudget: () {
+                      return {
+                        'kalanLimit': kalanLimit > 0 ? kalanLimit : 0,
+                        'asilanMiktar': asilanMiktar,
+                        'butceLimiti': butceLimiti,
+                      };
+                    },
+                    // Sesli komut: Kategoride ne kadar harcadım?
+                    onGetCategoryTotal: (String kategori) {
+                      return kategoriToplamlari[kategori] ?? 0.0;
+                    },
+                    // Sesli komut: Sabit giderleri ekle
+                    onAddFixedExpenses: () async {
+                      final sabitGiderler =
+                          DatabaseHelper.sabitGiderSablonlariGetir(
+                            widget.authController.currentUser!.id,
+                          );
+
+                      if (sabitGiderler.isEmpty) {
+                        return {'adet': 0, 'toplam': 0.0};
+                      }
+
+                      DateTime simdi = DateTime.now();
+                      double toplam = 0;
+
+                      for (var sablon in sabitGiderler) {
+                        double tutar =
+                            (sablon['tutar'] as num?)?.toDouble() ?? 0;
+                        toplam += tutar;
+                        tumHarcamalar.add({
+                          'isim': sablon['isim'],
+                          'tutar': tutar,
+                          'kategori': 'Sabit Giderler',
+                          'tarih': simdi.toString(),
+                          'silindi': false,
+                        });
+                      }
+
+                      verileriKaydet();
+                      setState(() {
+                        filtreleVeGoster();
+                      });
+
+                      return {'adet': sabitGiderler.length, 'toplam': toplam};
+                    },
+                    // Sesli komut: Son harcamayı düzenle
+                    onEditLastExpense: (double yeniTutar) async {
+                      // Bu ayın harcamalarından son eklenen (silindi=false) olanı bul
+                      final buAyHarcamalari = tumHarcamalar.where((h) {
+                        if (h['silindi'] == true) return false;
+                        DateTime? tarih = DateTime.tryParse(
+                          h['tarih'].toString(),
+                        );
+                        if (tarih == null) return false;
+                        return tarih.year == secilenAy.year &&
+                            tarih.month == secilenAy.month;
+                      }).toList();
+
+                      if (buAyHarcamalari.isEmpty) return null;
+
+                      // Son harcamayı bul (tarih sıralı)
+                      buAyHarcamalari.sort((a, b) {
+                        DateTime tarihA =
+                            DateTime.tryParse(a['tarih'].toString()) ??
+                            DateTime.now();
+                        DateTime tarihB =
+                            DateTime.tryParse(b['tarih'].toString()) ??
+                            DateTime.now();
+                        return tarihB.compareTo(tarihA);
+                      });
+
+                      final sonHarcama = buAyHarcamalari.first;
+                      final eskiTutar =
+                          (sonHarcama['tutar'] as num?)?.toDouble() ?? 0;
+                      final isim = sonHarcama['isim'] ?? 'Harcama';
+
+                      // 0 TL ise harcamayı sil
+                      if (yeniTutar == 0) {
+                        sonHarcama['silindi'] = true;
+                      } else {
+                        // Tutarı güncelle
+                        sonHarcama['tutar'] = yeniTutar;
+                      }
+
+                      // Veriyi kaydet - setState bottom sheet kapandıktan sonra çağrılacak
+                      verileriKaydet();
+
+                      // setState'i erteleyerek çağır (bottom sheet kapandıktan sonra)
+                      Future.delayed(const Duration(milliseconds: 100), () {
+                        if (mounted) {
+                          setState(() {
+                            filtreleVeGoster();
+                          });
+                        }
+                      });
+
+                      return {
+                        'isim': isim,
+                        'eskiTutar': eskiTutar,
+                        'yeniTutar': yeniTutar,
+                        'silindi': yeniTutar == 0,
+                      };
+                    },
+                    // Sesli komut: Tarihli harcama sorgusu
+                    onGetDateRangeTotal: (DateTime baslangic, DateTime bitis) {
+                      double toplam = 0;
+                      final baslangicGun = DateTime(
+                        baslangic.year,
+                        baslangic.month,
+                        baslangic.day,
+                      );
+                      final bitisGun = DateTime(
+                        bitis.year,
+                        bitis.month,
+                        bitis.day,
+                      );
+
+                      for (var h in tumHarcamalar) {
+                        if (h['silindi'] == true) continue;
+                        DateTime? tarih = DateTime.tryParse(
+                          h['tarih'].toString(),
+                        );
+                        if (tarih != null) {
+                          final harcamaTarihi = DateTime(
+                            tarih.year,
+                            tarih.month,
+                            tarih.day,
+                          );
+                          if ((harcamaTarihi.isAtSameMomentAs(baslangicGun) ||
+                                  harcamaTarihi.isAfter(baslangicGun)) &&
+                              (harcamaTarihi.isAtSameMomentAs(bitisGun) ||
+                                  harcamaTarihi.isBefore(bitisGun))) {
+                            toplam += (h['tutar'] as num?)?.toDouble() ?? 0;
+                          }
+                        }
+                      }
+                      return toplam;
+                    },
+                    // Sesli komut: Tarihli kategori sorgusu
+                    onGetDateRangeCategoryTotal:
+                        (DateTime baslangic, DateTime bitis, String kategori) {
+                          double toplam = 0;
+                          final baslangicGun = DateTime(
+                            baslangic.year,
+                            baslangic.month,
+                            baslangic.day,
+                          );
+                          final bitisGun = DateTime(
+                            bitis.year,
+                            bitis.month,
+                            bitis.day,
+                          );
+
+                          for (var h in tumHarcamalar) {
+                            if (h['silindi'] == true) continue;
+                            if (h['kategori'] != kategori) continue;
+                            DateTime? tarih = DateTime.tryParse(
+                              h['tarih'].toString(),
+                            );
+                            if (tarih != null) {
+                              final harcamaTarihi = DateTime(
+                                tarih.year,
+                                tarih.month,
+                                tarih.day,
+                              );
+                              if ((harcamaTarihi.isAtSameMomentAs(
+                                        baslangicGun,
+                                      ) ||
+                                      harcamaTarihi.isAfter(baslangicGun)) &&
+                                  (harcamaTarihi.isAtSameMomentAs(bitisGun) ||
+                                      harcamaTarihi.isBefore(bitisGun))) {
+                                toplam += (h['tutar'] as num?)?.toDouble() ?? 0;
+                              }
+                            }
+                          }
+                          return toplam;
+                        },
+                    // Sesli komut: Aylık limitimi X lira yap
+                    onSetBudgetLimit: (double yeniLimit) async {
+                      await DatabaseHelper.butceKaydet(
+                        widget.authController.currentUser!.id,
+                        yeniLimit,
+                      );
+                      setState(() {
+                        butceLimiti = yeniLimit;
+                        filtreleVeGoster();
+                      });
+                    },
+                    // Sesli komut: Bu ay ne kadar tasarruf ettim?
+                    onGetSavings: () {
+                      // Tasarruf = Bütçe - Harcama
+                      final tasarruf = butceLimiti - toplamTutar;
+                      return {'tasarruf': tasarruf, 'butceLimiti': butceLimiti};
+                    },
+                  ),
+                );
+              },
+            ),
           ],
           IconButton(
             icon: Icon(
@@ -1142,6 +1551,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         style: TextStyle(color: Colors.white),
                       ),
                       backgroundColor: ColorConstants.koyuKirmizi,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(12),
                       duration: const Duration(seconds: 1),
                     ),
                   );
@@ -1180,7 +1594,18 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   });
                   varliklariKaydet();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Varlık geri yüklendi ♻️")),
+                    SnackBar(
+                      content: const Text(
+                        "Varlık geri yüklendi ♻️",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.green.shade700,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(12),
+                    ),
                   );
                 },
                 onPermanentDelete: (asset) {
@@ -1195,6 +1620,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         style: TextStyle(color: Colors.white),
                       ),
                       backgroundColor: ColorConstants.koyuKirmizi,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(12),
                     ),
                   );
                 },
@@ -1210,6 +1640,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         style: TextStyle(color: Colors.white),
                       ),
                       backgroundColor: ColorConstants.koyuKirmizi,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(12),
                     ),
                   );
                 },

@@ -27,7 +27,7 @@ class ErrorHandler {
     );
   }
 
-  /// Başarı mesajı gösterir (mor tema)
+  /// Başarı mesajı gösterir (yeşil tema)
   ///
   /// Örnek: ErrorHandler.showSuccessSnackBar(context, "Kayıt başarılı!");
   static void showSuccessSnackBar(BuildContext context, String message) {
@@ -37,22 +37,14 @@ class ErrorHandler {
       SnackBar(
         content: Row(
           children: [
-            Icon(
-              Icons.check_circle_outline,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
+            const Icon(Icons.check_circle_outline, color: Colors.white),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                message,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
+              child: Text(message, style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Colors.green.shade700,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 2),

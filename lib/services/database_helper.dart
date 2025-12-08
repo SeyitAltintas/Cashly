@@ -176,4 +176,25 @@ class DatabaseHelper {
       rethrow;
     }
   }
+
+  // --- SESLİ GERİ BİLDİRİM AYARI ---
+  /// Sesli geri bildirim ayarını kontrol eder
+  static bool sesliGeriBildirimAktifMi(String userId) {
+    try {
+      return _box.get('sesli_geri_bildirim_$userId', defaultValue: true);
+    } catch (e) {
+      debugPrint('Error getting voice feedback setting: $e');
+      return true; // Varsayılan olarak açık
+    }
+  }
+
+  /// Sesli geri bildirim ayarını kaydeder
+  static Future<void> sesliGeriBildirimKaydet(String userId, bool aktif) async {
+    try {
+      await _box.put('sesli_geri_bildirim_$userId', aktif);
+    } catch (e) {
+      debugPrint('Error saving voice feedback setting: $e');
+      rethrow;
+    }
+  }
 }
