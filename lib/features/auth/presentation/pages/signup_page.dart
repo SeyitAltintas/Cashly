@@ -46,7 +46,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 Center(
                   child: Image.asset('assets/image/seffaflogo.png', height: 80),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 120),
                 Text(
                   "Hesap Oluştur",
                   style: GoogleFonts.outfit(
@@ -86,7 +86,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       color: Theme.of(context).colorScheme.secondary,
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(
                           context,
@@ -94,19 +94,19 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.error,
                       ),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.error,
                       ),
@@ -135,7 +135,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       color: Theme.of(context).colorScheme.secondary,
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(
                           context,
@@ -143,7 +143,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
                       ),
@@ -152,13 +152,13 @@ class _SignUpPageState extends State<SignUpPage> {
                       color: Theme.of(context).colorScheme.error,
                     ),
                     errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.error,
                       ),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.error,
                       ),
@@ -202,7 +202,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       },
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(
                           context,
@@ -210,7 +210,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
                       ),
@@ -219,13 +219,13 @@ class _SignUpPageState extends State<SignUpPage> {
                       color: Theme.of(context).colorScheme.error,
                     ),
                     errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.error,
                       ),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.error,
                       ),
@@ -251,9 +251,6 @@ class _SignUpPageState extends State<SignUpPage> {
                             final scaffoldMessenger = ScaffoldMessenger.of(
                               context,
                             );
-                            final primaryColor = Theme.of(
-                              context,
-                            ).colorScheme.primary;
                             final errorColor = Theme.of(
                               context,
                             ).colorScheme.error;
@@ -277,8 +274,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                   SnackBar(
                                     content: const Text(
                                       "Kayıt başarılı! Hoş geldiniz! 🎉",
+                                      style: TextStyle(color: Colors.white),
                                     ),
-                                    backgroundColor: primaryColor,
+                                    backgroundColor: Colors.green,
                                   ),
                                 );
                                 if (!mounted) return;
@@ -319,7 +317,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(50),
                       ),
                     ),
                     child: _isLoading
@@ -336,7 +334,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onPrimary,
+                              color: Colors.white,
                             ),
                           ),
                   ),

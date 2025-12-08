@@ -186,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 const SizedBox(height: 60),
                 Image.asset('assets/image/seffaflogo.png', height: 100),
-                const SizedBox(height: 40),
+                const SizedBox(height: 120),
                 Text(
                   "Giriş Yap",
                   style: GoogleFonts.outfit(
@@ -213,7 +213,7 @@ class _LoginPageState extends State<LoginPage> {
                       color: Theme.of(context).colorScheme.secondary,
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(
                           context,
@@ -221,19 +221,19 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.error,
                       ),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.error,
                       ),
@@ -250,16 +250,17 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _pinController,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 24,
-                    letterSpacing: 8,
+                    fontSize: 16,
+                    letterSpacing: 4,
                   ),
                   keyboardType: TextInputType.number,
                   obscureText: !_isPinVisible,
                   maxLength: 6,
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.start,
                   validator: Validators.validatePIN,
                   decoration: InputDecoration(
-                    hintText: "PIN",
+                    labelText: "PIN",
+                    labelStyle: const TextStyle(color: Colors.white70),
                     hintStyle: TextStyle(
                       color: Theme.of(
                         context,
@@ -267,6 +268,10 @@ class _LoginPageState extends State<LoginPage> {
                       letterSpacing: 2,
                     ),
                     counterText: "",
+                    prefixIcon: Icon(
+                      Icons.lock_outline,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isPinVisible ? Icons.visibility : Icons.visibility_off,
@@ -279,24 +284,28 @@ class _LoginPageState extends State<LoginPage> {
                         });
                       },
                     ),
-                    enabledBorder: UnderlineInputBorder(
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.24),
                       ),
                     ),
-                    focusedBorder: UnderlineInputBorder(
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    errorBorder: UnderlineInputBorder(
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.error,
                       ),
                     ),
-                    focusedErrorBorder: UnderlineInputBorder(
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
                       borderSide: BorderSide(
                         color: Theme.of(context).colorScheme.error,
                       ),
@@ -365,7 +374,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(50),
                       ),
                     ),
                     child: _isLoading
@@ -649,7 +658,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onPrimary,
+                      color: Colors.white,
                     ),
                   ),
                 ),
