@@ -561,79 +561,88 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     }
 
     if (widget.onEditLastExpense != null) {
-      Map<String, dynamic>? result;
-      try {
-        result = await widget.onEditLastExpense!(yeniTutar);
-      } catch (e) {
-        // Hata durumunda (harcama bulunamadı vb.)
-        await _ttsService.harcamaBulunamadiBildirimi(userId: widget.userId);
-        if (mounted) Navigator.pop(context);
-        return;
-      }
-
-      if (result != null) {
-        final harcamaIsmi = result['isim'] ?? 'Harcama';
-        final eskiTutar = (result['eskiTutar'] as num?)?.toDouble() ?? 0;
-        final silindi = result['silindi'] == true;
-
-        if (silindi) {
-          // 0 TL ile silme durumu
-          await _ttsService.harcamaSilindiBildirimi(
-            harcamaIsmi: harcamaIsmi,
-            tutar: eskiTutar,
-            userId: widget.userId,
-          );
-
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  '$harcamaIsmi silindi',
-                  style: const TextStyle(color: Colors.white),
-                ),
-                backgroundColor: Colors.red.shade700,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                margin: const EdgeInsets.all(12),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-            Navigator.pop(context);
+      // Inline onay iste
+      _requestConfirmation(
+        baslik: 'Harcama Düzenleme',
+        mesaj:
+            'Son harcamayı ${yeniTutar.toStringAsFixed(0)} ₺ olarak güncellemek istiyor musunuz?',
+        onConfirm: () async {
+          Map<String, dynamic>? result;
+          try {
+            result = await widget.onEditLastExpense!(yeniTutar);
+          } catch (e) {
+            // Hata durumunda (harcama bulunamadı vb.)
+            debugPrint('Harcama düzenleme hatası: $e');
+            await _ttsService.harcamaBulunamadiBildirimi(userId: widget.userId);
+            if (mounted) Navigator.pop(context);
+            return;
           }
-        } else {
-          // Normal güncelleme
-          await _ttsService.harcamaDuzenlendiBildirimi(
-            harcamaIsmi: harcamaIsmi,
-            eskiTutar: eskiTutar,
-            yeniTutar: yeniTutar,
-            userId: widget.userId,
-          );
 
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  '$harcamaIsmi güncellendi: ${yeniTutar.toStringAsFixed(0)} ₺',
-                  style: const TextStyle(color: Colors.white),
-                ),
-                backgroundColor: Colors.blue.shade700,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                margin: const EdgeInsets.all(12),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-            Navigator.pop(context);
+          if (result != null) {
+            final harcamaIsmi = result['isim'] ?? 'Harcama';
+            final eskiTutar = (result['eskiTutar'] as num?)?.toDouble() ?? 0;
+            final silindi = result['silindi'] == true;
+
+            if (silindi) {
+              // 0 TL ile silme durumu
+              await _ttsService.harcamaSilindiBildirimi(
+                harcamaIsmi: harcamaIsmi,
+                tutar: eskiTutar,
+                userId: widget.userId,
+              );
+
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      '$harcamaIsmi silindi',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: Colors.red.shade700,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    margin: const EdgeInsets.all(12),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+                Navigator.pop(context);
+              }
+            } else {
+              // Normal güncelleme
+              await _ttsService.harcamaDuzenlendiBildirimi(
+                harcamaIsmi: harcamaIsmi,
+                eskiTutar: eskiTutar,
+                yeniTutar: yeniTutar,
+                userId: widget.userId,
+              );
+
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      '$harcamaIsmi güncellendi: ${yeniTutar.toStringAsFixed(0)} ₺',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: Colors.blue.shade700,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    margin: const EdgeInsets.all(12),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+                Navigator.pop(context);
+              }
+            }
+          } else {
+            await _ttsService.harcamaBulunamadiBildirimi(userId: widget.userId);
+            if (mounted) Navigator.pop(context);
           }
-        }
-      } else {
-        await _ttsService.harcamaBulunamadiBildirimi(userId: widget.userId);
-        if (mounted) Navigator.pop(context);
-      }
+        },
+      );
     } else {
       await _ttsService.speak(
         'Bu komut henüz desteklenmiyor',
