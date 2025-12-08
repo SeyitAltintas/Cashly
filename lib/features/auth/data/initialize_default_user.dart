@@ -24,6 +24,7 @@ Future<void> initializeDefaultUser() async {
         pin: '8520',
         profileImage: null,
         createdAt: DateTime.now(),
+        biometricEnabled: false,
       );
 
       // Kullanıcıyı kaydet

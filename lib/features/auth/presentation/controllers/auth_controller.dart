@@ -56,6 +56,7 @@ class AuthController extends ChangeNotifier {
         email: email,
         pin: pin,
         createdAt: DateTime.now(),
+        biometricEnabled: false,
       );
       await _authRepository.registerUser(newUser);
       _currentUser = newUser;

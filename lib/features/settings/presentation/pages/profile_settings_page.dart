@@ -285,17 +285,18 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         if (formKey.currentState!.validate()) {
-                          Navigator.pop(context);
+                          final navigator = Navigator.of(context);
                           await widget.authController.setBiometricEnabled(
                             _currentUser!.id,
                             true,
                           );
-                          setState(() {
-                            _currentUser = widget.authController.currentUser;
-                          });
+                          navigator.pop();
                           if (mounted) {
+                            setState(() {
+                              _currentUser = widget.authController.currentUser;
+                            });
                             ErrorHandler.showSuccessSnackBar(
-                              context,
+                              this.context,
                               "Biyometrik giriş aktifleştirildi",
                             );
                           }
@@ -1394,7 +1395,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   trailing: Switch(
                     value: _currentUser?.biometricEnabled ?? false,
                     onChanged: _handleBiometricToggle,
-                    activeColor: Theme.of(context).colorScheme.primary,
+                    activeTrackColor: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),

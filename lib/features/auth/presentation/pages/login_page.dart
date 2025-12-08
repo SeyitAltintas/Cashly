@@ -49,6 +49,8 @@ class _LoginPageState extends State<LoginPage> {
     if (widget.preSelectedUser != null) {
       _targetUser = widget.preSelectedUser;
       _isLoadingUser = false;
+      // Biyometrik mevcutiyetini kontrol et
+      _checkBiometricAvailability();
     } else {
       _loadLastUser();
     }
