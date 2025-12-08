@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cashly/core/theme/theme_manager.dart';
 import 'package:cashly/core/constants/color_constants.dart';
+import 'package:cashly/core/widgets/money_animation.dart';
 
 import 'services/database_helper.dart';
 import 'recycle_bin_page.dart';
@@ -649,6 +652,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
             filtreleVeGoster();
           });
           verileriKaydet();
+
+          // Yeni harcama eklendiyse para animasyonu göster
+          if (duzenlenecekHarcama == null) {
+            if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
+              MoneyAnimationOverlay.show(context);
+            }
+          }
         },
       ),
     );
@@ -1124,6 +1134,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         filtreleVeGoster();
                       });
                       verileriKaydet();
+
+                      // Para animasyonu göster 💰
+                      if (context
+                          .read<ThemeManager>()
+                          .isMoneyAnimationEnabled) {
+                        MoneyAnimationOverlay.show(context);
+                      }
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
