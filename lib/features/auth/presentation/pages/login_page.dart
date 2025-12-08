@@ -504,57 +504,104 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 60),
 
-              // PIN Girişi
-              SizedBox(
-                width: 300,
-                child: TextField(
-                  controller: _pinController,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 24,
-                    letterSpacing: 8,
+              // PIN Girişi ve Biyometrik Buton - Yan yana (esnek genişlik)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // PIN Alanı - Expanded ile esnek genişlik
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.3),
+                          width: 1.5,
+                        ),
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: TextField(
+                        controller: _pinController,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 22,
+                          letterSpacing: 6,
+                        ),
+                        keyboardType: TextInputType.number,
+                        obscureText: !_isPinVisible,
+                        maxLength: 6,
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                          hintText: "● ● ● ●",
+                          hintStyle: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.2),
+                            letterSpacing: 4,
+                            fontSize: 16,
+                          ),
+                          counterText: "",
+                          border: InputBorder.none,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPinVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.5),
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPinVisible = !_isPinVisible;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  keyboardType: TextInputType.number,
-                  obscureText: !_isPinVisible,
-                  maxLength: 6,
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    hintText: "PIN",
-                    hintStyle: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.24),
-                      letterSpacing: 2,
-                    ),
-                    counterText: "",
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPinVisible ? Icons.visibility : Icons.visibility_off,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
-                        size: 20,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPinVisible = !_isPinVisible;
-                        });
-                      },
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.24),
-                      ),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
+
+                  // Biyometrik Buton - PIN'in sağında (sabit genişlik)
+                  if (_targetUser?.biometricEnabled == true &&
+                      _isBiometricAvailable)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 12),
+                      child: Tooltip(
+                        message: "Parmak izi ile giriş",
+                        child: InkWell(
+                          onTap: _isLoading ? null : _handleBiometricLogin,
+                          borderRadius: BorderRadius.circular(25),
+                          child: Container(
+                            width: 54,
+                            height: 54,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              border: Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.3),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.fingerprint,
+                              size: 30,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.3),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                ],
               ),
               const SizedBox(height: 40),
 
@@ -594,7 +641,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                     ),
                   ),
                   child: Text(
@@ -607,49 +654,47 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              // Biyometrik Giriş Butonu
-              if (_targetUser?.biometricEnabled == true &&
-                  _isBiometricAvailable)
-                Column(
+              // "veya" ayırıcısı - sadece alternatif giriş seçenekleri varsa göster
+              if (_isBiometricAvailable || true) // Google her zaman görünür
+                Row(
                   children: [
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: OutlinedButton.icon(
-                        onPressed: _isLoading ? null : _handleBiometricLogin,
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        icon: Icon(
-                          Icons.fingerprint,
-                          size: 28,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        label: Text(
-                          "Parmak İzi ile Giriş",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                    Expanded(
+                      child: Divider(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        "veya",
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.5),
+                          fontSize: 14,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    Expanded(
+                      child: Divider(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.2),
+                      ),
+                    ),
                   ],
                 ),
+              const SizedBox(height: 24),
 
-              // Google ile Giriş (UI Only)
+              // Alternatif giriş - Google butonu
               SizedBox(
                 width: double.infinity,
                 height: 56,
-                child: OutlinedButton.icon(
+                child: OutlinedButton(
                   onPressed: () {
                     // Backend bağlantısı yok
                   },
@@ -657,27 +702,38 @@ class _LoginPageState extends State<LoginPage> {
                     side: BorderSide(
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.24),
+                      ).colorScheme.onSurface.withValues(alpha: 0.3),
+                      width: 1.5,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(50),
                     ),
                   ),
-                  icon: Icon(
-                    Icons.g_mobiledata,
-                    size: 32,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  label: Text(
-                    "Google ile Giriş Yap",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                  child: Row(
+                    children: [
+                      Text(
+                        "G",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          "Google ile Giriş Yap",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
               // Başka Hesap / Şifremi Unuttum
               Row(
