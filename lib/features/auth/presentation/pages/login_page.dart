@@ -785,6 +785,7 @@ class _LoginPageState extends State<LoginPage> {
   void _showForgotPasswordSheet(BuildContext context) {
     final emailController = TextEditingController();
     final formKey = GlobalKey<FormState>();
+    String? errorMessage;
 
     showModalBottomSheet(
       context: context,
@@ -794,178 +795,218 @@ class _LoginPageState extends State<LoginPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (sheetContext) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
-            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
-          ),
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 20),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        sheetContext,
-                      ).colorScheme.onSurface.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(2),
+        return StatefulBuilder(
+          builder: (builderContext, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
+              ),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            sheetContext,
+                          ).colorScheme.onSurface.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Text(
-                  "Şifremi Unuttum",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(sheetContext).colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "Kayıtlı e-posta adresinizi girin",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(
-                      sheetContext,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  style: TextStyle(
-                    color: Theme.of(sheetContext).colorScheme.onSurface,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: "E-posta",
-                    labelStyle: TextStyle(
-                      color: Theme.of(
-                        sheetContext,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    Text(
+                      "Şifremi Unuttum",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(sheetContext).colorScheme.onSurface,
+                      ),
                     ),
-                    prefixIcon: Icon(
-                      Icons.email_outlined,
-                      color: Theme.of(sheetContext).colorScheme.secondary,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide(
+                    const SizedBox(height: 8),
+                    Text(
+                      "Kayıtlı e-posta adresinizi girin",
+                      style: TextStyle(
+                        fontSize: 14,
                         color: Theme.of(
                           sheetContext,
-                        ).colorScheme.onSurface.withValues(alpha: 0.24),
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide(
-                        color: Theme.of(sheetContext).colorScheme.primary,
-                      ),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide(
-                        color: Theme.of(sheetContext).colorScheme.error,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide(
-                        color: Theme.of(sheetContext).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Lütfen e-posta adresinizi girin';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Geçerli bir e-posta adresi girin';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (!formKey.currentState!.validate()) return;
-
-                      final email = emailController.text.trim();
-                      final user = await widget.authController.getUserByEmail(
-                        email,
-                      );
-
-                      if (!context.mounted) return;
-
-                      if (user == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text("Kullanıcı bulunamadı"),
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.error,
-                          ),
-                        );
-                        return;
-                      }
-
-                      if (user.securityQuestion == null ||
-                          user.securityAnswer == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text(
-                              "Bu hesap için güvenlik sorusu tanımlanmamış",
-                            ),
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.error,
-                          ),
-                        );
-                        return;
-                      }
-
-                      Navigator.pop(sheetContext);
-                      if (context.mounted) {
-                        _showSecurityQuestionSheet(
-                          context,
-                          email,
-                          user.securityQuestion!,
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(
-                        sheetContext,
-                      ).colorScheme.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                    ),
-                    child: const Text(
-                      "Devam",
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Theme.of(sheetContext).colorScheme.onSurface,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: "E-posta",
+                        labelStyle: TextStyle(
+                          color: Theme.of(
+                            sheetContext,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        prefixIcon: Icon(
+                          Icons.email_outlined,
+                          color: Theme.of(sheetContext).colorScheme.secondary,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(
+                              sheetContext,
+                            ).colorScheme.onSurface.withValues(alpha: 0.24),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(sheetContext).colorScheme.primary,
+                          ),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(sheetContext).colorScheme.error,
+                          ),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(sheetContext).colorScheme.error,
+                          ),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Lütfen e-posta adresinizi girin';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Geçerli bir e-posta adresi girin';
+                        }
+                        return null;
+                      },
+                      onChanged: (_) {
+                        // Kullanıcı yazmaya başladığında hata mesajını temizle
+                        if (errorMessage != null) {
+                          setSheetState(() {
+                            errorMessage = null;
+                          });
+                        }
+                      },
+                    ),
+                    // Inline hata mesajı
+                    if (errorMessage != null) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            builderContext,
+                          ).colorScheme.error.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(
+                              builderContext,
+                            ).colorScheme.error.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: Theme.of(builderContext).colorScheme.error,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                errorMessage!,
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    builderContext,
+                                  ).colorScheme.error,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (!formKey.currentState!.validate()) return;
+
+                          final email = emailController.text.trim();
+                          final user = await widget.authController
+                              .getUserByEmail(email);
+
+                          if (!context.mounted) return;
+
+                          if (user == null) {
+                            setSheetState(() {
+                              errorMessage =
+                                  "Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı";
+                            });
+                            return;
+                          }
+
+                          if (user.securityQuestion == null ||
+                              user.securityAnswer == null) {
+                            setSheetState(() {
+                              errorMessage =
+                                  "Bu hesap için güvenlik sorusu tanımlanmamış";
+                            });
+                            return;
+                          }
+
+                          Navigator.pop(sheetContext);
+                          if (context.mounted) {
+                            _showSecurityQuestionSheet(
+                              context,
+                              email,
+                              user.securityQuestion!,
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            sheetContext,
+                          ).colorScheme.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                        ),
+                        child: const Text(
+                          "Devam",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 12),
+                  ],
                 ),
-                const SizedBox(height: 12),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
