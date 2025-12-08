@@ -398,23 +398,42 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Register Link
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            SignUpPage(authController: widget.authController),
+                // Kayıt Ol ve Şifremi Unuttum butonları
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Register Link (Sol)
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SignUpPage(
+                              authController: widget.authController,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "Hesabınız yok mu? Kayıt olun",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
                       ),
-                    );
-                  },
-                  child: Text(
-                    "Hesabınız yok mu? Kayıt Ol",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
                     ),
-                  ),
+                    // Şifremi Unuttum (Sağ)
+                    TextButton(
+                      onPressed: () => _showForgotPasswordSheet(context),
+                      child: Text(
+                        "Şifremi Unuttum",
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

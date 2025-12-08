@@ -59,7 +59,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 Center(
                   child: Image.asset('assets/image/seffaflogo.png', height: 80),
                 ),
-                const SizedBox(height: 120),
+                const SizedBox(height: 100),
                 Text(
                   "Hesap Oluştur",
                   style: GoogleFonts.outfit(
