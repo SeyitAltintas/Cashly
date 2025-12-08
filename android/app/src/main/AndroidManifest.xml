@@ -2,6 +2,8 @@
     <!-- Sesli harcama girişi için mikrofon izni -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Biyometrik giriş için izin -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     
     <application
         android:label="Cashly"

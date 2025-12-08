@@ -6,6 +6,7 @@ class UserEntity {
   final String? profileImage;
   final DateTime createdAt;
   final DateTime? lastLoginAt;
+  final bool biometricEnabled;
 
   UserEntity({
     required this.id,
@@ -15,5 +16,6 @@ class UserEntity {
     this.profileImage,
     required this.createdAt,
     this.lastLoginAt,
+    this.biometricEnabled = false,
   });
 }

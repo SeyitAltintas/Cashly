@@ -116,4 +116,42 @@ class AuthController extends ChangeNotifier {
   Future<String?> getLastUserId() {
     return _authRepository.getLastUserId();
   }
+
+  /// Biyometrik ile giriş yap
+  Future<bool> loginWithBiometric(String userId) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      final user = await _authRepository.loginWithBiometric(userId);
+      if (user != null) {
+        _currentUser = user;
+        return true;
+      } else {
+        _error = "Biyometrik giriş başarısız.";
+        return false;
+      }
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Biyometrik tercihini güncelle
+  Future<void> setBiometricEnabled(String userId, bool enabled) async {
+    try {
+      await _authRepository.updateBiometricPreference(userId, enabled);
+      // Mevcut kullanıcıyı güncelle
+      if (_currentUser != null && _currentUser!.id == userId) {
+        _currentUser = await _authRepository.getCurrentUser();
+        notifyListeners();
+      }
+    } catch (e) {
+      _error = e.toString();
+    }
+  }
+
+  /// Kullanıcının biyometrik tercihi aktif mi?
+  bool get isBiometricEnabled => _currentUser?.biometricEnabled ?? false;
 }

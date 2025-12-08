@@ -8,6 +8,7 @@ import 'signup_page.dart';
 import 'user_list_page.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
+import '../../../../services/biometric_service.dart';
 
 class LoginPage extends StatefulWidget {
   final AuthController authController;
@@ -27,11 +28,13 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _pinController = TextEditingController();
+  final BiometricService _biometricService = BiometricService();
   bool _isPinVisible = false;
   UserEntity? _targetUser;
   bool _isLoadingUser = true;
   bool _isGenericLogin = false;
   bool _isLoading = false;
+  bool _isBiometricAvailable = false;
 
   @override
   void dispose() {
@@ -74,6 +77,76 @@ class _LoginPageState extends State<LoginPage> {
         }
         _isLoadingUser = false;
       });
+
+      // Biyometrik mevcutiyetini kontrol et
+      await _checkBiometricAvailability();
+    }
+  }
+
+  Future<void> _checkBiometricAvailability() async {
+    final isAvailable = await _biometricService.isBiometricAvailable();
+    if (mounted) {
+      setState(() {
+        _isBiometricAvailable = isAvailable;
+      });
+    }
+  }
+
+  Future<void> _handleBiometricLogin() async {
+    if (_targetUser == null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Biyometrik doğrulama yap
+      final authenticated = await _biometricService.authenticate(
+        reason: 'Giriş yapmak için kimliğinizi doğrulayın',
+      );
+
+      if (!mounted) return;
+
+      if (authenticated) {
+        // Biyometrik başarılı, giriş yap
+        final success = await widget.authController.loginWithBiometric(
+          _targetUser!.id,
+        );
+
+        if (!mounted) return;
+
+        if (success) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => AnaSayfa(authController: widget.authController),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                widget.authController.error ?? "Biyometrik giriş başarısız",
+              ),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Biyometrik doğrulama başarısız: $e"),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -533,6 +606,42 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 20),
+
+              // Biyometrik Giriş Butonu
+              if (_targetUser?.biometricEnabled == true &&
+                  _isBiometricAvailable)
+                Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: OutlinedButton.icon(
+                        onPressed: _isLoading ? null : _handleBiometricLogin,
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: Icon(
+                          Icons.fingerprint,
+                          size: 28,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        label: Text(
+                          "Parmak İzi ile Giriş",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
 
               // Google ile Giriş (UI Only)
               SizedBox(

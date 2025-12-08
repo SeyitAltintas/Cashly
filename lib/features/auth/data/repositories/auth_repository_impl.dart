@@ -66,7 +66,7 @@ class AuthRepositoryImpl implements AuthRepository {
     if (userData != null) {
       final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
       if (user.pin == pin) {
-        // Update lastLoginAt
+        // Update lastLoginAt while preserving biometricEnabled
         final updatedUser = UserModel(
           id: user.id,
           name: user.name,
@@ -75,6 +75,7 @@ class AuthRepositoryImpl implements AuthRepository {
           profileImage: user.profileImage,
           createdAt: user.createdAt,
           lastLoginAt: DateTime.now(),
+          biometricEnabled: user.biometricEnabled,
         );
         await box.put(id, updatedUser.toMap());
         await setCurrentUser(user.id);
@@ -137,5 +138,53 @@ class AuthRepositoryImpl implements AuthRepository {
     final sessionBox = await _getSessionBox();
     await sessionBox.put('last_user_id', id);
     await sessionBox.flush();
+  }
+
+  @override
+  Future<UserEntity?> loginWithBiometric(String userId) async {
+    final box = await _getUsersBox();
+    final userData = box.get(userId);
+
+    if (userData != null) {
+      final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
+      if (user.biometricEnabled) {
+        // Biyometrik aktifse, PIN olmadan giriş yap
+        final updatedUser = UserModel(
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          pin: user.pin,
+          profileImage: user.profileImage,
+          createdAt: user.createdAt,
+          lastLoginAt: DateTime.now(),
+          biometricEnabled: user.biometricEnabled,
+        );
+        await box.put(userId, updatedUser.toMap());
+        await setCurrentUser(user.id);
+        return updatedUser;
+      }
+    }
+    return null;
+  }
+
+  @override
+  Future<void> updateBiometricPreference(String userId, bool enabled) async {
+    final box = await _getUsersBox();
+    final userData = box.get(userId);
+
+    if (userData != null) {
+      final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
+      final updatedUser = UserModel(
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        pin: user.pin,
+        profileImage: user.profileImage,
+        createdAt: user.createdAt,
+        lastLoginAt: user.lastLoginAt,
+        biometricEnabled: enabled,
+      );
+      await box.put(userId, updatedUser.toMap());
+    }
   }
 }
