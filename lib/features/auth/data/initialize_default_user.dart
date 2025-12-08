@@ -21,10 +21,12 @@ Future<void> initializeDefaultUser() async {
         id: defaultEmail, // E-posta adresini ID olarak kullan
         name: 'Seyit Altıntaş',
         email: defaultEmail,
-        pin: '8520',
+        pin: '2580',
         profileImage: null,
         createdAt: DateTime.now(),
         biometricEnabled: false,
+        securityQuestion: 'İlk evcil hayvanının adı nedir?',
+        securityAnswer: 'pamuk', // Cevap normalize edilmiş halde (küçük harf)
       );
 
       // Kullanıcıyı kaydet

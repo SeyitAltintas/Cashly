@@ -19,14 +19,27 @@ class _SignUpPageState extends State<SignUpPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _pinController = TextEditingController();
+  final _securityAnswerController = TextEditingController();
   bool _isPinVisible = false;
   bool _isLoading = false;
+  String? _selectedSecurityQuestion;
+
+  // Önceden tanımlı güvenlik soruları
+  final List<String> _securityQuestions = [
+    'İlk evcil hayvanının adı nedir?',
+    'İlkokul öğretmeninin adı nedir?',
+    'Doğduğun şehir neresi?',
+    'En sevdiğin kitap hangisi?',
+    'Annenin kızlık soyadı nedir?',
+    'Çocukluk arkadaşının adı nedir?',
+  ];
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _pinController.dispose();
+    _securityAnswerController.dispose();
     super.dispose();
   }
 
@@ -232,6 +245,130 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 20),
+
+                // Güvenlik Sorusu Dropdown
+                DropdownButtonFormField<String>(
+                  initialValue: _selectedSecurityQuestion,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  dropdownColor: Theme.of(context).colorScheme.surface,
+                  decoration: InputDecoration(
+                    labelText: "Güvenlik Sorusu",
+                    labelStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.security,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.24),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
+                  items: _securityQuestions.map((question) {
+                    return DropdownMenuItem<String>(
+                      value: question,
+                      child: Text(
+                        question,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 14,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedSecurityQuestion = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Lütfen bir güvenlik sorusu seçin';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Güvenlik Sorusu Cevabı
+                TextFormField(
+                  controller: _securityAnswerController,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: "Güvenlik Sorusu Cevabı",
+                    labelStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.question_answer_outlined,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.24),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Lütfen güvenlik sorusunun cevabını girin';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 40),
 
                 // Kayıt Ol Butonu
@@ -265,6 +402,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                     _nameController.text.trim(),
                                     _emailController.text.trim(),
                                     _pinController.text,
+                                    securityQuestion: _selectedSecurityQuestion,
+                                    securityAnswer:
+                                        _securityAnswerController.text,
                                   );
 
                               if (!mounted) return;

@@ -762,73 +762,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.surface,
-                          title: Text(
-                            "Şifremi Unuttum",
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                          content: TextField(
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: "E-posta adresinizi girin",
-                              hintStyle: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.54),
-                              ),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.24),
-                                ),
-                              ),
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(
-                                "İptal",
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.7),
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      "Sıfırlama bağlantısı gönderildi (Simülasyon)",
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Text(
-                                "Gönder",
-                                style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.secondary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                    onPressed: () => _showForgotPasswordSheet(context),
                     child: Text(
                       "Şifremi Unuttum",
                       style: TextStyle(
@@ -844,6 +778,750 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+    );
+  }
+
+  /// Şifremi Unuttum - Ana BottomSheet (E-posta girişi)
+  void _showForgotPasswordSheet(BuildContext context) {
+    final emailController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 24,
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
+          ),
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        sheetContext,
+                      ).colorScheme.onSurface.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Text(
+                  "Şifremi Unuttum",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(sheetContext).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Kayıtlı e-posta adresinizi girin",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(
+                      sheetContext,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  style: TextStyle(
+                    color: Theme.of(sheetContext).colorScheme.onSurface,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: "E-posta",
+                    labelStyle: TextStyle(
+                      color: Theme.of(
+                        sheetContext,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      color: Theme.of(sheetContext).colorScheme.secondary,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(
+                          sheetContext,
+                        ).colorScheme.onSurface.withValues(alpha: 0.24),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(sheetContext).colorScheme.primary,
+                      ),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(sheetContext).colorScheme.error,
+                      ),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(sheetContext).colorScheme.error,
+                      ),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Lütfen e-posta adresinizi girin';
+                    }
+                    if (!value.contains('@')) {
+                      return 'Geçerli bir e-posta adresi girin';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (!formKey.currentState!.validate()) return;
+
+                      final email = emailController.text.trim();
+                      final user = await widget.authController.getUserByEmail(
+                        email,
+                      );
+
+                      if (!context.mounted) return;
+
+                      if (user == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text("Kullanıcı bulunamadı"),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.error,
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (user.securityQuestion == null ||
+                          user.securityAnswer == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Bu hesap için güvenlik sorusu tanımlanmamış",
+                            ),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.error,
+                          ),
+                        );
+                        return;
+                      }
+
+                      Navigator.pop(sheetContext);
+                      if (context.mounted) {
+                        _showSecurityQuestionSheet(
+                          context,
+                          email,
+                          user.securityQuestion!,
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(
+                        sheetContext,
+                      ).colorScheme.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                    ),
+                    child: const Text(
+                      "Devam",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Şifremi Unuttum - Güvenlik Sorusu BottomSheet
+  void _showSecurityQuestionSheet(
+    BuildContext context,
+    String email,
+    String securityQuestion,
+  ) {
+    final answerController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    String? errorMessage;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (builderContext, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
+              ),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            sheetContext,
+                          ).colorScheme.onSurface.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      "Güvenlik Sorusu",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(sheetContext).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          sheetContext,
+                        ).colorScheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.help_outline,
+                            color: Theme.of(sheetContext).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              securityQuestion,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(
+                                  sheetContext,
+                                ).colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      controller: answerController,
+                      style: TextStyle(
+                        color: Theme.of(sheetContext).colorScheme.onSurface,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: "Cevabınız",
+                        labelStyle: TextStyle(
+                          color: Theme.of(
+                            sheetContext,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        prefixIcon: Icon(
+                          Icons.question_answer_outlined,
+                          color: Theme.of(sheetContext).colorScheme.secondary,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(
+                              sheetContext,
+                            ).colorScheme.onSurface.withValues(alpha: 0.24),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(sheetContext).colorScheme.primary,
+                          ),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(sheetContext).colorScheme.error,
+                          ),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(sheetContext).colorScheme.error,
+                          ),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Lütfen cevabınızı girin';
+                        }
+                        return null;
+                      },
+                    ),
+                    // Hata mesajı
+                    if (errorMessage != null) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            builderContext,
+                          ).colorScheme.error.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(
+                              builderContext,
+                            ).colorScheme.error.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: Theme.of(builderContext).colorScheme.error,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                errorMessage!,
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    builderContext,
+                                  ).colorScheme.error,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (!formKey.currentState!.validate()) return;
+
+                          final answer = answerController.text;
+                          final user = await widget.authController
+                              .getUserByEmail(email);
+
+                          if (!context.mounted) return;
+
+                          if (user == null) {
+                            setSheetState(() {
+                              errorMessage = "Kullanıcı bulunamadı";
+                            });
+                            return;
+                          }
+
+                          // Cevabı normalize et ve karşılaştır
+                          final normalizedAnswer = answer.trim().toLowerCase();
+                          if (user.securityAnswer != normalizedAnswer) {
+                            setSheetState(() {
+                              errorMessage =
+                                  "Yanlış cevap! Lütfen tekrar deneyin.";
+                            });
+                            return;
+                          }
+
+                          Navigator.pop(sheetContext);
+                          if (context.mounted) {
+                            _showNewPinSheet(context, email);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            sheetContext,
+                          ).colorScheme.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                        ),
+                        child: const Text(
+                          "Doğrula",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// Şifremi Unuttum - Yeni PIN BottomSheet
+  void _showNewPinSheet(BuildContext context, String email) {
+    final pinController = TextEditingController();
+    final confirmPinController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isPinVisible = false;
+    String? errorMessage;
+    String? successMessage;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (builderContext, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
+              ),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            builderContext,
+                          ).colorScheme.onSurface.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      "Yeni PIN Belirle",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(builderContext).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "4-6 haneli yeni PIN kodunuzu girin",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(
+                          builderContext,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      controller: pinController,
+                      keyboardType: TextInputType.number,
+                      obscureText: !isPinVisible,
+                      maxLength: 6,
+                      style: TextStyle(
+                        color: Theme.of(builderContext).colorScheme.onSurface,
+                        letterSpacing: 4,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: "Yeni PIN",
+                        labelStyle: TextStyle(
+                          color: Theme.of(
+                            builderContext,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        counterText: "",
+                        prefixIcon: Icon(
+                          Icons.lock_outline,
+                          color: Theme.of(builderContext).colorScheme.secondary,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            isPinVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Theme.of(
+                              builderContext,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                          onPressed: () {
+                            setSheetState(() {
+                              isPinVisible = !isPinVisible;
+                            });
+                          },
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(
+                              builderContext,
+                            ).colorScheme.onSurface.withValues(alpha: 0.24),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(builderContext).colorScheme.primary,
+                          ),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(builderContext).colorScheme.error,
+                          ),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(builderContext).colorScheme.error,
+                          ),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Lütfen yeni PIN girin';
+                        }
+                        if (value.length < 4) {
+                          return 'PIN en az 4 haneli olmalı';
+                        }
+                        if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                          return 'PIN sadece rakamlardan oluşmalı';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    // PIN Onay Alanı
+                    TextFormField(
+                      controller: confirmPinController,
+                      keyboardType: TextInputType.number,
+                      obscureText: !isPinVisible,
+                      maxLength: 6,
+                      style: TextStyle(
+                        color: Theme.of(builderContext).colorScheme.onSurface,
+                        letterSpacing: 4,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: "PIN Tekrar",
+                        labelStyle: TextStyle(
+                          color: Theme.of(
+                            builderContext,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        counterText: "",
+                        prefixIcon: Icon(
+                          Icons.lock_reset,
+                          color: Theme.of(builderContext).colorScheme.secondary,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(
+                              builderContext,
+                            ).colorScheme.onSurface.withValues(alpha: 0.24),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(builderContext).colorScheme.primary,
+                          ),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(builderContext).colorScheme.error,
+                          ),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide(
+                            color: Theme.of(builderContext).colorScheme.error,
+                          ),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Lütfen PIN\'i tekrar girin';
+                        }
+                        if (value != pinController.text) {
+                          return 'PIN\'ler eşleşmiyor';
+                        }
+                        return null;
+                      },
+                    ),
+                    // Hata veya Başarı Mesajı
+                    if (errorMessage != null || successMessage != null) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: successMessage != null
+                              ? Colors.green.withValues(alpha: 0.1)
+                              : Theme.of(
+                                  builderContext,
+                                ).colorScheme.error.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: successMessage != null
+                                ? Colors.green.withValues(alpha: 0.3)
+                                : Theme.of(
+                                    builderContext,
+                                  ).colorScheme.error.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              successMessage != null
+                                  ? Icons.check_circle_outline
+                                  : Icons.error_outline,
+                              color: successMessage != null
+                                  ? Colors.green
+                                  : Theme.of(builderContext).colorScheme.error,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                successMessage ?? errorMessage!,
+                                style: TextStyle(
+                                  color: successMessage != null
+                                      ? Colors.green
+                                      : Theme.of(
+                                          builderContext,
+                                        ).colorScheme.error,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (!formKey.currentState!.validate()) return;
+
+                          final newPin = pinController.text;
+
+                          // Kullanıcıyı bul ve PIN'i güncelle
+                          final user = await widget.authController
+                              .getUserByEmail(email);
+                          if (user != null) {
+                            await widget.authController.updateUserPin(
+                              user.id,
+                              newPin,
+                            );
+
+                            setSheetState(() {
+                              successMessage = "PIN başarıyla güncellendi! ✓";
+                              errorMessage = null;
+                            });
+
+                            // 1.5 saniye bekle ve kapat
+                            await Future.delayed(
+                              const Duration(milliseconds: 1500),
+                            );
+                            if (!context.mounted) return;
+                            Navigator.pop(sheetContext);
+                          } else {
+                            setSheetState(() {
+                              errorMessage = "Kullanıcı bulunamadı";
+                            });
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            builderContext,
+                          ).colorScheme.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                        ),
+                        child: const Text(
+                          "PIN'i Güncelle",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

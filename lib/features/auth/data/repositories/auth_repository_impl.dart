@@ -66,7 +66,7 @@ class AuthRepositoryImpl implements AuthRepository {
     if (userData != null) {
       final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
       if (user.pin == pin) {
-        // Update lastLoginAt while preserving biometricEnabled
+        // Update lastLoginAt while preserving all user data
         final updatedUser = UserModel(
           id: user.id,
           name: user.name,
@@ -76,6 +76,8 @@ class AuthRepositoryImpl implements AuthRepository {
           createdAt: user.createdAt,
           lastLoginAt: DateTime.now(),
           biometricEnabled: user.biometricEnabled,
+          securityQuestion: user.securityQuestion,
+          securityAnswer: user.securityAnswer,
         );
         await box.put(id, updatedUser.toMap());
         await setCurrentUser(user.id);
@@ -158,6 +160,8 @@ class AuthRepositoryImpl implements AuthRepository {
           createdAt: user.createdAt,
           lastLoginAt: DateTime.now(),
           biometricEnabled: user.biometricEnabled,
+          securityQuestion: user.securityQuestion,
+          securityAnswer: user.securityAnswer,
         );
         await box.put(userId, updatedUser.toMap());
         await setCurrentUser(user.id);
@@ -183,6 +187,46 @@ class AuthRepositoryImpl implements AuthRepository {
         createdAt: user.createdAt,
         lastLoginAt: user.lastLoginAt,
         biometricEnabled: enabled,
+        securityQuestion: user.securityQuestion,
+        securityAnswer: user.securityAnswer,
+      );
+      await box.put(userId, updatedUser.toMap());
+    }
+  }
+
+  @override
+  Future<UserEntity?> getUserByEmail(String email) async {
+    final box = await _getUsersBox();
+    for (var key in box.keys) {
+      final userData = box.get(key);
+      if (userData != null) {
+        final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
+        if (user.email.toLowerCase() == email.toLowerCase()) {
+          return user;
+        }
+      }
+    }
+    return null;
+  }
+
+  @override
+  Future<void> updateUserPin(String userId, String newPin) async {
+    final box = await _getUsersBox();
+    final userData = box.get(userId);
+
+    if (userData != null) {
+      final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
+      final updatedUser = UserModel(
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        pin: newPin,
+        profileImage: user.profileImage,
+        createdAt: user.createdAt,
+        lastLoginAt: user.lastLoginAt,
+        biometricEnabled: user.biometricEnabled,
+        securityQuestion: user.securityQuestion,
+        securityAnswer: user.securityAnswer,
       );
       await box.put(userId, updatedUser.toMap());
     }

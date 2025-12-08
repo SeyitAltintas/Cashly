@@ -46,7 +46,13 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<bool> register(String name, String email, String pin) async {
+  Future<bool> register(
+    String name,
+    String email,
+    String pin, {
+    String? securityQuestion,
+    String? securityAnswer,
+  }) async {
     _setLoading(true);
     _error = null;
     try {
@@ -57,6 +63,8 @@ class AuthController extends ChangeNotifier {
         pin: pin,
         createdAt: DateTime.now(),
         biometricEnabled: false,
+        securityQuestion: securityQuestion,
+        securityAnswer: securityAnswer?.trim().toLowerCase(),
       );
       await _authRepository.registerUser(newUser);
       _currentUser = newUser;
@@ -155,4 +163,52 @@ class AuthController extends ChangeNotifier {
 
   /// Kullanıcının biyometrik tercihi aktif mi?
   bool get isBiometricEnabled => _currentUser?.biometricEnabled ?? false;
+
+  /// E-posta ile kullanıcı bul (Şifremi Unuttum için)
+  Future<UserEntity?> getUserByEmail(String email) async {
+    return await _authRepository.getUserByEmail(email);
+  }
+
+  /// Güvenlik sorusu cevabını doğrula ve PIN'i sıfırla
+  Future<bool> verifySecurityAnswerAndResetPin(
+    String email,
+    String answer,
+    String newPin,
+  ) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      final user = await _authRepository.getUserByEmail(email);
+      if (user == null) {
+        _error = "Kullanıcı bulunamadı";
+        return false;
+      }
+
+      if (user.securityAnswer == null) {
+        _error = "Bu kullanıcı için güvenlik sorusu tanımlanmamış";
+        return false;
+      }
+
+      // Cevabı normalize et ve karşılaştır
+      final normalizedAnswer = answer.trim().toLowerCase();
+      if (user.securityAnswer != normalizedAnswer) {
+        _error = "Yanlış cevap";
+        return false;
+      }
+
+      // PIN'i güncelle
+      await _authRepository.updateUserPin(user.id, newPin);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Kullanıcının PIN'ini güncelle (Şifremi Unuttum için)
+  Future<void> updateUserPin(String userId, String newPin) async {
+    await _authRepository.updateUserPin(userId, newPin);
+  }
 }
