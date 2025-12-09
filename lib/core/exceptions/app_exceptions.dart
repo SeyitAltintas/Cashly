@@ -2,6 +2,7 @@
 ///
 /// Bu sınıflar uygulamadaki farklı hata türlerini kategorize etmek ve
 /// kullanıcıya anlamlı hata mesajları göstermek için kullanılır.
+library;
 
 /// Temel exception sınıfı - tüm uygulama exception'ları bundan türer
 class AppException implements Exception {
