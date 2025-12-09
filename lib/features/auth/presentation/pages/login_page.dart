@@ -35,6 +35,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isGenericLogin = false;
   bool _isLoading = false;
   bool _isBiometricAvailable = false;
+  String? _pinErrorMessage;
 
   @override
   void dispose() {
@@ -631,6 +632,30 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                 ],
               ),
+
+              // PIN Hata Mesajı (inline)
+              if (_pinErrorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12, left: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: Theme.of(context).colorScheme.error,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _pinErrorMessage!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               const SizedBox(height: 40),
 
               // Giriş Butonu
@@ -639,7 +664,17 @@ class _LoginPageState extends State<LoginPage> {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () async {
-                    if (_pinController.text.isEmpty) return;
+                    // Önceki hata mesajını temizle
+                    setState(() {
+                      _pinErrorMessage = null;
+                    });
+
+                    if (_pinController.text.isEmpty) {
+                      setState(() {
+                        _pinErrorMessage = "Lütfen PIN giriniz";
+                      });
+                      return;
+                    }
 
                     final success = await widget.authController.login(
                       _targetUser!.id,
@@ -656,14 +691,11 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       );
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            widget.authController.error ?? "Hatalı PIN",
-                          ),
-                          backgroundColor: Theme.of(context).colorScheme.error,
-                        ),
-                      );
+                      setState(() {
+                        _pinErrorMessage =
+                            widget.authController.error ??
+                            "Hatalı PIN veya kullanıcı bulunamadı";
+                      });
                     }
                   },
                   style: ElevatedButton.styleFrom(

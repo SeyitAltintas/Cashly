@@ -1,7 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/exceptions/app_exceptions.dart';
 
 /// Error handling ve kullanıcı feedback yardımcı fonksiyonları
 class ErrorHandler {
+  /// Özel AppException'ları işler ve uygun hata mesajını gösterir
+  ///
+  /// Örnek: ErrorHandler.handleAppException(context, authException);
+  static void handleAppException(BuildContext context, AppException exception) {
+    // Hatayı logla
+    logError('AppException', exception, exception.stackTrace);
+
+    // Exception tipine göre mesaj göster
+    if (exception is AuthException) {
+      showErrorSnackBar(context, exception.message);
+    } else if (exception is DatabaseException) {
+      showErrorSnackBar(context, exception.message);
+    } else if (exception is ValidationException) {
+      showWarningSnackBar(context, exception.message);
+    } else if (exception is NetworkException) {
+      showErrorSnackBar(context, exception.message);
+    } else {
+      showErrorSnackBar(context, exception.message);
+    }
+  }
+
   /// Hata mesajı gösterir (kırmızı tema)
   ///
   /// Örnek: ErrorHandler.showErrorSnackBar(context, "Bir hata oluştu");
