@@ -10,7 +10,6 @@ import 'profile_page.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/assets/presentation/pages/assets_page.dart';
 import 'features/assets/data/models/asset_model.dart';
-import 'features/assets/presentation/widgets/add_asset_sheet.dart';
 import 'features/analysis/presentation/pages/analysis_page.dart';
 import 'features/tools/presentation/pages/tools_page.dart';
 import 'features/income/presentation/pages/income_page.dart';
@@ -1747,32 +1746,17 @@ class _AnaSayfaState extends State<AnaSayfa> {
                           );
                         },
                         onEdit: (asset) {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: Colors.transparent,
-                            builder: (context) => AddAssetSheet(
-                              asset: asset,
-                              onSave: (name, amount, quantity, category, type) {
-                                setState(() {
-                                  int index = varliklar.indexOf(asset);
-                                  if (index != -1) {
-                                    varliklar[index] = Asset(
-                                      id: asset.id,
-                                      name: name,
-                                      amount: amount,
-                                      quantity: quantity,
-                                      category: category,
-                                      type: type,
-                                      lastUpdated: DateTime.now(),
-                                      isDeleted: false,
-                                    );
-                                  }
-                                });
-                                varliklariKaydet();
-                              },
-                            ),
-                          );
+                          // AssetsPage kendi modal'ını açıyor
+                          // Burada sadece veritabanına kaydet
+                          setState(() {
+                            int index = varliklar.indexWhere(
+                              (a) => a.id == asset.id,
+                            );
+                            if (index != -1) {
+                              varliklar[index] = asset;
+                            }
+                          });
+                          varliklariKaydet();
                         },
                         onRestore: (asset) {
                           setState(() {

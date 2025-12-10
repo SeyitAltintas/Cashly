@@ -266,6 +266,42 @@ class _AssetsPageState extends State<AssetsPage> {
               ),
             ),
             child: ListTile(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => AddAssetSheet(
+                    asset: asset,
+                    onSave: (name, amount, quantity, category, type) {
+                      // Güncel varlığı oluştur
+                      final updatedAsset = Asset(
+                        id: asset.id,
+                        name: name,
+                        amount: amount,
+                        quantity: quantity,
+                        category: category,
+                        type: type,
+                        lastUpdated: DateTime.now(),
+                        isDeleted: false,
+                      );
+                      // Lokal listeyi güncelle
+                      setState(() {
+                        final index = _assets.indexWhere(
+                          (a) => a.id == asset.id,
+                        );
+                        if (index != -1) {
+                          _assets[index] = updatedAsset;
+                        }
+                        _filtrele();
+                      });
+                      // Parent'ı bildir (modal açmadan sadece veri kaydetsin)
+                      // Eski asset yerine güncel asset gönder
+                      widget.onEdit(updatedAsset);
+                    },
+                  ),
+                );
+              },
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 8,
@@ -291,27 +327,13 @@ class _AssetsPageState extends State<AssetsPage> {
                 "${asset.category}${asset.type != null ? ' • ${asset.type}' : ''}",
                 style: const TextStyle(color: Colors.white38, fontSize: 12),
               ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "${asset.amount.toStringAsFixed(2)} ₺",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.edit,
-                      color: Colors.blueAccent,
-                      size: 20,
-                    ),
-                    onPressed: () => widget.onEdit(asset),
-                  ),
-                ],
+              trailing: Text(
+                "${asset.amount.toStringAsFixed(2)} ₺",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),
