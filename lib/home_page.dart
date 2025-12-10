@@ -13,6 +13,9 @@ import 'features/assets/data/models/asset_model.dart';
 import 'features/assets/presentation/widgets/add_asset_sheet.dart';
 import 'features/analysis/presentation/pages/analysis_page.dart';
 import 'features/tools/presentation/pages/tools_page.dart';
+import 'features/income/presentation/pages/income_page.dart';
+import 'features/income/presentation/widgets/add_income_sheet.dart';
+import 'features/income/data/models/income_model.dart';
 import 'features/expenses/presentation/widgets/add_expense_sheet.dart';
 import 'features/expenses/presentation/widgets/voice_input_sheet.dart';
 
@@ -40,6 +43,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
   double butceLimiti = 8000.0;
 
   Map<String, IconData> kategoriIkonlari = {};
+  Map<String, IconData> gelirKategoriIkonlari = {};
+  List<Income> tumGelirler = [];
 
   final List<String> aylarListesi = [
     "Ocak",
@@ -60,6 +65,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
   void initState() {
     super.initState();
     kategorileriYukle();
+    gelirKategorileriYukle();
     verileriOku();
     filtreleVeGoster();
   }
@@ -283,6 +289,34 @@ class _AnaSayfaState extends State<AnaSayfa> {
     });
   }
 
+  void gelirKategorileriYukle() {
+    String userId = widget.authController.currentUser!.id;
+    List<Map<String, dynamic>> dbKategoriler =
+        DatabaseHelper.gelirKategorileriGetir(userId);
+
+    final Map<String, IconData> ikonMap = {
+      'work': Icons.work,
+      'laptop': Icons.laptop,
+      'trending_up': Icons.trending_up,
+      'home': Icons.home,
+      'card_giftcard': Icons.card_giftcard,
+      'category': Icons.category,
+      'account_balance': Icons.account_balance,
+      'attach_money': Icons.attach_money,
+      'savings': Icons.savings,
+      'business': Icons.business,
+    };
+
+    setState(() {
+      gelirKategoriIkonlari = {};
+      for (var kategori in dbKategoriler) {
+        String isim = kategori['isim'];
+        String ikonAdi = kategori['ikon'];
+        gelirKategoriIkonlari[isim] = ikonMap[ikonAdi] ?? Icons.category;
+      }
+    });
+  }
+
   void verileriOku() {
     String userId = widget.authController.currentUser!.id;
 
@@ -306,12 +340,30 @@ class _AnaSayfaState extends State<AnaSayfa> {
         .map((map) => Asset.fromMap(map))
         .toList();
 
+    // Gelirleri oku
+    List<Map<String, dynamic>> gelirVerileri = DatabaseHelper.gelirleriGetir(
+      userId,
+    );
+    List<Income> okunanGelirler = gelirVerileri
+        .map((map) => Income.fromMap(map))
+        .toList();
+
     setState(() {
       tumHarcamalar = gelen;
       butceLimiti = kayitliButce;
       varliklar = okunanVarliklar;
+      tumGelirler = okunanGelirler;
       filtreleVeGoster();
     });
+  }
+
+  /// Gelirleri veritabanına kaydeder
+  void gelirleriKaydet() {
+    String userId = widget.authController.currentUser!.id;
+    List<Map<String, dynamic>> gelirMapleri = tumGelirler
+        .map((income) => income.toMap())
+        .toList();
+    DatabaseHelper.gelirleriKaydet(userId, gelirMapleri);
   }
 
   void filtreleVeGoster() {
@@ -1513,7 +1565,21 @@ class _AnaSayfaState extends State<AnaSayfa> {
           ),
         ],
       );
+    } else if (_selectedIndex == 1) {
+      appBar = AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text("Gelirlerim"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      );
     } else if (_selectedIndex == 2) {
+      appBar = AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text("Araçlar"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      );
+    } else if (_selectedIndex == 3) {
       appBar = AppBar(
         automaticallyImplyLeading: false,
         title: const Text("Profil"),
@@ -1537,6 +1603,70 @@ class _AnaSayfaState extends State<AnaSayfa> {
         body: _selectedIndex == 0
             ? harcamalarBody
             : _selectedIndex == 1
+            ? IncomePage(
+                incomes: tumGelirler,
+                selectedDate: secilenAy,
+                onDelete: (income) {
+                  setState(() {
+                    income.isDeleted = true;
+                  });
+                  gelirleriKaydet();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text(
+                        "Gelir silindi 🗑️",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.red.shade700,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(12),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                },
+                onEdit: (income) {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => AddIncomeSheet(
+                      incomeToEdit: income.toMap(),
+                      categories: gelirKategoriIkonlari,
+                      onSave: (name, amount, category, date) {
+                        setState(() {
+                          int index = tumGelirler.indexOf(income);
+                          if (index != -1) {
+                            tumGelirler[index] = Income(
+                              id: income.id,
+                              name: name,
+                              amount: amount,
+                              category: category,
+                              date: date,
+                              isDeleted: false,
+                            );
+                          }
+                        });
+                        gelirleriKaydet();
+                      },
+                    ),
+                  );
+                },
+                onPreviousMonth: () {
+                  setState(() {
+                    secilenAy = DateTime(secilenAy.year, secilenAy.month - 1);
+                  });
+                },
+                onNextMonth: () {
+                  setState(() {
+                    secilenAy = DateTime(secilenAy.year, secilenAy.month + 1);
+                  });
+                },
+                onSelectMonth: ayYilSeciciAc,
+              )
+            : _selectedIndex == 2
             ? ToolsPage(
                 onAssetsPressed: () {
                   Navigator.push(
@@ -1673,28 +1803,72 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   );
                 },
               )
-            : ProfilSayfasi(
+            : _selectedIndex == 3
+            ? ProfilSayfasi(
                 authController: widget.authController,
                 onRefresh: () {
                   // Profil sayfasından dönerken kategorileri yenile
                   kategorileriYukle();
                   verileriOku();
                 },
-              ),
+              )
+            : const SizedBox.shrink(),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            if (_selectedIndex != 0) {
+            if (_selectedIndex == 0) {
+              pencereAc();
+            } else if (_selectedIndex == 1) {
+              // Gelir ekleme bottom sheet
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => AddIncomeSheet(
+                  categories: gelirKategoriIkonlari,
+                  onSave: (name, amount, category, date) {
+                    setState(() {
+                      tumGelirler.insert(
+                        0,
+                        Income(
+                          id: DateTime.now().toString(),
+                          name: name,
+                          amount: amount,
+                          category: category,
+                          date: date,
+                        ),
+                      );
+                    });
+                    gelirleriKaydet();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Gelir eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Colors.green.shade700,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        margin: const EdgeInsets.all(12),
+                      ),
+                    );
+                  },
+                ),
+              );
+            } else {
+              // Diğer sayfalarda harcama ekleme sayfasına git
               setState(() {
                 _selectedIndex = 0;
               });
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 pencereAc();
               });
-            } else {
-              pencereAc();
             }
           },
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: _selectedIndex == 1
+              ? Colors.green.shade600
+              : Theme.of(context).colorScheme.primary,
           shape: const CircleBorder(),
           child: const Icon(Icons.add, color: Colors.white, size: 32),
         ),
@@ -1723,12 +1897,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   },
                   tooltip: "Harcamalarım",
                 ),
-                const SizedBox(width: 48), // FAB için boşluk
                 IconButton(
                   icon: Icon(
-                    Icons.apps,
+                    Icons.trending_up,
                     color: _selectedIndex == 1
-                        ? Theme.of(context).colorScheme.secondary
+                        ? Colors.green.shade400
                         : Colors.white24,
                     size: 28,
                   ),
@@ -1737,11 +1910,12 @@ class _AnaSayfaState extends State<AnaSayfa> {
                       _selectedIndex = 1;
                     });
                   },
-                  tooltip: "Araçlar",
+                  tooltip: "Gelirlerim",
                 ),
+                const SizedBox(width: 48), // FAB için boşluk
                 IconButton(
                   icon: Icon(
-                    Icons.person,
+                    Icons.apps,
                     color: _selectedIndex == 2
                         ? Theme.of(context).colorScheme.secondary
                         : Colors.white24,
@@ -1750,6 +1924,21 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   onPressed: () {
                     setState(() {
                       _selectedIndex = 2;
+                    });
+                  },
+                  tooltip: "Araçlar",
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.person,
+                    color: _selectedIndex == 3
+                        ? Theme.of(context).colorScheme.secondary
+                        : Colors.white24,
+                    size: 28,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _selectedIndex = 3;
                     });
                   },
                   tooltip: "Profil",
