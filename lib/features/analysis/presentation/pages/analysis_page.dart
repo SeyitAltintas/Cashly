@@ -53,9 +53,12 @@ class _AnalysisPageState extends State<AnalysisPage>
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text("Analiz ve Raporlar"),
         bottom: TabBar(
           controller: _tabController,

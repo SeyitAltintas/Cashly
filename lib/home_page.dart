@@ -16,6 +16,7 @@ import 'features/tools/presentation/pages/tools_page.dart';
 import 'features/income/presentation/pages/income_page.dart';
 import 'features/income/presentation/widgets/add_income_sheet.dart';
 import 'features/income/data/models/income_model.dart';
+import 'features/income/presentation/pages/income_recycle_bin_page.dart';
 import 'features/expenses/presentation/widgets/add_expense_sheet.dart';
 import 'features/expenses/presentation/widgets/voice_input_sheet.dart';
 
@@ -45,6 +46,10 @@ class _AnaSayfaState extends State<AnaSayfa> {
   Map<String, IconData> kategoriIkonlari = {};
   Map<String, IconData> gelirKategoriIkonlari = {};
   List<Income> tumGelirler = [];
+
+  // Gelir araması için
+  final TextEditingController tGelirArama = TextEditingController();
+  bool gelirAramaModu = false;
 
   final List<String> aylarListesi = [
     "Ocak",
@@ -1009,75 +1014,66 @@ class _AnaSayfaState extends State<AnaSayfa> {
                             onDismissed: (direction) {
                               harcamaSil(harcama);
                             },
-                            child: Card(
-                              color: Theme.of(context).colorScheme.surface,
-                              elevation: 0,
-                              margin: const EdgeInsets.only(bottom: 8),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                side: BorderSide(
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.05),
-                                ),
-                              ),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 4,
-                                ),
-                                leading: Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary
-                                        .withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Icon(
-                                    kategoriIkonlari[harcama['kategori']] ??
-                                        Icons.help,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.secondary,
+                            child: GestureDetector(
+                              onTap: () =>
+                                  pencereAc(duzenlenecekHarcama: harcama),
+                              child: Card(
+                                color: Theme.of(context).colorScheme.surface,
+                                elevation: 0,
+                                margin: const EdgeInsets.only(bottom: 8),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: BorderSide(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.05),
                                   ),
                                 ),
-                                title: Text(
-                                  harcama['isim'],
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 4,
                                   ),
-                                ),
-                                subtitle: Text(
-                                  harcama['kategori'],
-                                  style: const TextStyle(
-                                    color: Colors.white38,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      "-${harcama['tutar']} ₺",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
+                                  leading: Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    const SizedBox(width: 10),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.edit,
-                                        color: Colors.blueAccent,
-                                        size: 20,
-                                      ),
-                                      tooltip: "Düzenle",
-                                      onPressed: () => pencereAc(
-                                        duzenlenecekHarcama: harcama,
-                                      ),
+                                    child: Icon(
+                                      kategoriIkonlari[harcama['kategori']] ??
+                                          Icons.help,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.secondary,
                                     ),
-                                  ],
+                                  ),
+                                  title: Text(
+                                    harcama['isim'],
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    harcama['kategori'],
+                                    style: const TextStyle(
+                                      color: Colors.white38,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  trailing: Text(
+                                    "-${harcama['tutar']} ₺",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -1568,9 +1564,60 @@ class _AnaSayfaState extends State<AnaSayfa> {
     } else if (_selectedIndex == 1) {
       appBar = AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("Gelirlerim"),
+        title: gelirAramaModu
+            ? TextField(
+                controller: tGelirArama,
+                autofocus: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: "Gelir ara...",
+                  hintStyle: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                  border: InputBorder.none,
+                ),
+                onChanged: (value) {
+                  setState(() {});
+                },
+              )
+            : const Text("Gelirlerim"),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.white),
+            tooltip: "Çöp Kutusu",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GelirCopKutusuSayfasi(
+                    userId: widget.authController.currentUser!.id,
+                  ),
+                ),
+              ).then((_) {
+                verileriOku();
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              gelirAramaModu ? Icons.close : Icons.search,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                gelirAramaModu = !gelirAramaModu;
+                if (!gelirAramaModu) {
+                  tGelirArama.clear();
+                }
+              });
+            },
+          ),
+        ],
       );
     } else if (_selectedIndex == 2) {
       appBar = AppBar(
@@ -1606,6 +1653,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
             ? IncomePage(
                 incomes: tumGelirler,
                 selectedDate: secilenAy,
+                searchQuery: gelirAramaModu ? tGelirArama.text : '',
                 onDelete: (income) {
                   setState(() {
                     income.isDeleted = true;

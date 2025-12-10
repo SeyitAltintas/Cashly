@@ -93,7 +93,10 @@ class _AssetsPageState extends State<AssetsPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline, color: Colors.white),

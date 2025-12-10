@@ -9,6 +9,7 @@ class IncomePage extends StatefulWidget {
   final VoidCallback onPreviousMonth;
   final VoidCallback onNextMonth;
   final VoidCallback onSelectMonth;
+  final String searchQuery;
 
   const IncomePage({
     super.key,
@@ -19,6 +20,7 @@ class IncomePage extends StatefulWidget {
     required this.onPreviousMonth,
     required this.onNextMonth,
     required this.onSelectMonth,
+    this.searchQuery = '',
   });
 
   @override
@@ -57,15 +59,25 @@ class _IncomePageState extends State<IncomePage> {
   }
 
   List<Income> get filteredIncomes {
-    return widget.incomes
+    var result = widget.incomes
         .where((i) => !i.isDeleted)
         .where(
           (i) =>
               i.date.year == widget.selectedDate.year &&
               i.date.month == widget.selectedDate.month,
-        )
-        .toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+        );
+
+    // Arama filtresi
+    if (widget.searchQuery.isNotEmpty) {
+      final query = widget.searchQuery.toLowerCase();
+      result = result.where(
+        (i) =>
+            i.name.toLowerCase().contains(query) ||
+            i.category.toLowerCase().contains(query),
+      );
+    }
+
+    return result.toList()..sort((a, b) => b.date.compareTo(a.date));
   }
 
   Map<String, List<Income>> get groupedIncomes {
@@ -89,6 +101,25 @@ class _IncomePageState extends State<IncomePage> {
     if (diff == 0) return "Bugün";
     if (diff == 1) return "Dün";
     return "${dateOnly.day} ${_months[dateOnly.month - 1]}";
+  }
+
+  IconData _getIconForCategory(String category) {
+    switch (category.toLowerCase()) {
+      case 'maaş':
+        return Icons.work;
+      case 'freelance':
+        return Icons.laptop;
+      case 'yatırım':
+        return Icons.trending_up;
+      case 'kira geliri':
+        return Icons.home;
+      case 'hediye':
+        return Icons.card_giftcard;
+      case 'diğer':
+        return Icons.category;
+      default:
+        return Icons.attach_money;
+    }
   }
 
   @override
@@ -317,7 +348,7 @@ class _IncomePageState extends State<IncomePage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  Icons.trending_up,
+                  _getIconForCategory(income.category),
                   color: Colors.green.shade400,
                   size: 24,
                 ),
