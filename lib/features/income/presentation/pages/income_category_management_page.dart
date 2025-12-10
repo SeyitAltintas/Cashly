@@ -348,16 +348,44 @@ class _GelirKategoriYonetimiSayfasiState
                         ),
                       ),
                     )
-                  : ListView.builder(
+                  : ReorderableListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: kategoriler.length,
+                      onReorder: (oldIndex, newIndex) {
+                        setState(() {
+                          if (newIndex > oldIndex) {
+                            newIndex -= 1;
+                          }
+                          final kategori = kategoriler.removeAt(oldIndex);
+                          kategoriler.insert(newIndex, kategori);
+                        });
+                        kaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              'Kategori sırası güncellendi',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
                       itemBuilder: (context, index) {
                         final kategori = kategoriler[index];
                         final IconData ikon =
                             ikonSecenekleri[kategori['ikon']] ?? Icons.category;
 
                         return Card(
+                          key: Key('gelir_kategori_${kategori['isim']}_$index'),
                           color: Theme.of(context).colorScheme.surface,
                           margin: const EdgeInsets.only(bottom: 8),
                           shape: RoundedRectangleBorder(
@@ -384,12 +412,27 @@ class _GelirKategoriYonetimiSayfasiState
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
-                            trailing: IconButton(
-                              icon: Icon(
-                                Icons.delete_outline,
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                              onPressed: () => kategoriSil(index),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.delete_outline,
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                                  onPressed: () => kategoriSil(index),
+                                ),
+                                ReorderableDragStartListener(
+                                  index: index,
+                                  child: Icon(
+                                    Icons.drag_handle,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.54),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );
