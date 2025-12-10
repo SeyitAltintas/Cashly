@@ -1861,6 +1861,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                       builder: (context) => AnalysisPage(
                         expenses: tumHarcamalar,
                         assets: varliklar,
+                        incomes: tumGelirler,
                         selectedDate: secilenAy,
                       ),
                     ),

@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../assets/data/models/asset_model.dart';
+import '../../../income/data/models/income_model.dart';
 
 class AnalysisPage extends StatefulWidget {
   final List<Map<String, dynamic>> expenses;
   final List<Asset> assets;
+  final List<Income> incomes;
   final DateTime selectedDate;
 
   const AnalysisPage({
     super.key,
     required this.expenses,
     required this.assets,
+    required this.incomes,
     required this.selectedDate,
   });
 
@@ -28,7 +31,7 @@ class _AnalysisPageState extends State<AnalysisPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -69,13 +72,18 @@ class _AnalysisPageState extends State<AnalysisPage>
           ).colorScheme.onSurface.withValues(alpha: 0.54),
           tabs: const [
             Tab(text: "Harcamalar"),
+            Tab(text: "Gelirler"),
             Tab(text: "Varlıklar"),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [_buildExpenseAnalysis(), _buildAssetAnalysis()],
+        children: [
+          _buildExpenseAnalysis(),
+          _buildIncomeAnalysis(),
+          _buildAssetAnalysis(),
+        ],
       ),
     );
   }
@@ -127,7 +135,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     totals.forEach((key, value) {
       final isTouched = index == _touchedIndex;
       final fontSize = isTouched ? 18.0 : 14.0;
-      final radius = isTouched ? 110.0 : 100.0;
+      final radius = isTouched ? 90.0 : 80.0;
       final color = vibrantColors[index % vibrantColors.length];
 
       sections.add(
@@ -195,6 +203,121 @@ class _AnalysisPageState extends State<AnalysisPage>
     );
   }
 
+  Widget _buildIncomeAnalysis() {
+    // Filter incomes for the selected month
+    List<Income> monthlyIncomes = widget.incomes.where((i) {
+      if (i.isDeleted) return false;
+      return i.date.year == widget.selectedDate.year &&
+          i.date.month == widget.selectedDate.month;
+    }).toList();
+
+    if (monthlyIncomes.isEmpty) {
+      return _buildEmptyState("Bu ay için gelir verisi bulunmuyor.");
+    }
+
+    // Group by category
+    Map<String, double> totals = {};
+    double totalIncome = 0;
+
+    for (var income in monthlyIncomes) {
+      String category = income.category;
+      totals[category] = (totals[category] ?? 0) + income.amount;
+      totalIncome += income.amount;
+    }
+
+    // Vibrant colors for pie chart
+    final List<Color> vibrantColors = [
+      Colors.green.shade400,
+      Colors.teal.shade400,
+      Colors.cyan.shade400,
+      Colors.lightGreen.shade400,
+      Colors.lime.shade400,
+      Colors.greenAccent.shade400,
+      Colors.teal.shade300,
+      Colors.lightBlue.shade400,
+    ];
+
+    // Create pie chart sections
+    List<PieChartSectionData> sections = [];
+    int colorIndex = 0;
+    totals.forEach((category, amount) {
+      final isTouched = colorIndex == _touchedIndex;
+      final radius = isTouched ? 90.0 : 80.0;
+      final color = vibrantColors[colorIndex % vibrantColors.length];
+
+      sections.add(
+        PieChartSectionData(
+          color: color,
+          value: amount,
+          title: '${(amount / totalIncome * 100).toStringAsFixed(1)}%',
+          radius: radius,
+          titleStyle: TextStyle(
+            fontSize: isTouched ? 16 : 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      );
+      colorIndex++;
+    });
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Gelir Dağılımı",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 250,
+            child: PieChart(
+              PieChartData(
+                pieTouchData: PieTouchData(
+                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                    setState(() {
+                      if (!event.isInterestedForInteractions ||
+                          pieTouchResponse == null ||
+                          pieTouchResponse.touchedSection == null) {
+                        _touchedIndex = -1;
+                        return;
+                      }
+                      _touchedIndex =
+                          pieTouchResponse.touchedSection!.touchedSectionIndex;
+                    });
+                  },
+                ),
+                borderData: FlBorderData(show: false),
+                sectionsSpace: 2,
+                centerSpaceRadius: 50,
+                sections: sections,
+              ),
+            ),
+          ),
+          const SizedBox(height: 30),
+          _buildSummaryCard(
+            "Toplam Gelir",
+            "${totalIncome.toStringAsFixed(2)} ₺",
+            Colors.green.shade400,
+          ),
+          const SizedBox(height: 20),
+          ...totals.entries.toList().asMap().entries.map((entry) {
+            int idx = entry.key;
+            var e = entry.value;
+            final color = vibrantColors[idx % vibrantColors.length];
+            return _buildLegendItem(e.key, e.value, color, totalIncome);
+          }),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAssetAnalysis() {
     List<Asset> activeAssets = widget.assets
         .where((a) => !a.isDeleted)
@@ -250,7 +373,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     totals.forEach((key, value) {
       final isTouched = index == _touchedIndex;
       final fontSize = isTouched ? 18.0 : 14.0;
-      final radius = isTouched ? 110.0 : 100.0;
+      final radius = isTouched ? 90.0 : 80.0;
       final color = vibrantColors[index % vibrantColors.length];
 
       sections.add(
