@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 
 import '../../data/models/asset_model.dart';
+import '../widgets/add_asset_sheet.dart';
 import 'asset_recycle_bin_page.dart';
 
 class AssetsPage extends StatefulWidget {
@@ -12,6 +13,14 @@ class AssetsPage extends StatefulWidget {
   final Function(Asset) onRestore;
   final Function(Asset) onPermanentDelete;
   final VoidCallback onEmptyBin;
+  final Function(
+    String name,
+    double amount,
+    double quantity,
+    String category,
+    String? type,
+  )
+  onAdd;
 
   const AssetsPage({
     super.key,
@@ -22,6 +31,7 @@ class AssetsPage extends StatefulWidget {
     required this.onRestore,
     required this.onPermanentDelete,
     required this.onEmptyBin,
+    required this.onAdd,
   });
 
   @override
@@ -31,18 +41,23 @@ class AssetsPage extends StatefulWidget {
 class _AssetsPageState extends State<AssetsPage> {
   bool _aramaModu = false;
   final TextEditingController _aramaController = TextEditingController();
+  List<Asset> _assets = [];
+  List<Asset> _deletedAssets = [];
   List<Asset> _filtrelenmisVarliklar = [];
 
   @override
   void initState() {
     super.initState();
-    _filtrelenmisVarliklar = widget.assets;
+    _assets = List.from(widget.assets);
+    _deletedAssets = List.from(widget.deletedAssets);
+    _filtrelenmisVarliklar = _assets;
   }
 
   @override
   void didUpdateWidget(covariant AssetsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.assets != oldWidget.assets) {
+      _assets = List.from(widget.assets);
       _filtrele();
     }
   }
@@ -51,13 +66,13 @@ class _AssetsPageState extends State<AssetsPage> {
     setState(() {
       if (_aramaModu && _aramaController.text.isNotEmpty) {
         String aranan = _aramaController.text.toLowerCase();
-        _filtrelenmisVarliklar = widget.assets.where((asset) {
+        _filtrelenmisVarliklar = _assets.where((asset) {
           return asset.name.toLowerCase().contains(aranan) ||
               asset.category.toLowerCase().contains(aranan) ||
               (asset.type?.toLowerCase().contains(aranan) ?? false);
         }).toList();
       } else {
-        _filtrelenmisVarliklar = widget.assets;
+        _filtrelenmisVarliklar = _assets;
       }
     });
   }
@@ -106,10 +121,28 @@ class _AssetsPageState extends State<AssetsPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => AssetRecycleBinPage(
-                    deletedAssets: widget.deletedAssets,
-                    onRestore: widget.onRestore,
-                    onPermanentDelete: widget.onPermanentDelete,
-                    onEmptyBin: widget.onEmptyBin,
+                    deletedAssets: _deletedAssets,
+                    onRestore: (asset) {
+                      setState(() {
+                        _deletedAssets.removeWhere((a) => a.id == asset.id);
+                        asset.isDeleted = false;
+                        _assets.add(asset);
+                        _filtrele();
+                      });
+                      widget.onRestore(asset);
+                    },
+                    onPermanentDelete: (asset) {
+                      setState(() {
+                        _deletedAssets.removeWhere((a) => a.id == asset.id);
+                      });
+                      widget.onPermanentDelete(asset);
+                    },
+                    onEmptyBin: () {
+                      setState(() {
+                        _deletedAssets.clear();
+                      });
+                      widget.onEmptyBin();
+                    },
                   ),
                 ),
               ).then((_) => setState(() {}));
@@ -136,6 +169,42 @@ class _AssetsPageState extends State<AssetsPage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [const SizedBox(height: 24), _buildAssetList()],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => AddAssetSheet(
+              onSave: (name, amount, quantity, category, type) {
+                // Lokal listeye ekle
+                final newAsset = Asset(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: name,
+                  amount: amount,
+                  quantity: quantity,
+                  category: category,
+                  type: type,
+                  lastUpdated: DateTime.now(),
+                  isDeleted: false,
+                );
+                setState(() {
+                  _assets.add(newAsset);
+                  _filtrele();
+                });
+                // Parent'a da bildir
+                widget.onAdd(name, amount, quantity, category, type);
+              },
+            ),
+          );
+        },
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text(
+          "Varlık Ekle",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -176,6 +245,12 @@ class _AssetsPageState extends State<AssetsPage> {
             child: const Icon(Icons.delete, color: Colors.white),
           ),
           onDismissed: (direction) {
+            setState(() {
+              _assets.removeWhere((a) => a.id == asset.id);
+              asset.isDeleted = true;
+              _deletedAssets.add(asset);
+              _filtrele();
+            });
             widget.onDelete(asset);
           },
           child: Card(

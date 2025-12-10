@@ -1834,6 +1834,38 @@ class _AnaSayfaState extends State<AnaSayfa> {
                             ),
                           );
                         },
+                        onAdd: (name, amount, quantity, category, type) {
+                          setState(() {
+                            varliklar.add(
+                              Asset(
+                                id: DateTime.now().millisecondsSinceEpoch
+                                    .toString(),
+                                name: name,
+                                amount: amount,
+                                quantity: quantity,
+                                category: category,
+                                type: type,
+                                lastUpdated: DateTime.now(),
+                                isDeleted: false,
+                              ),
+                            );
+                          });
+                          varliklariKaydet();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                "Varlık eklendi ✅",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: Colors.green.shade700,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              margin: const EdgeInsets.all(12),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   );
