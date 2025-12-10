@@ -132,18 +132,19 @@ class _IncomePageState extends State<IncomePage> {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.green.shade700, Colors.green.shade500],
+              colors: [
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.green.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.3),
+            ),
           ),
           child: Column(
             children: [
@@ -154,7 +155,9 @@ class _IncomePageState extends State<IncomePage> {
                   IconButton(
                     icon: Icon(
                       Icons.arrow_back_ios,
-                      color: Colors.white.withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                       size: 18,
                     ),
                     onPressed: widget.onPreviousMonth,
@@ -166,8 +169,8 @@ class _IncomePageState extends State<IncomePage> {
                       children: [
                         Text(
                           monthName.toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
@@ -175,7 +178,9 @@ class _IncomePageState extends State<IncomePage> {
                         const SizedBox(width: 5),
                         Icon(
                           Icons.arrow_drop_down,
-                          color: Colors.white.withValues(alpha: 0.7),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
                           size: 20,
                         ),
                       ],
@@ -184,52 +189,90 @@ class _IncomePageState extends State<IncomePage> {
                   IconButton(
                     icon: Icon(
                       Icons.arrow_forward_ios,
-                      color: Colors.white.withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                       size: 18,
                     ),
                     onPressed: widget.onNextMonth,
                   ),
                 ],
               ),
-              const Divider(color: Colors.white24),
+              Divider(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.1),
+              ),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Toplam Gelir:",
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Toplam Gelir",
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "${totalIncome.toStringAsFixed(2)} ₺",
+                        style: TextStyle(
+                          color: Colors.green.shade400,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    "${totalIncome.toStringAsFixed(2)} ₺",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Icon(
+                      Icons.trending_up,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 28,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
               // Alt bilgi
-              Row(
-                children: [
-                  Icon(
-                    Icons.trending_up,
-                    color: Colors.white.withValues(alpha: 0.7),
-                    size: 16,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    "${filteredIncomes.length} gelir kaydı",
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 12,
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surface.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.receipt_long,
+                      color: Theme.of(context).colorScheme.secondary,
+                      size: 20,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      "${filteredIncomes.length} gelir kaydı bu ay",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
