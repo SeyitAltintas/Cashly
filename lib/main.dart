@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -10,36 +11,59 @@ import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/theme_manager.dart';
+import 'core/widgets/error_screen.dart';
 
 void main() async {
-  // Hata yakalama bloğu
-  try {
-    WidgetsFlutterBinding.ensureInitialized();
-    await Hive.initFlutter();
-    runApp(
-      ChangeNotifierProvider(
-        create: (_) => ThemeManager(),
-        child: const CashlyApp(),
-      ),
-    );
-  } catch (e, stackTrace) {
-    debugPrint('HATA: Uygulama başlatılırken bir sorun oluştu: $e');
-    debugPrint('Stack Trace: $stackTrace');
-    runApp(
-      MaterialApp(
-        home: Scaffold(
-          backgroundColor: Colors.black,
-          body: Center(
-            child: Text(
-              'Uygulama başlatılamadı:\n$e',
-              style: const TextStyle(color: Colors.white),
-              textAlign: TextAlign.center,
-            ),
+  // Global error handling - tüm beklenmedik hataları yakala
+  runZonedGuarded<Future<void>>(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+
+      // Flutter framework hatalarını yakala
+      FlutterError.onError = (FlutterErrorDetails details) {
+        FlutterError.presentError(details);
+        debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        debugPrint('❌ FLUTTER ERROR');
+        debugPrint('Exception: ${details.exceptionAsString()}');
+        debugPrint('Stack: ${details.stack}');
+        debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      };
+
+      // Widget render hatalarında ErrorScreen göster
+      ErrorWidget.builder = (FlutterErrorDetails details) {
+        return ErrorScreen(
+          errorDetails: details,
+          errorMessage: 'Widget oluşturulurken bir hata oluştu.',
+        );
+      };
+
+      try {
+        await Hive.initFlutter();
+        runApp(
+          ChangeNotifierProvider(
+            create: (_) => ThemeManager(),
+            child: const CashlyApp(),
           ),
-        ),
-      ),
-    );
-  }
+        );
+      } catch (e, stackTrace) {
+        debugPrint('HATA: Uygulama başlatılırken bir sorun oluştu: $e');
+        debugPrint('Stack Trace: $stackTrace');
+        runApp(
+          MaterialApp(
+            home: ErrorScreen(errorMessage: 'Uygulama başlatılamadı:\n$e'),
+          ),
+        );
+      }
+    },
+    (error, stackTrace) {
+      // Zone dışı hatalar (async hatalar)
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      debugPrint('❌ UNCAUGHT ERROR');
+      debugPrint('Error: $error');
+      debugPrint('Stack Trace: $stackTrace');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    },
+  );
 }
 
 class CashlyApp extends StatefulWidget {

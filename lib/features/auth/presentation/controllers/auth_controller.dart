@@ -46,7 +46,13 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<bool> register(String name, String email, String pin) async {
+  Future<bool> register(
+    String name,
+    String email,
+    String pin, {
+    String? securityQuestion,
+    String? securityAnswer,
+  }) async {
     _setLoading(true);
     _error = null;
     try {
@@ -56,6 +62,9 @@ class AuthController extends ChangeNotifier {
         email: email,
         pin: pin,
         createdAt: DateTime.now(),
+        biometricEnabled: false,
+        securityQuestion: securityQuestion,
+        securityAnswer: securityAnswer?.trim().toLowerCase(),
       );
       await _authRepository.registerUser(newUser);
       _currentUser = newUser;
@@ -115,5 +124,91 @@ class AuthController extends ChangeNotifier {
 
   Future<String?> getLastUserId() {
     return _authRepository.getLastUserId();
+  }
+
+  /// Biyometrik ile giriş yap
+  Future<bool> loginWithBiometric(String userId) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      final user = await _authRepository.loginWithBiometric(userId);
+      if (user != null) {
+        _currentUser = user;
+        return true;
+      } else {
+        _error = "Biyometrik giriş başarısız.";
+        return false;
+      }
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Biyometrik tercihini güncelle
+  Future<void> setBiometricEnabled(String userId, bool enabled) async {
+    try {
+      await _authRepository.updateBiometricPreference(userId, enabled);
+      // Mevcut kullanıcıyı güncelle
+      if (_currentUser != null && _currentUser!.id == userId) {
+        _currentUser = await _authRepository.getCurrentUser();
+        notifyListeners();
+      }
+    } catch (e) {
+      _error = e.toString();
+    }
+  }
+
+  /// Kullanıcının biyometrik tercihi aktif mi?
+  bool get isBiometricEnabled => _currentUser?.biometricEnabled ?? false;
+
+  /// E-posta ile kullanıcı bul (Şifremi Unuttum için)
+  Future<UserEntity?> getUserByEmail(String email) async {
+    return await _authRepository.getUserByEmail(email);
+  }
+
+  /// Güvenlik sorusu cevabını doğrula ve PIN'i sıfırla
+  Future<bool> verifySecurityAnswerAndResetPin(
+    String email,
+    String answer,
+    String newPin,
+  ) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      final user = await _authRepository.getUserByEmail(email);
+      if (user == null) {
+        _error = "Kullanıcı bulunamadı";
+        return false;
+      }
+
+      if (user.securityAnswer == null) {
+        _error = "Bu kullanıcı için güvenlik sorusu tanımlanmamış";
+        return false;
+      }
+
+      // Cevabı normalize et ve karşılaştır
+      final normalizedAnswer = answer.trim().toLowerCase();
+      if (user.securityAnswer != normalizedAnswer) {
+        _error = "Yanlış cevap";
+        return false;
+      }
+
+      // PIN'i güncelle
+      await _authRepository.updateUserPin(user.id, newPin);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Kullanıcının PIN'ini güncelle (Şifremi Unuttum için)
+  Future<void> updateUserPin(String userId, String newPin) async {
+    await _authRepository.updateUserPin(userId, newPin);
   }
 }

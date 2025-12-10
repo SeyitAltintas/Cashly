@@ -11,4 +11,12 @@ abstract class AuthRepository {
   Future<void> setCurrentUser(String id);
   Future<String?> getLastUserId();
   Future<void> setLastUserId(String id);
+
+  // Biyometrik giriş metodları
+  Future<UserEntity?> loginWithBiometric(String userId);
+  Future<void> updateBiometricPreference(String userId, bool enabled);
+
+  // Şifremi Unuttum metodları
+  Future<UserEntity?> getUserByEmail(String email);
+  Future<void> updateUserPin(String userId, String newPin);
 }

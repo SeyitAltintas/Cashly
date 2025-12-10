@@ -21,9 +21,12 @@ Future<void> initializeDefaultUser() async {
         id: defaultEmail, // E-posta adresini ID olarak kullan
         name: 'Seyit Altıntaş',
         email: defaultEmail,
-        pin: '8520',
+        pin: '2580',
         profileImage: null,
         createdAt: DateTime.now(),
+        biometricEnabled: false,
+        securityQuestion: 'İlk evcil hayvanının adı nedir?',
+        securityAnswer: 'pamuk', // Cevap normalize edilmiş halde (küçük harf)
       );
 
       // Kullanıcıyı kaydet
@@ -32,7 +35,30 @@ Future<void> initializeDefaultUser() async {
         '✓ Varsayılan test kullanıcısı oluşturuldu: ${defaultUser.name}',
       );
     } else {
-      debugPrint('✓ Varsayılan test kullanıcısı zaten mevcut');
+      // Kullanıcı mevcut, güvenlik sorusu eksik mi kontrol et
+      final existingUser = allUsers.firstWhere(
+        (user) => user.email == defaultEmail,
+      );
+      if (existingUser.securityQuestion == null ||
+          existingUser.securityAnswer == null) {
+        // Güvenlik sorusu eksikse güncelle
+        final updatedUser = UserEntity(
+          id: existingUser.id,
+          name: existingUser.name,
+          email: existingUser.email,
+          pin: existingUser.pin,
+          profileImage: existingUser.profileImage,
+          createdAt: existingUser.createdAt,
+          lastLoginAt: existingUser.lastLoginAt,
+          biometricEnabled: existingUser.biometricEnabled,
+          securityQuestion: 'İlk evcil hayvanının adı nedir?',
+          securityAnswer: 'pamuk', // Cevap normalize edilmiş halde (küçük harf)
+        );
+        await authRepository.updateUser(updatedUser);
+        debugPrint('✓ Varsayılan test kullanıcısının güvenlik sorusu eklendi');
+      } else {
+        debugPrint('✓ Varsayılan test kullanıcısı zaten mevcut');
+      }
     }
   } catch (e) {
     debugPrint('⚠ Varsayılan kullanıcı oluşturma hatası: $e');

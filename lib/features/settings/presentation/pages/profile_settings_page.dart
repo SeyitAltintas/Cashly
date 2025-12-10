@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../services/database_helper.dart';
+import '../../../../services/biometric_service.dart';
 import '../../../auth/data/repositories/auth_repository_impl.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 
@@ -22,8 +23,10 @@ class ProfileSettingsPage extends StatefulWidget {
 
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   final _authRepository = AuthRepositoryImpl();
+  final BiometricService _biometricService = BiometricService();
   UserEntity? _currentUser;
   bool _isLoading = true;
+  bool _isBiometricAvailable = false;
 
   final List<String> _profileImageUrls = [
     'https://i.pinimg.com/1200x/6d/d4/3f/6dd43f7687480c96d17cb3f5d838c196.jpg',
@@ -64,6 +67,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   void initState() {
     super.initState();
     _loadUserData();
+    _checkBiometricAvailability();
   }
 
   Future<void> _loadUserData() async {
@@ -108,6 +112,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       profileImage: profileImage ?? _currentUser!.profileImage,
       createdAt: _currentUser!.createdAt,
       lastLoginAt: _currentUser!.lastLoginAt,
+      biometricEnabled: _currentUser!.biometricEnabled,
     );
 
     try {
@@ -127,6 +132,202 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         ErrorHandler.showErrorSnackBar(context, "Güncelleme başarısız: $e");
       }
     }
+  }
+
+  Future<void> _checkBiometricAvailability() async {
+    final isAvailable = await _biometricService.isBiometricAvailable();
+    if (mounted) {
+      setState(() {
+        _isBiometricAvailable = isAvailable;
+      });
+    }
+  }
+
+  Future<void> _handleBiometricToggle(bool enabled) async {
+    if (_currentUser == null) return;
+
+    if (enabled) {
+      // Biyometrik aktifleştirmek için önce PIN doğrulama iste
+      _showPinVerificationForBiometric();
+    } else {
+      // Biyometrik kapatma - doğrudan kapat
+      await widget.authController.setBiometricEnabled(_currentUser!.id, false);
+      setState(() {
+        _currentUser = widget.authController.currentUser;
+      });
+      if (mounted) {
+        ErrorHandler.showSuccessSnackBar(context, "Biyometrik giriş kapatıldı");
+      }
+    }
+  }
+
+  void _showPinVerificationForBiometric() {
+    final TextEditingController pinController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isPinVisible = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateBottomSheet) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+              ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "PIN Doğrulama",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Biyometrik girişi aktifleştirmek için PIN'inizi doğrulayın",
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Form(
+                    key: formKey,
+                    child: TextFormField(
+                      controller: pinController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      obscureText: !isPinVisible,
+                      autofocus: true,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: "PIN",
+                        labelStyle: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surface,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            isPinVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                          onPressed: () {
+                            setStateBottomSheet(() {
+                              isPinVisible = !isPinVisible;
+                            });
+                          },
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null ||
+                            value.length < 4 ||
+                            value.length > 6) {
+                          return "4-6 haneli PIN giriniz";
+                        }
+                        if (value != _currentUser!.pin) {
+                          return "PIN hatalı";
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        if (formKey.currentState!.validate()) {
+                          final navigator = Navigator.of(context);
+                          await widget.authController.setBiometricEnabled(
+                            _currentUser!.id,
+                            true,
+                          );
+                          navigator.pop();
+                          if (mounted) {
+                            setState(() {
+                              _currentUser = widget.authController.currentUser;
+                            });
+                            ErrorHandler.showSuccessSnackBar(
+                              this.context,
+                              "Biyometrik giriş aktifleştirildi",
+                            );
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.fingerprint),
+                      label: const Text(
+                        "Biyometriği Aktifleştir",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   List<String> _getRandomImages() {
@@ -1146,6 +1347,58 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               onTap: _showPinChangeBottomSheet,
             ),
             const SizedBox(height: 16),
+
+            // Biyometrik Giriş
+            if (_isBiometricAvailable)
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  ),
+                ),
+                child: ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.fingerprint,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 24,
+                    ),
+                  ),
+                  title: Text(
+                    "Biyometrik Giriş",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: Text(
+                    "Parmak izi veya yüz tanıma ile giriş",
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      fontSize: 12,
+                    ),
+                  ),
+                  trailing: Switch(
+                    value: _currentUser?.biometricEnabled ?? false,
+                    onChanged: _handleBiometricToggle,
+                    activeTrackColor: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
 
             // Hesap Oluşturulma Tarihi
             _buildSettingsCard(

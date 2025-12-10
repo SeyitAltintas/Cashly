@@ -7,7 +7,7 @@ class ThemeManager extends ChangeNotifier {
   static const String _keyThemeIndex = 'themeIndex';
   static const String _keyMoneyAnimation = 'moneyAnimation';
 
-  int _themeIndex = 0;
+  int _themeIndex = 8; // Varsayılan tema: Deniz (index 8)
   bool _isMoneyAnimationEnabled = true;
   late Box _box;
 
@@ -17,7 +17,10 @@ class ThemeManager extends ChangeNotifier {
 
   Future<void> _init() async {
     _box = await Hive.openBox(_boxName);
-    _themeIndex = _box.get(_keyThemeIndex, defaultValue: 0);
+    _themeIndex = _box.get(
+      _keyThemeIndex,
+      defaultValue: 8,
+    ); // Varsayılan tema: Deniz
     _isMoneyAnimationEnabled = _box.get(_keyMoneyAnimation, defaultValue: true);
     notifyListeners();
   }
