@@ -223,7 +223,7 @@ class _IncomePageState extends State<IncomePage> {
                       Text(
                         "${totalIncome.toStringAsFixed(2)} ₺",
                         style: TextStyle(
-                          color: Colors.green.shade400,
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                         ),
@@ -387,12 +387,14 @@ class _IncomePageState extends State<IncomePage> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.15),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   _getIconForCategory(income.category),
-                  color: Colors.green.shade400,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 24,
                 ),
               ),
@@ -427,7 +429,7 @@ class _IncomePageState extends State<IncomePage> {
               Text(
                 "+${income.amount.toStringAsFixed(2)} ₺",
                 style: TextStyle(
-                  color: Colors.green.shade400,
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),

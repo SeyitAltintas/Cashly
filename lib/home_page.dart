@@ -1949,7 +1949,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                           'Gelir eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
                           style: const TextStyle(color: Colors.white),
                         ),
-                        backgroundColor: Colors.green.shade700,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         behavior: SnackBarBehavior.floating,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -1970,9 +1970,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
               });
             }
           },
-          backgroundColor: _selectedIndex == 1
-              ? Colors.green.shade600
-              : Theme.of(context).colorScheme.primary,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           shape: const CircleBorder(),
           child: const Icon(Icons.add, color: Colors.white, size: 32),
         ),
@@ -2005,7 +2003,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   icon: Icon(
                     Icons.trending_up,
                     color: _selectedIndex == 1
-                        ? Colors.green.shade400
+                        ? Theme.of(context).colorScheme.secondary
                         : Colors.white24,
                     size: 28,
                   ),

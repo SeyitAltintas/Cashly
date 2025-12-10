@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cashly/core/constants/color_constants.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
@@ -186,21 +185,28 @@ class _AnalysisPageState extends State<AnalysisPage>
       totalAmount += amount;
     }
 
+    // Tema renklerinden türetilen renk paleti
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final secondaryColor = Theme.of(context).colorScheme.secondary;
     final List<Color> vibrantColors = [
-      const Color(0xFFFF5252), // Canlı Kırmızı
-      const Color(0xFFFF6F00), // Koyu Turuncu
-      const Color(0xFFFFC107), // Sarı/Amber
-      const Color(0xFF00C853), // Canlı Yeşil
-      const Color(0xFF00BCD4), // Cyan
-      const Color(0xFF2196F3), // Mavi
-      const Color(0xFF9C27B0), // Mor
-      const Color(0xFFE91E63), // Pembe
-      const Color(0xFF4CAF50), // Yeşil
-      const Color(0xFFFF9800), // Turuncu
-      const Color(0xFF673AB7), // Derin Mor
-      const Color(0xFF03A9F4), // Açık Mavi
-      const Color(0xFFCDDC39), // Lime
-      const Color(0xFFFF5722), // Derin Turuncu
+      primaryColor,
+      secondaryColor,
+      primaryColor.withValues(alpha: 0.7),
+      secondaryColor.withValues(alpha: 0.7),
+      HSLColor.fromColor(
+        primaryColor,
+      ).withHue((HSLColor.fromColor(primaryColor).hue + 30) % 360).toColor(),
+      HSLColor.fromColor(
+        secondaryColor,
+      ).withHue((HSLColor.fromColor(secondaryColor).hue + 30) % 360).toColor(),
+      primaryColor.withValues(alpha: 0.5),
+      secondaryColor.withValues(alpha: 0.5),
+      HSLColor.fromColor(
+        primaryColor,
+      ).withHue((HSLColor.fromColor(primaryColor).hue + 60) % 360).toColor(),
+      HSLColor.fromColor(
+        secondaryColor,
+      ).withHue((HSLColor.fromColor(secondaryColor).hue + 60) % 360).toColor(),
     ];
 
     List<PieChartSectionData> sections = [];
@@ -285,7 +291,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                         Text(
                           "${totalAmount.toStringAsFixed(2)} ₺",
                           style: TextStyle(
-                            color: ColorConstants.kirmiziVurgu,
+                            color: Theme.of(context).colorScheme.primary,
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                           ),
@@ -295,14 +301,14 @@ class _AnalysisPageState extends State<AnalysisPage>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: ColorConstants.kirmiziVurgu.withValues(
-                          alpha: 0.2,
-                        ),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Icon(
                         Icons.trending_down,
-                        color: ColorConstants.kirmiziVurgu,
+                        color: Theme.of(context).colorScheme.primary,
                         size: 28,
                       ),
                     ),
@@ -319,7 +325,11 @@ class _AnalysisPageState extends State<AnalysisPage>
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.star, color: Colors.amber, size: 20),
+                      Icon(
+                        Icons.star,
+                        color: Theme.of(context).colorScheme.secondary,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: RichText(
@@ -427,16 +437,22 @@ class _AnalysisPageState extends State<AnalysisPage>
       totalIncome += income.amount;
     }
 
-    // Vibrant colors for pie chart
+    // Tema renklerinden türetilen renk paleti
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final secondaryColor = Theme.of(context).colorScheme.secondary;
     final List<Color> vibrantColors = [
-      Colors.green.shade400,
-      Colors.teal.shade400,
-      Colors.cyan.shade400,
-      Colors.lightGreen.shade400,
-      Colors.lime.shade400,
-      Colors.greenAccent.shade400,
-      Colors.teal.shade300,
-      Colors.lightBlue.shade400,
+      primaryColor,
+      secondaryColor,
+      primaryColor.withValues(alpha: 0.7),
+      secondaryColor.withValues(alpha: 0.7),
+      HSLColor.fromColor(
+        primaryColor,
+      ).withHue((HSLColor.fromColor(primaryColor).hue + 30) % 360).toColor(),
+      HSLColor.fromColor(
+        secondaryColor,
+      ).withHue((HSLColor.fromColor(secondaryColor).hue + 30) % 360).toColor(),
+      primaryColor.withValues(alpha: 0.5),
+      secondaryColor.withValues(alpha: 0.5),
     ];
 
     // Create pie chart sections
@@ -484,15 +500,19 @@ class _AnalysisPageState extends State<AnalysisPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.green.shade700.withValues(alpha: 0.3),
-                  Colors.teal.shade600.withValues(alpha: 0.2),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                  Theme.of(
+                    context,
+                  ).colorScheme.secondary.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.green.shade400.withValues(alpha: 0.3),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.3),
               ),
             ),
             child: Column(
@@ -516,7 +536,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                         Text(
                           "${totalIncome.toStringAsFixed(2)} ₺",
                           style: TextStyle(
-                            color: Colors.green.shade400,
+                            color: Theme.of(context).colorScheme.primary,
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                           ),
@@ -526,12 +546,14 @@ class _AnalysisPageState extends State<AnalysisPage>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.green.shade400.withValues(alpha: 0.2),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Icon(
                         Icons.trending_up,
-                        color: Colors.green.shade400,
+                        color: Theme.of(context).colorScheme.primary,
                         size: 28,
                       ),
                     ),
@@ -548,7 +570,11 @@ class _AnalysisPageState extends State<AnalysisPage>
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.emoji_events, color: Colors.amber, size: 20),
+                      Icon(
+                        Icons.emoji_events,
+                        color: Theme.of(context).colorScheme.secondary,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: RichText(
@@ -673,17 +699,22 @@ class _AnalysisPageState extends State<AnalysisPage>
 
     List<PieChartSectionData> sections = [];
     int index = 0;
+    // Tema renklerinden türetilen renk paleti
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final secondaryColor = Theme.of(context).colorScheme.secondary;
     final List<Color> vibrantColors = [
-      Theme.of(context).colorScheme.secondary,
-      const Color(0xFF03DAC6),
-      const Color(0xFFCF6679),
-      const Color(0xFF3700B3),
-      Colors.orangeAccent,
-      Colors.blueAccent,
-      Colors.pinkAccent,
-      Colors.tealAccent,
-      Colors.amberAccent,
-      Colors.lightGreenAccent,
+      primaryColor,
+      secondaryColor,
+      primaryColor.withValues(alpha: 0.7),
+      secondaryColor.withValues(alpha: 0.7),
+      HSLColor.fromColor(
+        primaryColor,
+      ).withHue((HSLColor.fromColor(primaryColor).hue + 30) % 360).toColor(),
+      HSLColor.fromColor(
+        secondaryColor,
+      ).withHue((HSLColor.fromColor(secondaryColor).hue + 30) % 360).toColor(),
+      primaryColor.withValues(alpha: 0.5),
+      secondaryColor.withValues(alpha: 0.5),
     ];
 
     totals.forEach((key, value) {
@@ -730,15 +761,19 @@ class _AnalysisPageState extends State<AnalysisPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.blue.shade700.withValues(alpha: 0.3),
-                  Colors.purple.shade600.withValues(alpha: 0.2),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                  Theme.of(
+                    context,
+                  ).colorScheme.secondary.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.blue.shade400.withValues(alpha: 0.3),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.3),
               ),
             ),
             child: Column(
@@ -762,7 +797,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                         Text(
                           "${totalValue.toStringAsFixed(2)} ₺",
                           style: TextStyle(
-                            color: Colors.blue.shade400,
+                            color: Theme.of(context).colorScheme.primary,
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                           ),
@@ -772,12 +807,14 @@ class _AnalysisPageState extends State<AnalysisPage>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade400.withValues(alpha: 0.2),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Icon(
                         Icons.account_balance_wallet,
-                        color: Colors.blue.shade400,
+                        color: Theme.of(context).colorScheme.primary,
                         size: 28,
                       ),
                     ),
@@ -794,7 +831,11 @@ class _AnalysisPageState extends State<AnalysisPage>
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.diamond, color: Colors.cyan, size: 20),
+                      Icon(
+                        Icons.diamond,
+                        color: Theme.of(context).colorScheme.secondary,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: RichText(
@@ -885,7 +926,13 @@ class _AnalysisPageState extends State<AnalysisPage>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.bar_chart, size: 80, color: Colors.white12),
+          Icon(
+            Icons.bar_chart,
+            size: 80,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.12),
+          ),
           const SizedBox(height: 16),
           Text(
             message,
@@ -894,46 +941,6 @@ class _AnalysisPageState extends State<AnalysisPage>
                 context,
               ).colorScheme.onSurface.withValues(alpha: 0.54),
               fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryCard(String title, String amount, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.7),
-              fontSize: 16,
-            ),
-          ),
-          Text(
-            amount,
-            style: TextStyle(
-              color: color,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
             ),
           ),
         ],
@@ -960,7 +967,10 @@ class _AnalysisPageState extends State<AnalysisPage>
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+              ),
             ),
           ),
           Column(
@@ -968,8 +978,8 @@ class _AnalysisPageState extends State<AnalysisPage>
             children: [
               Text(
                 "${value.toStringAsFixed(2)} ₺",
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),
