@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'services/database_helper.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
+import 'features/income/presentation/pages/income_settings_page.dart';
 import 'features/settings/presentation/pages/appearance_page.dart';
 import 'features/settings/presentation/pages/voice_assistant_page.dart';
 
@@ -124,6 +125,30 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => HarcamalarAyarlariSayfasi(
+                              userId: widget.authController.currentUser!.id,
+                            ),
+                          ),
+                        );
+                        if (result == true) {
+                          setState(() {
+                            _needsRefresh = true;
+                          });
+                        }
+                      },
+                    ),
+                    _buildDivider(),
+
+                    // Gelirler
+                    _buildSettingsTile(
+                      icon: Icons.trending_up,
+                      iconColor: Colors.teal,
+                      title: 'Gelirler',
+                      subtitle: 'Gelir kategorilerini özelleştirin',
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GelirlerAyarlariSayfasi(
                               userId: widget.authController.currentUser!.id,
                             ),
                           ),
