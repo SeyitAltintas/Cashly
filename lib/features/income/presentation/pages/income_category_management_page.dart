@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/services/database_helper.dart';
+import 'package:cashly/core/utils/error_handler.dart';
+import 'package:cashly/core/utils/validators.dart';
 
 /// Gelir kategorilerini yönetmek için sayfa
 class GelirKategoriYonetimiSayfasi extends StatefulWidget {
@@ -47,28 +49,27 @@ class _GelirKategoriYonetimiSayfasiState
   }
 
   void kategorileriYukle() {
-    setState(() {
-      kategoriler = DatabaseHelper.gelirKategorileriGetir(widget.userId);
-    });
+    try {
+      setState(() {
+        kategoriler = DatabaseHelper.gelirKategorileriGetir(widget.userId);
+      });
+    } catch (e) {
+      ErrorHandler.handleDatabaseError(context, e);
+      ErrorHandler.logError('Gelir kategorileri yüklenirken hata', e);
+    }
   }
 
   void kaydet() {
-    DatabaseHelper.gelirKategorileriKaydet(widget.userId, kategoriler);
-    setState(() {
-      hasChanges = true;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          "Kategoriler kaydedildi ✅",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(12),
-      ),
-    );
+    try {
+      DatabaseHelper.gelirKategorileriKaydet(widget.userId, kategoriler);
+      setState(() {
+        hasChanges = true;
+      });
+      ErrorHandler.showSuccessSnackBar(context, "Kategoriler kaydedildi ✅");
+    } catch (e) {
+      ErrorHandler.handleDatabaseError(context, e);
+      ErrorHandler.logError('Gelir kategorileri kaydedilirken hata', e);
+    }
   }
 
   void kategoriEkle() {
@@ -214,7 +215,17 @@ class _GelirKategoriYonetimiSayfasiState
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      if (isimController.text.trim().isEmpty) return;
+                      final validationError = Validators.validateRequired(
+                        isimController.text.trim(),
+                        fieldName: 'Kategori adı',
+                      );
+                      if (validationError != null) {
+                        ErrorHandler.showErrorSnackBar(
+                          context,
+                          validationError,
+                        );
+                        return;
+                      }
                       setState(() {
                         kategoriler.add({
                           'isim': isimController.text.trim(),

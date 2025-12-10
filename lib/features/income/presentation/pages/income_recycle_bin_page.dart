@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/services/database_helper.dart';
+import 'package:cashly/core/utils/error_handler.dart';
 import '../../data/models/income_model.dart';
 
 class GelirCopKutusuSayfasi extends StatefulWidget {
@@ -38,20 +39,30 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
   }
 
   void verileriYukle() {
-    List<Map<String, dynamic>> gelirVerileri = DatabaseHelper.gelirleriGetir(
-      widget.userId,
-    );
-    tumGelirler = gelirVerileri.map((map) => Income.fromMap(map)).toList();
-    setState(() {
-      silinenGelirler = tumGelirler.where((g) => g.isDeleted).toList();
-    });
+    try {
+      List<Map<String, dynamic>> gelirVerileri = DatabaseHelper.gelirleriGetir(
+        widget.userId,
+      );
+      tumGelirler = gelirVerileri.map((map) => Income.fromMap(map)).toList();
+      setState(() {
+        silinenGelirler = tumGelirler.where((g) => g.isDeleted).toList();
+      });
+    } catch (e) {
+      ErrorHandler.handleDatabaseError(context, e);
+      ErrorHandler.logError('Silinen gelirler yüklenirken hata', e);
+    }
   }
 
   void kaydet() {
-    List<Map<String, dynamic>> gelirMapleri = tumGelirler
-        .map((income) => income.toMap())
-        .toList();
-    DatabaseHelper.gelirleriKaydet(widget.userId, gelirMapleri);
+    try {
+      List<Map<String, dynamic>> gelirMapleri = tumGelirler
+          .map((income) => income.toMap())
+          .toList();
+      DatabaseHelper.gelirleriKaydet(widget.userId, gelirMapleri);
+    } catch (e) {
+      ErrorHandler.handleDatabaseError(context, e);
+      ErrorHandler.logError('Gelirler kaydedilirken hata', e);
+    }
   }
 
   Future<void> copuBosalt() async {
