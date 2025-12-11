@@ -223,7 +223,7 @@ class _IncomePageState extends State<IncomePage> {
                       Text(
                         "${totalIncome.toStringAsFixed(2)} ₺",
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Colors.green,
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                         ),
@@ -265,7 +265,7 @@ class _IncomePageState extends State<IncomePage> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      "${filteredIncomes.length} gelir kaydı bu ay",
+                      "Bu ay ${filteredIncomes.length} adet gelir kaydı eklendi",
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 13,
