@@ -137,7 +137,9 @@ class _CashlyAppState extends State<CashlyApp> {
                     Image.asset('assets/image/seffaflogo.png', height: 100),
                     const SizedBox(height: 20),
                     CircularProgressIndicator(
-                      color: themeManager.currentTheme.colorScheme.primary,
+                      color: themeManager.isDefaultTheme
+                          ? Colors.white
+                          : themeManager.currentTheme.colorScheme.primary,
                     ),
                   ],
                 ),
@@ -237,7 +239,9 @@ class AuthWrapper extends StatelessWidget {
             backgroundColor: Colors.black,
             body: Center(
               child: CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.primary,
+                color: context.watch<ThemeManager>().isDefaultTheme
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.primary,
               ),
             ),
           );

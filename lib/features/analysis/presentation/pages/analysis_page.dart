@@ -31,6 +31,14 @@ class _AnalysisPageState extends State<AnalysisPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    // Sekme değiştiğinde touchedIndex'i sıfırla
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {
+          _touchedIndex = -1;
+        });
+      }
+    });
   }
 
   @override
@@ -79,72 +87,95 @@ class _AnalysisPageState extends State<AnalysisPage>
                 width: 1.5,
               ),
             ),
-            child: TabBar(
-              controller: _tabController,
-              indicator: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary,
-                    Theme.of(context).colorScheme.secondary,
+            child: AnimatedBuilder(
+              animation: _tabController.animation!,
+              builder: (context, child) {
+                // Mevcut sekme indeksini animation değerinden al
+                final double animValue = _tabController.animation!.value;
+                final int currentIndex = animValue.round();
+
+                // Sekmeye göre renk belirle
+                Color tabColor;
+                Color tabColorDark;
+                switch (currentIndex) {
+                  case 0:
+                    tabColor = Colors.red.shade400;
+                    tabColorDark = Colors.red.shade700;
+                    break;
+                  case 1:
+                    tabColor = Colors.green.shade400;
+                    tabColorDark = Colors.green.shade700;
+                    break;
+                  case 2:
+                    tabColor = Colors.blue.shade400;
+                    tabColorDark = Colors.blue.shade700;
+                    break;
+                  default:
+                    tabColor = Colors.red.shade400;
+                    tabColorDark = Colors.red.shade700;
+                }
+
+                return TabBar(
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                    gradient: LinearGradient(colors: [tabColor, tabColorDark]),
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: tabColor.withValues(alpha: 0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  labelStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 13,
+                  ),
+                  tabs: const [
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.shopping_cart_outlined, size: 18),
+                          SizedBox(width: 6),
+                          Text("Harcama"),
+                        ],
+                      ),
+                    ),
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.trending_up, size: 18),
+                          SizedBox(width: 6),
+                          Text("Gelir"),
+                        ],
+                      ),
+                    ),
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.account_balance_wallet_outlined, size: 18),
+                          SizedBox(width: 6),
+                          Text("Varlık"),
+                        ],
+                      ),
+                    ),
                   ],
-                ),
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerColor: Colors.transparent,
-              labelColor: Colors.white,
-              unselectedLabelColor: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.6),
-              labelStyle: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.normal,
-                fontSize: 13,
-              ),
-              tabs: const [
-                Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.shopping_cart_outlined, size: 18),
-                      SizedBox(width: 6),
-                      Text("Harcama"),
-                    ],
-                  ),
-                ),
-                Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.trending_up, size: 18),
-                      SizedBox(width: 6),
-                      Text("Gelir"),
-                    ],
-                  ),
-                ),
-                Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.account_balance_wallet_outlined, size: 18),
-                      SizedBox(width: 6),
-                      Text("Varlık"),
-                    ],
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
         ),
@@ -185,28 +216,18 @@ class _AnalysisPageState extends State<AnalysisPage>
       totalAmount += amount;
     }
 
-    // Tema renklerinden türetilen renk paleti
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final secondaryColor = Theme.of(context).colorScheme.secondary;
+    // Harcama için kırmızı tonları renk paleti
     final List<Color> vibrantColors = [
-      primaryColor,
-      secondaryColor,
-      primaryColor.withValues(alpha: 0.7),
-      secondaryColor.withValues(alpha: 0.7),
-      HSLColor.fromColor(
-        primaryColor,
-      ).withHue((HSLColor.fromColor(primaryColor).hue + 30) % 360).toColor(),
-      HSLColor.fromColor(
-        secondaryColor,
-      ).withHue((HSLColor.fromColor(secondaryColor).hue + 30) % 360).toColor(),
-      primaryColor.withValues(alpha: 0.5),
-      secondaryColor.withValues(alpha: 0.5),
-      HSLColor.fromColor(
-        primaryColor,
-      ).withHue((HSLColor.fromColor(primaryColor).hue + 60) % 360).toColor(),
-      HSLColor.fromColor(
-        secondaryColor,
-      ).withHue((HSLColor.fromColor(secondaryColor).hue + 60) % 360).toColor(),
+      Colors.red.shade400,
+      Colors.red.shade600,
+      Colors.red.shade300,
+      Colors.red.shade700,
+      Colors.redAccent.shade200,
+      Colors.red.shade500,
+      Colors.redAccent.shade400,
+      Colors.red.shade800,
+      Colors.red.shade200,
+      Colors.redAccent.shade100,
     ];
 
     List<PieChartSectionData> sections = [];
@@ -255,19 +276,15 @@ class _AnalysisPageState extends State<AnalysisPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                  Theme.of(
-                    context,
-                  ).colorScheme.secondary.withValues(alpha: 0.1),
+                  Colors.red.shade900.withValues(alpha: 0.3),
+                  Colors.red.shade700.withValues(alpha: 0.15),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.3),
+                color: Colors.red.shade400.withValues(alpha: 0.4),
               ),
             ),
             child: Column(
@@ -291,7 +308,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                         Text(
                           "${totalAmount.toStringAsFixed(2)} ₺",
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Colors.red.shade300,
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                           ),
@@ -301,14 +318,12 @@ class _AnalysisPageState extends State<AnalysisPage>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.2),
+                        color: Colors.red.shade400.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Icon(
                         Icons.trending_down,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Colors.red.shade300,
                         size: 28,
                       ),
                     ),
@@ -325,11 +340,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.star,
-                        color: Theme.of(context).colorScheme.secondary,
-                        size: 20,
-                      ),
+                      Icon(Icons.star, color: Colors.red.shade300, size: 20),
                       const SizedBox(width: 8),
                       Expanded(
                         child: RichText(
@@ -437,22 +448,16 @@ class _AnalysisPageState extends State<AnalysisPage>
       totalIncome += income.amount;
     }
 
-    // Tema renklerinden türetilen renk paleti
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final secondaryColor = Theme.of(context).colorScheme.secondary;
+    // Gelir için yeşil tonları renk paleti
     final List<Color> vibrantColors = [
-      primaryColor,
-      secondaryColor,
-      primaryColor.withValues(alpha: 0.7),
-      secondaryColor.withValues(alpha: 0.7),
-      HSLColor.fromColor(
-        primaryColor,
-      ).withHue((HSLColor.fromColor(primaryColor).hue + 30) % 360).toColor(),
-      HSLColor.fromColor(
-        secondaryColor,
-      ).withHue((HSLColor.fromColor(secondaryColor).hue + 30) % 360).toColor(),
-      primaryColor.withValues(alpha: 0.5),
-      secondaryColor.withValues(alpha: 0.5),
+      Colors.green.shade400,
+      Colors.green.shade600,
+      Colors.green.shade300,
+      Colors.green.shade700,
+      Colors.greenAccent.shade400,
+      Colors.green.shade500,
+      Colors.teal.shade400,
+      Colors.green.shade800,
     ];
 
     // Create pie chart sections
@@ -500,19 +505,15 @@ class _AnalysisPageState extends State<AnalysisPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                  Theme.of(
-                    context,
-                  ).colorScheme.secondary.withValues(alpha: 0.1),
+                  Colors.green.shade900.withValues(alpha: 0.3),
+                  Colors.green.shade700.withValues(alpha: 0.15),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.3),
+                color: Colors.green.shade400.withValues(alpha: 0.4),
               ),
             ),
             child: Column(
@@ -536,7 +537,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                         Text(
                           "${totalIncome.toStringAsFixed(2)} ₺",
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Colors.green.shade300,
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                           ),
@@ -546,14 +547,12 @@ class _AnalysisPageState extends State<AnalysisPage>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.2),
+                        color: Colors.green.shade400.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Icon(
                         Icons.trending_up,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Colors.green.shade300,
                         size: 28,
                       ),
                     ),
@@ -572,7 +571,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                     children: [
                       Icon(
                         Icons.emoji_events,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Colors.green.shade300,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -699,22 +698,16 @@ class _AnalysisPageState extends State<AnalysisPage>
 
     List<PieChartSectionData> sections = [];
     int index = 0;
-    // Tema renklerinden türetilen renk paleti
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final secondaryColor = Theme.of(context).colorScheme.secondary;
+    // Varlık için mavi tonları renk paleti
     final List<Color> vibrantColors = [
-      primaryColor,
-      secondaryColor,
-      primaryColor.withValues(alpha: 0.7),
-      secondaryColor.withValues(alpha: 0.7),
-      HSLColor.fromColor(
-        primaryColor,
-      ).withHue((HSLColor.fromColor(primaryColor).hue + 30) % 360).toColor(),
-      HSLColor.fromColor(
-        secondaryColor,
-      ).withHue((HSLColor.fromColor(secondaryColor).hue + 30) % 360).toColor(),
-      primaryColor.withValues(alpha: 0.5),
-      secondaryColor.withValues(alpha: 0.5),
+      Colors.blue.shade400,
+      Colors.blue.shade600,
+      Colors.blue.shade300,
+      Colors.blue.shade700,
+      Colors.blueAccent.shade200,
+      Colors.blue.shade500,
+      Colors.cyan.shade400,
+      Colors.blue.shade800,
     ];
 
     totals.forEach((key, value) {
@@ -761,19 +754,15 @@ class _AnalysisPageState extends State<AnalysisPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                  Theme.of(
-                    context,
-                  ).colorScheme.secondary.withValues(alpha: 0.1),
+                  Colors.blue.shade900.withValues(alpha: 0.3),
+                  Colors.blue.shade700.withValues(alpha: 0.15),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.3),
+                color: Colors.blue.shade400.withValues(alpha: 0.4),
               ),
             ),
             child: Column(
@@ -797,7 +786,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                         Text(
                           "${totalValue.toStringAsFixed(2)} ₺",
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Colors.blue.shade300,
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                           ),
@@ -807,14 +796,12 @@ class _AnalysisPageState extends State<AnalysisPage>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.2),
+                        color: Colors.blue.shade400.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Icon(
                         Icons.account_balance_wallet,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Colors.blue.shade300,
                         size: 28,
                       ),
                     ),
@@ -833,7 +820,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                     children: [
                       Icon(
                         Icons.diamond,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Colors.blue.shade300,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
