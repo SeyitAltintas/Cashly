@@ -85,8 +85,10 @@ class AnimationsSettingsPage extends StatelessWidget {
                       SwitchListTile(
                         activeTrackColor: Theme.of(
                           context,
-                        ).colorScheme.primary.withValues(alpha: 0.5),
-                        activeThumbColor: Theme.of(context).colorScheme.primary,
+                        ).colorScheme.secondary.withValues(alpha: 0.5),
+                        activeThumbColor: Theme.of(
+                          context,
+                        ).colorScheme.secondary,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 12,

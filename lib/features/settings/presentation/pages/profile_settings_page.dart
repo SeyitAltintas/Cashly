@@ -1367,12 +1367,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     decoration: BoxDecoration(
                       color: Theme.of(
                         context,
-                      ).colorScheme.primary.withValues(alpha: 0.1),
+                      ).colorScheme.secondary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       Icons.fingerprint,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.secondary,
                       size: 24,
                     ),
                   ),
@@ -1395,7 +1395,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   trailing: Switch(
                     value: _currentUser?.biometricEnabled ?? false,
                     onChanged: _handleBiometricToggle,
-                    activeTrackColor: Theme.of(context).colorScheme.primary,
+                    activeTrackColor: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
               ),
@@ -1491,10 +1491,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+            color: Theme.of(
+              context,
+            ).colorScheme.secondary.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: Theme.of(context).colorScheme.primary),
+          child: Icon(icon, color: Theme.of(context).colorScheme.secondary),
         ),
         title: Text(
           title,

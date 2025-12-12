@@ -127,7 +127,7 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                               ? Icons.volume_up
                               : Icons.volume_off,
                           color: _sesliGeriBildirimAktif
-                              ? Theme.of(context).colorScheme.primary
+                              ? Theme.of(context).colorScheme.secondary
                               : Theme.of(
                                   context,
                                 ).colorScheme.onSurface.withValues(alpha: 0.5),
@@ -163,10 +163,10 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                           onChanged: _ayariDegistir,
                           activeTrackColor: Theme.of(
                             context,
-                          ).colorScheme.primary.withValues(alpha: 0.5),
+                          ).colorScheme.secondary.withValues(alpha: 0.5),
                           activeThumbColor: Theme.of(
                             context,
-                          ).colorScheme.primary,
+                          ).colorScheme.secondary,
                         ),
                       ],
                     ),
@@ -186,16 +186,18 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                           ),
                         );
                       },
-                      icon: const Icon(Icons.list_alt, color: Colors.white),
+                      icon: const Icon(Icons.list_alt, color: Colors.black),
                       label: const Text(
                         'Tüm Sesli Komutları Görüntüle',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
