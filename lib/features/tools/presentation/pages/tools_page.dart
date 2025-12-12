@@ -138,9 +138,6 @@ class ToolsPage extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: gradientColors[0].withValues(alpha: 0.5),
-              ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(20.0),

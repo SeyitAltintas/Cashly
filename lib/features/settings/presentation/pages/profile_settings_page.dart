@@ -1355,11 +1355,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.1),
-                  ),
                 ),
                 child: ListTile(
                   leading: Container(

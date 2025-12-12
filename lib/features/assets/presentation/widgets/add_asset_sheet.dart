@@ -235,7 +235,7 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                   ),
                   prefixIcon: Icon(
                     Icons.edit,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
               ),
@@ -266,10 +266,10 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                     backgroundColor: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.05),
-                    selectedColor: Theme.of(context).colorScheme.primary,
+                    selectedColor: Theme.of(context).colorScheme.secondary,
                     labelStyle: TextStyle(
                       color: isSelected
-                          ? Theme.of(context).colorScheme.onPrimary
+                          ? Colors.black
                           : Theme.of(
                               context,
                             ).colorScheme.onSurface.withValues(alpha: 0.7),
@@ -375,7 +375,7 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                     ),
                     prefixIcon: Icon(
                       Icons.numbers,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),
@@ -423,7 +423,7 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                         ),
                         prefixIcon: Icon(
                           Icons.currency_lira,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                     ),
@@ -440,12 +440,12 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                         decoration: BoxDecoration(
                           color: Theme.of(
                             context,
-                          ).colorScheme.primary.withValues(alpha: 0.1),
+                          ).colorScheme.secondary.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: Theme.of(
                               context,
-                            ).colorScheme.primary.withValues(alpha: 0.3),
+                            ).colorScheme.secondary.withValues(alpha: 0.3),
                           ),
                         ),
                         child: _isLoading
@@ -454,13 +454,17 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.secondary,
                                 ),
                               )
                             : Text(
                                 "Güncel",
                                 style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.secondary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -533,8 +537,8 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -545,7 +549,7 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
                 ),

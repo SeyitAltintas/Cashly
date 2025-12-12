@@ -125,7 +125,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
                         IconButton(
                           icon: Icon(
                             Icons.restore,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                           onPressed: () {
                             widget.onRestore(asset);
