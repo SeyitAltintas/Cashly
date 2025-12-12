@@ -31,6 +31,7 @@ class AnaSayfa extends StatefulWidget {
 
 class _AnaSayfaState extends State<AnaSayfa> {
   int _selectedIndex = 0;
+  late PageController _pageController;
   List<Map<String, dynamic>> tumHarcamalar = [];
   List<Map<String, dynamic>> gosterilenHarcamalar = [];
   List<Asset> varliklar = [];
@@ -69,10 +70,19 @@ class _AnaSayfaState extends State<AnaSayfa> {
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: _selectedIndex);
     kategorileriYukle();
     gelirKategorileriYukle();
     verileriOku();
     filtreleVeGoster();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    tArama.dispose();
+    tGelirArama.dispose();
+    super.dispose();
   }
 
   void kategorileriYukle() {
@@ -1691,245 +1701,249 @@ class _AnaSayfaState extends State<AnaSayfa> {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         if (_selectedIndex != 0) {
-          setState(() {
-            _selectedIndex = 0;
-          });
+          _pageController.jumpToPage(0);
         }
       },
       child: Scaffold(
         appBar: appBar,
-        body: _selectedIndex == 0
-            ? harcamalarBody
-            : _selectedIndex == 1
-            ? IncomePage(
-                incomes: tumGelirler,
-                selectedDate: secilenAy,
-                searchQuery: gelirAramaModu ? tGelirArama.text : '',
-                onDelete: (income) {
-                  setState(() {
-                    income.isDeleted = true;
-                  });
-                  gelirleriKaydet();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text(
-                        "Gelir silindi 🗑️",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      backgroundColor: Colors.red.shade700,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      margin: const EdgeInsets.all(12),
-                      duration: const Duration(seconds: 1),
+        body: PageView(
+          controller: _pageController,
+          onPageChanged: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          children: [
+            // Sayfa 0: Harcamalarım
+            harcamalarBody,
+            // Sayfa 1: Gelirlerim
+            IncomePage(
+              incomes: tumGelirler,
+              selectedDate: secilenAy,
+              searchQuery: gelirAramaModu ? tGelirArama.text : '',
+              onDelete: (income) {
+                setState(() {
+                  income.isDeleted = true;
+                });
+                gelirleriKaydet();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      "Gelir silindi 🗑️",
+                      style: TextStyle(color: Colors.white),
                     ),
-                  );
-                },
-                onEdit: (income) {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => AddIncomeSheet(
-                      incomeToEdit: income.toMap(),
-                      categories: gelirKategoriIkonlari,
-                      onSave: (name, amount, category, date) {
+                    backgroundColor: Colors.red.shade700,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    margin: const EdgeInsets.all(12),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              },
+              onEdit: (income) {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => AddIncomeSheet(
+                    incomeToEdit: income.toMap(),
+                    categories: gelirKategoriIkonlari,
+                    onSave: (name, amount, category, date) {
+                      setState(() {
+                        int index = tumGelirler.indexOf(income);
+                        if (index != -1) {
+                          tumGelirler[index] = Income(
+                            id: income.id,
+                            name: name,
+                            amount: amount,
+                            category: category,
+                            date: date,
+                            isDeleted: false,
+                          );
+                        }
+                      });
+                      gelirleriKaydet();
+                    },
+                  ),
+                );
+              },
+              onPreviousMonth: () {
+                setState(() {
+                  secilenAy = DateTime(secilenAy.year, secilenAy.month - 1);
+                });
+              },
+              onNextMonth: () {
+                setState(() {
+                  secilenAy = DateTime(secilenAy.year, secilenAy.month + 1);
+                });
+              },
+              onSelectMonth: ayYilSeciciAc,
+            ),
+            // Sayfa 2: Araçlar
+            ToolsPage(
+              onAssetsPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AssetsPage(
+                      assets: varliklar.where((a) => !a.isDeleted).toList(),
+                      deletedAssets: varliklar
+                          .where((a) => a.isDeleted)
+                          .toList(),
+                      onDelete: (asset) {
                         setState(() {
-                          int index = tumGelirler.indexOf(income);
+                          asset.isDeleted = true;
+                        });
+                        varliklariKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Varlık çöp kutusuna taşındı 🗑️",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: ColorConstants.koyuKirmizi,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      onEdit: (asset) {
+                        setState(() {
+                          int index = varliklar.indexWhere(
+                            (a) => a.id == asset.id,
+                          );
                           if (index != -1) {
-                            tumGelirler[index] = Income(
-                              id: income.id,
-                              name: name,
-                              amount: amount,
-                              category: category,
-                              date: date,
-                              isDeleted: false,
-                            );
+                            varliklar[index] = asset;
                           }
                         });
-                        gelirleriKaydet();
+                        varliklariKaydet();
+                      },
+                      onRestore: (asset) {
+                        setState(() {
+                          asset.isDeleted = false;
+                        });
+                        varliklariKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Varlık geri yüklendi ♻️",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.green.shade700,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                          ),
+                        );
+                      },
+                      onPermanentDelete: (asset) {
+                        setState(() {
+                          varliklar.remove(asset);
+                        });
+                        varliklariKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Varlık kalıcı olarak silindi ❌",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: ColorConstants.koyuKirmizi,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                          ),
+                        );
+                      },
+                      onEmptyBin: () {
+                        setState(() {
+                          varliklar.removeWhere((a) => a.isDeleted);
+                        });
+                        varliklariKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Çöp kutusu boşaltıldı 🧹",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: ColorConstants.koyuKirmizi,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                          ),
+                        );
+                      },
+                      onAdd: (name, amount, quantity, category, type) {
+                        setState(() {
+                          varliklar.add(
+                            Asset(
+                              id: DateTime.now().millisecondsSinceEpoch
+                                  .toString(),
+                              name: name,
+                              amount: amount,
+                              quantity: quantity,
+                              category: category,
+                              type: type,
+                              lastUpdated: DateTime.now(),
+                              isDeleted: false,
+                            ),
+                          );
+                        });
+                        varliklariKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Varlık eklendi ✅",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.green.shade700,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                          ),
+                        );
                       },
                     ),
-                  );
-                },
-                onPreviousMonth: () {
-                  setState(() {
-                    secilenAy = DateTime(secilenAy.year, secilenAy.month - 1);
-                  });
-                },
-                onNextMonth: () {
-                  setState(() {
-                    secilenAy = DateTime(secilenAy.year, secilenAy.month + 1);
-                  });
-                },
-                onSelectMonth: ayYilSeciciAc,
-              )
-            : _selectedIndex == 2
-            ? ToolsPage(
-                onAssetsPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AssetsPage(
-                        assets: varliklar.where((a) => !a.isDeleted).toList(),
-                        deletedAssets: varliklar
-                            .where((a) => a.isDeleted)
-                            .toList(),
-                        onDelete: (asset) {
-                          setState(() {
-                            asset.isDeleted = true;
-                          });
-                          varliklariKaydet();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Varlık çöp kutusuna taşındı 🗑️",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: ColorConstants.koyuKirmizi,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              margin: const EdgeInsets.all(12),
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
-                        },
-                        onEdit: (asset) {
-                          // AssetsPage kendi modal'ını açıyor
-                          // Burada sadece veritabanına kaydet
-                          setState(() {
-                            int index = varliklar.indexWhere(
-                              (a) => a.id == asset.id,
-                            );
-                            if (index != -1) {
-                              varliklar[index] = asset;
-                            }
-                          });
-                          varliklariKaydet();
-                        },
-                        onRestore: (asset) {
-                          setState(() {
-                            asset.isDeleted = false;
-                          });
-                          varliklariKaydet();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Varlık geri yüklendi ♻️",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: Colors.green.shade700,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              margin: const EdgeInsets.all(12),
-                            ),
-                          );
-                        },
-                        onPermanentDelete: (asset) {
-                          setState(() {
-                            varliklar.remove(asset);
-                          });
-                          varliklariKaydet();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Varlık kalıcı olarak silindi ❌",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: ColorConstants.koyuKirmizi,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              margin: const EdgeInsets.all(12),
-                            ),
-                          );
-                        },
-                        onEmptyBin: () {
-                          setState(() {
-                            varliklar.removeWhere((a) => a.isDeleted);
-                          });
-                          varliklariKaydet();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Çöp kutusu boşaltıldı 🧹",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: ColorConstants.koyuKirmizi,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              margin: const EdgeInsets.all(12),
-                            ),
-                          );
-                        },
-                        onAdd: (name, amount, quantity, category, type) {
-                          setState(() {
-                            varliklar.add(
-                              Asset(
-                                id: DateTime.now().millisecondsSinceEpoch
-                                    .toString(),
-                                name: name,
-                                amount: amount,
-                                quantity: quantity,
-                                category: category,
-                                type: type,
-                                lastUpdated: DateTime.now(),
-                                isDeleted: false,
-                              ),
-                            );
-                          });
-                          varliklariKaydet();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Varlık eklendi ✅",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: Colors.green.shade700,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              margin: const EdgeInsets.all(12),
-                            ),
-                          );
-                        },
-                      ),
+                  ),
+                );
+              },
+              onAnalysisPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AnalysisPage(
+                      expenses: tumHarcamalar,
+                      assets: varliklar,
+                      incomes: tumGelirler,
+                      selectedDate: secilenAy,
                     ),
-                  );
-                },
-                onAnalysisPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AnalysisPage(
-                        expenses: tumHarcamalar,
-                        assets: varliklar,
-                        incomes: tumGelirler,
-                        selectedDate: secilenAy,
-                      ),
-                    ),
-                  );
-                },
-              )
-            : _selectedIndex == 3
-            ? ProfilSayfasi(
-                authController: widget.authController,
-                onRefresh: () {
-                  // Profil sayfasından dönerken kategorileri yenile
-                  kategorileriYukle();
-                  verileriOku();
-                },
-              )
-            : const SizedBox.shrink(),
+                  ),
+                );
+              },
+            ),
+            // Sayfa 3: Profil
+            ProfilSayfasi(
+              authController: widget.authController,
+              onRefresh: () {
+                kategorileriYukle();
+                verileriOku();
+              },
+            ),
+          ],
+        ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             if (_selectedIndex == 0) {
@@ -2018,9 +2032,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     size: 28,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _selectedIndex = 0;
-                    });
+                    _pageController.animateToPage(
+                      0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
                   },
                   tooltip: "Harcamalarım",
                 ),
@@ -2033,9 +2049,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     size: 28,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _selectedIndex = 1;
-                    });
+                    _pageController.animateToPage(
+                      1,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
                   },
                   tooltip: "Gelirlerim",
                 ),
@@ -2049,9 +2067,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     size: 28,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _selectedIndex = 2;
-                    });
+                    _pageController.animateToPage(
+                      2,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
                   },
                   tooltip: "Araçlar",
                 ),
@@ -2064,9 +2084,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     size: 28,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _selectedIndex = 3;
-                    });
+                    _pageController.animateToPage(
+                      3,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
                   },
                   tooltip: "Profil",
                 ),
