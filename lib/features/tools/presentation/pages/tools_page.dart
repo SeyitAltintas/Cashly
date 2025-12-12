@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
-import 'package:cashly/core/theme/app_theme.dart';
 
 class ToolsPage extends StatelessWidget {
   final VoidCallback onAssetsPressed;
@@ -73,16 +70,14 @@ class ToolsPage extends StatelessWidget {
                       icon: Icons.account_balance_wallet,
                       title: "Varlıklarım",
                       subtitle: "Varlıklarınızı yönetin",
-                      gradientColors:
-                          context.watch<ThemeManager>().isDefaultTheme
-                          ? [
-                              PageThemeColors.darkGray,
-                              PageThemeColors.darkGray.withValues(alpha: 0.7),
-                            ]
-                          : [
-                              Theme.of(context).colorScheme.primary,
-                              Theme.of(context).colorScheme.primaryContainer,
-                            ],
+                      gradientColors: [
+                        Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.3),
+                        Theme.of(
+                          context,
+                        ).colorScheme.secondary.withValues(alpha: 0.15),
+                      ],
                       onTap: onAssetsPressed,
                       delay: 100,
                     ),
@@ -91,16 +86,14 @@ class ToolsPage extends StatelessWidget {
                       icon: Icons.pie_chart,
                       title: "Analiz ve\nRaporlar",
                       subtitle: "Detaylı analizler",
-                      gradientColors:
-                          context.watch<ThemeManager>().isDefaultTheme
-                          ? [
-                              PageThemeColors.darkGray.withValues(alpha: 0.8),
-                              PageThemeColors.darkGray.withValues(alpha: 0.5),
-                            ]
-                          : [
-                              Theme.of(context).colorScheme.secondary,
-                              Theme.of(context).colorScheme.secondaryContainer,
-                            ],
+                      gradientColors: [
+                        Theme.of(
+                          context,
+                        ).colorScheme.secondary.withValues(alpha: 0.3),
+                        Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.15),
+                      ],
                       onTap: onAnalysisPressed,
                       delay: 200,
                     ),
@@ -136,7 +129,7 @@ class ToolsPage extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(20),
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -144,14 +137,10 @@ class ToolsPage extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: gradientColors[0].withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: gradientColors[0].withValues(alpha: 0.5),
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -162,26 +151,18 @@ class ToolsPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(
-                      icon,
-                      color: context.watch<ThemeManager>().isDefaultTheme
-                          ? Colors.black
-                          : Colors.white,
-                      size: 28,
-                    ),
+                    child: Icon(icon, color: Colors.white, size: 28),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
-                        style: TextStyle(
-                          color: context.watch<ThemeManager>().isDefaultTheme
-                              ? Colors.white
-                              : Colors.white,
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -190,9 +171,7 @@ class ToolsPage extends StatelessWidget {
                       Text(
                         subtitle,
                         style: TextStyle(
-                          color: context.watch<ThemeManager>().isDefaultTheme
-                              ? Colors.white70
-                              : Colors.white.withValues(alpha: 0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 12,
                         ),
                       ),

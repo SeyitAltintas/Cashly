@@ -1,8 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
-import 'package:cashly/core/theme/app_theme.dart';
 import 'settings_page.dart';
 import 'features/settings/presentation/pages/profile_settings_page.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
@@ -32,47 +29,21 @@ class ProfilSayfasi extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: context.watch<ThemeManager>().isDefaultTheme
-                    ? [
-                        PageThemeColors.lightGray,
-                        PageThemeColors.lightGray.withValues(alpha: 0.8),
-                        PageThemeColors.lightGray.withValues(alpha: 0.6),
-                      ]
-                    : [
-                        Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.8),
-                        Theme.of(
-                          context,
-                        ).colorScheme.primaryContainer.withValues(alpha: 0.6),
-                        Theme.of(
-                          context,
-                        ).colorScheme.secondary.withValues(alpha: 0.4),
-                      ],
+                colors: [
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                  Theme.of(
+                    context,
+                  ).colorScheme.secondary.withValues(alpha: 0.1),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                stops: const [0.0, 0.5, 1.0],
               ),
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.15),
-                width: 1.5,
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.3),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.4),
-                  blurRadius: 25,
-                  offset: const Offset(0, 12),
-                  spreadRadius: -5,
-                ),
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-              ],
             ),
             child: Row(
               children: [
@@ -141,10 +112,8 @@ class ProfilSayfasi extends StatelessWidget {
                       // Kullanıcı Adı
                       Text(
                         authController.currentUser?.name ?? "Kullanıcı",
-                        style: TextStyle(
-                          color: context.watch<ThemeManager>().isDefaultTheme
-                              ? Colors.black
-                              : Colors.white,
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
@@ -156,9 +125,7 @@ class ProfilSayfasi extends StatelessWidget {
                         Text(
                           authController.currentUser!.email,
                           style: TextStyle(
-                            color: context.watch<ThemeManager>().isDefaultTheme
-                                ? Colors.black54
-                                : Colors.white.withValues(alpha: 0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 14,
                           ),
                         ),
