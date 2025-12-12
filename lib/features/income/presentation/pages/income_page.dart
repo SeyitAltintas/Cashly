@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cashly/core/theme/theme_manager.dart';
+import 'package:cashly/core/theme/app_theme.dart';
 import '../../data/models/income_model.dart';
 
 class IncomePage extends StatefulWidget {
@@ -223,7 +226,9 @@ class _IncomePageState extends State<IncomePage> {
                       Text(
                         "${totalIncome.toStringAsFixed(2)} ₺",
                         style: TextStyle(
-                          color: Colors.green,
+                          color: context.watch<ThemeManager>().isDefaultTheme
+                              ? PageThemeColors.incomePrimary
+                              : Colors.green,
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                         ),
@@ -394,7 +399,11 @@ class _IncomePageState extends State<IncomePage> {
                 ),
                 child: Icon(
                   _getIconForCategory(income.category),
-                  color: Theme.of(context).colorScheme.primary,
+                  color: context.watch<ThemeManager>().isDefaultTheme
+                      ? PageThemeColors.getIconColor(
+                          filteredIncomes.indexOf(income),
+                        )
+                      : Theme.of(context).colorScheme.primary,
                   size: 24,
                 ),
               ),

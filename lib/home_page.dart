@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cashly/core/theme/theme_manager.dart';
+import 'package:cashly/core/theme/app_theme.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/widgets/money_animation.dart';
 
@@ -1085,9 +1086,18 @@ class _AnaSayfaState extends State<AnaSayfa> {
                                     child: Icon(
                                       kategoriIkonlari[harcama['kategori']] ??
                                           Icons.help,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.secondary,
+                                      color:
+                                          context
+                                              .watch<ThemeManager>()
+                                              .isDefaultTheme
+                                          ? PageThemeColors.getIconColor(
+                                              gosterilenHarcamalar.indexOf(
+                                                harcama,
+                                              ),
+                                            )
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
                                     ),
                                   ),
                                   title: Text(
@@ -1970,9 +1980,21 @@ class _AnaSayfaState extends State<AnaSayfa> {
               });
             }
           },
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: context.watch<ThemeManager>().isDefaultTheme
+              ? (_selectedIndex == 0
+                    ? PageThemeColors.expensePrimary
+                    : _selectedIndex == 1
+                    ? PageThemeColors.incomePrimary
+                    : PageThemeColors.defaultPrimary)
+              : Theme.of(context).colorScheme.primary,
           shape: const CircleBorder(),
-          child: const Icon(Icons.add, color: Colors.white, size: 32),
+          child: Icon(
+            Icons.add,
+            color: context.watch<ThemeManager>().isDefaultTheme
+                ? Colors.black
+                : Colors.white,
+            size: 32,
+          ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: BottomAppBar(
