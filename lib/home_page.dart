@@ -1114,8 +1114,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
                                   ),
                                   trailing: Text(
                                     "-${harcama['tutar']} ₺",
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color:
+                                          context
+                                              .watch<ThemeManager>()
+                                              .isDefaultTheme
+                                          ? Colors.red
+                                          : Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
                                     ),

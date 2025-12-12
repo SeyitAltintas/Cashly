@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:cashly/services/database_helper.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/utils/validators.dart';
+import 'package:cashly/core/theme/app_theme.dart';
+import 'package:cashly/core/theme/theme_manager.dart';
 
 /// Gelir kategorilerini yönetmek için sayfa
 class GelirKategoriYonetimiSayfasi extends StatefulWidget {
@@ -399,29 +402,17 @@ class _GelirKategoriYonetimiSayfasiState
                           key: Key('gelir_kategori_${kategori['isim']}_$index'),
                           color: Theme.of(context).colorScheme.surface,
                           margin: const EdgeInsets.only(bottom: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: Colors.white10),
-                          ),
                           child: ListTile(
-                            leading: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.secondary.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(
-                                ikon,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
+                            leading: Icon(
+                              ikon,
+                              color:
+                                  context.watch<ThemeManager>().isDefaultTheme
+                                  ? PageThemeColors.getIconColor(index)
+                                  : Theme.of(context).colorScheme.secondary,
                             ),
                             title: Text(
                               kategori['isim'],
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
+                              style: const TextStyle(color: Colors.white),
                             ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,

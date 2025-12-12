@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/theme/theme_manager.dart';
 import 'income_category_management_page.dart';
 
 /// Gelirler ayarları ana sayfası
@@ -96,18 +98,11 @@ class _GelirlerAyarlariSayfasiState extends State<GelirlerAyarlariSayfasi> {
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.secondary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.category,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                    Icon(
+                      Icons.format_list_bulleted,
+                      color: context.watch<ThemeManager>().isDefaultTheme
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.secondary,
                     ),
                     const SizedBox(width: 12),
                     Expanded(

@@ -161,12 +161,10 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                         Switch(
                           value: _sesliGeriBildirimAktif,
                           onChanged: _ayariDegistir,
-                          activeTrackColor: Theme.of(
-                            context,
-                          ).colorScheme.secondary.withValues(alpha: 0.5),
-                          activeThumbColor: Theme.of(
-                            context,
-                          ).colorScheme.secondary,
+                          activeTrackColor: Colors.green.withValues(alpha: 0.5),
+                          activeThumbColor: Colors.green,
+                          inactiveTrackColor: Colors.red.withValues(alpha: 0.3),
+                          inactiveThumbColor: Colors.red,
                         ),
                       ],
                     ),

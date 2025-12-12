@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'services/database_helper.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
@@ -9,6 +10,7 @@ import 'features/settings/presentation/pages/voice_assistant_page.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'core/utils/validators.dart';
 import 'core/utils/error_handler.dart';
+import 'core/theme/theme_manager.dart';
 
 class AyarlarSayfasi extends StatefulWidget {
   final AuthController authController;
@@ -271,6 +273,8 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
 
   List<Map<String, dynamic>> sabitGiderler = [];
   bool categoryChanged = false;
+  bool _isSaved = false;
+  String _savedAmount = "";
 
   @override
   void initState() {
@@ -287,7 +291,11 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
   }
 
   void butceyiKaydet() {
-    final tutarText = tGelir.text.trim();
+    // Binlik ayırıcı noktaları temizle
+    final tutarText = tGelir.text
+        .trim()
+        .replaceAll('.', '')
+        .replaceAll(',', '');
 
     // Validation
     final validationError = Validators.validateAmount(
@@ -304,10 +312,32 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
     if (yeniLimit != null) {
       try {
         DatabaseHelper.butceKaydet(widget.userId, yeniLimit);
+
+        // Format the amount with thousands separator
+        final formattedAmount = yeniLimit
+            .toStringAsFixed(0)
+            .replaceAllMapped(
+              RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+              (Match m) => '${m[1]}.',
+            );
+
         setState(() {
-          categoryChanged = true; // Ana sayfanın yenilenmesi için
+          categoryChanged = true;
+          _isSaved = true;
+          _savedAmount = formattedAmount;
+          tGelir.text =
+              "Bütçe Limitiniz $formattedAmount TL olarak güncellendi.";
         });
-        ErrorHandler.showSuccessSnackBar(context, "Aylık bütçe güncellendi ✅");
+
+        // 3 saniye sonra normal değere dön
+        Future.delayed(const Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() {
+              _isSaved = false;
+              tGelir.text = _savedAmount;
+            });
+          }
+        });
       } catch (e) {
         ErrorHandler.handleDatabaseError(context, e);
       }
@@ -658,23 +688,54 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                         keyboardType: TextInputType.number,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 20,
+                          fontSize: _isSaved ? 13 : 20,
                           fontWeight: FontWeight.bold,
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           border: InputBorder.none,
-                          suffixText: "₺",
-                          hintText: "0",
+                          suffixText: _isSaved ? "" : "₺",
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.save,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                      onPressed: butceyiKaydet,
-                      tooltip: "Kaydet",
+                    SizedBox(width: 5),
+                    Container(
+                      height: 30,
+                      width: 1,
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.2),
+                    ),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, animation) {
+                        return ScaleTransition(scale: animation, child: child);
+                      },
+                      child: _isSaved
+                          ? IconButton(
+                              key: const ValueKey('check'),
+                              icon: Icon(
+                                Icons.check,
+                                color:
+                                    context.watch<ThemeManager>().isDefaultTheme
+                                    ? Colors.green
+                                    : Colors.white,
+                              ),
+                              onPressed: null,
+                              tooltip: "Kaydedildi",
+                            )
+                          : IconButton(
+                              key: const ValueKey('save'),
+                              icon: Icon(
+                                Icons.save,
+                                color:
+                                    context.watch<ThemeManager>().isDefaultTheme
+                                    ? Colors.white
+                                    : Theme.of(context).colorScheme.secondary,
+                              ),
+                              onPressed: butceyiKaydet,
+                              tooltip: "Kaydet",
+                            ),
                     ),
                   ],
                 ),
@@ -870,8 +931,10 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.category,
-                      color: Theme.of(context).colorScheme.secondary,
+                      Icons.format_list_bulleted,
+                      color: context.watch<ThemeManager>().isDefaultTheme
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.secondary,
                     ),
                     const SizedBox(width: 12),
                     Expanded(

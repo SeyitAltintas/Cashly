@@ -1392,7 +1392,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   trailing: Switch(
                     value: _currentUser?.biometricEnabled ?? false,
                     onChanged: _handleBiometricToggle,
-                    activeTrackColor: Theme.of(context).colorScheme.secondary,
+                    activeTrackColor: Colors.green.withValues(alpha: 0.5),
+                    activeThumbColor: Colors.green,
+                    inactiveTrackColor: Colors.red.withValues(alpha: 0.3),
+                    inactiveThumbColor: Colors.red,
                   ),
                 ),
               ),
