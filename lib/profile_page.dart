@@ -1,5 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cashly/core/theme/theme_manager.dart';
+import 'package:cashly/core/theme/app_theme.dart';
 import 'settings_page.dart';
 import 'features/settings/presentation/pages/profile_settings_page.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
@@ -29,15 +32,23 @@ class ProfilSayfasi extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-                  Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer.withValues(alpha: 0.6),
-                  Theme.of(
-                    context,
-                  ).colorScheme.secondary.withValues(alpha: 0.4),
-                ],
+                colors: context.watch<ThemeManager>().isDefaultTheme
+                    ? [
+                        PageThemeColors.lightGray,
+                        PageThemeColors.lightGray.withValues(alpha: 0.8),
+                        PageThemeColors.lightGray.withValues(alpha: 0.6),
+                      ]
+                    : [
+                        Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.8),
+                        Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer.withValues(alpha: 0.6),
+                        Theme.of(
+                          context,
+                        ).colorScheme.secondary.withValues(alpha: 0.4),
+                      ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 stops: const [0.0, 0.5, 1.0],
@@ -130,8 +141,10 @@ class ProfilSayfasi extends StatelessWidget {
                       // Kullanıcı Adı
                       Text(
                         authController.currentUser?.name ?? "Kullanıcı",
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.watch<ThemeManager>().isDefaultTheme
+                              ? Colors.black
+                              : Colors.white,
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
@@ -143,7 +156,9 @@ class ProfilSayfasi extends StatelessWidget {
                         Text(
                           authController.currentUser!.email,
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
+                            color: context.watch<ThemeManager>().isDefaultTheme
+                                ? Colors.black54
+                                : Colors.white.withValues(alpha: 0.8),
                             fontSize: 14,
                           ),
                         ),

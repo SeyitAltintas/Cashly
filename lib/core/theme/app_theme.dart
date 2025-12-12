@@ -3,21 +3,27 @@ import 'package:google_fonts/google_fonts.dart';
 
 /// Varsayılan tema için sayfa bazlı renkler
 class PageThemeColors {
-  // Harcamalar sayfası - Gümüş/Beyaz
-  static const Color expensePrimary = Color(0xFFBDBDBD);
-  static const Color expenseSecondary = Color(0xFFE0E0E0);
+  // Ana renkler - Siyaha yakın gri ve beyaza yakın gri
+  static const Color darkGray = Color(0xFF2D2D2D); // Siyaha yakın gri (Primary)
+  static const Color lightGray = Color(
+    0xFFE0E0E0,
+  ); // Beyaza yakın gri (Secondary)
 
-  // Gelirler sayfası - Yeşil
+  // Harcamalar sayfası
+  static const Color expensePrimary = darkGray;
+  static const Color expenseSecondary = lightGray;
+
+  // Gelirler sayfası - Yeşil (özel renk korunuyor)
   static const Color incomePrimary = Color(0xFF4CAF50);
   static const Color incomeSecondary = Color(0xFF81C784);
 
-  // Varlıklar sayfası - Lacivert
+  // Varlıklar sayfası - Lacivert (özel renk korunuyor)
   static const Color assetsPrimary = Color(0xFF1A237E);
   static const Color assetsSecondary = Color(0xFF3949AB);
 
-  // Varsayılan (Profil, Ayarlar vs.) - Gümüş/Beyaz
-  static const Color defaultPrimary = Color(0xFFBDBDBD);
-  static const Color defaultSecondary = Color(0xFFE0E0E0);
+  // Varsayılan (Profil, Ayarlar vs.)
+  static const Color defaultPrimary = darkGray;
+  static const Color defaultSecondary = lightGray;
 
   // Kart ikonları için çeşitli renkler
   static const List<Color> iconColors = [
@@ -45,15 +51,14 @@ class AppTheme {
   // Private constructor - statik metodlarla kullanılacak
   AppTheme._();
 
-  /// Varsayılan Tema - Her sayfa için farklı renkler kullanılır
-  /// Primary: Gümüş/Beyaz (varsayılan sayfa rengi)
+  /// Varsayılan Tema - Koyu gri / açık gri renk şeması
   static ThemeData get defaultTheme {
     return ThemeData.dark().copyWith(
       scaffoldBackgroundColor: const Color(0xFF000000),
       textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
       colorScheme: const ColorScheme.dark(
-        primary: PageThemeColors.defaultPrimary,
-        secondary: PageThemeColors.defaultSecondary,
+        primary: PageThemeColors.darkGray,
+        secondary: PageThemeColors.lightGray,
         surface: Color(0xFF121212),
         error: Color(0xFFCF6679),
         brightness: Brightness.dark,
@@ -62,7 +67,7 @@ class AppTheme {
         backgroundColor: Color(0xFF000000),
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: PageThemeColors.defaultPrimary),
+        iconTheme: IconThemeData(color: PageThemeColors.lightGray),
       ),
       cardTheme: const CardThemeData(
         color: Color(0xFF121212),
@@ -72,8 +77,8 @@ class AppTheme {
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: PageThemeColors.defaultPrimary,
-        foregroundColor: Colors.black,
+        backgroundColor: PageThemeColors.darkGray,
+        foregroundColor: Colors.white,
       ),
     );
   }

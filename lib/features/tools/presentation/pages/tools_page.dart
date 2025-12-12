@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cashly/core/theme/theme_manager.dart';
+import 'package:cashly/core/theme/app_theme.dart';
 
 class ToolsPage extends StatelessWidget {
   final VoidCallback onAssetsPressed;
@@ -70,10 +73,16 @@ class ToolsPage extends StatelessWidget {
                       icon: Icons.account_balance_wallet,
                       title: "Varlıklarım",
                       subtitle: "Varlıklarınızı yönetin",
-                      gradientColors: [
-                        Theme.of(context).colorScheme.primary,
-                        Theme.of(context).colorScheme.primaryContainer,
-                      ],
+                      gradientColors:
+                          context.watch<ThemeManager>().isDefaultTheme
+                          ? [
+                              PageThemeColors.darkGray,
+                              PageThemeColors.darkGray.withValues(alpha: 0.7),
+                            ]
+                          : [
+                              Theme.of(context).colorScheme.primary,
+                              Theme.of(context).colorScheme.primaryContainer,
+                            ],
                       onTap: onAssetsPressed,
                       delay: 100,
                     ),
@@ -82,10 +91,16 @@ class ToolsPage extends StatelessWidget {
                       icon: Icons.pie_chart,
                       title: "Analiz ve\nRaporlar",
                       subtitle: "Detaylı analizler",
-                      gradientColors: [
-                        Theme.of(context).colorScheme.secondary,
-                        Theme.of(context).colorScheme.secondaryContainer,
-                      ],
+                      gradientColors:
+                          context.watch<ThemeManager>().isDefaultTheme
+                          ? [
+                              PageThemeColors.darkGray.withValues(alpha: 0.8),
+                              PageThemeColors.darkGray.withValues(alpha: 0.5),
+                            ]
+                          : [
+                              Theme.of(context).colorScheme.secondary,
+                              Theme.of(context).colorScheme.secondaryContainer,
+                            ],
                       onTap: onAnalysisPressed,
                       delay: 200,
                     ),
@@ -150,15 +165,23 @@ class ToolsPage extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(icon, color: Colors.white, size: 28),
+                    child: Icon(
+                      icon,
+                      color: context.watch<ThemeManager>().isDefaultTheme
+                          ? Colors.black
+                          : Colors.white,
+                      size: 28,
+                    ),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.watch<ThemeManager>().isDefaultTheme
+                              ? Colors.white
+                              : Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -167,7 +190,9 @@ class ToolsPage extends StatelessWidget {
                       Text(
                         subtitle,
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
+                          color: context.watch<ThemeManager>().isDefaultTheme
+                              ? Colors.white70
+                              : Colors.white.withValues(alpha: 0.8),
                           fontSize: 12,
                         ),
                       ),

@@ -238,14 +238,18 @@ class _IncomePageState extends State<IncomePage> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.2),
+                      color: context.watch<ThemeManager>().isDefaultTheme
+                          ? PageThemeColors.incomePrimary.withValues(alpha: 0.2)
+                          : Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Icon(
                       Icons.trending_up,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: context.watch<ThemeManager>().isDefaultTheme
+                          ? PageThemeColors.incomePrimary
+                          : Theme.of(context).colorScheme.primary,
                       size: 28,
                     ),
                   ),
@@ -438,7 +442,9 @@ class _IncomePageState extends State<IncomePage> {
               Text(
                 "+${income.amount.toStringAsFixed(2)} ₺",
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: context.watch<ThemeManager>().isDefaultTheme
+                      ? PageThemeColors.incomePrimary
+                      : Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),

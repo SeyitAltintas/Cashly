@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cashly/core/theme/theme_manager.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 
@@ -350,12 +352,14 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                     elevation: 0,
                   ),
                   onPressed: _save,
-                  child: const Text(
+                  child: Text(
                     "Kaydet",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: context.watch<ThemeManager>().isDefaultTheme
+                          ? Colors.white
+                          : Colors.white,
                     ),
                   ),
                 ),

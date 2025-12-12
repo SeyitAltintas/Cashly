@@ -863,14 +863,18 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.2),
+                        color: context.watch<ThemeManager>().isDefaultTheme
+                            ? PageThemeColors.lightGray.withValues(alpha: 0.3)
+                            : Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Icon(
                         Icons.trending_down,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: context.watch<ThemeManager>().isDefaultTheme
+                            ? PageThemeColors.lightGray
+                            : Theme.of(context).colorScheme.primary,
                         size: 28,
                       ),
                     ),
@@ -1991,7 +1995,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
           child: Icon(
             Icons.add,
             color: context.watch<ThemeManager>().isDefaultTheme
-                ? Colors.black
+                ? Colors.white
                 : Colors.white,
             size: 32,
           ),
