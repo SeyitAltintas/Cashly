@@ -1217,7 +1217,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),
         ),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
       );
     }
 
