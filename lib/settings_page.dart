@@ -6,6 +6,7 @@ import 'features/expenses/presentation/pages/category_management_page.dart';
 import 'features/income/presentation/pages/income_settings_page.dart';
 import 'features/settings/presentation/pages/appearance_page.dart';
 import 'features/settings/presentation/pages/voice_assistant_page.dart';
+import 'features/payment_methods/data/models/payment_method_model.dart';
 
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'core/utils/validators.dart';
@@ -276,6 +277,10 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
   bool _isSaved = false;
   String _savedAmount = "";
 
+  // Ödeme yöntemleri
+  List<PaymentMethod> odemeYontemleri = [];
+  String? varsayilanOdemeYontemiId;
+
   @override
   void initState() {
     super.initState();
@@ -285,8 +290,22 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
   void verileriYukle() {
     double mevcutButce = DatabaseHelper.butceGetir(widget.userId);
     tGelir.text = mevcutButce.toStringAsFixed(0);
+
+    // Ödeme yöntemlerini yükle
+    List<Map<String, dynamic>> pmVerileri = DatabaseHelper.odemeYontemleriGetir(
+      widget.userId,
+    );
+    List<PaymentMethod> pmList = pmVerileri
+        .map((m) => PaymentMethod.fromMap(m))
+        .toList();
+    String? varsayilanPm = DatabaseHelper.varsayilanOdemeYontemiGetir(
+      widget.userId,
+    );
+
     setState(() {
       sabitGiderler = DatabaseHelper.sabitGiderSablonlariGetir(widget.userId);
+      odemeYontemleri = pmList.where((pm) => !pm.isDeleted).toList();
+      varsayilanOdemeYontemiId = varsayilanPm;
     });
   }
 
@@ -906,6 +925,152 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                   ),
                 ),
               ],
+
+              const SizedBox(height: 30),
+              // VARSAYILAN ÖDEME YÖNTEMİ
+              Text(
+                "VARSAYILAN ÖDEME YÖNTEMİ",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: odemeYontemleri.isEmpty
+                    ? Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              "Henüz ödeme yöntemi eklemediniz. Araçlar sayfasından ekleyebilirsiniz.",
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.5),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Icon(
+                            Icons.credit_card,
+                            color: context.watch<ThemeManager>().isDefaultTheme
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.secondary,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String?>(
+                                value: varsayilanOdemeYontemiId,
+                                dropdownColor: Theme.of(
+                                  context,
+                                ).colorScheme.surface,
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                                isExpanded: true,
+                                hint: Text(
+                                  'Seçiniz',
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.5),
+                                  ),
+                                ),
+                                items: [
+                                  DropdownMenuItem<String?>(
+                                    value: null,
+                                    child: Text(
+                                      'İlk ödeme yöntemini kullan',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.7),
+                                      ),
+                                    ),
+                                  ),
+                                  ...odemeYontemleri.map((pm) {
+                                    return DropdownMenuItem<String?>(
+                                      value: pm.id,
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            pm.type == 'nakit'
+                                                ? Icons.wallet
+                                                : pm.type == 'kredi'
+                                                ? Icons.credit_card
+                                                : Icons.account_balance,
+                                            size: 18,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              pm.lastFourDigits != null
+                                                  ? '${pm.name} ****${pm.lastFourDigits}'
+                                                  : pm.name,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    varsayilanOdemeYontemiId = newValue;
+                                    categoryChanged = true;
+                                  });
+                                  DatabaseHelper.varsayilanOdemeYontemiKaydet(
+                                    widget.userId,
+                                    newValue,
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text(
+                                        "Varsayılan ödeme yöntemi güncellendi ✅",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.green.shade700,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      margin: const EdgeInsets.all(12),
+                                      duration: const Duration(seconds: 1),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
 
               const SizedBox(height: 30),
               Row(

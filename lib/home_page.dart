@@ -19,6 +19,8 @@ import 'features/income/data/models/income_model.dart';
 import 'features/income/presentation/pages/income_recycle_bin_page.dart';
 import 'features/expenses/presentation/widgets/add_expense_sheet.dart';
 import 'features/expenses/presentation/widgets/voice_input_sheet.dart';
+import 'features/payment_methods/presentation/pages/payment_methods_page.dart';
+import 'features/payment_methods/data/models/payment_method_model.dart';
 
 class AnaSayfa extends StatefulWidget {
   final AuthController authController;
@@ -47,6 +49,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
   Map<String, IconData> kategoriIkonlari = {};
   Map<String, IconData> gelirKategoriIkonlari = {};
   List<Income> tumGelirler = [];
+  List<PaymentMethod> tumOdemeYontemleri = [];
+  String? varsayilanOdemeYontemiId;
 
   // Gelir araması için
   final TextEditingController tGelirArama = TextEditingController();
@@ -363,11 +367,22 @@ class _AnaSayfaState extends State<AnaSayfa> {
         .map((map) => Income.fromMap(map))
         .toList();
 
+    // Ödeme yöntemlerini oku
+    List<Map<String, dynamic>> odemeVerileri =
+        DatabaseHelper.odemeYontemleriGetir(userId);
+    List<PaymentMethod> okunanOdemeYontemleri = odemeVerileri
+        .map((map) => PaymentMethod.fromMap(map))
+        .toList();
+    // Varsayılan ödeme yöntemini oku
+    String? varsayilanPm = DatabaseHelper.varsayilanOdemeYontemiGetir(userId);
+
     setState(() {
       tumHarcamalar = gelen;
       butceLimiti = kayitliButce;
       varliklar = okunanVarliklar;
       tumGelirler = okunanGelirler;
+      tumOdemeYontemleri = okunanOdemeYontemleri;
+      varsayilanOdemeYontemiId = varsayilanPm;
       filtreleVeGoster();
     });
   }
@@ -415,6 +430,15 @@ class _AnaSayfaState extends State<AnaSayfa> {
         .map((asset) => asset.toMap())
         .toList();
     DatabaseHelper.varliklariKaydet(userId, varlikMapleri);
+  }
+
+  /// Ödeme yöntemlerini veritabanına kaydeder
+  void odemeYontemleriKaydet() {
+    String userId = widget.authController.currentUser!.id;
+    List<Map<String, dynamic>> yontemMapleri = tumOdemeYontemleri
+        .map((pm) => pm.toMap())
+        .toList();
+    DatabaseHelper.odemeYontemleriKaydet(userId, yontemMapleri);
   }
 
   void oncekiAy() {
@@ -659,9 +683,32 @@ class _AnaSayfaState extends State<AnaSayfa> {
   void harcamaSil(Map<String, dynamic> harcama) {
     setState(() {
       harcama['silindi'] = true;
+
+      // Ödeme yönteminin bakiyesini geri ekle
+      final paymentMethodId = harcama['odemeYontemiId'];
+      if (paymentMethodId != null) {
+        final pmIndex = tumOdemeYontemleri.indexWhere(
+          (p) => p.id == paymentMethodId,
+        );
+        if (pmIndex != -1) {
+          final pm = tumOdemeYontemleri[pmIndex];
+          final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+          double newBalance;
+          if (pm.type == 'kredi') {
+            // Kredi kartı: borcu azalt
+            newBalance = pm.balance - amount;
+          } else {
+            // Banka kartı/Nakit: bakiyeyi artır
+            newBalance = pm.balance + amount;
+          }
+          tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+        }
+      }
+
       filtreleVeGoster();
     });
     verileriKaydet();
+    odemeYontemleriKaydet(); // Ödeme yöntemleri bakiyelerini kaydet
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -679,6 +726,12 @@ class _AnaSayfaState extends State<AnaSayfa> {
   }
 
   void pencereAc({Map<String, dynamic>? duzenlenecekHarcama}) {
+    // Düzenleme yapılıyorsa eski tutarı sakla
+    final eskiTutar = duzenlenecekHarcama != null
+        ? double.tryParse(duzenlenecekHarcama['tutar'].toString()) ?? 0.0
+        : 0.0;
+    final eskiOdemeYontemiId = duzenlenecekHarcama?['odemeYontemiId'];
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -686,9 +739,44 @@ class _AnaSayfaState extends State<AnaSayfa> {
       builder: (context) => AddExpenseSheet(
         expenseToEdit: duzenlenecekHarcama,
         categories: kategoriIkonlari,
-        onSave: (name, amount, category, date) {
+        paymentMethods: tumOdemeYontemleri
+            .where((pm) => !pm.isDeleted)
+            .toList(),
+        defaultPaymentMethodId: varsayilanOdemeYontemiId,
+        onSave: (name, amount, category, date, paymentMethodId) {
           setState(() {
+            // Bakiye güncelleme mantığı
+            void updateBalance(String? pmId, double amountChange) {
+              if (pmId == null) return;
+              final pmIndex = tumOdemeYontemleri.indexWhere(
+                (p) => p.id == pmId,
+              );
+              if (pmIndex == -1) return;
+
+              final pm = tumOdemeYontemleri[pmIndex];
+              double newBalance;
+              if (pm.type == 'kredi') {
+                // Kredi kartı: borca ekle
+                newBalance = pm.balance + amountChange;
+              } else {
+                // Banka kartı/Nakit: bakiyeden düş
+                newBalance = pm.balance - amountChange;
+              }
+              tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+            }
+
             if (duzenlenecekHarcama != null) {
+              // Düzenleme: eski tutarı geri ekle, yeni tutarı düş
+              if (eskiOdemeYontemiId != null) {
+                updateBalance(
+                  eskiOdemeYontemiId,
+                  -eskiTutar,
+                ); // Eski tutarı geri ekle
+              }
+              if (paymentMethodId != null) {
+                updateBalance(paymentMethodId, amount); // Yeni tutarı düş
+              }
+
               int index = tumHarcamalar.indexOf(duzenlenecekHarcama);
               if (index != -1) {
                 tumHarcamalar[index] = {
@@ -697,15 +785,22 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   "kategori": category,
                   "tarih": date.toString(),
                   "silindi": false,
+                  "odemeYontemiId": paymentMethodId,
                 };
               }
             } else {
+              // Yeni harcama: sadece düş
+              if (paymentMethodId != null) {
+                updateBalance(paymentMethodId, amount);
+              }
+
               tumHarcamalar.add({
                 "isim": name,
                 "tutar": amount,
                 "kategori": category,
                 "tarih": date.toString(),
                 "silindi": false,
+                "odemeYontemiId": paymentMethodId,
               });
             }
 
@@ -720,6 +815,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
             filtreleVeGoster();
           });
           verileriKaydet();
+          odemeYontemleriKaydet(); // Ödeme yöntemleri bakiyelerini kaydet
 
           // Yeni harcama eklendiyse para animasyonu göster
           if (duzenlenecekHarcama == null) {
@@ -1115,12 +1211,80 @@ class _AnaSayfaState extends State<AnaSayfa> {
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  subtitle: Text(
-                                    harcama['kategori'],
-                                    style: const TextStyle(
-                                      color: Colors.white38,
-                                      fontSize: 12,
-                                    ),
+                                  subtitle: Builder(
+                                    builder: (context) {
+                                      // Ödeme yöntemini bul
+                                      final paymentMethodId =
+                                          harcama['odemeYontemiId'];
+                                      PaymentMethod? pm;
+                                      if (paymentMethodId != null) {
+                                        pm = tumOdemeYontemleri.firstWhere(
+                                          (p) => p.id == paymentMethodId,
+                                          orElse: () => PaymentMethod(
+                                            id: '',
+                                            name: '',
+                                            type: '',
+                                            balance: 0,
+                                            colorIndex: 0,
+                                            createdAt: DateTime.now(),
+                                            isDeleted: false,
+                                          ),
+                                        );
+                                        if (pm.id.isEmpty) pm = null;
+                                      }
+
+                                      return Row(
+                                        children: [
+                                          Text(
+                                            harcama['kategori'],
+                                            style: const TextStyle(
+                                              color: Colors.white38,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                          if (pm != null) ...[
+                                            const SizedBox(width: 8),
+                                            Icon(
+                                              pm.isDeleted
+                                                  ? Icons.block
+                                                  : pm.type == 'nakit'
+                                                  ? Icons.wallet
+                                                  : pm.type == 'kredi'
+                                                  ? Icons.credit_card
+                                                  : Icons.account_balance,
+                                              size: 12,
+                                              color: pm.isDeleted
+                                                  ? Colors.red.withValues(
+                                                      alpha: 0.5,
+                                                    )
+                                                  : Colors.white38,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Flexible(
+                                              child: Text(
+                                                pm.isDeleted
+                                                    ? '(Silinmiş)'
+                                                    : pm.lastFourDigits != null
+                                                    ? '${pm.name} ****${pm.lastFourDigits}'
+                                                    : pm.name,
+                                                style: TextStyle(
+                                                  color: pm.isDeleted
+                                                      ? Colors.red.withValues(
+                                                          alpha: 0.5,
+                                                        )
+                                                      : Colors.white38,
+                                                  fontSize: 11,
+                                                  fontStyle: pm.isDeleted
+                                                      ? FontStyle.italic
+                                                      : FontStyle.normal,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      );
+                                    },
                                   ),
                                   trailing: Text(
                                     "-${harcama['tutar']} ₺",
@@ -1929,6 +2093,223 @@ class _AnaSayfaState extends State<AnaSayfa> {
                       assets: varliklar,
                       incomes: tumGelirler,
                       selectedDate: secilenAy,
+                      paymentMethods: tumOdemeYontemleri
+                          .where((pm) => !pm.isDeleted)
+                          .toList(),
+                    ),
+                  ),
+                );
+              },
+              onPaymentMethodsPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PaymentMethodsPage(
+                      paymentMethods: tumOdemeYontemleri
+                          .where((pm) => !pm.isDeleted)
+                          .toList(),
+                      deletedPaymentMethods: tumOdemeYontemleri
+                          .where((pm) => pm.isDeleted)
+                          .toList(),
+                      onDelete: (pm) {
+                        setState(() {
+                          final index = tumOdemeYontemleri.indexWhere(
+                            (p) => p.id == pm.id,
+                          );
+                          if (index != -1) {
+                            tumOdemeYontemleri[index] = pm.copyWith(
+                              isDeleted: true,
+                            );
+                          }
+
+                          // Silinen ödeme yöntemi varsayılansa varsayılanı temizle
+                          if (varsayilanOdemeYontemiId == pm.id) {
+                            varsayilanOdemeYontemiId = null;
+                            DatabaseHelper.varsayilanOdemeYontemiKaydet(
+                              widget.authController.currentUser!.id,
+                              null,
+                            );
+                          }
+                        });
+                        odemeYontemleriKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Ödeme yöntemi çöp kutusuna taşındı 🗑️",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: ColorConstants.koyuKirmizi,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      onEdit: (pm) {
+                        setState(() {
+                          int index = tumOdemeYontemleri.indexWhere(
+                            (p) => p.id == pm.id,
+                          );
+                          if (index != -1) {
+                            tumOdemeYontemleri[index] = pm;
+                          }
+                        });
+                        odemeYontemleriKaydet();
+                      },
+                      onRestore: (pm) {
+                        setState(() {
+                          final index = tumOdemeYontemleri.indexWhere(
+                            (p) => p.id == pm.id,
+                          );
+                          if (index != -1) {
+                            // Bu PM'e bağlı aktif harcamaların toplamını hesapla
+                            double toplamHarcama = 0;
+                            for (var h in tumHarcamalar) {
+                              if (h['odemeYontemiId'] == pm.id &&
+                                  h['silindi'] != true) {
+                                toplamHarcama +=
+                                    double.tryParse(h['tutar'].toString()) ?? 0;
+                              }
+                            }
+
+                            // Bakiyeyi ayarla
+                            double yeniBakiye;
+                            if (pm.type == 'kredi') {
+                              // Kredi kartı: borç = toplam harcama
+                              yeniBakiye = toplamHarcama;
+                            } else {
+                              // Banka/Nakit: bakiye düşürülür
+                              yeniBakiye = pm.balance - toplamHarcama;
+                            }
+
+                            tumOdemeYontemleri[index] = pm.copyWith(
+                              isDeleted: false,
+                              balance: yeniBakiye,
+                            );
+                          }
+                        });
+                        odemeYontemleriKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Ödeme yöntemi geri yüklendi ♻️",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.green.shade700,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                          ),
+                        );
+                      },
+                      onPermanentDelete: (pm) {
+                        setState(() {
+                          tumOdemeYontemleri.removeWhere((p) => p.id == pm.id);
+
+                          // Bu PM'e bağlı harcamaların odemeYontemiId'sini temizle
+                          for (var h in tumHarcamalar) {
+                            if (h['odemeYontemiId'] == pm.id) {
+                              h['odemeYontemiId'] = null;
+                            }
+                          }
+                        });
+                        odemeYontemleriKaydet();
+                        verileriKaydet(); // Harcamaları da kaydet
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Ödeme yöntemi kalıcı olarak silindi ❌",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: ColorConstants.koyuKirmizi,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                          ),
+                        );
+                      },
+                      onEmptyBin: () {
+                        setState(() {
+                          // Silinen PM'lerin ID'lerini al
+                          final silinenIdler = tumOdemeYontemleri
+                              .where((pm) => pm.isDeleted)
+                              .map((pm) => pm.id)
+                              .toSet();
+
+                          // Bu PM'lere bağlı harcamaların odemeYontemiId'sini temizle
+                          for (var h in tumHarcamalar) {
+                            if (silinenIdler.contains(h['odemeYontemiId'])) {
+                              h['odemeYontemiId'] = null;
+                            }
+                          }
+
+                          tumOdemeYontemleri.removeWhere((pm) => pm.isDeleted);
+                        });
+                        odemeYontemleriKaydet();
+                        verileriKaydet(); // Harcamaları da kaydet
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Çöp kutusu boşaltıldı 🧹",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: ColorConstants.koyuKirmizi,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                          ),
+                        );
+                      },
+                      onAdd:
+                          (
+                            name,
+                            type,
+                            lastFourDigits,
+                            balance,
+                            limit,
+                            colorIndex,
+                          ) {
+                            setState(() {
+                              tumOdemeYontemleri.add(
+                                PaymentMethod(
+                                  id: DateTime.now().millisecondsSinceEpoch
+                                      .toString(),
+                                  name: name,
+                                  type: type,
+                                  lastFourDigits: lastFourDigits,
+                                  balance: balance,
+                                  limit: limit,
+                                  colorIndex: colorIndex,
+                                  createdAt: DateTime.now(),
+                                  isDeleted: false,
+                                ),
+                              );
+                            });
+                            odemeYontemleriKaydet();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  "Ödeme yöntemi eklendi ✅",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                backgroundColor: Colors.green.shade700,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                margin: const EdgeInsets.all(12),
+                              ),
+                            );
+                          },
                     ),
                   ),
                 );
@@ -1988,10 +2369,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
                 ),
               );
             } else {
-              // Diğer sayfalarda harcama ekleme sayfasına git
-              setState(() {
-                _selectedIndex = 0;
-              });
+              // Araçlar ve Profil sayfalarında: Harcamalarım sayfasına git ve sheet aç
+              _pageController.jumpToPage(0);
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 pencereAc();
               });
@@ -2032,11 +2411,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     size: 28,
                   ),
                   onPressed: () {
-                    _pageController.animateToPage(
-                      0,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
+                    _pageController.jumpToPage(0);
                   },
                   tooltip: "Harcamalarım",
                 ),
@@ -2049,11 +2424,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     size: 28,
                   ),
                   onPressed: () {
-                    _pageController.animateToPage(
-                      1,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
+                    _pageController.jumpToPage(1);
                   },
                   tooltip: "Gelirlerim",
                 ),
@@ -2067,11 +2438,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     size: 28,
                   ),
                   onPressed: () {
-                    _pageController.animateToPage(
-                      2,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
+                    _pageController.jumpToPage(2);
                   },
                   tooltip: "Araçlar",
                 ),
@@ -2084,11 +2451,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     size: 28,
                   ),
                   onPressed: () {
-                    _pageController.animateToPage(
-                      3,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
+                    _pageController.jumpToPage(3);
                   },
                   tooltip: "Profil",
                 ),

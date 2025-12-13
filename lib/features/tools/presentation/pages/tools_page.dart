@@ -5,11 +5,13 @@ import '../../../../core/theme/theme_manager.dart';
 class ToolsPage extends StatelessWidget {
   final VoidCallback onAssetsPressed;
   final VoidCallback onAnalysisPressed;
+  final VoidCallback onPaymentMethodsPressed;
 
   const ToolsPage({
     super.key,
     required this.onAssetsPressed,
     required this.onAnalysisPressed,
+    required this.onPaymentMethodsPressed,
   });
 
   @override
@@ -112,6 +114,29 @@ class ToolsPage extends StatelessWidget {
                             ],
                       onTap: onAnalysisPressed,
                       delay: 200,
+                    ),
+                    _buildToolCard(
+                      context,
+                      icon: Icons.credit_card,
+                      title: "Ödeme\nYöntemlerim",
+                      subtitle: "Kartlarınızı yönetin",
+                      gradientColors:
+                          context.watch<ThemeManager>().isDefaultTheme
+                          ? [
+                              const Color(0xFF1a1a2e),
+                              const Color(0xFF0f3460),
+                              const Color(0xFF16537e),
+                            ]
+                          : [
+                              Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.25),
+                              Theme.of(
+                                context,
+                              ).colorScheme.secondary.withValues(alpha: 0.2),
+                            ],
+                      onTap: onPaymentMethodsPressed,
+                      delay: 300,
                     ),
                   ],
                 ),
