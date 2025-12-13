@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:cashly/core/constants/color_constants.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../assets/data/models/asset_model.dart';
+import '../../../income/data/models/income_model.dart';
 
 class AnalysisPage extends StatefulWidget {
   final List<Map<String, dynamic>> expenses;
   final List<Asset> assets;
+  final List<Income> incomes;
   final DateTime selectedDate;
 
   const AnalysisPage({
     super.key,
     required this.expenses,
     required this.assets,
+    required this.incomes,
     required this.selectedDate,
   });
 
@@ -28,7 +30,15 @@ class _AnalysisPageState extends State<AnalysisPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
+    // Sekme değiştiğinde touchedIndex'i sıfırla
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {
+          _touchedIndex = -1;
+        });
+      }
+    });
   }
 
   @override
@@ -53,26 +63,130 @@ class _AnalysisPageState extends State<AnalysisPage>
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text("Analiz ve Raporlar"),
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Theme.of(context).colorScheme.secondary,
-          labelColor: Theme.of(context).colorScheme.secondary,
-          unselectedLabelColor: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.54),
-          tabs: const [
-            Tab(text: "Harcamalar"),
-            Tab(text: "Varlıklar"),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.surface.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.5),
+                width: 1.5,
+              ),
+            ),
+            child: AnimatedBuilder(
+              animation: _tabController.animation!,
+              builder: (context, child) {
+                // Mevcut sekme indeksini animation değerinden al
+                final double animValue = _tabController.animation!.value;
+                final int currentIndex = animValue.round();
+
+                // Sekmeye göre renk belirle
+                Color tabColor;
+                Color tabColorDark;
+                switch (currentIndex) {
+                  case 0:
+                    tabColor = Colors.red.shade400;
+                    tabColorDark = Colors.red.shade700;
+                    break;
+                  case 1:
+                    tabColor = Colors.green.shade400;
+                    tabColorDark = Colors.green.shade700;
+                    break;
+                  case 2:
+                    tabColor = Colors.blue.shade400;
+                    tabColorDark = Colors.blue.shade700;
+                    break;
+                  default:
+                    tabColor = Colors.red.shade400;
+                    tabColorDark = Colors.red.shade700;
+                }
+
+                return TabBar(
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                    gradient: LinearGradient(colors: [tabColor, tabColorDark]),
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: tabColor.withValues(alpha: 0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  labelStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 13,
+                  ),
+                  tabs: const [
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.shopping_cart_outlined, size: 18),
+                          SizedBox(width: 6),
+                          Text("Harcama"),
+                        ],
+                      ),
+                    ),
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.trending_up, size: 18),
+                          SizedBox(width: 6),
+                          Text("Gelir"),
+                        ],
+                      ),
+                    ),
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.account_balance_wallet_outlined, size: 18),
+                          SizedBox(width: 6),
+                          Text("Varlık"),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [_buildExpenseAnalysis(), _buildAssetAnalysis()],
+        children: [
+          _buildExpenseAnalysis(),
+          _buildIncomeAnalysis(),
+          _buildAssetAnalysis(),
+        ],
       ),
     );
   }
@@ -102,21 +216,18 @@ class _AnalysisPageState extends State<AnalysisPage>
       totalAmount += amount;
     }
 
+    // Harcama için kırmızı tonları renk paleti
     final List<Color> vibrantColors = [
-      const Color(0xFFFF5252), // Canlı Kırmızı
-      const Color(0xFFFF6F00), // Koyu Turuncu
-      const Color(0xFFFFC107), // Sarı/Amber
-      const Color(0xFF00C853), // Canlı Yeşil
-      const Color(0xFF00BCD4), // Cyan
-      const Color(0xFF2196F3), // Mavi
-      const Color(0xFF9C27B0), // Mor
-      const Color(0xFFE91E63), // Pembe
-      const Color(0xFF4CAF50), // Yeşil
-      const Color(0xFFFF9800), // Turuncu
-      const Color(0xFF673AB7), // Derin Mor
-      const Color(0xFF03A9F4), // Açık Mavi
-      const Color(0xFFCDDC39), // Lime
-      const Color(0xFFFF5722), // Derin Turuncu
+      Colors.red.shade400,
+      Colors.red.shade600,
+      Colors.red.shade300,
+      Colors.red.shade700,
+      Colors.redAccent.shade200,
+      Colors.red.shade500,
+      Colors.redAccent.shade400,
+      Colors.red.shade800,
+      Colors.red.shade200,
+      Colors.redAccent.shade100,
     ];
 
     List<PieChartSectionData> sections = [];
@@ -124,7 +235,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     totals.forEach((key, value) {
       final isTouched = index == _touchedIndex;
       final fontSize = isTouched ? 18.0 : 14.0;
-      final radius = isTouched ? 110.0 : 100.0;
+      final radius = isTouched ? 90.0 : 80.0;
       final color = vibrantColors[index % vibrantColors.length];
 
       sections.add(
@@ -144,48 +255,404 @@ class _AnalysisPageState extends State<AnalysisPage>
       index++;
     });
 
+    // En çok harcanan kategori
+    String topCategory = '';
+    double topAmount = 0;
+    totals.forEach((key, value) {
+      if (value > topAmount) {
+        topAmount = value;
+        topCategory = key;
+      }
+    });
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 250,
-            child: PieChart(
-              PieChartData(
-                pieTouchData: PieTouchData(
-                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                    setState(() {
-                      if (!event.isInterestedForInteractions ||
-                          pieTouchResponse == null ||
-                          pieTouchResponse.touchedSection == null) {
-                        _touchedIndex = -1;
-                        return;
-                      }
-                      _touchedIndex =
-                          pieTouchResponse.touchedSection!.touchedSectionIndex;
-                    });
-                  },
+          // Başlık kartı
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.red.shade900.withValues(alpha: 0.3),
+                  Colors.red.shade700.withValues(alpha: 0.15),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.red.shade400.withValues(alpha: 0.4),
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Toplam Harcama",
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "${totalAmount.toStringAsFixed(2)} ₺",
+                          style: TextStyle(
+                            color: Colors.red.shade300,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade400.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Icon(
+                        Icons.trending_down,
+                        color: Colors.red.shade300,
+                        size: 28,
+                      ),
+                    ),
+                  ],
                 ),
-                borderData: FlBorderData(show: false),
-                sectionsSpace: 2,
-                centerSpaceRadius: 40,
-                sections: sections,
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.star, color: Colors.red.shade300, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 13,
+                            ),
+                            children: [
+                              const TextSpan(text: "En çok harcama: "),
+                              TextSpan(
+                                text: topCategory,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              TextSpan(
+                                text: " (${topAmount.toStringAsFixed(2)} ₺)",
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Grafik
+          Center(
+            child: SizedBox(
+              height: 220,
+              child: PieChart(
+                PieChartData(
+                  pieTouchData: PieTouchData(
+                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                      setState(() {
+                        if (!event.isInterestedForInteractions ||
+                            pieTouchResponse == null ||
+                            pieTouchResponse.touchedSection == null) {
+                          _touchedIndex = -1;
+                          return;
+                        }
+                        _touchedIndex = pieTouchResponse
+                            .touchedSection!
+                            .touchedSectionIndex;
+                      });
+                    },
+                  ),
+                  borderData: FlBorderData(show: false),
+                  sectionsSpace: 2,
+                  centerSpaceRadius: 40,
+                  sections: sections,
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 30),
-          _buildSummaryCard(
-            "Toplam Harcama",
-            "${totalAmount.toStringAsFixed(2)} ₺",
-            ColorConstants.kirmiziVurgu,
+          const SizedBox(height: 24),
+          // Kategori listesi başlığı
+          Text(
+            "Kategori Dağılımı",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
           ...totals.entries.toList().asMap().entries.map((entry) {
             int idx = entry.key;
             var e = entry.value;
             final color = vibrantColors[idx % vibrantColors.length];
             return _buildLegendItem(e.key, e.value, color, totalAmount);
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIncomeAnalysis() {
+    // Filter incomes for the selected month
+    List<Income> monthlyIncomes = widget.incomes.where((i) {
+      if (i.isDeleted) return false;
+      return i.date.year == widget.selectedDate.year &&
+          i.date.month == widget.selectedDate.month;
+    }).toList();
+
+    if (monthlyIncomes.isEmpty) {
+      return _buildEmptyState("Bu ay için gelir verisi bulunmuyor.");
+    }
+
+    // Group by category
+    Map<String, double> totals = {};
+    double totalIncome = 0;
+
+    for (var income in monthlyIncomes) {
+      String category = income.category;
+      totals[category] = (totals[category] ?? 0) + income.amount;
+      totalIncome += income.amount;
+    }
+
+    // Gelir için yeşil tonları renk paleti
+    final List<Color> vibrantColors = [
+      Colors.green.shade400,
+      Colors.green.shade600,
+      Colors.green.shade300,
+      Colors.green.shade700,
+      Colors.greenAccent.shade400,
+      Colors.green.shade500,
+      Colors.teal.shade400,
+      Colors.green.shade800,
+    ];
+
+    // Create pie chart sections
+    List<PieChartSectionData> sections = [];
+    int colorIndex = 0;
+    totals.forEach((category, amount) {
+      final isTouched = colorIndex == _touchedIndex;
+      final radius = isTouched ? 90.0 : 80.0;
+      final color = vibrantColors[colorIndex % vibrantColors.length];
+
+      sections.add(
+        PieChartSectionData(
+          color: color,
+          value: amount,
+          title: '${(amount / totalIncome * 100).toStringAsFixed(1)}%',
+          radius: radius,
+          titleStyle: TextStyle(
+            fontSize: isTouched ? 16 : 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      );
+      colorIndex++;
+    });
+
+    // En fazla gelir kategorisi
+    String topCategory = '';
+    double topAmount = 0;
+    totals.forEach((key, value) {
+      if (value > topAmount) {
+        topAmount = value;
+        topCategory = key;
+      }
+    });
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Başlık kartı
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.green.shade900.withValues(alpha: 0.3),
+                  Colors.green.shade700.withValues(alpha: 0.15),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.green.shade400.withValues(alpha: 0.4),
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Toplam Gelir",
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "${totalIncome.toStringAsFixed(2)} ₺",
+                          style: TextStyle(
+                            color: Colors.green.shade300,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade400.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Icon(
+                        Icons.trending_up,
+                        color: Colors.green.shade300,
+                        size: 28,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.emoji_events,
+                        color: Colors.green.shade300,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 13,
+                            ),
+                            children: [
+                              const TextSpan(text: "En fazla gelir: "),
+                              TextSpan(
+                                text: topCategory,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              TextSpan(
+                                text: " (${topAmount.toStringAsFixed(2)} ₺)",
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Grafik
+          Center(
+            child: SizedBox(
+              height: 220,
+              child: PieChart(
+                PieChartData(
+                  pieTouchData: PieTouchData(
+                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                      setState(() {
+                        if (!event.isInterestedForInteractions ||
+                            pieTouchResponse == null ||
+                            pieTouchResponse.touchedSection == null) {
+                          _touchedIndex = -1;
+                          return;
+                        }
+                        _touchedIndex = pieTouchResponse
+                            .touchedSection!
+                            .touchedSectionIndex;
+                      });
+                    },
+                  ),
+                  borderData: FlBorderData(show: false),
+                  sectionsSpace: 2,
+                  centerSpaceRadius: 40,
+                  sections: sections,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Kategori listesi başlığı
+          Text(
+            "Gelir Kategorileri",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...totals.entries.toList().asMap().entries.map((entry) {
+            int idx = entry.key;
+            var e = entry.value;
+            final color = vibrantColors[idx % vibrantColors.length];
+            return _buildLegendItem(e.key, e.value, color, totalIncome);
           }),
         ],
       ),
@@ -231,23 +698,22 @@ class _AnalysisPageState extends State<AnalysisPage>
 
     List<PieChartSectionData> sections = [];
     int index = 0;
+    // Varlık için mavi tonları renk paleti
     final List<Color> vibrantColors = [
-      Theme.of(context).colorScheme.secondary,
-      const Color(0xFF03DAC6),
-      const Color(0xFFCF6679),
-      const Color(0xFF3700B3),
-      Colors.orangeAccent,
-      Colors.blueAccent,
-      Colors.pinkAccent,
-      Colors.tealAccent,
-      Colors.amberAccent,
-      Colors.lightGreenAccent,
+      Colors.blue.shade400,
+      Colors.blue.shade600,
+      Colors.blue.shade300,
+      Colors.blue.shade700,
+      Colors.blueAccent.shade200,
+      Colors.blue.shade500,
+      Colors.cyan.shade400,
+      Colors.blue.shade800,
     ];
 
     totals.forEach((key, value) {
       final isTouched = index == _touchedIndex;
       final fontSize = isTouched ? 18.0 : 14.0;
-      final radius = isTouched ? 110.0 : 100.0;
+      final radius = isTouched ? 90.0 : 80.0;
       final color = vibrantColors[index % vibrantColors.length];
 
       sections.add(
@@ -267,43 +733,170 @@ class _AnalysisPageState extends State<AnalysisPage>
       index++;
     });
 
+    // En değerli varlık kategorisi
+    String topCategory = '';
+    double topAmount = 0;
+    totals.forEach((key, value) {
+      if (value > topAmount) {
+        topAmount = value;
+        topCategory = key;
+      }
+    });
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 250,
-            child: PieChart(
-              PieChartData(
-                pieTouchData: PieTouchData(
-                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                    setState(() {
-                      if (!event.isInterestedForInteractions ||
-                          pieTouchResponse == null ||
-                          pieTouchResponse.touchedSection == null) {
-                        _touchedIndex = -1;
-                        return;
-                      }
-                      _touchedIndex =
-                          pieTouchResponse.touchedSection!.touchedSectionIndex;
-                    });
-                  },
+          // Başlık kartı
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.blue.shade900.withValues(alpha: 0.3),
+                  Colors.blue.shade700.withValues(alpha: 0.15),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.blue.shade400.withValues(alpha: 0.4),
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Toplam Varlık",
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "${totalValue.toStringAsFixed(2)} ₺",
+                          style: TextStyle(
+                            color: Colors.blue.shade300,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade400.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Icon(
+                        Icons.account_balance_wallet,
+                        color: Colors.blue.shade300,
+                        size: 28,
+                      ),
+                    ),
+                  ],
                 ),
-                borderData: FlBorderData(show: false),
-                sectionsSpace: 2,
-                centerSpaceRadius: 40,
-                sections: sections,
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.diamond,
+                        color: Colors.blue.shade300,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 13,
+                            ),
+                            children: [
+                              const TextSpan(text: "En değerli: "),
+                              TextSpan(
+                                text: topCategory,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              TextSpan(
+                                text: " (${topAmount.toStringAsFixed(2)} ₺)",
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Grafik
+          Center(
+            child: SizedBox(
+              height: 220,
+              child: PieChart(
+                PieChartData(
+                  pieTouchData: PieTouchData(
+                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                      setState(() {
+                        if (!event.isInterestedForInteractions ||
+                            pieTouchResponse == null ||
+                            pieTouchResponse.touchedSection == null) {
+                          _touchedIndex = -1;
+                          return;
+                        }
+                        _touchedIndex = pieTouchResponse
+                            .touchedSection!
+                            .touchedSectionIndex;
+                      });
+                    },
+                  ),
+                  borderData: FlBorderData(show: false),
+                  sectionsSpace: 2,
+                  centerSpaceRadius: 40,
+                  sections: sections,
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 30),
-          _buildSummaryCard(
-            "Toplam Varlık",
-            "${totalValue.toStringAsFixed(2)} ₺",
-            Colors.greenAccent,
+          const SizedBox(height: 24),
+          // Kategori listesi başlığı
+          Text(
+            "Varlık Kategorileri",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
           ...totals.entries.toList().asMap().entries.map((entry) {
             int idx = entry.key;
             var e = entry.value;
@@ -320,7 +913,13 @@ class _AnalysisPageState extends State<AnalysisPage>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.bar_chart, size: 80, color: Colors.white12),
+          Icon(
+            Icons.bar_chart,
+            size: 80,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.12),
+          ),
           const SizedBox(height: 16),
           Text(
             message,
@@ -329,46 +928,6 @@ class _AnalysisPageState extends State<AnalysisPage>
                 context,
               ).colorScheme.onSurface.withValues(alpha: 0.54),
               fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryCard(String title, String amount, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.7),
-              fontSize: 16,
-            ),
-          ),
-          Text(
-            amount,
-            style: TextStyle(
-              color: color,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
             ),
           ),
         ],
@@ -395,7 +954,10 @@ class _AnalysisPageState extends State<AnalysisPage>
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+              ),
             ),
           ),
           Column(
@@ -403,8 +965,8 @@ class _AnalysisPageState extends State<AnalysisPage>
             children: [
               Text(
                 "${value.toStringAsFixed(2)} ₺",
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),

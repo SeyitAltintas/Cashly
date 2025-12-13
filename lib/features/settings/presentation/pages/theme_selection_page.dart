@@ -24,8 +24,8 @@ class _ThemeSelectionPageState extends State<ThemeSelectionPage>
       duration: const Duration(milliseconds: 1200),
     );
 
-    // 12 tema için animasyonlar oluştur
-    _fadeAnimations = List.generate(12, (index) {
+    // 13 tema için animasyonlar oluştur
+    _fadeAnimations = List.generate(13, (index) {
       final start = index * 0.05;
       final end = start + 0.4;
       return Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -40,7 +40,7 @@ class _ThemeSelectionPageState extends State<ThemeSelectionPage>
       );
     });
 
-    _slideAnimations = List.generate(12, (index) {
+    _slideAnimations = List.generate(13, (index) {
       final start = index * 0.05;
       final end = start + 0.4;
       return Tween<Offset>(

@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 
-class AddExpenseSheet extends StatefulWidget {
-  final Map<String, dynamic>? expenseToEdit;
+class AddIncomeSheet extends StatefulWidget {
+  final Map<String, dynamic>? incomeToEdit;
   final Function(String name, double amount, String category, DateTime date)
   onSave;
   final Map<String, IconData> categories;
 
-  const AddExpenseSheet({
+  const AddIncomeSheet({
     super.key,
-    this.expenseToEdit,
+    this.incomeToEdit,
     required this.onSave,
     required this.categories,
   });
 
   @override
-  State<AddExpenseSheet> createState() => _AddExpenseSheetState();
+  State<AddIncomeSheet> createState() => _AddIncomeSheetState();
 }
 
-class _AddExpenseSheetState extends State<AddExpenseSheet> {
+class _AddIncomeSheetState extends State<AddIncomeSheet> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -50,13 +48,13 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     _categoryIcons = widget.categories;
     _selectedCategory = _categoryIcons.keys.first;
 
-    if (widget.expenseToEdit != null) {
-      _nameController.text = widget.expenseToEdit!['isim'];
-      _amountController.text = widget.expenseToEdit!['tutar'].toString();
+    if (widget.incomeToEdit != null) {
+      _nameController.text = widget.incomeToEdit!['name'] ?? '';
+      _amountController.text = widget.incomeToEdit!['amount'].toString();
       _selectedCategory =
-          widget.expenseToEdit!['kategori'] ?? _categoryIcons.keys.first;
+          widget.incomeToEdit!['category'] ?? _categoryIcons.keys.first;
       _selectedDate =
-          DateTime.tryParse(widget.expenseToEdit!['tarih'].toString()) ??
+          DateTime.tryParse(widget.incomeToEdit!['date'].toString()) ??
           DateTime.now();
     }
   }
@@ -78,8 +76,8 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
         return Theme(
           data: ThemeData.dark().copyWith(
             colorScheme: ColorScheme.dark(
-              primary: Theme.of(context).colorScheme.primary,
-              onPrimary: Theme.of(context).colorScheme.onPrimary,
+              primary: Theme.of(context).colorScheme.secondary,
+              onPrimary: Theme.of(context).colorScheme.onSecondary,
               surface: Theme.of(context).colorScheme.surface,
               onSurface: Theme.of(context).colorScheme.onSurface,
             ),
@@ -96,7 +94,6 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   }
 
   void _save() {
-    // Form validation
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -130,7 +127,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(
         child: Form(
@@ -150,17 +147,34 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text(
-                widget.expenseToEdit != null
-                    ? "Harcamayı Düzenle"
-                    : "Harcama Ekle",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.trending_up,
+                      color: Colors.green,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    widget.incomeToEdit != null
+                        ? "Geliri Düzenle"
+                        : "Gelir Ekle",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               TextFormField(
                 controller: _nameController,
                 style: TextStyle(
@@ -168,18 +182,15 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                 ),
                 autofocus: true,
                 validator: (value) =>
-                    Validators.validateItemName(value, itemType: 'Harcama'),
+                    Validators.validateItemName(value, itemType: 'Gelir'),
                 decoration: InputDecoration(
-                  hintText: "Ne aldın? (Örn: Çiğköfte)",
+                  hintText: "Gelir kaynağı (Örn: Maaş)",
                   hintStyle: TextStyle(
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.54),
                   ),
-                  prefixIcon: Icon(
-                    Icons.edit,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
+                  prefixIcon: Icon(Icons.edit, color: Colors.green.shade400),
                   filled: true,
                   fillColor: Theme.of(
                     context,
@@ -215,9 +226,9 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   decimal: true,
                 ),
                 validator: (value) =>
-                    Validators.validateAmount(value, maxAmount: 1000000),
+                    Validators.validateAmount(value, maxAmount: 10000000),
                 decoration: InputDecoration(
-                  hintText: "Tutar (Örn: 260)",
+                  hintText: "Tutar (Örn: 25000)",
                   hintStyle: TextStyle(
                     color: Theme.of(
                       context,
@@ -225,7 +236,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   ),
                   prefixIcon: Icon(
                     Icons.currency_lira,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Colors.green.shade400,
                   ),
                   filled: true,
                   fillColor: Theme.of(
@@ -269,10 +280,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.calendar_month,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                      Icon(Icons.calendar_month, color: Colors.green.shade400),
                       const SizedBox(width: 10),
                       Text(
                         "${_selectedDate.day} ${_months[_selectedDate.month - 1]} ${_selectedDate.year}",
@@ -321,7 +329,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                           children: [
                             Icon(
                               _categoryIcons[value],
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Colors.green.shade400,
                               size: 20,
                             ),
                             const SizedBox(width: 12),
@@ -344,22 +352,20 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                 height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Colors.green.shade600,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                     elevation: 0,
                   ),
                   onPressed: _save,
-                  child: Text(
+                  child: const Text(
                     "Kaydet",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: context.watch<ThemeManager>().isDefaultTheme
-                          ? Colors.white
-                          : Colors.white,
+                      color: Colors.white,
                     ),
                   ),
                 ),

@@ -62,7 +62,7 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Colors.white))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -127,7 +127,7 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                               ? Icons.volume_up
                               : Icons.volume_off,
                           color: _sesliGeriBildirimAktif
-                              ? Theme.of(context).colorScheme.primary
+                              ? Theme.of(context).colorScheme.secondary
                               : Theme.of(
                                   context,
                                 ).colorScheme.onSurface.withValues(alpha: 0.5),
@@ -161,12 +161,10 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                         Switch(
                           value: _sesliGeriBildirimAktif,
                           onChanged: _ayariDegistir,
-                          activeTrackColor: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.5),
-                          activeThumbColor: Theme.of(
-                            context,
-                          ).colorScheme.primary,
+                          activeTrackColor: Colors.green.withValues(alpha: 0.5),
+                          activeThumbColor: Colors.green,
+                          inactiveTrackColor: Colors.red.withValues(alpha: 0.3),
+                          inactiveThumbColor: Colors.red,
                         ),
                       ],
                     ),
@@ -186,16 +184,18 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                           ),
                         );
                       },
-                      icon: const Icon(Icons.list_alt, color: Colors.white),
+                      icon: const Icon(Icons.list_alt, color: Colors.black),
                       label: const Text(
                         'Tüm Sesli Komutları Görüntüle',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

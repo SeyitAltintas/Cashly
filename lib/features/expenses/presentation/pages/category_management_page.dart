@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:cashly/core/constants/color_constants.dart';
+import 'package:cashly/core/theme/app_theme.dart';
+import 'package:cashly/core/theme/theme_manager.dart';
 import '../../../../services/database_helper.dart';
 
 class KategoriYonetimiSayfasi extends StatefulWidget {
@@ -581,7 +584,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kategori Yönetimi'),
+        title: const Text('Harcama Kategorileri'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -667,7 +670,9 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                     child: ListTile(
                       leading: Icon(
                         ikon,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: context.watch<ThemeManager>().isDefaultTheme
+                            ? PageThemeColors.getIconColor(index)
+                            : Theme.of(context).colorScheme.secondary,
                       ),
                       title: Text(
                         kategori['isim'],

@@ -1050,7 +1050,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            Icon(Icons.mic, color: Theme.of(context).colorScheme.primary),
+            Icon(Icons.mic, color: Theme.of(context).colorScheme.secondary),
             const SizedBox(width: 12),
             Text(
               'Sesli Asistan',
@@ -1094,7 +1094,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
-                ).colorScheme.primary.withValues(alpha: 0.1),
+                ).colorScheme.secondary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -1102,14 +1102,14 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   Icon(
                     Icons.lightbulb_outline,
                     size: 16,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Detaylı komut listesi için:\nAyarlar → Sesli Asistan → Tüm Komutlar',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontSize: 11,
                       ),
                     ),
@@ -1125,7 +1125,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             child: Text(
               'Tamam',
               style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.secondary,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -1475,8 +1475,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                     child: ElevatedButton(
                       onPressed: canConfirm ? _confirm : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Colors.white,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondary,
+                        foregroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -1788,7 +1790,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _isListening
-                        ? Theme.of(context).colorScheme.primary
+                        ? Theme.of(context).colorScheme.secondary
                         : Theme.of(
                             context,
                           ).colorScheme.onSurface.withValues(alpha: 0.1),
@@ -1797,7 +1799,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                             BoxShadow(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.primary.withValues(alpha: 0.4),
+                              ).colorScheme.secondary.withValues(alpha: 0.4),
                               blurRadius: 20,
                               spreadRadius: 5,
                             ),
@@ -1808,8 +1810,8 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                     _isListening ? Icons.mic : Icons.mic_none,
                     size: 40,
                     color: _isListening
-                        ? Colors.white
-                        : Theme.of(context).colorScheme.primary,
+                        ? Colors.black
+                        : Theme.of(context).colorScheme.secondary,
                   ),
                 ),
               );

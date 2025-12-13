@@ -50,11 +50,7 @@ class _UserListPageState extends State<UserListPage> {
         ),
       ),
       body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            )
+          ? Center(child: CircularProgressIndicator(color: Colors.white))
           : _users.isEmpty
           ? Center(
               child: Text(

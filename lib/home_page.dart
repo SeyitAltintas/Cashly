@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cashly/core/theme/theme_manager.dart';
+import 'package:cashly/core/theme/app_theme.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/widgets/money_animation.dart';
 
@@ -10,9 +11,12 @@ import 'profile_page.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/assets/presentation/pages/assets_page.dart';
 import 'features/assets/data/models/asset_model.dart';
-import 'features/assets/presentation/widgets/add_asset_sheet.dart';
 import 'features/analysis/presentation/pages/analysis_page.dart';
 import 'features/tools/presentation/pages/tools_page.dart';
+import 'features/income/presentation/pages/income_page.dart';
+import 'features/income/presentation/widgets/add_income_sheet.dart';
+import 'features/income/data/models/income_model.dart';
+import 'features/income/presentation/pages/income_recycle_bin_page.dart';
 import 'features/expenses/presentation/widgets/add_expense_sheet.dart';
 import 'features/expenses/presentation/widgets/voice_input_sheet.dart';
 
@@ -27,6 +31,7 @@ class AnaSayfa extends StatefulWidget {
 
 class _AnaSayfaState extends State<AnaSayfa> {
   int _selectedIndex = 0;
+  late PageController _pageController;
   List<Map<String, dynamic>> tumHarcamalar = [];
   List<Map<String, dynamic>> gosterilenHarcamalar = [];
   List<Asset> varliklar = [];
@@ -40,6 +45,12 @@ class _AnaSayfaState extends State<AnaSayfa> {
   double butceLimiti = 8000.0;
 
   Map<String, IconData> kategoriIkonlari = {};
+  Map<String, IconData> gelirKategoriIkonlari = {};
+  List<Income> tumGelirler = [];
+
+  // Gelir araması için
+  final TextEditingController tGelirArama = TextEditingController();
+  bool gelirAramaModu = false;
 
   final List<String> aylarListesi = [
     "Ocak",
@@ -59,9 +70,19 @@ class _AnaSayfaState extends State<AnaSayfa> {
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: _selectedIndex);
     kategorileriYukle();
+    gelirKategorileriYukle();
     verileriOku();
     filtreleVeGoster();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    tArama.dispose();
+    tGelirArama.dispose();
+    super.dispose();
   }
 
   void kategorileriYukle() {
@@ -283,6 +304,34 @@ class _AnaSayfaState extends State<AnaSayfa> {
     });
   }
 
+  void gelirKategorileriYukle() {
+    String userId = widget.authController.currentUser!.id;
+    List<Map<String, dynamic>> dbKategoriler =
+        DatabaseHelper.gelirKategorileriGetir(userId);
+
+    final Map<String, IconData> ikonMap = {
+      'work': Icons.work,
+      'laptop': Icons.laptop,
+      'trending_up': Icons.trending_up,
+      'home': Icons.home,
+      'card_giftcard': Icons.card_giftcard,
+      'category': Icons.category,
+      'account_balance': Icons.account_balance,
+      'attach_money': Icons.attach_money,
+      'savings': Icons.savings,
+      'business': Icons.business,
+    };
+
+    setState(() {
+      gelirKategoriIkonlari = {};
+      for (var kategori in dbKategoriler) {
+        String isim = kategori['isim'];
+        String ikonAdi = kategori['ikon'];
+        gelirKategoriIkonlari[isim] = ikonMap[ikonAdi] ?? Icons.category;
+      }
+    });
+  }
+
   void verileriOku() {
     String userId = widget.authController.currentUser!.id;
 
@@ -306,12 +355,30 @@ class _AnaSayfaState extends State<AnaSayfa> {
         .map((map) => Asset.fromMap(map))
         .toList();
 
+    // Gelirleri oku
+    List<Map<String, dynamic>> gelirVerileri = DatabaseHelper.gelirleriGetir(
+      userId,
+    );
+    List<Income> okunanGelirler = gelirVerileri
+        .map((map) => Income.fromMap(map))
+        .toList();
+
     setState(() {
       tumHarcamalar = gelen;
       butceLimiti = kayitliButce;
       varliklar = okunanVarliklar;
+      tumGelirler = okunanGelirler;
       filtreleVeGoster();
     });
+  }
+
+  /// Gelirleri veritabanına kaydeder
+  void gelirleriKaydet() {
+    String userId = widget.authController.currentUser!.id;
+    List<Map<String, dynamic>> gelirMapleri = tumGelirler
+        .map((income) => income.toMap())
+        .toList();
+    DatabaseHelper.gelirleriKaydet(userId, gelirMapleri);
   }
 
   void filtreleVeGoster() {
@@ -703,26 +770,19 @@ class _AnaSayfaState extends State<AnaSayfa> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).colorScheme.primaryContainer,
-                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                  Theme.of(
+                    context,
+                  ).colorScheme.secondary.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: Theme.of(
                   context,
-                ).colorScheme.onSurface.withValues(alpha: 0.1),
+                ).colorScheme.primary.withValues(alpha: 0.3),
               ),
             ),
             child: Column(
@@ -749,8 +809,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         children: [
                           Text(
                             ayIsmi.toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
@@ -778,102 +838,146 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     ),
                   ],
                 ),
-                const Divider(color: Colors.white24),
+                Divider(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
+                ),
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "Toplam:",
-                      style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Toplam Harcama",
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "${toplamTutar.toStringAsFixed(2)} ₺",
+                          style: TextStyle(
+                            color: ColorConstants.kirmiziVurgu,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      "${toplamTutar.toStringAsFixed(2)} ₺",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: ColorConstants.kirmiziVurgu.withValues(
+                          alpha: 0.2,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Icon(
+                        Icons.trending_down,
+                        color: ColorConstants.kirmiziVurgu,
+                        size: 28,
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Bütçe Durumu",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.7),
-                            fontSize: 12,
+                const SizedBox(height: 16),
+                // Bütçe Durumu Container
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.account_balance_wallet,
+                                color: Theme.of(context).colorScheme.secondary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Bütçe Durumu",
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        Text(
-                          "%${(dolulukOrani * 100).toStringAsFixed(0)}",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.7),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                          Text(
+                            "%${(dolulukOrani * 100).toStringAsFixed(0)}",
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: LinearProgressIndicator(
-                        value: dolulukOrani,
-                        backgroundColor: Colors.black26,
-                        valueColor: AlwaysStoppedAnimation<Color>(barRengi),
-                        minHeight: 8,
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: kalanLimit < 0
-                          ? Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: ColorConstants.kirmiziVurgu,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                "BU AY Kİ LİMİTİ AŞTINIZ ! = ${asilanMiktar.toStringAsFixed(2)} ₺",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
+                      const SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: dolulukOrani,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.1),
+                          valueColor: AlwaysStoppedAnimation<Color>(barRengi),
+                          minHeight: 8,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: kalanLimit < 0
+                            ? Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: ColorConstants.kirmiziVurgu,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  "Limit aşıldı: ${asilanMiktar.toStringAsFixed(2)} ₺",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                "Kalan: ${kalanLimit.toStringAsFixed(2)} ₺",
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.7),
+                                  fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            )
-                          : Text(
-                              "Kalan Limit: ${kalanLimit.toStringAsFixed(2)} ₺",
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.7),
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -957,75 +1061,80 @@ class _AnaSayfaState extends State<AnaSayfa> {
                             onDismissed: (direction) {
                               harcamaSil(harcama);
                             },
-                            child: Card(
-                              color: Theme.of(context).colorScheme.surface,
-                              elevation: 0,
-                              margin: const EdgeInsets.only(bottom: 8),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                side: BorderSide(
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.05),
-                                ),
-                              ),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 4,
-                                ),
-                                leading: Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary
-                                        .withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Icon(
-                                    kategoriIkonlari[harcama['kategori']] ??
-                                        Icons.help,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.secondary,
+                            child: GestureDetector(
+                              onTap: () =>
+                                  pencereAc(duzenlenecekHarcama: harcama),
+                              child: Card(
+                                color: Theme.of(context).colorScheme.surface,
+                                elevation: 0,
+                                margin: const EdgeInsets.only(bottom: 8),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: BorderSide(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.05),
                                   ),
                                 ),
-                                title: Text(
-                                  harcama['isim'],
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 4,
                                   ),
-                                ),
-                                subtitle: Text(
-                                  harcama['kategori'],
-                                  style: const TextStyle(
-                                    color: Colors.white38,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      "-${harcama['tutar']} ₺",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
+                                  leading: Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    const SizedBox(width: 10),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.edit,
-                                        color: Colors.blueAccent,
-                                        size: 20,
-                                      ),
-                                      tooltip: "Düzenle",
-                                      onPressed: () => pencereAc(
-                                        duzenlenecekHarcama: harcama,
-                                      ),
+                                    child: Icon(
+                                      kategoriIkonlari[harcama['kategori']] ??
+                                          Icons.help,
+                                      color:
+                                          context
+                                              .watch<ThemeManager>()
+                                              .isDefaultTheme
+                                          ? PageThemeColors.getIconColor(
+                                              gosterilenHarcamalar.indexOf(
+                                                harcama,
+                                              ),
+                                            )
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
                                     ),
-                                  ],
+                                  ),
+                                  title: Text(
+                                    harcama['isim'],
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    harcama['kategori'],
+                                    style: const TextStyle(
+                                      color: Colors.white38,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  trailing: Text(
+                                    "-${harcama['tutar']} ₺",
+                                    style: TextStyle(
+                                      color:
+                                          context
+                                              .watch<ThemeManager>()
+                                              .isDefaultTheme
+                                          ? Colors.red
+                                          : Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -1513,7 +1622,72 @@ class _AnaSayfaState extends State<AnaSayfa> {
           ),
         ],
       );
+    } else if (_selectedIndex == 1) {
+      appBar = AppBar(
+        automaticallyImplyLeading: false,
+        title: gelirAramaModu
+            ? TextField(
+                controller: tGelirArama,
+                autofocus: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: "Gelir ara...",
+                  hintStyle: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                  border: InputBorder.none,
+                ),
+                onChanged: (value) {
+                  setState(() {});
+                },
+              )
+            : const Text("Gelirlerim"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.white),
+            tooltip: "Çöp Kutusu",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GelirCopKutusuSayfasi(
+                    userId: widget.authController.currentUser!.id,
+                  ),
+                ),
+              ).then((_) {
+                verileriOku();
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              gelirAramaModu ? Icons.close : Icons.search,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                gelirAramaModu = !gelirAramaModu;
+                if (!gelirAramaModu) {
+                  tGelirArama.clear();
+                }
+              });
+            },
+          ),
+        ],
+      );
     } else if (_selectedIndex == 2) {
+      appBar = AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text("Araçlar"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      );
+    } else if (_selectedIndex == 3) {
       appBar = AppBar(
         automaticallyImplyLeading: false,
         title: const Text("Profil"),
@@ -1527,176 +1701,317 @@ class _AnaSayfaState extends State<AnaSayfa> {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         if (_selectedIndex != 0) {
-          setState(() {
-            _selectedIndex = 0;
-          });
+          _pageController.jumpToPage(0);
         }
       },
       child: Scaffold(
         appBar: appBar,
-        body: _selectedIndex == 0
-            ? harcamalarBody
-            : _selectedIndex == 1
-            ? ToolsPage(
-                onAssetsPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AssetsPage(
-                        assets: varliklar.where((a) => !a.isDeleted).toList(),
-                        deletedAssets: varliklar
-                            .where((a) => a.isDeleted)
-                            .toList(),
-                        onDelete: (asset) {
-                          setState(() {
-                            asset.isDeleted = true;
-                          });
-                          varliklariKaydet();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Varlık çöp kutusuna taşındı 🗑️",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: ColorConstants.koyuKirmizi,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              margin: const EdgeInsets.all(12),
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
-                        },
-                        onEdit: (asset) {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: Colors.transparent,
-                            builder: (context) => AddAssetSheet(
-                              asset: asset,
-                              onSave: (name, amount, quantity, category, type) {
-                                setState(() {
-                                  int index = varliklar.indexOf(asset);
-                                  if (index != -1) {
-                                    varliklar[index] = Asset(
-                                      id: asset.id,
-                                      name: name,
-                                      amount: amount,
-                                      quantity: quantity,
-                                      category: category,
-                                      type: type,
-                                      lastUpdated: DateTime.now(),
-                                      isDeleted: false,
-                                    );
-                                  }
-                                });
-                                varliklariKaydet();
-                              },
-                            ),
-                          );
-                        },
-                        onRestore: (asset) {
-                          setState(() {
-                            asset.isDeleted = false;
-                          });
-                          varliklariKaydet();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Varlık geri yüklendi ♻️",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: Colors.green.shade700,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              margin: const EdgeInsets.all(12),
-                            ),
-                          );
-                        },
-                        onPermanentDelete: (asset) {
-                          setState(() {
-                            varliklar.remove(asset);
-                          });
-                          varliklariKaydet();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Varlık kalıcı olarak silindi ❌",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: ColorConstants.koyuKirmizi,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              margin: const EdgeInsets.all(12),
-                            ),
-                          );
-                        },
-                        onEmptyBin: () {
-                          setState(() {
-                            varliklar.removeWhere((a) => a.isDeleted);
-                          });
-                          varliklariKaydet();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                "Çöp kutusu boşaltıldı 🧹",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: ColorConstants.koyuKirmizi,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              margin: const EdgeInsets.all(12),
-                            ),
-                          );
-                        },
-                      ),
+        body: PageView(
+          controller: _pageController,
+          onPageChanged: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          children: [
+            // Sayfa 0: Harcamalarım
+            harcamalarBody,
+            // Sayfa 1: Gelirlerim
+            IncomePage(
+              incomes: tumGelirler,
+              selectedDate: secilenAy,
+              searchQuery: gelirAramaModu ? tGelirArama.text : '',
+              onDelete: (income) {
+                setState(() {
+                  income.isDeleted = true;
+                });
+                gelirleriKaydet();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      "Gelir silindi 🗑️",
+                      style: TextStyle(color: Colors.white),
                     ),
-                  );
-                },
-                onAnalysisPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AnalysisPage(
-                        expenses: tumHarcamalar,
-                        assets: varliklar,
-                        selectedDate: secilenAy,
-                      ),
+                    backgroundColor: Colors.red.shade700,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  );
-                },
-              )
-            : ProfilSayfasi(
-                authController: widget.authController,
-                onRefresh: () {
-                  // Profil sayfasından dönerken kategorileri yenile
-                  kategorileriYukle();
-                  verileriOku();
-                },
-              ),
+                    margin: const EdgeInsets.all(12),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              },
+              onEdit: (income) {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => AddIncomeSheet(
+                    incomeToEdit: income.toMap(),
+                    categories: gelirKategoriIkonlari,
+                    onSave: (name, amount, category, date) {
+                      setState(() {
+                        int index = tumGelirler.indexOf(income);
+                        if (index != -1) {
+                          tumGelirler[index] = Income(
+                            id: income.id,
+                            name: name,
+                            amount: amount,
+                            category: category,
+                            date: date,
+                            isDeleted: false,
+                          );
+                        }
+                      });
+                      gelirleriKaydet();
+                    },
+                  ),
+                );
+              },
+              onPreviousMonth: () {
+                setState(() {
+                  secilenAy = DateTime(secilenAy.year, secilenAy.month - 1);
+                });
+              },
+              onNextMonth: () {
+                setState(() {
+                  secilenAy = DateTime(secilenAy.year, secilenAy.month + 1);
+                });
+              },
+              onSelectMonth: ayYilSeciciAc,
+            ),
+            // Sayfa 2: Araçlar
+            ToolsPage(
+              onAssetsPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AssetsPage(
+                      assets: varliklar.where((a) => !a.isDeleted).toList(),
+                      deletedAssets: varliklar
+                          .where((a) => a.isDeleted)
+                          .toList(),
+                      onDelete: (asset) {
+                        setState(() {
+                          asset.isDeleted = true;
+                        });
+                        varliklariKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Varlık çöp kutusuna taşındı 🗑️",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: ColorConstants.koyuKirmizi,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      onEdit: (asset) {
+                        setState(() {
+                          int index = varliklar.indexWhere(
+                            (a) => a.id == asset.id,
+                          );
+                          if (index != -1) {
+                            varliklar[index] = asset;
+                          }
+                        });
+                        varliklariKaydet();
+                      },
+                      onRestore: (asset) {
+                        setState(() {
+                          asset.isDeleted = false;
+                        });
+                        varliklariKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Varlık geri yüklendi ♻️",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.green.shade700,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                          ),
+                        );
+                      },
+                      onPermanentDelete: (asset) {
+                        setState(() {
+                          varliklar.remove(asset);
+                        });
+                        varliklariKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Varlık kalıcı olarak silindi ❌",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: ColorConstants.koyuKirmizi,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                          ),
+                        );
+                      },
+                      onEmptyBin: () {
+                        setState(() {
+                          varliklar.removeWhere((a) => a.isDeleted);
+                        });
+                        varliklariKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Çöp kutusu boşaltıldı 🧹",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: ColorConstants.koyuKirmizi,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                          ),
+                        );
+                      },
+                      onAdd: (name, amount, quantity, category, type) {
+                        setState(() {
+                          varliklar.add(
+                            Asset(
+                              id: DateTime.now().millisecondsSinceEpoch
+                                  .toString(),
+                              name: name,
+                              amount: amount,
+                              quantity: quantity,
+                              category: category,
+                              type: type,
+                              lastUpdated: DateTime.now(),
+                              isDeleted: false,
+                            ),
+                          );
+                        });
+                        varliklariKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Varlık eklendi ✅",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.green.shade700,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
+              onAnalysisPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AnalysisPage(
+                      expenses: tumHarcamalar,
+                      assets: varliklar,
+                      incomes: tumGelirler,
+                      selectedDate: secilenAy,
+                    ),
+                  ),
+                );
+              },
+            ),
+            // Sayfa 3: Profil
+            ProfilSayfasi(
+              authController: widget.authController,
+              onRefresh: () {
+                kategorileriYukle();
+                verileriOku();
+              },
+            ),
+          ],
+        ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            if (_selectedIndex != 0) {
+            if (_selectedIndex == 0) {
+              pencereAc();
+            } else if (_selectedIndex == 1) {
+              // Gelir ekleme bottom sheet
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => AddIncomeSheet(
+                  categories: gelirKategoriIkonlari,
+                  onSave: (name, amount, category, date) {
+                    setState(() {
+                      tumGelirler.insert(
+                        0,
+                        Income(
+                          id: DateTime.now().toString(),
+                          name: name,
+                          amount: amount,
+                          category: category,
+                          date: date,
+                        ),
+                      );
+                    });
+                    gelirleriKaydet();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Gelir eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        margin: const EdgeInsets.all(12),
+                      ),
+                    );
+                  },
+                ),
+              );
+            } else {
+              // Diğer sayfalarda harcama ekleme sayfasına git
               setState(() {
                 _selectedIndex = 0;
               });
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 pencereAc();
               });
-            } else {
-              pencereAc();
             }
           },
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: context.watch<ThemeManager>().isDefaultTheme
+              ? (_selectedIndex == 0
+                    ? PageThemeColors.expensePrimary
+                    : _selectedIndex == 1
+                    ? PageThemeColors.incomePrimary
+                    : PageThemeColors.defaultPrimary)
+              : Theme.of(context).colorScheme.primary,
           shape: const CircleBorder(),
-          child: const Icon(Icons.add, color: Colors.white, size: 32),
+          child: Icon(
+            Icons.add,
+            color: context.watch<ThemeManager>().isDefaultTheme
+                ? Colors.white
+                : Colors.white,
+            size: 32,
+          ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: BottomAppBar(
@@ -1717,40 +2032,63 @@ class _AnaSayfaState extends State<AnaSayfa> {
                     size: 28,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _selectedIndex = 0;
-                    });
+                    _pageController.animateToPage(
+                      0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
                   },
                   tooltip: "Harcamalarım",
                 ),
-                const SizedBox(width: 48), // FAB için boşluk
                 IconButton(
                   icon: Icon(
-                    Icons.apps,
+                    Icons.trending_up,
                     color: _selectedIndex == 1
                         ? Theme.of(context).colorScheme.secondary
                         : Colors.white24,
                     size: 28,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _selectedIndex = 1;
-                    });
+                    _pageController.animateToPage(
+                      1,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
                   },
-                  tooltip: "Araçlar",
+                  tooltip: "Gelirlerim",
                 ),
+                const SizedBox(width: 48), // FAB için boşluk
                 IconButton(
                   icon: Icon(
-                    Icons.person,
+                    Icons.apps,
                     color: _selectedIndex == 2
                         ? Theme.of(context).colorScheme.secondary
                         : Colors.white24,
                     size: 28,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _selectedIndex = 2;
-                    });
+                    _pageController.animateToPage(
+                      2,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                  tooltip: "Araçlar",
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.person,
+                    color: _selectedIndex == 3
+                        ? Theme.of(context).colorScheme.secondary
+                        : Colors.white24,
+                    size: 28,
+                  ),
+                  onPressed: () {
+                    _pageController.animateToPage(
+                      3,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
                   },
                   tooltip: "Profil",
                 ),

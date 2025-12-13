@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/theme/theme_manager.dart';
 
 class ToolsPage extends StatelessWidget {
   final VoidCallback onAssetsPressed;
@@ -70,10 +72,21 @@ class ToolsPage extends StatelessWidget {
                       icon: Icons.account_balance_wallet,
                       title: "Varlıklarım",
                       subtitle: "Varlıklarınızı yönetin",
-                      gradientColors: [
-                        Theme.of(context).colorScheme.primary,
-                        Theme.of(context).colorScheme.primaryContainer,
-                      ],
+                      gradientColors:
+                          context.watch<ThemeManager>().isDefaultTheme
+                          ? [
+                              const Color(0xFF1a1a2e),
+                              const Color(0xFF16213e),
+                              const Color(0xFF0f3460),
+                            ]
+                          : [
+                              Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.3),
+                              Theme.of(
+                                context,
+                              ).colorScheme.secondary.withValues(alpha: 0.15),
+                            ],
                       onTap: onAssetsPressed,
                       delay: 100,
                     ),
@@ -82,10 +95,21 @@ class ToolsPage extends StatelessWidget {
                       icon: Icons.pie_chart,
                       title: "Analiz ve\nRaporlar",
                       subtitle: "Detaylı analizler",
-                      gradientColors: [
-                        Theme.of(context).colorScheme.secondary,
-                        Theme.of(context).colorScheme.secondaryContainer,
-                      ],
+                      gradientColors:
+                          context.watch<ThemeManager>().isDefaultTheme
+                          ? [
+                              const Color(0xFF1a1a2e),
+                              const Color(0xFF2d132c),
+                              const Color(0xFF432371),
+                            ]
+                          : [
+                              Theme.of(
+                                context,
+                              ).colorScheme.secondary.withValues(alpha: 0.3),
+                              Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.15),
+                            ],
                       onTap: onAnalysisPressed,
                       delay: 200,
                     ),
@@ -125,55 +149,75 @@ class ToolsPage extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: gradientColors,
+                colors: [gradientColors[0], gradientColors[1]],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.08),
+                width: 1,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: gradientColors[0].withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
+                  color: gradientColors[0].withValues(alpha: 0.2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 6),
+                  spreadRadius: -3,
                 ),
               ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(16),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: Theme.of(context).colorScheme.secondary,
+                        size: 30,
+                      ),
                     ),
-                    child: Icon(icon, color: Colors.white, size: 28),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.3,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 12,
+                        const SizedBox(height: 6),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

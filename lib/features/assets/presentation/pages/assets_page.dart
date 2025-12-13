@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cashly/core/theme/theme_manager.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 
 import '../../data/models/asset_model.dart';
+import '../widgets/add_asset_sheet.dart';
 import 'asset_recycle_bin_page.dart';
 
 class AssetsPage extends StatefulWidget {
@@ -12,6 +15,14 @@ class AssetsPage extends StatefulWidget {
   final Function(Asset) onRestore;
   final Function(Asset) onPermanentDelete;
   final VoidCallback onEmptyBin;
+  final Function(
+    String name,
+    double amount,
+    double quantity,
+    String category,
+    String? type,
+  )
+  onAdd;
 
   const AssetsPage({
     super.key,
@@ -22,6 +33,7 @@ class AssetsPage extends StatefulWidget {
     required this.onRestore,
     required this.onPermanentDelete,
     required this.onEmptyBin,
+    required this.onAdd,
   });
 
   @override
@@ -31,18 +43,23 @@ class AssetsPage extends StatefulWidget {
 class _AssetsPageState extends State<AssetsPage> {
   bool _aramaModu = false;
   final TextEditingController _aramaController = TextEditingController();
+  List<Asset> _assets = [];
+  List<Asset> _deletedAssets = [];
   List<Asset> _filtrelenmisVarliklar = [];
 
   @override
   void initState() {
     super.initState();
-    _filtrelenmisVarliklar = widget.assets;
+    _assets = List.from(widget.assets);
+    _deletedAssets = List.from(widget.deletedAssets);
+    _filtrelenmisVarliklar = _assets;
   }
 
   @override
   void didUpdateWidget(covariant AssetsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.assets != oldWidget.assets) {
+      _assets = List.from(widget.assets);
       _filtrele();
     }
   }
@@ -51,13 +68,13 @@ class _AssetsPageState extends State<AssetsPage> {
     setState(() {
       if (_aramaModu && _aramaController.text.isNotEmpty) {
         String aranan = _aramaController.text.toLowerCase();
-        _filtrelenmisVarliklar = widget.assets.where((asset) {
+        _filtrelenmisVarliklar = _assets.where((asset) {
           return asset.name.toLowerCase().contains(aranan) ||
               asset.category.toLowerCase().contains(aranan) ||
               (asset.type?.toLowerCase().contains(aranan) ?? false);
         }).toList();
       } else {
-        _filtrelenmisVarliklar = widget.assets;
+        _filtrelenmisVarliklar = _assets;
       }
     });
   }
@@ -66,6 +83,10 @@ class _AssetsPageState extends State<AssetsPage> {
   void dispose() {
     _aramaController.dispose();
     super.dispose();
+  }
+
+  double get totalAssets {
+    return _filtrelenmisVarliklar.fold(0.0, (sum, asset) => sum + asset.amount);
   }
 
   @override
@@ -93,7 +114,10 @@ class _AssetsPageState extends State<AssetsPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline, color: Colors.white),
@@ -103,10 +127,28 @@ class _AssetsPageState extends State<AssetsPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => AssetRecycleBinPage(
-                    deletedAssets: widget.deletedAssets,
-                    onRestore: widget.onRestore,
-                    onPermanentDelete: widget.onPermanentDelete,
-                    onEmptyBin: widget.onEmptyBin,
+                    deletedAssets: _deletedAssets,
+                    onRestore: (asset) {
+                      setState(() {
+                        _deletedAssets.removeWhere((a) => a.id == asset.id);
+                        asset.isDeleted = false;
+                        _assets.add(asset);
+                        _filtrele();
+                      });
+                      widget.onRestore(asset);
+                    },
+                    onPermanentDelete: (asset) {
+                      setState(() {
+                        _deletedAssets.removeWhere((a) => a.id == asset.id);
+                      });
+                      widget.onPermanentDelete(asset);
+                    },
+                    onEmptyBin: () {
+                      setState(() {
+                        _deletedAssets.clear();
+                      });
+                      widget.onEmptyBin();
+                    },
                   ),
                 ),
               ).then((_) => setState(() {}));
@@ -132,7 +174,150 @@ class _AssetsPageState extends State<AssetsPage> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          children: [const SizedBox(height: 24), _buildAssetList()],
+          children: [
+            // Toplam Varlık Kartı
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.2),
+                    Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.1),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Toplam Varlık",
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.7),
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "${totalAssets.toStringAsFixed(2)} ₺",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: const Icon(
+                          Icons.account_balance_wallet,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.account_balance_wallet_outlined,
+                          color: Colors.white.withValues(alpha: 0.7),
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Toplam ${_filtrelenmisVarliklar.length} adet varlık kaydı",
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            _buildAssetList(),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => AddAssetSheet(
+              onSave: (name, amount, quantity, category, type) {
+                // Lokal listeye ekle
+                final newAsset = Asset(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: name,
+                  amount: amount,
+                  quantity: quantity,
+                  category: category,
+                  type: type,
+                  lastUpdated: DateTime.now(),
+                  isDeleted: false,
+                );
+                setState(() {
+                  _assets.add(newAsset);
+                  _filtrele();
+                });
+                // Parent'a da bildir
+                widget.onAdd(name, amount, quantity, category, type);
+              },
+            ),
+          );
+        },
+        backgroundColor: context.watch<ThemeManager>().isDefaultTheme
+            ? Theme.of(context).colorScheme.secondary
+            : Theme.of(context).colorScheme.primary,
+        icon: Icon(
+          Icons.add,
+          color: context.watch<ThemeManager>().isDefaultTheme
+              ? Colors.black
+              : Colors.white,
+        ),
+        label: Text(
+          "Varlık Ekle",
+          style: TextStyle(
+            color: context.watch<ThemeManager>().isDefaultTheme
+                ? Colors.black
+                : Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -173,6 +358,12 @@ class _AssetsPageState extends State<AssetsPage> {
             child: const Icon(Icons.delete, color: Colors.white),
           ),
           onDismissed: (direction) {
+            setState(() {
+              _assets.removeWhere((a) => a.id == asset.id);
+              asset.isDeleted = true;
+              _deletedAssets.add(asset);
+              _filtrele();
+            });
             widget.onDelete(asset);
           },
           child: Card(
@@ -188,6 +379,42 @@ class _AssetsPageState extends State<AssetsPage> {
               ),
             ),
             child: ListTile(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => AddAssetSheet(
+                    asset: asset,
+                    onSave: (name, amount, quantity, category, type) {
+                      // Güncel varlığı oluştur
+                      final updatedAsset = Asset(
+                        id: asset.id,
+                        name: name,
+                        amount: amount,
+                        quantity: quantity,
+                        category: category,
+                        type: type,
+                        lastUpdated: DateTime.now(),
+                        isDeleted: false,
+                      );
+                      // Lokal listeyi güncelle
+                      setState(() {
+                        final index = _assets.indexWhere(
+                          (a) => a.id == asset.id,
+                        );
+                        if (index != -1) {
+                          _assets[index] = updatedAsset;
+                        }
+                        _filtrele();
+                      });
+                      // Parent'ı bildir (modal açmadan sadece veri kaydetsin)
+                      // Eski asset yerine güncel asset gönder
+                      widget.onEdit(updatedAsset);
+                    },
+                  ),
+                );
+              },
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 8,
@@ -213,27 +440,13 @@ class _AssetsPageState extends State<AssetsPage> {
                 "${asset.category}${asset.type != null ? ' • ${asset.type}' : ''}",
                 style: const TextStyle(color: Colors.white38, fontSize: 12),
               ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "${asset.amount.toStringAsFixed(2)} ₺",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.edit,
-                      color: Colors.blueAccent,
-                      size: 20,
-                    ),
-                    onPressed: () => widget.onEdit(asset),
-                  ),
-                ],
+              trailing: Text(
+                "${asset.amount.toStringAsFixed(2)} ₺",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),

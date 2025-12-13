@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/theme_manager.dart';
 
 /// Tüm sesli komutları detaylı listeleyen sayfa
 class VoiceCommandsPage extends StatelessWidget {
@@ -36,7 +39,7 @@ class VoiceCommandsPage extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.mic,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.secondary,
                     size: 28,
                   ),
                   const SizedBox(width: 12),
@@ -299,6 +302,27 @@ class VoiceCommandsPage extends StatelessWidget {
     required String description,
     required List<String> examples,
   }) {
+    // Get icon index for color
+    final iconIndex = [
+      Icons.add_circle_outline,
+      Icons.delete_outline,
+      Icons.edit,
+      Icons.account_balance_wallet,
+      Icons.pie_chart,
+      Icons.category,
+      Icons.list_alt,
+      Icons.warning_amber,
+      Icons.account_balance_wallet,
+      Icons.edit_note,
+      Icons.savings,
+      Icons.repeat,
+    ].indexOf(icon);
+
+    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
+    final iconColor = isDefaultTheme && iconIndex >= 0
+        ? PageThemeColors.getIconColor(iconIndex)
+        : Theme.of(context).colorScheme.primary;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -315,11 +339,7 @@ class VoiceCommandsPage extends StatelessWidget {
           // Başlık
           Row(
             children: [
-              Icon(
-                icon,
-                color: Theme.of(context).colorScheme.primary,
-                size: 22,
-              ),
+              Icon(icon, color: iconColor, size: 22),
               const SizedBox(width: 10),
               Text(
                 title,
