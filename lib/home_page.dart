@@ -83,6 +83,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
     gelirKategorileriYukle();
     verileriOku();
     filtreleVeGoster();
+    // Tekrarlayan işlemleri kontrol et (uygulama açıldığında)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _tekrarlayanIslemleriKontrolEt();
+      _tekrarlayanGelirleriKontrolEt();
+    });
   }
 
   @override
@@ -406,6 +411,227 @@ class _AnaSayfaState extends State<AnaSayfa> {
         .map((income) => income.toMap())
         .toList();
     DatabaseHelper.gelirleriKaydet(userId, gelirMapleri);
+  }
+
+  /// Tekrarlayan işlemleri kontrol et ve gerekirse harcamalara ekle
+  void _tekrarlayanIslemleriKontrolEt() {
+    String userId = widget.authController.currentUser!.id;
+    List<Map<String, dynamic>> tekrarlayanIslemler =
+        DatabaseHelper.sabitGiderSablonlariGetir(userId);
+
+    if (tekrarlayanIslemler.isEmpty) return;
+
+    final bugun = DateTime.now();
+    final buguninGunu = bugun.day;
+    final buAy = '${bugun.year}-${bugun.month.toString().padLeft(2, '0')}';
+    int eklenenAdet = 0;
+    double toplamTutar = 0;
+    List<String> yetersizBakiyeUyarilari = [];
+
+    for (var islem in tekrarlayanIslemler) {
+      final gun = islem['gun'] ?? 1;
+      final sonIslemTarihi = islem['sonIslemTarihi'] as String?;
+
+      // Bu ay zaten işlendi mi kontrol et
+      final buAyIslendi =
+          sonIslemTarihi != null && sonIslemTarihi.startsWith(buAy);
+
+      // Eğer belirlenen gün bugün veya geçmişte VE bu ay işlenmedi ise
+      if (gun <= buguninGunu && !buAyIslendi) {
+        final tutar = (islem['tutar'] as num?)?.toDouble() ?? 0;
+        final isim = islem['isim'] ?? 'Tekrarlayan İşlem';
+        final odemeYontemiId = islem['odemeYontemiId'] as String?;
+
+        // Harcama ekle
+        tumHarcamalar.add({
+          'isim': isim,
+          'tutar': tutar,
+          'kategori': 'Tekrarlayan İşlemler',
+          'tarih': bugun.toString(),
+          'silindi': false,
+          'odemeYontemiId': odemeYontemiId,
+        });
+
+        // Ödeme yönteminden düş
+        if (odemeYontemiId != null) {
+          final pmIndex = tumOdemeYontemleri.indexWhere(
+            (pm) => pm.id == odemeYontemiId,
+          );
+          if (pmIndex != -1) {
+            final pm = tumOdemeYontemleri[pmIndex];
+            double yeniBakiye;
+            if (pm.type == 'kredi') {
+              yeniBakiye = pm.balance + tutar; // Borç artar
+            } else {
+              yeniBakiye = pm.balance - tutar; // Bakiyeden düşer
+              // Yetersiz bakiye kontrolü
+              if (yeniBakiye < 0) {
+                yetersizBakiyeUyarilari.add(
+                  '${pm.name}: $isim için yetersiz bakiye',
+                );
+              }
+            }
+            tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: yeniBakiye);
+          }
+        }
+
+        // Son işlem tarihini güncelle
+        islem['sonIslemTarihi'] = bugun.toIso8601String().substring(0, 10);
+
+        eklenenAdet++;
+        toplamTutar += tutar;
+      }
+    }
+
+    if (eklenenAdet > 0) {
+      // Verileri kaydet
+      DatabaseHelper.harcamalariKaydet(userId, tumHarcamalar);
+      DatabaseHelper.sabitGiderSablonlariKaydet(userId, tekrarlayanIslemler);
+      odemeYontemleriKaydet();
+
+      setState(() {
+        filtreleVeGoster();
+      });
+
+      // Bildirim göster
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '$eklenenAdet tekrarlayan işlem otomatik eklendi (${toplamTutar.toStringAsFixed(0)} ₺)',
+              style: const TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.blue.shade700,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(12),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+
+      // Yetersiz bakiye uyarıları
+      if (yetersizBakiyeUyarilari.isNotEmpty && mounted) {
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '⚠️ ${yetersizBakiyeUyarilari.length} hesapta yetersiz bakiye',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Colors.orange.shade700,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: const EdgeInsets.all(12),
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        });
+      }
+    }
+  }
+
+  /// Tekrarlayan gelirleri kontrol et ve gerekirse gelirlere ekle
+  void _tekrarlayanGelirleriKontrolEt() {
+    String userId = widget.authController.currentUser!.id;
+    List<Map<String, dynamic>> tekrarlayanGelirler =
+        DatabaseHelper.tekrarlayanGelirleriGetir(userId);
+
+    if (tekrarlayanGelirler.isEmpty) return;
+
+    final bugun = DateTime.now();
+    final buguninGunu = bugun.day;
+    final buAy = '${bugun.year}-${bugun.month.toString().padLeft(2, '0')}';
+    int eklenenAdet = 0;
+    double toplamTutar = 0;
+
+    for (var gelir in tekrarlayanGelirler) {
+      final gun = gelir['gun'] ?? 1;
+      final sonIslemTarihi = gelir['sonIslemTarihi'] as String?;
+
+      // Bu ay zaten işlendi mi kontrol et
+      final buAyIslendi =
+          sonIslemTarihi != null && sonIslemTarihi.startsWith(buAy);
+
+      // Eğer belirlenen gün bugün veya geçmişte VE bu ay işlenmedi ise
+      if (gun <= buguninGunu && !buAyIslendi) {
+        final tutar = (gelir['tutar'] as num?)?.toDouble() ?? 0;
+        final isim = gelir['isim'] ?? 'Tekrarlayan Gelir';
+        final odemeYontemiId = gelir['odemeYontemiId'] as String?;
+
+        // Gelir ekle
+        final yeniGelir = Income(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          name: isim,
+          amount: tutar,
+          category: 'Tekrarlayan Gelirler',
+          date: bugun,
+          paymentMethodId: odemeYontemiId,
+        );
+        tumGelirler.add(yeniGelir);
+
+        // Ödeme yöntemine ekle (bakiye artar)
+        if (odemeYontemiId != null) {
+          final pmIndex = tumOdemeYontemleri.indexWhere(
+            (pm) => pm.id == odemeYontemiId,
+          );
+          if (pmIndex != -1) {
+            final pm = tumOdemeYontemleri[pmIndex];
+            double yeniBakiye;
+            if (pm.type == 'kredi') {
+              yeniBakiye = pm.balance - tutar; // Borç azalır
+            } else {
+              yeniBakiye = pm.balance + tutar; // Bakiye artar
+            }
+            tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: yeniBakiye);
+          }
+        }
+
+        // Son işlem tarihini güncelle
+        gelir['sonIslemTarihi'] = bugun.toIso8601String().substring(0, 10);
+
+        eklenenAdet++;
+        toplamTutar += tutar;
+      }
+    }
+
+    if (eklenenAdet > 0) {
+      // Verileri kaydet
+      gelirleriKaydet();
+      DatabaseHelper.tekrarlayanGelirleriKaydet(userId, tekrarlayanGelirler);
+      odemeYontemleriKaydet();
+
+      setState(() {});
+
+      // Bildirim göster
+      if (mounted) {
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '$eklenenAdet tekrarlayan gelir otomatik eklendi (+${toplamTutar.toStringAsFixed(0)} ₺)',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Colors.green.shade700,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: const EdgeInsets.all(12),
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+        });
+      }
+    }
   }
 
   void filtreleVeGoster() {

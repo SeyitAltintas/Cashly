@@ -613,14 +613,16 @@ class SpeechService {
     return null;
   }
 
-  /// "Sabit giderleri ekle" komutunu kontrol et
+  /// "Tekrarlayan işlemleri ekle" komutunu kontrol et
   bool _matchesSabitGiderleriEkle(String text) {
     List<String> patterns = [
+      'tekrarlayan işlemleri ekle',
+      'tekrarlayan işlemleri bu aya ekle',
+      'tekrarlayan işlemleri kaydet',
+      'tekrarlayan işlemlerimi ekle',
       'sabit giderleri ekle',
       'sabit giderleri bu aya ekle',
-      'sabit giderleri kaydet',
       'sabit giderlerimi ekle',
-      'sabit harcamaları ekle',
       'aylık giderleri ekle',
       'düzenli giderleri ekle',
       'sabit ödemeleri ekle',

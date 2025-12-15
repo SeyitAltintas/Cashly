@@ -499,13 +499,13 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     }
   }
 
-  /// "Sabit giderleri ekle" komutunu işle
+  /// "Tekrarlayan işlemleri ekle" komutunu işle
   Future<void> _handleAddFixedExpenses() async {
     if (widget.onAddFixedExpenses != null) {
       // Inline onay iste
       _requestConfirmation(
-        baslik: 'Sabit Giderler',
-        mesaj: 'Tanımlı sabit giderleri bu aya eklemek istiyor musunuz?',
+        baslik: 'Tekrarlayan İşlemler',
+        mesaj: 'Tanımlı tekrarlayan işlemleri bu aya eklemek istiyor musunuz?',
         onConfirm: () async {
           final result = await widget.onAddFixedExpenses!();
 
@@ -521,7 +521,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    '${result['adet']} adet sabit gider eklendi!',
+                    '${result['adet']} adet tekrarlayan işlem eklendi!',
                     style: const TextStyle(color: Colors.white),
                   ),
                   backgroundColor: Colors.green.shade700,

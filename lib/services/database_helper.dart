@@ -397,4 +397,31 @@ class DatabaseHelper {
       rethrow;
     }
   }
+
+  // --- TEKRARLAYAN GELİRLER ---
+  /// Kullanıcının tekrarlayan gelirlerini getirir
+  static List<Map<String, dynamic>> tekrarlayanGelirleriGetir(String userId) {
+    try {
+      final veri = _box.get('tekrarlayan_gelirler_$userId', defaultValue: []);
+      return List<Map<String, dynamic>>.from(
+        veri.map((e) => Map<String, dynamic>.from(e)),
+      );
+    } catch (e) {
+      debugPrint('Error getting recurring incomes: $e');
+      return [];
+    }
+  }
+
+  /// Kullanıcının tekrarlayan gelirlerini kaydeder
+  static Future<void> tekrarlayanGelirleriKaydet(
+    String userId,
+    List<Map<String, dynamic>> gelirler,
+  ) async {
+    try {
+      await _box.put('tekrarlayan_gelirler_$userId', gelirler);
+    } catch (e) {
+      debugPrint('Error saving recurring incomes: $e');
+      rethrow;
+    }
+  }
 }

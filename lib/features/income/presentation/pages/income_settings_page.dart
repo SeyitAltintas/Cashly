@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/theme_manager.dart';
 import 'income_category_management_page.dart';
+import 'recurring_income_page.dart';
 
 /// Gelirler ayarları ana sayfası
 class GelirlerAyarlariSayfasi extends StatefulWidget {
@@ -142,7 +143,56 @@ class _GelirlerAyarlariSayfasiState extends State<GelirlerAyarlariSayfasi> {
                   ],
                 ),
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 30),
+
+              Text(
+                "TEKRARLAYAN GELİRLER",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: ListTile(
+                  leading: const Icon(Icons.trending_up, color: Colors.green),
+                  title: Text(
+                    'Tekrarlayan Gelirleri Yönet',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Maaş, kira geliri gibi düzenli gelirler',
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                      fontSize: 12,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            RecurringIncomePage(userId: widget.userId),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
