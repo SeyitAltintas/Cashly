@@ -268,12 +268,7 @@ class HarcamalarAyarlariSayfasi extends StatefulWidget {
 }
 
 class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
-  final _sabitGiderFormKey = GlobalKey<FormState>();
   final TextEditingController tGelir = TextEditingController();
-  final TextEditingController tSabitIsim = TextEditingController();
-  final TextEditingController tSabitTutar = TextEditingController();
-
-  List<Map<String, dynamic>> sabitGiderler = [];
   bool categoryChanged = false;
   bool _isSaved = false;
   String _savedAmount = "";
@@ -304,7 +299,6 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
     );
 
     setState(() {
-      sabitGiderler = DatabaseHelper.sabitGiderSablonlariGetir(widget.userId);
       odemeYontemleri = pmList.where((pm) => !pm.isDeleted).toList();
       varsayilanOdemeYontemiId = varsayilanPm;
     });
@@ -362,263 +356,6 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
         ErrorHandler.handleDatabaseError(context, e);
       }
     }
-  }
-
-  void sabitGiderEkleListeye() {
-    // Form validation
-    if (!_sabitGiderFormKey.currentState!.validate()) {
-      return;
-    }
-
-    final isim = tSabitIsim.text.trim();
-    final tutarText = tSabitTutar.text.trim();
-    final tutar = double.tryParse(tutarText);
-
-    if (tutar == null) return;
-
-    try {
-      setState(() {
-        sabitGiderler.add({
-          "isim": isim,
-          "tutar": tutar,
-          "kategori": "Sabit Giderler",
-        });
-      });
-
-      DatabaseHelper.sabitGiderSablonlariKaydet(widget.userId, sabitGiderler);
-      tSabitIsim.clear();
-      tSabitTutar.clear();
-      Navigator.pop(context);
-
-      ErrorHandler.showSuccessSnackBar(context, 'Sabit gider eklendi');
-    } catch (e) {
-      ErrorHandler.handleDatabaseError(context, e);
-    }
-  }
-
-  void sabitGiderSil(int index) {
-    setState(() {
-      sabitGiderler.removeAt(index);
-    });
-    DatabaseHelper.sabitGiderSablonlariKaydet(widget.userId, sabitGiderler);
-  }
-
-  void buAyIsle() {
-    if (sabitGiderler.isEmpty) return;
-
-    List<Map<String, dynamic>> mevcutHarcamalar =
-        DatabaseHelper.harcamalariGetir(widget.userId);
-    DateTime simdi = DateTime.now();
-
-    for (var sablon in sabitGiderler) {
-      mevcutHarcamalar.add({
-        "isim": sablon['isim'],
-        "tutar": sablon['tutar'],
-        "kategori": "Sabit Giderler",
-        "tarih": simdi.toString(),
-        "silindi": false,
-      });
-    }
-
-    DatabaseHelper.harcamalariKaydet(widget.userId, mevcutHarcamalar);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          "${sabitGiderler.length} adet sabit gider bu aya eklendi! 🚀",
-          style: const TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.green.shade700,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(12),
-      ),
-    );
-  }
-
-  void pencereAc() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.1),
-            ),
-          ),
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _sabitGiderFormKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Başlık
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Sabit Gider Tanımla",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.close,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.54),
-                      ),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Gider Adı
-                TextFormField(
-                  controller: tSabitIsim,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  validator: (value) => Validators.validateRequired(
-                    value,
-                    fieldName: 'Gider adı',
-                  ),
-                  decoration: InputDecoration(
-                    hintText: "Gider Adı (Örn: Netflix)",
-                    prefixIcon: Icon(
-                      Icons.label,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    hintStyle: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.54),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Tutar
-                TextFormField(
-                  controller: tSabitTutar,
-                  keyboardType: TextInputType.number,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  validator: Validators.validateAmount,
-                  decoration: InputDecoration(
-                    hintText: "Tutar (Örn: 200)",
-                    prefixIcon: Icon(
-                      Icons.currency_lira,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    hintStyle: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.54),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Ekle Butonu
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: sabitGiderEkleListeye,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      "Listeye Ekle",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -763,7 +500,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
               const SizedBox(height: 30),
               // TEKRARLAYAN İŞLEMLER
               Text(
-                "TEKRARLAYAN İŞLEMLER",
+                "TEKRARLAYAN GİDERLER",
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.secondary,
                   fontWeight: FontWeight.bold,
@@ -784,7 +521,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                         : Theme.of(context).colorScheme.secondary,
                   ),
                   title: Text(
-                    'Tekrarlayan İşlemleri Yönet',
+                    'Tekrarlayan Giderleri Yönet',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                     ),

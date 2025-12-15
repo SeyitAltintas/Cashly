@@ -442,12 +442,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
         final isim = islem['isim'] ?? 'Tekrarlayan İşlem';
         final odemeYontemiId = islem['odemeYontemiId'] as String?;
 
-        // Harcama ekle
+        // Harcama ekle - tarih belirlenen güne göre ayarlanır
+        final islemTarihi = DateTime(bugun.year, bugun.month, gun);
         tumHarcamalar.add({
           'isim': isim,
           'tutar': tutar,
           'kategori': 'Tekrarlayan İşlemler',
-          'tarih': bugun.toString(),
+          'tarih': islemTarihi.toString(),
           'silindi': false,
           'odemeYontemiId': odemeYontemiId,
         });
@@ -565,13 +566,14 @@ class _AnaSayfaState extends State<AnaSayfa> {
         final isim = gelir['isim'] ?? 'Tekrarlayan Gelir';
         final odemeYontemiId = gelir['odemeYontemiId'] as String?;
 
-        // Gelir ekle
+        // Gelir ekle - tarih belirlenen güne göre ayarlanır
+        final islemTarihi = DateTime(bugun.year, bugun.month, gun);
         final yeniGelir = Income(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           name: isim,
           amount: tutar,
           category: 'Tekrarlayan Gelirler',
-          date: bugun,
+          date: islemTarihi,
           paymentMethodId: odemeYontemiId,
         );
         tumGelirler.add(yeniGelir);
@@ -2530,9 +2532,54 @@ class _AnaSayfaState extends State<AnaSayfa> {
                               h['odemeYontemiId'] = null;
                             }
                           }
+
+                          // Bu PM'e bağlı gelirlerin paymentMethodId'sini temizle
+                          for (var g in tumGelirler) {
+                            if (g.paymentMethodId == pm.id) {
+                              final index = tumGelirler.indexOf(g);
+                              tumGelirler[index] = g.copyWith(
+                                paymentMethodId: null,
+                              );
+                            }
+                          }
+
+                          // Bu PM'e bağlı transferleri sil
+                          tumTransferler.removeWhere(
+                            (t) =>
+                                t.fromAccountId == pm.id ||
+                                t.toAccountId == pm.id,
+                          );
                         });
+
+                        // Tekrarlayan işlemlerde bu PM'e bağlı olanları temizle
+                        final userId = widget.authController.currentUser!.id;
+
+                        // Tekrarlayan giderler
+                        List<Map<String, dynamic>> tekrarlayanIslemler =
+                            DatabaseHelper.sabitGiderSablonlariGetir(userId);
+                        tekrarlayanIslemler.removeWhere(
+                          (islem) => islem['odemeYontemiId'] == pm.id,
+                        );
+                        DatabaseHelper.sabitGiderSablonlariKaydet(
+                          userId,
+                          tekrarlayanIslemler,
+                        );
+
+                        // Tekrarlayan gelirler
+                        List<Map<String, dynamic>> tekrarlayanGelirler =
+                            DatabaseHelper.tekrarlayanGelirleriGetir(userId);
+                        tekrarlayanGelirler.removeWhere(
+                          (gelir) => gelir['odemeYontemiId'] == pm.id,
+                        );
+                        DatabaseHelper.tekrarlayanGelirleriKaydet(
+                          userId,
+                          tekrarlayanGelirler,
+                        );
+
                         odemeYontemleriKaydet();
-                        verileriKaydet(); // Harcamaları da kaydet
+                        verileriKaydet(); // Harcamaları kaydet
+                        gelirleriKaydet(); // Gelirleri kaydet
+                        transferleriKaydet(); // Transferleri kaydet
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: const Text(

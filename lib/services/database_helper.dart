@@ -160,7 +160,7 @@ class DatabaseHelper {
       // Bütçe ayarları
       await _box.delete('butce_limiti_$userId');
 
-      // Sabit gider şablonları
+      // Sabit gider şablonları (tekrarlayan işlemler)
       await _box.delete('sabit_gider_sablonlari_$userId');
 
       // Kullanıcı kategorileri
@@ -173,6 +173,21 @@ class DatabaseHelper {
       // Ödeme yöntemleri
       await _box.delete('odeme_yontemleri_$userId');
       await _box.delete('silinen_odeme_yontemleri_$userId');
+
+      // Gelirler
+      await _box.delete('gelirler_$userId');
+
+      // Gelir kategorileri
+      await _box.delete('gelir_kategorileri_$userId');
+
+      // Varsayılan ödeme yöntemi
+      await _box.delete('varsayilan_odeme_$userId');
+
+      // Transferler
+      await _box.delete('transferler_$userId');
+
+      // Tekrarlayan gelirler
+      await _box.delete('tekrarlayan_gelirler_$userId');
 
       debugPrint('✓ Tüm kullanıcı verileri silindi: $userId');
     } catch (e) {
