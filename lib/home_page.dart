@@ -20,6 +20,7 @@ import 'features/income/presentation/pages/income_recycle_bin_page.dart';
 import 'features/expenses/presentation/widgets/add_expense_sheet.dart';
 import 'features/expenses/presentation/widgets/voice_input_sheet.dart';
 import 'features/payment_methods/presentation/pages/payment_methods_page.dart';
+import 'features/payment_methods/presentation/pages/transfer_page.dart';
 import 'features/payment_methods/data/models/payment_method_model.dart';
 
 class AnaSayfa extends StatefulWidget {
@@ -1888,6 +1889,28 @@ class _AnaSayfaState extends State<AnaSayfa> {
               onDelete: (income) {
                 setState(() {
                   income.isDeleted = true;
+
+                  // Bakiyeyi geri al (Silme işlemi)
+                  if (income.paymentMethodId != null) {
+                    final pmIndex = tumOdemeYontemleri.indexWhere(
+                      (p) => p.id == income.paymentMethodId,
+                    );
+                    if (pmIndex != -1) {
+                      final pm = tumOdemeYontemleri[pmIndex];
+                      double yeniBakiye;
+                      if (pm.type == 'kredi') {
+                        // Kredi: Gelir silinince borç artar
+                        yeniBakiye = pm.balance + income.amount;
+                      } else {
+                        // Banka/Nakit: Gelir silinince bakiye azalır
+                        yeniBakiye = pm.balance - income.amount;
+                      }
+                      tumOdemeYontemleri[pmIndex] = pm.copyWith(
+                        balance: yeniBakiye,
+                      );
+                      odemeYontemleriKaydet();
+                    }
+                  }
                 });
                 gelirleriKaydet();
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1914,8 +1937,51 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   builder: (context) => AddIncomeSheet(
                     incomeToEdit: income.toMap(),
                     categories: gelirKategoriIkonlari,
-                    onSave: (name, amount, category, date) {
+                    paymentMethods: tumOdemeYontemleri
+                        .where((pm) => !pm.isDeleted)
+                        .toList(),
+                    onSave: (name, amount, category, date, paymentMethodId) {
                       setState(() {
+                        // 1. Eski bakiyeyi geri al
+                        if (income.paymentMethodId != null) {
+                          final eskiPmIndex = tumOdemeYontemleri.indexWhere(
+                            (p) => p.id == income.paymentMethodId,
+                          );
+                          if (eskiPmIndex != -1) {
+                            final pm = tumOdemeYontemleri[eskiPmIndex];
+                            double yeniBakiye;
+                            if (pm.type == 'kredi') {
+                              yeniBakiye = pm.balance + income.amount;
+                            } else {
+                              yeniBakiye = pm.balance - income.amount;
+                            }
+                            tumOdemeYontemleri[eskiPmIndex] = pm.copyWith(
+                              balance: yeniBakiye,
+                            );
+                          }
+                        }
+
+                        // 2. Yeni bakiyeyi ekle
+                        if (paymentMethodId != null) {
+                          final yeniPmIndex = tumOdemeYontemleri.indexWhere(
+                            (p) => p.id == paymentMethodId,
+                          );
+                          if (yeniPmIndex != -1) {
+                            final pm = tumOdemeYontemleri[yeniPmIndex];
+                            double yeniBakiye;
+                            if (pm.type == 'kredi') {
+                              yeniBakiye = pm.balance - amount;
+                            } else {
+                              yeniBakiye = pm.balance + amount;
+                            }
+                            tumOdemeYontemleri[yeniPmIndex] = pm.copyWith(
+                              balance: yeniBakiye,
+                            );
+                          }
+                        }
+                        odemeYontemleriKaydet();
+
+                        // 3. Geliri güncelle
                         int index = tumGelirler.indexOf(income);
                         if (index != -1) {
                           tumGelirler[index] = Income(
@@ -1924,6 +1990,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
                             amount: amount,
                             category: category,
                             date: date,
+                            paymentMethodId: paymentMethodId,
                             isDeleted: false,
                           );
                         }
@@ -2314,6 +2381,72 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   ),
                 );
               },
+              onTransferPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TransferPage(
+                      paymentMethods: tumOdemeYontemleri
+                          .where((pm) => !pm.isDeleted)
+                          .toList(),
+                      onTransfer: (fromId, toId, amount, date) {
+                        setState(() {
+                          // Gönderen hesap (Kaynak)
+                          final fromIndex = tumOdemeYontemleri.indexWhere(
+                            (pm) => pm.id == fromId,
+                          );
+                          if (fromIndex != -1) {
+                            final fromPm = tumOdemeYontemleri[fromIndex];
+                            double yeniBakiye;
+                            // Kaynak kredi ise borç artar, değilse bakiye azalır
+                            if (fromPm.type == 'kredi') {
+                              yeniBakiye = fromPm.balance + amount;
+                            } else {
+                              yeniBakiye = fromPm.balance - amount;
+                            }
+                            tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
+                              balance: yeniBakiye,
+                            );
+                          }
+
+                          // Alan hesap (Hedef)
+                          final toIndex = tumOdemeYontemleri.indexWhere(
+                            (pm) => pm.id == toId,
+                          );
+                          if (toIndex != -1) {
+                            final toPm = tumOdemeYontemleri[toIndex];
+                            double yeniBakiye;
+                            // Hedef kredi ise borç azalır, değilse bakiye artar
+                            if (toPm.type == 'kredi') {
+                              yeniBakiye = toPm.balance - amount;
+                            } else {
+                              yeniBakiye = toPm.balance + amount;
+                            }
+                            tumOdemeYontemleri[toIndex] = toPm.copyWith(
+                              balance: yeniBakiye,
+                            );
+                          }
+                        });
+                        odemeYontemleriKaydet();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Transfer işlemi başarılı ✅",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.green.shade700,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: const EdgeInsets.all(12),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
             // Sayfa 3: Profil
             ProfilSayfasi(
@@ -2337,7 +2470,10 @@ class _AnaSayfaState extends State<AnaSayfa> {
                 backgroundColor: Colors.transparent,
                 builder: (context) => AddIncomeSheet(
                   categories: gelirKategoriIkonlari,
-                  onSave: (name, amount, category, date) {
+                  paymentMethods: tumOdemeYontemleri
+                      .where((pm) => !pm.isDeleted)
+                      .toList(),
+                  onSave: (name, amount, category, date, paymentMethodId) {
                     setState(() {
                       tumGelirler.insert(
                         0,
@@ -2347,8 +2483,31 @@ class _AnaSayfaState extends State<AnaSayfa> {
                           amount: amount,
                           category: category,
                           date: date,
+                          paymentMethodId: paymentMethodId,
                         ),
                       );
+
+                      // Bakiyeyi güncelle
+                      if (paymentMethodId != null) {
+                        final pmIndex = tumOdemeYontemleri.indexWhere(
+                          (p) => p.id == paymentMethodId,
+                        );
+                        if (pmIndex != -1) {
+                          final pm = tumOdemeYontemleri[pmIndex];
+                          double yeniBakiye;
+                          if (pm.type == 'kredi') {
+                            // Kredi kartına gelir girilirse borçtan düşülür
+                            yeniBakiye = pm.balance - amount;
+                          } else {
+                            // Banka/Nakit için bakiye artar
+                            yeniBakiye = pm.balance + amount;
+                          }
+                          tumOdemeYontemleri[pmIndex] = pm.copyWith(
+                            balance: yeniBakiye,
+                          );
+                          odemeYontemleriKaydet();
+                        }
+                      }
                     });
                     gelirleriKaydet();
                     ScaffoldMessenger.of(context).showSnackBar(

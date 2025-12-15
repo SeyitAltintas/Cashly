@@ -6,12 +6,14 @@ class ToolsPage extends StatelessWidget {
   final VoidCallback onAssetsPressed;
   final VoidCallback onAnalysisPressed;
   final VoidCallback onPaymentMethodsPressed;
+  final VoidCallback onTransferPressed;
 
   const ToolsPage({
     super.key,
     required this.onAssetsPressed,
     required this.onAnalysisPressed,
     required this.onPaymentMethodsPressed,
+    required this.onTransferPressed,
   });
 
   @override
@@ -137,6 +139,29 @@ class ToolsPage extends StatelessWidget {
                             ],
                       onTap: onPaymentMethodsPressed,
                       delay: 300,
+                    ),
+                    _buildToolCard(
+                      context,
+                      icon: Icons.swap_horiz,
+                      title: "Para\nTransferi",
+                      subtitle: "Hesaplar arası transfer",
+                      gradientColors:
+                          context.watch<ThemeManager>().isDefaultTheme
+                          ? [
+                              const Color(0xFF1a1a2e),
+                              const Color(0xFF16213e),
+                              const Color(0xFF432371),
+                            ]
+                          : [
+                              Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.15),
+                              Theme.of(
+                                context,
+                              ).colorScheme.secondary.withValues(alpha: 0.3),
+                            ],
+                      onTap: onTransferPressed,
+                      delay: 400,
                     ),
                   ],
                 ),

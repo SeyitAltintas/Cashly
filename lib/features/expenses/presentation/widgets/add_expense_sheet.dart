@@ -185,7 +185,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                 ],
               ),
               content: Text(
-                uyariMesaji + '\n\nYine de devam etmek istiyor musunuz?',
+                '$uyariMesaji\n\nYine de devam etmek istiyor musunuz?',
                 style: TextStyle(
                   color: Theme.of(
                     context,
