@@ -370,4 +370,31 @@ class DatabaseHelper {
       rethrow;
     }
   }
+
+  // --- TRANSFER İŞLEMLERİ ---
+  /// Kullanıcının transferlerini getirir
+  static List<Map<String, dynamic>> transferleriGetir(String userId) {
+    try {
+      final veri = _box.get('transferler_$userId', defaultValue: []);
+      return List<Map<String, dynamic>>.from(
+        veri.map((e) => Map<String, dynamic>.from(e)),
+      );
+    } catch (e) {
+      debugPrint('Error getting transfers: $e');
+      return [];
+    }
+  }
+
+  /// Kullanıcının transferlerini kaydeder
+  static Future<void> transferleriKaydet(
+    String userId,
+    List<Map<String, dynamic>> transferler,
+  ) async {
+    try {
+      await _box.put('transferler_$userId', transferler);
+    } catch (e) {
+      debugPrint('Error saving transfers: $e');
+      rethrow;
+    }
+  }
 }

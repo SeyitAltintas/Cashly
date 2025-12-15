@@ -21,7 +21,9 @@ import 'features/expenses/presentation/widgets/add_expense_sheet.dart';
 import 'features/expenses/presentation/widgets/voice_input_sheet.dart';
 import 'features/payment_methods/presentation/pages/payment_methods_page.dart';
 import 'features/payment_methods/presentation/pages/transfer_page.dart';
+import 'features/payment_methods/presentation/pages/payment_method_detail_page.dart';
 import 'features/payment_methods/data/models/payment_method_model.dart';
+import 'features/payment_methods/data/models/transfer_model.dart';
 
 class AnaSayfa extends StatefulWidget {
   final AuthController authController;
@@ -51,6 +53,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
   Map<String, IconData> gelirKategoriIkonlari = {};
   List<Income> tumGelirler = [];
   List<PaymentMethod> tumOdemeYontemleri = [];
+  List<Transfer> tumTransferler = [];
   String? varsayilanOdemeYontemiId;
 
   // Gelir araması için
@@ -377,12 +380,20 @@ class _AnaSayfaState extends State<AnaSayfa> {
     // Varsayılan ödeme yöntemini oku
     String? varsayilanPm = DatabaseHelper.varsayilanOdemeYontemiGetir(userId);
 
+    // Transferleri oku
+    List<Map<String, dynamic>> transferVerileri =
+        DatabaseHelper.transferleriGetir(userId);
+    List<Transfer> okunanTransferler = transferVerileri
+        .map((map) => Transfer.fromMap(map))
+        .toList();
+
     setState(() {
       tumHarcamalar = gelen;
       butceLimiti = kayitliButce;
       varliklar = okunanVarliklar;
       tumGelirler = okunanGelirler;
       tumOdemeYontemleri = okunanOdemeYontemleri;
+      tumTransferler = okunanTransferler;
       varsayilanOdemeYontemiId = varsayilanPm;
       filtreleVeGoster();
     });
@@ -440,6 +451,15 @@ class _AnaSayfaState extends State<AnaSayfa> {
         .map((pm) => pm.toMap())
         .toList();
     DatabaseHelper.odemeYontemleriKaydet(userId, yontemMapleri);
+  }
+
+  /// Transferleri veritabanına kaydeder
+  void transferleriKaydet() {
+    String userId = widget.authController.currentUser!.id;
+    List<Map<String, dynamic>> transferMapleri = tumTransferler
+        .map((t) => t.toMap())
+        .toList();
+    DatabaseHelper.transferleriKaydet(userId, transferMapleri);
   }
 
   void oncekiAy() {
@@ -2377,6 +2397,20 @@ class _AnaSayfaState extends State<AnaSayfa> {
                               ),
                             );
                           },
+                      onCardTap: (pm) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PaymentMethodDetailPage(
+                              paymentMethod: pm,
+                              harcamalar: tumHarcamalar,
+                              gelirler: tumGelirler,
+                              transferler: tumTransferler,
+                              tumOdemeYontemleri: tumOdemeYontemleri,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 );
@@ -2428,6 +2462,18 @@ class _AnaSayfaState extends State<AnaSayfa> {
                           }
                         });
                         odemeYontemleriKaydet();
+
+                        // Transfer kaydını oluştur ve kaydet
+                        final yeniTransfer = Transfer(
+                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                          fromAccountId: fromId,
+                          toAccountId: toId,
+                          amount: amount,
+                          date: date,
+                        );
+                        tumTransferler.insert(0, yeniTransfer);
+                        transferleriKaydet();
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: const Text(

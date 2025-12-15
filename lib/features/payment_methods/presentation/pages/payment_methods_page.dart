@@ -15,6 +15,7 @@ class PaymentMethodsPage extends StatefulWidget {
   final Function(PaymentMethod) onRestore;
   final Function(PaymentMethod) onPermanentDelete;
   final VoidCallback onEmptyBin;
+  final Function(PaymentMethod)? onCardTap;
   final Function(
     String name,
     String type,
@@ -35,6 +36,7 @@ class PaymentMethodsPage extends StatefulWidget {
     required this.onPermanentDelete,
     required this.onEmptyBin,
     required this.onAdd,
+    this.onCardTap,
   });
 
   @override
@@ -429,6 +431,13 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
       },
       child: GestureDetector(
         onTap: () {
+          // Detay sayfasına yönlendir (eğer callback tanımlıysa)
+          if (widget.onCardTap != null) {
+            widget.onCardTap!(pm);
+          }
+        },
+        onLongPress: () {
+          // Düzenleme sheet'ini aç
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
