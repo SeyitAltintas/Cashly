@@ -91,19 +91,43 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   }
 
   Future<void> _pickDate() async {
+    final theme = Theme.of(context);
+    final themeManager = context.read<ThemeManager>();
+
+    // Varsayılan temada buton rengi için secondary (açık gri) kullan
+    // Diğer temalarda primary rengini kullan
+    final buttonColor = themeManager.isDefaultTheme
+        ? theme.colorScheme.secondary
+        : theme.colorScheme.primary;
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
+      locale: const Locale('tr', 'TR'),
+      cancelText: 'İptal',
+      confirmText: 'Tamam',
+      helpText: 'Tarih Seçin',
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
             colorScheme: ColorScheme.dark(
-              primary: Theme.of(context).colorScheme.primary,
-              onPrimary: Theme.of(context).colorScheme.onPrimary,
-              surface: Theme.of(context).colorScheme.surface,
-              onSurface: Theme.of(context).colorScheme.onSurface,
+              primary: buttonColor,
+              // Varsayılan temada açık gri üzerine siyah metin, diğerlerinde beyaz
+              onPrimary: themeManager.isDefaultTheme
+                  ? Colors.black
+                  : Colors.white,
+              surface: theme.colorScheme.surface,
+              onSurface: theme.colorScheme.onSurface,
+              secondary: theme.colorScheme.secondary,
+              onSecondary: theme.colorScheme.onSecondary,
+            ),
+            dialogTheme: DialogThemeData(
+              backgroundColor: theme.colorScheme.surface,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: buttonColor),
             ),
           ),
           child: child!,
