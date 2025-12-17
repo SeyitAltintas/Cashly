@@ -1,18 +1,27 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
+import '../../../payment_methods/data/models/payment_method_model.dart';
 
 class AddIncomeSheet extends StatefulWidget {
   final Map<String, dynamic>? incomeToEdit;
-  final Function(String name, double amount, String category, DateTime date)
+  final Function(
+    String name,
+    double amount,
+    String category,
+    DateTime date,
+    String? paymentMethodId,
+  )
   onSave;
   final Map<String, IconData> categories;
+  final List<PaymentMethod> paymentMethods;
 
   const AddIncomeSheet({
     super.key,
     this.incomeToEdit,
     required this.onSave,
     required this.categories,
+    this.paymentMethods = const [],
   });
 
   @override
@@ -26,6 +35,7 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
   late String _selectedCategory;
   DateTime _selectedDate = DateTime.now();
   late Map<String, IconData> _categoryIcons;
+  String? _selectedPaymentMethodId;
 
   final List<String> _months = [
     "Ocak",
@@ -56,6 +66,7 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
       _selectedDate =
           DateTime.tryParse(widget.incomeToEdit!['date'].toString()) ??
           DateTime.now();
+      _selectedPaymentMethodId = widget.incomeToEdit!['paymentMethodId'];
     }
   }
 
@@ -112,6 +123,7 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
       amount,
       _selectedCategory,
       _selectedDate,
+      _selectedPaymentMethodId,
     );
     Navigator.pop(context);
   }
@@ -299,6 +311,93 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
                 ),
               ),
               const SizedBox(height: 12),
+              if (widget.paymentMethods.isNotEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedPaymentMethodId,
+                      hint: Row(
+                        children: [
+                          Icon(Icons.credit_card, color: Colors.green.shade400),
+                          const SizedBox(width: 10),
+                          Text(
+                            "Hesap Seç (Opsiyonel)",
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.54),
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      dropdownColor: Theme.of(context).colorScheme.surface,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      isExpanded: true,
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.white70,
+                      ),
+                      items: [
+                        DropdownMenuItem<String>(
+                          value: null,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.money_off,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(width: 12),
+                              const Text("Hesap Seçme"),
+                            ],
+                          ),
+                        ),
+                        ...widget.paymentMethods.map((pm) {
+                          return DropdownMenuItem<String>(
+                            value: pm.id,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  pm.type == 'nakit'
+                                      ? Icons.wallet
+                                      : pm.type == 'kredi'
+                                      ? Icons.credit_card
+                                      : Icons.account_balance,
+                                  color: Colors.green.shade400,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  pm.lastFourDigits != null
+                                      ? '${pm.name} ****${pm.lastFourDigits} (${pm.balance} ₺)'
+                                      : '${pm.name} (${pm.balance} ₺)',
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ],
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedPaymentMethodId = newValue;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,

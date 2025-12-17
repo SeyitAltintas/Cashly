@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
+import '../../../payment_methods/data/models/payment_method_model.dart';
 
 class AnalysisPage extends StatefulWidget {
   final List<Map<String, dynamic>> expenses;
   final List<Asset> assets;
   final List<Income> incomes;
   final DateTime selectedDate;
+  final List<PaymentMethod> paymentMethods;
 
   const AnalysisPage({
     super.key,
@@ -15,6 +17,7 @@ class AnalysisPage extends StatefulWidget {
     required this.assets,
     required this.incomes,
     required this.selectedDate,
+    this.paymentMethods = const [],
   });
 
   @override
@@ -421,6 +424,121 @@ class _AnalysisPageState extends State<AnalysisPage>
             final color = vibrantColors[idx % vibrantColors.length];
             return _buildLegendItem(e.key, e.value, color, totalAmount);
           }),
+          // Ödeme Yöntemine Göre Dağılım
+          if (widget.paymentMethods.isNotEmpty) ...[
+            const SizedBox(height: 32),
+            Text(
+              "Ödeme Yöntemine Göre Dağılım",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ...(() {
+              // Ödeme yöntemine göre harcamaları grupla
+              Map<String, double> pmTotals = {};
+              double pmTotal = 0;
+
+              for (var h in monthlyExpenses) {
+                String pmId = h['odemeYontemiId'] ?? 'unknown';
+                double amount = double.tryParse(h['tutar'].toString()) ?? 0;
+                pmTotals[pmId] = (pmTotals[pmId] ?? 0) + amount;
+                pmTotal += amount;
+              }
+
+              if (pmTotals.isEmpty || pmTotal == 0) return <Widget>[];
+
+              final List<Color> pmColors = [
+                Colors.orange.shade400,
+                Colors.purple.shade400,
+                Colors.teal.shade400,
+                Colors.pink.shade400,
+                Colors.amber.shade400,
+                Colors.cyan.shade400,
+              ];
+
+              return pmTotals.entries.toList().asMap().entries.map((entry) {
+                int idx = entry.key;
+                var e = entry.value;
+                final color = pmColors[idx % pmColors.length];
+
+                // Ödeme yöntemi adını bul
+                String pmName = 'Belirtilmemiş';
+                IconData pmIcon = Icons.help_outline;
+                if (e.key != 'unknown') {
+                  final pm = widget.paymentMethods
+                      .where((p) => p.id == e.key)
+                      .firstOrNull;
+                  if (pm != null) {
+                    pmName = pm.lastFourDigits != null
+                        ? '${pm.name} ****${pm.lastFourDigits}'
+                        : pm.name;
+                    pmIcon = pm.type == 'nakit'
+                        ? Icons.wallet
+                        : pm.type == 'kredi'
+                        ? Icons.credit_card
+                        : Icons.account_balance;
+                  }
+                }
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(pmIcon, color: color, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              pmName,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              '${(e.value / pmTotal * 100).toStringAsFixed(1)}%',
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.6),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '${e.value.toStringAsFixed(2)} ₺',
+                        style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList();
+            })(),
+          ],
         ],
       ),
     );

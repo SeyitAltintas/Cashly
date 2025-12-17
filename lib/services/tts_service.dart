@@ -238,7 +238,7 @@ class TtsService {
     await speak(mesaj, userId: userId);
   }
 
-  /// Sabit giderler eklendi bildirimi
+  /// Tekrarlayan işlemler eklendi bildirimi
   Future<void> sabitGiderlerEklendiBildirimi({
     required int adet,
     required double toplam,
@@ -246,8 +246,8 @@ class TtsService {
   }) async {
     String toplamStr = toplam.toStringAsFixed(0);
     String mesaj = adet == 0
-        ? 'Eklenecek sabit gider bulunamadı. Önce ayarlardan sabit gider tanımlayın.'
-        : '$adet adet sabit gider eklendi. Toplam $toplamStr lira.';
+        ? 'Eklenecek tekrarlayan işlem bulunamadı. Önce ayarlardan tekrarlayan işlem tanımlayın.'
+        : '$adet adet tekrarlayan işlem eklendi. Toplam $toplamStr lira.';
     await speak(mesaj, userId: userId);
   }
 

@@ -51,10 +51,22 @@ class _GelirKategoriYonetimiSayfasiState
     kategorileriYukle();
   }
 
+  // Sistem kategorileri (silinemez)
+  static const List<String> sistemKategorileri = ['Tekrarlayan Gelirler'];
+
   void kategorileriYukle() {
     try {
       setState(() {
         kategoriler = DatabaseHelper.gelirKategorileriGetir(widget.userId);
+
+        // Sistem kategorilerini kontrol et ve yoksa ekle
+        for (final sistemKat in sistemKategorileri) {
+          final varMi = kategoriler.any((k) => k['isim'] == sistemKat);
+          if (!varMi) {
+            kategoriler.add({'isim': sistemKat, 'ikon': 'autorenew'});
+            DatabaseHelper.gelirKategorileriKaydet(widget.userId, kategoriler);
+          }
+        }
       });
     } catch (e) {
       ErrorHandler.handleDatabaseError(context, e);
@@ -265,6 +277,27 @@ class _GelirKategoriYonetimiSayfasiState
   }
 
   void kategoriSil(int index) {
+    final kategoriIsmi = kategoriler[index]['isim'];
+
+    // Sistem kategorisi silinemez
+    if (sistemKategorileri.contains(kategoriIsmi)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '"$kategoriIsmi" sistem kategorisidir ve silinemez',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.orange.shade700,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(12),
+        ),
+      );
+      return;
+    }
+
     setState(() {
       kategoriler.removeAt(index);
     });

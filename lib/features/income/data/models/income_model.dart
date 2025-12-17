@@ -5,6 +5,7 @@ class Income {
   final double amount;
   final String category;
   final DateTime date;
+  final String? paymentMethodId; // Hangi hesaba eklendi?
   bool isDeleted;
 
   Income({
@@ -13,6 +14,7 @@ class Income {
     required this.amount,
     required this.category,
     required this.date,
+    this.paymentMethodId,
     this.isDeleted = false,
   });
 
@@ -24,6 +26,7 @@ class Income {
       amount: (map['amount'] as num?)?.toDouble() ?? 0.0,
       category: map['category'] ?? 'Diğer',
       date: DateTime.tryParse(map['date']?.toString() ?? '') ?? DateTime.now(),
+      paymentMethodId: map['paymentMethodId'],
       isDeleted: map['isDeleted'] ?? false,
     );
   }
@@ -36,6 +39,7 @@ class Income {
       'amount': amount,
       'category': category,
       'date': date.toIso8601String(),
+      'paymentMethodId': paymentMethodId,
       'isDeleted': isDeleted,
     };
   }
@@ -47,6 +51,7 @@ class Income {
     double? amount,
     String? category,
     DateTime? date,
+    String? paymentMethodId,
     bool? isDeleted,
   }) {
     return Income(
@@ -55,6 +60,7 @@ class Income {
       amount: amount ?? this.amount,
       category: category ?? this.category,
       date: date ?? this.date,
+      paymentMethodId: paymentMethodId ?? this.paymentMethodId,
       isDeleted: isDeleted ?? this.isDeleted,
     );
   }

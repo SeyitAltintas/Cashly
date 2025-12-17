@@ -6,6 +6,8 @@ import 'features/expenses/presentation/pages/category_management_page.dart';
 import 'features/income/presentation/pages/income_settings_page.dart';
 import 'features/settings/presentation/pages/appearance_page.dart';
 import 'features/settings/presentation/pages/voice_assistant_page.dart';
+import 'features/settings/presentation/pages/recurring_transactions_page.dart';
+import 'features/payment_methods/data/models/payment_method_model.dart';
 
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'core/utils/validators.dart';
@@ -266,15 +268,14 @@ class HarcamalarAyarlariSayfasi extends StatefulWidget {
 }
 
 class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
-  final _sabitGiderFormKey = GlobalKey<FormState>();
   final TextEditingController tGelir = TextEditingController();
-  final TextEditingController tSabitIsim = TextEditingController();
-  final TextEditingController tSabitTutar = TextEditingController();
-
-  List<Map<String, dynamic>> sabitGiderler = [];
   bool categoryChanged = false;
   bool _isSaved = false;
   String _savedAmount = "";
+
+  // Ödeme yöntemleri
+  List<PaymentMethod> odemeYontemleri = [];
+  String? varsayilanOdemeYontemiId;
 
   @override
   void initState() {
@@ -285,8 +286,21 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
   void verileriYukle() {
     double mevcutButce = DatabaseHelper.butceGetir(widget.userId);
     tGelir.text = mevcutButce.toStringAsFixed(0);
+
+    // Ödeme yöntemlerini yükle
+    List<Map<String, dynamic>> pmVerileri = DatabaseHelper.odemeYontemleriGetir(
+      widget.userId,
+    );
+    List<PaymentMethod> pmList = pmVerileri
+        .map((m) => PaymentMethod.fromMap(m))
+        .toList();
+    String? varsayilanPm = DatabaseHelper.varsayilanOdemeYontemiGetir(
+      widget.userId,
+    );
+
     setState(() {
-      sabitGiderler = DatabaseHelper.sabitGiderSablonlariGetir(widget.userId);
+      odemeYontemleri = pmList.where((pm) => !pm.isDeleted).toList();
+      varsayilanOdemeYontemiId = varsayilanPm;
     });
   }
 
@@ -344,263 +358,6 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
     }
   }
 
-  void sabitGiderEkleListeye() {
-    // Form validation
-    if (!_sabitGiderFormKey.currentState!.validate()) {
-      return;
-    }
-
-    final isim = tSabitIsim.text.trim();
-    final tutarText = tSabitTutar.text.trim();
-    final tutar = double.tryParse(tutarText);
-
-    if (tutar == null) return;
-
-    try {
-      setState(() {
-        sabitGiderler.add({
-          "isim": isim,
-          "tutar": tutar,
-          "kategori": "Sabit Giderler",
-        });
-      });
-
-      DatabaseHelper.sabitGiderSablonlariKaydet(widget.userId, sabitGiderler);
-      tSabitIsim.clear();
-      tSabitTutar.clear();
-      Navigator.pop(context);
-
-      ErrorHandler.showSuccessSnackBar(context, 'Sabit gider eklendi');
-    } catch (e) {
-      ErrorHandler.handleDatabaseError(context, e);
-    }
-  }
-
-  void sabitGiderSil(int index) {
-    setState(() {
-      sabitGiderler.removeAt(index);
-    });
-    DatabaseHelper.sabitGiderSablonlariKaydet(widget.userId, sabitGiderler);
-  }
-
-  void buAyIsle() {
-    if (sabitGiderler.isEmpty) return;
-
-    List<Map<String, dynamic>> mevcutHarcamalar =
-        DatabaseHelper.harcamalariGetir(widget.userId);
-    DateTime simdi = DateTime.now();
-
-    for (var sablon in sabitGiderler) {
-      mevcutHarcamalar.add({
-        "isim": sablon['isim'],
-        "tutar": sablon['tutar'],
-        "kategori": "Sabit Giderler",
-        "tarih": simdi.toString(),
-        "silindi": false,
-      });
-    }
-
-    DatabaseHelper.harcamalariKaydet(widget.userId, mevcutHarcamalar);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          "${sabitGiderler.length} adet sabit gider bu aya eklendi! 🚀",
-          style: const TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.green.shade700,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(12),
-      ),
-    );
-  }
-
-  void pencereAc() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.1),
-            ),
-          ),
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _sabitGiderFormKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Başlık
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Sabit Gider Tanımla",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.close,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.54),
-                      ),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Gider Adı
-                TextFormField(
-                  controller: tSabitIsim,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  validator: (value) => Validators.validateRequired(
-                    value,
-                    fieldName: 'Gider adı',
-                  ),
-                  decoration: InputDecoration(
-                    hintText: "Gider Adı (Örn: Netflix)",
-                    prefixIcon: Icon(
-                      Icons.label,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    hintStyle: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.54),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Tutar
-                TextFormField(
-                  controller: tSabitTutar,
-                  keyboardType: TextInputType.number,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  validator: Validators.validateAmount,
-                  decoration: InputDecoration(
-                    hintText: "Tutar (Örn: 200)",
-                    prefixIcon: Icon(
-                      Icons.currency_lira,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    hintStyle: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.54),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Ekle Butonu
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: sabitGiderEkleListeye,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      "Listeye Ekle",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -611,7 +368,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Gelir ve Gider Ayarları"),
+          title: const Text("Gider Ayarları"),
           backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),
@@ -642,7 +399,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Gelir ve Gider",
+                      "Gider Ayarları",
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 24,
@@ -741,171 +498,206 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                 ),
               ),
               const SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "SABİT GİDERLERİM",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: pencereAc,
-                    icon: Icon(
-                      Icons.add,
-                      size: 18,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                    label: Text(
-                      "Yeni Ekle",
-                      style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 5),
+              // TEKRARLAYAN İŞLEMLER
               Text(
-                "Buraya eklediklerin otomatik düşmez. Her ay başında aşağıdaki butona basarak hepsini tek seferde ekleyebilirsin.",
+                "TEKRARLAYAN GİDERLER",
                 style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.38),
-                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 10),
-              sabitGiderler.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Center(
-                        child: Text(
-                          "Henüz sabit gider tanımlamadın.",
-                          style: TextStyle(
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: ListTile(
+                  leading: Icon(
+                    Icons.repeat,
+                    color: context.watch<ThemeManager>().isDefaultTheme
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.secondary,
+                  ),
+                  title: Text(
+                    'Tekrarlayan Giderleri Yönet',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Otomatik ödenen fatura ve abonelikler',
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                      fontSize: 12,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            RecurringTransactionsPage(userId: widget.userId),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 30),
+              // VARSAYILAN ÖDEME YÖNTEMİ
+              Text(
+                "VARSAYILAN ÖDEME YÖNTEMİ",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: odemeYontemleri.isEmpty
+                    ? Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
                             color: Theme.of(
                               context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.24),
+                            ).colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
-                        ),
-                      ),
-                    )
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: sabitGiderler.length,
-                      itemBuilder: (context, index) {
-                        final gider = sabitGiderler[index];
-                        return Card(
-                          color: Theme.of(context).colorScheme.surface,
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            leading: const Icon(
-                              Icons.push_pin,
-                              color: Colors.orangeAccent,
-                            ),
-                            title: Text(
-                              gider['isim'],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              "Henüz ödeme yöntemi eklemediniz. Araçlar sayfasından ekleyebilirsiniz.",
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.5),
+                                fontSize: 13,
                               ),
                             ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  "${gider['tutar']} ₺",
+                          ),
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Icon(
+                            Icons.credit_card,
+                            color: context.watch<ThemeManager>().isDefaultTheme
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.secondary,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String?>(
+                                value: varsayilanOdemeYontemiId,
+                                dropdownColor: Theme.of(
+                                  context,
+                                ).colorScheme.surface,
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                                isExpanded: true,
+                                hint: Text(
+                                  'Seçiniz',
                                   style: TextStyle(
                                     color: Theme.of(context)
                                         .colorScheme
                                         .onSurface
-                                        .withValues(alpha: 0.7),
-                                    fontWeight: FontWeight.bold,
+                                        .withValues(alpha: 0.5),
                                   ),
                                 ),
-                                const SizedBox(width: 10),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.delete_outline,
-                                    color: Theme.of(context).colorScheme.error,
+                                items: [
+                                  DropdownMenuItem<String?>(
+                                    value: null,
+                                    child: Text(
+                                      'İlk ödeme yöntemini kullan',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.7),
+                                      ),
+                                    ),
                                   ),
-                                  onPressed: () => sabitGiderSil(index),
-                                ),
-                              ],
+                                  ...odemeYontemleri.map((pm) {
+                                    return DropdownMenuItem<String?>(
+                                      value: pm.id,
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            pm.type == 'nakit'
+                                                ? Icons.wallet
+                                                : pm.type == 'kredi'
+                                                ? Icons.credit_card
+                                                : Icons.account_balance,
+                                            size: 18,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              pm.lastFourDigits != null
+                                                  ? '${pm.name} ****${pm.lastFourDigits}'
+                                                  : pm.name,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    varsayilanOdemeYontemiId = newValue;
+                                    categoryChanged = true;
+                                  });
+                                  DatabaseHelper.varsayilanOdemeYontemiKaydet(
+                                    widget.userId,
+                                    newValue,
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text(
+                                        "Varsayılan ödeme yöntemi güncellendi ✅",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.green.shade700,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      margin: const EdgeInsets.all(12),
+                                      duration: const Duration(seconds: 1),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           ),
-                        );
-                      },
-                    ),
-
-              // Bu Aya Ekle Butonu
-              if (sabitGiderler.isNotEmpty) ...[
-                const SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Theme.of(context).colorScheme.primaryContainer,
-                        Theme.of(context).colorScheme.primary,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.3),
-                        blurRadius: 15,
-                        offset: const Offset(0, 8),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      buAyIsle();
-                      setState(() {
-                        categoryChanged = true;
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.calendar_month,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          "Tüm Sabit Giderleri Bu Aya Ekle",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              ),
 
               const SizedBox(height: 30),
               Row(

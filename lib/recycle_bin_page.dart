@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'core/constants/color_constants.dart';
 import 'services/database_helper.dart';
+import 'features/payment_methods/data/models/payment_method_model.dart';
 
 class CopKutusuSayfasi extends StatefulWidget {
   final String userId;
@@ -14,6 +15,7 @@ class CopKutusuSayfasi extends StatefulWidget {
 class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
   List<Map<String, dynamic>> silinenHarcamalar = [];
   List<Map<String, dynamic>> tumHarcamalarHam = [];
+  List<PaymentMethod> odemeYontemleri = [];
 
   @override
   void initState() {
@@ -23,6 +25,13 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
 
   void verileriYukle() {
     tumHarcamalarHam = DatabaseHelper.harcamalariGetir(widget.userId);
+
+    // Ödeme yöntemlerini yükle
+    List<Map<String, dynamic>> pmVerileri = DatabaseHelper.odemeYontemleriGetir(
+      widget.userId,
+    );
+    odemeYontemleri = pmVerileri.map((m) => PaymentMethod.fromMap(m)).toList();
+
     setState(() {
       silinenHarcamalar = tumHarcamalarHam
           .where((element) => element['silindi'] == true)
@@ -95,8 +104,35 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
       var hedef = tumHarcamalarHam.firstWhere((element) => element == harcama);
       hedef['silindi'] = false;
       silinenHarcamalar.remove(harcama);
+
+      // Ödeme yönteminin bakiyesinden düş (geri yüklenince harcama aktif oluyor)
+      final paymentMethodId = harcama['odemeYontemiId'];
+      if (paymentMethodId != null) {
+        final pmIndex = odemeYontemleri.indexWhere(
+          (p) => p.id == paymentMethodId,
+        );
+        if (pmIndex != -1) {
+          final pm = odemeYontemleri[pmIndex];
+          final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+          double newBalance;
+          if (pm.type == 'kredi') {
+            // Kredi kartı: borca ekle
+            newBalance = pm.balance + amount;
+          } else {
+            // Banka kartı/Nakit: bakiyeden düş
+            newBalance = pm.balance - amount;
+          }
+          odemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+        }
+      }
     });
     DatabaseHelper.harcamalariKaydet(widget.userId, tumHarcamalarHam);
+    // Ödeme yöntemlerini kaydet
+    List<Map<String, dynamic>> pmMapleri = odemeYontemleri
+        .map((pm) => pm.toMap())
+        .toList();
+    DatabaseHelper.odemeYontemleriKaydet(widget.userId, pmMapleri);
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -3,18 +3,29 @@ import 'package:provider/provider.dart';
 import 'package:cashly/core/theme/theme_manager.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
+import '../../../payment_methods/data/models/payment_method_model.dart';
 
 class AddExpenseSheet extends StatefulWidget {
   final Map<String, dynamic>? expenseToEdit;
-  final Function(String name, double amount, String category, DateTime date)
+  final Function(
+    String name,
+    double amount,
+    String category,
+    DateTime date,
+    String? paymentMethodId,
+  )
   onSave;
   final Map<String, IconData> categories;
+  final List<PaymentMethod> paymentMethods;
+  final String? defaultPaymentMethodId;
 
   const AddExpenseSheet({
     super.key,
     this.expenseToEdit,
     required this.onSave,
     required this.categories,
+    this.paymentMethods = const [],
+    this.defaultPaymentMethodId,
   });
 
   @override
@@ -28,6 +39,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   late String _selectedCategory;
   DateTime _selectedDate = DateTime.now();
   late Map<String, IconData> _categoryIcons;
+  String? _selectedPaymentMethodId;
 
   final List<String> _months = [
     "Ocak",
@@ -58,6 +70,16 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       _selectedDate =
           DateTime.tryParse(widget.expenseToEdit!['tarih'].toString()) ??
           DateTime.now();
+      _selectedPaymentMethodId = widget.expenseToEdit!['odemeYontemiId'];
+    } else if (widget.defaultPaymentMethodId != null &&
+        widget.paymentMethods.any(
+          (pm) => pm.id == widget.defaultPaymentMethodId,
+        )) {
+      // Varsayılan ödeme yöntemini kullan
+      _selectedPaymentMethodId = widget.defaultPaymentMethodId;
+    } else if (widget.paymentMethods.isNotEmpty) {
+      // Varsayılan olarak ilk ödeme yöntemini seç
+      _selectedPaymentMethodId = widget.paymentMethods.first.id;
     }
   }
 
@@ -69,19 +91,43 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   }
 
   Future<void> _pickDate() async {
+    final theme = Theme.of(context);
+    final themeManager = context.read<ThemeManager>();
+
+    // Varsayılan temada buton rengi için secondary (açık gri) kullan
+    // Diğer temalarda primary rengini kullan
+    final buttonColor = themeManager.isDefaultTheme
+        ? theme.colorScheme.secondary
+        : theme.colorScheme.primary;
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
+      locale: const Locale('tr', 'TR'),
+      cancelText: 'İptal',
+      confirmText: 'Tamam',
+      helpText: 'Tarih Seçin',
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
             colorScheme: ColorScheme.dark(
-              primary: Theme.of(context).colorScheme.primary,
-              onPrimary: Theme.of(context).colorScheme.onPrimary,
-              surface: Theme.of(context).colorScheme.surface,
-              onSurface: Theme.of(context).colorScheme.onSurface,
+              primary: buttonColor,
+              // Varsayılan temada açık gri üzerine siyah metin, diğerlerinde beyaz
+              onPrimary: themeManager.isDefaultTheme
+                  ? Colors.black
+                  : Colors.white,
+              surface: theme.colorScheme.surface,
+              onSurface: theme.colorScheme.onSurface,
+              secondary: theme.colorScheme.secondary,
+              onSecondary: theme.colorScheme.onSecondary,
+            ),
+            dialogTheme: DialogThemeData(
+              backgroundColor: theme.colorScheme.surface,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: buttonColor),
             ),
           ),
           child: child!,
@@ -95,7 +141,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     }
   }
 
-  void _save() {
+  Future<void> _save() async {
     // Form validation
     if (!_formKey.currentState!.validate()) {
       return;
@@ -110,13 +156,98 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       return;
     }
 
+    // Bakiye/limit kontrolü
+    if (_selectedPaymentMethodId != null) {
+      final pm = widget.paymentMethods.firstWhere(
+        (p) => p.id == _selectedPaymentMethodId,
+        orElse: () => PaymentMethod(
+          id: '',
+          name: '',
+          type: '',
+          balance: double.infinity,
+          colorIndex: 0,
+          createdAt: DateTime.now(),
+          isDeleted: false,
+        ),
+      );
+
+      if (pm.id.isNotEmpty) {
+        bool yetersizBakiye = false;
+        String uyariMesaji = '';
+
+        if (pm.type == 'kredi') {
+          // Kredi kartı: limit kontrolü
+          final kalanLimit = (pm.limit ?? 0) - pm.balance;
+          if (amount > kalanLimit) {
+            yetersizBakiye = true;
+            uyariMesaji =
+                'Kredi kartı limitiniz aşılacak!\n\n'
+                'Kalan limit: ${kalanLimit.toStringAsFixed(2)} ₺\n'
+                'Harcama tutarı: ${amount.toStringAsFixed(2)} ₺';
+          }
+        } else {
+          // Banka kartı/Nakit: bakiye kontrolü
+          if (amount > pm.balance) {
+            yetersizBakiye = true;
+            uyariMesaji =
+                'Yetersiz bakiye!\n\n'
+                'Mevcut bakiye: ${pm.balance.toStringAsFixed(2)} ₺\n'
+                'Harcama tutarı: ${amount.toStringAsFixed(2)} ₺';
+          }
+        }
+
+        if (yetersizBakiye) {
+          final onay = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              title: Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                  const SizedBox(width: 8),
+                  const Text('Uyarı', style: TextStyle(color: Colors.white)),
+                ],
+              ),
+              content: Text(
+                '$uyariMesaji\n\nYine de devam etmek istiyor musunuz?',
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.8),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('İptal'),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                  ),
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text(
+                    'Devam Et',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          );
+
+          if (onay != true) return;
+        }
+      }
+    }
+
     widget.onSave(
       _nameController.text.trim(),
       amount,
       _selectedCategory,
       _selectedDate,
+      _selectedPaymentMethodId,
     );
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   @override
@@ -338,6 +469,97 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   ),
                 ),
               ),
+              // Ödeme Yöntemi Seçimi
+              if (widget.paymentMethods.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String?>(
+                      value: _selectedPaymentMethodId,
+                      dropdownColor: Theme.of(context).colorScheme.surface,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      isExpanded: true,
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.white70,
+                      ),
+                      hint: Row(
+                        children: [
+                          Icon(
+                            Icons.credit_card,
+                            color: Theme.of(context).colorScheme.secondary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Ödeme Yöntemi Seçin',
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.54),
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      items: widget.paymentMethods.map((pm) {
+                        return DropdownMenuItem<String?>(
+                          value: pm.id,
+                          child: Row(
+                            children: [
+                              Icon(
+                                pm.type == 'nakit'
+                                    ? Icons.wallet
+                                    : pm.type == 'kredi'
+                                    ? Icons.credit_card
+                                    : Icons.account_balance,
+                                color: Theme.of(context).colorScheme.secondary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  pm.name,
+                                  style: const TextStyle(fontSize: 16),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (pm.lastFourDigits != null)
+                                Text(
+                                  '****${pm.lastFourDigits}',
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.5),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedPaymentMethodId = newValue;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
