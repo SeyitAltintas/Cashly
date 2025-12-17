@@ -63,6 +63,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
   final TextEditingController tGelirArama = TextEditingController();
   bool gelirAramaModu = false;
 
+  // ===== MEMOIZATION: Hesaplama cache'leri =====
+  // Bu değişkenler sadece veriler değiştiğinde yeniden hesaplanır
+  double? _cachedToplamTutar;
+  Map<String, double>? _cachedKategoriToplamlari;
+  Map<String, List<Map<String, dynamic>>>? _cachedGunlukGruplar;
+  int _cacheHarcamaHashCode = 0; // Cache invalidation için
+
   final List<String> aylarListesi = [
     "Ocak",
     "Şubat",
@@ -663,15 +670,47 @@ class _AnaSayfaState extends State<AnaSayfa> {
     );
   }
 
+  // Cache invalidation: harcama listesi değiştiğinde çağrılmalı
+  void _invalidateCache() {
+    _cachedToplamTutar = null;
+    _cachedKategoriToplamlari = null;
+    _cachedGunlukGruplar = null;
+  }
+
+  // Mevcut harcama listesinin hash'ini hesapla
+  int _calculateHarcamaHash() {
+    return Object.hashAll([
+      gosterilenHarcamalar.length,
+      if (gosterilenHarcamalar.isNotEmpty) gosterilenHarcamalar.first.hashCode,
+      if (gosterilenHarcamalar.length > 1) gosterilenHarcamalar.last.hashCode,
+    ]);
+  }
+
+  // Cache'in geçerli olup olmadığını kontrol et
+  void _checkCacheValidity() {
+    final currentHash = _calculateHarcamaHash();
+    if (_cacheHarcamaHashCode != currentHash) {
+      _invalidateCache();
+      _cacheHarcamaHashCode = currentHash;
+    }
+  }
+
   double get toplamTutar {
+    _checkCacheValidity();
+    if (_cachedToplamTutar != null) return _cachedToplamTutar!;
+
     double toplam = 0;
     for (var h in gosterilenHarcamalar) {
       toplam += double.tryParse(h['tutar'].toString()) ?? 0;
     }
+    _cachedToplamTutar = toplam;
     return toplam;
   }
 
   Map<String, double> get kategoriToplamlari {
+    _checkCacheValidity();
+    if (_cachedKategoriToplamlari != null) return _cachedKategoriToplamlari!;
+
     Map<String, double> toplamlar = {};
     for (var kat in kategoriIkonlari.keys) {
       toplamlar[kat] = 0;
@@ -685,10 +724,14 @@ class _AnaSayfaState extends State<AnaSayfa> {
         toplamlar[kat] = tutar;
       }
     }
+    _cachedKategoriToplamlari = toplamlar;
     return toplamlar;
   }
 
   Map<String, List<Map<String, dynamic>>> get gunlukGruplanmisHarcamalar {
+    _checkCacheValidity();
+    if (_cachedGunlukGruplar != null) return _cachedGunlukGruplar!;
+
     Map<String, List<Map<String, dynamic>>> gruplar = {};
 
     for (var h in gosterilenHarcamalar) {
@@ -701,6 +744,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
       }
       gruplar[tarihBasligi]!.add(h);
     }
+    _cachedGunlukGruplar = gruplar;
     return gruplar;
   }
 
