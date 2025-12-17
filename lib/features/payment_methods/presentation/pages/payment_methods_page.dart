@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cashly/core/theme/theme_manager.dart';
 import 'package:cashly/core/constants/color_constants.dart';
+import 'package:cashly/core/widgets/skeleton_widget.dart';
 
 import '../../data/models/payment_method_model.dart';
 import '../widgets/add_payment_method_sheet.dart';
@@ -45,6 +46,7 @@ class PaymentMethodsPage extends StatefulWidget {
 
 class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   bool _aramaModu = false;
+  bool _isLoading = true; // Skeleton loading için
   final TextEditingController _aramaController = TextEditingController();
   List<PaymentMethod> _paymentMethods = [];
   List<PaymentMethod> _deletedPaymentMethods = [];
@@ -65,6 +67,15 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     _paymentMethods = List.from(widget.paymentMethods);
     _deletedPaymentMethods = List.from(widget.deletedPaymentMethods);
     _filtrelenmisYontemler = _paymentMethods;
+
+    // Kısa skeleton animasyonu için 300ms bekle
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    });
   }
 
   @override
@@ -196,17 +207,19 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Toplam Özet Kartı
-            _buildSummaryCard(context),
-            const SizedBox(height: 24),
-            _buildPaymentMethodsList(),
-          ],
-        ),
-      ),
+      body: _isLoading
+          ? const PaymentMethodsPageSkeleton()
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  // Toplam Özet Kartı
+                  _buildSummaryCard(context),
+                  const SizedBox(height: 24),
+                  _buildPaymentMethodsList(),
+                ],
+              ),
+            ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           showModalBottomSheet(
