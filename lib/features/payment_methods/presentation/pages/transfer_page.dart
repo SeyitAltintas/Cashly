@@ -61,9 +61,21 @@ class _TransferPageState extends State<TransferPage> {
       return;
     }
 
-    // Bakiye kontrolü (Opsiyonel ama iyi olur)
-    // Gönderen hesap kredi kartı değilse bakiyesi yetmeli mi?
-    // Kullanıcı eksiye düşebilir, şimdilik engel koymayalım, uyarı verebiliriz ama basit tutalım.
+    // Hedef hesap kredi kartıysa, borçtan fazla göndermeye izin verme
+    final toAccount = widget.paymentMethods.firstWhere(
+      (pm) => pm.id == _toAccountId,
+    );
+
+    if (toAccount.type == 'kredi') {
+      final borcMiktari = toAccount.balance; // Kredi kartında balance = borç
+      if (amount > borcMiktari) {
+        ErrorHandler.showErrorSnackBar(
+          context,
+          'Kredi kartı borcu ${borcMiktari.toStringAsFixed(0)} ₺, en fazla bu kadar gönderebilirsiniz',
+        );
+        return;
+      }
+    }
 
     widget.onTransfer(_fromAccountId!, _toAccountId!, amount, _selectedDate);
     Navigator.pop(context);
@@ -98,6 +110,7 @@ class _TransferPageState extends State<TransferPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Para Transferi"),
@@ -191,6 +204,107 @@ class _TransferPageState extends State<TransferPage> {
                 },
               ),
 
+              // Kredi kartı seçildiyse "Tümünü Öde" butonu göster
+              if (_toAccountId != null) ...[
+                Builder(
+                  builder: (context) {
+                    final selectedAccount = widget.paymentMethods.firstWhere(
+                      (pm) => pm.id == _toAccountId,
+                      orElse: () => widget.paymentMethods.first,
+                    );
+
+                    if (selectedAccount.type == 'kredi' &&
+                        selectedAccount.balance > 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isDefaultTheme
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : Colors.orange.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isDefaultTheme
+                                  ? Colors.white.withValues(alpha: 0.3)
+                                  : Colors.orange.withValues(alpha: 0.5),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.credit_card,
+                                color: isDefaultTheme
+                                    ? Colors.white.withValues(alpha: 0.8)
+                                    : Colors.orange,
+                                size: 24,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Kredi Kartı Borcu: ${selectedAccount.balance.toStringAsFixed(0)} ₺',
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Tüm borcu ödemek için butona tıklayın',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.6),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _amountController.text = selectedAccount
+                                        .balance
+                                        .toStringAsFixed(0);
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.primary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Tümünü Öde',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ],
+
               const SizedBox(height: 24),
 
               // Tutar
@@ -266,28 +380,77 @@ class _TransferPageState extends State<TransferPage> {
 
               const SizedBox(height: 40),
 
-              // Kaydet Butonu
+              // Kaydet Butonu - Modern Siyah-Beyaz Tasarım
               SizedBox(
                 width: double.infinity,
                 height: 56,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        context.watch<ThemeManager>().isDefaultTheme
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.secondary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 0,
-                  ),
-                  onPressed: _save,
-                  child: const Text(
-                    "Transfer Yap",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
+                child: isDefaultTheme
+                    ? Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.grey.shade800,
+                              Colors.grey.shade900,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: Colors.white,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 0,
+                          ),
+                          onPressed: _save,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.swap_horiz, size: 22),
+                              const SizedBox(width: 8),
+                              const Text(
+                                "Transfer Yap",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.secondary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                        onPressed: _save,
+                        child: const Text(
+                          "Transfer Yap",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
               ),
             ],
           ),
