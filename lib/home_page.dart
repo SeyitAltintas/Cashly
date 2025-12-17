@@ -21,6 +21,7 @@ import 'features/income/presentation/pages/income_recycle_bin_page.dart';
 import 'features/expenses/presentation/widgets/add_expense_sheet.dart';
 import 'features/expenses/presentation/widgets/voice_input_sheet.dart';
 import 'features/expenses/presentation/widgets/expense_summary_card.dart';
+import 'features/expenses/presentation/widgets/expense_list_item.dart';
 import 'features/payment_methods/presentation/pages/payment_methods_page.dart';
 import 'features/payment_methods/presentation/pages/transfer_page.dart';
 import 'features/payment_methods/presentation/pages/payment_method_detail_page.dart';
@@ -957,170 +958,14 @@ class _AnaSayfaState extends State<AnaSayfa> {
                         ),
 
                         ...harcamalar.map((harcama) {
-                          return Dismissible(
-                            key: ValueKey(harcama),
-                            direction: DismissDirection.endToStart,
-                            background: Container(
-                              alignment: Alignment.centerRight,
-                              padding: const EdgeInsets.only(right: 20),
-                              margin: const EdgeInsets.only(bottom: 8),
-                              decoration: BoxDecoration(
-                                color: ColorConstants.koyuKirmizi,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Icon(
-                                Icons.delete,
-                                color: Colors.white,
-                              ),
-                            ),
-                            onDismissed: (direction) {
-                              harcamaSil(harcama);
-                            },
-                            child: GestureDetector(
-                              onTap: () =>
-                                  pencereAc(duzenlenecekHarcama: harcama),
-                              child: Card(
-                                color: Theme.of(context).colorScheme.surface,
-                                elevation: 0,
-                                margin: const EdgeInsets.only(bottom: 8),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  side: BorderSide(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.05),
-                                  ),
-                                ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 4,
-                                  ),
-                                  leading: Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Icon(
-                                      kategoriIkonlari[harcama['kategori']] ??
-                                          Icons.help,
-                                      color:
-                                          context
-                                              .watch<ThemeManager>()
-                                              .isDefaultTheme
-                                          ? PageThemeColors.getIconColor(
-                                              gosterilenHarcamalar.indexOf(
-                                                harcama,
-                                              ),
-                                            )
-                                          : Theme.of(
-                                              context,
-                                            ).colorScheme.secondary,
-                                    ),
-                                  ),
-                                  title: Text(
-                                    harcama['isim'],
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  subtitle: Builder(
-                                    builder: (context) {
-                                      // Ödeme yöntemini bul
-                                      final paymentMethodId =
-                                          harcama['odemeYontemiId'];
-                                      PaymentMethod? pm;
-                                      if (paymentMethodId != null) {
-                                        pm = tumOdemeYontemleri.firstWhere(
-                                          (p) => p.id == paymentMethodId,
-                                          orElse: () => PaymentMethod(
-                                            id: '',
-                                            name: '',
-                                            type: '',
-                                            balance: 0,
-                                            colorIndex: 0,
-                                            createdAt: DateTime.now(),
-                                            isDeleted: false,
-                                          ),
-                                        );
-                                        if (pm.id.isEmpty) pm = null;
-                                      }
-
-                                      return Row(
-                                        children: [
-                                          Text(
-                                            harcama['kategori'],
-                                            style: const TextStyle(
-                                              color: Colors.white38,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          if (pm != null) ...[
-                                            const SizedBox(width: 8),
-                                            Icon(
-                                              pm.isDeleted
-                                                  ? Icons.block
-                                                  : pm.type == 'nakit'
-                                                  ? Icons.wallet
-                                                  : pm.type == 'kredi'
-                                                  ? Icons.credit_card
-                                                  : Icons.account_balance,
-                                              size: 12,
-                                              color: pm.isDeleted
-                                                  ? Colors.red.withValues(
-                                                      alpha: 0.5,
-                                                    )
-                                                  : Colors.white38,
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Flexible(
-                                              child: Text(
-                                                pm.isDeleted
-                                                    ? '(Silinmiş)'
-                                                    : pm.lastFourDigits != null
-                                                    ? '${pm.name} ****${pm.lastFourDigits}'
-                                                    : pm.name,
-                                                style: TextStyle(
-                                                  color: pm.isDeleted
-                                                      ? Colors.red.withValues(
-                                                          alpha: 0.5,
-                                                        )
-                                                      : Colors.white38,
-                                                  fontSize: 11,
-                                                  fontStyle: pm.isDeleted
-                                                      ? FontStyle.italic
-                                                      : FontStyle.normal,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                  trailing: Text(
-                                    "-${harcama['tutar']} ₺",
-                                    style: TextStyle(
-                                      color:
-                                          context
-                                              .watch<ThemeManager>()
-                                              .isDefaultTheme
-                                          ? Colors.red
-                                          : Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                          return ExpenseListItem(
+                            harcama: harcama,
+                            categoryIcon: kategoriIkonlari[harcama['kategori']],
+                            paymentMethods: tumOdemeYontemleri,
+                            itemIndex: gosterilenHarcamalar.indexOf(harcama),
+                            onDelete: () => harcamaSil(harcama),
+                            onTap: () =>
+                                pencereAc(duzenlenecekHarcama: harcama),
                           );
                         }),
                       ],
