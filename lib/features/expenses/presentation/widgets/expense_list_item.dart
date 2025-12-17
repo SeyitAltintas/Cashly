@@ -29,54 +29,57 @@ class ExpenseListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
 
-    return Dismissible(
-      key: ValueKey(harcama),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        margin: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          color: ColorConstants.koyuKirmizi,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      onDismissed: (direction) => onDelete(),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Card(
-          color: Theme.of(context).colorScheme.surface,
-          elevation: 0,
+    // RepaintBoundary: Bu liste öğesinin repaint'ini izole eder
+    return RepaintBoundary(
+      child: Dismissible(
+        key: ValueKey(harcama),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
           margin: const EdgeInsets.only(bottom: 8),
-          shape: RoundedRectangleBorder(
+          decoration: BoxDecoration(
+            color: ColorConstants.koyuKirmizi,
             borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.05),
-            ),
           ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 4,
-            ),
-            leading: _buildCategoryIcon(context, isDefaultTheme),
-            title: Text(
-              harcama['isim'],
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
+          child: const Icon(Icons.delete, color: Colors.white),
+        ),
+        onDismissed: (direction) => onDelete(),
+        child: GestureDetector(
+          onTap: onTap,
+          child: Card(
+            color: Theme.of(context).colorScheme.surface,
+            elevation: 0,
+            margin: const EdgeInsets.only(bottom: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.05),
               ),
             ),
-            subtitle: _buildSubtitle(context),
-            trailing: Text(
-              "-${harcama['tutar']} ₺",
-              style: TextStyle(
-                color: isDefaultTheme ? Colors.red : Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 4,
+              ),
+              leading: _buildCategoryIcon(context, isDefaultTheme),
+              title: Text(
+                harcama['isim'],
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              subtitle: _buildSubtitle(context),
+              trailing: Text(
+                "-${harcama['tutar']} ₺",
+                style: TextStyle(
+                  color: isDefaultTheme ? Colors.red : Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),

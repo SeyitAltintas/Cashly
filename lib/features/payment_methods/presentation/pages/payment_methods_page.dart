@@ -397,6 +397,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: _filtrelenmisYontemler.length,
+      // itemExtent: Sabit yükseklik belirterek scroll performansını artırır
+      // Her kart 140px yükseklik + 16px bottom margin = 156px
+      itemExtent: 156,
       itemBuilder: (context, index) {
         final pm = _filtrelenmisYontemler[index];
         return _buildPaymentMethodCard(pm);
@@ -407,181 +410,187 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   Widget _buildPaymentMethodCard(PaymentMethod pm) {
     final colors = _cardColors[pm.colorIndex.clamp(0, _cardColors.length - 1)];
 
-    return Dismissible(
-      key: Key(pm.id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: ColorConstants.koyuKirmizi,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      onDismissed: (direction) {
-        setState(() {
-          _paymentMethods.removeWhere((p) => p.id == pm.id);
-          final deleted = pm.copyWith(isDeleted: true);
-          _deletedPaymentMethods.add(deleted);
-          _filtrele();
-        });
-        widget.onDelete(pm);
-      },
-      child: GestureDetector(
-        onTap: () {
-          // Detay sayfasına yönlendir (eğer callback tanımlıysa)
-          if (widget.onCardTap != null) {
-            widget.onCardTap!(pm);
-          }
-        },
-        onLongPress: () {
-          // Düzenleme sheet'ini aç
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => AddPaymentMethodSheet(
-              paymentMethod: pm,
-              onSave: (name, type, lastFourDigits, balance, limit, colorIndex) {
-                final updatedPm = PaymentMethod(
-                  id: pm.id,
-                  name: name,
-                  type: type,
-                  lastFourDigits: lastFourDigits,
-                  balance: balance,
-                  limit: limit,
-                  colorIndex: colorIndex,
-                  createdAt: pm.createdAt,
-                  isDeleted: false,
-                );
-                setState(() {
-                  final idx = _paymentMethods.indexWhere((p) => p.id == pm.id);
-                  if (idx != -1) {
-                    _paymentMethods[idx] = updatedPm;
-                  }
-                  _filtrele();
-                });
-                widget.onEdit(updatedPm);
-              },
-            ),
-          );
-        },
-        child: Container(
-          height: 140,
+    // RepaintBoundary: Bu kartın repaint'ini izole eder
+    return RepaintBoundary(
+      child: Dismissible(
+        key: Key(pm.id),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
           margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: colors,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: ColorConstants.koyuKirmizi,
             borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: colors[0].withValues(alpha: 0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
           ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Üst satır
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      pm.typeDisplayName,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    pm.type == 'nakit'
-                        ? Icons.wallet
-                        : pm.type == 'kredi'
-                        ? Icons.credit_card
-                        : Icons.account_balance,
-                    color: Colors.white.withValues(alpha: 0.7),
-                    size: 24,
-                  ),
-                ],
+          child: const Icon(Icons.delete, color: Colors.white),
+        ),
+        onDismissed: (direction) {
+          setState(() {
+            _paymentMethods.removeWhere((p) => p.id == pm.id);
+            final deleted = pm.copyWith(isDeleted: true);
+            _deletedPaymentMethods.add(deleted);
+            _filtrele();
+          });
+          widget.onDelete(pm);
+        },
+        child: GestureDetector(
+          onTap: () {
+            // Detay sayfasına yönlendir (eğer callback tanımlıysa)
+            if (widget.onCardTap != null) {
+              widget.onCardTap!(pm);
+            }
+          },
+          onLongPress: () {
+            // Düzenleme sheet'ini aç
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (context) => AddPaymentMethodSheet(
+                paymentMethod: pm,
+                onSave:
+                    (name, type, lastFourDigits, balance, limit, colorIndex) {
+                      final updatedPm = PaymentMethod(
+                        id: pm.id,
+                        name: name,
+                        type: type,
+                        lastFourDigits: lastFourDigits,
+                        balance: balance,
+                        limit: limit,
+                        colorIndex: colorIndex,
+                        createdAt: pm.createdAt,
+                        isDeleted: false,
+                      );
+                      setState(() {
+                        final idx = _paymentMethods.indexWhere(
+                          (p) => p.id == pm.id,
+                        );
+                        if (idx != -1) {
+                          _paymentMethods[idx] = updatedPm;
+                        }
+                        _filtrele();
+                      });
+                      widget.onEdit(updatedPm);
+                    },
               ),
-              // Kart numarası
-              if (pm.type != 'nakit' && pm.lastFourDigits != null)
-                Text(
-                  '•••• •••• •••• ${pm.lastFourDigits}',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: 14,
-                    letterSpacing: 2,
-                  ),
+            );
+          },
+          child: Container(
+            height: 140,
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: colors,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: colors[0].withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
                 ),
-              // Alt satır
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        pm.name.toUpperCase(),
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.7),
+              ],
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Üst satır
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        pm.typeDisplayName,
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 11,
-                          letterSpacing: 1,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      if (pm.type == 'kredi' && pm.limit != null)
+                    ),
+                    Icon(
+                      pm.type == 'nakit'
+                          ? Icons.wallet
+                          : pm.type == 'kredi'
+                          ? Icons.credit_card
+                          : Icons.account_balance,
+                      color: Colors.white.withValues(alpha: 0.7),
+                      size: 24,
+                    ),
+                  ],
+                ),
+                // Kart numarası
+                if (pm.type != 'nakit' && pm.lastFourDigits != null)
+                  Text(
+                    '•••• •••• •••• ${pm.lastFourDigits}',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 14,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                // Alt satır
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          'Limit: ${pm.limit!.toStringAsFixed(0)} ₺',
+                          pm.name.toUpperCase(),
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.5),
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 11,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                        if (pm.type == 'kredi' && pm.limit != null)
+                          Text(
+                            'Limit: ${pm.limit!.toStringAsFixed(0)} ₺',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 10,
+                            ),
+                          ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          pm.type == 'kredi' ? 'Borç' : 'Bakiye',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.6),
                             fontSize: 10,
                           ),
                         ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        pm.type == 'kredi' ? 'Borç' : 'Bakiye',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.6),
-                          fontSize: 10,
+                        Text(
+                          '${pm.balance.toStringAsFixed(2)} ₺',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        '${pm.balance.toStringAsFixed(2)} ₺',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
