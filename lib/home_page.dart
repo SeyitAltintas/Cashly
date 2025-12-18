@@ -28,6 +28,9 @@ import 'features/payment_methods/presentation/pages/transfer_page.dart';
 import 'features/payment_methods/presentation/pages/payment_method_detail_page.dart';
 import 'features/payment_methods/data/models/payment_method_model.dart';
 import 'features/payment_methods/data/models/transfer_model.dart';
+// home_app_bar.dart - Entegrasyon sonrası kullanılacak
+import 'features/home/presentation/widgets/home_bottom_navigation.dart';
+import 'features/home/presentation/widgets/month_year_picker_dialog.dart';
 
 class AnaSayfa extends StatefulWidget {
   final AuthController authController;
@@ -504,173 +507,15 @@ class _AnaSayfaState extends State<AnaSayfa> {
   }
 
   void ayYilSeciciAc() {
-    int geciciYil = secilenAy.year;
-    int geciciAyIndex = secilenAy.month;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            return AlertDialog(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.1),
-                ),
-              ),
-              title: const Center(
-                child: Text(
-                  "Dönem Seç",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              content: SizedBox(
-                height: 300,
-                width: double.maxFinite,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text(
-                            "Yıl",
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.54),
-                              fontSize: 12,
-                            ),
-                          ),
-                          const Divider(color: Colors.white24),
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: 11,
-                              itemBuilder: (context, index) {
-                                int yil = 2020 + index;
-                                bool seciliMi = (yil == geciciYil);
-                                return ListTile(
-                                  title: Center(
-                                    child: Text(
-                                      "$yil",
-                                      style: TextStyle(
-                                        color: seciliMi
-                                            ? Theme.of(
-                                                context,
-                                              ).colorScheme.secondary
-                                            : Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface
-                                                  .withValues(alpha: 0.7),
-                                        fontWeight: seciliMi
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                        fontSize: seciliMi ? 18 : 16,
-                                      ),
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    setStateDialog(() => geciciYil = yil);
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const VerticalDivider(color: Colors.white24),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text(
-                            "Ay",
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.54),
-                              fontSize: 12,
-                            ),
-                          ),
-                          const Divider(color: Colors.white24),
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: 12,
-                              itemBuilder: (context, index) {
-                                int ayNo = index + 1;
-                                bool seciliMi = (ayNo == geciciAyIndex);
-                                return ListTile(
-                                  title: Center(
-                                    child: Text(
-                                      aylarListesi[index],
-                                      style: TextStyle(
-                                        color: seciliMi
-                                            ? Theme.of(
-                                                context,
-                                              ).colorScheme.secondary
-                                            : Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface
-                                                  .withValues(alpha: 0.7),
-                                        fontWeight: seciliMi
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                        fontSize: seciliMi ? 18 : 16,
-                                      ),
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    setStateDialog(() => geciciAyIndex = ayNo);
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    "İptal",
-                    style: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.54),
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      secilenAy = DateTime(geciciYil, geciciAyIndex);
-                      filtreleVeGoster();
-                    });
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Tamam"),
-                ),
-              ],
-            );
-          },
-        );
+    MonthYearPickerDialog.show(
+      context,
+      secilenAy: secilenAy,
+      aylarListesi: aylarListesi,
+      onSecildi: (yil, ay) {
+        setState(() {
+          secilenAy = DateTime(yil, ay);
+          filtreleVeGoster();
+        });
       },
     );
   }
@@ -2362,71 +2207,9 @@ class _AnaSayfaState extends State<AnaSayfa> {
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        bottomNavigationBar: BottomAppBar(
-          color: Theme.of(context).colorScheme.surface,
-          shape: const CircularNotchedRectangle(),
-          notchMargin: 8.0,
-          child: SizedBox(
-            height: 60,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.receipt_long,
-                    color: _selectedIndex == 0
-                        ? Theme.of(context).colorScheme.secondary
-                        : Colors.white24,
-                    size: 28,
-                  ),
-                  onPressed: () {
-                    _pageController.jumpToPage(0);
-                  },
-                  tooltip: "Harcamalarım",
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.trending_up,
-                    color: _selectedIndex == 1
-                        ? Theme.of(context).colorScheme.secondary
-                        : Colors.white24,
-                    size: 28,
-                  ),
-                  onPressed: () {
-                    _pageController.jumpToPage(1);
-                  },
-                  tooltip: "Gelirlerim",
-                ),
-                const SizedBox(width: 48), // FAB için boşluk
-                IconButton(
-                  icon: Icon(
-                    Icons.apps,
-                    color: _selectedIndex == 2
-                        ? Theme.of(context).colorScheme.secondary
-                        : Colors.white24,
-                    size: 28,
-                  ),
-                  onPressed: () {
-                    _pageController.jumpToPage(2);
-                  },
-                  tooltip: "Araçlar",
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.person,
-                    color: _selectedIndex == 3
-                        ? Theme.of(context).colorScheme.secondary
-                        : Colors.white24,
-                    size: 28,
-                  ),
-                  onPressed: () {
-                    _pageController.jumpToPage(3);
-                  },
-                  tooltip: "Profil",
-                ),
-              ],
-            ),
-          ),
+        bottomNavigationBar: HomeBottomNavigation(
+          selectedIndex: _selectedIndex,
+          pageController: _pageController,
         ),
       ),
     );
