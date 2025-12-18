@@ -7,6 +7,8 @@ class ToolsPage extends StatelessWidget {
   final VoidCallback onAnalysisPressed;
   final VoidCallback onPaymentMethodsPressed;
   final VoidCallback onTransferPressed;
+  final VoidCallback? onExpensesPressed;
+  final VoidCallback? onIncomesPressed;
 
   const ToolsPage({
     super.key,
@@ -14,6 +16,8 @@ class ToolsPage extends StatelessWidget {
     required this.onAnalysisPressed,
     required this.onPaymentMethodsPressed,
     required this.onTransferPressed,
+    this.onExpensesPressed,
+    this.onIncomesPressed,
   });
 
   @override
@@ -163,6 +167,48 @@ class ToolsPage extends StatelessWidget {
                       onTap: onTransferPressed,
                       delay: 400,
                     ),
+                    // Harcamalarım - Yeni eklendi
+                    if (onExpensesPressed != null)
+                      _buildToolCard(
+                        context,
+                        icon: Icons.receipt_long,
+                        title: "Harcamalarım",
+                        subtitle: "Harcamalarınızı yönetin",
+                        gradientColors:
+                            context.watch<ThemeManager>().isDefaultTheme
+                            ? [
+                                const Color(0xFF1a1a2e),
+                                const Color(0xFF3d1f1f),
+                                const Color(0xFF5c2323),
+                              ]
+                            : [
+                                Colors.red.shade900.withValues(alpha: 0.3),
+                                Colors.red.shade700.withValues(alpha: 0.15),
+                              ],
+                        onTap: onExpensesPressed!,
+                        delay: 500,
+                      ),
+                    // Gelirlerim - Yeni eklendi
+                    if (onIncomesPressed != null)
+                      _buildToolCard(
+                        context,
+                        icon: Icons.trending_up,
+                        title: "Gelirlerim",
+                        subtitle: "Gelirlerinizi yönetin",
+                        gradientColors:
+                            context.watch<ThemeManager>().isDefaultTheme
+                            ? [
+                                const Color(0xFF1a1a2e),
+                                const Color(0xFF1f3d1f),
+                                const Color(0xFF235c23),
+                              ]
+                            : [
+                                Colors.green.shade900.withValues(alpha: 0.3),
+                                Colors.green.shade700.withValues(alpha: 0.15),
+                              ],
+                        onTap: onIncomesPressed!,
+                        delay: 600,
+                      ),
                   ],
                 ),
               ),
