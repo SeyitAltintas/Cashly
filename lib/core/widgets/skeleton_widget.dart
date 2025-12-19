@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 
 /// Shimmer efektli skeleton widget base
 /// Yükleme sırasında içerik yerine gösterilir
+///
+/// Optimizasyonlar:
+/// - AnimationController düzgün dispose ediliyor
+/// - RepaintBoundary ile gereksiz rebuild'ler önleniyor
+/// - mounted kontrolü ekleniyor
 class SkeletonWidget extends StatefulWidget {
   final double width;
   final double height;
@@ -31,47 +36,75 @@ class _SkeletonWidgetState extends State<SkeletonWidget>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
-    )..repeat();
+    );
 
     _animation = Tween<double>(
       begin: -2,
       end: 2,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+    // Animasyonu güvenli şekilde başlat
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _controller.repeat();
+      }
+    });
   }
 
   @override
   void dispose() {
+    // Animasyonu durdur ve controller'ı dispose et
+    _controller.stop();
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Container(
-          width: widget.isCircle ? widget.height : widget.width,
-          height: widget.height,
-          decoration: BoxDecoration(
-            borderRadius: widget.isCircle
-                ? null
-                : BorderRadius.circular(widget.borderRadius),
-            shape: widget.isCircle ? BoxShape.circle : BoxShape.rectangle,
-            gradient: LinearGradient(
-              begin: Alignment(_animation.value, 0),
-              end: Alignment(_animation.value + 1, 0),
-              colors: [
-                Theme.of(context).colorScheme.surface,
-                Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
-                Theme.of(context).colorScheme.surface,
-              ],
+    // RepaintBoundary ile gereksiz rebuildi önle
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          return Container(
+            width: widget.isCircle ? widget.height : widget.width,
+            height: widget.height,
+            decoration: BoxDecoration(
+              borderRadius: widget.isCircle
+                  ? null
+                  : BorderRadius.circular(widget.borderRadius),
+              shape: widget.isCircle ? BoxShape.circle : BoxShape.rectangle,
+              gradient: LinearGradient(
+                begin: Alignment(_animation.value, 0),
+                end: Alignment(_animation.value + 1, 0),
+                colors: [
+                  Theme.of(context).colorScheme.surface,
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+                  Theme.of(context).colorScheme.surface,
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
+}
+
+/// Skeleton container için yeniden kullanılabilir dekorasyon
+BoxDecoration _skeletonContainerDecoration(BuildContext context) {
+  return BoxDecoration(
+    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
+    borderRadius: BorderRadius.circular(16),
+  );
+}
+
+/// Skeleton container için büyük kartlar dekorasyonu
+BoxDecoration _skeletonCardDecoration(BuildContext context) {
+  return BoxDecoration(
+    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
+    borderRadius: BorderRadius.circular(20),
+  );
 }
 
 /// Harcama kartı skeleton
@@ -83,20 +116,17 @@ class ExpenseCardSkeleton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
+      decoration: _skeletonContainerDecoration(context),
+      child: const Row(
         children: [
           // İkon placeholder
-          const SkeletonWidget(width: 44, height: 44, borderRadius: 12),
-          const SizedBox(width: 12),
+          SkeletonWidget(width: 44, height: 44, borderRadius: 12),
+          SizedBox(width: 12),
           // İsim ve kategori
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 SkeletonWidget(height: 16, width: 120, borderRadius: 4),
                 SizedBox(height: 8),
                 SkeletonWidget(height: 12, width: 80, borderRadius: 4),
@@ -104,7 +134,7 @@ class ExpenseCardSkeleton extends StatelessWidget {
             ),
           ),
           // Tutar
-          const SkeletonWidget(height: 20, width: 70, borderRadius: 4),
+          SkeletonWidget(height: 20, width: 70, borderRadius: 4),
         ],
       ),
     );
@@ -120,42 +150,39 @@ class ExpenseSummarySkeleton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
+      decoration: _skeletonCardDecoration(context),
+      child: const Column(
         children: [
           // Ay seçici
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               SkeletonWidget(width: 30, height: 30, borderRadius: 8),
               SkeletonWidget(width: 120, height: 24, borderRadius: 8),
               SkeletonWidget(width: 30, height: 30, borderRadius: 8),
             ],
           ),
-          const SizedBox(height: 16),
-          const Divider(color: Colors.white10),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
+          Divider(color: Colors.white10),
+          SizedBox(height: 16),
           // Toplam harcama satırı
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   SkeletonWidget(width: 100, height: 14, borderRadius: 4),
                   SizedBox(height: 8),
                   SkeletonWidget(width: 150, height: 28, borderRadius: 4),
                 ],
               ),
-              const SkeletonWidget(width: 52, height: 52, borderRadius: 15),
+              SkeletonWidget(width: 52, height: 52, borderRadius: 15),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           // Bütçe durumu
-          const SkeletonWidget(height: 80, borderRadius: 12),
+          SkeletonWidget(height: 80, borderRadius: 12),
         ],
       ),
     );
@@ -172,31 +199,28 @@ class PaymentMethodSkeleton extends StatelessWidget {
       height: 140,
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
+      decoration: _skeletonCardDecoration(context),
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Üst satır
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               SkeletonWidget(width: 80, height: 24, borderRadius: 12),
               SkeletonWidget(width: 24, height: 24, borderRadius: 6),
             ],
           ),
           // Kart numarası
-          const SkeletonWidget(width: 200, height: 14, borderRadius: 4),
+          SkeletonWidget(width: 200, height: 14, borderRadius: 4),
           // Alt satır
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   SkeletonWidget(width: 100, height: 11, borderRadius: 4),
                   SizedBox(height: 4),
                   SkeletonWidget(width: 60, height: 10, borderRadius: 4),
@@ -204,7 +228,7 @@ class PaymentMethodSkeleton extends StatelessWidget {
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
+                children: [
                   SkeletonWidget(width: 40, height: 10, borderRadius: 4),
                   SizedBox(height: 4),
                   SkeletonWidget(width: 80, height: 18, borderRadius: 4),
@@ -227,20 +251,17 @@ class IncomeCardSkeleton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
+      decoration: _skeletonContainerDecoration(context),
+      child: const Row(
         children: [
           // İkon placeholder
-          const SkeletonWidget(width: 44, height: 44, borderRadius: 12),
-          const SizedBox(width: 12),
+          SkeletonWidget(width: 44, height: 44, borderRadius: 12),
+          SizedBox(width: 12),
           // İsim ve kategori
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 SkeletonWidget(height: 15, width: 100, borderRadius: 4),
                 SizedBox(height: 8),
                 SkeletonWidget(height: 12, width: 60, borderRadius: 4),
@@ -248,7 +269,7 @@ class IncomeCardSkeleton extends StatelessWidget {
             ),
           ),
           // Tutar
-          const SkeletonWidget(height: 16, width: 80, borderRadius: 4),
+          SkeletonWidget(height: 16, width: 80, borderRadius: 4),
         ],
       ),
     );
@@ -286,39 +307,36 @@ class IncomeSummarySkeleton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
+      decoration: _skeletonCardDecoration(context),
+      child: const Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               SkeletonWidget(width: 30, height: 30, borderRadius: 8),
               SkeletonWidget(width: 120, height: 24, borderRadius: 8),
               SkeletonWidget(width: 30, height: 30, borderRadius: 8),
             ],
           ),
-          const SizedBox(height: 16),
-          const Divider(color: Colors.white10),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
+          Divider(color: Colors.white10),
+          SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   SkeletonWidget(width: 100, height: 14, borderRadius: 4),
                   SizedBox(height: 8),
                   SkeletonWidget(width: 150, height: 28, borderRadius: 4),
                 ],
               ),
-              const SkeletonWidget(width: 52, height: 52, borderRadius: 15),
+              SkeletonWidget(width: 52, height: 52, borderRadius: 15),
             ],
           ),
-          const SizedBox(height: 16),
-          const SkeletonWidget(height: 44, borderRadius: 12),
+          SizedBox(height: 16),
+          SkeletonWidget(height: 44, borderRadius: 12),
         ],
       ),
     );
@@ -356,28 +374,25 @@ class PaymentMethodsSummarySkeleton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
+      decoration: _skeletonCardDecoration(context),
+      child: const Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   SkeletonWidget(width: 100, height: 14, borderRadius: 4),
                   SizedBox(height: 8),
                   SkeletonWidget(width: 150, height: 28, borderRadius: 4),
                 ],
               ),
-              const SkeletonWidget(width: 52, height: 52, borderRadius: 15),
+              SkeletonWidget(width: 52, height: 52, borderRadius: 15),
             ],
           ),
-          const SizedBox(height: 16),
-          const SkeletonWidget(height: 44, borderRadius: 12),
+          SizedBox(height: 16),
+          SkeletonWidget(height: 44, borderRadius: 12),
         ],
       ),
     );
