@@ -5,6 +5,7 @@ import 'features/settings/presentation/pages/profile_settings_page.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'core/constants/color_constants.dart';
+import 'services/haptic_service.dart';
 
 class ProfilSayfasi extends StatelessWidget {
   final AuthController authController;
@@ -283,7 +284,10 @@ class ProfilSayfasi extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          HapticService.lightImpact();
+          onTap();
+        },
         borderRadius: isLast
             ? const BorderRadius.only(
                 bottomLeft: Radius.circular(16),

@@ -6,6 +6,7 @@ import 'features/income/presentation/pages/income_settings_page.dart';
 import 'features/settings/presentation/pages/appearance_page.dart';
 import 'features/settings/presentation/pages/voice_assistant_page.dart';
 import 'features/settings/presentation/pages/recurring_transactions_page.dart';
+import 'features/settings/presentation/pages/haptic_settings_page.dart';
 import 'features/payment_methods/data/models/payment_method_model.dart';
 
 import 'features/auth/presentation/controllers/auth_controller.dart';
@@ -104,6 +105,19 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const AppearancePage()),
+            ),
+          ),
+          const SettingsDivider(),
+          SettingsTile(
+            icon: Icons.vibration,
+            iconColor: Colors.cyan,
+            title: 'Titreşim Geri Bildirimi',
+            subtitle: 'Dokunsal geri bildirim ayarları',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HapticSettingsPage(),
+              ),
             ),
           ),
           const SettingsDivider(),

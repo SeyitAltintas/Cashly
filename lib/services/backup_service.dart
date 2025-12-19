@@ -3,19 +3,26 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'database_helper.dart';
+import 'haptic_service.dart';
 
 /// Veri Yedekleme ve Geri Yükleme Servisi
 /// Hive verilerini JSON olarak dışa/içe aktarır
+/// Versiyon 1.1: Tema ve Haptic ayarları eklendi
 class BackupService {
   BackupService._();
 
   /// Tüm verileri JSON formatında dışa aktar
   static Future<String?> exportData(String userId) async {
     try {
+      // Ayarları topla
+      final settingsBox = await Hive.openBox('settings');
+      final hapticBox = await Hive.openBox('haptic_settings');
+
       // Tüm verileri topla
       final data = {
-        'version': '1.0',
+        'version': '1.1',
         'exportDate': DateTime.now().toIso8601String(),
         'userId': userId,
         'data': {
@@ -30,6 +37,39 @@ class BackupService {
           ),
           'kategoriler': DatabaseHelper.kategorileriGetir(userId),
           'gelirKategorileri': DatabaseHelper.gelirKategorileriGetir(userId),
+        },
+        'settings': {
+          // Tema ayarları
+          'themeIndex': settingsBox.get('themeIndex', defaultValue: 0),
+          'moneyAnimation': settingsBox.get(
+            'moneyAnimation',
+            defaultValue: true,
+          ),
+          // Haptic ayarları
+          'hapticMasterEnabled': hapticBox.get(
+            HapticService.keyMasterEnabled,
+            defaultValue: true,
+          ),
+          'hapticButtonTaps': hapticBox.get(
+            HapticService.keyButtonTaps,
+            defaultValue: true,
+          ),
+          'hapticNavigation': hapticBox.get(
+            HapticService.keyNavigation,
+            defaultValue: true,
+          ),
+          'hapticDelete': hapticBox.get(
+            HapticService.keyDelete,
+            defaultValue: true,
+          ),
+          'hapticSuccess': hapticBox.get(
+            HapticService.keySuccess,
+            defaultValue: true,
+          ),
+          'hapticError': hapticBox.get(
+            HapticService.keyError,
+            defaultValue: true,
+          ),
         },
       };
 
@@ -71,8 +111,9 @@ class BackupService {
       final jsonString = await file.readAsString();
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      // Versiyon kontrolü
-      if (data['version'] != '1.0') {
+      // Versiyon kontrolü (1.0 ve 1.1 desteklenir)
+      final version = data['version'] as String?;
+      if (version != '1.0' && version != '1.1') {
         return BackupResult(
           success: false,
           message: 'Desteklenmeyen yedek versiyonu',
@@ -153,9 +194,61 @@ class BackupService {
         );
       }
 
+      // Ayarları geri yükle (v1.1)
+      if (data['settings'] != null) {
+        final settings = data['settings'] as Map<String, dynamic>;
+
+        // Tema ayarları
+        final settingsBox = await Hive.openBox('settings');
+        if (settings['themeIndex'] != null) {
+          await settingsBox.put('themeIndex', settings['themeIndex']);
+        }
+        if (settings['moneyAnimation'] != null) {
+          await settingsBox.put('moneyAnimation', settings['moneyAnimation']);
+        }
+
+        // Haptic ayarları
+        if (settings['hapticMasterEnabled'] != null) {
+          await HapticService.setSetting(
+            HapticService.keyMasterEnabled,
+            settings['hapticMasterEnabled'],
+          );
+        }
+        if (settings['hapticButtonTaps'] != null) {
+          await HapticService.setSetting(
+            HapticService.keyButtonTaps,
+            settings['hapticButtonTaps'],
+          );
+        }
+        if (settings['hapticNavigation'] != null) {
+          await HapticService.setSetting(
+            HapticService.keyNavigation,
+            settings['hapticNavigation'],
+          );
+        }
+        if (settings['hapticDelete'] != null) {
+          await HapticService.setSetting(
+            HapticService.keyDelete,
+            settings['hapticDelete'],
+          );
+        }
+        if (settings['hapticSuccess'] != null) {
+          await HapticService.setSetting(
+            HapticService.keySuccess,
+            settings['hapticSuccess'],
+          );
+        }
+        if (settings['hapticError'] != null) {
+          await HapticService.setSetting(
+            HapticService.keyError,
+            settings['hapticError'],
+          );
+        }
+      }
+
       return BackupResult(
         success: true,
-        message: 'Veriler başarıyla geri yüklendi',
+        message: 'Veriler ve ayarlar başarıyla geri yüklendi',
       );
     } catch (e) {
       return BackupResult(success: false, message: 'Geri yükleme hatası: $e');
