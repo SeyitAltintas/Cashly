@@ -51,7 +51,7 @@ class HomeBottomNav extends StatelessWidget {
               children: [
                 _NavItem(
                   icon: Icons.apps_rounded,
-                  label: "Araçlar",
+                  label: "Tüm İşlemler",
                   index: 0,
                   isSelected: selectedIndex == 0,
                   primaryColor: primaryColor,

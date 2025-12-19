@@ -152,7 +152,7 @@ class IncomesAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-/// Araçlar sayfası için AppBar widget'ı.
+/// Tüm İşlemler sayfası için AppBar widget'ı.
 class ToolsAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ToolsAppBar({super.key});
 
@@ -163,7 +163,7 @@ class ToolsAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      title: const Text("Araçlar"),
+      title: const Text("Tüm İşlemler"),
       backgroundColor: Colors.transparent,
       elevation: 0,
     );
