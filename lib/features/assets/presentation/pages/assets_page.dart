@@ -6,6 +6,8 @@ import 'package:cashly/core/constants/color_constants.dart';
 import '../../data/models/asset_model.dart';
 import '../widgets/add_asset_sheet.dart';
 import 'asset_recycle_bin_page.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../services/haptic_service.dart';
 
 class AssetsPage extends StatefulWidget {
   final List<Asset> assets;
@@ -171,13 +173,12 @@ class _AssetsPageState extends State<AssetsPage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Toplam Varlık Kartı
-            Container(
-              margin: const EdgeInsets.only(bottom: 16),
+      body: Column(
+        children: [
+          // Toplam Varlık Kartı (her zaman üstte)
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -267,80 +268,101 @@ class _AssetsPageState extends State<AssetsPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
-            _buildAssetList(),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => AddAssetSheet(
-              onSave: (name, amount, quantity, category, type) {
-                // Lokal listeye ekle
-                final newAsset = Asset(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: name,
-                  amount: amount,
-                  quantity: quantity,
-                  category: category,
-                  type: type,
-                  lastUpdated: DateTime.now(),
-                  isDeleted: false,
-                );
-                setState(() {
-                  _assets.add(newAsset);
-                  _filtrele();
-                });
-                // Parent'a da bildir
-                widget.onAdd(name, amount, quantity, category, type);
-              },
-            ),
-          );
-        },
-        backgroundColor: context.watch<ThemeManager>().isDefaultTheme
-            ? Theme.of(context).colorScheme.secondary
-            : Theme.of(context).colorScheme.primary,
-        icon: Icon(
-          Icons.add,
-          color: context.watch<ThemeManager>().isDefaultTheme
-              ? Colors.black
-              : Colors.white,
-        ),
-        label: Text(
-          "Varlık Ekle",
-          style: TextStyle(
-            color: context.watch<ThemeManager>().isDefaultTheme
-                ? Colors.black
-                : Colors.white,
-            fontWeight: FontWeight.bold,
           ),
-        ),
+          // Liste veya EmptyState (ekranın kalan kısmının ortasında)
+          Expanded(child: _buildAssetList()),
+        ],
       ),
+      floatingActionButton: _filtrelenmisVarliklar.isEmpty && !_aramaModu
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => AddAssetSheet(
+                    onSave: (name, amount, quantity, category, type) {
+                      final newAsset = Asset(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        name: name,
+                        amount: amount,
+                        quantity: quantity,
+                        category: category,
+                        type: type,
+                        lastUpdated: DateTime.now(),
+                        isDeleted: false,
+                      );
+                      setState(() {
+                        _assets.add(newAsset);
+                        _filtrele();
+                      });
+                      widget.onAdd(name, amount, quantity, category, type);
+                    },
+                  ),
+                );
+              },
+              backgroundColor: context.watch<ThemeManager>().isDefaultTheme
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).colorScheme.primary,
+              icon: Icon(
+                Icons.add,
+                color: context.watch<ThemeManager>().isDefaultTheme
+                    ? Colors.black
+                    : Colors.white,
+              ),
+              label: Text(
+                "Varlık Ekle",
+                style: TextStyle(
+                  color: context.watch<ThemeManager>().isDefaultTheme
+                      ? Colors.black
+                      : Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
     );
   }
 
   Widget _buildAssetList() {
     if (_filtrelenmisVarliklar.isEmpty) {
-      return Center(
-        child: Text(
-          _aramaModu && _aramaController.text.isNotEmpty
-              ? "Sonuç bulunamadı."
-              : "Henüz varlık eklenmedi.",
-          style: TextStyle(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.54),
-          ),
-        ),
-      );
+      return _aramaModu && _aramaController.text.isNotEmpty
+          ? const EmptyStateWidget(
+              icon: Icons.search_off,
+              title: 'Sonuç bulunamadı',
+              subtitle: 'Farklı bir arama terimi deneyin',
+            )
+          : EmptyStateWidget.noAssets(
+              onAdd: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => AddAssetSheet(
+                    onSave: (name, amount, quantity, category, type) {
+                      final newAsset = Asset(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        name: name,
+                        amount: amount,
+                        quantity: quantity,
+                        category: category,
+                        type: type,
+                        lastUpdated: DateTime.now(),
+                        isDeleted: false,
+                      );
+                      setState(() {
+                        _assets.add(newAsset);
+                        _filtrele();
+                      });
+                      widget.onAdd(name, amount, quantity, category, type);
+                    },
+                  ),
+                );
+              },
+            );
     }
     return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: _filtrelenmisVarliklar.length,
       itemBuilder: (context, index) {
         final asset = _filtrelenmisVarliklar[index];
@@ -358,6 +380,7 @@ class _AssetsPageState extends State<AssetsPage> {
             child: const Icon(Icons.delete, color: Colors.white),
           ),
           onDismissed: (direction) {
+            HapticService.delete(); // Silme haptic feedback
             setState(() {
               _assets.removeWhere((a) => a.id == asset.id);
               asset.isDeleted = true;

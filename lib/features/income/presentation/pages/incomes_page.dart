@@ -97,7 +97,7 @@ class _IncomesPageState extends State<IncomesPage> {
   }
 
   void gelirSil(Income income) {
-    HapticService.mediumImpact(); // Haptic feedback
+    HapticService.delete(); // Silme haptic feedback
     setState(() {
       income.isDeleted = true;
 
@@ -570,13 +570,15 @@ class _IncomesPageState extends State<IncomesPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: yeniGelirEkle,
-        backgroundColor: isDefaultTheme
-            ? Colors.green.shade600
-            : Theme.of(context).colorScheme.primary,
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
-      ),
+      floatingActionButton: filtrelenmisGelirler.isEmpty && !gelirAramaModu
+          ? null
+          : FloatingActionButton(
+              onPressed: yeniGelirEkle,
+              backgroundColor: isDefaultTheme
+                  ? Colors.green.shade600
+                  : Theme.of(context).colorScheme.primary,
+              child: const Icon(Icons.add, color: Colors.white, size: 28),
+            ),
     );
   }
 }

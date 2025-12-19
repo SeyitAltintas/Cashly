@@ -148,7 +148,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
   }
 
   void harcamaSil(Map<String, dynamic> harcama) {
-    HapticService.mediumImpact(); // Haptic feedback
+    HapticService.delete(); // Silme haptic feedback
     setState(() {
       harcama['silindi'] = true;
 
@@ -453,13 +453,15 @@ class _ExpensesPageState extends State<ExpensesPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: pencereAc,
-        backgroundColor: context.watch<ThemeManager>().isDefaultTheme
-            ? ColorConstants.koyuKirmizi
-            : Theme.of(context).colorScheme.primary,
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
-      ),
+      floatingActionButton: gosterilenHarcamalar.isEmpty && !aramaModu
+          ? null
+          : FloatingActionButton(
+              onPressed: pencereAc,
+              backgroundColor: context.watch<ThemeManager>().isDefaultTheme
+                  ? ColorConstants.koyuKirmizi
+                  : Theme.of(context).colorScheme.primary,
+              child: const Icon(Icons.add, color: Colors.white, size: 28),
+            ),
     );
   }
 
