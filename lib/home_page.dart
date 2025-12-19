@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
+
 import 'package:cashly/services/database_helper.dart';
 import 'package:cashly/profile_page.dart';
 
@@ -22,6 +21,7 @@ import 'features/payment_methods/data/models/payment_method_model.dart';
 import 'features/payment_methods/data/models/transfer_model.dart';
 import 'features/income/data/models/income_model.dart';
 import 'features/home/presentation/widgets/home_app_bar.dart';
+import 'features/home/presentation/widgets/home_bottom_nav.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
 /// Araçlar (0), Dashboard (1), Profil (2)
@@ -51,7 +51,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
   String? varsayilanOdemeYontemiId;
 
   // Kategori ikonları
-  Map<String, IconData> kategoriIkonlari = {
+  static const Map<String, IconData> kategoriIkonlari = {
     'Yiyecek': Icons.restaurant,
     'Ulaşım': Icons.directions_car,
     'Eğlence': Icons.movie,
@@ -63,7 +63,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
     'Diğer': Icons.category,
   };
 
-  Map<String, IconData> gelirKategoriIkonlari = {
+  static const Map<String, IconData> gelirKategoriIkonlari = {
     'Maaş': Icons.work,
     'Freelance': Icons.laptop,
     'Yatırım': Icons.trending_up,
@@ -90,38 +90,30 @@ class _AnaSayfaState extends State<AnaSayfa> {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
 
-    // Harcamalar
     tumHarcamalar = DatabaseHelper.harcamalariGetir(userId);
     butceLimiti = DatabaseHelper.butceGetir(userId);
 
-    // Varlıklar
     final varlikVerileri = DatabaseHelper.varliklariGetir(userId);
     varliklar = varlikVerileri.map((map) => Asset.fromMap(map)).toList();
 
-    // Gelirler
     final gelirVerileri = DatabaseHelper.gelirleriGetir(userId);
     tumGelirler = gelirVerileri.map((map) => Income.fromMap(map)).toList();
 
-    // Ödeme yöntemleri
     final odemeVerileri = DatabaseHelper.odemeYontemleriGetir(userId);
     tumOdemeYontemleri = odemeVerileri
         .map((map) => PaymentMethod.fromMap(map))
         .toList();
 
-    // Transferler
     final transferVerileri = DatabaseHelper.transferleriGetir(userId);
     tumTransferler = transferVerileri
         .map((map) => Transfer.fromMap(map))
         .toList();
 
-    // Varsayılan ödeme yöntemi
     varsayilanOdemeYontemiId = DatabaseHelper.varsayilanOdemeYontemiGetir(
       userId,
     );
 
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() => _isLoading = false);
   }
 
   // ===== KAYIT METODLARI =====
@@ -135,71 +127,70 @@ class _AnaSayfaState extends State<AnaSayfa> {
   void _gelirleriKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    final gelirMapleri = tumGelirler.map((g) => g.toMap()).toList();
-    DatabaseHelper.gelirleriKaydet(userId, gelirMapleri);
+    DatabaseHelper.gelirleriKaydet(
+      userId,
+      tumGelirler.map((g) => g.toMap()).toList(),
+    );
   }
 
   void _varliklariKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    final varlikMapleri = varliklar.map((a) => a.toMap()).toList();
-    DatabaseHelper.varliklariKaydet(userId, varlikMapleri);
+    DatabaseHelper.varliklariKaydet(
+      userId,
+      varliklar.map((a) => a.toMap()).toList(),
+    );
   }
 
   void _odemeYontemleriKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    final yontemMapleri = tumOdemeYontemleri.map((pm) => pm.toMap()).toList();
-    DatabaseHelper.odemeYontemleriKaydet(userId, yontemMapleri);
+    DatabaseHelper.odemeYontemleriKaydet(
+      userId,
+      tumOdemeYontemleri.map((pm) => pm.toMap()).toList(),
+    );
   }
 
   void _transferleriKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    final transferMapleri = tumTransferler.map((t) => t.toMap()).toList();
-    DatabaseHelper.transferleriKaydet(userId, transferMapleri);
+    DatabaseHelper.transferleriKaydet(
+      userId,
+      tumTransferler.map((t) => t.toMap()).toList(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final userName = widget.authController.currentUser?.name ?? 'Kullanıcı';
 
-    // AppBar seçimi
-    PreferredSizeWidget appBar;
-    if (_selectedIndex == 0) {
-      appBar = const ToolsAppBar();
-    } else if (_selectedIndex == 1) {
-      appBar = const DashboardAppBar();
-    } else {
-      appBar = const ProfileAppBar();
-    }
-
     return Scaffold(
-      appBar: appBar,
+      appBar: _buildAppBar(),
       body: PageView(
         controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        onPageChanged: (index) => setState(() => _selectedIndex = index),
         children: [
-          // Sayfa 0: Araçlar
           _buildToolsPage(),
-          // Sayfa 1: Dashboard
           _buildDashboardPage(userName),
-          // Sayfa 2: Profil
           ProfilSayfasi(
             authController: widget.authController,
             onRefresh: _verileriOku,
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNav(context),
+      bottomNavigationBar: HomeBottomNav(
+        selectedIndex: _selectedIndex,
+        onPageChanged: (index) => _pageController.jumpToPage(index),
+      ),
     );
   }
 
-  /// Araçlar sayfasını oluşturur
+  PreferredSizeWidget _buildAppBar() {
+    if (_selectedIndex == 0) return const ToolsAppBar();
+    if (_selectedIndex == 1) return const DashboardAppBar();
+    return const ProfileAppBar();
+  }
+
   Widget _buildToolsPage() {
     return ToolsPage(
       onAssetsPressed: _navigateToAssets,
@@ -211,11 +202,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
     );
   }
 
-  /// Dashboard sayfasını oluşturur
   Widget _buildDashboardPage(String userName) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    if (_isLoading) return const Center(child: CircularProgressIndicator());
 
     return DashboardPage(
       userName: userName,
@@ -225,116 +213,6 @@ class _AnaSayfaState extends State<AnaSayfa> {
       odemeYontemleri: tumOdemeYontemleri,
       butceLimiti: butceLimiti,
       secilenAy: secilenAy,
-    );
-  }
-
-  /// Segment tarzı alt navigasyon çubuğu
-  Widget _buildBottomNav(BuildContext context) {
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
-    final primaryColor = isDefaultTheme
-        ? const Color(0xFF6C63FF)
-        : Theme.of(context).colorScheme.primary;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surface.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(25),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.1),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildNavItem(
-                  context,
-                  Icons.apps_rounded,
-                  "Araçlar",
-                  0,
-                  primaryColor,
-                ),
-                _buildNavItem(
-                  context,
-                  Icons.home_rounded,
-                  "Ana Sayfa",
-                  1,
-                  primaryColor,
-                ),
-                _buildNavItem(
-                  context,
-                  Icons.person_rounded,
-                  "Profil",
-                  2,
-                  primaryColor,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(
-    BuildContext context,
-    IconData icon,
-    String label,
-    int index,
-    Color primaryColor,
-  ) {
-    final isSelected = _selectedIndex == index;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _pageController.jumpToPage(index),
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? primaryColor.withValues(alpha: 0.2)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                color: isSelected ? primaryColor : Colors.white38,
-                size: 24,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  color: isSelected ? primaryColor : Colors.white38,
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -420,25 +298,23 @@ class _AnaSayfaState extends State<AnaSayfa> {
               .toList(),
           onDelete: (pm) {
             setState(() {
-              final index = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-              if (index != -1) {
-                tumOdemeYontemleri[index] = pm.copyWith(isDeleted: true);
-              }
+              final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+              if (i != -1) tumOdemeYontemleri[i] = pm.copyWith(isDeleted: true);
             });
             _odemeYontemleriKaydet();
           },
           onEdit: (pm) {
             setState(() {
-              final index = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-              if (index != -1) tumOdemeYontemleri[index] = pm;
+              final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+              if (i != -1) tumOdemeYontemleri[i] = pm;
             });
             _odemeYontemleriKaydet();
           },
           onRestore: (pm) {
             setState(() {
-              final index = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-              if (index != -1) {
-                tumOdemeYontemleri[index] = pm.copyWith(isDeleted: false);
+              final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+              if (i != -1) {
+                tumOdemeYontemleri[i] = pm.copyWith(isDeleted: false);
               }
             });
             _odemeYontemleriKaydet();
@@ -500,7 +376,6 @@ class _AnaSayfaState extends State<AnaSayfa> {
               .toList(),
           onTransfer: (fromId, toId, amount, date) {
             setState(() {
-              // Gönderen hesap
               final fromIndex = tumOdemeYontemleri.indexWhere(
                 (pm) => pm.id == fromId,
               );
@@ -513,8 +388,6 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   balance: yeniBakiye,
                 );
               }
-
-              // Alan hesap
               final toIndex = tumOdemeYontemleri.indexWhere(
                 (pm) => pm.id == toId,
               );
@@ -529,8 +402,6 @@ class _AnaSayfaState extends State<AnaSayfa> {
               }
             });
             _odemeYontemleriKaydet();
-
-            // Transfer kaydı
             tumTransferler.insert(
               0,
               Transfer(

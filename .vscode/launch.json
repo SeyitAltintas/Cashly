@@ -10,6 +10,14 @@
             "cwd": "${workspaceFolder}"
         },
         {
+            "name": "cashly (Pixel 9 Pro Fold)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "emulator-5554",
+            "cwd": "${workspaceFolder}"
+        },
+        {
             "name": "cashly (Chrome)",
             "request": "launch",
             "type": "dart",
@@ -39,6 +47,24 @@
             "type": "dart",
             "flutterMode": "release",
             "deviceId": "2dec8e12",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "cashly (Pixel 9 Pro Fold - Profile)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "profile",
+            "deviceId": "emulator-5554",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "cashly (Pixel 9 Pro Fold - Release)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "flutterMode": "release",
+            "deviceId": "emulator-5554",
             "cwd": "${workspaceFolder}"
         }
     ]

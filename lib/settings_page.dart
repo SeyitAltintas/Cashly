@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'services/database_helper.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
@@ -12,8 +11,17 @@ import 'features/payment_methods/data/models/payment_method_model.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'core/utils/validators.dart';
 import 'core/utils/error_handler.dart';
-import 'core/theme/theme_manager.dart';
 
+// Modüler widget'lar
+import 'features/settings/presentation/widgets/settings_tile.dart';
+import 'features/settings/presentation/widgets/expense_settings/budget_section.dart';
+import 'features/settings/presentation/widgets/expense_settings/recurring_expense_section.dart';
+import 'features/settings/presentation/widgets/expense_settings/default_payment_section.dart';
+import 'features/settings/presentation/widgets/expense_settings/category_section.dart';
+import 'services/backup_service.dart';
+import 'services/haptic_service.dart';
+
+/// Ayarlar Sayfası
 class AyarlarSayfasi extends StatefulWidget {
   final AuthController authController;
 
@@ -50,7 +58,6 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Ayarlar başlığı
               Text(
                 'Uygulama Ayarları',
                 style: TextStyle(
@@ -61,113 +68,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 ),
               ),
               const SizedBox(height: 12),
-
-              // Ayar kartları container
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.08),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // Görünüm
-                    _buildSettingsTile(
-                      icon: Icons.palette_outlined,
-                      iconColor: Colors.purple,
-                      title: 'Görünüm',
-                      subtitle: 'Tema ve renk ayarları',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AppearancePage(),
-                          ),
-                        );
-                      },
-                    ),
-                    _buildDivider(),
-
-                    // Sesli Asistan
-                    _buildSettingsTile(
-                      icon: Icons.mic_outlined,
-                      iconColor: Colors.orange,
-                      title: 'Sesli Asistan',
-                      subtitle: 'Ses komutları ve geri bildirim',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VoiceAssistantPage(
-                              authController: widget.authController,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    _buildDivider(),
-
-                    // Harcamalar
-                    _buildSettingsTile(
-                      icon: Icons.account_balance_wallet_outlined,
-                      iconColor: Colors.green,
-                      title: 'Harcamalar',
-                      subtitle: 'Bütçe, kategoriler ve sabit giderler',
-                      onTap: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HarcamalarAyarlariSayfasi(
-                              userId: widget.authController.currentUser!.id,
-                            ),
-                          ),
-                        );
-                        if (result == true) {
-                          setState(() {
-                            _needsRefresh = true;
-                          });
-                        }
-                      },
-                    ),
-                    _buildDivider(),
-
-                    // Gelirler
-                    _buildSettingsTile(
-                      icon: Icons.trending_up,
-                      iconColor: Colors.teal,
-                      title: 'Gelirler',
-                      subtitle: 'Gelir kategorilerini özelleştirin',
-                      onTap: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GelirlerAyarlariSayfasi(
-                              userId: widget.authController.currentUser!.id,
-                            ),
-                          ),
-                        );
-                        if (result == true) {
-                          setState(() {
-                            _needsRefresh = true;
-                          });
-                        }
-                      },
-                      isLast: true,
-                    ),
-                  ],
-                ),
-              ),
+              _buildSettingsContainer(context),
             ],
           ),
         ),
@@ -175,88 +76,227 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
     );
   }
 
-  Widget _buildSettingsTile({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    bool isLast = false,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: isLast
-            ? const BorderRadius.only(
-                bottomLeft: Radius.circular(16),
-                bottomRight: Radius.circular(16),
-              )
-            : null,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
+  Widget _buildSettingsContainer(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.08),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          SettingsTile(
+            icon: Icons.palette_outlined,
+            iconColor: Colors.purple,
+            title: 'Görünüm',
+            subtitle: 'Tema ve renk ayarları',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AppearancePage()),
+            ),
+          ),
+          const SettingsDivider(),
+          SettingsTile(
+            icon: Icons.mic_outlined,
+            iconColor: Colors.orange,
+            title: 'Sesli Asistan',
+            subtitle: 'Ses komutları ve geri bildirim',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    VoiceAssistantPage(authController: widget.authController),
+              ),
+            ),
+          ),
+          const SettingsDivider(),
+          SettingsTile(
+            icon: Icons.account_balance_wallet_outlined,
+            iconColor: Colors.green,
+            title: 'Harcamalar',
+            subtitle: 'Bütçe, kategoriler ve sabit giderler',
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HarcamalarAyarlariSayfasi(
+                    userId: widget.authController.currentUser!.id,
+                  ),
+                ),
+              );
+              if (result == true) setState(() => _needsRefresh = true);
+            },
+          ),
+          const SettingsDivider(),
+          SettingsTile(
+            icon: Icons.trending_up,
+            iconColor: Colors.teal,
+            title: 'Gelirler',
+            subtitle: 'Gelir kategorilerini özelleştirin',
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GelirlerAyarlariSayfasi(
+                    userId: widget.authController.currentUser!.id,
+                  ),
+                ),
+              );
+              if (result == true) setState(() => _needsRefresh = true);
+            },
+          ),
+          const SettingsDivider(),
+          SettingsTile(
+            icon: Icons.backup_outlined,
+            iconColor: Colors.blue,
+            title: 'Veri Yedekleme',
+            subtitle: 'Verilerinizi yedekleyin veya geri yükleyin',
+            isLast: true,
+            onTap: () => _showBackupDialog(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showBackupDialog(BuildContext context) {
+    final userId = widget.authController.currentUser?.id;
+    if (userId == null) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Veri Yedekleme',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Yedekle butonu
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.15),
+                  color: Colors.green.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: iconColor, size: 22),
+                child: const Icon(Icons.cloud_upload, color: Colors.green),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+              title: const Text('Verileri Yedekle'),
+              subtitle: Text(
+                'Tüm verilerinizi JSON olarak dışa aktarın',
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  fontSize: 12,
                 ),
               ),
-              Icon(
-                Icons.chevron_right,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.3),
-                size: 22,
+              onTap: () async {
+                Navigator.pop(context);
+                await HapticService.lightImpact();
+                final path = await BackupService.exportData(userId);
+                if (path != null && context.mounted) {
+                  await BackupService.shareBackup(path);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Yedek dosyası oluşturuldu ✅'),
+                        backgroundColor: Colors.green.shade700,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            // Geri yükle butonu
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.cloud_download, color: Colors.blue),
               ),
-            ],
-          ),
+              title: const Text('Verileri Geri Yükle'),
+              subtitle: Text(
+                'Yedek dosyasından verileri içe aktarın',
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  fontSize: 12,
+                ),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                await HapticService.lightImpact();
+                final result = await BackupService.importData(userId);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(result.message),
+                      backgroundColor: result.success
+                          ? Colors.green.shade700
+                          : Colors.red.shade700,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  );
+                  if (result.success) {
+                    setState(() => _needsRefresh = true);
+                  }
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildDivider() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 72),
-      child: Divider(
-        height: 1,
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
       ),
     );
   }
 }
 
+/// Harcama Ayarları Sayfası
 class HarcamalarAyarlariSayfasi extends StatefulWidget {
   final String userId;
 
@@ -272,22 +312,19 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
   bool categoryChanged = false;
   bool _isSaved = false;
   String _savedAmount = "";
-
-  // Ödeme yöntemleri
   List<PaymentMethod> odemeYontemleri = [];
   String? varsayilanOdemeYontemiId;
 
   @override
   void initState() {
     super.initState();
-    verileriYukle();
+    _verileriYukle();
   }
 
-  void verileriYukle() {
+  void _verileriYukle() {
     double mevcutButce = DatabaseHelper.butceGetir(widget.userId);
     tGelir.text = mevcutButce.toStringAsFixed(0);
 
-    // Ödeme yöntemlerini yükle
     List<Map<String, dynamic>> pmVerileri = DatabaseHelper.odemeYontemleriGetir(
       widget.userId,
     );
@@ -304,14 +341,11 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
     });
   }
 
-  void butceyiKaydet() {
-    // Binlik ayırıcı noktaları temizle
+  void _butceyiKaydet() {
     final tutarText = tGelir.text
         .trim()
         .replaceAll('.', '')
         .replaceAll(',', '');
-
-    // Validation
     final validationError = Validators.validateAmount(
       tutarText,
       maxAmount: 10000000,
@@ -326,8 +360,6 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
     if (yeniLimit != null) {
       try {
         DatabaseHelper.butceKaydet(widget.userId, yeniLimit);
-
-        // Format the amount with thousands separator
         final formattedAmount = yeniLimit
             .toStringAsFixed(0)
             .replaceAllMapped(
@@ -343,7 +375,6 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
               "Bütçe Limitiniz $formattedAmount TL olarak güncellendi.";
         });
 
-        // 3 saniye sonra normal değere dön
         Future.delayed(const Duration(seconds: 3), () {
           if (mounted) {
             setState(() {
@@ -356,6 +387,27 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
         ErrorHandler.handleDatabaseError(context, e);
       }
     }
+  }
+
+  void _handlePaymentMethodChanged(String? newValue) {
+    setState(() {
+      varsayilanOdemeYontemiId = newValue;
+      categoryChanged = true;
+    });
+    DatabaseHelper.varsayilanOdemeYontemiKaydet(widget.userId, newValue);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          "Varsayılan ödeme yöntemi güncellendi ✅",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.green.shade700,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(12),
+        duration: const Duration(seconds: 1),
+      ),
+    );
   }
 
   @override
@@ -382,393 +434,87 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Başlık
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0, end: 1),
-                duration: const Duration(milliseconds: 600),
-                builder: (context, value, child) {
-                  return Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, 20 * (1 - value)),
-                      child: child,
+              _buildHeader(context),
+              const SizedBox(height: 32),
+              BudgetSection(
+                controller: tGelir,
+                isSaved: _isSaved,
+                onSave: _butceyiKaydet,
+              ),
+              const SizedBox(height: 30),
+              RecurringExpenseSection(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          RecurringTransactionsPage(userId: widget.userId),
                     ),
                   );
                 },
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Gider Ayarları",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "Bütçenizi ve harcama tercihlerinizi yönetin",
-                      style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.54),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              Text(
-                "AYLIK GELİR (BÜTÇE LİMİTİ)",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white10),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: tGelir,
-                        keyboardType: TextInputType.number,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: _isSaved ? 13 : 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          suffixText: _isSaved ? "" : "₺",
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 5),
-                    Container(
-                      height: 30,
-                      width: 1,
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.2),
-                    ),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      transitionBuilder: (child, animation) {
-                        return ScaleTransition(scale: animation, child: child);
-                      },
-                      child: _isSaved
-                          ? IconButton(
-                              key: const ValueKey('check'),
-                              icon: Icon(
-                                Icons.check,
-                                color:
-                                    context.watch<ThemeManager>().isDefaultTheme
-                                    ? Colors.green
-                                    : Colors.white,
-                              ),
-                              onPressed: null,
-                              tooltip: "Kaydedildi",
-                            )
-                          : IconButton(
-                              key: const ValueKey('save'),
-                              icon: Icon(
-                                Icons.save,
-                                color:
-                                    context.watch<ThemeManager>().isDefaultTheme
-                                    ? Colors.white
-                                    : Theme.of(context).colorScheme.secondary,
-                              ),
-                              onPressed: butceyiKaydet,
-                              tooltip: "Kaydet",
-                            ),
-                    ),
-                  ],
-                ),
               ),
               const SizedBox(height: 30),
-              // TEKRARLAYAN İŞLEMLER
-              Text(
-                "TEKRARLAYAN GİDERLER",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontWeight: FontWeight.bold,
-                ),
+              DefaultPaymentSection(
+                odemeYontemleri: odemeYontemleri,
+                varsayilanOdemeYontemiId: varsayilanOdemeYontemiId,
+                onChanged: _handlePaymentMethodChanged,
               ),
-              const SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white10),
-                ),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.repeat,
-                    color: context.watch<ThemeManager>().isDefaultTheme
-                        ? Colors.white
-                        : Theme.of(context).colorScheme.secondary,
-                  ),
-                  title: Text(
-                    'Tekrarlayan Giderleri Yönet',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                  subtitle: Text(
-                    'Otomatik ödenen fatura ve abonelikler',
-                    style: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.5),
-                      fontSize: 12,
-                    ),
-                  ),
-                  trailing: Icon(
-                    Icons.chevron_right,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            RecurringTransactionsPage(userId: widget.userId),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
               const SizedBox(height: 30),
-              // VARSAYILAN ÖDEME YÖNTEMİ
-              Text(
-                "VARSAYILAN ÖDEME YÖNTEMİ",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white10),
-                ),
-                child: odemeYontemleri.isEmpty
-                    ? Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.5),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              "Henüz ödeme yöntemi eklemediniz. Araçlar sayfasından ekleyebilirsiniz.",
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.5),
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : Row(
-                        children: [
-                          Icon(
-                            Icons.credit_card,
-                            color: context.watch<ThemeManager>().isDefaultTheme
-                                ? Colors.white
-                                : Theme.of(context).colorScheme.secondary,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String?>(
-                                value: varsayilanOdemeYontemiId,
-                                dropdownColor: Theme.of(
-                                  context,
-                                ).colorScheme.surface,
-                                style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                                isExpanded: true,
-                                hint: Text(
-                                  'Seçiniz',
-                                  style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.5),
-                                  ),
-                                ),
-                                items: [
-                                  DropdownMenuItem<String?>(
-                                    value: null,
-                                    child: Text(
-                                      'İlk ödeme yöntemini kullan',
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface
-                                            .withValues(alpha: 0.7),
-                                      ),
-                                    ),
-                                  ),
-                                  ...odemeYontemleri.map((pm) {
-                                    return DropdownMenuItem<String?>(
-                                      value: pm.id,
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            pm.type == 'nakit'
-                                                ? Icons.wallet
-                                                : pm.type == 'kredi'
-                                                ? Icons.credit_card
-                                                : Icons.account_balance,
-                                            size: 18,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.secondary,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Text(
-                                              pm.lastFourDigits != null
-                                                  ? '${pm.name} ****${pm.lastFourDigits}'
-                                                  : pm.name,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }),
-                                ],
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    varsayilanOdemeYontemiId = newValue;
-                                    categoryChanged = true;
-                                  });
-                                  DatabaseHelper.varsayilanOdemeYontemiKaydet(
-                                    widget.userId,
-                                    newValue,
-                                  );
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: const Text(
-                                        "Varsayılan ödeme yöntemi güncellendi ✅",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      backgroundColor: Colors.green.shade700,
-                                      behavior: SnackBarBehavior.floating,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      margin: const EdgeInsets.all(12),
-                                      duration: const Duration(seconds: 1),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-              ),
-
-              const SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "KATEGORİ YÖNETİMİ",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontWeight: FontWeight.bold,
+              CategorySection(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          KategoriYonetimiSayfasi(userId: widget.userId),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white10),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.format_list_bulleted,
-                      color: context.watch<ThemeManager>().isDefaultTheme
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.secondary,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        "Harcama kategorilerini özelleştirin",
-                        style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.arrow_forward_ios,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.54),
-                        size: 18,
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                KategoriYonetimiSayfasi(userId: widget.userId),
-                          ),
-                        ).then((_) {
-                          setState(() {
-                            categoryChanged = true;
-                          });
-                        });
-                      },
-                    ),
-                  ],
-                ),
+                  ).then((_) => setState(() => categoryChanged = true));
+                },
               ),
               const SizedBox(height: 50),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 600),
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Gider Ayarları",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Bütçenizi ve harcama tercihlerinizi yönetin",
+            style: TextStyle(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.54),
+              fontSize: 14,
+            ),
+          ),
+        ],
       ),
     );
   }
