@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../services/speech_service.dart';
+import '../../../../services/speech/speech_service.dart';
 import '../../../../services/tts_service.dart';
 
 /// Sesli harcama girişi için modal bottom sheet widget'ı
