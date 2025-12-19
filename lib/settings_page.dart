@@ -13,11 +13,13 @@ import 'core/utils/validators.dart';
 import 'core/utils/error_handler.dart';
 
 // Modüler widget'lar
+import 'features/settings/presentation/widgets/settings_tile.dart';
 import 'features/settings/presentation/widgets/expense_settings/budget_section.dart';
 import 'features/settings/presentation/widgets/expense_settings/recurring_expense_section.dart';
 import 'features/settings/presentation/widgets/expense_settings/default_payment_section.dart';
 import 'features/settings/presentation/widgets/expense_settings/category_section.dart';
 
+/// Ayarlar Sayfası
 class AyarlarSayfasi extends StatefulWidget {
   final AuthController authController;
 
@@ -54,7 +56,6 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Ayarlar başlığı
               Text(
                 'Uygulama Ayarları',
                 style: TextStyle(
@@ -65,204 +66,102 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 ),
               ),
               const SizedBox(height: 12),
+              _buildSettingsContainer(context),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-              // Ayar kartları container
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.08),
+  Widget _buildSettingsContainer(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.08),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          SettingsTile(
+            icon: Icons.palette_outlined,
+            iconColor: Colors.purple,
+            title: 'Görünüm',
+            subtitle: 'Tema ve renk ayarları',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AppearancePage()),
+            ),
+          ),
+          const SettingsDivider(),
+          SettingsTile(
+            icon: Icons.mic_outlined,
+            iconColor: Colors.orange,
+            title: 'Sesli Asistan',
+            subtitle: 'Ses komutları ve geri bildirim',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    VoiceAssistantPage(authController: widget.authController),
+              ),
+            ),
+          ),
+          const SettingsDivider(),
+          SettingsTile(
+            icon: Icons.account_balance_wallet_outlined,
+            iconColor: Colors.green,
+            title: 'Harcamalar',
+            subtitle: 'Bütçe, kategoriler ve sabit giderler',
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HarcamalarAyarlariSayfasi(
+                    userId: widget.authController.currentUser!.id,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
                 ),
-                child: Column(
-                  children: [
-                    // Görünüm
-                    _buildSettingsTile(
-                      icon: Icons.palette_outlined,
-                      iconColor: Colors.purple,
-                      title: 'Görünüm',
-                      subtitle: 'Tema ve renk ayarları',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AppearancePage(),
-                          ),
-                        );
-                      },
-                    ),
-                    _buildDivider(),
-
-                    // Sesli Asistan
-                    _buildSettingsTile(
-                      icon: Icons.mic_outlined,
-                      iconColor: Colors.orange,
-                      title: 'Sesli Asistan',
-                      subtitle: 'Ses komutları ve geri bildirim',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VoiceAssistantPage(
-                              authController: widget.authController,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    _buildDivider(),
-
-                    // Harcamalar
-                    _buildSettingsTile(
-                      icon: Icons.account_balance_wallet_outlined,
-                      iconColor: Colors.green,
-                      title: 'Harcamalar',
-                      subtitle: 'Bütçe, kategoriler ve sabit giderler',
-                      onTap: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HarcamalarAyarlariSayfasi(
-                              userId: widget.authController.currentUser!.id,
-                            ),
-                          ),
-                        );
-                        if (result == true) {
-                          setState(() {
-                            _needsRefresh = true;
-                          });
-                        }
-                      },
-                    ),
-                    _buildDivider(),
-
-                    // Gelirler
-                    _buildSettingsTile(
-                      icon: Icons.trending_up,
-                      iconColor: Colors.teal,
-                      title: 'Gelirler',
-                      subtitle: 'Gelir kategorilerini özelleştirin',
-                      onTap: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GelirlerAyarlariSayfasi(
-                              userId: widget.authController.currentUser!.id,
-                            ),
-                          ),
-                        );
-                        if (result == true) {
-                          setState(() {
-                            _needsRefresh = true;
-                          });
-                        }
-                      },
-                      isLast: true,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              );
+              if (result == true) setState(() => _needsRefresh = true);
+            },
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsTile({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    bool isLast = false,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: isLast
-            ? const BorderRadius.only(
-                bottomLeft: Radius.circular(16),
-                bottomRight: Radius.circular(16),
-              )
-            : null,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+          const SettingsDivider(),
+          SettingsTile(
+            icon: Icons.trending_up,
+            iconColor: Colors.teal,
+            title: 'Gelirler',
+            subtitle: 'Gelir kategorilerini özelleştirin',
+            isLast: true,
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GelirlerAyarlariSayfasi(
+                    userId: widget.authController.currentUser!.id,
+                  ),
                 ),
-                child: Icon(icon, color: iconColor, size: 22),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.chevron_right,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.3),
-                size: 22,
-              ),
-            ],
+              );
+              if (result == true) setState(() => _needsRefresh = true);
+            },
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDivider() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 72),
-      child: Divider(
-        height: 1,
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+        ],
       ),
     );
   }
 }
 
 /// Harcama Ayarları Sayfası
-/// Bütçe limiti, tekrarlayan giderler, varsayılan ödeme yöntemi ve kategoriler
 class HarcamalarAyarlariSayfasi extends StatefulWidget {
   final String userId;
 
@@ -278,22 +177,19 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
   bool categoryChanged = false;
   bool _isSaved = false;
   String _savedAmount = "";
-
-  // Ödeme yöntemleri
   List<PaymentMethod> odemeYontemleri = [];
   String? varsayilanOdemeYontemiId;
 
   @override
   void initState() {
     super.initState();
-    verileriYukle();
+    _verileriYukle();
   }
 
-  void verileriYukle() {
+  void _verileriYukle() {
     double mevcutButce = DatabaseHelper.butceGetir(widget.userId);
     tGelir.text = mevcutButce.toStringAsFixed(0);
 
-    // Ödeme yöntemlerini yükle
     List<Map<String, dynamic>> pmVerileri = DatabaseHelper.odemeYontemleriGetir(
       widget.userId,
     );
@@ -310,14 +206,11 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
     });
   }
 
-  void butceyiKaydet() {
-    // Binlik ayırıcı noktaları temizle
+  void _butceyiKaydet() {
     final tutarText = tGelir.text
         .trim()
         .replaceAll('.', '')
         .replaceAll(',', '');
-
-    // Validation
     final validationError = Validators.validateAmount(
       tutarText,
       maxAmount: 10000000,
@@ -332,8 +225,6 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
     if (yeniLimit != null) {
       try {
         DatabaseHelper.butceKaydet(widget.userId, yeniLimit);
-
-        // Format the amount with thousands separator
         final formattedAmount = yeniLimit
             .toStringAsFixed(0)
             .replaceAllMapped(
@@ -349,7 +240,6 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
               "Bütçe Limitiniz $formattedAmount TL olarak güncellendi.";
         });
 
-        // 3 saniye sonra normal değere dön
         Future.delayed(const Duration(seconds: 3), () {
           if (mounted) {
             setState(() {
@@ -409,19 +299,14 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Başlık
               _buildHeader(context),
               const SizedBox(height: 32),
-
-              // Bütçe Limiti
               BudgetSection(
                 controller: tGelir,
                 isSaved: _isSaved,
-                onSave: butceyiKaydet,
+                onSave: _butceyiKaydet,
               ),
               const SizedBox(height: 30),
-
-              // Tekrarlayan Giderler
               RecurringExpenseSection(
                 onTap: () {
                   Navigator.push(
@@ -434,16 +319,12 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                 },
               ),
               const SizedBox(height: 30),
-
-              // Varsayılan Ödeme Yöntemi
               DefaultPaymentSection(
                 odemeYontemleri: odemeYontemleri,
                 varsayilanOdemeYontemiId: varsayilanOdemeYontemiId,
                 onChanged: _handlePaymentMethodChanged,
               ),
               const SizedBox(height: 30),
-
-              // Kategori Yönetimi
               CategorySection(
                 onTap: () {
                   Navigator.push(
@@ -452,11 +333,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                       builder: (context) =>
                           KategoriYonetimiSayfasi(userId: widget.userId),
                     ),
-                  ).then((_) {
-                    setState(() {
-                      categoryChanged = true;
-                    });
-                  });
+                  ).then((_) => setState(() => categoryChanged = true));
                 },
               ),
               const SizedBox(height: 50),

@@ -3,7 +3,10 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../widgets/analysis_widgets.dart';
 
+/// Analiz ve Raporlar Sayfası
+/// Harcama, Gelir ve Varlık analizlerini gösterir
 class AnalysisPage extends StatefulWidget {
   final List<Map<String, dynamic>> expenses;
   final List<Asset> assets;
@@ -28,7 +31,44 @@ class _AnalysisPageState extends State<AnalysisPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _touchedIndex = -1;
-  late Map<String, Color> categoryColors;
+
+  // Harcama için kırmızı tonları renk paleti
+  static const List<Color> expenseColors = [
+    Color(0xFFEF5350), // red.shade400
+    Color(0xFFE53935), // red.shade600
+    Color(0xFFE57373), // red.shade300
+    Color(0xFFD32F2F), // red.shade700
+    Color(0xFFFF8A80), // redAccent.shade200
+    Color(0xFFF44336), // red.shade500
+    Color(0xFFFF5252), // redAccent.shade400
+    Color(0xFFC62828), // red.shade800
+    Color(0xFFEF9A9A), // red.shade200
+    Color(0xFFFF8A80), // redAccent.shade100
+  ];
+
+  // Gelir için yeşil tonları renk paleti
+  static const List<Color> incomeColors = [
+    Color(0xFF66BB6A), // green.shade400
+    Color(0xFF43A047), // green.shade600
+    Color(0xFF81C784), // green.shade300
+    Color(0xFF388E3C), // green.shade700
+    Color(0xFF69F0AE), // greenAccent.shade400
+    Color(0xFF4CAF50), // green.shade500
+    Color(0xFF26A69A), // teal.shade400
+    Color(0xFF2E7D32), // green.shade800
+  ];
+
+  // Varlık için mavi tonları renk paleti
+  static const List<Color> assetColors = [
+    Color(0xFF42A5F5), // blue.shade400
+    Color(0xFF1E88E5), // blue.shade600
+    Color(0xFF64B5F6), // blue.shade300
+    Color(0xFF1976D2), // blue.shade700
+    Color(0xFF40C4FF), // lightBlueAccent.shade200
+    Color(0xFF2196F3), // blue.shade500
+    Color(0xFF29B6F6), // lightBlue.shade400
+    Color(0xFF1565C0), // blue.shade800
+  ];
 
   @override
   void initState() {
@@ -37,9 +77,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     // Sekme değiştiğinde touchedIndex'i sıfırla
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        setState(() {
-          _touchedIndex = -1;
-        });
+        setState(() => _touchedIndex = -1);
       }
     });
   }
@@ -51,138 +89,10 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    categoryColors = {
-      'Gelir': Colors.green,
-      'Gider': Colors.red,
-      'Yatırım': Colors.blue,
-      'Diğer': Theme.of(context).colorScheme.surfaceContainerHighest,
-    };
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text("Analiz ve Raporlar"),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surface.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-            ),
-            child: AnimatedBuilder(
-              animation: _tabController.animation!,
-              builder: (context, child) {
-                // Mevcut sekme indeksini animation değerinden al
-                final double animValue = _tabController.animation!.value;
-                final int currentIndex = animValue.round();
-
-                // Sekmeye göre renk belirle
-                Color tabColor;
-                Color tabColorDark;
-                switch (currentIndex) {
-                  case 0:
-                    tabColor = Colors.red.shade400;
-                    tabColorDark = Colors.red.shade700;
-                    break;
-                  case 1:
-                    tabColor = Colors.green.shade400;
-                    tabColorDark = Colors.green.shade700;
-                    break;
-                  case 2:
-                    tabColor = Colors.blue.shade400;
-                    tabColorDark = Colors.blue.shade700;
-                    break;
-                  default:
-                    tabColor = Colors.red.shade400;
-                    tabColorDark = Colors.red.shade700;
-                }
-
-                return TabBar(
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                    gradient: LinearGradient(colors: [tabColor, tabColorDark]),
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: tabColor.withValues(alpha: 0.4),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.6),
-                  labelStyle: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                  unselectedLabelStyle: const TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 13,
-                  ),
-                  tabs: const [
-                    Tab(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.shopping_cart_outlined, size: 18),
-                          SizedBox(width: 6),
-                          Text("Harcama"),
-                        ],
-                      ),
-                    ),
-                    Tab(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.trending_up, size: 18),
-                          SizedBox(width: 6),
-                          Text("Gelir"),
-                        ],
-                      ),
-                    ),
-                    Tab(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.account_balance_wallet_outlined, size: 18),
-                          SizedBox(width: 6),
-                          Text("Varlık"),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
-      ),
+      appBar: _buildAppBar(context),
       body: TabBarView(
         controller: _tabController,
         children: [
@@ -194,9 +104,121 @@ class _AnalysisPageState extends State<AnalysisPage>
     );
   }
 
+  /// AppBar ve TabBar oluşturur
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () => Navigator.pop(context),
+      ),
+      title: const Text("Analiz ve Raporlar"),
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.5),
+              width: 1.5,
+            ),
+          ),
+          child: AnimatedBuilder(
+            animation: _tabController.animation!,
+            builder: (context, child) {
+              final double animValue = _tabController.animation!.value;
+              final int currentIndex = animValue.round();
+              final (tabColor, tabColorDark) = _getTabColors(currentIndex);
+
+              return TabBar(
+                controller: _tabController,
+                indicator: BoxDecoration(
+                  gradient: LinearGradient(colors: [tabColor, tabColorDark]),
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: tabColor.withValues(alpha: 0.4),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                dividerColor: Colors.transparent,
+                labelColor: Colors.white,
+                unselectedLabelColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 13,
+                ),
+                tabs: const [
+                  Tab(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.shopping_cart_outlined, size: 18),
+                        SizedBox(width: 6),
+                        Text("Harcama"),
+                      ],
+                    ),
+                  ),
+                  Tab(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.trending_up, size: 18),
+                        SizedBox(width: 6),
+                        Text("Gelir"),
+                      ],
+                    ),
+                  ),
+                  Tab(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.account_balance_wallet_outlined, size: 18),
+                        SizedBox(width: 6),
+                        Text("Varlık"),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  (Color, Color) _getTabColors(int index) {
+    switch (index) {
+      case 0:
+        return (Colors.red.shade400, Colors.red.shade700);
+      case 1:
+        return (Colors.green.shade400, Colors.green.shade700);
+      case 2:
+        return (Colors.blue.shade400, Colors.blue.shade700);
+      default:
+        return (Colors.red.shade400, Colors.red.shade700);
+    }
+  }
+
+  /// Harcama Analizi
   Widget _buildExpenseAnalysis() {
-    // Filter expenses for the selected month
-    List<Map<String, dynamic>> monthlyExpenses = widget.expenses.where((h) {
+    final monthlyExpenses = widget.expenses.where((h) {
       if (h['silindi'] == true) return false;
       DateTime date =
           DateTime.tryParse(h['tarih'].toString()) ?? DateTime.now();
@@ -205,404 +227,163 @@ class _AnalysisPageState extends State<AnalysisPage>
     }).toList();
 
     if (monthlyExpenses.isEmpty) {
-      return _buildEmptyState("Bu ay için harcama verisi yok.");
-    }
-
-    // Calculate totals by category
-    Map<String, double> totals = {};
-    double totalAmount = 0;
-
-    for (var h in monthlyExpenses) {
-      String cat = h['kategori'] ?? "Diğer";
-      double amount = double.tryParse(h['tutar'].toString()) ?? 0;
-      totals[cat] = (totals[cat] ?? 0) + amount;
-      totalAmount += amount;
-    }
-
-    // Harcama için kırmızı tonları renk paleti
-    final List<Color> vibrantColors = [
-      Colors.red.shade400,
-      Colors.red.shade600,
-      Colors.red.shade300,
-      Colors.red.shade700,
-      Colors.redAccent.shade200,
-      Colors.red.shade500,
-      Colors.redAccent.shade400,
-      Colors.red.shade800,
-      Colors.red.shade200,
-      Colors.redAccent.shade100,
-    ];
-
-    List<PieChartSectionData> sections = [];
-    int index = 0;
-    totals.forEach((key, value) {
-      final isTouched = index == _touchedIndex;
-      final fontSize = isTouched ? 18.0 : 14.0;
-      final radius = isTouched ? 90.0 : 80.0;
-      final color = vibrantColors[index % vibrantColors.length];
-
-      sections.add(
-        PieChartSectionData(
-          color: color,
-          value: value,
-          title: '${(value / totalAmount * 100).toStringAsFixed(0)}%',
-          radius: radius,
-          titleStyle: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            shadows: [const Shadow(color: Colors.black, blurRadius: 2)],
-          ),
-        ),
+      return const AnalysisEmptyState(
+        message: "Bu ay için harcama verisi yok.",
       );
-      index++;
-    });
+    }
 
-    // En çok harcanan kategori
-    String topCategory = '';
-    double topAmount = 0;
-    totals.forEach((key, value) {
-      if (value > topAmount) {
-        topAmount = value;
-        topCategory = key;
-      }
-    });
+    // Kategori toplamları
+    final (totals, totalAmount) = _calculateCategoryTotals(monthlyExpenses);
+    final (topCategory, topAmount) = _findTopCategory(totals);
+    final sections = _buildPieChartSections(totals, totalAmount, expenseColors);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Başlık kartı
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.red.shade900.withValues(alpha: 0.3),
-                  Colors.red.shade700.withValues(alpha: 0.15),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.red.shade400.withValues(alpha: 0.4),
-              ),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Toplam Harcama",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.7),
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "${totalAmount.toStringAsFixed(2)} ₺",
-                          style: TextStyle(
-                            color: Colors.red.shade300,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade400.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Icon(
-                        Icons.trending_down,
-                        color: Colors.red.shade300,
-                        size: 28,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surface.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.star, color: Colors.red.shade300, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontSize: 13,
-                            ),
-                            children: [
-                              const TextSpan(text: "En çok harcama: "),
-                              TextSpan(
-                                text: topCategory,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              TextSpan(
-                                text: " (${topAmount.toStringAsFixed(2)} ₺)",
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.7),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          AnalysisHeaderCard(
+            title: "Toplam Harcama",
+            totalAmount: "${totalAmount.toStringAsFixed(2)} ₺",
+            primaryColor: Colors.red.shade300,
+            icon: Icons.trending_down,
+            topCategoryLabel: "En çok harcama",
+            topCategoryName: topCategory,
+            topCategoryAmount: "${topAmount.toStringAsFixed(2)} ₺",
           ),
           const SizedBox(height: 24),
-          // Grafik
-          Center(
-            child: SizedBox(
-              height: 220,
-              child: PieChart(
-                PieChartData(
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      setState(() {
-                        if (!event.isInterestedForInteractions ||
-                            pieTouchResponse == null ||
-                            pieTouchResponse.touchedSection == null) {
-                          _touchedIndex = -1;
-                          return;
-                        }
-                        _touchedIndex = pieTouchResponse
-                            .touchedSection!
-                            .touchedSectionIndex;
-                      });
-                    },
-                  ),
-                  borderData: FlBorderData(show: false),
-                  sectionsSpace: 2,
-                  centerSpaceRadius: 40,
-                  sections: sections,
-                ),
-              ),
-            ),
-          ),
+          _buildPieChart(sections),
           const SizedBox(height: 24),
-          // Kategori listesi başlığı
-          Text(
+          _buildCategoryList(
             "Kategori Dağılımı",
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            totals,
+            totalAmount,
+            expenseColors,
           ),
-          const SizedBox(height: 12),
-          ...totals.entries.toList().asMap().entries.map((entry) {
-            int idx = entry.key;
-            var e = entry.value;
-            final color = vibrantColors[idx % vibrantColors.length];
-            return _buildLegendItem(e.key, e.value, color, totalAmount);
-          }),
-          // Ödeme Yöntemine Göre Dağılım
           if (widget.paymentMethods.isNotEmpty) ...[
             const SizedBox(height: 32),
-            Text(
-              "Ödeme Yöntemine Göre Dağılım",
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ...(() {
-              // Ödeme yöntemine göre harcamaları grupla
-              Map<String, double> pmTotals = {};
-              double pmTotal = 0;
-
-              for (var h in monthlyExpenses) {
-                String pmId = h['odemeYontemiId'] ?? 'unknown';
-                double amount = double.tryParse(h['tutar'].toString()) ?? 0;
-                pmTotals[pmId] = (pmTotals[pmId] ?? 0) + amount;
-                pmTotal += amount;
-              }
-
-              if (pmTotals.isEmpty || pmTotal == 0) return <Widget>[];
-
-              final List<Color> pmColors = [
-                Colors.orange.shade400,
-                Colors.purple.shade400,
-                Colors.teal.shade400,
-                Colors.pink.shade400,
-                Colors.amber.shade400,
-                Colors.cyan.shade400,
-              ];
-
-              return pmTotals.entries.toList().asMap().entries.map((entry) {
-                int idx = entry.key;
-                var e = entry.value;
-                final color = pmColors[idx % pmColors.length];
-
-                // Ödeme yöntemi adını bul
-                String pmName = 'Belirtilmemiş';
-                IconData pmIcon = Icons.help_outline;
-                if (e.key != 'unknown') {
-                  final pm = widget.paymentMethods
-                      .where((p) => p.id == e.key)
-                      .firstOrNull;
-                  if (pm != null) {
-                    pmName = pm.lastFourDigits != null
-                        ? '${pm.name} ****${pm.lastFourDigits}'
-                        : pm.name;
-                    pmIcon = pm.type == 'nakit'
-                        ? Icons.wallet
-                        : pm.type == 'kredi'
-                        ? Icons.credit_card
-                        : Icons.account_balance;
-                  }
-                }
-
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surface.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(pmIcon, color: color, size: 20),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              pmName,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              '${(e.value / pmTotal * 100).toStringAsFixed(1)}%',
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.6),
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text(
-                        '${e.value.toStringAsFixed(2)} ₺',
-                        style: TextStyle(
-                          color: color,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList();
-            })(),
+            _buildPaymentMethodDistribution(monthlyExpenses),
           ],
         ],
       ),
     );
   }
 
+  /// Gelir Analizi
   Widget _buildIncomeAnalysis() {
-    // Filter incomes for the selected month
-    List<Income> monthlyIncomes = widget.incomes.where((i) {
+    final monthlyIncomes = widget.incomes.where((i) {
       if (i.isDeleted) return false;
       return i.date.year == widget.selectedDate.year &&
           i.date.month == widget.selectedDate.month;
     }).toList();
 
     if (monthlyIncomes.isEmpty) {
-      return _buildEmptyState("Bu ay için gelir verisi bulunmuyor.");
+      return const AnalysisEmptyState(
+        message: "Bu ay için gelir verisi bulunmuyor.",
+      );
     }
 
-    // Group by category
+    // Kategori toplamları
     Map<String, double> totals = {};
     double totalIncome = 0;
-
     for (var income in monthlyIncomes) {
-      String category = income.category;
-      totals[category] = (totals[category] ?? 0) + income.amount;
+      totals[income.category] = (totals[income.category] ?? 0) + income.amount;
       totalIncome += income.amount;
     }
 
-    // Gelir için yeşil tonları renk paleti
-    final List<Color> vibrantColors = [
-      Colors.green.shade400,
-      Colors.green.shade600,
-      Colors.green.shade300,
-      Colors.green.shade700,
-      Colors.greenAccent.shade400,
-      Colors.green.shade500,
-      Colors.teal.shade400,
-      Colors.green.shade800,
-    ];
+    final (topCategory, topAmount) = _findTopCategory(totals);
+    final sections = _buildPieChartSections(totals, totalIncome, incomeColors);
 
-    // Create pie chart sections
-    List<PieChartSectionData> sections = [];
-    int colorIndex = 0;
-    totals.forEach((category, amount) {
-      final isTouched = colorIndex == _touchedIndex;
-      final radius = isTouched ? 90.0 : 80.0;
-      final color = vibrantColors[colorIndex % vibrantColors.length];
-
-      sections.add(
-        PieChartSectionData(
-          color: color,
-          value: amount,
-          title: '${(amount / totalIncome * 100).toStringAsFixed(1)}%',
-          radius: radius,
-          titleStyle: TextStyle(
-            fontSize: isTouched ? 16 : 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AnalysisHeaderCard(
+            title: "Toplam Gelir",
+            totalAmount: "${totalIncome.toStringAsFixed(2)} ₺",
+            primaryColor: Colors.green.shade300,
+            icon: Icons.trending_up,
+            topCategoryLabel: "En fazla gelir",
+            topCategoryName: topCategory,
+            topCategoryAmount: "${topAmount.toStringAsFixed(2)} ₺",
           ),
-        ),
-      );
-      colorIndex++;
-    });
+          const SizedBox(height: 24),
+          _buildPieChart(sections),
+          const SizedBox(height: 24),
+          _buildCategoryList(
+            "Gelir Kategorileri",
+            totals,
+            totalIncome,
+            incomeColors,
+          ),
+        ],
+      ),
+    );
+  }
 
-    // En fazla gelir kategorisi
+  /// Varlık Analizi
+  Widget _buildAssetAnalysis() {
+    final activeAssets = widget.assets.where((a) => !a.isDeleted).toList();
+
+    if (activeAssets.isEmpty) {
+      return const AnalysisEmptyState(message: "Henüz varlık eklenmemiş.");
+    }
+
+    Map<String, double> totals = {};
+    double totalValue = 0;
+    for (var asset in activeAssets) {
+      String type = asset.type ?? "Diğer";
+      double value = asset.amount * asset.quantity;
+      totals[type] = (totals[type] ?? 0) + value;
+      totalValue += value;
+    }
+
+    final (topType, topAmount) = _findTopCategory(totals);
+    final sections = _buildPieChartSections(totals, totalValue, assetColors);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AnalysisHeaderCard(
+            title: "Toplam Varlık",
+            totalAmount: "${totalValue.toStringAsFixed(2)} ₺",
+            primaryColor: Colors.blue.shade300,
+            icon: Icons.diamond_outlined,
+            topCategoryLabel: "En değerli tür",
+            topCategoryName: topType,
+            topCategoryAmount: "${topAmount.toStringAsFixed(2)} ₺",
+          ),
+          const SizedBox(height: 24),
+          _buildPieChart(sections),
+          const SizedBox(height: 24),
+          _buildCategoryList("Varlık Türleri", totals, totalValue, assetColors),
+        ],
+      ),
+    );
+  }
+
+  // ========== YARDIMCI METODLAR ==========
+
+  /// Kategori toplamlarını hesaplar
+  (Map<String, double>, double) _calculateCategoryTotals(
+    List<Map<String, dynamic>> expenses,
+  ) {
+    Map<String, double> totals = {};
+    double totalAmount = 0;
+    for (var h in expenses) {
+      String cat = h['kategori'] ?? "Diğer";
+      double amount = double.tryParse(h['tutar'].toString()) ?? 0;
+      totals[cat] = (totals[cat] ?? 0) + amount;
+      totalAmount += amount;
+    }
+    return (totals, totalAmount);
+  }
+
+  /// En yüksek kategoriyi bulur
+  (String, double) _findTopCategory(Map<String, double> totals) {
     String topCategory = '';
     double topAmount = 0;
     totals.forEach((key, value) {
@@ -611,493 +392,218 @@ class _AnalysisPageState extends State<AnalysisPage>
         topCategory = key;
       }
     });
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Başlık kartı
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.green.shade900.withValues(alpha: 0.3),
-                  Colors.green.shade700.withValues(alpha: 0.15),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.green.shade400.withValues(alpha: 0.4),
-              ),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Toplam Gelir",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.7),
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "${totalIncome.toStringAsFixed(2)} ₺",
-                          style: TextStyle(
-                            color: Colors.green.shade300,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade400.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Icon(
-                        Icons.trending_up,
-                        color: Colors.green.shade300,
-                        size: 28,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surface.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.emoji_events,
-                        color: Colors.green.shade300,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontSize: 13,
-                            ),
-                            children: [
-                              const TextSpan(text: "En fazla gelir: "),
-                              TextSpan(
-                                text: topCategory,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              TextSpan(
-                                text: " (${topAmount.toStringAsFixed(2)} ₺)",
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.7),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          // Grafik
-          Center(
-            child: SizedBox(
-              height: 220,
-              child: PieChart(
-                PieChartData(
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      setState(() {
-                        if (!event.isInterestedForInteractions ||
-                            pieTouchResponse == null ||
-                            pieTouchResponse.touchedSection == null) {
-                          _touchedIndex = -1;
-                          return;
-                        }
-                        _touchedIndex = pieTouchResponse
-                            .touchedSection!
-                            .touchedSectionIndex;
-                      });
-                    },
-                  ),
-                  borderData: FlBorderData(show: false),
-                  sectionsSpace: 2,
-                  centerSpaceRadius: 40,
-                  sections: sections,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          // Kategori listesi başlığı
-          Text(
-            "Gelir Kategorileri",
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          ...totals.entries.toList().asMap().entries.map((entry) {
-            int idx = entry.key;
-            var e = entry.value;
-            final color = vibrantColors[idx % vibrantColors.length];
-            return _buildLegendItem(e.key, e.value, color, totalIncome);
-          }),
-        ],
-      ),
-    );
+    return (topCategory, topAmount);
   }
 
-  Widget _buildAssetAnalysis() {
-    List<Asset> activeAssets = widget.assets
-        .where((a) => !a.isDeleted)
-        .toList();
-
-    if (activeAssets.isEmpty) {
-      return _buildEmptyState("Henüz varlık eklenmemiş.");
-    }
-
-    Map<String, double> totals = {};
-    double totalValue = 0;
-
-    for (var asset in activeAssets) {
-      String type = asset.type ?? "Diğer";
-      // Calculate total value based on amount * quantity if applicable, or just amount
-      // Assuming amount is unit price and quantity is count, or amount is total value.
-      // Based on previous context, 'amount' seems to be total value or unit price depending on implementation.
-      // Let's check AddAssetSheet. It has 'amount' (Miktar/Değer) and 'quantity' (Adet).
-      // If quantity is > 0, total = amount * quantity? Or is amount the total value?
-      // In AddAssetSheet: "Miktar(TL)" is entered. "Adet" is entered.
-      // Usually users enter Unit Price * Quantity = Total.
-      // However, in simple apps, users might just enter "Total Value".
-      // Let's assume 'amount' is the value the user sees as "Miktar".
-      // If the user enters "Gram Altın", "10 Adet", "2500 TL" (Unit Price), then total is 25000.
-      // But if the user enters "Nakit", "1 Adet", "5000 TL", total is 5000.
-      // Let's assume 'amount' is the TOTAL value for simplicity unless we see calculation logic elsewhere.
-      // Checking home_page.dart... it just lists assets.
-      // Let's assume 'amount' is the value to sum up.
-
-      double value = asset.amount;
-      // If quantity is used for calculation it should be handled in the model or service.
-      // For now, I will use 'amount' as the value.
-
-      totals[type] = (totals[type] ?? 0) + value;
-      totalValue += value;
-    }
-
+  /// Pasta grafiği için sections oluşturur
+  List<PieChartSectionData> _buildPieChartSections(
+    Map<String, double> totals,
+    double total,
+    List<Color> colors,
+  ) {
     List<PieChartSectionData> sections = [];
     int index = 0;
-    // Varlık için mavi tonları renk paleti
-    final List<Color> vibrantColors = [
-      Colors.blue.shade400,
-      Colors.blue.shade600,
-      Colors.blue.shade300,
-      Colors.blue.shade700,
-      Colors.blueAccent.shade200,
-      Colors.blue.shade500,
-      Colors.cyan.shade400,
-      Colors.blue.shade800,
-    ];
-
     totals.forEach((key, value) {
       final isTouched = index == _touchedIndex;
-      final fontSize = isTouched ? 18.0 : 14.0;
-      final radius = isTouched ? 90.0 : 80.0;
-      final color = vibrantColors[index % vibrantColors.length];
-
+      final color = colors[index % colors.length];
       sections.add(
         PieChartSectionData(
           color: color,
           value: value,
-          title: '${(value / totalValue * 100).toStringAsFixed(0)}%',
-          radius: radius,
+          title: '${(value / total * 100).toStringAsFixed(0)}%',
+          radius: isTouched ? 90.0 : 80.0,
           titleStyle: TextStyle(
-            fontSize: fontSize,
+            fontSize: isTouched ? 18.0 : 14.0,
             fontWeight: FontWeight.bold,
             color: Colors.white,
-            shadows: [const Shadow(color: Colors.black, blurRadius: 2)],
+            shadows: const [Shadow(color: Colors.black, blurRadius: 2)],
           ),
         ),
       );
       index++;
     });
+    return sections;
+  }
 
-    // En değerli varlık kategorisi
-    String topCategory = '';
-    double topAmount = 0;
-    totals.forEach((key, value) {
-      if (value > topAmount) {
-        topAmount = value;
-        topCategory = key;
-      }
-    });
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Başlık kartı
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.blue.shade900.withValues(alpha: 0.3),
-                  Colors.blue.shade700.withValues(alpha: 0.15),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.blue.shade400.withValues(alpha: 0.4),
-              ),
+  /// Pasta grafiği widget'ı
+  Widget _buildPieChart(List<PieChartSectionData> sections) {
+    return Center(
+      child: SizedBox(
+        height: 220,
+        child: PieChart(
+          PieChartData(
+            pieTouchData: PieTouchData(
+              touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                setState(() {
+                  if (!event.isInterestedForInteractions ||
+                      pieTouchResponse == null ||
+                      pieTouchResponse.touchedSection == null) {
+                    _touchedIndex = -1;
+                    return;
+                  }
+                  _touchedIndex =
+                      pieTouchResponse.touchedSection!.touchedSectionIndex;
+                });
+              },
             ),
+            borderData: FlBorderData(show: false),
+            sectionsSpace: 2,
+            centerSpaceRadius: 40,
+            sections: sections,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Kategori listesi widget'ı
+  Widget _buildCategoryList(
+    String title,
+    Map<String, double> totals,
+    double total,
+    List<Color> colors,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...totals.entries.toList().asMap().entries.map((entry) {
+          int idx = entry.key;
+          var e = entry.value;
+          final color = colors[idx % colors.length];
+          return LegendItem(
+            title: e.key,
+            value: e.value,
+            color: color,
+            total: total,
+          );
+        }),
+      ],
+    );
+  }
+
+  /// Ödeme yöntemine göre dağılım
+  Widget _buildPaymentMethodDistribution(
+    List<Map<String, dynamic>> monthlyExpenses,
+  ) {
+    Map<String, double> pmTotals = {};
+    double pmTotal = 0;
+
+    for (var h in monthlyExpenses) {
+      String pmId = h['odemeYontemiId'] ?? 'unknown';
+      double amount = double.tryParse(h['tutar'].toString()) ?? 0;
+      pmTotals[pmId] = (pmTotals[pmId] ?? 0) + amount;
+      pmTotal += amount;
+    }
+
+    if (pmTotals.isEmpty || pmTotal == 0) return const SizedBox.shrink();
+
+    final List<Color> pmColors = [
+      Colors.orange.shade400,
+      Colors.purple.shade400,
+      Colors.teal.shade400,
+      Colors.pink.shade400,
+      Colors.amber.shade400,
+      Colors.cyan.shade400,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Ödeme Yöntemine Göre Dağılım",
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        ...pmTotals.entries.toList().asMap().entries.map((entry) {
+          int idx = entry.key;
+          var e = entry.value;
+          final color = pmColors[idx % pmColors.length];
+          return _buildPaymentMethodItem(e.key, e.value, pmTotal, color);
+        }),
+      ],
+    );
+  }
+
+  Widget _buildPaymentMethodItem(
+    String pmId,
+    double value,
+    double total,
+    Color color,
+  ) {
+    String pmName = 'Belirtilmemiş';
+    IconData pmIcon = Icons.help_outline;
+
+    if (pmId != 'unknown') {
+      final pm = widget.paymentMethods.where((p) => p.id == pmId).firstOrNull;
+      if (pm != null) {
+        pmName = pm.lastFourDigits != null
+            ? '${pm.name} ****${pm.lastFourDigits}'
+            : pm.name;
+        pmIcon = pm.type == 'nakit'
+            ? Icons.wallet
+            : pm.type == 'kredi'
+            ? Icons.credit_card
+            : Icons.account_balance;
+      }
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(pmIcon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Toplam Varlık",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.7),
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "${totalValue.toStringAsFixed(2)} ₺",
-                          style: TextStyle(
-                            color: Colors.blue.shade300,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade400.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Icon(
-                        Icons.account_balance_wallet,
-                        color: Colors.blue.shade300,
-                        size: 28,
-                      ),
-                    ),
-                  ],
+                Text(
+                  pmName,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
+                Text(
+                  '${(value / total * 100).toStringAsFixed(1)}%',
+                  style: TextStyle(
                     color: Theme.of(
                       context,
-                    ).colorScheme.surface.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.diamond,
-                        color: Colors.blue.shade300,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontSize: 13,
-                            ),
-                            children: [
-                              const TextSpan(text: "En değerli: "),
-                              TextSpan(
-                                text: topCategory,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              TextSpan(
-                                text: " (${topAmount.toStringAsFixed(2)} ₺)",
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.7),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontSize: 12,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          // Grafik
-          Center(
-            child: SizedBox(
-              height: 220,
-              child: PieChart(
-                PieChartData(
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      setState(() {
-                        if (!event.isInterestedForInteractions ||
-                            pieTouchResponse == null ||
-                            pieTouchResponse.touchedSection == null) {
-                          _touchedIndex = -1;
-                          return;
-                        }
-                        _touchedIndex = pieTouchResponse
-                            .touchedSection!
-                            .touchedSectionIndex;
-                      });
-                    },
-                  ),
-                  borderData: FlBorderData(show: false),
-                  sectionsSpace: 2,
-                  centerSpaceRadius: 40,
-                  sections: sections,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          // Kategori listesi başlığı
           Text(
-            "Varlık Kategorileri",
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          ...totals.entries.toList().asMap().entries.map((entry) {
-            int idx = entry.key;
-            var e = entry.value;
-            final color = vibrantColors[idx % vibrantColors.length];
-            return _buildLegendItem(e.key, e.value, color, totalValue);
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.bar_chart,
-            size: 80,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.12),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.54),
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLegendItem(
-    String title,
-    double value,
-    Color color,
-    double total,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 16,
-            height: 16,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                "${value.toStringAsFixed(2)} ₺",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                "%${(value / total * 100).toStringAsFixed(1)}",
-                style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.54),
-                  fontSize: 12,
-                ),
-              ),
-            ],
+            '${value.toStringAsFixed(2)} ₺',
+            style: TextStyle(color: color, fontWeight: FontWeight.bold),
           ),
         ],
       ),
