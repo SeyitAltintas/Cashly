@@ -6,6 +6,8 @@ import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../income/presentation/widgets/add_income_sheet.dart';
 import '../../../income/presentation/pages/income_recycle_bin_page.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../services/haptic_service.dart';
 
 class IncomesPage extends StatefulWidget {
   final List<Income> tumGelirler;
@@ -95,6 +97,7 @@ class _IncomesPageState extends State<IncomesPage> {
   }
 
   void gelirSil(Income income) {
+    HapticService.mediumImpact(); // Haptic feedback
     setState(() {
       income.isDeleted = true;
 
@@ -483,27 +486,13 @@ class _IncomesPageState extends State<IncomesPage> {
           // Gelir listesi
           Expanded(
             child: gelirler.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          gelirAramaModu
-                              ? Icons.search_off
-                              : Icons.trending_up_outlined,
-                          size: 60,
-                          color: Colors.white12,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          gelirAramaModu
-                              ? "Sonuç bulunamadı."
-                              : "$ayIsmi için gelir yok.",
-                          style: const TextStyle(color: Colors.white24),
-                        ),
-                      ],
-                    ),
-                  )
+                ? gelirAramaModu
+                      ? const EmptyStateWidget(
+                          icon: Icons.search_off,
+                          title: 'Sonuç bulunamadı',
+                          subtitle: 'Farklı bir arama terimi deneyin',
+                        )
+                      : EmptyStateWidget.noIncomes(onAdd: yeniGelirEkle)
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: gelirler.length,

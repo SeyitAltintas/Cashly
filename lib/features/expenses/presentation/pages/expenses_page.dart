@@ -10,6 +10,8 @@ import '../widgets/voice_input_sheet.dart';
 import '../../../../recycle_bin_page.dart';
 import '../../../../services/database_helper.dart';
 import '../../../../core/widgets/money_animation.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../services/haptic_service.dart';
 
 class ExpensesPage extends StatefulWidget {
   final List<Map<String, dynamic>> tumHarcamalar;
@@ -146,6 +148,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
   }
 
   void harcamaSil(Map<String, dynamic> harcama) {
+    HapticService.mediumImpact(); // Haptic feedback
     setState(() {
       harcama['silindi'] = true;
 
@@ -393,27 +396,13 @@ class _ExpensesPageState extends State<ExpensesPage> {
           ],
           Expanded(
             child: gosterilenHarcamalar.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          aramaModu
-                              ? Icons.search_off
-                              : Icons.account_balance_wallet,
-                          size: 60,
-                          color: Colors.white12,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          aramaModu
-                              ? "Sonuç bulunamadı."
-                              : "$ayIsmi için harcama yok.",
-                          style: const TextStyle(color: Colors.white24),
-                        ),
-                      ],
-                    ),
-                  )
+                ? aramaModu
+                      ? const EmptyStateWidget(
+                          icon: Icons.search_off,
+                          title: 'Sonuç bulunamadı',
+                          subtitle: 'Farklı bir arama terimi deneyin',
+                        )
+                      : EmptyStateWidget.noExpenses(onAdd: pencereAc)
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,

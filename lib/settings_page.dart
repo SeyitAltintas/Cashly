@@ -18,6 +18,8 @@ import 'features/settings/presentation/widgets/expense_settings/budget_section.d
 import 'features/settings/presentation/widgets/expense_settings/recurring_expense_section.dart';
 import 'features/settings/presentation/widgets/expense_settings/default_payment_section.dart';
 import 'features/settings/presentation/widgets/expense_settings/category_section.dart';
+import 'services/backup_service.dart';
+import 'services/haptic_service.dart';
 
 /// Ayarlar Sayfası
 class AyarlarSayfasi extends StatefulWidget {
@@ -142,7 +144,6 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             iconColor: Colors.teal,
             title: 'Gelirler',
             subtitle: 'Gelir kategorilerini özelleştirin',
-            isLast: true,
             onTap: () async {
               final result = await Navigator.push(
                 context,
@@ -155,7 +156,141 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
               if (result == true) setState(() => _needsRefresh = true);
             },
           ),
+          const SettingsDivider(),
+          SettingsTile(
+            icon: Icons.backup_outlined,
+            iconColor: Colors.blue,
+            title: 'Veri Yedekleme',
+            subtitle: 'Verilerinizi yedekleyin veya geri yükleyin',
+            isLast: true,
+            onTap: () => _showBackupDialog(context),
+          ),
         ],
+      ),
+    );
+  }
+
+  void _showBackupDialog(BuildContext context) {
+    final userId = widget.authController.currentUser?.id;
+    if (userId == null) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Veri Yedekleme',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Yedekle butonu
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.cloud_upload, color: Colors.green),
+              ),
+              title: const Text('Verileri Yedekle'),
+              subtitle: Text(
+                'Tüm verilerinizi JSON olarak dışa aktarın',
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  fontSize: 12,
+                ),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                await HapticService.lightImpact();
+                final path = await BackupService.exportData(userId);
+                if (path != null && context.mounted) {
+                  await BackupService.shareBackup(path);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Yedek dosyası oluşturuldu ✅'),
+                        backgroundColor: Colors.green.shade700,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            // Geri yükle butonu
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.cloud_download, color: Colors.blue),
+              ),
+              title: const Text('Verileri Geri Yükle'),
+              subtitle: Text(
+                'Yedek dosyasından verileri içe aktarın',
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  fontSize: 12,
+                ),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                await HapticService.lightImpact();
+                final result = await BackupService.importData(userId);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(result.message),
+                      backgroundColor: result.success
+                          ? Colors.green.shade700
+                          : Colors.red.shade700,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  );
+                  if (result.success) {
+                    setState(() => _needsRefresh = true);
+                  }
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }

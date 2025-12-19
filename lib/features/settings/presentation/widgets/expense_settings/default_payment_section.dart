@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../../core/theme/theme_manager.dart';
 import '../../../../payment_methods/data/models/payment_method_model.dart';
 
 /// Varsayılan ödeme yöntemi seçimi widget'ı
@@ -70,12 +68,7 @@ class DefaultPaymentSection extends StatelessWidget {
   Widget _buildDropdown(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          Icons.credit_card,
-          color: context.watch<ThemeManager>().isDefaultTheme
-              ? Colors.white
-              : Theme.of(context).colorScheme.secondary,
-        ),
+        Icon(Icons.credit_card, color: Theme.of(context).colorScheme.onSurface),
         const SizedBox(width: 12),
         Expanded(
           child: DropdownButtonHideUnderline(
