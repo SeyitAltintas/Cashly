@@ -181,7 +181,12 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      title: const Text("Ana Sayfa"),
+      title: Image.asset(
+        'assets/image/seffaflogo.png',
+        height: 60,
+        fit: BoxFit.contain,
+      ),
+      centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
     );
