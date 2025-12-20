@@ -5,6 +5,8 @@ import '../../../../core/widgets/animated_card.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../../../streak/data/models/streak_model.dart';
+import '../../../streak/presentation/widgets/streak_widget.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/monthly_summary_card.dart';
 import '../widgets/budget_status_card.dart';
@@ -21,6 +23,7 @@ class DashboardPage extends StatelessWidget {
   final List<PaymentMethod> odemeYontemleri;
   final double butceLimiti;
   final DateTime secilenAy;
+  final StreakData streakData;
 
   const DashboardPage({
     super.key,
@@ -31,6 +34,7 @@ class DashboardPage extends StatelessWidget {
     required this.odemeYontemleri,
     required this.butceLimiti,
     required this.secilenAy,
+    required this.streakData,
   });
 
   /// Saate göre selamlama mesajı
@@ -134,27 +138,38 @@ class DashboardPage extends StatelessWidget {
   Widget _buildGreetingSection(BuildContext context, String greeting) {
     return AnimatedCard(
       delay: 0,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            "$greeting,",
-            style: TextStyle(
-              fontSize: 16,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.6),
+          // Sol taraf: Selamlama metni
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "$greeting,",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  userName,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            userName,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
+          // Sağ taraf: Seri widget'ı
+          StreakWidget(streakData: streakData),
         ],
       ),
     );

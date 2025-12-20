@@ -24,6 +24,8 @@ import 'features/payment_methods/data/models/transfer_model.dart';
 import 'features/income/data/models/income_model.dart';
 import 'features/home/presentation/widgets/home_app_bar.dart';
 import 'features/home/presentation/widgets/home_bottom_nav.dart';
+import 'features/streak/data/models/streak_model.dart';
+import 'features/streak/data/services/streak_service.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
 /// Araçlar (0), Dashboard (1), Profil (2)
@@ -52,6 +54,9 @@ class _AnaSayfaState extends State<AnaSayfa> {
   DateTime secilenAy = DateTime.now();
   String? varsayilanOdemeYontemiId;
 
+  // Seri verisi
+  StreakData _streakData = StreakData.empty();
+
   // Kategori ikonları
   static const Map<String, IconData> kategoriIkonlari = {
     'Yiyecek': Icons.restaurant,
@@ -79,6 +84,18 @@ class _AnaSayfaState extends State<AnaSayfa> {
     super.initState();
     _pageController = PageController(initialPage: _selectedIndex);
     _verileriOku();
+    _seriKontrol();
+  }
+
+  /// Seri kontrolü yapar ve günceller
+  Future<void> _seriKontrol() async {
+    final userId = widget.authController.currentUser?.id;
+    if (userId == null) return;
+
+    final streakData = await StreakService.checkAndUpdateStreak(userId);
+    if (mounted) {
+      setState(() => _streakData = streakData);
+    }
   }
 
   @override
@@ -232,6 +249,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
         odemeYontemleri: tumOdemeYontemleri,
         butceLimiti: butceLimiti,
         secilenAy: secilenAy,
+        streakData: _streakData,
       ),
     );
   }
