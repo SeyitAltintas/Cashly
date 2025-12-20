@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/theme/app_theme.dart';
 
 /// Profil bilgi kartları widget'ı
 /// İsim, E-posta, PIN gibi ayar kartlarını gösterir
@@ -33,6 +34,7 @@ class ProfileInfoCards extends StatelessWidget {
           subtitle: name,
           icon: Icons.person_outline,
           onTap: onNameTap,
+          colorIndex: 7,
         ),
         const SizedBox(height: 16),
 
@@ -43,6 +45,7 @@ class ProfileInfoCards extends StatelessWidget {
           subtitle: email,
           icon: Icons.email_outlined,
           onTap: null,
+          colorIndex: 5,
         ),
         const SizedBox(height: 16),
 
@@ -53,6 +56,7 @@ class ProfileInfoCards extends StatelessWidget {
           subtitle: "****",
           icon: Icons.lock_outline,
           onTap: onPinTap,
+          colorIndex: 2,
         ),
       ],
     );
@@ -64,7 +68,11 @@ class ProfileInfoCards extends StatelessWidget {
     required String subtitle,
     required IconData icon,
     VoidCallback? onTap,
+    required int colorIndex,
   }) {
+    // Dinamik ikon rengi
+    final iconColor = PageThemeColors.getIconColor(colorIndex);
+
     return Card(
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -72,12 +80,10 @@ class ProfileInfoCards extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.secondary.withValues(alpha: 0.15),
+            color: iconColor.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: Theme.of(context).colorScheme.secondary),
+          child: Icon(icon, color: iconColor),
         ),
         title: Text(
           title,

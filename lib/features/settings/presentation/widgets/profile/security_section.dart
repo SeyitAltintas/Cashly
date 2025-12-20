@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/theme/app_theme.dart';
 
 /// Güvenlik ayarları section widget'ı
 /// Biyometrik giriş toggle ve tarih bilgileri
@@ -36,14 +37,15 @@ class SecuritySection extends StatelessWidget {
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.secondary.withValues(alpha: 0.15),
+                  // Dinamik biyometrik ikon rengi (turkuaz)
+                  color: PageThemeColors.getIconColor(
+                    5,
+                  ).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   Icons.fingerprint,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: PageThemeColors.getIconColor(5),
                   size: 24,
                 ),
               ),
@@ -70,6 +72,10 @@ class SecuritySection extends StatelessWidget {
                 activeThumbColor: Colors.green,
                 inactiveTrackColor: Colors.red.withValues(alpha: 0.3),
                 inactiveThumbColor: Colors.red,
+                // Koyu gri-beyaz çerçeve
+                trackOutlineColor: WidgetStateProperty.all(
+                  Colors.white.withValues(alpha: 0.25),
+                ),
               ),
             ),
           ),
@@ -80,6 +86,7 @@ class SecuritySection extends StatelessWidget {
           title: "Hesap Oluşturulma Tarihi",
           subtitle: createdAt,
           icon: Icons.calendar_today_outlined,
+          colorIndex: 3,
         ),
         const SizedBox(height: 16),
 
@@ -89,6 +96,7 @@ class SecuritySection extends StatelessWidget {
           title: "Son Giriş Tarihi",
           subtitle: lastLoginAt,
           icon: Icons.login_outlined,
+          colorIndex: 4,
         ),
       ],
     );
@@ -99,7 +107,11 @@ class SecuritySection extends StatelessWidget {
     required String title,
     required String subtitle,
     required IconData icon,
+    required int colorIndex,
   }) {
+    // Dinamik ikon rengi
+    final iconColor = PageThemeColors.getIconColor(colorIndex);
+
     return Card(
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -107,12 +119,10 @@ class SecuritySection extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.secondary.withValues(alpha: 0.15),
+            color: iconColor.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: Theme.of(context).colorScheme.secondary),
+          child: Icon(icon, color: iconColor),
         ),
         title: Text(
           title,
