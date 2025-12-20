@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'services/database_helper.dart';
+import 'services/haptic_service.dart';
 import 'home_page.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/data/initialize_default_user.dart';
@@ -91,6 +92,9 @@ class _CashlyAppState extends State<CashlyApp> {
 
       // Veritabanını başlat
       await DatabaseHelper.baslat();
+
+      // Haptic service ayarlarını başlat
+      await HapticService.init();
 
       // Varsayılan test kullanıcısını oluştur (geçici)
       await initializeDefaultUser();

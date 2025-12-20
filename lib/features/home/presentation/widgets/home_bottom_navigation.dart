@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Alt navigasyon çubuğu widget'ı.
-/// Harcamalar, Gelirler, Araçlar ve Profil sayfaları arasında geçiş sağlar.
+/// Harcamalar, Gelirler, Tüm İşlemler ve Profil sayfaları arasında geçiş sağlar.
 class HomeBottomNavigation extends StatelessWidget {
   final int selectedIndex;
   final PageController pageController;
@@ -49,17 +49,17 @@ class HomeBottomNavigation extends StatelessWidget {
             ),
             // Ortadaki FAB boşluğu
             const SizedBox(width: 48),
-            // Araçlar
+            // Tüm İşlemler
             IconButton(
               icon: Icon(
-                Icons.build_outlined,
+                Icons.apps_rounded,
                 color: selectedIndex == 2
                     ? Theme.of(context).colorScheme.secondary
                     : Colors.white24,
                 size: 28,
               ),
               onPressed: () => pageController.jumpToPage(2),
-              tooltip: "Araçlar",
+              tooltip: "Tüm İşlemler",
             ),
             // Profil
             IconButton(

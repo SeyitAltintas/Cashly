@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'core/theme/theme_manager.dart';
 
 import 'package:cashly/services/database_helper.dart';
 import 'package:cashly/profile_page.dart';
@@ -202,17 +204,35 @@ class _AnaSayfaState extends State<AnaSayfa> {
     );
   }
 
+  /// Pull-to-refresh için verileri yeniden okur
+  Future<void> _yenile() async {
+    _verileriOku();
+    // Animasyonun düzgün görünmesi için kısa bir bekleme
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
   Widget _buildDashboardPage(String userName) {
     if (_isLoading) return const Center(child: CircularProgressIndicator());
 
-    return DashboardPage(
-      userName: userName,
-      harcamalar: tumHarcamalar,
-      gelirler: tumGelirler,
-      varliklar: varliklar,
-      odemeYontemleri: tumOdemeYontemleri,
-      butceLimiti: butceLimiti,
-      secilenAy: secilenAy,
+    // Varsayılan tema için daha görünür bir renk kullan
+    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
+    final refreshColor = isDefaultTheme
+        ? const Color(0xFF6C63FF) // Mor-mavi ton (varsayılan tema için)
+        : Theme.of(context).colorScheme.primary;
+
+    return RefreshIndicator(
+      onRefresh: _yenile,
+      color: refreshColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      child: DashboardPage(
+        userName: userName,
+        harcamalar: tumHarcamalar,
+        gelirler: tumGelirler,
+        varliklar: varliklar,
+        odemeYontemleri: tumOdemeYontemleri,
+        butceLimiti: butceLimiti,
+        secilenAy: secilenAy,
+      ),
     );
   }
 

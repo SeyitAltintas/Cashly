@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/haptic_service.dart';
 
 /// Boş durum widget'ı
 /// Veri olmadığında gösterilir
@@ -72,7 +73,10 @@ class EmptyStateWidget extends StatelessWidget {
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: 24),
               ElevatedButton.icon(
-                onPressed: onAction,
+                onPressed: () {
+                  HapticService.lightImpact();
+                  onAction!();
+                },
                 icon: const Icon(Icons.add),
                 label: Text(actionLabel!),
                 style: ElevatedButton.styleFrom(

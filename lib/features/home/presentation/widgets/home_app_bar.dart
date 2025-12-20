@@ -152,7 +152,7 @@ class IncomesAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-/// Araçlar sayfası için AppBar widget'ı.
+/// Tüm İşlemler sayfası için AppBar widget'ı.
 class ToolsAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ToolsAppBar({super.key});
 
@@ -163,7 +163,12 @@ class ToolsAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      title: const Text("Araçlar"),
+      title: Image.asset(
+        'assets/image/seffaflogo.png',
+        height: 60,
+        fit: BoxFit.contain,
+      ),
+      centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
     );
@@ -181,7 +186,12 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      title: const Text("Ana Sayfa"),
+      title: Image.asset(
+        'assets/image/seffaflogo.png',
+        height: 60,
+        fit: BoxFit.contain,
+      ),
+      centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
     );
@@ -199,7 +209,12 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      title: const Text("Profil"),
+      title: Image.asset(
+        'assets/image/seffaflogo.png',
+        height: 60,
+        fit: BoxFit.contain,
+      ),
+      centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
     );
