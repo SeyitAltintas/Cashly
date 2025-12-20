@@ -37,15 +37,15 @@ class ExpenseSummaryCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-            Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.25),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4),
         ),
       ),
       child: Column(

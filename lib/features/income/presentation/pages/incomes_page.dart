@@ -5,6 +5,7 @@ import '../../../income/presentation/widgets/add_income_sheet.dart';
 import '../../../income/presentation/pages/income_recycle_bin_page.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../services/haptic_service.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class IncomesPage extends StatefulWidget {
   final List<Income> tumGelirler;
@@ -91,6 +92,175 @@ class _IncomesPageState extends State<IncomesPage> {
     setState(() {
       secilenAy = DateTime(secilenAy.year, secilenAy.month + 1, 1);
     });
+  }
+
+  void _ayYilSeciciAc() {
+    int secilenYil = secilenAy.year;
+    int secilenAyIndex = secilenAy.month;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) => Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Başlık çubuğu
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Tarih Seç",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Yıl seçici
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.chevron_left,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    onPressed: () {
+                      setSheetState(() {
+                        secilenYil--;
+                      });
+                    },
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      secilenYil.toString(),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.chevron_right,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    onPressed: () {
+                      setSheetState(() {
+                        secilenYil++;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Ay grid'i
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                  childAspectRatio: 2,
+                ),
+                itemCount: 12,
+                itemBuilder: (context, index) {
+                  final ayNumarasi = index + 1;
+                  final seciliMi = ayNumarasi == secilenAyIndex;
+                  return GestureDetector(
+                    onTap: () {
+                      setSheetState(() {
+                        secilenAyIndex = ayNumarasi;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: seciliMi
+                            ? Colors.green
+                            : Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        aylarListesi[index].substring(0, 3),
+                        style: TextStyle(
+                          color: seciliMi
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.onSurface,
+                          fontWeight: seciliMi
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
+
+              // Uygula butonu
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      secilenAy = DateTime(secilenYil, secilenAyIndex, 1);
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Seçilen tarihe git",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void gelirSil(Income income) {
@@ -366,8 +536,8 @@ class _IncomesPageState extends State<IncomesPage> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.green.shade900.withValues(alpha: 0.5),
-                    Colors.green.shade700.withValues(alpha: 0.3),
+                    Colors.green.shade400.withValues(alpha: 0.25),
+                    Colors.green.shade400.withValues(alpha: 0.1),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -379,51 +549,64 @@ class _IncomesPageState extends State<IncomesPage> {
               ),
               child: Column(
                 children: [
+                  // Ay seçici satırı
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Ay navigasyonu
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              Icons.chevron_left,
-                              color: Colors.green.shade300,
-                            ),
-                            onPressed: oncekiAy,
-                          ),
-                          Text(
-                            ayIsmi,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.chevron_right,
-                              color: Colors.green.shade300,
-                            ),
-                            onPressed: sonrakiAy,
-                          ),
-                        ],
+                      IconButton(
+                        icon: Icon(
+                          Icons.arrow_back_ios,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                          size: 18,
+                        ),
+                        onPressed: oncekiAy,
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade400.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
+                      GestureDetector(
+                        onTap: _ayYilSeciciAc,
+                        child: Row(
+                          children: [
+                            Text(
+                              ayIsmi.toUpperCase(),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Icon(
+                              Icons.arrow_drop_down,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              size: 20,
+                            ),
+                          ],
                         ),
-                        child: Icon(
-                          Icons.trending_up,
-                          color: Colors.green.shade300,
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.arrow_forward_ios,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                          size: 18,
                         ),
+                        onPressed: sonrakiAy,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  Divider(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  ),
+                  const SizedBox(height: 10),
+                  // Toplam gelir satırı
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -431,22 +614,34 @@ class _IncomesPageState extends State<IncomesPage> {
                           Text(
                             "Toplam Gelir",
                             style: TextStyle(
-                              fontSize: 14,
                               color: Theme.of(
                                 context,
                               ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              fontSize: 14,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             "${toplamGelir.toStringAsFixed(2)} ₺",
                             style: TextStyle(
+                              color: Colors.green.shade300,
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: Colors.green.shade300,
                             ),
                           ),
                         ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade400.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Icon(
+                          Icons.trending_up,
+                          color: Colors.green.shade300,
+                          size: 28,
+                        ),
                       ),
                     ],
                   ),
@@ -500,13 +695,15 @@ class _IncomesPageState extends State<IncomesPage> {
                             leading: Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Colors.green.withValues(alpha: 0.15),
+                                color: PageThemeColors.getIconColor(
+                                  index,
+                                ).withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
                                 widget.gelirKategoriIkonlari[gelir.category] ??
                                     Icons.attach_money,
-                                color: Colors.green.shade400,
+                                color: PageThemeColors.getIconColor(index),
                               ),
                             ),
                             title: Text(
