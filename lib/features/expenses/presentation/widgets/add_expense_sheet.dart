@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cashly/core/theme/theme_manager.dart';
+import 'package:cashly/core/widgets/balance_warning_dialog.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -173,66 +174,31 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
 
       if (pm.id.isNotEmpty) {
         bool yetersizBakiye = false;
-        String uyariMesaji = '';
 
         if (pm.type == 'kredi') {
           // Kredi kartı: limit kontrolü
           final kalanLimit = (pm.limit ?? 0) - pm.balance;
           if (amount > kalanLimit) {
             yetersizBakiye = true;
-            uyariMesaji =
-                'Kredi kartı limitiniz aşılacak!\n\n'
-                'Kalan limit: ${kalanLimit.toStringAsFixed(2)} ₺\n'
-                'Harcama tutarı: ${amount.toStringAsFixed(2)} ₺';
           }
         } else {
           // Banka kartı/Nakit: bakiye kontrolü
           if (amount > pm.balance) {
             yetersizBakiye = true;
-            uyariMesaji =
-                'Yetersiz bakiye!\n\n'
-                'Mevcut bakiye: ${pm.balance.toStringAsFixed(2)} ₺\n'
-                'Harcama tutarı: ${amount.toStringAsFixed(2)} ₺';
           }
         }
 
         if (yetersizBakiye) {
-          final onay = await showDialog<bool>(
+          // Kalan bakiye hesapla
+          final currentBalance = pm.type == 'kredi'
+              ? (pm.limit ?? 0) - pm.balance
+              : pm.balance;
+
+          final onay = await BalanceWarningDialog.show(
             context: context,
-            builder: (ctx) => AlertDialog(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              title: Row(
-                children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.orange),
-                  const SizedBox(width: 8),
-                  const Text('Uyarı', style: TextStyle(color: Colors.white)),
-                ],
-              ),
-              content: Text(
-                '$uyariMesaji\n\nYine de devam etmek istiyor musunuz?',
-                style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.8),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('İptal'),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                  ),
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text(
-                    'Devam Et',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
+            paymentType: pm.type,
+            currentBalance: currentBalance,
+            expenseAmount: amount,
           );
 
           if (onay != true) return;
