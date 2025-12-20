@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../services/speech/speech_service.dart';
 import '../../../../services/tts_service.dart';
+import '../../../../core/constants/color_constants.dart';
 
 /// Sesli harcama girişi için modal bottom sheet widget'ı
 class VoiceInputSheet extends StatefulWidget {
@@ -68,7 +69,6 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
   bool _isListening = false;
   bool _isInitializing = true;
   bool _hasError = false;
-  bool _isEditingValues = false; // Sadece tutar ve isim düzenleme modu
   bool _isCommandMode = false; // Sesli komut modunda mı?
   String _errorMessage = '';
   String _recognizedText = '';
@@ -134,7 +134,6 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
 
     setState(() {
       _isListening = true;
-      _isEditingValues = false;
       _isCommandMode = false; // Komut modu sıfırla
       _recognizedText = '';
       _parseResult = null;
@@ -992,12 +991,6 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     }
   }
 
-  void _enableEditingValues() {
-    setState(() {
-      _isEditingValues = true;
-    });
-  }
-
   void _confirm() {
     double? tutar = double.tryParse(_tutarController.text.replaceAll(',', '.'));
     String isim = _isimController.text.trim();
@@ -1247,27 +1240,28 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   ).colorScheme.onSurface.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Duyulan:',
-                      style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.54),
-                        fontSize: 12,
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Duyulan: ',
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.54),
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _recognizedText,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 16,
+                      TextSpan(
+                        text: _recognizedText,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -1387,99 +1381,221 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               const SizedBox(height: 12),
             ],
 
-            // Parse sonucu (Tutar ve İsim) - önizleme veya düzenleme
+            // Parse sonucu - Gelirlerim sayfasındaki gibi basit form
             // Sadece komut modunda değilse göster
             if (!_isCommandMode &&
                 _parseResult != null &&
                 _parseResult!.basarili) ...[
-              if (_isEditingValues)
-                _buildValuesEditForm()
-              else
-                _buildValuesPreview(),
-              const SizedBox(height: 12),
-            ],
-
-            // KATEGORİ SEÇİMİ - Her zaman görünür ve düzenlenebilir
-            // Sadece komut modunda değilse göster
-            if (!_isCommandMode &&
-                _parseResult != null &&
-                _parseResult!.basarili) ...[
-              // Bilgi notu - sola yaslı ve silik
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Kategori tahmini yapıldı, değiştirebilirsiniz.',
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.4),
-                    fontSize: 12,
+              // Duyulan kartı
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Duyulan: ',
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.54),
+                          fontSize: 14,
+                        ),
+                      ),
+                      TextSpan(
+                        text: _recognizedText,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-              _buildCategorySelector(),
+              const SizedBox(height: 16),
+
+              // Tutar alanı
+              TextField(
+                controller: _tutarController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Tutar (₺)',
+                  labelStyle: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                  floatingLabelStyle: TextStyle(
+                    color: ColorConstants.kirmiziVurgu,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.attach_money,
+                    color: ColorConstants.kirmiziVurgu,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.5),
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 12),
+
+              // İsim alanı
+              TextField(
+                controller: _isimController,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Harcama Adı',
+                  labelStyle: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                  floatingLabelStyle: TextStyle(
+                    color: ColorConstants.kirmiziVurgu,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.description,
+                    color: ColorConstants.kirmiziVurgu,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.5),
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Kategori seçici
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.category, color: ColorConstants.kirmiziVurgu),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DropdownButton<String>(
+                        value: _selectedCategory.isNotEmpty
+                            ? _selectedCategory
+                            : null,
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        dropdownColor: Theme.of(context).colorScheme.surface,
+                        items: widget.categoryIcons.entries.map((entry) {
+                          return DropdownMenuItem(
+                            value: entry.key,
+                            child: Row(
+                              children: [
+                                Icon(entry.value, size: 20),
+                                const SizedBox(width: 8),
+                                Text(entry.key),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _selectedCategory = value);
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 20),
             ],
 
-            // Butonlar
-            if (_isCommandMode)
-              // Komut modunda sadece Kapat butonu
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    side: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.2),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text('Kapat'),
-                ),
-              )
-            else
-              // Normal modda İptal ve Onayla butonları
+            // Butonlar - sadece parse sonucu varsa göster
+            if (!_isCommandMode &&
+                _parseResult != null &&
+                _parseResult!.basarili)
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _parseResult = null;
+                          _recognizedText = '';
+                        });
+                        _startListening();
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Yeniden'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
-                        side: BorderSide(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.2),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        foregroundColor: ColorConstants.kirmiziVurgu,
+                        side: BorderSide(color: ColorConstants.kirmiziVurgu),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('İptal'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: ElevatedButton(
+                    child: ElevatedButton.icon(
                       onPressed: canConfirm ? _confirm : null,
+                      icon: const Icon(Icons.check),
+                      label: const Text('Ekle'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.secondary,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: ColorConstants.kirmiziVurgu,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -1487,232 +1603,12 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.1),
                       ),
-                      child: const Text(
-                        'Onayla',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
                     ),
                   ),
                 ],
               ),
             const SizedBox(height: 20),
           ],
-        ),
-      ),
-    );
-  }
-
-  /// Tutar ve İsim önizlemesi
-  Widget _buildValuesPreview() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Column(
-        children: [
-          _buildResultRow(
-            'Tutar',
-            '${_tutarController.text} ₺',
-            Icons.currency_lira,
-          ),
-          if (_isimController.text.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            _buildResultRow('İsim', _isimController.text, Icons.edit),
-          ],
-          const SizedBox(height: 12),
-          // Düzenle butonu
-          SizedBox(
-            width: double.infinity,
-            child: TextButton.icon(
-              onPressed: _enableEditingValues,
-              icon: Icon(
-                Icons.edit_note,
-                color: Theme.of(context).colorScheme.primary,
-                size: 20,
-              ),
-              label: Text(
-                'Tutar ve İsmi Düzenle',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Tutar ve İsim düzenleme formu
-  Widget _buildValuesEditForm() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Tutar alanı
-          TextField(
-            controller: _tutarController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-            decoration: InputDecoration(
-              labelText: 'Tutar (₺)',
-              labelStyle: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-              prefixIcon: Icon(
-                Icons.currency_lira,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              filled: true,
-              fillColor: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.05),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 2,
-                ),
-              ),
-            ),
-            onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: 12),
-
-          // İsim alanı
-          TextField(
-            controller: _isimController,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-            decoration: InputDecoration(
-              labelText: 'Harcama İsmi (opsiyonel)',
-              labelStyle: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-              prefixIcon: Icon(
-                Icons.edit,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              filled: true,
-              fillColor: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.05),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 2,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Önizlemeye dön butonu
-          Center(
-            child: TextButton(
-              onPressed: () {
-                setState(() {
-                  _isEditingValues = false;
-                });
-              },
-              child: Text(
-                'Tamam',
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Kategori seçici - HER ZAMAN GÖRÜNÜR
-  Widget _buildCategorySelector() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _selectedCategory.isNotEmpty ? _selectedCategory : null,
-          dropdownColor: Theme.of(context).colorScheme.surface,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-          isExpanded: true,
-          hint: Row(
-            children: [
-              Icon(
-                Icons.category,
-                color: Theme.of(context).colorScheme.secondary,
-                size: 20,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Kategori Seçiniz',
-                style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-              ),
-            ],
-          ),
-          icon: Icon(
-            Icons.arrow_drop_down,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
-          items: widget.categoryIcons.entries.map((entry) {
-            return DropdownMenuItem<String>(
-              value: entry.key,
-              child: Row(
-                children: [
-                  Icon(
-                    entry.value,
-                    color: Theme.of(context).colorScheme.secondary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(entry.key, style: const TextStyle(fontSize: 16)),
-                ],
-              ),
-            );
-          }).toList(),
-          onChanged: (newValue) {
-            setState(() {
-              _selectedCategory = newValue ?? widget.categoryIcons.keys.first;
-            });
-          },
         ),
       ),
     );
@@ -1790,16 +1686,16 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _isListening
-                        ? Theme.of(context).colorScheme.secondary
+                        ? ColorConstants.kirmiziVurgu
                         : Theme.of(
                             context,
                           ).colorScheme.onSurface.withValues(alpha: 0.1),
                     boxShadow: _isListening
                         ? [
                             BoxShadow(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.secondary.withValues(alpha: 0.4),
+                              color: ColorConstants.kirmiziVurgu.withValues(
+                                alpha: 0.4,
+                              ),
                               blurRadius: 20,
                               spreadRadius: 5,
                             ),
@@ -1810,8 +1706,8 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                     _isListening ? Icons.mic : Icons.mic_none,
                     size: 40,
                     color: _isListening
-                        ? Colors.black
-                        : Theme.of(context).colorScheme.secondary,
+                        ? Colors.white
+                        : ColorConstants.kirmiziVurgu,
                   ),
                 ),
               );
@@ -1819,44 +1715,32 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
           ),
           const SizedBox(height: 12),
           Text(
-            _isListening ? 'Dinleniyor...' : 'Tekrar konuşmak için dokunun',
+            _isListening ? 'Dinliyorum...' : 'Tekrar konuşmak için dokunun',
             style: TextStyle(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.7),
+              color: _isListening
+                  ? ColorConstants.kirmiziVurgu
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
               fontWeight: _isListening ? FontWeight.bold : FontWeight.normal,
               fontSize: 13,
             ),
           ),
+          if (_isListening)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                'Durdurmak için mikrofona dokunun',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+              ),
+            ),
         ],
       ),
-    );
-  }
-
-  Widget _buildResultRow(String label, String value, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(width: 8),
-        Text(
-          '$label:',
-          style: TextStyle(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.7),
-            fontSize: 14,
-          ),
-        ),
-        const Spacer(),
-        Text(
-          value,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
     );
   }
 }

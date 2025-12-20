@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../income/presentation/widgets/add_income_sheet.dart';
+import '../../../income/presentation/widgets/income_voice_input_sheet.dart';
 import '../../../income/presentation/pages/income_recycle_bin_page.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../services/haptic_service.dart';
@@ -259,6 +260,55 @@ class _IncomesPageState extends State<IncomesPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showVoiceInput() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => IncomeVoiceInputSheet(
+        categoryIcons: widget.gelirKategoriIkonlari,
+        userId: widget.userId,
+        onConfirm: (name, amount, category, date) {
+          // Gelir oluştur ve listeye ekle
+          final yeniGelir = Income(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            name: name,
+            amount: amount,
+            category: category,
+            date: date,
+          );
+
+          setState(() {
+            widget.tumGelirler.add(yeniGelir);
+          });
+
+          // Bakiye güncelleme - mevcut ödeme yöntemi seçimi yok
+          // bu yüzden sadece geliri ekliyoruz
+
+          // Callback'i çağır
+          widget.onGelirlerChanged(widget.tumGelirler);
+
+          // Bildirim göster
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '$name eklendi: ${amount.toStringAsFixed(0)} ₺',
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.green.shade700,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: const EdgeInsets.all(12),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        },
       ),
     );
   }
@@ -777,13 +827,7 @@ class _IncomesPageState extends State<IncomesPage> {
                 label: "Sesli Giriş",
                 onTap: () {
                   HapticService.selectionClick();
-                  // TODO: İleride sesli gelir ekleme özelliği
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Sesli gelir ekleme yakında eklenecek!"),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
+                  _showVoiceInput();
                 },
               ),
             ],
