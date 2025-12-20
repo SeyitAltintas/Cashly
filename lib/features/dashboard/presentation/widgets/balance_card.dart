@@ -6,13 +6,8 @@ import '../../../payment_methods/data/models/payment_method_model.dart';
 /// Dashboard'da toplam finansal durumu gösterir
 class BalanceCard extends StatelessWidget {
   final double totalBalance;
-  final bool isDefaultTheme;
 
-  const BalanceCard({
-    super.key,
-    required this.totalBalance,
-    required this.isDefaultTheme,
-  });
+  const BalanceCard({super.key, required this.totalBalance});
 
   /// Ödeme yöntemlerinden toplam bakiyeyi hesaplar
   static double calculateTotalBalance(List<PaymentMethod> odemeYontemleri) {
@@ -35,21 +30,8 @@ class BalanceCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: isDefaultTheme
-                ? [
-                    const Color(0xFF1a1a2e),
-                    const Color(0xFF16213e),
-                    const Color(0xFF0f3460),
-                  ]
-                : [
-                    Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.3),
-                    Theme.of(
-                      context,
-                    ).colorScheme.secondary.withValues(alpha: 0.15),
-                  ],
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1a1a2e), Color(0xFF16213e), Color(0xFF0f3460)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

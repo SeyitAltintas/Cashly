@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../core/theme/theme_manager.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../income/presentation/widgets/add_income_sheet.dart';
@@ -278,7 +275,6 @@ class _IncomesPageState extends State<IncomesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
     DateTime simdi = DateTime.now();
     bool buAyMi =
         (secilenAy.year == simdi.year && secilenAy.month == simdi.month);
@@ -369,29 +365,16 @@ class _IncomesPageState extends State<IncomesPage> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: isDefaultTheme
-                      ? [
-                          Colors.green.shade900.withValues(alpha: 0.5),
-                          Colors.green.shade700.withValues(alpha: 0.3),
-                        ]
-                      : [
-                          Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.3),
-                          Theme.of(
-                            context,
-                          ).colorScheme.secondary.withValues(alpha: 0.15),
-                        ],
+                  colors: [
+                    Colors.green.shade900.withValues(alpha: 0.5),
+                    Colors.green.shade700.withValues(alpha: 0.3),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: isDefaultTheme
-                      ? Colors.green.shade400.withValues(alpha: 0.4)
-                      : Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.3),
+                  color: Colors.green.shade400.withValues(alpha: 0.4),
                 ),
               ),
               child: Column(
@@ -405,9 +388,7 @@ class _IncomesPageState extends State<IncomesPage> {
                           IconButton(
                             icon: Icon(
                               Icons.chevron_left,
-                              color: isDefaultTheme
-                                  ? Colors.green.shade300
-                                  : Theme.of(context).colorScheme.secondary,
+                              color: Colors.green.shade300,
                             ),
                             onPressed: oncekiAy,
                           ),
@@ -422,9 +403,7 @@ class _IncomesPageState extends State<IncomesPage> {
                           IconButton(
                             icon: Icon(
                               Icons.chevron_right,
-                              color: isDefaultTheme
-                                  ? Colors.green.shade300
-                                  : Theme.of(context).colorScheme.secondary,
+                              color: Colors.green.shade300,
                             ),
                             onPressed: sonrakiAy,
                           ),
@@ -433,18 +412,12 @@ class _IncomesPageState extends State<IncomesPage> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: isDefaultTheme
-                              ? Colors.green.shade400.withValues(alpha: 0.2)
-                              : Theme.of(
-                                  context,
-                                ).colorScheme.primary.withValues(alpha: 0.2),
+                          color: Colors.green.shade400.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
                           Icons.trending_up,
-                          color: isDefaultTheme
-                              ? Colors.green.shade300
-                              : Theme.of(context).colorScheme.secondary,
+                          color: Colors.green.shade300,
                         ),
                       ),
                     ],
@@ -470,9 +443,7 @@ class _IncomesPageState extends State<IncomesPage> {
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: isDefaultTheme
-                                  ? Colors.green.shade300
-                                  : PageThemeColors.incomePrimary,
+                              color: Colors.green.shade300,
                             ),
                           ),
                         ],
@@ -574,9 +545,7 @@ class _IncomesPageState extends State<IncomesPage> {
           ? null
           : FloatingActionButton(
               onPressed: yeniGelirEkle,
-              backgroundColor: isDefaultTheme
-                  ? Colors.green.shade600
-                  : Theme.of(context).colorScheme.primary,
+              backgroundColor: Colors.green.shade600,
               child: const Icon(Icons.add, color: Colors.white, size: 28),
             ),
     );

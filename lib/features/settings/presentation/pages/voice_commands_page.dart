@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/theme_manager.dart';
 
 /// Tüm sesli komutları detaylı listeleyen sayfa
 class VoiceCommandsPage extends StatelessWidget {
@@ -318,8 +316,7 @@ class VoiceCommandsPage extends StatelessWidget {
       Icons.repeat,
     ].indexOf(icon);
 
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
-    final iconColor = isDefaultTheme && iconIndex >= 0
+    final iconColor = iconIndex >= 0
         ? PageThemeColors.getIconColor(iconIndex)
         : Theme.of(context).colorScheme.primary;
 

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 
 import '../../data/models/asset_model.dart';
@@ -302,21 +300,12 @@ class _AssetsPageState extends State<AssetsPage> {
                   ),
                 );
               },
-              backgroundColor: context.watch<ThemeManager>().isDefaultTheme
-                  ? Theme.of(context).colorScheme.secondary
-                  : Theme.of(context).colorScheme.primary,
-              icon: Icon(
-                Icons.add,
-                color: context.watch<ThemeManager>().isDefaultTheme
-                    ? Colors.black
-                    : Colors.white,
-              ),
-              label: Text(
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              icon: const Icon(Icons.add, color: Colors.black),
+              label: const Text(
                 "Varlık Ekle",
                 style: TextStyle(
-                  color: context.watch<ThemeManager>().isDefaultTheme
-                      ? Colors.black
-                      : Colors.white,
+                  color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
               ),

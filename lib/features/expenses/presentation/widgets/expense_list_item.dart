@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
 import 'package:cashly/core/theme/app_theme.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
@@ -27,8 +25,6 @@ class ExpenseListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
-
     // RepaintBoundary: Bu liste öğesinin repaint'ini izole eder
     return RepaintBoundary(
       child: Dismissible(
@@ -64,7 +60,7 @@ class ExpenseListItem extends StatelessWidget {
                 horizontal: 16,
                 vertical: 4,
               ),
-              leading: _buildCategoryIcon(context, isDefaultTheme),
+              leading: _buildCategoryIcon(context),
               title: Text(
                 harcama['isim'],
                 style: const TextStyle(
@@ -75,8 +71,8 @@ class ExpenseListItem extends StatelessWidget {
               subtitle: _buildSubtitle(context),
               trailing: Text(
                 "-${harcama['tutar']} ₺",
-                style: TextStyle(
-                  color: isDefaultTheme ? Colors.red : Colors.white,
+                style: const TextStyle(
+                  color: Colors.red,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -88,7 +84,7 @@ class ExpenseListItem extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryIcon(BuildContext context, bool isDefaultTheme) {
+  Widget _buildCategoryIcon(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -97,9 +93,7 @@ class ExpenseListItem extends StatelessWidget {
       ),
       child: Icon(
         categoryIcon ?? Icons.help,
-        color: isDefaultTheme
-            ? PageThemeColors.getIconColor(itemIndex)
-            : Theme.of(context).colorScheme.secondary,
+        color: PageThemeColors.getIconColor(itemIndex),
       ),
     );
   }

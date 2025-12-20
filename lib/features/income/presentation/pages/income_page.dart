@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
-import 'package:cashly/core/theme/app_theme.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../data/models/income_model.dart';
 
 class IncomePage extends StatefulWidget {
@@ -225,10 +223,8 @@ class _IncomePageState extends State<IncomePage> {
                       const SizedBox(height: 4),
                       Text(
                         "${totalIncome.toStringAsFixed(2)} ₺",
-                        style: TextStyle(
-                          color: context.watch<ThemeManager>().isDefaultTheme
-                              ? PageThemeColors.incomePrimary
-                              : Colors.green,
+                        style: const TextStyle(
+                          color: PageThemeColors.incomePrimary,
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                         ),
@@ -238,18 +234,14 @@ class _IncomePageState extends State<IncomePage> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: context.watch<ThemeManager>().isDefaultTheme
-                          ? PageThemeColors.incomePrimary.withValues(alpha: 0.2)
-                          : Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.2),
+                      color: PageThemeColors.incomePrimary.withValues(
+                        alpha: 0.2,
+                      ),
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.trending_up,
-                      color: context.watch<ThemeManager>().isDefaultTheme
-                          ? PageThemeColors.incomePrimary
-                          : Theme.of(context).colorScheme.primary,
+                      color: PageThemeColors.incomePrimary,
                       size: 28,
                     ),
                   ),
@@ -401,11 +393,9 @@ class _IncomePageState extends State<IncomePage> {
                 ),
                 child: Icon(
                   _getIconForCategory(income.category),
-                  color: context.watch<ThemeManager>().isDefaultTheme
-                      ? PageThemeColors.getIconColor(
-                          filteredIncomes.indexOf(income),
-                        )
-                      : Theme.of(context).colorScheme.primary,
+                  color: PageThemeColors.getIconColor(
+                    filteredIncomes.indexOf(income),
+                  ),
                   size: 24,
                 ),
               ),
@@ -439,10 +429,8 @@ class _IncomePageState extends State<IncomePage> {
               // Tutar
               Text(
                 "+${income.amount.toStringAsFixed(2)} ₺",
-                style: TextStyle(
-                  color: context.watch<ThemeManager>().isDefaultTheme
-                      ? PageThemeColors.incomePrimary
-                      : Theme.of(context).colorScheme.primary,
+                style: const TextStyle(
+                  color: PageThemeColors.incomePrimary,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),

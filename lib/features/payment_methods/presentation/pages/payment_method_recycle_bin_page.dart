@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 
 import '../../data/models/payment_method_model.dart';
@@ -149,7 +147,6 @@ class _PaymentMethodRecycleBinPageState
 
   Widget _buildDeletedCard(PaymentMethod pm) {
     final colors = _cardColors[pm.colorIndex.clamp(0, _cardColors.length - 1)];
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -201,9 +198,7 @@ class _PaymentMethodRecycleBinPageState
             IconButton(
               icon: Icon(
                 Icons.restore,
-                color: isDefaultTheme
-                    ? Theme.of(context).colorScheme.secondary
-                    : Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.secondary,
               ),
               tooltip: 'Geri Yükle',
               onPressed: () {

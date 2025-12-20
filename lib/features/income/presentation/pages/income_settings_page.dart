@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../core/theme/theme_manager.dart';
 import 'income_category_management_page.dart';
 import 'recurring_income_page.dart';
 
@@ -99,12 +97,7 @@ class _GelirlerAyarlariSayfasiState extends State<GelirlerAyarlariSayfasi> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.format_list_bulleted,
-                      color: context.watch<ThemeManager>().isDefaultTheme
-                          ? Colors.white
-                          : Theme.of(context).colorScheme.secondary,
-                    ),
+                    Icon(Icons.format_list_bulleted, color: Colors.white),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(

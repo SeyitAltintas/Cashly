@@ -457,9 +457,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
           ? null
           : FloatingActionButton(
               onPressed: pencereAc,
-              backgroundColor: context.watch<ThemeManager>().isDefaultTheme
-                  ? ColorConstants.koyuKirmizi
-                  : Theme.of(context).colorScheme.primary,
+              backgroundColor: ColorConstants.koyuKirmizi,
               child: const Icon(Icons.add, color: Colors.white, size: 28),
             ),
     );

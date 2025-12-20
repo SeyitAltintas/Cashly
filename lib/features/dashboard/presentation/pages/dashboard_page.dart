@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../core/theme/theme_manager.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../assets/data/models/asset_model.dart';
@@ -75,7 +73,6 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
     final greeting = _getGreeting();
     final totalBalance = BalanceCard.calculateTotalBalance(odemeYontemleri);
     final monthlyExpense = _getMonthlyExpense();
@@ -96,10 +93,7 @@ class DashboardPage extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Toplam Bakiye Kartı
-              BalanceCard(
-                totalBalance: totalBalance,
-                isDefaultTheme: isDefaultTheme,
-              ),
+              BalanceCard(totalBalance: totalBalance),
               const SizedBox(height: 20),
 
               // Bu Ay Özeti

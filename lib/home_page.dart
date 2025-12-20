@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'core/theme/theme_manager.dart';
 
 import 'package:cashly/services/database_helper.dart';
 import 'package:cashly/profile_page.dart';
@@ -229,19 +227,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
 
     // Kullanıcıya verilerin güncellendiğini bildir
     if (mounted) {
-      final isDefaultTheme = context.read<ThemeManager>().isDefaultTheme;
-      final colorScheme = Theme.of(context).colorScheme;
-
-      // Varsayılan tema için siyah arka plan, diğerleri için secondary renk
-      final bgColor = isDefaultTheme ? Colors.black : colorScheme.secondary;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text(
             'Tüm veriler güncel',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
           ),
-          backgroundColor: bgColor,
+          backgroundColor: Colors.black,
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -257,11 +249,8 @@ class _AnaSayfaState extends State<AnaSayfa> {
   Widget _buildDashboardPage(String userName) {
     if (_isLoading) return const Center(child: CircularProgressIndicator());
 
-    // Varsayılan tema için daha görünür bir renk kullan
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
-    final refreshColor = isDefaultTheme
-        ? const Color(0xFF6C63FF) // Mor-mavi ton (varsayılan tema için)
-        : Theme.of(context).colorScheme.primary;
+    // Mor-mavi ton (varsayılan tema için)
+    const refreshColor = Color(0xFF6C63FF);
 
     return RefreshIndicator(
       onRefresh: _yenile,

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/widgets/skeleton_widget.dart';
 
@@ -121,8 +119,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -255,19 +251,11 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
             ),
           );
         },
-        backgroundColor: isDefaultTheme
-            ? Theme.of(context).colorScheme.secondary
-            : Theme.of(context).colorScheme.primary,
-        icon: Icon(
-          Icons.add,
-          color: isDefaultTheme ? Colors.black : Colors.white,
-        ),
-        label: Text(
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        icon: const Icon(Icons.add, color: Colors.black),
+        label: const Text(
           "Kart Ekle",
-          style: TextStyle(
-            color: isDefaultTheme ? Colors.black : Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
     );

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../core/theme/theme_manager.dart';
 import '../../../../services/haptic_service.dart';
 
 /// Tüm İşlemler Sayfası
@@ -25,8 +23,6 @@ class ToolsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -91,9 +87,7 @@ class ToolsPage extends StatelessWidget {
               icon: Icons.account_balance_wallet_outlined,
               title: "Varlıklarım",
               subtitle: "Altın, döviz, kripto ve diğer varlıklar",
-              iconColor: isDefaultTheme
-                  ? const Color(0xFF1E88E5)
-                  : Theme.of(context).colorScheme.primary,
+              iconColor: const Color(0xFF1E88E5),
               onTap: () {
                 HapticService.lightImpact();
                 onAssetsPressed();

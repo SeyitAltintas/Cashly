@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:cashly/services/database_helper.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/utils/validators.dart';
 import 'package:cashly/core/theme/app_theme.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
 
 /// Gelir kategorilerini yönetmek için sayfa
 class GelirKategoriYonetimiSayfasi extends StatefulWidget {
@@ -438,10 +436,7 @@ class _GelirKategoriYonetimiSayfasiState
                           child: ListTile(
                             leading: Icon(
                               ikon,
-                              color:
-                                  context.watch<ThemeManager>().isDefaultTheme
-                                  ? PageThemeColors.getIconColor(index)
-                                  : Theme.of(context).colorScheme.secondary,
+                              color: PageThemeColors.getIconColor(index),
                             ),
                             title: Text(
                               kategori['isim'],

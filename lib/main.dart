@@ -144,11 +144,7 @@ class _CashlyAppState extends State<CashlyApp> {
                   children: [
                     Image.asset('assets/image/seffaflogo.png', height: 100),
                     const SizedBox(height: 20),
-                    CircularProgressIndicator(
-                      color: themeManager.isDefaultTheme
-                          ? Colors.white
-                          : themeManager.currentTheme.colorScheme.primary,
-                    ),
+                    CircularProgressIndicator(color: Colors.white),
                   ],
                 ),
               ),
@@ -245,13 +241,7 @@ class AuthWrapper extends StatelessWidget {
         if (authController.isLoading) {
           return Scaffold(
             backgroundColor: Colors.black,
-            body: Center(
-              child: CircularProgressIndicator(
-                color: context.watch<ThemeManager>().isDefaultTheme
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.primary,
-              ),
-            ),
+            body: Center(child: CircularProgressIndicator(color: Colors.white)),
           );
         }
         return authController.currentUser != null

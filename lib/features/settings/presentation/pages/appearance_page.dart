@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../core/theme/theme_manager.dart';
-import '../../../../core/theme/app_theme.dart';
-import 'theme_selection_page.dart';
 import 'animations_settings_page.dart';
 
 class AppearancePage extends StatelessWidget {
@@ -80,49 +76,25 @@ class AppearancePage extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Consumer<ThemeManager>(
-                builder: (context, themeManager, child) {
-                  return Column(
-                    children: [
-                      // Tema Seçimi
-                      _buildSettingsTile(
-                        context: context,
-                        icon: Icons.palette_outlined,
-                        iconColor: Colors.purple,
-                        title: 'Tema',
-                        subtitle:
-                            'Mevcut: ${AppTheme.themeNames[themeManager.themeIndex]}',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ThemeSelectionPage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDivider(context),
-
-                      // Animasyonlar
-                      _buildSettingsTile(
-                        context: context,
-                        icon: Icons.animation,
-                        iconColor: Colors.teal,
-                        title: 'Animasyonlar',
-                        subtitle: 'Para animasyonu ve görsel efektler',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const AnimationsSettingsPage(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  );
-                },
+              child: Column(
+                children: [
+                  // Animasyonlar
+                  _buildSettingsTile(
+                    context: context,
+                    icon: Icons.animation,
+                    iconColor: Colors.teal,
+                    title: 'Animasyonlar',
+                    subtitle: 'Para animasyonu ve görsel efektler',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AnimationsSettingsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ],
@@ -143,10 +115,7 @@ class AppearancePage extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Row(
@@ -194,13 +163,6 @@ class AppearancePage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildDivider(BuildContext context) {
-    return Divider(
-      height: 1,
-      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
     );
   }
 }

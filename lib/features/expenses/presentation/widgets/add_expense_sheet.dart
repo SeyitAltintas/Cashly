@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
 import 'package:cashly/core/widgets/balance_warning_dialog.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
@@ -93,13 +91,9 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
 
   Future<void> _pickDate() async {
     final theme = Theme.of(context);
-    final themeManager = context.read<ThemeManager>();
 
     // Varsayılan temada buton rengi için secondary (açık gri) kullan
-    // Diğer temalarda primary rengini kullan
-    final buttonColor = themeManager.isDefaultTheme
-        ? theme.colorScheme.secondary
-        : theme.colorScheme.primary;
+    final buttonColor = theme.colorScheme.secondary;
 
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -115,10 +109,8 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
           data: ThemeData.dark().copyWith(
             colorScheme: ColorScheme.dark(
               primary: buttonColor,
-              // Varsayılan temada açık gri üzerine siyah metin, diğerlerinde beyaz
-              onPrimary: themeManager.isDefaultTheme
-                  ? Colors.black
-                  : Colors.white,
+              // Varsayılan temada açık gri üzerine siyah metin
+              onPrimary: Colors.black,
               surface: theme.colorScheme.surface,
               onSurface: theme.colorScheme.onSurface,
               secondary: theme.colorScheme.secondary,
@@ -542,12 +534,10 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   onPressed: _save,
                   child: Text(
                     "Kaydet",
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: context.watch<ThemeManager>().isDefaultTheme
-                          ? Colors.white
-                          : Colors.white,
+                      color: Colors.white,
                     ),
                   ),
                 ),
