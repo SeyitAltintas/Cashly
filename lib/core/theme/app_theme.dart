@@ -37,6 +37,17 @@ class PageThemeColors {
     Color(0xFF4CAF50), // Green
     Color(0xFFFF9800), // Orange
     Color(0xFFF44336), // Red
+    // Ek renkler
+    Color(0xFF8BC34A), // Light Green
+    Color(0xFFCDDC39), // Lime
+    Color(0xFFFFEB3B), // Yellow
+    Color(0xFFFF5722), // Deep Orange
+    Color(0xFF795548), // Brown
+    Color(0xFF607D8B), // Blue Grey
+    Color(0xFFE040FB), // Purple Accent
+    Color(0xFF00E676), // Green Accent
+    Color(0xFFFF4081), // Pink Accent
+    Color(0xFF536DFE), // Indigo Accent
   ];
 
   /// Index'e göre ikon rengi getir (döngüsel)

@@ -494,22 +494,7 @@ class _IncomesPageState extends State<IncomesPage> {
                 ),
               ),
             ),
-          if (!gelirAramaModu)
-            IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.white),
-              tooltip: "Çöp Kutusu",
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        GelirCopKutusuSayfasi(userId: widget.userId ?? ''),
-                  ),
-                ).then((_) {
-                  setState(() {});
-                });
-              },
-            ),
+
           IconButton(
             icon: Icon(
               gelirAramaModu ? Icons.close : Icons.search,
@@ -738,13 +723,132 @@ class _IncomesPageState extends State<IncomesPage> {
           ),
         ],
       ),
-      floatingActionButton: filtrelenmisGelirler.isEmpty && !gelirAramaModu
-          ? null
-          : FloatingActionButton(
-              onPressed: yeniGelirEkle,
-              backgroundColor: Colors.green.shade600,
-              child: const Icon(Icons.add, color: Colors.white, size: 28),
+      // Modern floating bottom navigation bar
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        child: Container(
+          height: 70,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(35),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 5),
+                spreadRadius: -5,
+              ),
+            ],
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.08),
+              width: 1,
             ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Sol: Çöp Kutusu
+              _buildNavButton(
+                icon: Icons.delete_outline,
+                label: "Çöp Kutusu",
+                onTap: () {
+                  HapticService.selectionClick();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          GelirCopKutusuSayfasi(userId: widget.userId ?? ''),
+                    ),
+                  ).then((_) {
+                    setState(() {});
+                  });
+                },
+              ),
+              // Orta: Gelir Ekle
+              _buildCenterAddButton(
+                onTap: () {
+                  HapticService.lightImpact();
+                  yeniGelirEkle();
+                },
+              ),
+              // Sağ: Sesli Asistan (ileride aktif olacak)
+              _buildNavButton(
+                icon: Icons.mic,
+                label: "Sesli Giriş",
+                onTap: () {
+                  HapticService.selectionClick();
+                  // TODO: İleride sesli gelir ekleme özelliği
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Sesli gelir ekleme yakında eklenecek!"),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
+              size: 24,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.5),
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCenterAddButton({required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.green.shade600,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.green.shade600.withValues(alpha: 0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
+      ),
     );
   }
 }
