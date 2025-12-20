@@ -226,6 +226,32 @@ class _AnaSayfaState extends State<AnaSayfa> {
     _verileriOku();
     // Animasyonun düzgün görünmesi için kısa bir bekleme
     await Future.delayed(const Duration(milliseconds: 500));
+
+    // Kullanıcıya verilerin güncellendiğini bildir
+    if (mounted) {
+      final isDefaultTheme = context.read<ThemeManager>().isDefaultTheme;
+      final colorScheme = Theme.of(context).colorScheme;
+
+      // Varsayılan tema için siyah arka plan, diğerleri için secondary renk
+      final bgColor = isDefaultTheme ? Colors.black : colorScheme.secondary;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Tüm veriler güncel',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          ),
+          backgroundColor: bgColor,
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          width: 170,
+          elevation: 4,
+        ),
+      );
+    }
   }
 
   Widget _buildDashboardPage(String userName) {
