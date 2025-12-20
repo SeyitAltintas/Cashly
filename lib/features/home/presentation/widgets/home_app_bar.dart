@@ -163,7 +163,12 @@ class ToolsAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      title: const Text("Tüm İşlemler"),
+      title: Image.asset(
+        'assets/image/seffaflogo.png',
+        height: 60,
+        fit: BoxFit.contain,
+      ),
+      centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
     );
@@ -204,7 +209,12 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      title: const Text("Profil"),
+      title: Image.asset(
+        'assets/image/seffaflogo.png',
+        height: 60,
+        fit: BoxFit.contain,
+      ),
+      centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
     );
