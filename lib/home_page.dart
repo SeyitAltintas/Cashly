@@ -24,6 +24,7 @@ import 'features/home/presentation/widgets/home_app_bar.dart';
 import 'features/home/presentation/widgets/home_bottom_nav.dart';
 import 'features/streak/data/models/streak_model.dart';
 import 'features/streak/data/services/streak_service.dart';
+import 'features/streak/presentation/widgets/streak_celebration_dialog.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
 /// Araçlar (0), Dashboard (1), Profil (2)
@@ -36,7 +37,7 @@ class AnaSayfa extends StatefulWidget {
   State<AnaSayfa> createState() => _AnaSayfaState();
 }
 
-class _AnaSayfaState extends State<AnaSayfa> {
+class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   // Varsayılan: Dashboard (ortadaki sekme)
   int _selectedIndex = 1;
   late PageController _pageController;
@@ -80,24 +81,60 @@ class _AnaSayfaState extends State<AnaSayfa> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _pageController = PageController(initialPage: _selectedIndex);
     _verileriOku();
     _seriKontrol();
   }
 
+  // Bekleyen kutlama popup'ı için flag
+  bool _pendingCelebration = false;
+  int _pendingStreakCount = 0;
+
   /// Seri kontrolü yapar ve günceller
+  /// Seri artarsa kutlama dialog'u gösterir
   Future<void> _seriKontrol() async {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
 
-    final streakData = await StreakService.checkAndUpdateStreak(userId);
+    final result = await StreakService.checkAndUpdateStreak(userId);
     if (mounted) {
-      setState(() => _streakData = streakData);
+      setState(() => _streakData = result.data);
+
+      // Seri arttıysa kutlama için işaretle
+      if (result.streakIncreased && result.data.currentStreak > 0) {
+        _pendingCelebration = true;
+        _pendingStreakCount = result.data.currentStreak;
+        // Popup'ı göster
+        _showCelebrationIfPending();
+      }
+    }
+  }
+
+  /// Bekleyen kutlama varsa göster
+  void _showCelebrationIfPending() {
+    if (_pendingCelebration && mounted) {
+      _pendingCelebration = false;
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          StreakCelebrationDialog.show(context, _pendingStreakCount);
+        }
+      });
+    }
+  }
+
+  /// Uygulama ön plana geldiğinde veya route değiştiğinde çağrılır
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Uygulama ön plana geldiğinde bekleyen kutlamayı kontrol et
+      _showCelebrationIfPending();
     }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pageController.dispose();
     super.dispose();
   }
@@ -192,6 +229,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
           ProfilSayfasi(
             authController: widget.authController,
             onRefresh: _verileriOku,
+            onNavigationReturn: _showCelebrationIfPending,
           ),
         ],
       ),
@@ -320,7 +358,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
           },
         ),
       ),
-    );
+    ).then((_) => _showCelebrationIfPending());
   }
 
   void _navigateToAnalysis() {
@@ -335,7 +373,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
           paymentMethods: tumOdemeYontemleri,
         ),
       ),
-    );
+    ).then((_) => _showCelebrationIfPending());
   }
 
   void _navigateToPaymentMethods() {
@@ -412,11 +450,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   tumOdemeYontemleri: tumOdemeYontemleri,
                 ),
               ),
-            );
+            ).then((_) => _showCelebrationIfPending());
           },
         ),
       ),
-    );
+    ).then((_) => _showCelebrationIfPending());
   }
 
   void _navigateToTransfer() {
@@ -469,7 +507,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
           },
         ),
       ),
-    );
+    ).then((_) => _showCelebrationIfPending());
   }
 
   void _navigateToExpenses() {
@@ -494,7 +532,10 @@ class _AnaSayfaState extends State<AnaSayfa> {
           },
         ),
       ),
-    ).then((_) => _verileriOku());
+    ).then((_) {
+      _verileriOku();
+      _showCelebrationIfPending();
+    });
   }
 
   void _navigateToIncomes() {
@@ -517,6 +558,9 @@ class _AnaSayfaState extends State<AnaSayfa> {
           },
         ),
       ),
-    ).then((_) => _verileriOku());
+    ).then((_) {
+      _verileriOku();
+      _showCelebrationIfPending();
+    });
   }
 }

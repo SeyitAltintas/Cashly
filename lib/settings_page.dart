@@ -25,8 +25,13 @@ import 'services/haptic_service.dart';
 /// Ayarlar Sayfası
 class AyarlarSayfasi extends StatefulWidget {
   final AuthController authController;
+  final VoidCallback? onNavigationReturn; // Alt sayfalardan dönüşte çağrılır
 
-  const AyarlarSayfasi({super.key, required this.authController});
+  const AyarlarSayfasi({
+    super.key,
+    required this.authController,
+    this.onNavigationReturn,
+  });
 
   @override
   State<AyarlarSayfasi> createState() => _AyarlarSayfasiState();

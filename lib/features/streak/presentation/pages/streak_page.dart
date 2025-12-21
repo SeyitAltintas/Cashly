@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../../data/models/streak_model.dart';
 import '../../data/constants/streak_badges.dart';
+import '../widgets/streak_celebration_dialog.dart';
 import 'streak_help_page.dart';
 
 /// Seri detay sayfası
@@ -22,6 +23,14 @@ class StreakPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
+          // DEBUG: Test butonu - kutlama popup'ını test etmek için
+          IconButton(
+            icon: const Icon(Icons.celebration, color: Colors.amber),
+            tooltip: 'Kutlama Test',
+            onPressed: () {
+              StreakCelebrationDialog.show(context, streakData.currentStreak);
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.help_outline, color: Colors.white),
             tooltip: 'Seri Nasıl Çalışır?',
