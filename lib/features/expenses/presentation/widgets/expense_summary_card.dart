@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
+import 'package:cashly/core/utils/currency_formatter.dart';
 
 /// Harcama özet kartı widget'ı
 /// Toplam harcama, bütçe durumu ve ay seçici içerir
@@ -37,15 +38,15 @@ class ExpenseSummaryCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-            Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.25),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4),
         ),
       ),
       child: Column(
@@ -144,7 +145,7 @@ class ExpenseSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              "${toplamTutar.toStringAsFixed(2)} ₺",
+              CurrencyFormatter.format(toplamTutar),
               style: TextStyle(
                 color: ColorConstants.kirmiziVurgu,
                 fontSize: 28,
@@ -243,7 +244,7 @@ class ExpenseSummaryCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      "Limit aşıldı: ${asilanMiktar.toStringAsFixed(2)} ₺",
+                      "Limit aşıldı: ${CurrencyFormatter.formatWithoutSymbol(asilanMiktar)} ₺",
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 11,
@@ -252,7 +253,7 @@ class ExpenseSummaryCard extends StatelessWidget {
                     ),
                   )
                 : Text(
-                    "Kalan: ${kalanLimit.toStringAsFixed(2)} ₺",
+                    "Kalan: ${CurrencyFormatter.formatWithoutSymbol(kalanLimit)} ₺",
                     style: TextStyle(
                       color: Theme.of(
                         context,

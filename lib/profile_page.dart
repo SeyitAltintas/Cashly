@@ -54,7 +54,7 @@ class ProfilSayfasi extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.3),
-                      width: 3,
+                      width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(

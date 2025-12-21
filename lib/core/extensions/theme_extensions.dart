@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/currency_formatter.dart';
 
 /// Tema renklerine kolay erişim için extension metodları
 /// Tekrarlayan tema rengi çağrılarını sadeleştirir
@@ -42,17 +43,18 @@ extension ThemeExtensions on BuildContext {
 
 /// Sayı formatlama extension'ı
 extension NumberFormatExtension on double {
-  /// Türk Lirası formatında string
-  String get asTL => '${toStringAsFixed(2)} ₺';
+  /// Türk Lirası formatında string (50.000,00 ₺)
+  String get asTL => CurrencyFormatter.format(this);
 
-  /// Binlik ayırıcılı format
-  String get formatted => toStringAsFixed(0).replaceAllMapped(
-    RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-    (Match m) => '${m[1]}.',
-  );
+  /// Binlik ayırıcılı format (50.000,00)
+  String get formatted => CurrencyFormatter.formatWithoutSymbol(this);
 
-  /// Binlik ayırıcılı TL formatı
-  String get formattedTL => '$formatted ₺';
+  /// Binlik ayırıcılı TL formatı (50.000,00 ₺)
+  String get formattedTL => CurrencyFormatter.format(this);
+
+  /// İşaretli format (+50.000,00 ₺ veya -50.000,00 ₺)
+  String asTLSigned({bool showPlus = false}) =>
+      CurrencyFormatter.formatSigned(this, showPlus: showPlus);
 }
 
 /// DateTime extension'ları

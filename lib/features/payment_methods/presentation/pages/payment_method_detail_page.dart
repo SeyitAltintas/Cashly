@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import '../../../../core/theme/theme_manager.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../data/models/transfer_model.dart';
@@ -131,7 +129,6 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage> {
   Widget build(BuildContext context) {
     final pm = widget.paymentMethod;
     final colors = _cardColors[pm.colorIndex.clamp(0, _cardColors.length - 1)];
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
     final transactions = _buildTransactionList();
 
     return Scaffold(
@@ -149,16 +146,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: isDefaultTheme
-                    ? colors
-                    : [
-                        Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.3),
-                        Theme.of(
-                          context,
-                        ).colorScheme.secondary.withValues(alpha: 0.3),
-                      ],
+                colors: colors,
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

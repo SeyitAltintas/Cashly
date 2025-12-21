@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../core/theme/theme_manager.dart';
 import '../../../../services/haptic_service.dart';
 
 /// Modern floating bottom navigation bar
@@ -17,10 +15,7 @@ class HomeBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
-    final primaryColor = isDefaultTheme
-        ? const Color(0xFF6C63FF)
-        : Theme.of(context).colorScheme.primary;
+    const primaryColor = Color(0xFF6C63FF);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),

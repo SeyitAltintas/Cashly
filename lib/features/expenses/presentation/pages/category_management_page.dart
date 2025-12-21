@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/theme/app_theme.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
 import '../../../../services/database_helper.dart';
 
 class KategoriYonetimiSayfasi extends StatefulWidget {
@@ -701,9 +699,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                     child: ListTile(
                       leading: Icon(
                         ikon,
-                        color: context.watch<ThemeManager>().isDefaultTheme
-                            ? PageThemeColors.getIconColor(index)
-                            : Theme.of(context).colorScheme.secondary,
+                        color: PageThemeColors.getIconColor(index),
                       ),
                       title: Text(
                         kategori['isim'],

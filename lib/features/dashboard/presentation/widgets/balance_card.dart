@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
@@ -6,22 +7,30 @@ import '../../../payment_methods/data/models/payment_method_model.dart';
 /// Dashboard'da toplam finansal durumu gösterir
 class BalanceCard extends StatelessWidget {
   final double totalBalance;
-  final bool isDefaultTheme;
 
-  const BalanceCard({
-    super.key,
-    required this.totalBalance,
-    required this.isDefaultTheme,
-  });
+  const BalanceCard({super.key, required this.totalBalance});
 
-  /// Ödeme yöntemlerinden toplam bakiyeyi hesaplar
+  /// Nakit ve Banka hesaplarından toplam bakiyeyi hesaplar
+  /// Kredi kartları dahil edilmez
   static double calculateTotalBalance(List<PaymentMethod> odemeYontemleri) {
     double total = 0;
     for (var pm in odemeYontemleri.where((p) => !p.isDeleted)) {
+      // Sadece nakit ve banka hesaplarını dahil et
+      if (pm.type != 'kredi') {
+        total += pm.balance;
+      }
+    }
+    return total;
+  }
+
+  /// Toplam kredi kartı borcunu hesaplar
+  /// Not: Kredi kartı bakiyeleri negatif olarak saklanır, bu yüzden abs() kullanıyoruz
+  static double calculateTotalCreditDebt(List<PaymentMethod> odemeYontemleri) {
+    double total = 0;
+    for (var pm in odemeYontemleri.where((p) => !p.isDeleted)) {
       if (pm.type == 'kredi') {
-        total -= pm.balance; // Kredi borcu
-      } else {
-        total += pm.balance; // Nakit/Banka
+        // Bakiye negatif olarak saklanıyor, pozitif borç değeri için abs() kullan
+        total += pm.balance.abs();
       }
     }
     return total;
@@ -35,21 +44,8 @@ class BalanceCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: isDefaultTheme
-                ? [
-                    const Color(0xFF1a1a2e),
-                    const Color(0xFF16213e),
-                    const Color(0xFF0f3460),
-                  ]
-                : [
-                    Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.3),
-                    Theme.of(
-                      context,
-                    ).colorScheme.secondary.withValues(alpha: 0.15),
-                  ],
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1a1a2e), Color(0xFF16213e), Color(0xFF0f3460)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -100,7 +96,7 @@ class BalanceCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              "${totalBalance >= 0 ? '' : '-'}${totalBalance.abs().toStringAsFixed(2)} ₺",
+              CurrencyFormatter.format(totalBalance),
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,

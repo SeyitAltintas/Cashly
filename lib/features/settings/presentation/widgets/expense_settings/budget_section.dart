@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../../core/theme/theme_manager.dart';
 
 /// Bütçe limiti ayarları bölümü widget'ı
 class BudgetSection extends StatelessWidget {
@@ -69,23 +67,13 @@ class BudgetSection extends StatelessWidget {
                 child: isSaved
                     ? IconButton(
                         key: const ValueKey('check'),
-                        icon: Icon(
-                          Icons.check,
-                          color: context.watch<ThemeManager>().isDefaultTheme
-                              ? Colors.green
-                              : Colors.white,
-                        ),
+                        icon: const Icon(Icons.check, color: Colors.green),
                         onPressed: null,
                         tooltip: "Kaydedildi",
                       )
                     : IconButton(
                         key: const ValueKey('save'),
-                        icon: Icon(
-                          Icons.save,
-                          color: context.watch<ThemeManager>().isDefaultTheme
-                              ? Colors.white
-                              : Theme.of(context).colorScheme.secondary,
-                        ),
+                        icon: const Icon(Icons.save, color: Colors.white),
                         onPressed: onSave,
                         tooltip: "Kaydet",
                       ),

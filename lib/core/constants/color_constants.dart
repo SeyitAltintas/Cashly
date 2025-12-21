@@ -45,8 +45,8 @@ class ColorConstants {
   /// Koyu Kırmızı - Silme işlemleri ve tehlikeli aksiyonlar
   static const Color koyuKirmizi = Color(0xFFB71C1C); // Colors.red.shade900
 
-  /// Kırmızı Vurgu - Uyarı mesajları
-  static const Color kirmiziVurgu = Color(0xFFFF5252); // Colors.redAccent
+  /// Kırmızı Vurgu - Uyarı mesajları ve harcama teması
+  static const Color kirmiziVurgu = Color(0xFFE53935); // Colors.red.shade600
 
   /// Yeşil - Başarı mesajları
   static const Color yesil = Color(0xFF4CAF50); // Colors.green

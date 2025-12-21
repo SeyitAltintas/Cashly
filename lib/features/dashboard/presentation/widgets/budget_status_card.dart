@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 
 /// Bütçe Durumu Kartı Widget'ı
@@ -74,7 +75,7 @@ class BudgetStatusCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "${monthlyExpense.toStringAsFixed(2)} ₺ harcandı",
+                  "${CurrencyFormatter.formatWithoutSymbol(monthlyExpense)} ₺ harcandı",
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(
@@ -83,7 +84,7 @@ class BudgetStatusCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "${butceLimiti.toStringAsFixed(2)} ₺ limit",
+                  "${CurrencyFormatter.formatWithoutSymbol(butceLimiti)} ₺ limit",
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(
@@ -100,8 +101,8 @@ class BudgetStatusCard extends StatelessWidget {
   }
 
   Color _getStatusColor(double budgetUsed) {
-    if (budgetUsed > 1) return Colors.red.shade400;
-    if (budgetUsed > 0.8) return Colors.orange.shade400;
+    if (budgetUsed > 0.8) return Colors.red.shade400;
+    if (budgetUsed > 0.5) return Colors.orange.shade400;
     return Colors.green.shade400;
   }
 }

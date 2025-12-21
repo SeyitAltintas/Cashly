@@ -43,7 +43,8 @@ class ProfilePhotoSection extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: Theme.of(context).colorScheme.surface,
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.primary,
+                      // Gri-beyaz çerçeve rengi
+                      color: Colors.white.withValues(alpha: 0.3),
                       width: 2,
                     ),
                     image: user.profileImage != null
@@ -72,6 +73,11 @@ class ProfilePhotoSection extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primary,
                       shape: BoxShape.circle,
+                      // Beyaza yakın gri border
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.4),
+                        width: 2,
+                      ),
                     ),
                     child: const Icon(
                       Icons.edit,

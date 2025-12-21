@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../../core/theme/theme_manager.dart';
 
 /// Tekrarlayan giderler bölümü widget'ı
 class RecurringExpenseSection extends StatelessWidget {
@@ -28,12 +26,7 @@ class RecurringExpenseSection extends StatelessWidget {
             border: Border.all(color: Colors.white10),
           ),
           child: ListTile(
-            leading: Icon(
-              Icons.repeat,
-              color: context.watch<ThemeManager>().isDefaultTheme
-                  ? Colors.white
-                  : Theme.of(context).colorScheme.secondary,
-            ),
+            leading: const Icon(Icons.repeat, color: Colors.white),
             title: Text(
               'Tekrarlayan Giderleri Yönet',
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../core/theme/theme_manager.dart';
 import '../../../../services/database_helper.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
@@ -290,10 +288,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            context.watch<ThemeManager>().isDefaultTheme
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.secondary,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -391,9 +386,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _islemEkle,
-        backgroundColor: context.watch<ThemeManager>().isDefaultTheme
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.secondary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         child: const Icon(Icons.add, color: Colors.white),
       ),
       body: Column(

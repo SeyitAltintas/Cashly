@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../assets/data/models/asset_model.dart';
 
@@ -13,7 +14,8 @@ class AssetSummaryCard extends StatelessWidget {
   static double calculateTotalAssetValue(List<Asset> varliklar) {
     double total = 0;
     for (var v in varliklar.where((a) => !a.isDeleted)) {
-      total += v.amount * v.quantity;
+      // amount zaten toplam değeri içeriyor, quantity ile çarpmaya gerek yok
+      total += v.amount;
     }
     return total;
   }
@@ -56,7 +58,7 @@ class AssetSummaryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "${totalAssets.toStringAsFixed(2)} ₺",
+                  CurrencyFormatter.format(totalAssets),
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

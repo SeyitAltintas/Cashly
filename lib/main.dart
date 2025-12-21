@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'services/database_helper.dart';
 import 'services/haptic_service.dart';
+import 'features/streak/data/services/streak_service.dart';
 import 'home_page.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/data/initialize_default_user.dart';
@@ -96,6 +97,9 @@ class _CashlyAppState extends State<CashlyApp> {
       // Haptic service ayarlarını başlat
       await HapticService.init();
 
+      // Streak service'ı başlat
+      await StreakService.initialize();
+
       // Varsayılan test kullanıcısını oluştur (geçici)
       await initializeDefaultUser();
 
@@ -140,11 +144,7 @@ class _CashlyAppState extends State<CashlyApp> {
                   children: [
                     Image.asset('assets/image/seffaflogo.png', height: 100),
                     const SizedBox(height: 20),
-                    CircularProgressIndicator(
-                      color: themeManager.isDefaultTheme
-                          ? Colors.white
-                          : themeManager.currentTheme.colorScheme.primary,
-                    ),
+                    CircularProgressIndicator(color: Colors.white),
                   ],
                 ),
               ),
@@ -241,13 +241,7 @@ class AuthWrapper extends StatelessWidget {
         if (authController.isLoading) {
           return Scaffold(
             backgroundColor: Colors.black,
-            body: Center(
-              child: CircularProgressIndicator(
-                color: context.watch<ThemeManager>().isDefaultTheme
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.primary,
-              ),
-            ),
+            body: Center(child: CircularProgressIndicator(color: Colors.white)),
           );
         }
         return authController.currentUser != null

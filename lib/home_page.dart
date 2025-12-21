@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'core/theme/theme_manager.dart';
 
 import 'package:cashly/services/database_helper.dart';
 import 'package:cashly/profile_page.dart';
@@ -24,6 +22,8 @@ import 'features/payment_methods/data/models/transfer_model.dart';
 import 'features/income/data/models/income_model.dart';
 import 'features/home/presentation/widgets/home_app_bar.dart';
 import 'features/home/presentation/widgets/home_bottom_nav.dart';
+import 'features/streak/data/models/streak_model.dart';
+import 'features/streak/data/services/streak_service.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
 /// Araçlar (0), Dashboard (1), Profil (2)
@@ -52,6 +52,9 @@ class _AnaSayfaState extends State<AnaSayfa> {
   DateTime secilenAy = DateTime.now();
   String? varsayilanOdemeYontemiId;
 
+  // Seri verisi
+  StreakData _streakData = StreakData.empty();
+
   // Kategori ikonları
   static const Map<String, IconData> kategoriIkonlari = {
     'Yiyecek': Icons.restaurant,
@@ -79,6 +82,18 @@ class _AnaSayfaState extends State<AnaSayfa> {
     super.initState();
     _pageController = PageController(initialPage: _selectedIndex);
     _verileriOku();
+    _seriKontrol();
+  }
+
+  /// Seri kontrolü yapar ve günceller
+  Future<void> _seriKontrol() async {
+    final userId = widget.authController.currentUser?.id;
+    if (userId == null) return;
+
+    final streakData = await StreakService.checkAndUpdateStreak(userId);
+    if (mounted) {
+      setState(() => _streakData = streakData);
+    }
   }
 
   @override
@@ -209,16 +224,33 @@ class _AnaSayfaState extends State<AnaSayfa> {
     _verileriOku();
     // Animasyonun düzgün görünmesi için kısa bir bekleme
     await Future.delayed(const Duration(milliseconds: 500));
+
+    // Kullanıcıya verilerin güncellendiğini bildir
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Tüm veriler güncel',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          ),
+          backgroundColor: Colors.black,
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          width: 170,
+          elevation: 4,
+        ),
+      );
+    }
   }
 
   Widget _buildDashboardPage(String userName) {
     if (_isLoading) return const Center(child: CircularProgressIndicator());
 
-    // Varsayılan tema için daha görünür bir renk kullan
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
-    final refreshColor = isDefaultTheme
-        ? const Color(0xFF6C63FF) // Mor-mavi ton (varsayılan tema için)
-        : Theme.of(context).colorScheme.primary;
+    // Mor-mavi ton (varsayılan tema için)
+    const refreshColor = Color(0xFF6C63FF);
 
     return RefreshIndicator(
       onRefresh: _yenile,
@@ -232,6 +264,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
         odemeYontemleri: tumOdemeYontemleri,
         butceLimiti: butceLimiti,
         secilenAy: secilenAy,
+        streakData: _streakData,
       ),
     );
   }

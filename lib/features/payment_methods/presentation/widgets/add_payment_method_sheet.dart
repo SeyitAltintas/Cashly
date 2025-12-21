@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cashly/core/theme/theme_manager.dart';
 import '../../data/models/payment_method_model.dart';
 
 class AddPaymentMethodSheet extends StatefulWidget {
@@ -99,8 +97,6 @@ class _AddPaymentMethodSheetState extends State<AddPaymentMethodSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
-
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -181,9 +177,7 @@ class _AddPaymentMethodSheetState extends State<AddPaymentMethodSheet> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? (isDefaultTheme
-                                      ? Theme.of(context).colorScheme.secondary
-                                      : Theme.of(context).colorScheme.primary)
+                                ? Theme.of(context).colorScheme.secondary
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -192,9 +186,7 @@ class _AddPaymentMethodSheetState extends State<AddPaymentMethodSheet> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: isSelected
-                                  ? (isDefaultTheme
-                                        ? Colors.black
-                                        : Colors.white)
+                                  ? Colors.black
                                   : Theme.of(context).colorScheme.onSurface
                                         .withValues(alpha: 0.6),
                               fontWeight: isSelected
@@ -426,12 +418,8 @@ class _AddPaymentMethodSheetState extends State<AddPaymentMethodSheet> {
                 child: ElevatedButton(
                   onPressed: _save,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isDefaultTheme
-                        ? Theme.of(context).colorScheme.secondary
-                        : Theme.of(context).colorScheme.primary,
-                    foregroundColor: isDefaultTheme
-                        ? Colors.black
-                        : Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),

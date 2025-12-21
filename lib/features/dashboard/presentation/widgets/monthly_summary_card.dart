@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 
 /// Aylık Özet Kartı Widget'ı
@@ -51,7 +52,7 @@ class MonthlySummaryCard extends StatelessWidget {
                     icon: Icons.arrow_downward,
                     iconColor: Colors.red.shade400,
                     label: "Harcama",
-                    value: "${monthlyExpense.toStringAsFixed(2)} ₺",
+                    value: CurrencyFormatter.format(monthlyExpense),
                     valueColor: Colors.red.shade300,
                   ),
                 ),
@@ -68,7 +69,7 @@ class MonthlySummaryCard extends StatelessWidget {
                     icon: Icons.arrow_upward,
                     iconColor: Colors.green.shade400,
                     label: "Gelir",
-                    value: "${monthlyIncome.toStringAsFixed(2)} ₺",
+                    value: CurrencyFormatter.format(monthlyIncome),
                     valueColor: Colors.green.shade300,
                   ),
                 ),
@@ -89,8 +90,10 @@ class MonthlySummaryCard extends StatelessWidget {
                         ? Colors.green.shade400
                         : Colors.red.shade400,
                     label: "Net",
-                    value:
-                        "${netDiff >= 0 ? '+' : ''}${netDiff.toStringAsFixed(2)} ₺",
+                    value: CurrencyFormatter.formatSigned(
+                      netDiff,
+                      showPlus: true,
+                    ),
                     valueColor: netDiff >= 0
                         ? Colors.green.shade300
                         : Colors.red.shade300,

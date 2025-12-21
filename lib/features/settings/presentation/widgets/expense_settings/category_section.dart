@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../../core/theme/theme_manager.dart';
 
 /// Kategori yönetimi bölümü widget'ı
 class CategorySection extends StatelessWidget {
@@ -35,12 +33,7 @@ class CategorySection extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(
-                Icons.format_list_bulleted,
-                color: context.watch<ThemeManager>().isDefaultTheme
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.secondary,
-              ),
+              Icon(Icons.format_list_bulleted, color: Colors.white),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../core/theme/theme_manager.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../data/models/payment_method_model.dart';
@@ -71,7 +70,7 @@ class _TransferPageState extends State<TransferPage> {
       if (amount > borcMiktari) {
         ErrorHandler.showErrorSnackBar(
           context,
-          'Kredi kartı borcu ${borcMiktari.toStringAsFixed(0)} ₺, en fazla bu kadar gönderebilirsiniz',
+          'Kredi kartı borcu ${CurrencyFormatter.format(borcMiktari)}, en fazla bu kadar gönderebilirsiniz',
         );
         return;
       }
@@ -110,7 +109,6 @@ class _TransferPageState extends State<TransferPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDefaultTheme = context.watch<ThemeManager>().isDefaultTheme;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Para Transferi"),
@@ -220,14 +218,10 @@ class _TransferPageState extends State<TransferPage> {
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: isDefaultTheme
-                                ? Colors.white.withValues(alpha: 0.1)
-                                : Colors.orange.withValues(alpha: 0.15),
+                            color: Colors.white.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: isDefaultTheme
-                                  ? Colors.white.withValues(alpha: 0.3)
-                                  : Colors.orange.withValues(alpha: 0.5),
+                              color: Colors.white.withValues(alpha: 0.3),
                               width: 1.5,
                             ),
                           ),
@@ -235,9 +229,7 @@ class _TransferPageState extends State<TransferPage> {
                             children: [
                               Icon(
                                 Icons.credit_card,
-                                color: isDefaultTheme
-                                    ? Colors.white.withValues(alpha: 0.8)
-                                    : Colors.orange,
+                                color: Colors.white.withValues(alpha: 0.8),
                                 size: 24,
                               ),
                               const SizedBox(width: 12),
@@ -246,7 +238,7 @@ class _TransferPageState extends State<TransferPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Kredi Kartı Borcu: ${selectedAccount.balance.toStringAsFixed(0)} ₺',
+                                      'Kredi Kartı Borcu: ${CurrencyFormatter.format(selectedAccount.balance)}',
                                       style: TextStyle(
                                         color: Theme.of(
                                           context,
@@ -384,73 +376,49 @@ class _TransferPageState extends State<TransferPage> {
               SizedBox(
                 width: double.infinity,
                 height: 56,
-                child: isDefaultTheme
-                    ? Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.grey.shade800,
-                              Colors.grey.shade900,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: Colors.white,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            elevation: 0,
-                          ),
-                          onPressed: _save,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.swap_horiz, size: 22),
-                              const SizedBox(width: 8),
-                              const Text(
-                                "Transfer Yap",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.secondary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 0,
-                        ),
-                        onPressed: _save,
-                        child: const Text(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.grey.shade800, Colors.grey.shade900],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: _save,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.swap_horiz, size: 22),
+                        const SizedBox(width: 8),
+                        const Text(
                           "Transfer Yap",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -519,7 +487,7 @@ class _TransferPageState extends State<TransferPage> {
                     ),
                   ),
                   Text(
-                    '${pm.balance.toStringAsFixed(2)} ₺',
+                    CurrencyFormatter.format(pm.balance),
                     style: TextStyle(
                       color: pm.type == 'kredi' ? Colors.red : Colors.green,
                       fontWeight: FontWeight.bold,
