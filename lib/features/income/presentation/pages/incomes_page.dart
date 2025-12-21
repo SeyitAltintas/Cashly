@@ -681,6 +681,37 @@ class _IncomesPageState extends State<IncomesPage> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 12),
+                  // Gelir sayısı bilgisi
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.receipt_long,
+                          color: Colors.green.shade300,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Bu ay ${gelirler.length} gelir kaydı",
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.8),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

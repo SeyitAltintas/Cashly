@@ -38,7 +38,7 @@ class AssetSummaryCard extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Colors.blue.shade400.withValues(alpha: 0.4),
+            color: Colors.blue.shade600.withValues(alpha: 0.4),
           ),
         ),
         child: Row(
@@ -62,7 +62,7 @@ class AssetSummaryCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade300,
+                    color: Colors.blue.shade400,
                   ),
                 ),
               ],
@@ -70,12 +70,12 @@ class AssetSummaryCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue.shade400.withValues(alpha: 0.2),
+                color: Colors.blue.shade600.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 Icons.diamond_outlined,
-                color: Colors.blue.shade300,
+                color: Colors.blue.shade400,
                 size: 28,
               ),
             ),

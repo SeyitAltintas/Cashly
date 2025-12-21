@@ -59,16 +59,16 @@ class _AnalysisPageState extends State<AnalysisPage>
     Color(0xFF2E7D32), // green.shade800
   ];
 
-  // Varlık için mavi tonları renk paleti
+  // Varlık için mavi tonları renk paleti (koyu mavi)
   static const List<Color> assetColors = [
-    Color(0xFF42A5F5), // blue.shade400
     Color(0xFF1E88E5), // blue.shade600
-    Color(0xFF64B5F6), // blue.shade300
     Color(0xFF1976D2), // blue.shade700
-    Color(0xFF40C4FF), // lightBlueAccent.shade200
-    Color(0xFF2196F3), // blue.shade500
-    Color(0xFF29B6F6), // lightBlue.shade400
+    Color(0xFF42A5F5), // blue.shade400
     Color(0xFF1565C0), // blue.shade800
+    Color(0xFF0D47A1), // blue.shade900
+    Color(0xFF2196F3), // blue.shade500
+    Color(0xFF1976D2), // blue.shade700
+    Color(0xFF0D47A1), // blue.shade900
   ];
 
   @override
@@ -211,7 +211,7 @@ class _AnalysisPageState extends State<AnalysisPage>
       case 1:
         return (Colors.green.shade400, Colors.green.shade700);
       case 2:
-        return (Colors.blue.shade400, Colors.blue.shade700);
+        return (Colors.blue.shade600, Colors.blue.shade700);
       default:
         return (Colors.red.shade400, Colors.red.shade700);
     }
@@ -352,7 +352,7 @@ class _AnalysisPageState extends State<AnalysisPage>
           AnalysisHeaderCard(
             title: "Toplam Varlık",
             totalAmount: CurrencyFormatter.format(totalValue),
-            primaryColor: Colors.blue.shade300,
+            primaryColor: Colors.blue.shade600,
             icon: Icons.diamond_outlined,
             topCategoryLabel: "En değerli tür",
             topCategoryName: topType,

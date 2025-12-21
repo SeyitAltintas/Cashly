@@ -121,41 +121,6 @@ class _AssetsPageState extends State<AssetsPage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.white),
-            tooltip: "Çöp Kutusu",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AssetRecycleBinPage(
-                    deletedAssets: _deletedAssets,
-                    onRestore: (asset) {
-                      setState(() {
-                        _deletedAssets.removeWhere((a) => a.id == asset.id);
-                        asset.isDeleted = false;
-                        _assets.add(asset);
-                        _filtrele();
-                      });
-                      widget.onRestore(asset);
-                    },
-                    onPermanentDelete: (asset) {
-                      setState(() {
-                        _deletedAssets.removeWhere((a) => a.id == asset.id);
-                      });
-                      widget.onPermanentDelete(asset);
-                    },
-                    onEmptyBin: () {
-                      setState(() {
-                        _deletedAssets.clear();
-                      });
-                      widget.onEmptyBin();
-                    },
-                  ),
-                ),
-              ).then((_) => setState(() {}));
-            },
-          ),
-          IconButton(
             icon: Icon(
               _aramaModu ? Icons.close : Icons.search,
               color: Colors.white,
@@ -174,33 +139,28 @@ class _AssetsPageState extends State<AssetsPage> {
       ),
       body: Column(
         children: [
-          // Toplam Varlık Kartı (her zaman üstte)
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Container(
+          // Toplam Varlık Kartı - Harcamalarım tarzı tasarım (mavi tema)
+          if (!_aramaModu)
+            Container(
+              margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.2),
-                    Theme.of(
-                      context,
-                    ).colorScheme.secondary.withValues(alpha: 0.1),
+                    Colors.blue.shade600.withValues(alpha: 0.25),
+                    Colors.blue.shade600.withValues(alpha: 0.1),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.3),
+                  color: Colors.blue.shade600.withValues(alpha: 0.4),
                 ),
               ),
               child: Column(
                 children: [
+                  // Toplam varlık satırı
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -210,15 +170,17 @@ class _AssetsPageState extends State<AssetsPage> {
                           Text(
                             "Toplam Varlık",
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.7),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.7),
                               fontSize: 14,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             CurrencyFormatter.format(totalAssets),
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: Colors.blue.shade400,
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
                             ),
@@ -228,36 +190,42 @@ class _AssetsPageState extends State<AssetsPage> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Colors.blue.shade600.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(15),
                         ),
-                        child: const Icon(
-                          Icons.account_balance_wallet,
-                          color: Colors.white,
+                        child: Icon(
+                          Icons.diamond_outlined,
+                          color: Colors.blue.shade400,
                           size: 28,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
+                  // Varlık sayısı bilgisi
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.blue.shade600.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
                       children: [
                         Icon(
                           Icons.account_balance_wallet_outlined,
-                          color: Colors.white.withValues(alpha: 0.7),
-                          size: 20,
+                          color: Colors.blue.shade400,
+                          size: 18,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           "Toplam ${_filtrelenmisVarliklar.length} adet varlık kaydı",
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.9),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.8),
                             fontSize: 13,
                           ),
                         ),
@@ -267,50 +235,181 @@ class _AssetsPageState extends State<AssetsPage> {
                 ],
               ),
             ),
-          ),
           // Liste veya EmptyState (ekranın kalan kısmının ortasında)
           Expanded(child: _buildAssetList()),
         ],
       ),
-      floatingActionButton: _filtrelenmisVarliklar.isEmpty && !_aramaModu
-          ? null
-          : FloatingActionButton.extended(
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => AddAssetSheet(
-                    onSave: (name, amount, quantity, category, type) {
-                      final newAsset = Asset(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        name: name,
-                        amount: amount,
-                        quantity: quantity,
-                        category: category,
-                        type: type,
-                        lastUpdated: DateTime.now(),
-                        isDeleted: false,
-                      );
-                      setState(() {
-                        _assets.add(newAsset);
-                        _filtrele();
-                      });
-                      widget.onAdd(name, amount, quantity, category, type);
-                    },
-                  ),
-                );
-              },
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              icon: const Icon(Icons.add, color: Colors.black),
-              label: const Text(
-                "Varlık Ekle",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
+      // Modern floating bottom navigation bar (Harcamalarım tarzı)
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        child: Container(
+          height: 70,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(35),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 5),
+                spreadRadius: -5,
+              ),
+            ],
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.08),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Sol: Çöp Kutusu
+              _buildNavButton(
+                icon: Icons.delete_outline,
+                label: "Çöp Kutusu",
+                onTap: () {
+                  HapticService.selectionClick();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AssetRecycleBinPage(
+                        deletedAssets: _deletedAssets,
+                        onRestore: (asset) {
+                          setState(() {
+                            _deletedAssets.removeWhere((a) => a.id == asset.id);
+                            asset.isDeleted = false;
+                            _assets.add(asset);
+                            _filtrele();
+                          });
+                          widget.onRestore(asset);
+                        },
+                        onPermanentDelete: (asset) {
+                          setState(() {
+                            _deletedAssets.removeWhere((a) => a.id == asset.id);
+                          });
+                          widget.onPermanentDelete(asset);
+                        },
+                        onEmptyBin: () {
+                          setState(() {
+                            _deletedAssets.clear();
+                          });
+                          widget.onEmptyBin();
+                        },
+                      ),
+                    ),
+                  ).then((_) => setState(() {}));
+                },
+              ),
+              // Sağ: Varlık Ekle
+              _buildAddButton(
+                onTap: () {
+                  HapticService.lightImpact();
+                  _showAddAssetSheet();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAddAssetSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddAssetSheet(
+        onSave: (name, amount, quantity, category, type) {
+          final newAsset = Asset(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            name: name,
+            amount: amount,
+            quantity: quantity,
+            category: category,
+            type: type,
+            lastUpdated: DateTime.now(),
+            isDeleted: false,
+          );
+          setState(() {
+            _assets.add(newAsset);
+            _filtrele();
+          });
+          widget.onAdd(name, amount, quantity, category, type);
+        },
+      ),
+    );
+  }
+
+  Widget _buildNavButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
+              size: 24,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.5),
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddButton({required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.blue.shade600,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blue.shade600.withValues(alpha: 0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.add, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            const Text(
+              "Varlık Ekle",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
