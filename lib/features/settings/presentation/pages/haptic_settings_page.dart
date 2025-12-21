@@ -286,6 +286,15 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
             subtitle: "Hata oluştuğunda",
             settingKey: HapticService.keyError,
           ),
+          _buildDivider(context),
+          _buildSettingTile(
+            context,
+            icon: Icons.celebration_outlined,
+            iconColor: Colors.amber,
+            title: "Seri Kutlama",
+            subtitle: "Seri arttığında kutlama titreşimi",
+            settingKey: HapticService.keyCelebration,
+          ),
         ],
       ),
     );

@@ -23,7 +23,7 @@ class StreakPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          // DEBUG: Test butonu - kutlama popup'ını test etmek için
+          // Test butonu - kutlama popup'ını test etmek için
           IconButton(
             icon: const Icon(Icons.celebration, color: Colors.amber),
             tooltip: 'Kutlama Test',

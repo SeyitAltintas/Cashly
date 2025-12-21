@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import '../../../../services/haptic_service.dart';
 
 /// Seri yükseldiğinde gösterilen kutlama dialog'u
 /// Ekranın ortasında büyük animasyon ve tebrik mesajı gösterir
@@ -71,12 +72,38 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
 
     _controller.forward();
 
+    // Haptic feedback - 3 saniye boyunca titreşim
+    _startCelebrationHaptics();
+
     // 3 saniye sonra otomatik kapat
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         widget.onDismiss?.call();
       }
     });
+  }
+
+  /// Kutlama titreşim melodisi
+  /// 1x uzun + 1x uzun + 1x daha uzun (aynı güçte, artan süre)
+  /// Ayarlardan kapatılabilir
+  void _startCelebrationHaptics() async {
+    // Ayardan kontrol et
+    if (!HapticService.isCelebrationEnabled) return;
+
+    // İlk uzun titreşim (100ms)
+    await HapticService.mediumImpact();
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted || !HapticService.isCelebrationEnabled) return;
+
+    // İkinci uzun titreşim (100ms)
+    await HapticService.mediumImpact();
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted || !HapticService.isCelebrationEnabled) return;
+
+    // Üçüncü daha uzun titreşim (400ms - 4 kat uzun)
+    await HapticService.heavyImpact();
+    await Future.delayed(const Duration(milliseconds: 100));
+    await HapticService.heavyImpact();
   }
 
   @override

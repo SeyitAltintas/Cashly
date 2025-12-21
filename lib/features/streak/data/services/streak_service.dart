@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'dart:developer' as developer;
 import '../models/streak_model.dart';
 import '../constants/streak_badges.dart';
 
@@ -22,6 +23,7 @@ class StreakService {
   StreakService._();
 
   static const String _boxName = 'streak_box';
+  static const String _logName = 'StreakService';
 
   /// Her 7 günlük seride 1 dondurucu kazanılır
   static const int _freezeRewardInterval = 7;
@@ -36,7 +38,13 @@ class StreakService {
       final data = box.get('streak_$userId');
       if (data == null) return StreakData.empty();
       return StreakData.fromMap(Map<String, dynamic>.from(data));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      developer.log(
+        'Seri verisi okunurken hata',
+        name: _logName,
+        error: e,
+        stackTrace: stackTrace,
+      );
       return StreakData.empty();
     }
   }
@@ -46,8 +54,17 @@ class StreakService {
     try {
       final box = Hive.box(_boxName);
       await box.put('streak_$userId', data.toMap());
-    } catch (e) {
-      // Hata durumunda sessizce devam et
+      developer.log(
+        'Seri verisi kaydedildi: streak=${data.currentStreak}, userId=$userId',
+        name: _logName,
+      );
+    } catch (e, stackTrace) {
+      developer.log(
+        'Seri verisi kaydedilirken hata',
+        name: _logName,
+        error: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
