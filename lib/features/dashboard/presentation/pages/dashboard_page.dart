@@ -10,6 +10,7 @@ import '../widgets/monthly_summary_card.dart';
 import '../widgets/budget_status_card.dart';
 import '../widgets/asset_summary_card.dart';
 import '../widgets/recent_transactions_card.dart';
+import '../widgets/credit_debt_card.dart';
 
 /// Dashboard Sayfası
 /// Ana finansal özeti gösterir
@@ -75,6 +76,9 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final greeting = _getGreeting();
     final totalBalance = BalanceCard.calculateTotalBalance(odemeYontemleri);
+    final totalCreditDebt = BalanceCard.calculateTotalCreditDebt(
+      odemeYontemleri,
+    );
     final monthlyExpense = _getMonthlyExpense();
     final monthlyIncome = _getMonthlyIncome();
     final netDiff = monthlyIncome - monthlyExpense;
@@ -94,6 +98,10 @@ class DashboardPage extends StatelessWidget {
 
               // Toplam Bakiye Kartı
               BalanceCard(totalBalance: totalBalance),
+              const SizedBox(height: 12),
+
+              // Kredi Kartı Borcu (varsa göster)
+              CreditDebtCard(totalDebt: totalCreditDebt),
               const SizedBox(height: 20),
 
               // Bu Ay Özeti

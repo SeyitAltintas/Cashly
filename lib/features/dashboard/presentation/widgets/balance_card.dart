@@ -9,14 +9,27 @@ class BalanceCard extends StatelessWidget {
 
   const BalanceCard({super.key, required this.totalBalance});
 
-  /// Ödeme yöntemlerinden toplam bakiyeyi hesaplar
+  /// Nakit ve Banka hesaplarından toplam bakiyeyi hesaplar
+  /// Kredi kartları dahil edilmez
   static double calculateTotalBalance(List<PaymentMethod> odemeYontemleri) {
     double total = 0;
     for (var pm in odemeYontemleri.where((p) => !p.isDeleted)) {
+      // Sadece nakit ve banka hesaplarını dahil et
+      if (pm.type != 'kredi') {
+        total += pm.balance;
+      }
+    }
+    return total;
+  }
+
+  /// Toplam kredi kartı borcunu hesaplar
+  /// Not: Kredi kartı bakiyeleri negatif olarak saklanır, bu yüzden abs() kullanıyoruz
+  static double calculateTotalCreditDebt(List<PaymentMethod> odemeYontemleri) {
+    double total = 0;
+    for (var pm in odemeYontemleri.where((p) => !p.isDeleted)) {
       if (pm.type == 'kredi') {
-        total -= pm.balance; // Kredi borcu
-      } else {
-        total += pm.balance; // Nakit/Banka
+        // Bakiye negatif olarak saklanıyor, pozitif borç değeri için abs() kullan
+        total += pm.balance.abs();
       }
     }
     return total;
