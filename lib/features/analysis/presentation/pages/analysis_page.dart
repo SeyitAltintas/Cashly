@@ -335,7 +335,8 @@ class _AnalysisPageState extends State<AnalysisPage>
     double totalValue = 0;
     for (var asset in activeAssets) {
       String type = asset.type ?? "Diğer";
-      double value = asset.amount * asset.quantity;
+      // amount zaten toplam değeri içeriyor, quantity ile çarpmaya gerek yok
+      double value = asset.amount;
       totals[type] = (totals[type] ?? 0) + value;
       totalValue += value;
     }

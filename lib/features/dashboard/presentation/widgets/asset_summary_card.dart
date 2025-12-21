@@ -14,7 +14,8 @@ class AssetSummaryCard extends StatelessWidget {
   static double calculateTotalAssetValue(List<Asset> varliklar) {
     double total = 0;
     for (var v in varliklar.where((a) => !a.isDeleted)) {
-      total += v.amount * v.quantity;
+      // amount zaten toplam değeri içeriyor, quantity ile çarpmaya gerek yok
+      total += v.amount;
     }
     return total;
   }
