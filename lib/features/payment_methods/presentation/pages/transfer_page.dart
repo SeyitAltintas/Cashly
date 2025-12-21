@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../data/models/payment_method_model.dart';
@@ -69,7 +70,7 @@ class _TransferPageState extends State<TransferPage> {
       if (amount > borcMiktari) {
         ErrorHandler.showErrorSnackBar(
           context,
-          'Kredi kartı borcu ${borcMiktari.toStringAsFixed(0)} ₺, en fazla bu kadar gönderebilirsiniz',
+          'Kredi kartı borcu ${CurrencyFormatter.format(borcMiktari)}, en fazla bu kadar gönderebilirsiniz',
         );
         return;
       }
@@ -237,7 +238,7 @@ class _TransferPageState extends State<TransferPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Kredi Kartı Borcu: ${selectedAccount.balance.toStringAsFixed(0)} ₺',
+                                      'Kredi Kartı Borcu: ${CurrencyFormatter.format(selectedAccount.balance)}',
                                       style: TextStyle(
                                         color: Theme.of(
                                           context,
@@ -486,7 +487,7 @@ class _TransferPageState extends State<TransferPage> {
                     ),
                   ),
                   Text(
-                    '${pm.balance.toStringAsFixed(2)} ₺',
+                    CurrencyFormatter.format(pm.balance),
                     style: TextStyle(
                       color: pm.type == 'kredi' ? Colors.red : Colors.green,
                       fontWeight: FontWeight.bold,

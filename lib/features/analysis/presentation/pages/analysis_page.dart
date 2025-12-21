@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -244,12 +245,12 @@ class _AnalysisPageState extends State<AnalysisPage>
         children: [
           AnalysisHeaderCard(
             title: "Toplam Harcama",
-            totalAmount: "${totalAmount.toStringAsFixed(2)} ₺",
+            totalAmount: CurrencyFormatter.format(totalAmount),
             primaryColor: Colors.red.shade300,
             icon: Icons.trending_down,
             topCategoryLabel: "En çok harcama",
             topCategoryName: topCategory,
-            topCategoryAmount: "${topAmount.toStringAsFixed(2)} ₺",
+            topCategoryAmount: CurrencyFormatter.format(topAmount),
           ),
           const SizedBox(height: 24),
           _buildPieChart(sections),
@@ -301,12 +302,12 @@ class _AnalysisPageState extends State<AnalysisPage>
         children: [
           AnalysisHeaderCard(
             title: "Toplam Gelir",
-            totalAmount: "${totalIncome.toStringAsFixed(2)} ₺",
+            totalAmount: CurrencyFormatter.format(totalIncome),
             primaryColor: Colors.green.shade300,
             icon: Icons.trending_up,
             topCategoryLabel: "En fazla gelir",
             topCategoryName: topCategory,
-            topCategoryAmount: "${topAmount.toStringAsFixed(2)} ₺",
+            topCategoryAmount: CurrencyFormatter.format(topAmount),
           ),
           const SizedBox(height: 24),
           _buildPieChart(sections),
@@ -349,12 +350,12 @@ class _AnalysisPageState extends State<AnalysisPage>
         children: [
           AnalysisHeaderCard(
             title: "Toplam Varlık",
-            totalAmount: "${totalValue.toStringAsFixed(2)} ₺",
+            totalAmount: CurrencyFormatter.format(totalValue),
             primaryColor: Colors.blue.shade300,
             icon: Icons.diamond_outlined,
             topCategoryLabel: "En değerli tür",
             topCategoryName: topType,
-            topCategoryAmount: "${topAmount.toStringAsFixed(2)} ₺",
+            topCategoryAmount: CurrencyFormatter.format(topAmount),
           ),
           const SizedBox(height: 24),
           _buildPieChart(sections),
@@ -602,7 +603,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             ),
           ),
           Text(
-            '${value.toStringAsFixed(2)} ₺',
+            CurrencyFormatter.format(value),
             style: TextStyle(color: color, fontWeight: FontWeight.bold),
           ),
         ],

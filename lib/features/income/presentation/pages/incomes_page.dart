@@ -4,6 +4,7 @@ import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../income/presentation/widgets/add_income_sheet.dart';
 import '../../../income/presentation/widgets/income_voice_input_sheet.dart';
 import '../../../income/presentation/pages/income_recycle_bin_page.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../services/haptic_service.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -657,7 +658,7 @@ class _IncomesPageState extends State<IncomesPage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "${toplamGelir.toStringAsFixed(2)} ₺",
+                            CurrencyFormatter.format(toplamGelir),
                             style: TextStyle(
                               color: Colors.green.shade300,
                               fontSize: 28,
@@ -758,7 +759,7 @@ class _IncomesPageState extends State<IncomesPage> {
                               ),
                             ),
                             trailing: Text(
-                              "+${gelir.amount.toStringAsFixed(2)} ₺",
+                              "+${CurrencyFormatter.formatWithoutSymbol(gelir.amount)} ₺",
                               style: TextStyle(
                                 color: Colors.green.shade300,
                                 fontWeight: FontWeight.bold,

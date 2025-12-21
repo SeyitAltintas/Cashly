@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../income/data/models/income_model.dart';
 
@@ -185,7 +186,7 @@ class RecentTransactionsCard extends StatelessWidget {
             ),
           ),
           Text(
-            "${isExpense ? '-' : '+'}${(transaction['amount'] as double).toStringAsFixed(2)} ₺",
+            "${isExpense ? '-' : '+'}${CurrencyFormatter.formatWithoutSymbol(transaction['amount'] as double)} ₺",
             style: TextStyle(
               color: isExpense ? Colors.red.shade300 : Colors.green.shade300,
               fontWeight: FontWeight.bold,

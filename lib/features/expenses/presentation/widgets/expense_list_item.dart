@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/theme/app_theme.dart';
 import 'package:cashly/core/constants/color_constants.dart';
+import 'package:cashly/core/utils/currency_formatter.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 
 /// Tek bir harcama satırı widget'ı
@@ -70,7 +71,7 @@ class ExpenseListItem extends StatelessWidget {
               ),
               subtitle: _buildSubtitle(context),
               trailing: Text(
-                "-${harcama['tutar']} ₺",
+                "-${CurrencyFormatter.formatWithoutSymbol((harcama['tutar'] as num).toDouble())} ₺",
                 style: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.bold,

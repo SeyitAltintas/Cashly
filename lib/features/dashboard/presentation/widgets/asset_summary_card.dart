@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../assets/data/models/asset_model.dart';
 
@@ -56,7 +57,7 @@ class AssetSummaryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "${totalAssets.toStringAsFixed(2)} ₺",
+                  CurrencyFormatter.format(totalAssets),
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

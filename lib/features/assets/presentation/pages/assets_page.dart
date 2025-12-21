@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
+import 'package:cashly/core/utils/currency_formatter.dart';
 
 import '../../data/models/asset_model.dart';
 import '../widgets/add_asset_sheet.dart';
@@ -215,7 +216,7 @@ class _AssetsPageState extends State<AssetsPage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "${totalAssets.toStringAsFixed(2)} ₺",
+                            CurrencyFormatter.format(totalAssets),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 28,
@@ -453,7 +454,7 @@ class _AssetsPageState extends State<AssetsPage> {
                 style: const TextStyle(color: Colors.white38, fontSize: 12),
               ),
               trailing: Text(
-                "${asset.amount.toStringAsFixed(2)} ₺",
+                CurrencyFormatter.format(asset.amount),
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

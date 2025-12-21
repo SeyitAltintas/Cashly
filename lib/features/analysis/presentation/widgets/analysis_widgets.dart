@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/currency_formatter.dart';
 
 /// Analiz Boş Durumu Widget'ı
 /// Veri yokken gösterilir
@@ -77,7 +78,7 @@ class LegendItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                "${value.toStringAsFixed(2)} ₺",
+                CurrencyFormatter.format(value),
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,

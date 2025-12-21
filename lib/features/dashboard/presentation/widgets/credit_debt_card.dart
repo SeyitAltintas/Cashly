@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 
 /// Kredi Kartı Borç Kartı Widget'ı
@@ -64,7 +65,7 @@ class CreditDebtCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "${totalDebt.toStringAsFixed(2)} ₺",
+                    CurrencyFormatter.format(totalDebt),
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

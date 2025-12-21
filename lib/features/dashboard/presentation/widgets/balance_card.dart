@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
@@ -95,7 +96,7 @@ class BalanceCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              "${totalBalance >= 0 ? '' : '-'}${totalBalance.abs().toStringAsFixed(2)} ₺",
+              CurrencyFormatter.format(totalBalance),
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
