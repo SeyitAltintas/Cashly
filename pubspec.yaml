@@ -28,6 +28,7 @@ dependencies:
   file_picker: ^10.3.8
   path_provider: ^2.1.5
   vibration: ^3.1.5
+  lottie: ^3.3.1
 
 dev_dependencies:
   flutter_test:
@@ -45,3 +46,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/image/
+    - assets/lottie/
+
