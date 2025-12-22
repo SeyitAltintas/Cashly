@@ -13,6 +13,7 @@ import '../../../../core/widgets/money_animation.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../services/haptic_service.dart';
 import '../../../../core/widgets/month_year_picker.dart';
+import '../../../../core/widgets/app_floating_bottom_bar.dart';
 
 class ExpensesPage extends StatefulWidget {
   final List<Map<String, dynamic>> tumHarcamalar;
@@ -434,125 +435,39 @@ class _ExpensesPageState extends State<ExpensesPage> {
           ),
         ],
       ),
-      // Modern floating bottom navigation bar
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-        child: Container(
-          height: 70,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(35),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 20,
-                offset: const Offset(0, 5),
-                spreadRadius: -5,
-              ),
-            ],
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.08),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Sol: Çöp Kutusu
-              _buildNavButton(
-                icon: Icons.delete_outline,
-                label: "Çöp Kutusu",
-                onTap: () {
-                  HapticService.selectionClick();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          CopKutusuSayfasi(userId: widget.userId ?? ''),
-                    ),
-                  ).then((_) {
-                    filtreleVeGoster();
-                  });
-                },
-              ),
-              // Orta: Harcama Ekle
-              _buildCenterAddButton(
-                onTap: () {
-                  HapticService.lightImpact();
-                  pencereAc();
-                },
-              ),
-              // Sağ: Sesli Asistan
-              _buildNavButton(
-                icon: Icons.mic,
-                label: "Sesli Giriş",
-                onTap: () {
-                  HapticService.selectionClick();
-                  _showVoiceInput();
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: Theme.of(
+      // Modern floating bottom navigation bar - Ortak widget kullanımı
+      bottomNavigationBar: AppFloatingBottomBar(
+        items: [
+          BottomBarItem(
+            icon: Icons.delete_outline,
+            label: "Çöp Kutusu",
+            onTap: () {
+              HapticService.selectionClick();
+              Navigator.push(
                 context,
-              ).colorScheme.onSurface.withValues(alpha: 0.7),
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.5),
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCenterAddButton({required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: ColorConstants.kirmiziVurgu,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
+                MaterialPageRoute(
+                  builder: (context) =>
+                      CopKutusuSayfasi(userId: widget.userId ?? ''),
+                ),
+              ).then((_) {
+                filtreleVeGoster();
+              });
+            },
+          ),
+          BottomBarItem(
+            icon: Icons.mic,
+            label: "Sesli Giriş",
+            onTap: () {
+              HapticService.selectionClick();
+              _showVoiceInput();
+            },
+          ),
+        ],
+        centerButtonColor: ColorConstants.kirmiziVurgu,
+        onCenterButtonTap: () {
+          HapticService.lightImpact();
+          pencereAc();
+        },
       ),
     );
   }
