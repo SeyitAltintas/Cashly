@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../services/export_service.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../widgets/analysis_widgets.dart';
+import 'pdf_export_page.dart';
 
 /// Analiz ve Raporlar Sayfası
 /// Harcama, Gelir ve Varlık analizlerini gösterir
@@ -216,178 +216,18 @@ class _AnalysisPageState extends State<AnalysisPage>
     );
   }
 
-  /// Export sheet'ini göster
+  /// PDF export sayfasina git
   void _showExportSheet() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Rapor İndir',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Bu ayın harcama ve gelir raporunu indir',
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-            const SizedBox(height: 24),
-            // PDF butonu
-            _buildExportButton(
-              icon: Icons.picture_as_pdf,
-              title: 'PDF olarak indir',
-              subtitle: 'Gorsel rapor formati',
-              color: Colors.red,
-              onTap: () => _exportReport(),
-            ),
-            const SizedBox(height: 24),
-          ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PdfExportPage(
+          userId: widget.userId,
+          userName: widget.userName,
+          selectedDate: widget.selectedDate,
         ),
       ),
     );
-  }
-
-  Widget _buildExportButton({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.1),
-            ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color, size: 28),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.chevron_right,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.3),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _exportReport() async {
-    Navigator.pop(context); // Sheet'i kapat
-
-    // Loading goster
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-
-    // Ayin basi ve sonu
-    final startDate = DateTime(
-      widget.selectedDate.year,
-      widget.selectedDate.month,
-      1,
-    );
-    final endDate = DateTime(
-      widget.selectedDate.year,
-      widget.selectedDate.month + 1,
-      0,
-    );
-
-    final result = await ExportService.exportToPdf(
-      userId: widget.userId,
-      userName: widget.userName,
-      startDate: startDate,
-      endDate: endDate,
-    );
-
-    // Loading kapat
-    if (mounted) Navigator.pop(context);
-
-    if (result.success && result.filePath != null) {
-      // Direkt paylas
-      await ExportService.shareFile(result.filePath!);
-    } else {
-      // Hata goster
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result.message), backgroundColor: Colors.red),
-        );
-      }
-    }
   }
 
   (Color, Color) _getTabColors(int index) {

@@ -27,51 +27,72 @@ class ExportService {
     return _turkishFont!;
   }
 
-  /// Tutarı TL formatında göster (sonunda TL ibaresi)
+  /// Tutarı TL formatında göster (12.247,00 TL formatında)
   static String _formatCurrency(double value) {
-    final formatted = value.toStringAsFixed(2).replaceAll('.', ',');
-    return '$formatted TL';
+    // Binlik ayraç ve virgül ile Türk formatı
+    final parts = value.toStringAsFixed(2).split('.');
+    final intPart = parts[0];
+    final decPart = parts[1];
+
+    // Binlik ayraç ekle
+    final buffer = StringBuffer();
+    for (int i = 0; i < intPart.length; i++) {
+      if (i > 0 && (intPart.length - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(intPart[i]);
+    }
+    return '${buffer.toString()},$decPart TL';
   }
 
-  /// PDF olarak rapor oluştur ve paylaş
+  /// PDF olarak rapor olustur ve paylas
   static Future<ExportResult> exportToPdf({
     required String userId,
     required String userName,
     required DateTime startDate,
     required DateTime endDate,
+    bool includeSummary = true,
     bool includeExpenses = true,
     bool includeIncomes = true,
+    bool includeAssets = true,
   }) async {
     try {
       // Türkçe destekli font yükle
       final turkishFont = await _loadTurkishFont();
       final pdf = pw.Document();
 
-      // Verileri al
+      // Özet için TÜM verileri al (seçim ne olursa olsun)
+      final tumHarcamalar = _filterByDateRange(
+        DatabaseHelper.harcamalariGetir(userId),
+        startDate,
+        endDate,
+      );
+      final tumGelirler = _filterIncomesByDateRange(
+        DatabaseHelper.gelirleriGetir(userId),
+        startDate,
+        endDate,
+      );
+      final tumVarliklar = DatabaseHelper.varliklariGetir(userId);
+
+      // Tablolar için seçime göre verileri belirle
       final harcamalar = includeExpenses
-          ? _filterByDateRange(
-              DatabaseHelper.harcamalariGetir(userId),
-              startDate,
-              endDate,
-            )
+          ? tumHarcamalar
           : <Map<String, dynamic>>[];
+      final gelirler = includeIncomes ? tumGelirler : <Map<String, dynamic>>[];
+      final varliklar = includeAssets ? tumVarliklar : <Map<String, dynamic>>[];
 
-      final gelirler = includeIncomes
-          ? _filterIncomesByDateRange(
-              DatabaseHelper.gelirleriGetir(userId),
-              startDate,
-              endDate,
-            )
-          : <Map<String, dynamic>>[];
-
-      // Toplamları hesapla
-      final toplamHarcama = harcamalar.fold<double>(
+      // Toplamları hesapla (her zaman tüm verilerden)
+      final toplamHarcama = tumHarcamalar.fold<double>(
         0,
         (sum, h) => sum + (h['tutar'] as num).toDouble(),
       );
-      final toplamGelir = gelirler.fold<double>(
+      final toplamGelir = tumGelirler.fold<double>(
         0,
         (sum, g) => sum + ((g['amount'] as num?) ?? 0).toDouble(),
+      );
+      final toplamVarlik = tumVarliklar.fold<double>(
+        0,
+        (sum, v) => sum + ((v['amount'] as num?) ?? 0).toDouble(),
       );
 
       // Font stilleri
@@ -104,7 +125,7 @@ class ExportService {
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
                 pw.Text(
-                  'Tarih Araligi : ${_dateFormat.format(startDate)} - ${_dateFormat.format(endDate)}',
+                  'Tarih Aralığı : ${_dateFormat.format(startDate)} - ${_dateFormat.format(endDate)}',
                   style: normalStyle,
                 ),
                 pw.Text(
@@ -119,40 +140,42 @@ class ExportService {
             ),
             pw.SizedBox(height: 20),
 
-            // Özet
-            pw.Container(
-              padding: const pw.EdgeInsets.all(16),
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(color: PdfColors.grey400),
-                borderRadius: pw.BorderRadius.circular(8),
+            // Özet - includeSummary true ise göster
+            if (includeSummary) ...[
+              pw.Container(
+                padding: const pw.EdgeInsets.all(16),
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(color: PdfColors.grey400),
+                  borderRadius: pw.BorderRadius.circular(8),
+                ),
+                child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildSummaryItem(
+                      'Toplam Gelir',
+                      toplamGelir,
+                      PdfColors.green,
+                      turkishFont,
+                    ),
+                    _buildSummaryItem(
+                      'Toplam Harcama',
+                      toplamHarcama,
+                      PdfColors.red,
+                      turkishFont,
+                    ),
+                    _buildSummaryItem(
+                      'Net Durum',
+                      toplamGelir - toplamHarcama,
+                      toplamGelir >= toplamHarcama
+                          ? PdfColors.green
+                          : PdfColors.red,
+                      turkishFont,
+                    ),
+                  ],
+                ),
               ),
-              child: pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
-                children: [
-                  _buildSummaryItem(
-                    'Toplam Gelir',
-                    toplamGelir,
-                    PdfColors.green,
-                    turkishFont,
-                  ),
-                  _buildSummaryItem(
-                    'Toplam Harcama',
-                    toplamHarcama,
-                    PdfColors.red,
-                    turkishFont,
-                  ),
-                  _buildSummaryItem(
-                    'Net Durum',
-                    toplamGelir - toplamHarcama,
-                    toplamGelir >= toplamHarcama
-                        ? PdfColors.green
-                        : PdfColors.red,
-                    turkishFont,
-                  ),
-                ],
-              ),
-            ),
-            pw.SizedBox(height: 24),
+              pw.SizedBox(height: 24),
+            ],
 
             // Harcamalar tablosu
             if (includeExpenses && harcamalar.isNotEmpty) ...[
@@ -167,7 +190,7 @@ class ExportService {
                   color: PdfColors.grey300,
                 ),
                 cellPadding: const pw.EdgeInsets.all(6),
-                headers: ['Isim', 'Kategori', 'Tarih', 'Tutar'],
+                headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
                 data: harcamalar
                     .map(
                       (h) => [
@@ -195,7 +218,7 @@ class ExportService {
                   color: PdfColors.grey300,
                 ),
                 cellPadding: const pw.EdgeInsets.all(6),
-                headers: ['Isim', 'Kategori', 'Tarih', 'Tutar'],
+                headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
                 data: gelirler
                     .map(
                       (g) => [
@@ -208,6 +231,43 @@ class ExportService {
                       ],
                     )
                     .toList(),
+              ),
+            ],
+
+            // Varliklar tablosu
+            if (includeAssets && varliklar.isNotEmpty) ...[
+              pw.Header(
+                level: 1,
+                child: pw.Text('Varlıklar', style: headerStyle),
+              ),
+              pw.TableHelper.fromTextArray(
+                headerStyle: headerStyle,
+                cellStyle: normalStyle,
+                headerDecoration: const pw.BoxDecoration(
+                  color: PdfColors.grey300,
+                ),
+                cellPadding: const pw.EdgeInsets.all(6),
+                headers: ['İsim', 'Kategori', 'Değer'],
+                data: varliklar
+                    .map(
+                      (v) => [
+                        v['name'] ?? '-',
+                        v['category'] ?? '-',
+                        _formatCurrency(
+                          ((v['amount'] as num?) ?? 0).toDouble(),
+                        ),
+                      ],
+                    )
+                    .toList(),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Text(
+                'Toplam Varlık Değeri: ${_formatCurrency(toplamVarlik)}',
+                style: pw.TextStyle(
+                  font: turkishFont,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.blue,
+                ),
               ),
             ],
           ],
@@ -223,12 +283,12 @@ class ExportService {
       return ExportResult(
         success: true,
         filePath: file.path,
-        message: 'PDF raporu olusturuldu',
+        message: 'PDF raporu oluşturuldu',
       );
     } catch (e) {
       return ExportResult(
         success: false,
-        message: 'PDF olusturulurken hata: $e',
+        message: 'PDF oluşturulurken hata: $e',
       );
     }
   }
