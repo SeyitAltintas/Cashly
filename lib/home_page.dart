@@ -39,7 +39,8 @@ class AnaSayfa extends StatefulWidget {
 
 class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   // Varsayılan: Dashboard (ortadaki sekme)
-  int _selectedIndex = 1;
+  // ValueNotifier ile sayfa index'i yönetimi - gereksiz rebuild'leri önler
+  final ValueNotifier<int> _selectedIndexNotifier = ValueNotifier(1);
   late PageController _pageController;
   bool _isLoading = true;
 
@@ -82,7 +83,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _pageController = PageController(initialPage: _selectedIndex);
+    _pageController = PageController(initialPage: _selectedIndexNotifier.value);
     _verileriOku();
     _seriKontrol();
   }
@@ -136,6 +137,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _pageController.dispose();
+    _selectedIndexNotifier.dispose();
     super.dispose();
   }
 
@@ -219,10 +221,12 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     final userName = widget.authController.currentUser?.name ?? 'Kullanıcı';
 
     return Scaffold(
-      appBar: _buildAppBar(),
+      // ValueListenableBuilder ile sadece AppBar değişikliklerinde rebuild
+      appBar: _buildAppBarWithNotifier(),
       body: PageView(
         controller: _pageController,
-        onPageChanged: (index) => setState(() => _selectedIndex = index),
+        // setState yerine ValueNotifier kullanarak gereksiz rebuild'leri önle
+        onPageChanged: (index) => _selectedIndexNotifier.value = index,
         children: [
           _buildToolsPage(),
           _buildDashboardPage(userName),
@@ -233,17 +237,33 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           ),
         ],
       ),
-      bottomNavigationBar: HomeBottomNav(
-        selectedIndex: _selectedIndex,
-        onPageChanged: (index) => _pageController.jumpToPage(index),
+      // ValueListenableBuilder ile sadece navigation değişikliklerinde rebuild
+      bottomNavigationBar: ValueListenableBuilder<int>(
+        valueListenable: _selectedIndexNotifier,
+        builder: (context, selectedIndex, _) {
+          return HomeBottomNav(
+            selectedIndex: selectedIndex,
+            onPageChanged: (index) => _pageController.jumpToPage(index),
+          );
+        },
       ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    if (_selectedIndex == 0) return const ToolsAppBar();
-    if (_selectedIndex == 1) return const DashboardAppBar();
-    return const ProfileAppBar();
+  /// AppBar için ValueListenableBuilder wrapper
+  /// Sadece sayfa değişikliğinde rebuild olur
+  PreferredSizeWidget _buildAppBarWithNotifier() {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(kToolbarHeight),
+      child: ValueListenableBuilder<int>(
+        valueListenable: _selectedIndexNotifier,
+        builder: (context, selectedIndex, _) {
+          if (selectedIndex == 0) return const ToolsAppBar();
+          if (selectedIndex == 1) return const DashboardAppBar();
+          return const ProfileAppBar();
+        },
+      ),
+    );
   }
 
   Widget _buildToolsPage() {
