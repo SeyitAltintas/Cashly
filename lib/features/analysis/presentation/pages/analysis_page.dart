@@ -16,6 +16,7 @@ class AnalysisPage extends StatefulWidget {
   final DateTime selectedDate;
   final List<PaymentMethod> paymentMethods;
   final String userId;
+  final String userName;
 
   const AnalysisPage({
     super.key,
@@ -24,6 +25,7 @@ class AnalysisPage extends StatefulWidget {
     required this.incomes,
     required this.selectedDate,
     required this.userId,
+    required this.userName,
     this.paymentMethods = const [],
   });
 
@@ -262,18 +264,9 @@ class _AnalysisPageState extends State<AnalysisPage>
             _buildExportButton(
               icon: Icons.picture_as_pdf,
               title: 'PDF olarak indir',
-              subtitle: 'Görsel rapor formatı',
+              subtitle: 'Gorsel rapor formati',
               color: Colors.red,
-              onTap: () => _exportReport('pdf'),
-            ),
-            const SizedBox(height: 12),
-            // CSV butonu
-            _buildExportButton(
-              icon: Icons.table_chart,
-              title: 'CSV olarak indir',
-              subtitle: 'Excel ile açılabilir',
-              color: Colors.green,
-              onTap: () => _exportReport('csv'),
+              onTap: () => _exportReport(),
             ),
             const SizedBox(height: 24),
           ],
@@ -352,17 +345,17 @@ class _AnalysisPageState extends State<AnalysisPage>
     );
   }
 
-  Future<void> _exportReport(String format) async {
+  Future<void> _exportReport() async {
     Navigator.pop(context); // Sheet'i kapat
 
-    // Loading göster
+    // Loading goster
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    // Ayın başı ve sonu
+    // Ayin basi ve sonu
     final startDate = DateTime(
       widget.selectedDate.year,
       widget.selectedDate.month,
@@ -374,20 +367,12 @@ class _AnalysisPageState extends State<AnalysisPage>
       0,
     );
 
-    ExportResult result;
-    if (format == 'pdf') {
-      result = await ExportService.exportToPdf(
-        userId: widget.userId,
-        startDate: startDate,
-        endDate: endDate,
-      );
-    } else {
-      result = await ExportService.exportToCsv(
-        userId: widget.userId,
-        startDate: startDate,
-        endDate: endDate,
-      );
-    }
+    final result = await ExportService.exportToPdf(
+      userId: widget.userId,
+      userName: widget.userName,
+      startDate: startDate,
+      endDate: endDate,
+    );
 
     // Loading kapat
     if (mounted) Navigator.pop(context);

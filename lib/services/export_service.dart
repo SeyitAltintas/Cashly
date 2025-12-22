@@ -8,17 +8,10 @@ import 'package:intl/intl.dart';
 import 'database_helper.dart';
 
 /// Rapor Export Servisi
-/// Harcama ve gelir raporlarını PDF ve CSV formatında dışa aktarır
+/// Harcama ve gelir raporlarını PDF formatında dışa aktarır
 /// Türkçe karakter desteği ile
 class ExportService {
   ExportService._();
-
-  /// Para formatı - TL sembolü için
-  static final _currencyFormat = NumberFormat.currency(
-    locale: 'tr_TR',
-    symbol: 'TL',
-    decimalDigits: 2,
-  );
 
   /// Tarih formatı
   static final _dateFormat = DateFormat('dd.MM.yyyy');
@@ -34,9 +27,16 @@ class ExportService {
     return _turkishFont!;
   }
 
+  /// Tutarı TL formatında göster (sonunda TL ibaresi)
+  static String _formatCurrency(double value) {
+    final formatted = value.toStringAsFixed(2).replaceAll('.', ',');
+    return '$formatted TL';
+  }
+
   /// PDF olarak rapor oluştur ve paylaş
   static Future<ExportResult> exportToPdf({
     required String userId,
+    required String userName,
     required DateTime startDate,
     required DateTime endDate,
     bool includeExpenses = true,
@@ -57,7 +57,7 @@ class ExportService {
           : <Map<String, dynamic>>[];
 
       final gelirler = includeIncomes
-          ? _filterByDateRange(
+          ? _filterIncomesByDateRange(
               DatabaseHelper.gelirleriGetir(userId),
               startDate,
               endDate,
@@ -71,7 +71,7 @@ class ExportService {
       );
       final toplamGelir = gelirler.fold<double>(
         0,
-        (sum, g) => sum + (g['tutar'] as num).toDouble(),
+        (sum, g) => sum + ((g['amount'] as num?) ?? 0).toDouble(),
       );
 
       // Font stilleri
@@ -98,9 +98,24 @@ class ExportService {
               child: pw.Text('Cashly Finansal Rapor', style: titleStyle),
             ),
             pw.SizedBox(height: 8),
-            pw.Text(
-              'Tarih Araligi: ${_dateFormat.format(startDate)} - ${_dateFormat.format(endDate)}',
-              style: normalStyle,
+
+            // Tarih aralığı ve kullanıcı adı - yan yana
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  'Tarih Araligi : ${_dateFormat.format(startDate)} - ${_dateFormat.format(endDate)}',
+                  style: normalStyle,
+                ),
+                pw.Text(
+                  userName,
+                  style: pw.TextStyle(
+                    font: turkishFont,
+                    fontSize: 12,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
             pw.SizedBox(height: 20),
 
@@ -152,14 +167,14 @@ class ExportService {
                   color: PdfColors.grey300,
                 ),
                 cellPadding: const pw.EdgeInsets.all(6),
-                headers: ['Tarih', 'Kategori', 'Aciklama', 'Tutar'],
+                headers: ['Isim', 'Kategori', 'Tarih', 'Tutar'],
                 data: harcamalar
                     .map(
                       (h) => [
-                        _dateFormat.format(DateTime.parse(h['tarih'])),
+                        h['isim'] ?? '-',
                         h['kategori'] ?? '-',
-                        h['aciklama'] ?? '-',
-                        _currencyFormat.format(h['tutar']),
+                        _dateFormat.format(DateTime.parse(h['tarih'])),
+                        _formatCurrency((h['tutar'] as num).toDouble()),
                       ],
                     )
                     .toList(),
@@ -180,14 +195,16 @@ class ExportService {
                   color: PdfColors.grey300,
                 ),
                 cellPadding: const pw.EdgeInsets.all(6),
-                headers: ['Tarih', 'Kategori', 'Aciklama', 'Tutar'],
+                headers: ['Isim', 'Kategori', 'Tarih', 'Tutar'],
                 data: gelirler
                     .map(
                       (g) => [
-                        _dateFormat.format(DateTime.parse(g['tarih'])),
-                        g['kategori'] ?? '-',
-                        g['aciklama'] ?? '-',
-                        _currencyFormat.format(g['tutar']),
+                        g['name'] ?? '-',
+                        g['category'] ?? '-',
+                        _dateFormat.format(DateTime.parse(g['date'])),
+                        _formatCurrency(
+                          ((g['amount'] as num?) ?? 0).toDouble(),
+                        ),
                       ],
                     )
                     .toList(),
@@ -216,118 +233,6 @@ class ExportService {
     }
   }
 
-  /// CSV olarak rapor oluştur (Excel ile açılabilir)
-  /// Sayılar Excel uyumlu formatta yazılır
-  static Future<ExportResult> exportToCsv({
-    required String userId,
-    required DateTime startDate,
-    required DateTime endDate,
-    bool includeExpenses = true,
-    bool includeIncomes = true,
-  }) async {
-    try {
-      final buffer = StringBuffer();
-
-      // UTF-8 BOM ekle (Excel için Türkçe karakter desteği)
-      buffer.write('\uFEFF');
-
-      // Verileri al
-      final harcamalar = includeExpenses
-          ? _filterByDateRange(
-              DatabaseHelper.harcamalariGetir(userId),
-              startDate,
-              endDate,
-            )
-          : <Map<String, dynamic>>[];
-
-      final gelirler = includeIncomes
-          ? _filterByDateRange(
-              DatabaseHelper.gelirleriGetir(userId),
-              startDate,
-              endDate,
-            )
-          : <Map<String, dynamic>>[];
-
-      // Harcamalar
-      if (includeExpenses) {
-        buffer.writeln('HARCAMALAR');
-        buffer.writeln('Tarih;Kategori;Aciklama;Tutar (TL);Odeme Yontemi');
-
-        for (final h in harcamalar) {
-          final tutar = (h['tutar'] as num).toDouble();
-          buffer.writeln(
-            '${_dateFormat.format(DateTime.parse(h['tarih']))};'
-            '${h['kategori'] ?? '-'};'
-            '${_escapeCsv(h['aciklama'] ?? '-')};'
-            '${_formatNumber(tutar)};'
-            '${h['odemeYontemi'] ?? '-'}',
-          );
-        }
-
-        final toplamHarcama = harcamalar.fold<double>(
-          0,
-          (sum, h) => sum + (h['tutar'] as num).toDouble(),
-        );
-        buffer.writeln(';;TOPLAM;${_formatNumber(toplamHarcama)};');
-        buffer.writeln();
-      }
-
-      // Gelirler
-      if (includeIncomes) {
-        buffer.writeln('GELIRLER');
-        buffer.writeln('Tarih;Kategori;Aciklama;Tutar (TL)');
-
-        for (final g in gelirler) {
-          final tutar = (g['tutar'] as num).toDouble();
-          buffer.writeln(
-            '${_dateFormat.format(DateTime.parse(g['tarih']))};'
-            '${g['kategori'] ?? '-'};'
-            '${_escapeCsv(g['aciklama'] ?? '-')};'
-            '${_formatNumber(tutar)}',
-          );
-        }
-
-        final toplamGelir = gelirler.fold<double>(
-          0,
-          (sum, g) => sum + (g['tutar'] as num).toDouble(),
-        );
-        buffer.writeln(';;TOPLAM;${_formatNumber(toplamGelir)}');
-      }
-
-      // Dosyayı kaydet
-      final directory = await getApplicationDocumentsDirectory();
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final file = File('${directory.path}/cashly_rapor_$timestamp.csv');
-      await file.writeAsString(buffer.toString());
-
-      return ExportResult(
-        success: true,
-        filePath: file.path,
-        message: 'CSV raporu olusturuldu',
-      );
-    } catch (e) {
-      return ExportResult(
-        success: false,
-        message: 'CSV olusturulurken hata: $e',
-      );
-    }
-  }
-
-  /// Sayıyı Excel uyumlu formatta formatla
-  /// Türkçe Excel virgülle ondalık bekler
-  static String _formatNumber(double value) {
-    // Türkçe formatta: 1234,56 şeklinde
-    return value.toStringAsFixed(2).replaceAll('.', ',');
-  }
-
-  /// CSV için özel karakterleri escape et
-  static String _escapeCsv(String value) {
-    if (value.contains(';') || value.contains('"') || value.contains('\n')) {
-      return '"${value.replaceAll('"', '""')}"';
-    }
-    return value;
-  }
-
   /// Dosyayı paylaş
   static Future<void> shareFile(String filePath) async {
     await SharePlus.instance.share(
@@ -335,7 +240,7 @@ class ExportService {
     );
   }
 
-  /// Tarih aralığına göre filtrele
+  /// Tarih aralığına göre harcamaları filtrele (tarih alanı kullanır)
   static List<Map<String, dynamic>> _filterByDateRange(
     List<Map<String, dynamic>> items,
     DateTime startDate,
@@ -351,6 +256,22 @@ class ExportService {
       ..sort((a, b) => (b['tarih'] as String).compareTo(a['tarih'] as String));
   }
 
+  /// Tarih aralığına göre gelirleri filtrele (date alanı kullanır)
+  static List<Map<String, dynamic>> _filterIncomesByDateRange(
+    List<Map<String, dynamic>> items,
+    DateTime startDate,
+    DateTime endDate,
+  ) {
+    return items.where((item) {
+        final dateStr = item['date'] as String?;
+        if (dateStr == null) return false;
+        final date = DateTime.parse(dateStr);
+        return date.isAfter(startDate.subtract(const Duration(days: 1))) &&
+            date.isBefore(endDate.add(const Duration(days: 1)));
+      }).toList()
+      ..sort((a, b) => (b['date'] as String).compareTo(a['date'] as String));
+  }
+
   /// PDF özet öğesi oluştur
   static pw.Widget _buildSummaryItem(
     String label,
@@ -363,7 +284,7 @@ class ExportService {
         pw.Text(label, style: pw.TextStyle(font: font, fontSize: 10)),
         pw.SizedBox(height: 4),
         pw.Text(
-          _currencyFormat.format(value),
+          _formatCurrency(value),
           style: pw.TextStyle(
             font: font,
             fontSize: 14,

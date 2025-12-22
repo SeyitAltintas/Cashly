@@ -33,6 +33,7 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
   DateTime get secilenAy;
   String? get varsayilanOdemeYontemiId;
   String? get userId;
+  String? get userName;
 
   Map<String, IconData> get kategoriIkonlari;
   Map<String, IconData> get gelirKategoriIkonlari;
@@ -98,7 +99,7 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
-  /// Analiz sayfasına git
+  /// Analiz sayfasina git
   void navigateToAnalysis() {
     Navigator.push(
       context,
@@ -109,6 +110,7 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
           incomes: tumGelirler,
           selectedDate: secilenAy,
           userId: userId ?? '',
+          userName: userName ?? 'Kullanici',
           paymentMethods: tumOdemeYontemleri,
         ),
       ),
