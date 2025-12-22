@@ -390,6 +390,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           assets: varliklar,
           incomes: tumGelirler,
           selectedDate: secilenAy,
+          userId: widget.authController.currentUser?.id ?? '',
           paymentMethods: tumOdemeYontemleri,
         ),
       ),

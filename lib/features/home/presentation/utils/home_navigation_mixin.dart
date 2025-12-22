@@ -108,6 +108,7 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
           assets: varliklar,
           incomes: tumGelirler,
           selectedDate: secilenAy,
+          userId: userId ?? '',
           paymentMethods: tumOdemeYontemleri,
         ),
       ),
