@@ -378,10 +378,10 @@ class _AnalysisPageState extends State<AnalysisPage>
     if (mounted) Navigator.pop(context);
 
     if (result.success && result.filePath != null) {
-      // Paylaş
+      // Direkt paylas
       await ExportService.shareFile(result.filePath!);
     } else {
-      // Hata göster
+      // Hata goster
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(result.message), backgroundColor: Colors.red),
