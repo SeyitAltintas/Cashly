@@ -101,7 +101,9 @@ class _AssetsPageState extends State<AssetsPage> {
                 controller: _aramaController,
                 onChanged: (value) => _filtrele(),
                 autofocus: true,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 decoration: InputDecoration(
                   hintText: "Varlık ara...",
                   border: InputBorder.none,
@@ -117,7 +119,10 @@ class _AssetsPageState extends State<AssetsPage> {
         elevation: 0,
         centerTitle: false,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -449,19 +454,24 @@ class _AssetsPageState extends State<AssetsPage> {
                 ),
                 title: Text(
                   asset.name,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 subtitle: Text(
                   "${asset.category}${asset.type != null ? ' • ${asset.type}' : ''}",
-                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.38),
+                    fontSize: 12,
+                  ),
                 ),
                 trailing: Text(
                   CurrencyFormatter.format(asset.amount),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
