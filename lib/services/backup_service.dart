@@ -6,10 +6,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'database_helper.dart';
 import 'haptic_service.dart';
+import '../features/streak/data/services/streak_service.dart';
+import '../features/streak/data/models/streak_model.dart';
 
 /// Veri Yedekleme ve Geri Yükleme Servisi
 /// Hive verilerini JSON olarak dışa/içe aktarır
-/// Versiyon 1.1: Tema ve Haptic ayarları eklendi
+/// Versiyon 1.2: Seri verileri ve Haptic Kutlama ayarı eklendi
 class BackupService {
   BackupService._();
 
@@ -20,9 +22,12 @@ class BackupService {
       final settingsBox = await Hive.openBox('settings');
       final hapticBox = await Hive.openBox('haptic_settings');
 
+      // Seri verilerini al
+      final streakData = StreakService.getStreakData(userId);
+
       // Tüm verileri topla
       final data = {
-        'version': '1.1',
+        'version': '1.2',
         'exportDate': DateTime.now().toIso8601String(),
         'userId': userId,
         'data': {
@@ -37,6 +42,8 @@ class BackupService {
           ),
           'kategoriler': DatabaseHelper.kategorileriGetir(userId),
           'gelirKategorileri': DatabaseHelper.gelirKategorileriGetir(userId),
+          // Yeni: Seri verileri
+          'streak': streakData.toMap(),
         },
         'settings': {
           // Tema ayarları
@@ -68,6 +75,11 @@ class BackupService {
           ),
           'hapticError': hapticBox.get(
             HapticService.keyError,
+            defaultValue: true,
+          ),
+          // Yeni: Haptic kutlama ayarı
+          'hapticCelebration': hapticBox.get(
+            HapticService.keyCelebration,
             defaultValue: true,
           ),
         },
@@ -111,9 +123,9 @@ class BackupService {
       final jsonString = await file.readAsString();
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      // Versiyon kontrolü (1.0 ve 1.1 desteklenir)
+      // Versiyon kontrolü (1.0, 1.1 ve 1.2 desteklenir)
       final version = data['version'] as String?;
-      if (version != '1.0' && version != '1.1') {
+      if (version != '1.0' && version != '1.1' && version != '1.2') {
         return BackupResult(
           success: false,
           message: 'Desteklenmeyen yedek versiyonu',
@@ -194,7 +206,14 @@ class BackupService {
         );
       }
 
-      // Ayarları geri yükle (v1.1)
+      // Seri verilerini geri yükle (v1.2)
+      if (backupData['streak'] != null) {
+        final streakMap = Map<String, dynamic>.from(backupData['streak']);
+        final streakData = StreakData.fromMap(streakMap);
+        await StreakService.saveStreakData(userId, streakData);
+      }
+
+      // Ayarları geri yükle (v1.1+)
       if (data['settings'] != null) {
         final settings = data['settings'] as Map<String, dynamic>;
 
@@ -242,6 +261,13 @@ class BackupService {
           await HapticService.setSetting(
             HapticService.keyError,
             settings['hapticError'],
+          );
+        }
+        // Haptic kutlama ayarı (v1.2)
+        if (settings['hapticCelebration'] != null) {
+          await HapticService.setSetting(
+            HapticService.keyCelebration,
+            settings['hapticCelebration'],
           );
         }
       }
