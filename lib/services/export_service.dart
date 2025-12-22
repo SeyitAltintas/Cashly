@@ -217,6 +217,7 @@ class ExportService {
   }
 
   /// CSV olarak rapor oluştur (Excel ile açılabilir)
+  /// Sayılar Excel uyumlu formatta yazılır
   static Future<ExportResult> exportToCsv({
     required String userId,
     required DateTime startDate,
@@ -249,15 +250,16 @@ class ExportService {
 
       // Harcamalar
       if (includeExpenses) {
-        buffer.writeln('=== HARCAMALAR ===');
-        buffer.writeln('Tarih;Kategori;Aciklama;Tutar;Odeme Yontemi');
+        buffer.writeln('HARCAMALAR');
+        buffer.writeln('Tarih;Kategori;Aciklama;Tutar (TL);Odeme Yontemi');
 
         for (final h in harcamalar) {
+          final tutar = (h['tutar'] as num).toDouble();
           buffer.writeln(
             '${_dateFormat.format(DateTime.parse(h['tarih']))};'
             '${h['kategori'] ?? '-'};'
             '${_escapeCsv(h['aciklama'] ?? '-')};'
-            '${(h['tutar'] as num).toDouble()};'
+            '${_formatNumber(tutar)};'
             '${h['odemeYontemi'] ?? '-'}',
           );
         }
@@ -266,21 +268,22 @@ class ExportService {
           0,
           (sum, h) => sum + (h['tutar'] as num).toDouble(),
         );
-        buffer.writeln(';;TOPLAM;$toplamHarcama;');
+        buffer.writeln(';;TOPLAM;${_formatNumber(toplamHarcama)};');
         buffer.writeln();
       }
 
       // Gelirler
       if (includeIncomes) {
-        buffer.writeln('=== GELIRLER ===');
-        buffer.writeln('Tarih;Kategori;Aciklama;Tutar');
+        buffer.writeln('GELIRLER');
+        buffer.writeln('Tarih;Kategori;Aciklama;Tutar (TL)');
 
         for (final g in gelirler) {
+          final tutar = (g['tutar'] as num).toDouble();
           buffer.writeln(
             '${_dateFormat.format(DateTime.parse(g['tarih']))};'
             '${g['kategori'] ?? '-'};'
             '${_escapeCsv(g['aciklama'] ?? '-')};'
-            '${(g['tutar'] as num).toDouble()}',
+            '${_formatNumber(tutar)}',
           );
         }
 
@@ -288,7 +291,7 @@ class ExportService {
           0,
           (sum, g) => sum + (g['tutar'] as num).toDouble(),
         );
-        buffer.writeln(';;TOPLAM;$toplamGelir');
+        buffer.writeln(';;TOPLAM;${_formatNumber(toplamGelir)}');
       }
 
       // Dosyayı kaydet
@@ -300,7 +303,7 @@ class ExportService {
       return ExportResult(
         success: true,
         filePath: file.path,
-        message: 'CSV raporu olusturuldu (Excel ile acilabilir)',
+        message: 'CSV raporu olusturuldu',
       );
     } catch (e) {
       return ExportResult(
@@ -308,6 +311,13 @@ class ExportService {
         message: 'CSV olusturulurken hata: $e',
       );
     }
+  }
+
+  /// Sayıyı Excel uyumlu formatta formatla
+  /// Türkçe Excel virgülle ondalık bekler
+  static String _formatNumber(double value) {
+    // Türkçe formatta: 1234,56 şeklinde
+    return value.toStringAsFixed(2).replaceAll('.', ',');
   }
 
   /// CSV için özel karakterleri escape et
