@@ -51,7 +51,6 @@ class ExportService {
     required String userName,
     required DateTime startDate,
     required DateTime endDate,
-    bool includeSummary = true,
     bool includeExpenses = true,
     bool includeIncomes = true,
     bool includeAssets = true,
@@ -61,36 +60,35 @@ class ExportService {
       final turkishFont = await _loadTurkishFont();
       final pdf = pw.Document();
 
-      // Özet için TÜM verileri al (seçim ne olursa olsun)
-      final tumHarcamalar = _filterByDateRange(
-        DatabaseHelper.harcamalariGetir(userId),
-        startDate,
-        endDate,
-      );
-      final tumGelirler = _filterIncomesByDateRange(
-        DatabaseHelper.gelirleriGetir(userId),
-        startDate,
-        endDate,
-      );
-      final tumVarliklar = DatabaseHelper.varliklariGetir(userId);
-
-      // Tablolar için seçime göre verileri belirle
+      // Seçime göre verileri al
       final harcamalar = includeExpenses
-          ? tumHarcamalar
+          ? _filterByDateRange(
+              DatabaseHelper.harcamalariGetir(userId),
+              startDate,
+              endDate,
+            )
           : <Map<String, dynamic>>[];
-      final gelirler = includeIncomes ? tumGelirler : <Map<String, dynamic>>[];
-      final varliklar = includeAssets ? tumVarliklar : <Map<String, dynamic>>[];
+      final gelirler = includeIncomes
+          ? _filterIncomesByDateRange(
+              DatabaseHelper.gelirleriGetir(userId),
+              startDate,
+              endDate,
+            )
+          : <Map<String, dynamic>>[];
+      final varliklar = includeAssets
+          ? DatabaseHelper.varliklariGetir(userId)
+          : <Map<String, dynamic>>[];
 
-      // Toplamları hesapla (her zaman tüm verilerden)
-      final toplamHarcama = tumHarcamalar.fold<double>(
+      // Toplamları hesapla (sadece seçilen verilerden)
+      final toplamHarcama = harcamalar.fold<double>(
         0,
         (sum, h) => sum + (h['tutar'] as num).toDouble(),
       );
-      final toplamGelir = tumGelirler.fold<double>(
+      final toplamGelir = gelirler.fold<double>(
         0,
         (sum, g) => sum + ((g['amount'] as num?) ?? 0).toDouble(),
       );
-      final toplamVarlik = tumVarliklar.fold<double>(
+      final toplamVarlik = varliklar.fold<double>(
         0,
         (sum, v) => sum + ((v['amount'] as num?) ?? 0).toDouble(),
       );
@@ -140,43 +138,6 @@ class ExportService {
             ),
             pw.SizedBox(height: 20),
 
-            // Özet - includeSummary true ise göster
-            if (includeSummary) ...[
-              pw.Container(
-                padding: const pw.EdgeInsets.all(16),
-                decoration: pw.BoxDecoration(
-                  border: pw.Border.all(color: PdfColors.grey400),
-                  borderRadius: pw.BorderRadius.circular(8),
-                ),
-                child: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildSummaryItem(
-                      'Toplam Gelir',
-                      toplamGelir,
-                      PdfColors.green,
-                      turkishFont,
-                    ),
-                    _buildSummaryItem(
-                      'Toplam Harcama',
-                      toplamHarcama,
-                      PdfColors.red,
-                      turkishFont,
-                    ),
-                    _buildSummaryItem(
-                      'Net Durum',
-                      toplamGelir - toplamHarcama,
-                      toplamGelir >= toplamHarcama
-                          ? PdfColors.green
-                          : PdfColors.red,
-                      turkishFont,
-                    ),
-                  ],
-                ),
-              ),
-              pw.SizedBox(height: 24),
-            ],
-
             // Harcamalar tablosu
             if (includeExpenses && harcamalar.isNotEmpty) ...[
               pw.Header(
@@ -191,16 +152,19 @@ class ExportService {
                 ),
                 cellPadding: const pw.EdgeInsets.all(6),
                 headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
-                data: harcamalar
-                    .map(
-                      (h) => [
-                        h['isim'] ?? '-',
-                        h['kategori'] ?? '-',
-                        _dateFormat.format(DateTime.parse(h['tarih'])),
-                        _formatCurrency((h['tutar'] as num).toDouble()),
-                      ],
-                    )
-                    .toList(),
+                data: [
+                  ...harcamalar.map(
+                    (h) => [
+                      h['isim'] ?? '-',
+                      h['kategori'] ?? '-',
+                      _dateFormat.format(DateTime.parse(h['tarih'])),
+                      _formatCurrency((h['tutar'] as num).toDouble()),
+                    ],
+                  ),
+                  // Toplam satırı
+                  ['', '', 'TOPLAM', _formatCurrency(toplamHarcama)],
+                ],
+                cellAlignments: {3: pw.Alignment.centerRight},
               ),
               pw.SizedBox(height: 20),
             ],
@@ -219,19 +183,21 @@ class ExportService {
                 ),
                 cellPadding: const pw.EdgeInsets.all(6),
                 headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
-                data: gelirler
-                    .map(
-                      (g) => [
-                        g['name'] ?? '-',
-                        g['category'] ?? '-',
-                        _dateFormat.format(DateTime.parse(g['date'])),
-                        _formatCurrency(
-                          ((g['amount'] as num?) ?? 0).toDouble(),
-                        ),
-                      ],
-                    )
-                    .toList(),
+                data: [
+                  ...gelirler.map(
+                    (g) => [
+                      g['name'] ?? '-',
+                      g['category'] ?? '-',
+                      _dateFormat.format(DateTime.parse(g['date'])),
+                      _formatCurrency(((g['amount'] as num?) ?? 0).toDouble()),
+                    ],
+                  ),
+                  // Toplam satırı
+                  ['', '', 'TOPLAM', _formatCurrency(toplamGelir)],
+                ],
+                cellAlignments: {3: pw.Alignment.centerRight},
               ),
+              pw.SizedBox(height: 20),
             ],
 
             // Varliklar tablosu
@@ -248,26 +214,18 @@ class ExportService {
                 ),
                 cellPadding: const pw.EdgeInsets.all(6),
                 headers: ['İsim', 'Kategori', 'Değer'],
-                data: varliklar
-                    .map(
-                      (v) => [
-                        v['name'] ?? '-',
-                        v['category'] ?? '-',
-                        _formatCurrency(
-                          ((v['amount'] as num?) ?? 0).toDouble(),
-                        ),
-                      ],
-                    )
-                    .toList(),
-              ),
-              pw.SizedBox(height: 10),
-              pw.Text(
-                'Toplam Varlık Değeri: ${_formatCurrency(toplamVarlik)}',
-                style: pw.TextStyle(
-                  font: turkishFont,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.blue,
-                ),
+                data: [
+                  ...varliklar.map(
+                    (v) => [
+                      v['name'] ?? '-',
+                      v['category'] ?? '-',
+                      _formatCurrency(((v['amount'] as num?) ?? 0).toDouble()),
+                    ],
+                  ),
+                  // Toplam satırı
+                  ['', 'TOPLAM', _formatCurrency(toplamVarlik)],
+                ],
+                cellAlignments: {2: pw.Alignment.centerRight},
               ),
             ],
           ],
@@ -330,30 +288,6 @@ class ExportService {
             date.isBefore(endDate.add(const Duration(days: 1)));
       }).toList()
       ..sort((a, b) => (b['date'] as String).compareTo(a['date'] as String));
-  }
-
-  /// PDF özet öğesi oluştur
-  static pw.Widget _buildSummaryItem(
-    String label,
-    double value,
-    PdfColor color,
-    pw.Font font,
-  ) {
-    return pw.Column(
-      children: [
-        pw.Text(label, style: pw.TextStyle(font: font, fontSize: 10)),
-        pw.SizedBox(height: 4),
-        pw.Text(
-          _formatCurrency(value),
-          style: pw.TextStyle(
-            font: font,
-            fontSize: 14,
-            fontWeight: pw.FontWeight.bold,
-            color: color,
-          ),
-        ),
-      ],
-    );
   }
 }
 

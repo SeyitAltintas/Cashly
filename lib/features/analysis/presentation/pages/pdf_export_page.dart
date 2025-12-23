@@ -21,7 +21,6 @@ class PdfExportPage extends StatefulWidget {
 
 class _PdfExportPageState extends State<PdfExportPage> {
   // Checkbox durumları - varsayılan hepsi seçili
-  bool _includeSummary = true;
   bool _includeExpenses = true;
   bool _includeIncomes = true;
   bool _includeAssets = true;
@@ -116,15 +115,11 @@ class _PdfExportPageState extends State<PdfExportPage> {
             ),
             const SizedBox(height: 24),
 
-            // Özet seçeneği (en üstte, özel stil)
-            _buildSummaryTile(theme),
-            const SizedBox(height: 16),
-
             // Bölüm başlığı
             Padding(
               padding: const EdgeInsets.only(left: 4, bottom: 12),
               child: Text(
-                'Tablolar',
+                'Rapora Dahil Edilecek Tablolar',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -281,89 +276,6 @@ class _PdfExportPageState extends State<PdfExportPage> {
     );
   }
 
-  // Özet tile'ı (özel tasarım)
-  Widget _buildSummaryTile(ThemeData theme) {
-    return InkWell(
-      onTap: () => setState(() => _includeSummary = !_includeSummary),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: _includeSummary
-              ? LinearGradient(
-                  colors: [
-                    Colors.purple.withValues(alpha: 0.1),
-                    Colors.deepPurple.withValues(alpha: 0.05),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
-          border: Border.all(
-            color: _includeSummary
-                ? Colors.purple.withValues(alpha: 0.5)
-                : theme.colorScheme.onSurface.withValues(alpha: 0.1),
-            width: _includeSummary ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.purple.withValues(alpha: 0.2),
-                    Colors.deepPurple.withValues(alpha: 0.1),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.analytics_outlined,
-                color: Colors.purple,
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Aylık Özet',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  Text(
-                    'Toplam gelir, harcama ve net durum',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Checkbox(
-              value: _includeSummary,
-              onChanged: (value) =>
-                  setState(() => _includeSummary = value ?? true),
-              activeColor: Colors.purple,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(6),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildCheckboxTile({
     required String title,
     required String subtitle,
@@ -475,7 +387,6 @@ class _PdfExportPageState extends State<PdfExportPage> {
       userName: widget.userName,
       startDate: startDate,
       endDate: endDate,
-      includeSummary: _includeSummary,
       includeExpenses: _includeExpenses,
       includeIncomes: _includeIncomes,
       includeAssets: _includeAssets,
