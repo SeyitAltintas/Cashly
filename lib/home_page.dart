@@ -169,6 +169,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       userId,
     );
 
+    // Streak verisini de oku (geri yüklemeden sonra güncellenmesi için)
+    _streakData = StreakService.getStreakData(userId);
+
     setState(() => _isLoading = false);
   }
 

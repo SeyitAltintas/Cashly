@@ -202,8 +202,11 @@ class ProfilSayfasi extends StatelessWidget {
                     final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            AyarlarSayfasi(authController: authController),
+                        builder: (context) => AyarlarSayfasi(
+                          authController: authController,
+                          // Geri yüklemede streak dahil tüm verileri yenilemek için
+                          onNavigationReturn: onRefresh,
+                        ),
                       ),
                     );
                     if (result == true && onRefresh != null) {

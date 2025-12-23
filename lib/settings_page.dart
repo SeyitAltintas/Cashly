@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import 'services/database_helper.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
@@ -21,6 +22,7 @@ import 'features/settings/presentation/widgets/expense_settings/default_payment_
 import 'features/settings/presentation/widgets/expense_settings/category_section.dart';
 import 'services/backup_service.dart';
 import 'services/haptic_service.dart';
+import 'home_page.dart';
 
 /// Ayarlar Sayfası
 class AyarlarSayfasi extends StatefulWidget {
@@ -308,79 +310,151 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
     Navigator.pop(sheetContext);
     await HapticService.lightImpact();
 
-    // Yükleme göstergesi göster
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text('Veriler geri yükleniyor...'),
-            ],
-          ),
-          backgroundColor: Colors.blue.shade700,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(minutes: 1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-    }
+    // Loading overlay'ın açık olup olmadığını takip et
+    bool isLoadingShown = false;
 
     try {
-      final result = await BackupService.importData(userId);
+      final result = await BackupService.importData(
+        userId,
+        onFileSelected: () {
+          // Dosya seçildikten sonra loading overlay'i göster
+          _showLoadingOverlay();
+          isLoadingShown = true;
+        },
+      );
 
-      // Önceki SnackBar'ı kaldır
-      if (mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      // Loading overlay'i kapat (sadece gösterildiyse)
+      // Minimum 3 saniye ekranda kalması için bekle
+      if (isLoadingShown && mounted) {
+        await Future.delayed(const Duration(seconds: 4));
+        if (mounted) Navigator.of(context).pop();
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              result.success ? '${result.message} ✅' : result.message,
-            ),
-            backgroundColor: result.success
-                ? Colors.green.shade700
-                : Colors.red.shade700,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 3),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
         if (result.success) {
-          setState(() => _needsRefresh = true);
+          // Başarı animasyonunu göster
+          await _showSuccessOverlay();
           await HapticService.success();
+          // Ana sayfadaki verileri yenile
+          widget.onNavigationReturn?.call();
+          // Dashboard sayfasına yönlendir (AnaSayfa'yı yeniden oluştur)
+          if (mounted) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => AnaSayfa(authController: widget.authController),
+              ),
+              (route) => false,
+            );
+          }
+        } else if (result.message != 'Dosya seçilmedi') {
+          // Dosya seçilmedi mesajını gösterme, sadece gerçek hataları göster
+          _showErrorSnackBar(result.message);
         }
       }
     } catch (e) {
+      // Loading overlay'i kapat (sadece gösterildiyse)
+      if (isLoadingShown && mounted) {
+        Navigator.of(context).pop();
+      }
       // Beklenmeyen hata durumunda
       if (mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Beklenmeyen hata: $e'),
-            backgroundColor: Colors.red.shade700,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 3),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
+        _showErrorSnackBar('Beklenmeyen hata: $e');
       }
+    }
+  }
+
+  /// Loading overlay'i gösterir (kullanıcı kapatamaz)
+  void _showLoadingOverlay() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Kullanıcı dışarı tıklayarak kapatamaz
+      barrierColor: Colors.black.withValues(alpha: 0.7), // %50 opaklık
+      builder: (context) => PopScope(
+        canPop: false, // Geri tuşuyla kapatılamaz
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Lottie animasyonu
+              Lottie.asset(
+                'assets/lottie/verigeriyukleme.json',
+                width: 300,
+                height: 300,
+              ),
+              const SizedBox(height: 16),
+              // Yükleniyor metni
+              const Text(
+                'Veriler geri yükleniyor...',
+                style: TextStyle(
+                  fontFamily: 'sans-serif',
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Hata mesajı gösterir
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red.shade800,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  /// Başarı overlay'ini gösterir (3 saniye)
+  Future<void> _showSuccessOverlay() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.7),
+      builder: (context) => PopScope(
+        canPop: false,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Success animasyonu
+              Lottie.asset(
+                'assets/lottie/Success_animation.json',
+                width: 300,
+                height: 300,
+              ),
+              const SizedBox(height: 16),
+              // Başarı metni
+              const Text(
+                'Geri yükleme başarı ile tamamlandı',
+                style: TextStyle(
+                  fontFamily: 'sans-serif',
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // 2 saniye bekle
+    await Future.delayed(const Duration(seconds: 3));
+
+    // Overlay'i kapat
+    if (mounted) {
+      Navigator.of(context).pop();
     }
   }
 }

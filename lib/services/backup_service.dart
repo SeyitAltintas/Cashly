@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -107,7 +108,11 @@ class BackupService {
   }
 
   /// JSON dosyasından verileri geri yükle
-  static Future<BackupResult> importData(String userId) async {
+  /// [onFileSelected] callback'i dosya seçildikten sonra çağrılır (loading göstermek için)
+  static Future<BackupResult> importData(
+    String userId, {
+    VoidCallback? onFileSelected,
+  }) async {
     try {
       // Dosya seç - withData:true ile bytes da alınır (Android için)
       final result = await FilePicker.platform.pickFiles(
@@ -119,6 +124,9 @@ class BackupService {
       if (result == null || result.files.isEmpty) {
         return BackupResult(success: false, message: 'Dosya seçilmedi');
       }
+
+      // Dosya seçildi, loading göster
+      onFileSelected?.call();
 
       final pickedFile = result.files.single;
       String jsonString;
@@ -220,6 +228,8 @@ class BackupService {
 
       // Seri verilerini geri yükle (v1.2)
       if (backupData['streak'] != null) {
+        // Streak box'ının açık olduğundan emin ol
+        await StreakService.initialize();
         final streakMap = Map<String, dynamic>.from(backupData['streak']);
         final streakData = StreakData.fromMap(streakMap);
         await StreakService.saveStreakData(userId, streakData);
