@@ -550,12 +550,12 @@ class ProfileSettingsHelper {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         "Hesabı Sil",
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red,
+                          color: Colors.red.shade800,
                         ),
                       ),
                       IconButton(
@@ -578,7 +578,7 @@ class ProfileSettingsHelper {
                         () => isPinVisible = !isPinVisible,
                       ),
                       autofocus: true,
-                      focusColor: Colors.red,
+                      focusColor: Colors.red.shade800,
                       validator: (value) {
                         if (value == null ||
                             value.length < 4 ||
@@ -625,7 +625,10 @@ class ProfileSettingsHelper {
                 backgroundColor: Theme.of(dlgCtx).colorScheme.surface,
                 title: Row(
                   children: [
-                    const Icon(Icons.warning_amber_rounded, color: Colors.red),
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.red.shade800,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       "Son Onay",
@@ -644,12 +647,17 @@ class ProfileSettingsHelper {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(dlgCtx, false),
-                    child: const Text("İptal"),
+                    child: Text(
+                      "İptal",
+                      style: TextStyle(
+                        color: Theme.of(dlgCtx).colorScheme.onSurface,
+                      ),
+                    ),
                   ),
                   ElevatedButton(
                     onPressed: () => Navigator.pop(dlgCtx, true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: Colors.red.shade800,
                       foregroundColor: Colors.white,
                     ),
                     child: const Text("Evet, Sil"),
@@ -685,7 +693,7 @@ class ProfileSettingsHelper {
                 scaffoldMessenger.showSnackBar(
                   SnackBar(
                     content: Text("Hesap silinirken hata oluştu: $e"),
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.red.shade800,
                   ),
                 );
               }
@@ -693,7 +701,7 @@ class ProfileSettingsHelper {
           }
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.red.shade800,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
@@ -734,19 +742,23 @@ class ProfileSettingsHelper {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.red.withValues(alpha: 0.1),
+        color: Colors.red.shade800.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+        border: Border.all(color: Colors.red.shade800.withValues(alpha: 0.3)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.warning_amber_rounded, color: Colors.red, size: 24),
-          SizedBox(width: 12),
+          Icon(
+            Icons.warning_amber_rounded,
+            color: Colors.red.shade800,
+            size: 24,
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               "Bu işlem geri alınamaz! Tüm verileriniz kalıcı olarak silinecektir.",
               style: TextStyle(
-                color: Colors.red,
+                color: Colors.white70,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),

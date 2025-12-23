@@ -413,7 +413,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
     );
   }
 
-  /// Başarı overlay'ini gösterir (3 saniye)
+  /// Başarı overlay'ini gösterir (2 saniye)
   Future<void> _showSuccessOverlay() async {
     showDialog(
       context: context,
@@ -450,7 +450,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
     );
 
     // 2 saniye bekle
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 2));
 
     // Overlay'i kapat
     if (mounted) {
