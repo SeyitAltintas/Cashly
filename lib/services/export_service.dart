@@ -16,10 +16,21 @@ class ExportService {
   /// Tarih formatı
   static final _dateFormat = DateFormat('dd.MM.yyyy');
 
-  /// Türkçe karakterleri destekleyen font
+  /// Türkçe karakterleri destekleyen fontlar
   static pw.Font? _turkishFont;
+  static pw.Font? _turkishFontBold;
 
-  /// Font'u yükle
+  /// Renk tanımlamaları
+  static const _expenseColor = PdfColors.red700;
+  static const _expenseColorLight = PdfColors.red50;
+  static const _incomeColor = PdfColors.green700;
+  static const _incomeColorLight = PdfColors.green50;
+  static const _assetColor = PdfColors.blue700;
+  static const _assetColorLight = PdfColors.blue50;
+  static const _totalRowColor = PdfColors.grey300;
+  static const _tableBorderColor = PdfColors.grey800;
+
+  /// Font'ları yükle
   static Future<pw.Font> _loadTurkishFont() async {
     if (_turkishFont != null) return _turkishFont!;
     final fontData = await rootBundle.load('assets/fonts/Roboto-Regular.ttf');
@@ -27,14 +38,29 @@ class ExportService {
     return _turkishFont!;
   }
 
+  static Future<pw.Font> _loadTurkishFontBold() async {
+    if (_turkishFontBold != null) return _turkishFontBold!;
+    try {
+      final fontData = await rootBundle.load('assets/fonts/Roboto-Bold.ttf');
+      _turkishFontBold = pw.Font.ttf(fontData);
+    } catch (_) {
+      _turkishFontBold = await _loadTurkishFont();
+    }
+    return _turkishFontBold!;
+  }
+
+  /// Logo resmini yükle
+  static Future<Uint8List> _loadLogoImage() async {
+    final logoData = await rootBundle.load('assets/image/seffaflogo.png');
+    return logoData.buffer.asUint8List();
+  }
+
   /// Tutarı TL formatında göster (12.247,00 TL formatında)
   static String _formatCurrency(double value) {
-    // Binlik ayraç ve virgül ile Türk formatı
     final parts = value.toStringAsFixed(2).split('.');
     final intPart = parts[0];
     final decPart = parts[1];
 
-    // Binlik ayraç ekle
     final buffer = StringBuffer();
     for (int i = 0; i < intPart.length; i++) {
       if (i > 0 && (intPart.length - i) % 3 == 0) {
@@ -56,8 +82,10 @@ class ExportService {
     bool includeAssets = true,
   }) async {
     try {
-      // Türkçe destekli font yükle
+      // Fontları ve logoyu yükle
       final turkishFont = await _loadTurkishFont();
+      final turkishFontBold = await _loadTurkishFontBold();
+      final logoBytes = await _loadLogoImage();
       final pdf = pw.Document();
 
       // Seçime göre verileri al
@@ -79,7 +107,7 @@ class ExportService {
           ? DatabaseHelper.varliklariGetir(userId)
           : <Map<String, dynamic>>[];
 
-      // Toplamları hesapla (sadece seçilen verilerden)
+      // Toplamları hesapla
       final toplamHarcama = harcamalar.fold<double>(
         0,
         (sum, h) => sum + (h['tutar'] as num).toDouble(),
@@ -93,139 +121,106 @@ class ExportService {
         (sum, v) => sum + ((v['amount'] as num?) ?? 0).toDouble(),
       );
 
-      // Font stilleri
-      final titleStyle = pw.TextStyle(
-        font: turkishFont,
-        fontSize: 24,
-        fontWeight: pw.FontWeight.bold,
-      );
-      final normalStyle = pw.TextStyle(font: turkishFont, fontSize: 12);
-      final headerStyle = pw.TextStyle(
-        font: turkishFont,
-        fontWeight: pw.FontWeight.bold,
-      );
-
       // PDF sayfası oluştur
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           margin: const pw.EdgeInsets.all(32),
+          footer: (context) => _buildFooter(context, turkishFont),
           build: (context) => [
-            // Başlık
-            pw.Header(
-              level: 0,
-              child: pw.Text('Cashly Finansal Rapor', style: titleStyle),
+            // Başlık bölümü - Logo ile
+            _buildHeader(
+              turkishFont,
+              turkishFontBold,
+              userName,
+              startDate,
+              endDate,
+              logoBytes,
             ),
-            pw.SizedBox(height: 8),
-
-            // Tarih aralığı ve kullanıcı adı - yan yana
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Text(
-                  'Tarih Aralığı : ${_dateFormat.format(startDate)} - ${_dateFormat.format(endDate)}',
-                  style: normalStyle,
-                ),
-                pw.Text(
-                  userName,
-                  style: pw.TextStyle(
-                    font: turkishFont,
-                    fontSize: 12,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            pw.SizedBox(height: 20),
+            pw.SizedBox(height: 24),
 
             // Harcamalar tablosu
             if (includeExpenses && harcamalar.isNotEmpty) ...[
-              pw.Header(
-                level: 1,
-                child: pw.Text('Harcamalar', style: headerStyle),
-              ),
-              pw.TableHelper.fromTextArray(
-                headerStyle: headerStyle,
-                cellStyle: normalStyle,
-                headerDecoration: const pw.BoxDecoration(
-                  color: PdfColors.grey300,
-                ),
-                cellPadding: const pw.EdgeInsets.all(6),
-                headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
-                data: [
-                  ...harcamalar.map(
-                    (h) => [
+              _buildTableSection(
+                title: 'Harcamalar',
+                headerColor: _expenseColor,
+                data: harcamalar.asMap().entries.map((entry) {
+                  final h = entry.value;
+                  final isEven = entry.key % 2 == 0;
+                  return _TableRowData(
+                    cells: [
                       h['isim'] ?? '-',
                       h['kategori'] ?? '-',
                       _dateFormat.format(DateTime.parse(h['tarih'])),
                       _formatCurrency((h['tutar'] as num).toDouble()),
                     ],
-                  ),
-                  // Toplam satırı
-                  ['', '', 'TOPLAM', _formatCurrency(toplamHarcama)],
-                ],
-                cellAlignments: {3: pw.Alignment.centerRight},
+                    backgroundColor: isEven
+                        ? _expenseColorLight
+                        : PdfColors.white,
+                  );
+                }).toList(),
+                headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
+                total: _formatCurrency(toplamHarcama),
+                totalColumnIndex: 3,
+                turkishFont: turkishFont,
+                turkishFontBold: turkishFontBold,
               ),
-              pw.SizedBox(height: 20),
+              pw.SizedBox(height: 24),
             ],
 
             // Gelirler tablosu
             if (includeIncomes && gelirler.isNotEmpty) ...[
-              pw.Header(
-                level: 1,
-                child: pw.Text('Gelirler', style: headerStyle),
-              ),
-              pw.TableHelper.fromTextArray(
-                headerStyle: headerStyle,
-                cellStyle: normalStyle,
-                headerDecoration: const pw.BoxDecoration(
-                  color: PdfColors.grey300,
-                ),
-                cellPadding: const pw.EdgeInsets.all(6),
-                headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
-                data: [
-                  ...gelirler.map(
-                    (g) => [
+              _buildTableSection(
+                title: 'Gelirler',
+                headerColor: _incomeColor,
+                data: gelirler.asMap().entries.map((entry) {
+                  final g = entry.value;
+                  final isEven = entry.key % 2 == 0;
+                  return _TableRowData(
+                    cells: [
                       g['name'] ?? '-',
                       g['category'] ?? '-',
                       _dateFormat.format(DateTime.parse(g['date'])),
                       _formatCurrency(((g['amount'] as num?) ?? 0).toDouble()),
                     ],
-                  ),
-                  // Toplam satırı
-                  ['', '', 'TOPLAM', _formatCurrency(toplamGelir)],
-                ],
-                cellAlignments: {3: pw.Alignment.centerRight},
+                    backgroundColor: isEven
+                        ? _incomeColorLight
+                        : PdfColors.white,
+                  );
+                }).toList(),
+                headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
+                total: _formatCurrency(toplamGelir),
+                totalColumnIndex: 3,
+                turkishFont: turkishFont,
+                turkishFontBold: turkishFontBold,
               ),
-              pw.SizedBox(height: 20),
+              pw.SizedBox(height: 24),
             ],
 
-            // Varliklar tablosu
+            // Varlıklar tablosu
             if (includeAssets && varliklar.isNotEmpty) ...[
-              pw.Header(
-                level: 1,
-                child: pw.Text('Varlıklar', style: headerStyle),
-              ),
-              pw.TableHelper.fromTextArray(
-                headerStyle: headerStyle,
-                cellStyle: normalStyle,
-                headerDecoration: const pw.BoxDecoration(
-                  color: PdfColors.grey300,
-                ),
-                cellPadding: const pw.EdgeInsets.all(6),
-                headers: ['İsim', 'Kategori', 'Değer'],
-                data: [
-                  ...varliklar.map(
-                    (v) => [
+              _buildTableSection(
+                title: 'Varlıklar',
+                headerColor: _assetColor,
+                data: varliklar.asMap().entries.map((entry) {
+                  final v = entry.value;
+                  final isEven = entry.key % 2 == 0;
+                  return _TableRowData(
+                    cells: [
                       v['name'] ?? '-',
                       v['category'] ?? '-',
                       _formatCurrency(((v['amount'] as num?) ?? 0).toDouble()),
                     ],
-                  ),
-                  // Toplam satırı
-                  ['', 'TOPLAM', _formatCurrency(toplamVarlik)],
-                ],
-                cellAlignments: {2: pw.Alignment.centerRight},
+                    backgroundColor: isEven
+                        ? _assetColorLight
+                        : PdfColors.white,
+                  );
+                }).toList(),
+                headers: ['İsim', 'Kategori', 'Değer'],
+                total: _formatCurrency(toplamVarlik),
+                totalColumnIndex: 2,
+                turkishFont: turkishFont,
+                turkishFontBold: turkishFontBold,
               ),
             ],
           ],
@@ -251,6 +246,228 @@ class ExportService {
     }
   }
 
+  /// PDF başlık bölümü - Logo ve bilgiler
+  static pw.Widget _buildHeader(
+    pw.Font font,
+    pw.Font fontBold,
+    String userName,
+    DateTime startDate,
+    DateTime endDate,
+    Uint8List logoBytes,
+  ) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(20),
+      decoration: pw.BoxDecoration(
+        gradient: pw.LinearGradient(
+          colors: [
+            PdfColor.fromHex('#0f2027'),
+            PdfColor.fromHex('#203a43'),
+            PdfColor.fromHex('#2c5364'),
+          ],
+        ),
+        borderRadius: pw.BorderRadius.circular(12),
+      ),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          // Sol taraf - Logo resmi
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Image(pw.MemoryImage(logoBytes), height: 50),
+              pw.SizedBox(height: 8),
+              pw.Text(
+                'Finansal Rapor',
+                style: pw.TextStyle(
+                  font: font,
+                  fontSize: 14,
+                  color: PdfColors.grey300,
+                ),
+              ),
+            ],
+          ),
+          // Sağ taraf - Kullanıcı ve tarih bilgileri
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.end,
+            children: [
+              pw.Text(
+                userName,
+                style: pw.TextStyle(
+                  font: fontBold,
+                  fontSize: 16,
+                  color: PdfColors.white,
+                ),
+              ),
+              pw.SizedBox(height: 8),
+              pw.Text(
+                '${_dateFormat.format(startDate)} - ${_dateFormat.format(endDate)}',
+                style: pw.TextStyle(
+                  font: font,
+                  fontSize: 12,
+                  color: PdfColors.grey300,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Tablo bölümü oluştur
+  static pw.Widget _buildTableSection({
+    required String title,
+    required PdfColor headerColor,
+    required List<_TableRowData> data,
+    required List<String> headers,
+    required String total,
+    required int totalColumnIndex,
+    required pw.Font turkishFont,
+    required pw.Font turkishFontBold,
+  }) {
+    final headerStyle = pw.TextStyle(
+      font: turkishFontBold,
+      fontSize: 11,
+      color: PdfColors.white,
+    );
+    final cellStyle = pw.TextStyle(font: turkishFont, fontSize: 10);
+    final totalStyle = pw.TextStyle(font: turkishFontBold, fontSize: 11);
+
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        // Tablo başlığı - sadece isim, simge yok
+        pw.Container(
+          width: double.infinity,
+          padding: const pw.EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: pw.BoxDecoration(
+            color: headerColor,
+            border: pw.Border.all(color: _tableBorderColor, width: 0.5),
+            borderRadius: const pw.BorderRadius.only(
+              topLeft: pw.Radius.circular(8),
+              topRight: pw.Radius.circular(8),
+            ),
+          ),
+          child: pw.Text(
+            title,
+            style: pw.TextStyle(
+              font: turkishFontBold,
+              fontSize: 14,
+              color: PdfColors.white,
+            ),
+          ),
+        ),
+        // Tablo - daha belirgin çizgiler
+        pw.Table(
+          border: pw.TableBorder.all(color: _tableBorderColor, width: 0.5),
+          columnWidths: _getColumnWidths(headers.length),
+          children: [
+            // Başlık satırı
+            pw.TableRow(
+              decoration: pw.BoxDecoration(color: headerColor.shade(0.8)),
+              children: headers
+                  .map(
+                    (h) => pw.Container(
+                      padding: const pw.EdgeInsets.all(10),
+                      child: pw.Text(h, style: headerStyle),
+                    ),
+                  )
+                  .toList(),
+            ),
+            // Veri satırları - Zebra pattern
+            ...data.map(
+              (row) => pw.TableRow(
+                decoration: pw.BoxDecoration(color: row.backgroundColor),
+                children: row.cells
+                    .map(
+                      (cell) => pw.Container(
+                        padding: const pw.EdgeInsets.all(10),
+                        child: pw.Text(cell, style: cellStyle),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+            // Toplam satırı
+            pw.TableRow(
+              decoration: const pw.BoxDecoration(color: _totalRowColor),
+              children: List.generate(headers.length, (index) {
+                if (index == totalColumnIndex - 1) {
+                  return pw.Container(
+                    padding: const pw.EdgeInsets.all(10),
+                    child: pw.Text('TOPLAM', style: totalStyle),
+                  );
+                } else if (index == totalColumnIndex) {
+                  return pw.Container(
+                    padding: const pw.EdgeInsets.all(10),
+                    alignment: pw.Alignment.centerRight,
+                    child: pw.Text(total, style: totalStyle),
+                  );
+                }
+                return pw.Container(padding: const pw.EdgeInsets.all(10));
+              }),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Sütun genişliklerini ayarla
+  static Map<int, pw.TableColumnWidth> _getColumnWidths(int columnCount) {
+    if (columnCount == 4) {
+      return {
+        0: const pw.FlexColumnWidth(2.5),
+        1: const pw.FlexColumnWidth(2),
+        2: const pw.FlexColumnWidth(1.5),
+        3: const pw.FlexColumnWidth(2),
+      };
+    } else if (columnCount == 3) {
+      return {
+        0: const pw.FlexColumnWidth(3),
+        1: const pw.FlexColumnWidth(2),
+        2: const pw.FlexColumnWidth(2),
+      };
+    }
+    return {};
+  }
+
+  /// Footer oluştur
+  static pw.Widget _buildFooter(pw.Context context, pw.Font font) {
+    final now = DateTime.now();
+    final dateTimeFormat = DateFormat('dd.MM.yyyy HH:mm');
+
+    return pw.Container(
+      padding: const pw.EdgeInsets.only(top: 10),
+      decoration: const pw.BoxDecoration(
+        border: pw.Border(
+          top: pw.BorderSide(color: PdfColors.grey400, width: 1),
+        ),
+      ),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Text(
+            'Cashly ile oluşturuldu • ${dateTimeFormat.format(now)}',
+            style: pw.TextStyle(
+              font: font,
+              fontSize: 9,
+              color: PdfColors.grey600,
+            ),
+          ),
+          pw.Text(
+            'Sayfa ${context.pageNumber} / ${context.pagesCount}',
+            style: pw.TextStyle(
+              font: font,
+              fontSize: 9,
+              color: PdfColors.grey600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Dosyayı paylaş
   static Future<void> shareFile(String filePath) async {
     await SharePlus.instance.share(
@@ -258,7 +475,7 @@ class ExportService {
     );
   }
 
-  /// Tarih aralığına göre harcamaları filtrele (tarih alanı kullanır)
+  /// Tarih aralığına göre harcamaları filtrele
   static List<Map<String, dynamic>> _filterByDateRange(
     List<Map<String, dynamic>> items,
     DateTime startDate,
@@ -274,7 +491,7 @@ class ExportService {
       ..sort((a, b) => (b['tarih'] as String).compareTo(a['tarih'] as String));
   }
 
-  /// Tarih aralığına göre gelirleri filtrele (date alanı kullanır)
+  /// Tarih aralığına göre gelirleri filtrele
   static List<Map<String, dynamic>> _filterIncomesByDateRange(
     List<Map<String, dynamic>> items,
     DateTime startDate,
@@ -289,6 +506,14 @@ class ExportService {
       }).toList()
       ..sort((a, b) => (b['date'] as String).compareTo(a['date'] as String));
   }
+}
+
+/// Tablo satır verisi
+class _TableRowData {
+  final List<String> cells;
+  final PdfColor backgroundColor;
+
+  _TableRowData({required this.cells, required this.backgroundColor});
 }
 
 /// Export işlemi sonucu
