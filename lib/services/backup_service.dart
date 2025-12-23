@@ -109,18 +109,30 @@ class BackupService {
   /// JSON dosyasından verileri geri yükle
   static Future<BackupResult> importData(String userId) async {
     try {
-      // Dosya seç
+      // Dosya seç - withData:true ile bytes da alınır (Android için)
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
+        withData: true, // Android'de bytes alabilmek için
       );
 
       if (result == null || result.files.isEmpty) {
         return BackupResult(success: false, message: 'Dosya seçilmedi');
       }
 
-      final file = File(result.files.single.path!);
-      final jsonString = await file.readAsString();
+      final pickedFile = result.files.single;
+      String jsonString;
+
+      // Önce path ile dene, yoksa bytes kullan
+      if (pickedFile.path != null) {
+        final file = File(pickedFile.path!);
+        jsonString = await file.readAsString();
+      } else if (pickedFile.bytes != null) {
+        jsonString = String.fromCharCodes(pickedFile.bytes!);
+      } else {
+        return BackupResult(success: false, message: 'Dosya okunamadı');
+      }
+
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
       // Versiyon kontrolü (1.0, 1.1 ve 1.2 desteklenir)
@@ -136,56 +148,56 @@ class BackupService {
 
       // Verileri geri yükle
       if (backupData['harcamalar'] != null) {
-        DatabaseHelper.harcamalariKaydet(
+        await DatabaseHelper.harcamalariKaydet(
           userId,
           List<Map<String, dynamic>>.from(backupData['harcamalar']),
         );
       }
 
       if (backupData['gelirler'] != null) {
-        DatabaseHelper.gelirleriKaydet(
+        await DatabaseHelper.gelirleriKaydet(
           userId,
           List<Map<String, dynamic>>.from(backupData['gelirler']),
         );
       }
 
       if (backupData['varliklar'] != null) {
-        DatabaseHelper.varliklariKaydet(
+        await DatabaseHelper.varliklariKaydet(
           userId,
           List<Map<String, dynamic>>.from(backupData['varliklar']),
         );
       }
 
       if (backupData['odemeYontemleri'] != null) {
-        DatabaseHelper.odemeYontemleriKaydet(
+        await DatabaseHelper.odemeYontemleriKaydet(
           userId,
           List<Map<String, dynamic>>.from(backupData['odemeYontemleri']),
         );
       }
 
       if (backupData['transferler'] != null) {
-        DatabaseHelper.transferleriKaydet(
+        await DatabaseHelper.transferleriKaydet(
           userId,
           List<Map<String, dynamic>>.from(backupData['transferler']),
         );
       }
 
       if (backupData['butce'] != null) {
-        DatabaseHelper.butceKaydet(
+        await DatabaseHelper.butceKaydet(
           userId,
           (backupData['butce'] as num).toDouble(),
         );
       }
 
       if (backupData['varsayilanOdemeYontemi'] != null) {
-        DatabaseHelper.varsayilanOdemeYontemiKaydet(
+        await DatabaseHelper.varsayilanOdemeYontemiKaydet(
           userId,
           backupData['varsayilanOdemeYontemi'] as String,
         );
       }
 
       if (backupData['kategoriler'] != null) {
-        DatabaseHelper.kategorileriKaydet(
+        await DatabaseHelper.kategorileriKaydet(
           userId,
           List<Map<String, dynamic>>.from(
             (backupData['kategoriler'] as List).map(
@@ -196,7 +208,7 @@ class BackupService {
       }
 
       if (backupData['gelirKategorileri'] != null) {
-        DatabaseHelper.gelirKategorileriKaydet(
+        await DatabaseHelper.gelirKategorileriKaydet(
           userId,
           List<Map<String, dynamic>>.from(
             (backupData['gelirKategorileri'] as List).map(

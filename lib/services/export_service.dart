@@ -265,7 +265,7 @@ class ExportService {
             PdfColor.fromHex('#2c5364'),
           ],
         ),
-        border: pw.Border.all(color: PdfColors.grey800, width: 1),
+        border: pw.Border.all(color: PdfColors.black, width: 1),
         borderRadius: pw.BorderRadius.circular(12),
       ),
       child: pw.Row(
@@ -278,7 +278,7 @@ class ExportService {
               pw.Image(pw.MemoryImage(logoBytes), height: 50),
               pw.SizedBox(height: 8),
               pw.Text(
-                'Finansal Rapor',
+                'Finansal Durum Raporu',
                 style: pw.TextStyle(
                   font: font,
                   fontSize: 14,

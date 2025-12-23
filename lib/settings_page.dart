@@ -199,7 +199,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
+      builder: (sheetContext) => Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -218,7 +218,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(sheetContext).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 24),
@@ -237,31 +237,12 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 'Tüm verilerinizi JSON olarak dışa aktarın',
                 style: TextStyle(
                   color: Theme.of(
-                    context,
+                    sheetContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 12,
                 ),
               ),
-              onTap: () async {
-                Navigator.pop(context);
-                await HapticService.lightImpact();
-                final path = await BackupService.exportData(userId);
-                if (path != null && context.mounted) {
-                  await BackupService.shareBackup(path);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Yedek dosyası oluşturuldu ✅'),
-                        backgroundColor: Colors.green.shade700,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    );
-                  }
-                }
-              },
+              onTap: () => _handleBackupData(sheetContext, userId),
             ),
             const SizedBox(height: 12),
             // Geri yükle butonu
@@ -279,39 +260,128 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 'Yedek dosyasından verileri içe aktarın',
                 style: TextStyle(
                   color: Theme.of(
-                    context,
+                    sheetContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 12,
                 ),
               ),
-              onTap: () async {
-                Navigator.pop(context);
-                await HapticService.lightImpact();
-                final result = await BackupService.importData(userId);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(result.message),
-                      backgroundColor: result.success
-                          ? Colors.green.shade700
-                          : Colors.red.shade700,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  );
-                  if (result.success) {
-                    setState(() => _needsRefresh = true);
-                  }
-                }
-              },
+              onTap: () => _handleRestoreData(sheetContext, userId),
             ),
             const SizedBox(height: 16),
           ],
         ),
       ),
     );
+  }
+
+  /// Verileri yedekleme işlemini yönetir
+  Future<void> _handleBackupData(
+    BuildContext sheetContext,
+    String userId,
+  ) async {
+    Navigator.pop(sheetContext);
+    await HapticService.lightImpact();
+    final path = await BackupService.exportData(userId);
+    if (path != null && mounted) {
+      await BackupService.shareBackup(path);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Yedek dosyası oluşturuldu ✅'),
+            backgroundColor: Colors.green.shade700,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  /// Verileri geri yükleme işlemini yönetir
+  Future<void> _handleRestoreData(
+    BuildContext sheetContext,
+    String userId,
+  ) async {
+    // BottomSheet'i kapat
+    Navigator.pop(sheetContext);
+    await HapticService.lightImpact();
+
+    // Yükleme göstergesi göster
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text('Veriler geri yükleniyor...'),
+            ],
+          ),
+          backgroundColor: Colors.blue.shade700,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(minutes: 1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+    }
+
+    try {
+      final result = await BackupService.importData(userId);
+
+      // Önceki SnackBar'ı kaldır
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result.success ? '${result.message} ✅' : result.message,
+            ),
+            backgroundColor: result.success
+                ? Colors.green.shade700
+                : Colors.red.shade700,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+        if (result.success) {
+          setState(() => _needsRefresh = true);
+          await HapticService.success();
+        }
+      }
+    } catch (e) {
+      // Beklenmeyen hata durumunda
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Beklenmeyen hata: $e'),
+            backgroundColor: Colors.red.shade700,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }
   }
 }
 
