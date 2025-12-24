@@ -5,7 +5,10 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
-import 'database_helper.dart';
+import '../core/di/injection_container.dart';
+import '../features/expenses/domain/repositories/expense_repository.dart';
+import '../features/income/domain/repositories/income_repository.dart';
+import '../features/assets/domain/repositories/asset_repository.dart';
 
 /// Rapor Export Servisi
 /// Harcama ve gelir raporlarını PDF formatında dışa aktarır
@@ -88,23 +91,28 @@ class ExportService {
       final logoBytes = await _loadLogoImage();
       final pdf = pw.Document();
 
+      // Repository'leri al
+      final expenseRepo = getIt<ExpenseRepository>();
+      final incomeRepo = getIt<IncomeRepository>();
+      final assetRepo = getIt<AssetRepository>();
+
       // Seçime göre verileri al
       final harcamalar = includeExpenses
           ? _filterByDateRange(
-              DatabaseHelper.harcamalariGetir(userId),
+              expenseRepo.getExpenses(userId),
               startDate,
               endDate,
             )
           : <Map<String, dynamic>>[];
       final gelirler = includeIncomes
           ? _filterIncomesByDateRange(
-              DatabaseHelper.gelirleriGetir(userId),
+              incomeRepo.getIncomes(userId),
               startDate,
               endDate,
             )
           : <Map<String, dynamic>>[];
       final varliklar = includeAssets
-          ? DatabaseHelper.varliklariGetir(userId)
+          ? assetRepo.getAssets(userId)
           : <Map<String, dynamic>>[];
 
       // Toplamları hesapla

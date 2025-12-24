@@ -5,7 +5,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'database_helper.dart';
+import '../core/di/injection_container.dart';
+import '../features/expenses/domain/repositories/expense_repository.dart';
+import '../features/income/domain/repositories/income_repository.dart';
+import '../features/assets/domain/repositories/asset_repository.dart';
+import '../features/payment_methods/domain/repositories/payment_method_repository.dart';
+import '../features/streak/domain/repositories/streak_repository.dart';
 import 'haptic_service.dart';
 import '../features/streak/data/services/streak_service.dart';
 import '../features/streak/data/models/streak_model.dart';
@@ -19,12 +24,19 @@ class BackupService {
   /// Tüm verileri JSON formatında dışa aktar
   static Future<String?> exportData(String userId) async {
     try {
+      // Repository'leri al
+      final expenseRepo = getIt<ExpenseRepository>();
+      final incomeRepo = getIt<IncomeRepository>();
+      final assetRepo = getIt<AssetRepository>();
+      final paymentRepo = getIt<PaymentMethodRepository>();
+      final streakRepo = getIt<StreakRepository>();
+
       // Ayarları topla
       final settingsBox = await Hive.openBox('settings');
       final hapticBox = await Hive.openBox('haptic_settings');
 
       // Seri verilerini al
-      final streakData = StreakService.getStreakData(userId);
+      final streakData = streakRepo.getStreakData(userId);
 
       // Tüm verileri topla
       final data = {
@@ -32,17 +44,15 @@ class BackupService {
         'exportDate': DateTime.now().toIso8601String(),
         'userId': userId,
         'data': {
-          'harcamalar': DatabaseHelper.harcamalariGetir(userId),
-          'gelirler': DatabaseHelper.gelirleriGetir(userId),
-          'varliklar': DatabaseHelper.varliklariGetir(userId),
-          'odemeYontemleri': DatabaseHelper.odemeYontemleriGetir(userId),
-          'transferler': DatabaseHelper.transferleriGetir(userId),
-          'butce': DatabaseHelper.butceGetir(userId),
-          'varsayilanOdemeYontemi': DatabaseHelper.varsayilanOdemeYontemiGetir(
-            userId,
-          ),
-          'kategoriler': DatabaseHelper.kategorileriGetir(userId),
-          'gelirKategorileri': DatabaseHelper.gelirKategorileriGetir(userId),
+          'harcamalar': expenseRepo.getExpenses(userId),
+          'gelirler': incomeRepo.getIncomes(userId),
+          'varliklar': assetRepo.getAssets(userId),
+          'odemeYontemleri': paymentRepo.getPaymentMethods(userId),
+          'transferler': paymentRepo.getTransfers(userId),
+          'butce': expenseRepo.getBudget(userId),
+          'varsayilanOdemeYontemi': paymentRepo.getDefaultPaymentMethod(userId),
+          'kategoriler': expenseRepo.getCategories(userId),
+          'gelirKategorileri': incomeRepo.getCategories(userId),
           // Yeni: Seri verileri
           'streak': streakData.toMap(),
         },
@@ -154,58 +164,65 @@ class BackupService {
 
       final backupData = data['data'] as Map<String, dynamic>;
 
+      // Repository'leri al
+      final expenseRepo = getIt<ExpenseRepository>();
+      final incomeRepo = getIt<IncomeRepository>();
+      final assetRepo = getIt<AssetRepository>();
+      final paymentRepo = getIt<PaymentMethodRepository>();
+      final streakRepo = getIt<StreakRepository>();
+
       // Verileri geri yükle
       if (backupData['harcamalar'] != null) {
-        await DatabaseHelper.harcamalariKaydet(
+        await expenseRepo.saveExpenses(
           userId,
           List<Map<String, dynamic>>.from(backupData['harcamalar']),
         );
       }
 
       if (backupData['gelirler'] != null) {
-        await DatabaseHelper.gelirleriKaydet(
+        await incomeRepo.saveIncomes(
           userId,
           List<Map<String, dynamic>>.from(backupData['gelirler']),
         );
       }
 
       if (backupData['varliklar'] != null) {
-        await DatabaseHelper.varliklariKaydet(
+        await assetRepo.saveAssets(
           userId,
           List<Map<String, dynamic>>.from(backupData['varliklar']),
         );
       }
 
       if (backupData['odemeYontemleri'] != null) {
-        await DatabaseHelper.odemeYontemleriKaydet(
+        await paymentRepo.savePaymentMethods(
           userId,
           List<Map<String, dynamic>>.from(backupData['odemeYontemleri']),
         );
       }
 
       if (backupData['transferler'] != null) {
-        await DatabaseHelper.transferleriKaydet(
+        await paymentRepo.saveTransfers(
           userId,
           List<Map<String, dynamic>>.from(backupData['transferler']),
         );
       }
 
       if (backupData['butce'] != null) {
-        await DatabaseHelper.butceKaydet(
+        await expenseRepo.saveBudget(
           userId,
           (backupData['butce'] as num).toDouble(),
         );
       }
 
       if (backupData['varsayilanOdemeYontemi'] != null) {
-        await DatabaseHelper.varsayilanOdemeYontemiKaydet(
+        await paymentRepo.saveDefaultPaymentMethod(
           userId,
           backupData['varsayilanOdemeYontemi'] as String,
         );
       }
 
       if (backupData['kategoriler'] != null) {
-        await DatabaseHelper.kategorileriKaydet(
+        await expenseRepo.saveCategories(
           userId,
           List<Map<String, dynamic>>.from(
             (backupData['kategoriler'] as List).map(
@@ -216,7 +233,7 @@ class BackupService {
       }
 
       if (backupData['gelirKategorileri'] != null) {
-        await DatabaseHelper.gelirKategorileriKaydet(
+        await incomeRepo.saveCategories(
           userId,
           List<Map<String, dynamic>>.from(
             (backupData['gelirKategorileri'] as List).map(
@@ -232,7 +249,7 @@ class BackupService {
         await StreakService.initialize();
         final streakMap = Map<String, dynamic>.from(backupData['streak']);
         final streakData = StreakData.fromMap(streakMap);
-        await StreakService.saveStreakData(userId, streakData);
+        await streakRepo.saveStreakData(userId, streakData);
       }
 
       // Ayarları geri yükle (v1.1+)
