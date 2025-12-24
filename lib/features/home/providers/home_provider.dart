@@ -164,6 +164,10 @@ class HomeProvider extends ChangeNotifier {
     varsayilanOdemeYontemiId = varsayilanPm;
     isLoading = false;
 
+    debugPrint(
+      '📂 Veriler okundu: ${varliklar.length} varlık, ${tumHarcamalar.length} harcama, ${tumGelirler.length} gelir',
+    );
+
     filtreleVeGoster();
     notifyListeners();
 
@@ -174,8 +178,14 @@ class HomeProvider extends ChangeNotifier {
   /// Varlık fiyatlarını güncel API verilerine göre günceller
   Future<void> updateAssetPrices() async {
     // Güncellenecek varlık yoksa çık
-    if (varliklar.isEmpty) return;
+    if (varliklar.isEmpty) {
+      debugPrint('📊 Güncellenecek varlık yok');
+      return;
+    }
 
+    debugPrint(
+      '📊 Varlık fiyatları güncelleniyor... (${varliklar.length} adet)',
+    );
     isUpdatingAssetPrices = true;
     notifyListeners();
 
@@ -185,10 +195,19 @@ class HomeProvider extends ChangeNotifier {
         varliklar,
       );
 
+      // Toplam değişimi hesapla
+      double eskiToplam = varliklar.fold(0.0, (sum, a) => sum + a.amount);
+      double yeniToplam = updatedAssets.fold(0.0, (sum, a) => sum + a.amount);
+
       varliklar = updatedAssets;
       varliklariKaydet();
+
+      debugPrint('✅ Varlık fiyatları güncellendi!');
+      debugPrint('   Eski Toplam: ${eskiToplam.toStringAsFixed(2)} TL');
+      debugPrint('   Yeni Toplam: ${yeniToplam.toStringAsFixed(2)} TL');
+      debugPrint('   Fark: ${(yeniToplam - eskiToplam).toStringAsFixed(2)} TL');
     } catch (e) {
-      debugPrint('Varlık fiyat güncelleme hatası: $e');
+      debugPrint('❌ Varlık fiyat güncelleme hatası: $e');
     } finally {
       isUpdatingAssetPrices = false;
       notifyListeners();

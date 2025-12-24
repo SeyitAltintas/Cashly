@@ -96,7 +96,7 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
           },
         ),
       ),
-    );
+    ).then((_) => verileriOku()); // Sayfadan döndüğünde verileri yenile
   }
 
   /// Analiz sayfasina git
@@ -114,7 +114,7 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
           paymentMethods: tumOdemeYontemleri,
         ),
       ),
-    );
+    ).then((_) => verileriOku()); // Sayfadan döndüğünde verileri yenile
   }
 
   /// Ödeme yöntemleri sayfasına git

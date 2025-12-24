@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:cashly/profile_page.dart';
 import 'core/di/injection_container.dart';
+import 'core/services/asset_price_update_service.dart';
 
 // Auth
 import 'features/auth/presentation/controllers/auth_controller.dart';
@@ -189,7 +190,50 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     // Streak verisi
     _streakData = streakRepo.getStreakData(userId);
 
+    debugPrint(
+      '📂 Veriler okundu: ${varliklar.length} varlık, ${tumHarcamalar.length} harcama, ${tumGelirler.length} gelir',
+    );
+
     setState(() => _isLoading = false);
+
+    // Varlık fiyatlarını arka planda güncelle
+    _updateAssetPrices();
+  }
+
+  /// Varlık fiyatlarını güncel API verilerine göre günceller
+  Future<void> _updateAssetPrices() async {
+    // Güncellenecek varlık yoksa çık
+    if (varliklar.isEmpty) {
+      debugPrint('📊 Güncellenecek varlık yok');
+      return;
+    }
+
+    debugPrint(
+      '📊 Varlık fiyatları güncelleniyor... (${varliklar.length} adet)',
+    );
+
+    try {
+      final priceUpdateService = AssetPriceUpdateService();
+      final updatedAssets = await priceUpdateService.updateAllAssetPrices(
+        varliklar,
+      );
+
+      // Toplam değişimi hesapla
+      double eskiToplam = varliklar.fold(0.0, (sum, a) => sum + a.amount);
+      double yeniToplam = updatedAssets.fold(0.0, (sum, a) => sum + a.amount);
+
+      if (mounted) {
+        setState(() => varliklar = updatedAssets);
+        _varliklariKaydet();
+      }
+
+      debugPrint('✅ Varlık fiyatları güncellendi!');
+      debugPrint('   Eski Toplam: ${eskiToplam.toStringAsFixed(2)} TL');
+      debugPrint('   Yeni Toplam: ${yeniToplam.toStringAsFixed(2)} TL');
+      debugPrint('   Fark: ${(yeniToplam - eskiToplam).toStringAsFixed(2)} TL');
+    } catch (e) {
+      debugPrint('❌ Varlık fiyat güncelleme hatası: $e');
+    }
   }
 
   // ===== KAYIT METODLARI =====

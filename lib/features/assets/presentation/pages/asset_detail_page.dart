@@ -416,6 +416,7 @@ class AssetDetailPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
             child: const Text('İptal'),
           ),
           TextButton(
