@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
+import '../../../../core/widgets/app_date_picker.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
 class AddIncomeSheet extends StatefulWidget {
@@ -78,24 +79,11 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
   }
 
   Future<void> _pickDate() async {
-    final DateTime? picked = await showDatePicker(
+    final DateTime? picked = await AppDatePicker.show(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.dark().copyWith(
-            colorScheme: ColorScheme.dark(
-              primary: Theme.of(context).colorScheme.secondary,
-              onPrimary: Theme.of(context).colorScheme.onSecondary,
-              surface: Theme.of(context).colorScheme.surface,
-              onSurface: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {

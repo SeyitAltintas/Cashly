@@ -5,6 +5,7 @@ import 'package:cashly/core/utils/currency_formatter.dart';
 import '../../data/models/asset_model.dart';
 import '../widgets/add_asset_sheet.dart';
 import 'asset_recycle_bin_page.dart';
+import 'asset_detail_page.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../services/haptic_service.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
@@ -304,23 +305,34 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => AddAssetSheet(
-        onSave: (name, amount, quantity, category, type) {
-          final newAsset = Asset(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            name: name,
-            amount: amount,
-            quantity: quantity,
-            category: category,
-            type: type,
-            lastUpdated: DateTime.now(),
-            isDeleted: false,
-          );
-          setState(() {
-            _assets.add(newAsset);
-            _filtrele();
-          });
-          widget.onAdd(name, amount, quantity, category, type);
-        },
+        onSave:
+            (
+              name,
+              amount,
+              quantity,
+              category,
+              type,
+              purchaseDate,
+              purchasePrice,
+            ) {
+              final newAsset = Asset(
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                name: name,
+                amount: amount,
+                quantity: quantity,
+                category: category,
+                type: type,
+                lastUpdated: DateTime.now(),
+                purchaseDate: purchaseDate,
+                purchasePrice: purchasePrice,
+                isDeleted: false,
+              );
+              setState(() {
+                _assets.add(newAsset);
+                _filtrele();
+              });
+              widget.onAdd(name, amount, quantity, category, type);
+            },
       ),
     );
   }
@@ -340,23 +352,35 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
                   builder: (context) => AddAssetSheet(
-                    onSave: (name, amount, quantity, category, type) {
-                      final newAsset = Asset(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        name: name,
-                        amount: amount,
-                        quantity: quantity,
-                        category: category,
-                        type: type,
-                        lastUpdated: DateTime.now(),
-                        isDeleted: false,
-                      );
-                      setState(() {
-                        _assets.add(newAsset);
-                        _filtrele();
-                      });
-                      widget.onAdd(name, amount, quantity, category, type);
-                    },
+                    onSave:
+                        (
+                          name,
+                          amount,
+                          quantity,
+                          category,
+                          type,
+                          purchaseDate,
+                          purchasePrice,
+                        ) {
+                          final newAsset = Asset(
+                            id: DateTime.now().millisecondsSinceEpoch
+                                .toString(),
+                            name: name,
+                            amount: amount,
+                            quantity: quantity,
+                            category: category,
+                            type: type,
+                            lastUpdated: DateTime.now(),
+                            purchaseDate: purchaseDate,
+                            purchasePrice: purchasePrice,
+                            isDeleted: false,
+                          );
+                          setState(() {
+                            _assets.add(newAsset);
+                            _filtrele();
+                          });
+                          widget.onAdd(name, amount, quantity, category, type);
+                        },
                   ),
                 );
               },
@@ -412,38 +436,81 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
               ),
               child: ListTile(
                 onTap: () {
+                  // Tek tıkla detay sayfasına git
+                  HapticService.selectionClick();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AssetDetailPage(
+                        asset: asset,
+                        onEdit: (updatedAsset) {
+                          // Lokal listeyi güncelle
+                          setState(() {
+                            final index = _assets.indexWhere(
+                              (a) => a.id == asset.id,
+                            );
+                            if (index != -1) {
+                              _assets[index] = updatedAsset;
+                            }
+                            _filtrele();
+                          });
+                          widget.onEdit(updatedAsset);
+                        },
+                        onDelete: (deletedAsset) {
+                          setState(() {
+                            _assets.removeWhere((a) => a.id == deletedAsset.id);
+                            deletedAsset.isDeleted = true;
+                            _deletedAssets.add(deletedAsset);
+                            _filtrele();
+                          });
+                          widget.onDelete(deletedAsset);
+                        },
+                      ),
+                    ),
+                  );
+                },
+                onLongPress: () {
+                  // Basılı tutunca düzenleme sheet'i aç
+                  HapticService.mediumImpact();
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
                     builder: (context) => AddAssetSheet(
                       asset: asset,
-                      onSave: (name, amount, quantity, category, type) {
-                        // Güncel varlığı oluştur
-                        final updatedAsset = Asset(
-                          id: asset.id,
-                          name: name,
-                          amount: amount,
-                          quantity: quantity,
-                          category: category,
-                          type: type,
-                          lastUpdated: DateTime.now(),
-                          isDeleted: false,
-                        );
-                        // Lokal listeyi güncelle
-                        setState(() {
-                          final index = _assets.indexWhere(
-                            (a) => a.id == asset.id,
-                          );
-                          if (index != -1) {
-                            _assets[index] = updatedAsset;
-                          }
-                          _filtrele();
-                        });
-                        // Parent'ı bildir (modal açmadan sadece veri kaydetsin)
-                        // Eski asset yerine güncel asset gönder
-                        widget.onEdit(updatedAsset);
-                      },
+                      onSave:
+                          (
+                            name,
+                            amount,
+                            quantity,
+                            category,
+                            type,
+                            purchaseDate,
+                            purchasePrice,
+                          ) {
+                            // Güncel varlığı oluştur (alış bilgileri de güncellenebilir)
+                            final updatedAsset = asset.copyWith(
+                              name: name,
+                              amount: amount,
+                              quantity: quantity,
+                              category: category,
+                              type: type,
+                              lastUpdated: DateTime.now(),
+                              purchaseDate: purchaseDate,
+                              purchasePrice: purchasePrice,
+                            );
+                            // Lokal listeyi güncelle
+                            setState(() {
+                              final index = _assets.indexWhere(
+                                (a) => a.id == asset.id,
+                              );
+                              if (index != -1) {
+                                _assets[index] = updatedAsset;
+                              }
+                              _filtrele();
+                            });
+                            widget.onEdit(updatedAsset);
+                          },
                     ),
                   );
                 },

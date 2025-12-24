@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../data/models/asset_model.dart';
 import '../../../../core/services/price_service.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
+import '../../../../core/widgets/app_date_picker.dart';
 
 class AddAssetSheet extends StatefulWidget {
   final Function(
@@ -11,6 +13,8 @@ class AddAssetSheet extends StatefulWidget {
     double quantity,
     String category,
     String? type,
+    DateTime purchaseDate,
+    double purchasePrice,
   )
   onSave;
   final Asset? asset;
@@ -26,9 +30,12 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _purchasePriceController =
+      TextEditingController();
 
   String _selectedCategory = 'Altın';
   String? _selectedType;
+  DateTime _purchaseDate = DateTime.now();
 
   final List<String> _categories = [
     'Altın',
@@ -83,8 +90,11 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
       _quantityController.text = widget.asset!.quantity.toString();
       _selectedCategory = widget.asset!.category;
       _selectedType = widget.asset!.type;
+      _purchaseDate = widget.asset!.purchaseDate;
+      _purchasePriceController.text = widget.asset!.purchasePrice.toString();
     } else {
       _quantityController.text = "1";
+      _purchaseDate = DateTime.now();
     }
   }
 
@@ -497,6 +507,130 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                 ),
               ],
 
+              // Alış Bilgileri Bölümü (sadece düzenleme modunda göster)
+              if (widget.asset != null) ...[
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.amber.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.history,
+                            color: Colors.amber.shade700,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Alış Bilgileri",
+                            style: TextStyle(
+                              color: Colors.amber.shade700,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      // Alış Tarihi
+                      GestureDetector(
+                        onTap: () async {
+                          final picked = await AppDatePicker.show(
+                            context: context,
+                            initialDate: _purchaseDate,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime.now(),
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              _purchaseDate = picked;
+                            });
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                color: Colors.amber.shade600,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  DateFormat(
+                                    'dd MMMM yyyy',
+                                    'tr_TR',
+                                  ).format(_purchaseDate),
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                Icons.edit,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.5),
+                                size: 18,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      // Alış Fiyatı
+                      TextFormField(
+                        controller: _purchasePriceController,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: "Alış Fiyatı (TL)",
+                          labelStyle: TextStyle(color: Colors.amber.shade700),
+                          filled: true,
+                          fillColor: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.05),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.shopping_cart,
+                            color: Colors.amber.shade600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -510,12 +644,21 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
 
                     if (_nameController.text.trim().isNotEmpty &&
                         _amountController.text.isNotEmpty) {
+                      // Alış fiyatı: düzenleme modunda girilen değer, yeni ekleme modunda güncel tutar
+                      final purchasePrice =
+                          _purchasePriceController.text.isNotEmpty
+                          ? double.tryParse(_purchasePriceController.text) ??
+                                (double.tryParse(_amountController.text) ?? 0.0)
+                          : double.tryParse(_amountController.text) ?? 0.0;
+
                       widget.onSave(
                         _nameController.text.trim(),
                         double.tryParse(_amountController.text) ?? 0.0,
                         double.tryParse(_quantityController.text) ?? 1.0,
                         _selectedCategory,
                         _selectedType,
+                        _purchaseDate,
+                        purchasePrice,
                       );
                       Navigator.pop(context);
                     } else {

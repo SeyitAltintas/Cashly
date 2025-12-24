@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/widgets/balance_warning_dialog.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
+import '../../../../core/widgets/app_date_picker.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
 class AddExpenseSheet extends StatefulWidget {
@@ -90,42 +91,11 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   }
 
   Future<void> _pickDate() async {
-    final theme = Theme.of(context);
-
-    // Varsayılan temada buton rengi için secondary (açık gri) kullan
-    final buttonColor = theme.colorScheme.secondary;
-
-    final DateTime? picked = await showDatePicker(
+    final DateTime? picked = await AppDatePicker.show(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
-      locale: const Locale('tr', 'TR'),
-      cancelText: 'İptal',
-      confirmText: 'Tamam',
-      helpText: 'Tarih Seçin',
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.dark().copyWith(
-            colorScheme: ColorScheme.dark(
-              primary: buttonColor,
-              // Varsayılan temada açık gri üzerine siyah metin
-              onPrimary: Colors.black,
-              surface: theme.colorScheme.surface,
-              onSurface: theme.colorScheme.onSurface,
-              secondary: theme.colorScheme.secondary,
-              onSecondary: theme.colorScheme.onSecondary,
-            ),
-            dialogTheme: DialogThemeData(
-              backgroundColor: theme.colorScheme.surface,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: buttonColor),
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {

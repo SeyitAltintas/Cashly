@@ -1,11 +1,14 @@
+/// Varlık modeli - Altın, döviz, kripto vb. varlıkları temsil eder
 class Asset {
   final String id;
   final String name;
-  final double amount;
+  final double amount; // Güncel değer (toplam)
   final double quantity;
   final String category;
   final String? type;
   final DateTime lastUpdated;
+  final DateTime purchaseDate; // Alış tarihi
+  final double purchasePrice; // Alış fiyatı (toplam)
   bool isDeleted;
 
   Asset({
@@ -16,8 +19,24 @@ class Asset {
     required this.category,
     this.type,
     required this.lastUpdated,
+    DateTime? purchaseDate,
+    double? purchasePrice,
     this.isDeleted = false,
-  });
+  }) : purchaseDate = purchaseDate ?? lastUpdated,
+       purchasePrice = purchasePrice ?? amount;
+
+  /// Birim alış fiyatını hesaplar
+  double get unitPurchasePrice => purchasePrice / quantity;
+
+  /// Birim güncel fiyatı hesaplar
+  double get unitCurrentPrice => amount / quantity;
+
+  /// Kar/Zarar tutarını hesaplar
+  double get profitLoss => amount - purchasePrice;
+
+  /// Kar/Zarar yüzdesini hesaplar
+  double get profitLossPercentage =>
+      purchasePrice != 0 ? ((amount - purchasePrice) / purchasePrice) * 100 : 0;
 
   /// Varlığı Map'e dönüştür (veritabanına kayıt için)
   Map<String, dynamic> toMap() {
@@ -29,23 +48,63 @@ class Asset {
       'category': category,
       'type': type,
       'lastUpdated': lastUpdated.toIso8601String(),
+      'purchaseDate': purchaseDate.toIso8601String(),
+      'purchasePrice': purchasePrice,
       'isDeleted': isDeleted,
     };
   }
 
   /// Map'ten Asset oluştur (veritabanından okuma için)
+  /// Geriye dönük uyumluluk: Eski kayıtlarda purchaseDate/purchasePrice yoksa
+  /// lastUpdated ve amount varsayılan olarak kullanılır
   factory Asset.fromMap(Map<String, dynamic> map) {
+    final lastUpdated = map['lastUpdated'] != null
+        ? DateTime.parse(map['lastUpdated'] as String)
+        : DateTime.now();
+    final amount = (map['amount'] as num).toDouble();
+
     return Asset(
       id: map['id'] as String,
       name: map['name'] as String,
-      amount: (map['amount'] as num).toDouble(),
+      amount: amount,
       quantity: (map['quantity'] as num?)?.toDouble() ?? 1.0,
       category: map['category'] as String,
       type: map['type'] as String?,
-      lastUpdated: map['lastUpdated'] != null
-          ? DateTime.parse(map['lastUpdated'] as String)
-          : DateTime.now(),
+      lastUpdated: lastUpdated,
+      purchaseDate: map['purchaseDate'] != null
+          ? DateTime.parse(map['purchaseDate'] as String)
+          : lastUpdated, // Geriye dönük uyumluluk
+      purchasePrice:
+          (map['purchasePrice'] as num?)?.toDouble() ??
+          amount, // Geriye dönük uyumluluk
       isDeleted: map['isDeleted'] as bool? ?? false,
+    );
+  }
+
+  /// Güncellenmiş kopyasını oluşturur (immutable pattern)
+  Asset copyWith({
+    String? id,
+    String? name,
+    double? amount,
+    double? quantity,
+    String? category,
+    String? type,
+    DateTime? lastUpdated,
+    DateTime? purchaseDate,
+    double? purchasePrice,
+    bool? isDeleted,
+  }) {
+    return Asset(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      amount: amount ?? this.amount,
+      quantity: quantity ?? this.quantity,
+      category: category ?? this.category,
+      type: type ?? this.type,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+      purchaseDate: purchaseDate ?? this.purchaseDate,
+      purchasePrice: purchasePrice ?? this.purchasePrice,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 }

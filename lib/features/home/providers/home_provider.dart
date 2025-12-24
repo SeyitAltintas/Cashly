@@ -9,6 +9,7 @@ import 'package:cashly/features/income/data/models/income_model.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/features/payment_methods/data/models/transfer_model.dart';
 import 'package:cashly/core/constants/icon_constants.dart';
+import 'package:cashly/core/services/asset_price_update_service.dart';
 
 /// Ana sayfa için state yönetimi sağlayan Provider sınıfı.
 /// Harcamalar, gelirler, varlıklar, ödeme yöntemleri ve transferleri yönetir.
@@ -31,6 +32,7 @@ class HomeProvider extends ChangeNotifier {
   DateTime secilenAy = DateTime.now();
   double butceLimiti = 8000.0;
   bool isLoading = true;
+  bool isUpdatingAssetPrices = false; // Varlık fiyatları güncelleniyor mu?
 
   // Kategori ikonları
   Map<String, IconData> kategoriIkonlari = {};
@@ -164,6 +166,33 @@ class HomeProvider extends ChangeNotifier {
 
     filtreleVeGoster();
     notifyListeners();
+
+    // Varlık fiyatlarını arka planda güncelle
+    updateAssetPrices();
+  }
+
+  /// Varlık fiyatlarını güncel API verilerine göre günceller
+  Future<void> updateAssetPrices() async {
+    // Güncellenecek varlık yoksa çık
+    if (varliklar.isEmpty) return;
+
+    isUpdatingAssetPrices = true;
+    notifyListeners();
+
+    try {
+      final priceUpdateService = AssetPriceUpdateService();
+      final updatedAssets = await priceUpdateService.updateAllAssetPrices(
+        varliklar,
+      );
+
+      varliklar = updatedAssets;
+      varliklariKaydet();
+    } catch (e) {
+      debugPrint('Varlık fiyat güncelleme hatası: $e');
+    } finally {
+      isUpdatingAssetPrices = false;
+      notifyListeners();
+    }
   }
 
   /// Harcamaları veritabanına kaydeder

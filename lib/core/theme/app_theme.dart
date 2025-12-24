@@ -74,6 +74,12 @@ class AppTheme {
         error: Color(0xFFCF6679),
         brightness: Brightness.dark,
       ),
+      // TextField imleç ve seçim tutamakları için renkler
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: Colors.white, // İmleç rengi
+        selectionColor: Colors.white.withValues(alpha: 0.4), // Seçim arka planı
+        selectionHandleColor: Colors.white, // Su damlası tutamakları
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF000000),
         elevation: 0,
@@ -90,6 +96,41 @@ class AppTheme {
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: PageThemeColors.darkGray,
         foregroundColor: Colors.white,
+      ),
+      // Tarih seçici teması
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: const Color(0xFF1E1E1E),
+        headerBackgroundColor: const Color(0xFF2D2D2D),
+        headerForegroundColor: Colors.white,
+        dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return Colors.white;
+          }
+          if (states.contains(WidgetState.disabled)) {
+            return Colors.white.withValues(alpha: 0.38);
+          }
+          return Colors.white;
+        }),
+        todayForegroundColor: WidgetStateProperty.all(Colors.blue.shade400),
+        todayBackgroundColor: WidgetStateProperty.all(Colors.transparent),
+        todayBorder: BorderSide(color: Colors.blue.shade400),
+        dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return Colors.blue.shade600;
+          }
+          return Colors.transparent;
+        }),
+        yearForegroundColor: WidgetStateProperty.all(Colors.white),
+        weekdayStyle: const TextStyle(color: Colors.white70),
+        dayStyle: const TextStyle(color: Colors.white),
+        surfaceTintColor: Colors.transparent,
+        // İptal ve Tamam butonları mavi
+        cancelButtonStyle: TextButton.styleFrom(
+          foregroundColor: Colors.blue.shade400,
+        ),
+        confirmButtonStyle: TextButton.styleFrom(
+          foregroundColor: Colors.blue.shade400,
+        ),
       ),
     );
   }
