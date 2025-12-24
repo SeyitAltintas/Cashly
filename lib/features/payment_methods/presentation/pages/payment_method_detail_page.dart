@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../core/mixins/lazy_loading_mixin.dart';
+import '../../../../core/widgets/month_selector_button.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../data/models/transfer_model.dart';
 import '../../../income/data/models/income_model.dart';
@@ -27,7 +29,8 @@ class PaymentMethodDetailPage extends StatefulWidget {
       _PaymentMethodDetailPageState();
 }
 
-class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage> {
+class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
+    with LazyLoadingMixin {
   final List<List<Color>> _cardColors = [
     [const Color(0xFF1a1a2e), const Color(0xFF16213e)],
     [const Color(0xFF2d132c), const Color(0xFF432371)],
@@ -37,7 +40,29 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage> {
     [const Color(0xFF3d3d3d), const Color(0xFF5a5a5a)],
   ];
 
-  List<_TransactionItem> _buildTransactionList() {
+  /// Seçilen ay ve yıl (filtreleme için)
+  late int _secilenAy;
+  late int _secilenYil;
+
+  @override
+  void initState() {
+    super.initState();
+    // Varsayılan olarak mevcut ay/yıl
+    final now = DateTime.now();
+    _secilenAy = now.month;
+    _secilenYil = now.year;
+    // Lazy loading başlat
+    initLazyLoading();
+  }
+
+  @override
+  void dispose() {
+    disposeLazyLoading();
+    super.dispose();
+  }
+
+  /// Tüm işlemleri oluştur (filtreleme öncesi)
+  List<_TransactionItem> _buildAllTransactions() {
     final List<_TransactionItem> items = [];
     final pmId = widget.paymentMethod.id;
 
@@ -125,11 +150,32 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage> {
     return items;
   }
 
+  /// Seçilen aya göre filtrelenmiş işlemleri döndür
+  List<_TransactionItem> _getFilteredTransactions() {
+    final allTransactions = _buildAllTransactions();
+    // Seçilen ay/yıla göre filtrele
+    return allTransactions.where((item) {
+      return item.date.month == _secilenAy && item.date.year == _secilenYil;
+    }).toList();
+  }
+
+  /// Ay seçimi değiştiğinde
+  void _onMonthSelected(DateTime date) {
+    setState(() {
+      _secilenAy = date.month;
+      _secilenYil = date.year;
+      // Lazy loading'i sıfırla
+      final filtered = _getFilteredTransactions();
+      resetLazyLoading(filtered.length);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final pm = widget.paymentMethod;
     final colors = _cardColors[pm.colorIndex.clamp(0, _cardColors.length - 1)];
-    final transactions = _buildTransactionList();
+    final allFilteredTransactions = _getFilteredTransactions();
+    final transactions = applyPagination(allFilteredTransactions);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -238,7 +284,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage> {
             ),
           ),
 
-          // İşlem Listesi Başlığı
+          // İşlem Listesi Başlığı ve Ay Seçici
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -250,12 +296,20 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'İşlem Geçmişi (${transactions.length})',
+                  'İşlem Geçmişi (${allFilteredTransactions.length})',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
+                ),
+                const Spacer(),
+                // Ay Seçici Butonu
+                MonthSelectorButton(
+                  selectedMonth: _secilenAy,
+                  selectedYear: _secilenYil,
+                  onMonthSelected: _onMonthSelected,
+                  useNeutralSelectedStyle: true,
                 ),
               ],
             ),
@@ -278,7 +332,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Henüz işlem yok',
+                          'Bu ayda işlem bulunamadı',
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -290,9 +344,14 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage> {
                     ),
                   )
                 : ListView.builder(
+                    controller: lazyScrollController,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: transactions.length,
+                    itemCount: transactions.length + (hasMoreItems ? 1 : 0),
                     itemBuilder: (context, index) {
+                      // Son eleman loading indicator
+                      if (index == transactions.length) {
+                        return buildLoadingIndicator();
+                      }
                       return _buildTransactionTile(transactions[index]);
                     },
                   ),

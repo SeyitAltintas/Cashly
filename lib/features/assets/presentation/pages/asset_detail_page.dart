@@ -321,6 +321,16 @@ class AssetDetailPage extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
+          const SizedBox(height: 12),
+          // Enflasyon disclaimer
+          Text(
+            'Bu hesaplama enflasyon etkisini içermez',
+            style: TextStyle(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+              fontSize: 11,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
         ],
       ),
     );
