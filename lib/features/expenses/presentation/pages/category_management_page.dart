@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/theme/app_theme.dart';
-import '../../../../services/database_helper.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../domain/repositories/expense_repository.dart';
+import '../../data/repositories/expense_repository_impl.dart';
 
 class KategoriYonetimiSayfasi extends StatefulWidget {
   final String userId;
@@ -161,15 +163,16 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
   static const List<String> sistemKategorileri = ['Tekrarlayan İşlemler'];
 
   void verileriYukle() {
+    final expenseRepo = getIt<ExpenseRepository>();
     setState(() {
-      kategoriler = DatabaseHelper.kategorileriGetir(widget.userId);
+      kategoriler = expenseRepo.getCategories(widget.userId);
 
       // Sistem kategorilerini kontrol et ve yoksa ekle
       for (final sistemKat in sistemKategorileri) {
         final varMi = kategoriler.any((k) => k['isim'] == sistemKat);
         if (!varMi) {
           kategoriler.add({'isim': sistemKat, 'ikon': 'autorenew'});
-          DatabaseHelper.kategorileriKaydet(widget.userId, kategoriler);
+          expenseRepo.saveCategories(widget.userId, kategoriler);
         }
       }
     });
@@ -182,7 +185,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
       kategoriler.add({'isim': tKategoriIsmi.text, 'ikon': secilenIkon});
     });
 
-    DatabaseHelper.kategorileriKaydet(widget.userId, kategoriler);
+    getIt<ExpenseRepository>().saveCategories(widget.userId, kategoriler);
     tKategoriIsmi.clear();
     secilenIkon = 'category';
     Navigator.pop(context);
@@ -256,7 +259,10 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
               setState(() {
                 kategoriler.removeAt(index);
               });
-              DatabaseHelper.kategorileriKaydet(widget.userId, kategoriler);
+              getIt<ExpenseRepository>().saveCategories(
+                widget.userId,
+                kategoriler,
+              );
               Navigator.pop(context);
 
               ScaffoldMessenger.of(context).showSnackBar(
@@ -316,9 +322,14 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
           ElevatedButton(
             onPressed: () {
               setState(() {
-                kategoriler = List.from(DatabaseHelper.defaultKategoriler);
+                kategoriler = List.from(
+                  ExpenseRepositoryImpl.defaultCategories,
+                );
               });
-              DatabaseHelper.kategorileriKaydet(widget.userId, kategoriler);
+              getIt<ExpenseRepository>().saveCategories(
+                widget.userId,
+                kategoriler,
+              );
               Navigator.pop(context);
 
               ScaffoldMessenger.of(context).showSnackBar(
@@ -670,7 +681,10 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                     final kategori = kategoriler.removeAt(oldIndex);
                     kategoriler.insert(newIndex, kategori);
                   });
-                  DatabaseHelper.kategorileriKaydet(widget.userId, kategoriler);
+                  getIt<ExpenseRepository>().saveCategories(
+                    widget.userId,
+                    kategoriler,
+                  );
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

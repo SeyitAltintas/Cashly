@@ -8,7 +8,8 @@ import '../widgets/expense_summary_card.dart';
 import '../widgets/add_expense_sheet.dart';
 import '../widgets/voice_input_sheet.dart';
 import '../../../../recycle_bin_page.dart';
-import '../../../../services/database_helper.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../domain/repositories/expense_repository.dart';
 import '../../../../core/widgets/money_animation.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../services/haptic_service.dart';
@@ -641,7 +642,8 @@ class _ExpensesPageState extends State<ExpensesPage> {
           return toplam;
         },
         onAddFixedExpenses: () async {
-          final sabitGiderler = DatabaseHelper.sabitGiderSablonlariGetir(
+          final expenseRepo = getIt<ExpenseRepository>();
+          final sabitGiderler = expenseRepo.getFixedExpenseTemplates(
             widget.userId ?? '',
           );
           if (sabitGiderler.isEmpty) {

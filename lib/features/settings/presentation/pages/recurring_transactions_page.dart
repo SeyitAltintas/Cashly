@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../services/database_helper.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../expenses/domain/repositories/expense_repository.dart';
+import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
 /// Tekrarlayan İşlemler yönetim sayfası
@@ -24,8 +26,11 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
   }
 
   void _verileriYukle() {
-    final islemler = DatabaseHelper.sabitGiderSablonlariGetir(widget.userId);
-    final pmVerileri = DatabaseHelper.odemeYontemleriGetir(widget.userId);
+    final expenseRepo = getIt<ExpenseRepository>();
+    final paymentRepo = getIt<PaymentMethodRepository>();
+
+    final islemler = expenseRepo.getFixedExpenseTemplates(widget.userId);
+    final pmVerileri = paymentRepo.getPaymentMethods(widget.userId);
     final pmList = pmVerileri
         .map((m) => PaymentMethod.fromMap(m))
         .where((pm) => !pm.isDeleted)
@@ -38,7 +43,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
   }
 
   void _kaydet() {
-    DatabaseHelper.sabitGiderSablonlariKaydet(
+    getIt<ExpenseRepository>().saveFixedExpenseTemplates(
       widget.userId,
       _tekrarlayanIslemler,
     );

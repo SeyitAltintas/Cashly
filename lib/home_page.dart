@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:cashly/services/database_helper.dart';
 import 'package:cashly/profile_page.dart';
+import 'core/di/injection_container.dart';
 
 // Auth
 import 'features/auth/presentation/controllers/auth_controller.dart';
@@ -23,8 +23,15 @@ import 'features/income/data/models/income_model.dart';
 import 'features/home/presentation/widgets/home_app_bar.dart';
 import 'features/home/presentation/widgets/home_bottom_nav.dart';
 import 'features/streak/data/models/streak_model.dart';
-import 'features/streak/data/services/streak_service.dart';
 import 'features/streak/presentation/widgets/streak_celebration_dialog.dart';
+
+// Repository imports
+import 'features/expenses/domain/repositories/expense_repository.dart';
+import 'features/income/domain/repositories/income_repository.dart';
+import 'features/assets/domain/repositories/asset_repository.dart';
+import 'features/payment_methods/domain/repositories/payment_method_repository.dart';
+import 'features/streak/domain/repositories/streak_repository.dart';
+import 'features/streak/data/services/streak_service.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
 /// Araçlar (0), Dashboard (1), Profil (2)
@@ -141,36 +148,46 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  /// Tüm verileri veritabanından okur
+  /// Tüm verileri repository'lerden okur
   void _verileriOku() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
 
-    tumHarcamalar = DatabaseHelper.harcamalariGetir(userId);
-    butceLimiti = DatabaseHelper.butceGetir(userId);
+    // Repository'leri DI'dan al
+    final expenseRepo = getIt<ExpenseRepository>();
+    final incomeRepo = getIt<IncomeRepository>();
+    final assetRepo = getIt<AssetRepository>();
+    final paymentRepo = getIt<PaymentMethodRepository>();
+    final streakRepo = getIt<StreakRepository>();
 
-    final varlikVerileri = DatabaseHelper.varliklariGetir(userId);
+    // Harcamalar
+    tumHarcamalar = expenseRepo.getExpenses(userId);
+    butceLimiti = expenseRepo.getBudget(userId);
+
+    // Varliklar
+    final varlikVerileri = assetRepo.getAssets(userId);
     varliklar = varlikVerileri.map((map) => Asset.fromMap(map)).toList();
 
-    final gelirVerileri = DatabaseHelper.gelirleriGetir(userId);
+    // Gelirler
+    final gelirVerileri = incomeRepo.getIncomes(userId);
     tumGelirler = gelirVerileri.map((map) => Income.fromMap(map)).toList();
 
-    final odemeVerileri = DatabaseHelper.odemeYontemleriGetir(userId);
+    // Ödeme yöntemleri
+    final odemeVerileri = paymentRepo.getPaymentMethods(userId);
     tumOdemeYontemleri = odemeVerileri
         .map((map) => PaymentMethod.fromMap(map))
         .toList();
 
-    final transferVerileri = DatabaseHelper.transferleriGetir(userId);
+    // Transferler
+    final transferVerileri = paymentRepo.getTransfers(userId);
     tumTransferler = transferVerileri
         .map((map) => Transfer.fromMap(map))
         .toList();
 
-    varsayilanOdemeYontemiId = DatabaseHelper.varsayilanOdemeYontemiGetir(
-      userId,
-    );
+    varsayilanOdemeYontemiId = paymentRepo.getDefaultPaymentMethod(userId);
 
-    // Streak verisini de oku (geri yüklemeden sonra güncellenmesi için)
-    _streakData = StreakService.getStreakData(userId);
+    // Streak verisi
+    _streakData = streakRepo.getStreakData(userId);
 
     setState(() => _isLoading = false);
   }
@@ -180,13 +197,13 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   void _harcamalariKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    DatabaseHelper.harcamalariKaydet(userId, tumHarcamalar);
+    getIt<ExpenseRepository>().saveExpenses(userId, tumHarcamalar);
   }
 
   void _gelirleriKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    DatabaseHelper.gelirleriKaydet(
+    getIt<IncomeRepository>().saveIncomes(
       userId,
       tumGelirler.map((g) => g.toMap()).toList(),
     );
@@ -195,7 +212,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   void _varliklariKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    DatabaseHelper.varliklariKaydet(
+    getIt<AssetRepository>().saveAssets(
       userId,
       varliklar.map((a) => a.toMap()).toList(),
     );
@@ -204,7 +221,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   void _odemeYontemleriKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    DatabaseHelper.odemeYontemleriKaydet(
+    getIt<PaymentMethodRepository>().savePaymentMethods(
       userId,
       tumOdemeYontemleri.map((pm) => pm.toMap()).toList(),
     );
@@ -213,7 +230,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   void _transferleriKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    DatabaseHelper.transferleriKaydet(
+    getIt<PaymentMethodRepository>().saveTransfers(
       userId,
       tumTransferler.map((t) => t.toMap()).toList(),
     );
