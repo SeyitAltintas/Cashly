@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../services/database_helper.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../income/domain/repositories/income_repository.dart';
+import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
 /// Tekrarlayan Gelirler yönetim sayfası (maaş, kira geliri vb.)
@@ -23,8 +25,11 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
   }
 
   void _verileriYukle() {
-    final gelirler = DatabaseHelper.tekrarlayanGelirleriGetir(widget.userId);
-    final pmVerileri = DatabaseHelper.odemeYontemleriGetir(widget.userId);
+    final incomeRepo = getIt<IncomeRepository>();
+    final paymentRepo = getIt<PaymentMethodRepository>();
+
+    final gelirler = incomeRepo.getRecurringIncomes(widget.userId);
+    final pmVerileri = paymentRepo.getPaymentMethods(widget.userId);
     final pmList = pmVerileri
         .map((m) => PaymentMethod.fromMap(m))
         .where((pm) => !pm.isDeleted)
@@ -37,7 +42,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
   }
 
   void _kaydet() {
-    DatabaseHelper.tekrarlayanGelirleriKaydet(
+    getIt<IncomeRepository>().saveRecurringIncomes(
       widget.userId,
       _tekrarlayanGelirler,
     );

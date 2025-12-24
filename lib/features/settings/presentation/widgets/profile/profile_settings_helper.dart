@@ -6,7 +6,8 @@ import '../../../../auth/domain/entities/user_entity.dart';
 import '../../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../../auth/data/repositories/auth_repository_impl.dart';
 import '../../../../auth/presentation/pages/login_page.dart';
-import '../../../../../services/database_helper.dart';
+import '../../../../../core/di/injection_container.dart';
+import '../../../../settings/domain/repositories/settings_repository.dart';
 
 /// Profil ayarları dialog/sheet yardımcı sınıfı
 /// Avatar seçimi, isim değiştirme, PIN değiştirme, hesap silme akışlarını yönetir
@@ -669,7 +670,7 @@ class ProfileSettingsHelper {
             if (confirmed == true) {
               try {
                 final userId = currentUser.id;
-                await DatabaseHelper.deleteUserData(userId);
+                await getIt<SettingsRepository>().deleteAllUserData(userId);
                 await authRepository.deleteUser(userId);
                 await authController.logout();
 

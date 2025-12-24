@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-import 'services/database_helper.dart';
+import 'core/di/injection_container.dart';
+import 'features/expenses/domain/repositories/expense_repository.dart';
+import 'features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
 import 'features/income/presentation/pages/income_settings_page.dart';
 import 'features/settings/presentation/pages/appearance_page.dart';
@@ -485,18 +487,19 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
   }
 
   void _verileriYukle() {
-    double mevcutButce = DatabaseHelper.butceGetir(widget.userId);
+    final expenseRepo = getIt<ExpenseRepository>();
+    final paymentRepo = getIt<PaymentMethodRepository>();
+
+    double mevcutButce = expenseRepo.getBudget(widget.userId);
     tGelir.text = mevcutButce.toStringAsFixed(0);
 
-    List<Map<String, dynamic>> pmVerileri = DatabaseHelper.odemeYontemleriGetir(
+    List<Map<String, dynamic>> pmVerileri = paymentRepo.getPaymentMethods(
       widget.userId,
     );
     List<PaymentMethod> pmList = pmVerileri
         .map((m) => PaymentMethod.fromMap(m))
         .toList();
-    String? varsayilanPm = DatabaseHelper.varsayilanOdemeYontemiGetir(
-      widget.userId,
-    );
+    String? varsayilanPm = paymentRepo.getDefaultPaymentMethod(widget.userId);
 
     setState(() {
       odemeYontemleri = pmList.where((pm) => !pm.isDeleted).toList();
@@ -522,7 +525,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
     double? yeniLimit = double.tryParse(tutarText);
     if (yeniLimit != null) {
       try {
-        DatabaseHelper.butceKaydet(widget.userId, yeniLimit);
+        getIt<ExpenseRepository>().saveBudget(widget.userId, yeniLimit);
         final formattedAmount = yeniLimit
             .toStringAsFixed(0)
             .replaceAllMapped(
@@ -557,7 +560,10 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
       varsayilanOdemeYontemiId = newValue;
       categoryChanged = true;
     });
-    DatabaseHelper.varsayilanOdemeYontemiKaydet(widget.userId, newValue);
+    getIt<PaymentMethodRepository>().saveDefaultPaymentMethod(
+      widget.userId,
+      newValue,
+    );
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text(

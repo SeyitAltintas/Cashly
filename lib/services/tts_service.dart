@@ -1,6 +1,7 @@
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter/foundation.dart';
-import 'database_helper.dart';
+import '../core/di/injection_container.dart';
+import '../features/settings/domain/repositories/settings_repository.dart';
 
 /// Text-to-Speech servisi - Sesli geri bildirim için kullanılır
 class TtsService {
@@ -39,7 +40,9 @@ class TtsService {
   Future<void> speak(String text, {String? userId}) async {
     // Kullanıcı ID'si verilmişse ayarı kontrol et
     if (userId != null) {
-      bool isEnabled = DatabaseHelper.sesliGeriBildirimAktifMi(userId);
+      bool isEnabled = getIt<SettingsRepository>().isVoiceFeedbackEnabled(
+        userId,
+      );
       if (!isEnabled) {
         debugPrint('TTS disabled by user settings');
         return;

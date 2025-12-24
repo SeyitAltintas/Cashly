@@ -1,4 +1,6 @@
-import 'package:cashly/services/database_helper.dart';
+import 'package:cashly/core/di/injection_container.dart';
+import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
+import 'package:cashly/features/income/domain/repositories/income_repository.dart';
 import 'package:cashly/features/income/data/models/income_model.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 
@@ -29,8 +31,9 @@ class RecurringTransactionService {
   void tekrarlayanHarcamalariKontrolEt({
     required void Function(int index, PaymentMethod pm) onPaymentMethodUpdate,
   }) {
-    List<Map<String, dynamic>> tekrarlayanIslemler =
-        DatabaseHelper.sabitGiderSablonlariGetir(userId);
+    final expenseRepo = getIt<ExpenseRepository>();
+    List<Map<String, dynamic>> tekrarlayanIslemler = expenseRepo
+        .getFixedExpenseTemplates(userId);
 
     if (tekrarlayanIslemler.isEmpty) return;
 
@@ -96,8 +99,11 @@ class RecurringTransactionService {
 
     if (eklenenHarcamaAdet > 0) {
       // Verileri kaydet
-      DatabaseHelper.harcamalariKaydet(userId, tumHarcamalar);
-      DatabaseHelper.sabitGiderSablonlariKaydet(userId, tekrarlayanIslemler);
+      getIt<ExpenseRepository>().saveExpenses(userId, tumHarcamalar);
+      getIt<ExpenseRepository>().saveFixedExpenseTemplates(
+        userId,
+        tekrarlayanIslemler,
+      );
     }
   }
 
@@ -106,8 +112,9 @@ class RecurringTransactionService {
   void tekrarlayanGelirleriKontrolEt({
     required void Function(int index, PaymentMethod pm) onPaymentMethodUpdate,
   }) {
-    List<Map<String, dynamic>> tekrarlayanGelirler =
-        DatabaseHelper.tekrarlayanGelirleriGetir(userId);
+    final incomeRepo = getIt<IncomeRepository>();
+    List<Map<String, dynamic>> tekrarlayanGelirler = incomeRepo
+        .getRecurringIncomes(userId);
 
     if (tekrarlayanGelirler.isEmpty) return;
 
@@ -168,11 +175,12 @@ class RecurringTransactionService {
 
     if (eklenenGelirAdet > 0) {
       // Gelirleri kaydet
+      final incomeRepo = getIt<IncomeRepository>();
       List<Map<String, dynamic>> gelirMapleri = tumGelirler
           .map((income) => income.toMap())
           .toList();
-      DatabaseHelper.gelirleriKaydet(userId, gelirMapleri);
-      DatabaseHelper.tekrarlayanGelirleriKaydet(userId, tekrarlayanGelirler);
+      incomeRepo.saveIncomes(userId, gelirMapleri);
+      incomeRepo.saveRecurringIncomes(userId, tekrarlayanGelirler);
     }
   }
 
