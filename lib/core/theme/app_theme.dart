@@ -97,39 +97,106 @@ class AppTheme {
         backgroundColor: PageThemeColors.darkGray,
         foregroundColor: Colors.white,
       ),
-      // Tarih seçici teması
+      // Tarih seçici teması - Dark mode uyumlu
       datePickerTheme: DatePickerThemeData(
-        backgroundColor: const Color(0xFF1E1E1E),
-        headerBackgroundColor: const Color(0xFF2D2D2D),
+        // Arka plan renkleri
+        backgroundColor: const Color(0xFF1A1A1A),
+        headerBackgroundColor: const Color(0xFF2A2A2A),
         headerForegroundColor: Colors.white,
+        // Başlık stili
+        headerHeadlineStyle: GoogleFonts.outfit(
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+        headerHelpStyle: GoogleFonts.outfit(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: Colors.white.withValues(alpha: 0.7),
+        ),
+        // Gün renkleri
         dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return Colors.black;
+          }
+          if (states.contains(WidgetState.disabled)) {
+            return Colors.white.withValues(alpha: 0.3);
+          }
+          return Colors.white.withValues(alpha: 0.9);
+        }),
+        // Seçili gün vurgusu
+        dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return Colors.white;
           }
-          if (states.contains(WidgetState.disabled)) {
-            return Colors.white.withValues(alpha: 0.38);
-          }
-          return Colors.white;
+          return Colors.transparent;
         }),
-        todayForegroundColor: WidgetStateProperty.all(Colors.blue.shade400),
-        todayBackgroundColor: WidgetStateProperty.all(Colors.transparent),
-        todayBorder: BorderSide(color: Colors.blue.shade400),
-        dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+        // Bugün vurgusu
+        todayForegroundColor: WidgetStateProperty.all(Colors.white),
+        todayBackgroundColor: WidgetStateProperty.all(
+          Colors.white.withValues(alpha: 0.15),
+        ),
+        todayBorder: const BorderSide(color: Colors.white, width: 1.5),
+        // Yıl seçici
+        yearForegroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return Colors.blue.shade600;
+            return Colors.black;
+          }
+          return Colors.white.withValues(alpha: 0.8);
+        }),
+        yearBackgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return Colors.white;
           }
           return Colors.transparent;
         }),
-        yearForegroundColor: WidgetStateProperty.all(Colors.white),
-        weekdayStyle: const TextStyle(color: Colors.white70),
-        dayStyle: const TextStyle(color: Colors.white),
+        yearOverlayColor: WidgetStateProperty.all(
+          Colors.white.withValues(alpha: 0.1),
+        ),
+        // Hafta günleri stili
+        weekdayStyle: GoogleFonts.outfit(
+          color: Colors.white.withValues(alpha: 0.6),
+          fontWeight: FontWeight.w600,
+          fontSize: 13,
+        ),
+        // Gün stili
+        dayStyle: GoogleFonts.outfit(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+        ),
+        // Divider rengi
+        dividerColor: Colors.white.withValues(alpha: 0.1),
+        // Yüzey rengi
         surfaceTintColor: Colors.transparent,
-        // İptal ve Tamam butonları mavi
+        // Dialog şekli
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        // İptal ve Tamam butonları
         cancelButtonStyle: TextButton.styleFrom(
-          foregroundColor: Colors.blue.shade400,
+          foregroundColor: Colors.white60,
+          textStyle: GoogleFonts.outfit(
+            fontWeight: FontWeight.w500,
+            fontSize: 15,
+          ),
         ),
         confirmButtonStyle: TextButton.styleFrom(
-          foregroundColor: Colors.blue.shade400,
+          foregroundColor: Colors.white,
+          textStyle: GoogleFonts.outfit(
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+        ),
+        // Giriş dekoratör teması
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white.withValues(alpha: 0.1),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.white),
+          ),
         ),
       ),
     );
