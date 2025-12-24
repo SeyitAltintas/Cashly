@@ -27,32 +27,47 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
         title: const Text("Varlık Çöp Kutusu"),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.white),
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete_sweep, color: Colors.white),
+            icon: Icon(
+              Icons.delete_sweep,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             tooltip: "Çöpü Boşalt",
             onPressed: () {
               if (widget.deletedAssets.isEmpty) return;
               showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  backgroundColor: const Color(0xFF1E1E1E),
-                  title: const Text(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  title: Text(
                     "Çöpü Boşalt",
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
-                  content: const Text(
+                  content: Text(
                     "Tüm silinen varlıklar kalıcı olarak yok edilecek. Emin misin?",
-                    style: TextStyle(color: Colors.white70),
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text(
+                      child: Text(
                         "İptal",
-                        style: TextStyle(color: Colors.white54),
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.54),
+                        ),
                       ),
                     ),
                     ElevatedButton(
@@ -80,15 +95,25 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
         ],
       ),
       body: widget.deletedAssets.isEmpty
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.delete_outline, size: 64, color: Colors.white24),
-                  SizedBox(height: 16),
+                  Icon(
+                    Icons.delete_outline,
+                    size: 64,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.24),
+                  ),
+                  const SizedBox(height: 16),
                   Text(
                     "Çöp kutusu boş.",
-                    style: TextStyle(color: Colors.white54),
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.54),
+                    ),
                   ),
                 ],
               ),
@@ -103,7 +128,9 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.05),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.05),
                     ),
                   ),
                   child: ListTile(
@@ -113,11 +140,17 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
                     ),
                     title: Text(
                       asset.name,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                     subtitle: Text(
                       "${asset.amount} ₺ • ${asset.category}",
-                      style: const TextStyle(color: Colors.white54),
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.54),
+                      ),
                     ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,

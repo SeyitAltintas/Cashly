@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'core/constants/color_constants.dart';
-import 'services/database_helper.dart';
+import 'core/di/injection_container.dart';
+import 'features/expenses/domain/repositories/expense_repository.dart';
+import 'features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'features/payment_methods/data/models/payment_method_model.dart';
 
 class CopKutusuSayfasi extends StatefulWidget {
@@ -24,10 +26,13 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
   }
 
   void verileriYukle() {
-    tumHarcamalarHam = DatabaseHelper.harcamalariGetir(widget.userId);
+    final expenseRepo = getIt<ExpenseRepository>();
+    final paymentRepo = getIt<PaymentMethodRepository>();
+
+    tumHarcamalarHam = expenseRepo.getExpenses(widget.userId);
 
     // Ödeme yöntemlerini yükle
-    List<Map<String, dynamic>> pmVerileri = DatabaseHelper.odemeYontemleriGetir(
+    List<Map<String, dynamic>> pmVerileri = paymentRepo.getPaymentMethods(
       widget.userId,
     );
     odemeYontemleri = pmVerileri.map((m) => PaymentMethod.fromMap(m)).toList();
@@ -78,7 +83,10 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
       setState(() {
         tumHarcamalarHam.removeWhere((element) => element['silindi'] == true);
         silinenHarcamalar.clear();
-        DatabaseHelper.harcamalariKaydet(widget.userId, tumHarcamalarHam);
+        getIt<ExpenseRepository>().saveExpenses(
+          widget.userId,
+          tumHarcamalarHam,
+        );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -126,12 +134,15 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
         }
       }
     });
-    DatabaseHelper.harcamalariKaydet(widget.userId, tumHarcamalarHam);
+    getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
     // Ödeme yöntemlerini kaydet
     List<Map<String, dynamic>> pmMapleri = odemeYontemleri
         .map((pm) => pm.toMap())
         .toList();
-    DatabaseHelper.odemeYontemleriKaydet(widget.userId, pmMapleri);
+    getIt<PaymentMethodRepository>().savePaymentMethods(
+      widget.userId,
+      pmMapleri,
+    );
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -156,7 +167,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
       tumHarcamalarHam.remove(harcama);
       silinenHarcamalar.remove(harcama);
     });
-    DatabaseHelper.harcamalariKaydet(widget.userId, tumHarcamalarHam);
+    getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

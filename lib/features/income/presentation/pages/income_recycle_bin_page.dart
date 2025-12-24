@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
-import 'package:cashly/services/database_helper.dart';
+import 'package:cashly/core/di/injection_container.dart';
+import '../../../income/domain/repositories/income_repository.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 import '../../data/models/income_model.dart';
 
@@ -40,7 +41,8 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
 
   void verileriYukle() {
     try {
-      List<Map<String, dynamic>> gelirVerileri = DatabaseHelper.gelirleriGetir(
+      final incomeRepo = getIt<IncomeRepository>();
+      List<Map<String, dynamic>> gelirVerileri = incomeRepo.getIncomes(
         widget.userId,
       );
       tumGelirler = gelirVerileri.map((map) => Income.fromMap(map)).toList();
@@ -58,7 +60,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
       List<Map<String, dynamic>> gelirMapleri = tumGelirler
           .map((income) => income.toMap())
           .toList();
-      DatabaseHelper.gelirleriKaydet(widget.userId, gelirMapleri);
+      getIt<IncomeRepository>().saveIncomes(widget.userId, gelirMapleri);
     } catch (e) {
       ErrorHandler.handleDatabaseError(context, e);
       ErrorHandler.logError('Gelirler kaydedilirken hata', e);

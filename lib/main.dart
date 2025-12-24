@@ -7,13 +7,13 @@ import 'services/database_helper.dart';
 import 'services/haptic_service.dart';
 import 'features/streak/data/services/streak_service.dart';
 import 'home_page.dart';
-import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/data/initialize_default_user.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/theme_manager.dart';
 import 'core/widgets/error_screen.dart';
+import 'core/di/injection_container.dart';
 
 void main() async {
   // Global error handling - tüm beklenmedik hataları yakala
@@ -41,6 +41,8 @@ void main() async {
 
       try {
         await Hive.initFlutter();
+        // DI container'ı başlat
+        await initializeDependencies();
         runApp(
           ChangeNotifierProvider(
             create: (_) => ThemeManager(),
@@ -103,9 +105,8 @@ class _CashlyAppState extends State<CashlyApp> {
       // Varsayılan test kullanıcısını oluştur (geçici)
       await initializeDefaultUser();
 
-      // Auth repository ve controller'ı oluştur
-      final authRepository = AuthRepositoryImpl();
-      final authController = AuthController(authRepository);
+      // Auth controller'ı DI container'dan al
+      final authController = getIt<AuthController>();
 
       // Auth durumunu kontrol et
       await authController.checkAuth();

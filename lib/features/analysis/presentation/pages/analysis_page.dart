@@ -5,6 +5,7 @@ import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../widgets/analysis_widgets.dart';
+import 'pdf_export_page.dart';
 
 /// Analiz ve Raporlar Sayfası
 /// Harcama, Gelir ve Varlık analizlerini gösterir
@@ -14,6 +15,8 @@ class AnalysisPage extends StatefulWidget {
   final List<Income> incomes;
   final DateTime selectedDate;
   final List<PaymentMethod> paymentMethods;
+  final String userId;
+  final String userName;
 
   const AnalysisPage({
     super.key,
@@ -21,6 +24,8 @@ class AnalysisPage extends StatefulWidget {
     required this.assets,
     required this.incomes,
     required this.selectedDate,
+    required this.userId,
+    required this.userName,
     this.paymentMethods = const [],
   });
 
@@ -115,6 +120,13 @@ class _AnalysisPageState extends State<AnalysisPage>
         onPressed: () => Navigator.pop(context),
       ),
       title: const Text("Analiz ve Raporlar"),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.file_download_outlined, color: Colors.white),
+          tooltip: 'Rapor İndir',
+          onPressed: _showExportSheet,
+        ),
+      ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: Container(
@@ -199,6 +211,20 @@ class _AnalysisPageState extends State<AnalysisPage>
               );
             },
           ),
+        ),
+      ),
+    );
+  }
+
+  /// PDF export sayfasina git
+  void _showExportSheet() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PdfExportPage(
+          userId: widget.userId,
+          userName: widget.userName,
+          selectedDate: widget.selectedDate,
         ),
       ),
     );

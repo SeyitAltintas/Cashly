@@ -1,6 +1,21 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'dart:developer' as developer;
 import '../models/streak_model.dart';
 import '../constants/streak_badges.dart';
+
+/// Seri güncelleme sonucu
+/// Seri verisi ve artış bilgisini içerir
+class StreakResult {
+  final StreakData data;
+  final bool streakIncreased; // Seri bu giriş ile arttı mı?
+  final int previousStreak; // Önceki seri değeri
+
+  const StreakResult({
+    required this.data,
+    required this.streakIncreased,
+    required this.previousStreak,
+  });
+}
 
 /// Seri (Streak) yönetim servisi
 /// Günlük giriş serisini takip eder ve günceller
@@ -8,6 +23,7 @@ class StreakService {
   StreakService._();
 
   static const String _boxName = 'streak_box';
+  static const String _logName = 'StreakService';
 
   /// Her 7 günlük seride 1 dondurucu kazanılır
   static const int _freezeRewardInterval = 7;
@@ -22,7 +38,13 @@ class StreakService {
       final data = box.get('streak_$userId');
       if (data == null) return StreakData.empty();
       return StreakData.fromMap(Map<String, dynamic>.from(data));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      developer.log(
+        'Seri verisi okunurken hata',
+        name: _logName,
+        error: e,
+        stackTrace: stackTrace,
+      );
       return StreakData.empty();
     }
   }
@@ -32,25 +54,41 @@ class StreakService {
     try {
       final box = Hive.box(_boxName);
       await box.put('streak_$userId', data.toMap());
-    } catch (e) {
-      // Hata durumunda sessizce devam et
+      developer.log(
+        'Seri verisi kaydedildi: streak=${data.currentStreak}, userId=$userId',
+        name: _logName,
+      );
+    } catch (e, stackTrace) {
+      developer.log(
+        'Seri verisi kaydedilirken hata',
+        name: _logName,
+        error: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
   /// Uygulama açıldığında seriyi kontrol et ve güncelle
   /// Gün içinde birden fazla giriş yapılsa bile sadece bir kere sayılır
-  static Future<StreakData> checkAndUpdateStreak(String userId) async {
+  /// StreakResult döndürür - seri artışını kontrol edebilirsiniz
+  static Future<StreakResult> checkAndUpdateStreak(String userId) async {
     final currentData = getStreakData(userId);
     final today = _getDateString(DateTime.now());
     final lastLogin = currentData.lastLoginDate;
+    final previousStreak = currentData.currentStreak;
 
-    // Bugün zaten giriş yaptıysa, mevcut veriyi döndür
+    // Bugün zaten giriş yaptıysa, mevcut veriyi döndür (artış yok)
     if (lastLogin == today) {
-      return currentData;
+      return StreakResult(
+        data: currentData,
+        streakIncreased: false,
+        previousStreak: previousStreak,
+      );
     }
 
     // Yeni seri verisi hesapla
     StreakData newData;
+    bool streakIncreased = false;
 
     if (lastLogin.isEmpty) {
       // İlk giriş
@@ -64,6 +102,7 @@ class StreakService {
         usedFreezeToday: false,
         totalFreezesUsed: 0,
       );
+      streakIncreased = true; // İlk giriş de artış sayılır
     } else {
       final lastDate = DateTime.parse(lastLogin);
       final todayDate = DateTime.parse(today);
@@ -90,6 +129,7 @@ class StreakService {
           freezeCount: newFreezeCount,
           usedFreezeToday: false,
         );
+        streakIncreased = true;
       } else if (difference == 2 && currentData.canUseFreeze) {
         // 1 gün atlandı ama dondurucu var - seriyi koru!
         final newStreak = currentData.currentStreak + 1;
@@ -106,6 +146,7 @@ class StreakService {
           usedFreezeToday: true,
           totalFreezesUsed: currentData.totalFreezesUsed + 1,
         );
+        streakIncreased = true; // Korunan seri de artış sayılır
       } else {
         // Birden fazla gün atlandı veya dondurucu yok, seri sıfırlanıyor
         newData = currentData.copyWith(
@@ -114,6 +155,7 @@ class StreakService {
           totalLoginDays: currentData.totalLoginDays + 1,
           usedFreezeToday: false,
         );
+        streakIncreased = true; // Sıfırlandıktan sonra 1'e döndü
       }
     }
 
@@ -132,7 +174,11 @@ class StreakService {
     // Veriyi kaydet
     await saveStreakData(userId, newData);
 
-    return newData;
+    return StreakResult(
+      data: newData,
+      streakIncreased: streakIncreased,
+      previousStreak: previousStreak,
+    );
   }
 
   /// Yeni kazanılan rozetleri kontrol et

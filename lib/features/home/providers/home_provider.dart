@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cashly/services/database_helper.dart';
+import 'package:cashly/core/di/injection_container.dart';
+import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
+import 'package:cashly/features/income/domain/repositories/income_repository.dart';
+import 'package:cashly/features/assets/domain/repositories/asset_repository.dart';
+import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/assets/data/models/asset_model.dart';
 import 'package:cashly/features/income/data/models/income_model.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
@@ -71,7 +75,8 @@ class HomeProvider extends ChangeNotifier {
 
   /// Harcama kategorilerini veritabanından yükler
   void kategorileriYukle() {
-    List<Map<String, dynamic>> dbKategoriler = DatabaseHelper.kategorileriGetir(
+    final expenseRepo = getIt<ExpenseRepository>();
+    List<Map<String, dynamic>> dbKategoriler = expenseRepo.getCategories(
       userId,
     );
     kategoriIkonlari = {};
@@ -85,8 +90,8 @@ class HomeProvider extends ChangeNotifier {
 
   /// Gelir kategorilerini veritabanından yükler
   void gelirKategorileriYukle() {
-    List<Map<String, dynamic>> dbKategoriler =
-        DatabaseHelper.gelirKategorileriGetir(userId);
+    final incomeRepo = getIt<IncomeRepository>();
+    List<Map<String, dynamic>> dbKategoriler = incomeRepo.getCategories(userId);
     gelirKategoriIkonlari = {};
     for (var kategori in dbKategoriler) {
       String isim = kategori['isim'];
@@ -100,9 +105,14 @@ class HomeProvider extends ChangeNotifier {
 
   /// Tüm verileri veritabanından okur
   void verileriOku() {
+    final expenseRepo = getIt<ExpenseRepository>();
+    final incomeRepo = getIt<IncomeRepository>();
+    final assetRepo = getIt<AssetRepository>();
+    final paymentRepo = getIt<PaymentMethodRepository>();
+
     // Harcamaları oku
-    List<Map<String, dynamic>> gelen = DatabaseHelper.harcamalariGetir(userId);
-    double kayitliButce = DatabaseHelper.butceGetir(userId);
+    List<Map<String, dynamic>> gelen = expenseRepo.getExpenses(userId);
+    double kayitliButce = expenseRepo.getBudget(userId);
 
     gelen.sort((a, b) {
       DateTime tarihA =
@@ -113,34 +123,32 @@ class HomeProvider extends ChangeNotifier {
     });
 
     // Varlıkları oku
-    List<Map<String, dynamic>> varlikVerileri = DatabaseHelper.varliklariGetir(
-      userId,
-    );
+    List<Map<String, dynamic>> varlikVerileri = assetRepo.getAssets(userId);
     List<Asset> okunanVarliklar = varlikVerileri
         .map((map) => Asset.fromMap(map))
         .toList();
 
     // Gelirleri oku
-    List<Map<String, dynamic>> gelirVerileri = DatabaseHelper.gelirleriGetir(
-      userId,
-    );
+    List<Map<String, dynamic>> gelirVerileri = incomeRepo.getIncomes(userId);
     List<Income> okunanGelirler = gelirVerileri
         .map((map) => Income.fromMap(map))
         .toList();
 
     // Ödeme yöntemlerini oku
-    List<Map<String, dynamic>> odemeVerileri =
-        DatabaseHelper.odemeYontemleriGetir(userId);
+    List<Map<String, dynamic>> odemeVerileri = paymentRepo.getPaymentMethods(
+      userId,
+    );
     List<PaymentMethod> okunanOdemeYontemleri = odemeVerileri
         .map((map) => PaymentMethod.fromMap(map))
         .toList();
 
     // Varsayılan ödeme yöntemini oku
-    String? varsayilanPm = DatabaseHelper.varsayilanOdemeYontemiGetir(userId);
+    String? varsayilanPm = paymentRepo.getDefaultPaymentMethod(userId);
 
     // Transferleri oku
-    List<Map<String, dynamic>> transferVerileri =
-        DatabaseHelper.transferleriGetir(userId);
+    List<Map<String, dynamic>> transferVerileri = paymentRepo.getTransfers(
+      userId,
+    );
     List<Transfer> okunanTransferler = transferVerileri
         .map((map) => Transfer.fromMap(map))
         .toList();
@@ -160,7 +168,7 @@ class HomeProvider extends ChangeNotifier {
 
   /// Harcamaları veritabanına kaydeder
   void verileriKaydet() {
-    DatabaseHelper.harcamalariKaydet(userId, tumHarcamalar);
+    getIt<ExpenseRepository>().saveExpenses(userId, tumHarcamalar);
   }
 
   /// Gelirleri veritabanına kaydeder
@@ -168,7 +176,7 @@ class HomeProvider extends ChangeNotifier {
     List<Map<String, dynamic>> gelirMapleri = tumGelirler
         .map((income) => income.toMap())
         .toList();
-    DatabaseHelper.gelirleriKaydet(userId, gelirMapleri);
+    getIt<IncomeRepository>().saveIncomes(userId, gelirMapleri);
   }
 
   /// Varlıkları veritabanına kaydeder
@@ -176,7 +184,7 @@ class HomeProvider extends ChangeNotifier {
     List<Map<String, dynamic>> varlikMapleri = varliklar
         .map((asset) => asset.toMap())
         .toList();
-    DatabaseHelper.varliklariKaydet(userId, varlikMapleri);
+    getIt<AssetRepository>().saveAssets(userId, varlikMapleri);
   }
 
   /// Ödeme yöntemlerini veritabanına kaydeder
@@ -184,7 +192,7 @@ class HomeProvider extends ChangeNotifier {
     List<Map<String, dynamic>> yontemMapleri = tumOdemeYontemleri
         .map((pm) => pm.toMap())
         .toList();
-    DatabaseHelper.odemeYontemleriKaydet(userId, yontemMapleri);
+    getIt<PaymentMethodRepository>().savePaymentMethods(userId, yontemMapleri);
   }
 
   /// Transferleri veritabanına kaydeder
@@ -192,7 +200,7 @@ class HomeProvider extends ChangeNotifier {
     List<Map<String, dynamic>> transferMapleri = tumTransferler
         .map((t) => t.toMap())
         .toList();
-    DatabaseHelper.transferleriKaydet(userId, transferMapleri);
+    getIt<PaymentMethodRepository>().saveTransfers(userId, transferMapleri);
   }
 
   // ===== FİLTRELEME VE TAKVİM =====
@@ -654,7 +662,7 @@ class HomeProvider extends ChangeNotifier {
 
   /// Bütçe limitini günceller
   Future<void> butceLimitiGuncelle(double yeniLimit) async {
-    await DatabaseHelper.butceKaydet(userId, yeniLimit);
+    await getIt<ExpenseRepository>().saveBudget(userId, yeniLimit);
     butceLimiti = yeniLimit;
     filtreleVeGoster();
   }

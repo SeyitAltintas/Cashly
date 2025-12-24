@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cashly/services/database_helper.dart';
+import 'package:cashly/core/di/injection_container.dart';
+import '../../../income/domain/repositories/income_repository.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/utils/validators.dart';
 import 'package:cashly/core/theme/app_theme.dart';
@@ -54,15 +55,16 @@ class _GelirKategoriYonetimiSayfasiState
 
   void kategorileriYukle() {
     try {
+      final incomeRepo = getIt<IncomeRepository>();
       setState(() {
-        kategoriler = DatabaseHelper.gelirKategorileriGetir(widget.userId);
+        kategoriler = incomeRepo.getCategories(widget.userId);
 
         // Sistem kategorilerini kontrol et ve yoksa ekle
         for (final sistemKat in sistemKategorileri) {
           final varMi = kategoriler.any((k) => k['isim'] == sistemKat);
           if (!varMi) {
             kategoriler.add({'isim': sistemKat, 'ikon': 'autorenew'});
-            DatabaseHelper.gelirKategorileriKaydet(widget.userId, kategoriler);
+            incomeRepo.saveCategories(widget.userId, kategoriler);
           }
         }
       });
@@ -74,7 +76,7 @@ class _GelirKategoriYonetimiSayfasiState
 
   void kaydet() {
     try {
-      DatabaseHelper.gelirKategorileriKaydet(widget.userId, kategoriler);
+      getIt<IncomeRepository>().saveCategories(widget.userId, kategoriler);
       setState(() {
         hasChanges = true;
       });

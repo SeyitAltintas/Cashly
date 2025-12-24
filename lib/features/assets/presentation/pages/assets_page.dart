@@ -7,6 +7,7 @@ import '../widgets/add_asset_sheet.dart';
 import 'asset_recycle_bin_page.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../services/haptic_service.dart';
+import '../../../../core/widgets/app_floating_bottom_bar.dart';
 
 class AssetsPage extends StatefulWidget {
   final List<Asset> assets;
@@ -100,7 +101,9 @@ class _AssetsPageState extends State<AssetsPage> {
                 controller: _aramaController,
                 onChanged: (value) => _filtrele(),
                 autofocus: true,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 decoration: InputDecoration(
                   hintText: "Varlık ara...",
                   border: InputBorder.none,
@@ -116,7 +119,10 @@ class _AssetsPageState extends State<AssetsPage> {
         elevation: 0,
         centerTitle: false,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -209,7 +215,7 @@ class _AssetsPageState extends State<AssetsPage> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blue.shade600.withValues(alpha: 0.1),
+                      color: Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
@@ -239,77 +245,52 @@ class _AssetsPageState extends State<AssetsPage> {
           Expanded(child: _buildAssetList()),
         ],
       ),
-      // Modern floating bottom navigation bar (Harcamalarım tarzı)
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-        child: Container(
-          height: 70,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(35),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 20,
-                offset: const Offset(0, 5),
-                spreadRadius: -5,
-              ),
-            ],
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.08),
-              width: 1,
-            ),
+      // Modern floating bottom navigation bar - Ortak widget kullanımı
+      bottomNavigationBar: AppFloatingBottomBar(
+        items: [
+          BottomBarItem(
+            icon: Icons.delete_outline,
+            label: "Çöp Kutusu",
+            onTap: () {
+              HapticService.selectionClick();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AssetRecycleBinPage(
+                    deletedAssets: _deletedAssets,
+                    onRestore: (asset) {
+                      setState(() {
+                        _deletedAssets.removeWhere((a) => a.id == asset.id);
+                        asset.isDeleted = false;
+                        _assets.add(asset);
+                        _filtrele();
+                      });
+                      widget.onRestore(asset);
+                    },
+                    onPermanentDelete: (asset) {
+                      setState(() {
+                        _deletedAssets.removeWhere((a) => a.id == asset.id);
+                      });
+                      widget.onPermanentDelete(asset);
+                    },
+                    onEmptyBin: () {
+                      setState(() {
+                        _deletedAssets.clear();
+                      });
+                      widget.onEmptyBin();
+                    },
+                  ),
+                ),
+              ).then((_) => setState(() {}));
+            },
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Sol: Çöp Kutusu
-              _buildNavButton(
-                icon: Icons.delete_outline,
-                label: "Çöp Kutusu",
-                onTap: () {
-                  HapticService.selectionClick();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AssetRecycleBinPage(
-                        deletedAssets: _deletedAssets,
-                        onRestore: (asset) {
-                          setState(() {
-                            _deletedAssets.removeWhere((a) => a.id == asset.id);
-                            asset.isDeleted = false;
-                            _assets.add(asset);
-                            _filtrele();
-                          });
-                          widget.onRestore(asset);
-                        },
-                        onPermanentDelete: (asset) {
-                          setState(() {
-                            _deletedAssets.removeWhere((a) => a.id == asset.id);
-                          });
-                          widget.onPermanentDelete(asset);
-                        },
-                        onEmptyBin: () {
-                          setState(() {
-                            _deletedAssets.clear();
-                          });
-                          widget.onEmptyBin();
-                        },
-                      ),
-                    ),
-                  ).then((_) => setState(() {}));
-                },
-              ),
-              // Sağ: Varlık Ekle
-              _buildAddButton(
-                onTap: () {
-                  HapticService.lightImpact();
-                  _showAddAssetSheet();
-                },
-              ),
-            ],
-          ),
-        ),
+        ],
+        centerButtonColor: Colors.blue.shade600,
+        centerButtonLabel: "Varlık Ekle",
+        onCenterButtonTap: () {
+          HapticService.lightImpact();
+          _showAddAssetSheet();
+        },
       ),
     );
   }
@@ -337,78 +318,6 @@ class _AssetsPageState extends State<AssetsPage> {
           });
           widget.onAdd(name, amount, quantity, category, type);
         },
-      ),
-    );
-  }
-
-  Widget _buildNavButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.7),
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.5),
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAddButton({required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.blue.shade600,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blue.shade600.withValues(alpha: 0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.add, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
-            const Text(
-              "Varlık Ekle",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -455,109 +364,117 @@ class _AssetsPageState extends State<AssetsPage> {
       itemCount: _filtrelenmisVarliklar.length,
       itemBuilder: (context, index) {
         final asset = _filtrelenmisVarliklar[index];
-        return Dismissible(
-          key: Key(asset.id),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 20),
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: ColorConstants.koyuKirmizi,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(Icons.delete, color: Colors.white),
-          ),
-          onDismissed: (direction) {
-            HapticService.delete(); // Silme haptic feedback
-            setState(() {
-              _assets.removeWhere((a) => a.id == asset.id);
-              asset.isDeleted = true;
-              _deletedAssets.add(asset);
-              _filtrele();
-            });
-            widget.onDelete(asset);
-          },
-          child: Card(
-            color: Theme.of(context).colorScheme.surface,
-            elevation: 0,
-            margin: const EdgeInsets.only(bottom: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.05),
+        // RepaintBoundary ile render izolasyonu - performans optimizasyonu
+        return RepaintBoundary(
+          child: Dismissible(
+            key: Key(asset.id),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 20),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: ColorConstants.koyuKirmizi,
+                borderRadius: BorderRadius.circular(16),
               ),
+              child: const Icon(Icons.delete, color: Colors.white),
             ),
-            child: ListTile(
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => AddAssetSheet(
-                    asset: asset,
-                    onSave: (name, amount, quantity, category, type) {
-                      // Güncel varlığı oluştur
-                      final updatedAsset = Asset(
-                        id: asset.id,
-                        name: name,
-                        amount: amount,
-                        quantity: quantity,
-                        category: category,
-                        type: type,
-                        lastUpdated: DateTime.now(),
-                        isDeleted: false,
-                      );
-                      // Lokal listeyi güncelle
-                      setState(() {
-                        final index = _assets.indexWhere(
-                          (a) => a.id == asset.id,
+            onDismissed: (direction) {
+              HapticService.delete(); // Silme haptic feedback
+              setState(() {
+                _assets.removeWhere((a) => a.id == asset.id);
+                asset.isDeleted = true;
+                _deletedAssets.add(asset);
+                _filtrele();
+              });
+              widget.onDelete(asset);
+            },
+            child: Card(
+              color: Theme.of(context).colorScheme.surface,
+              elevation: 0,
+              margin: const EdgeInsets.only(bottom: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.05),
+                ),
+              ),
+              child: ListTile(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => AddAssetSheet(
+                      asset: asset,
+                      onSave: (name, amount, quantity, category, type) {
+                        // Güncel varlığı oluştur
+                        final updatedAsset = Asset(
+                          id: asset.id,
+                          name: name,
+                          amount: amount,
+                          quantity: quantity,
+                          category: category,
+                          type: type,
+                          lastUpdated: DateTime.now(),
+                          isDeleted: false,
                         );
-                        if (index != -1) {
-                          _assets[index] = updatedAsset;
-                        }
-                        _filtrele();
-                      });
-                      // Parent'ı bildir (modal açmadan sadece veri kaydetsin)
-                      // Eski asset yerine güncel asset gönder
-                      widget.onEdit(updatedAsset);
-                    },
+                        // Lokal listeyi güncelle
+                        setState(() {
+                          final index = _assets.indexWhere(
+                            (a) => a.id == asset.id,
+                          );
+                          if (index != -1) {
+                            _assets[index] = updatedAsset;
+                          }
+                          _filtrele();
+                        });
+                        // Parent'ı bildir (modal açmadan sadece veri kaydetsin)
+                        // Eski asset yerine güncel asset gönder
+                        widget.onEdit(updatedAsset);
+                      },
+                    ),
+                  );
+                },
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                leading: CircleAvatar(
+                  backgroundColor: _getColorForCategory(
+                    asset.category,
+                  ).withValues(alpha: 0.2),
+                  child: Icon(
+                    _getIconForCategory(asset.category),
+                    color: _getColorForCategory(asset.category),
+                    size: 20,
                   ),
-                );
-              },
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              leading: CircleAvatar(
-                backgroundColor: _getColorForCategory(
-                  asset.category,
-                ).withValues(alpha: 0.2),
-                child: Icon(
-                  _getIconForCategory(asset.category),
-                  color: _getColorForCategory(asset.category),
-                  size: 20,
                 ),
-              ),
-              title: Text(
-                asset.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
+                title: Text(
+                  asset.name,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              subtitle: Text(
-                "${asset.category}${asset.type != null ? ' • ${asset.type}' : ''}",
-                style: const TextStyle(color: Colors.white38, fontSize: 12),
-              ),
-              trailing: Text(
-                CurrencyFormatter.format(asset.amount),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                subtitle: Text(
+                  "${asset.category}${asset.type != null ? ' • ${asset.type}' : ''}",
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.38),
+                    fontSize: 12,
+                  ),
+                ),
+                trailing: Text(
+                  CurrencyFormatter.format(asset.amount),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),

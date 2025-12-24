@@ -1,42 +1,60 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'database_helper.dart';
+import '../core/di/injection_container.dart';
+import '../features/expenses/domain/repositories/expense_repository.dart';
+import '../features/income/domain/repositories/income_repository.dart';
+import '../features/assets/domain/repositories/asset_repository.dart';
+import '../features/payment_methods/domain/repositories/payment_method_repository.dart';
+import '../features/streak/domain/repositories/streak_repository.dart';
 import 'haptic_service.dart';
+import '../features/streak/data/services/streak_service.dart';
+import '../features/streak/data/models/streak_model.dart';
 
 /// Veri Yedekleme ve Geri Yükleme Servisi
 /// Hive verilerini JSON olarak dışa/içe aktarır
-/// Versiyon 1.1: Tema ve Haptic ayarları eklendi
+/// Versiyon 1.2: Seri verileri ve Haptic Kutlama ayarı eklendi
 class BackupService {
   BackupService._();
 
   /// Tüm verileri JSON formatında dışa aktar
   static Future<String?> exportData(String userId) async {
     try {
+      // Repository'leri al
+      final expenseRepo = getIt<ExpenseRepository>();
+      final incomeRepo = getIt<IncomeRepository>();
+      final assetRepo = getIt<AssetRepository>();
+      final paymentRepo = getIt<PaymentMethodRepository>();
+      final streakRepo = getIt<StreakRepository>();
+
       // Ayarları topla
       final settingsBox = await Hive.openBox('settings');
       final hapticBox = await Hive.openBox('haptic_settings');
 
+      // Seri verilerini al
+      final streakData = streakRepo.getStreakData(userId);
+
       // Tüm verileri topla
       final data = {
-        'version': '1.1',
+        'version': '1.2',
         'exportDate': DateTime.now().toIso8601String(),
         'userId': userId,
         'data': {
-          'harcamalar': DatabaseHelper.harcamalariGetir(userId),
-          'gelirler': DatabaseHelper.gelirleriGetir(userId),
-          'varliklar': DatabaseHelper.varliklariGetir(userId),
-          'odemeYontemleri': DatabaseHelper.odemeYontemleriGetir(userId),
-          'transferler': DatabaseHelper.transferleriGetir(userId),
-          'butce': DatabaseHelper.butceGetir(userId),
-          'varsayilanOdemeYontemi': DatabaseHelper.varsayilanOdemeYontemiGetir(
-            userId,
-          ),
-          'kategoriler': DatabaseHelper.kategorileriGetir(userId),
-          'gelirKategorileri': DatabaseHelper.gelirKategorileriGetir(userId),
+          'harcamalar': expenseRepo.getExpenses(userId),
+          'gelirler': incomeRepo.getIncomes(userId),
+          'varliklar': assetRepo.getAssets(userId),
+          'odemeYontemleri': paymentRepo.getPaymentMethods(userId),
+          'transferler': paymentRepo.getTransfers(userId),
+          'butce': expenseRepo.getBudget(userId),
+          'varsayilanOdemeYontemi': paymentRepo.getDefaultPaymentMethod(userId),
+          'kategoriler': expenseRepo.getCategories(userId),
+          'gelirKategorileri': incomeRepo.getCategories(userId),
+          // Yeni: Seri verileri
+          'streak': streakData.toMap(),
         },
         'settings': {
           // Tema ayarları
@@ -70,6 +88,11 @@ class BackupService {
             HapticService.keyError,
             defaultValue: true,
           ),
+          // Yeni: Haptic kutlama ayarı
+          'hapticCelebration': hapticBox.get(
+            HapticService.keyCelebration,
+            defaultValue: true,
+          ),
         },
       };
 
@@ -95,25 +118,44 @@ class BackupService {
   }
 
   /// JSON dosyasından verileri geri yükle
-  static Future<BackupResult> importData(String userId) async {
+  /// [onFileSelected] callback'i dosya seçildikten sonra çağrılır (loading göstermek için)
+  static Future<BackupResult> importData(
+    String userId, {
+    VoidCallback? onFileSelected,
+  }) async {
     try {
-      // Dosya seç
+      // Dosya seç - withData:true ile bytes da alınır (Android için)
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
+        withData: true, // Android'de bytes alabilmek için
       );
 
       if (result == null || result.files.isEmpty) {
         return BackupResult(success: false, message: 'Dosya seçilmedi');
       }
 
-      final file = File(result.files.single.path!);
-      final jsonString = await file.readAsString();
+      // Dosya seçildi, loading göster
+      onFileSelected?.call();
+
+      final pickedFile = result.files.single;
+      String jsonString;
+
+      // Önce path ile dene, yoksa bytes kullan
+      if (pickedFile.path != null) {
+        final file = File(pickedFile.path!);
+        jsonString = await file.readAsString();
+      } else if (pickedFile.bytes != null) {
+        jsonString = String.fromCharCodes(pickedFile.bytes!);
+      } else {
+        return BackupResult(success: false, message: 'Dosya okunamadı');
+      }
+
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      // Versiyon kontrolü (1.0 ve 1.1 desteklenir)
+      // Versiyon kontrolü (1.0, 1.1 ve 1.2 desteklenir)
       final version = data['version'] as String?;
-      if (version != '1.0' && version != '1.1') {
+      if (version != '1.0' && version != '1.1' && version != '1.2') {
         return BackupResult(
           success: false,
           message: 'Desteklenmeyen yedek versiyonu',
@@ -122,58 +164,65 @@ class BackupService {
 
       final backupData = data['data'] as Map<String, dynamic>;
 
+      // Repository'leri al
+      final expenseRepo = getIt<ExpenseRepository>();
+      final incomeRepo = getIt<IncomeRepository>();
+      final assetRepo = getIt<AssetRepository>();
+      final paymentRepo = getIt<PaymentMethodRepository>();
+      final streakRepo = getIt<StreakRepository>();
+
       // Verileri geri yükle
       if (backupData['harcamalar'] != null) {
-        DatabaseHelper.harcamalariKaydet(
+        await expenseRepo.saveExpenses(
           userId,
           List<Map<String, dynamic>>.from(backupData['harcamalar']),
         );
       }
 
       if (backupData['gelirler'] != null) {
-        DatabaseHelper.gelirleriKaydet(
+        await incomeRepo.saveIncomes(
           userId,
           List<Map<String, dynamic>>.from(backupData['gelirler']),
         );
       }
 
       if (backupData['varliklar'] != null) {
-        DatabaseHelper.varliklariKaydet(
+        await assetRepo.saveAssets(
           userId,
           List<Map<String, dynamic>>.from(backupData['varliklar']),
         );
       }
 
       if (backupData['odemeYontemleri'] != null) {
-        DatabaseHelper.odemeYontemleriKaydet(
+        await paymentRepo.savePaymentMethods(
           userId,
           List<Map<String, dynamic>>.from(backupData['odemeYontemleri']),
         );
       }
 
       if (backupData['transferler'] != null) {
-        DatabaseHelper.transferleriKaydet(
+        await paymentRepo.saveTransfers(
           userId,
           List<Map<String, dynamic>>.from(backupData['transferler']),
         );
       }
 
       if (backupData['butce'] != null) {
-        DatabaseHelper.butceKaydet(
+        await expenseRepo.saveBudget(
           userId,
           (backupData['butce'] as num).toDouble(),
         );
       }
 
       if (backupData['varsayilanOdemeYontemi'] != null) {
-        DatabaseHelper.varsayilanOdemeYontemiKaydet(
+        await paymentRepo.saveDefaultPaymentMethod(
           userId,
           backupData['varsayilanOdemeYontemi'] as String,
         );
       }
 
       if (backupData['kategoriler'] != null) {
-        DatabaseHelper.kategorileriKaydet(
+        await expenseRepo.saveCategories(
           userId,
           List<Map<String, dynamic>>.from(
             (backupData['kategoriler'] as List).map(
@@ -184,7 +233,7 @@ class BackupService {
       }
 
       if (backupData['gelirKategorileri'] != null) {
-        DatabaseHelper.gelirKategorileriKaydet(
+        await incomeRepo.saveCategories(
           userId,
           List<Map<String, dynamic>>.from(
             (backupData['gelirKategorileri'] as List).map(
@@ -194,7 +243,16 @@ class BackupService {
         );
       }
 
-      // Ayarları geri yükle (v1.1)
+      // Seri verilerini geri yükle (v1.2)
+      if (backupData['streak'] != null) {
+        // Streak box'ının açık olduğundan emin ol
+        await StreakService.initialize();
+        final streakMap = Map<String, dynamic>.from(backupData['streak']);
+        final streakData = StreakData.fromMap(streakMap);
+        await streakRepo.saveStreakData(userId, streakData);
+      }
+
+      // Ayarları geri yükle (v1.1+)
       if (data['settings'] != null) {
         final settings = data['settings'] as Map<String, dynamic>;
 
@@ -242,6 +300,13 @@ class BackupService {
           await HapticService.setSetting(
             HapticService.keyError,
             settings['hapticError'],
+          );
+        }
+        // Haptic kutlama ayarı (v1.2)
+        if (settings['hapticCelebration'] != null) {
+          await HapticService.setSetting(
+            HapticService.keyCelebration,
+            settings['hapticCelebration'],
           );
         }
       }

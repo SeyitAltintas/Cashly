@@ -10,11 +10,13 @@ import 'services/haptic_service.dart';
 class ProfilSayfasi extends StatelessWidget {
   final AuthController authController;
   final VoidCallback? onRefresh;
+  final VoidCallback? onNavigationReturn; // Alt sayfalardan dönüşte çağrılır
 
   const ProfilSayfasi({
     super.key,
     required this.authController,
     this.onRefresh,
+    this.onNavigationReturn,
   });
 
   @override
@@ -184,7 +186,7 @@ class ProfilSayfasi extends StatelessWidget {
                         builder: (context) =>
                             ProfileSettingsPage(authController: authController),
                       ),
-                    );
+                    ).then((_) => onNavigationReturn?.call());
                   },
                 ),
                 _buildDivider(context),
@@ -200,13 +202,17 @@ class ProfilSayfasi extends StatelessWidget {
                     final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            AyarlarSayfasi(authController: authController),
+                        builder: (context) => AyarlarSayfasi(
+                          authController: authController,
+                          // Geri yüklemede streak dahil tüm verileri yenilemek için
+                          onNavigationReturn: onRefresh,
+                        ),
                       ),
                     );
                     if (result == true && onRefresh != null) {
                       onRefresh!();
                     }
+                    onNavigationReturn?.call();
                   },
                   isLast: true,
                 ),

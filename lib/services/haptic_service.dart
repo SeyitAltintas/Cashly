@@ -18,6 +18,7 @@ class HapticService {
   static const String keyDelete = 'delete_actions';
   static const String keySuccess = 'success_feedback';
   static const String keyError = 'error_feedback';
+  static const String keyCelebration = 'celebration_feedback'; // Seri kutlama
 
   /// Hive box'ı başlat
   static Future<void> init() async {
@@ -53,6 +54,10 @@ class HapticService {
   /// Ana anahtar etkin mi kontrol et
   static bool get isEnabled => getSetting(keyMasterEnabled, defaultValue: true);
 
+  /// Seri kutlama titreşimi etkin mi kontrol et
+  static bool get isCelebrationEnabled =>
+      isEnabled && getSetting(keyCelebration, defaultValue: true);
+
   /// Tüm ayarları döndür
   static Map<String, bool> getAllSettings() {
     return {
@@ -62,6 +67,7 @@ class HapticService {
       keyDelete: getSetting(keyDelete, defaultValue: true),
       keySuccess: getSetting(keySuccess, defaultValue: true),
       keyError: getSetting(keyError, defaultValue: true),
+      keyCelebration: getSetting(keyCelebration, defaultValue: true),
     };
   }
 

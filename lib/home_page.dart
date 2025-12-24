@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:cashly/services/database_helper.dart';
 import 'package:cashly/profile_page.dart';
+import 'core/di/injection_container.dart';
 
 // Auth
 import 'features/auth/presentation/controllers/auth_controller.dart';
@@ -23,6 +23,14 @@ import 'features/income/data/models/income_model.dart';
 import 'features/home/presentation/widgets/home_app_bar.dart';
 import 'features/home/presentation/widgets/home_bottom_nav.dart';
 import 'features/streak/data/models/streak_model.dart';
+import 'features/streak/presentation/widgets/streak_celebration_dialog.dart';
+
+// Repository imports
+import 'features/expenses/domain/repositories/expense_repository.dart';
+import 'features/income/domain/repositories/income_repository.dart';
+import 'features/assets/domain/repositories/asset_repository.dart';
+import 'features/payment_methods/domain/repositories/payment_method_repository.dart';
+import 'features/streak/domain/repositories/streak_repository.dart';
 import 'features/streak/data/services/streak_service.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
@@ -36,9 +44,10 @@ class AnaSayfa extends StatefulWidget {
   State<AnaSayfa> createState() => _AnaSayfaState();
 }
 
-class _AnaSayfaState extends State<AnaSayfa> {
+class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   // Varsayılan: Dashboard (ortadaki sekme)
-  int _selectedIndex = 1;
+  // ValueNotifier ile sayfa index'i yönetimi - gereksiz rebuild'leri önler
+  final ValueNotifier<int> _selectedIndexNotifier = ValueNotifier(1);
   late PageController _pageController;
   bool _isLoading = true;
 
@@ -80,55 +89,105 @@ class _AnaSayfaState extends State<AnaSayfa> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: _selectedIndex);
+    WidgetsBinding.instance.addObserver(this);
+    _pageController = PageController(initialPage: _selectedIndexNotifier.value);
     _verileriOku();
     _seriKontrol();
   }
 
+  // Bekleyen kutlama popup'ı için flag
+  bool _pendingCelebration = false;
+  int _pendingStreakCount = 0;
+
   /// Seri kontrolü yapar ve günceller
+  /// Seri artarsa kutlama dialog'u gösterir
   Future<void> _seriKontrol() async {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
 
-    final streakData = await StreakService.checkAndUpdateStreak(userId);
+    final result = await StreakService.checkAndUpdateStreak(userId);
     if (mounted) {
-      setState(() => _streakData = streakData);
+      setState(() => _streakData = result.data);
+
+      // Seri arttıysa kutlama için işaretle
+      if (result.streakIncreased && result.data.currentStreak > 0) {
+        _pendingCelebration = true;
+        _pendingStreakCount = result.data.currentStreak;
+        // Popup'ı göster
+        _showCelebrationIfPending();
+      }
+    }
+  }
+
+  /// Bekleyen kutlama varsa göster
+  void _showCelebrationIfPending() {
+    if (_pendingCelebration && mounted) {
+      _pendingCelebration = false;
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          StreakCelebrationDialog.show(context, _pendingStreakCount);
+        }
+      });
+    }
+  }
+
+  /// Uygulama ön plana geldiğinde veya route değiştiğinde çağrılır
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Uygulama ön plana geldiğinde bekleyen kutlamayı kontrol et
+      _showCelebrationIfPending();
     }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pageController.dispose();
+    _selectedIndexNotifier.dispose();
     super.dispose();
   }
 
-  /// Tüm verileri veritabanından okur
+  /// Tüm verileri repository'lerden okur
   void _verileriOku() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
 
-    tumHarcamalar = DatabaseHelper.harcamalariGetir(userId);
-    butceLimiti = DatabaseHelper.butceGetir(userId);
+    // Repository'leri DI'dan al
+    final expenseRepo = getIt<ExpenseRepository>();
+    final incomeRepo = getIt<IncomeRepository>();
+    final assetRepo = getIt<AssetRepository>();
+    final paymentRepo = getIt<PaymentMethodRepository>();
+    final streakRepo = getIt<StreakRepository>();
 
-    final varlikVerileri = DatabaseHelper.varliklariGetir(userId);
+    // Harcamalar
+    tumHarcamalar = expenseRepo.getExpenses(userId);
+    butceLimiti = expenseRepo.getBudget(userId);
+
+    // Varliklar
+    final varlikVerileri = assetRepo.getAssets(userId);
     varliklar = varlikVerileri.map((map) => Asset.fromMap(map)).toList();
 
-    final gelirVerileri = DatabaseHelper.gelirleriGetir(userId);
+    // Gelirler
+    final gelirVerileri = incomeRepo.getIncomes(userId);
     tumGelirler = gelirVerileri.map((map) => Income.fromMap(map)).toList();
 
-    final odemeVerileri = DatabaseHelper.odemeYontemleriGetir(userId);
+    // Ödeme yöntemleri
+    final odemeVerileri = paymentRepo.getPaymentMethods(userId);
     tumOdemeYontemleri = odemeVerileri
         .map((map) => PaymentMethod.fromMap(map))
         .toList();
 
-    final transferVerileri = DatabaseHelper.transferleriGetir(userId);
+    // Transferler
+    final transferVerileri = paymentRepo.getTransfers(userId);
     tumTransferler = transferVerileri
         .map((map) => Transfer.fromMap(map))
         .toList();
 
-    varsayilanOdemeYontemiId = DatabaseHelper.varsayilanOdemeYontemiGetir(
-      userId,
-    );
+    varsayilanOdemeYontemiId = paymentRepo.getDefaultPaymentMethod(userId);
+
+    // Streak verisi
+    _streakData = streakRepo.getStreakData(userId);
 
     setState(() => _isLoading = false);
   }
@@ -138,13 +197,13 @@ class _AnaSayfaState extends State<AnaSayfa> {
   void _harcamalariKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    DatabaseHelper.harcamalariKaydet(userId, tumHarcamalar);
+    getIt<ExpenseRepository>().saveExpenses(userId, tumHarcamalar);
   }
 
   void _gelirleriKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    DatabaseHelper.gelirleriKaydet(
+    getIt<IncomeRepository>().saveIncomes(
       userId,
       tumGelirler.map((g) => g.toMap()).toList(),
     );
@@ -153,7 +212,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
   void _varliklariKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    DatabaseHelper.varliklariKaydet(
+    getIt<AssetRepository>().saveAssets(
       userId,
       varliklar.map((a) => a.toMap()).toList(),
     );
@@ -162,7 +221,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
   void _odemeYontemleriKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    DatabaseHelper.odemeYontemleriKaydet(
+    getIt<PaymentMethodRepository>().savePaymentMethods(
       userId,
       tumOdemeYontemleri.map((pm) => pm.toMap()).toList(),
     );
@@ -171,7 +230,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
   void _transferleriKaydet() {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
-    DatabaseHelper.transferleriKaydet(
+    getIt<PaymentMethodRepository>().saveTransfers(
       userId,
       tumTransferler.map((t) => t.toMap()).toList(),
     );
@@ -182,30 +241,49 @@ class _AnaSayfaState extends State<AnaSayfa> {
     final userName = widget.authController.currentUser?.name ?? 'Kullanıcı';
 
     return Scaffold(
-      appBar: _buildAppBar(),
+      // ValueListenableBuilder ile sadece AppBar değişikliklerinde rebuild
+      appBar: _buildAppBarWithNotifier(),
       body: PageView(
         controller: _pageController,
-        onPageChanged: (index) => setState(() => _selectedIndex = index),
+        // setState yerine ValueNotifier kullanarak gereksiz rebuild'leri önle
+        onPageChanged: (index) => _selectedIndexNotifier.value = index,
         children: [
           _buildToolsPage(),
           _buildDashboardPage(userName),
           ProfilSayfasi(
             authController: widget.authController,
             onRefresh: _verileriOku,
+            onNavigationReturn: _showCelebrationIfPending,
           ),
         ],
       ),
-      bottomNavigationBar: HomeBottomNav(
-        selectedIndex: _selectedIndex,
-        onPageChanged: (index) => _pageController.jumpToPage(index),
+      // ValueListenableBuilder ile sadece navigation değişikliklerinde rebuild
+      bottomNavigationBar: ValueListenableBuilder<int>(
+        valueListenable: _selectedIndexNotifier,
+        builder: (context, selectedIndex, _) {
+          return HomeBottomNav(
+            selectedIndex: selectedIndex,
+            onPageChanged: (index) => _pageController.jumpToPage(index),
+          );
+        },
       ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    if (_selectedIndex == 0) return const ToolsAppBar();
-    if (_selectedIndex == 1) return const DashboardAppBar();
-    return const ProfileAppBar();
+  /// AppBar için ValueListenableBuilder wrapper
+  /// Sadece sayfa değişikliğinde rebuild olur
+  PreferredSizeWidget _buildAppBarWithNotifier() {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(kToolbarHeight),
+      child: ValueListenableBuilder<int>(
+        valueListenable: _selectedIndexNotifier,
+        builder: (context, selectedIndex, _) {
+          if (selectedIndex == 0) return const ToolsAppBar();
+          if (selectedIndex == 1) return const DashboardAppBar();
+          return const ProfileAppBar();
+        },
+      ),
+    );
   }
 
   Widget _buildToolsPage() {
@@ -320,7 +398,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
           },
         ),
       ),
-    );
+    ).then((_) => _showCelebrationIfPending());
   }
 
   void _navigateToAnalysis() {
@@ -332,10 +410,12 @@ class _AnaSayfaState extends State<AnaSayfa> {
           assets: varliklar,
           incomes: tumGelirler,
           selectedDate: secilenAy,
+          userId: widget.authController.currentUser?.id ?? '',
+          userName: widget.authController.currentUser?.name ?? 'Kullanici',
           paymentMethods: tumOdemeYontemleri,
         ),
       ),
-    );
+    ).then((_) => _showCelebrationIfPending());
   }
 
   void _navigateToPaymentMethods() {
@@ -412,11 +492,11 @@ class _AnaSayfaState extends State<AnaSayfa> {
                   tumOdemeYontemleri: tumOdemeYontemleri,
                 ),
               ),
-            );
+            ).then((_) => _showCelebrationIfPending());
           },
         ),
       ),
-    );
+    ).then((_) => _showCelebrationIfPending());
   }
 
   void _navigateToTransfer() {
@@ -469,7 +549,7 @@ class _AnaSayfaState extends State<AnaSayfa> {
           },
         ),
       ),
-    );
+    ).then((_) => _showCelebrationIfPending());
   }
 
   void _navigateToExpenses() {
@@ -494,7 +574,10 @@ class _AnaSayfaState extends State<AnaSayfa> {
           },
         ),
       ),
-    ).then((_) => _verileriOku());
+    ).then((_) {
+      _verileriOku();
+      _showCelebrationIfPending();
+    });
   }
 
   void _navigateToIncomes() {
@@ -517,6 +600,9 @@ class _AnaSayfaState extends State<AnaSayfa> {
           },
         ),
       ),
-    ).then((_) => _verileriOku());
+    ).then((_) {
+      _verileriOku();
+      _showCelebrationIfPending();
+    });
   }
 }

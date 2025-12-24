@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
-import 'services/database_helper.dart';
+import 'core/di/injection_container.dart';
+import 'features/expenses/domain/repositories/expense_repository.dart';
+import 'features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'features/expenses/presentation/pages/category_management_page.dart';
 import 'features/income/presentation/pages/income_settings_page.dart';
 import 'features/settings/presentation/pages/appearance_page.dart';
@@ -21,12 +24,18 @@ import 'features/settings/presentation/widgets/expense_settings/default_payment_
 import 'features/settings/presentation/widgets/expense_settings/category_section.dart';
 import 'services/backup_service.dart';
 import 'services/haptic_service.dart';
+import 'home_page.dart';
 
 /// Ayarlar Sayfası
 class AyarlarSayfasi extends StatefulWidget {
   final AuthController authController;
+  final VoidCallback? onNavigationReturn; // Alt sayfalardan dönüşte çağrılır
 
-  const AyarlarSayfasi({super.key, required this.authController});
+  const AyarlarSayfasi({
+    super.key,
+    required this.authController,
+    this.onNavigationReturn,
+  });
 
   @override
   State<AyarlarSayfasi> createState() => _AyarlarSayfasiState();
@@ -194,7 +203,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
+      builder: (sheetContext) => Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -213,7 +222,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(sheetContext).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 24),
@@ -232,31 +241,12 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 'Tüm verilerinizi JSON olarak dışa aktarın',
                 style: TextStyle(
                   color: Theme.of(
-                    context,
+                    sheetContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 12,
                 ),
               ),
-              onTap: () async {
-                Navigator.pop(context);
-                await HapticService.lightImpact();
-                final path = await BackupService.exportData(userId);
-                if (path != null && context.mounted) {
-                  await BackupService.shareBackup(path);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Yedek dosyası oluşturuldu ✅'),
-                        backgroundColor: Colors.green.shade700,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    );
-                  }
-                }
-              },
+              onTap: () => _handleBackupData(sheetContext, userId),
             ),
             const SizedBox(height: 12),
             // Geri yükle butonu
@@ -274,39 +264,200 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 'Yedek dosyasından verileri içe aktarın',
                 style: TextStyle(
                   color: Theme.of(
-                    context,
+                    sheetContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 12,
                 ),
               ),
-              onTap: () async {
-                Navigator.pop(context);
-                await HapticService.lightImpact();
-                final result = await BackupService.importData(userId);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(result.message),
-                      backgroundColor: result.success
-                          ? Colors.green.shade700
-                          : Colors.red.shade700,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  );
-                  if (result.success) {
-                    setState(() => _needsRefresh = true);
-                  }
-                }
-              },
+              onTap: () => _handleRestoreData(sheetContext, userId),
             ),
             const SizedBox(height: 16),
           ],
         ),
       ),
     );
+  }
+
+  /// Verileri yedekleme işlemini yönetir
+  Future<void> _handleBackupData(
+    BuildContext sheetContext,
+    String userId,
+  ) async {
+    Navigator.pop(sheetContext);
+    await HapticService.lightImpact();
+    final path = await BackupService.exportData(userId);
+    if (path != null && mounted) {
+      await BackupService.shareBackup(path);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Yedek dosyası oluşturuldu ✅'),
+            backgroundColor: Colors.green.shade700,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  /// Verileri geri yükleme işlemini yönetir
+  Future<void> _handleRestoreData(
+    BuildContext sheetContext,
+    String userId,
+  ) async {
+    // BottomSheet'i kapat
+    Navigator.pop(sheetContext);
+    await HapticService.lightImpact();
+
+    // Loading overlay'ın açık olup olmadığını takip et
+    bool isLoadingShown = false;
+
+    try {
+      final result = await BackupService.importData(
+        userId,
+        onFileSelected: () {
+          // Dosya seçildikten sonra loading overlay'i göster
+          _showLoadingOverlay();
+          isLoadingShown = true;
+        },
+      );
+
+      // Loading overlay'i kapat (sadece gösterildiyse)
+      // Minimum 3 saniye ekranda kalması için bekle
+      if (isLoadingShown && mounted) {
+        await Future.delayed(const Duration(seconds: 4));
+        if (mounted) Navigator.of(context).pop();
+      }
+
+      if (mounted) {
+        if (result.success) {
+          // Başarı animasyonunu göster
+          await _showSuccessOverlay();
+          await HapticService.success();
+          // Ana sayfadaki verileri yenile
+          widget.onNavigationReturn?.call();
+          // Dashboard sayfasına yönlendir (AnaSayfa'yı yeniden oluştur)
+          if (mounted) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => AnaSayfa(authController: widget.authController),
+              ),
+              (route) => false,
+            );
+          }
+        } else if (result.message != 'Dosya seçilmedi') {
+          // Dosya seçilmedi mesajını gösterme, sadece gerçek hataları göster
+          _showErrorSnackBar(result.message);
+        }
+      }
+    } catch (e) {
+      // Loading overlay'i kapat (sadece gösterildiyse)
+      if (isLoadingShown && mounted) {
+        Navigator.of(context).pop();
+      }
+      // Beklenmeyen hata durumunda
+      if (mounted) {
+        _showErrorSnackBar('Beklenmeyen hata: $e');
+      }
+    }
+  }
+
+  /// Loading overlay'i gösterir (kullanıcı kapatamaz)
+  void _showLoadingOverlay() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Kullanıcı dışarı tıklayarak kapatamaz
+      barrierColor: Colors.black.withValues(alpha: 0.7), // %50 opaklık
+      builder: (context) => PopScope(
+        canPop: false, // Geri tuşuyla kapatılamaz
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Lottie animasyonu
+              Lottie.asset(
+                'assets/lottie/verigeriyukleme.json',
+                width: 300,
+                height: 300,
+              ),
+              const SizedBox(height: 16),
+              // Yükleniyor metni
+              const Text(
+                'Veriler geri yükleniyor...',
+                style: TextStyle(
+                  fontFamily: 'sans-serif',
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Hata mesajı gösterir
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red.shade800,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  /// Başarı overlay'ini gösterir (2 saniye)
+  Future<void> _showSuccessOverlay() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.7),
+      builder: (context) => PopScope(
+        canPop: false,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Success animasyonu
+              Lottie.asset(
+                'assets/lottie/Success_animation.json',
+                width: 300,
+                height: 300,
+              ),
+              const SizedBox(height: 16),
+              // Başarı metni
+              const Text(
+                'Geri yükleme başarı ile tamamlandı',
+                style: TextStyle(
+                  fontFamily: 'sans-serif',
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // 2 saniye bekle
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Overlay'i kapat
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 }
 
@@ -336,18 +487,19 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
   }
 
   void _verileriYukle() {
-    double mevcutButce = DatabaseHelper.butceGetir(widget.userId);
+    final expenseRepo = getIt<ExpenseRepository>();
+    final paymentRepo = getIt<PaymentMethodRepository>();
+
+    double mevcutButce = expenseRepo.getBudget(widget.userId);
     tGelir.text = mevcutButce.toStringAsFixed(0);
 
-    List<Map<String, dynamic>> pmVerileri = DatabaseHelper.odemeYontemleriGetir(
+    List<Map<String, dynamic>> pmVerileri = paymentRepo.getPaymentMethods(
       widget.userId,
     );
     List<PaymentMethod> pmList = pmVerileri
         .map((m) => PaymentMethod.fromMap(m))
         .toList();
-    String? varsayilanPm = DatabaseHelper.varsayilanOdemeYontemiGetir(
-      widget.userId,
-    );
+    String? varsayilanPm = paymentRepo.getDefaultPaymentMethod(widget.userId);
 
     setState(() {
       odemeYontemleri = pmList.where((pm) => !pm.isDeleted).toList();
@@ -373,7 +525,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
     double? yeniLimit = double.tryParse(tutarText);
     if (yeniLimit != null) {
       try {
-        DatabaseHelper.butceKaydet(widget.userId, yeniLimit);
+        getIt<ExpenseRepository>().saveBudget(widget.userId, yeniLimit);
         final formattedAmount = yeniLimit
             .toStringAsFixed(0)
             .replaceAllMapped(
@@ -408,7 +560,10 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
       varsayilanOdemeYontemiId = newValue;
       categoryChanged = true;
     });
-    DatabaseHelper.varsayilanOdemeYontemiKaydet(widget.userId, newValue);
+    getIt<PaymentMethodRepository>().saveDefaultPaymentMethod(
+      widget.userId,
+      newValue,
+    );
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../services/database_helper.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../settings/domain/repositories/settings_repository.dart';
 import '../../../../services/tts_service.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import 'voice_commands_page.dart';
@@ -28,10 +29,9 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
   void _ayarlariYukle() {
     final userId = widget.authController.currentUser?.id;
     if (userId != null) {
+      final settingsRepo = getIt<SettingsRepository>();
       setState(() {
-        _sesliGeriBildirimAktif = DatabaseHelper.sesliGeriBildirimAktifMi(
-          userId,
-        );
+        _sesliGeriBildirimAktif = settingsRepo.isVoiceFeedbackEnabled(userId);
         _isLoading = false;
       });
     }
@@ -40,7 +40,10 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
   Future<void> _ayariDegistir(bool yeniDeger) async {
     final userId = widget.authController.currentUser?.id;
     if (userId != null) {
-      await DatabaseHelper.sesliGeriBildirimKaydet(userId, yeniDeger);
+      await getIt<SettingsRepository>().saveVoiceFeedbackEnabled(
+        userId,
+        yeniDeger,
+      );
       setState(() {
         _sesliGeriBildirimAktif = yeniDeger;
       });
