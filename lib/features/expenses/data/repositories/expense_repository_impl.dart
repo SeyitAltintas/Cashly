@@ -1,5 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/foundation.dart';
+import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/expense_repository.dart';
 
 /// Harcama repository implementasyonu (Data Layer)
@@ -20,11 +21,20 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   List<Map<String, dynamic>> getExpenses(String userId) {
+    final cacheKey = 'expenses_$userId';
+
+    // Önce cache'den bak
+    final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey);
+    if (cached != null) return cached;
+
     try {
       final data = _box.get('harcamalar_$userId', defaultValue: []);
-      return List<Map<String, dynamic>>.from(
+      final result = List<Map<String, dynamic>>.from(
         data.map((e) => Map<String, dynamic>.from(e)),
       );
+      // Cache'e kaydet
+      CacheService.set(cacheKey, result);
+      return result;
     } catch (e) {
       debugPrint('Harcamalar getirilirken hata: $e');
       return [];
@@ -38,6 +48,8 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   ) async {
     try {
       await _box.put('harcamalar_$userId', expenses);
+      // Cache'i güncelle
+      CacheService.set('expenses_$userId', expenses);
     } catch (e) {
       debugPrint('Harcamalar kaydedilirken hata: $e');
       rethrow;
@@ -46,8 +58,17 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   double getBudget(String userId) {
+    final cacheKey = 'budget_$userId';
+
+    // Önce cache'den bak
+    final cached = CacheService.get<double>(cacheKey);
+    if (cached != null) return cached;
+
     try {
-      return _box.get('butce_limiti_$userId', defaultValue: 8000.0);
+      final result =
+          _box.get('butce_limiti_$userId', defaultValue: 8000.0) as double;
+      CacheService.set(cacheKey, result);
+      return result;
     } catch (e) {
       debugPrint('Bütçe getirilirken hata: $e');
       return 8000.0;
@@ -58,6 +79,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   Future<void> saveBudget(String userId, double limit) async {
     try {
       await _box.put('butce_limiti_$userId', limit);
+      CacheService.set('budget_$userId', limit);
     } catch (e) {
       debugPrint('Bütçe kaydedilirken hata: $e');
       rethrow;

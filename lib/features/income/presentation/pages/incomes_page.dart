@@ -10,6 +10,7 @@ import '../../../../services/haptic_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
+import '../../../../core/mixins/lazy_loading_mixin.dart';
 
 class IncomesPage extends StatefulWidget {
   final List<Income> tumGelirler;
@@ -35,7 +36,7 @@ class IncomesPage extends StatefulWidget {
   State<IncomesPage> createState() => _IncomesPageState();
 }
 
-class _IncomesPageState extends State<IncomesPage> {
+class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   final TextEditingController tGelirArama = TextEditingController();
   bool gelirAramaModu = false;
   late DateTime secilenAy;
@@ -44,6 +45,14 @@ class _IncomesPageState extends State<IncomesPage> {
   void initState() {
     super.initState();
     secilenAy = widget.secilenAy;
+    initLazyLoading();
+  }
+
+  @override
+  void dispose() {
+    disposeLazyLoading();
+    tGelirArama.dispose();
+    super.dispose();
   }
 
   String get ayIsmi {
@@ -560,9 +569,15 @@ class _IncomesPageState extends State<IncomesPage> {
                         )
                       : EmptyStateWidget.noIncomes(onAdd: yeniGelirEkle)
                 : ListView.builder(
+                    controller: lazyScrollController,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: gelirler.length,
+                    itemCount: gelirler.length + (hasMoreItems ? 1 : 0),
                     itemBuilder: (context, index) {
+                      // Son item ise ve daha fazla veri varsa loading göster
+                      if (index >= gelirler.length) {
+                        return buildLoadingIndicator();
+                      }
+
                       final gelir = gelirler[index];
                       return Dismissible(
                         key: Key(gelir.id),

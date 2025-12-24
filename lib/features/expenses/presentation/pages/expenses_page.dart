@@ -15,6 +15,7 @@ import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../services/haptic_service.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
+import '../../../../core/mixins/lazy_loading_mixin.dart';
 
 class ExpensesPage extends StatefulWidget {
   final List<Map<String, dynamic>> tumHarcamalar;
@@ -44,7 +45,7 @@ class ExpensesPage extends StatefulWidget {
   State<ExpensesPage> createState() => _ExpensesPageState();
 }
 
-class _ExpensesPageState extends State<ExpensesPage> {
+class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   final TextEditingController tArama = TextEditingController();
   bool aramaModu = false;
   late DateTime secilenAy;
@@ -54,7 +55,15 @@ class _ExpensesPageState extends State<ExpensesPage> {
   void initState() {
     super.initState();
     secilenAy = widget.secilenAy;
+    initLazyLoading();
     filtreleVeGoster();
+  }
+
+  @override
+  void dispose() {
+    disposeLazyLoading();
+    tArama.dispose();
+    super.dispose();
   }
 
   void filtreleVeGoster() {
@@ -80,6 +89,9 @@ class _ExpensesPageState extends State<ExpensesPage> {
             DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
         return tarihB.compareTo(tarihA);
       });
+
+      // Lazy loading'i sıfırla
+      resetLazyLoading(gosterilenHarcamalar.length);
     });
   }
 
@@ -387,12 +399,18 @@ class _ExpensesPageState extends State<ExpensesPage> {
                         )
                       : EmptyStateWidget.noExpenses(onAdd: pencereAc)
                 : ListView.builder(
+                    controller: lazyScrollController,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 10,
                     ),
-                    itemCount: gruplar.keys.length,
+                    itemCount: gruplar.keys.length + (hasMoreItems ? 1 : 0),
                     itemBuilder: (context, index) {
+                      // Son item ise ve daha fazla veri varsa loading göster
+                      if (index >= gruplar.keys.length) {
+                        return buildLoadingIndicator();
+                      }
+
                       String gunBasligi = gruplar.keys.elementAt(index);
                       List<Map<String, dynamic>> harcamalar =
                           gruplar[gunBasligi]!;

@@ -1,5 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/foundation.dart';
+import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/income_repository.dart';
 
 /// Gelir repository implementasyonu (Data Layer)
@@ -20,11 +21,18 @@ class IncomeRepositoryImpl implements IncomeRepository {
 
   @override
   List<Map<String, dynamic>> getIncomes(String userId) {
+    final cacheKey = 'incomes_$userId';
+
+    final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey);
+    if (cached != null) return cached;
+
     try {
       final data = _box.get('gelirler_$userId', defaultValue: []);
-      return List<Map<String, dynamic>>.from(
+      final result = List<Map<String, dynamic>>.from(
         data.map((e) => Map<String, dynamic>.from(e)),
       );
+      CacheService.set(cacheKey, result);
+      return result;
     } catch (e) {
       debugPrint('Gelirler getirilirken hata: $e');
       return [];
@@ -38,6 +46,7 @@ class IncomeRepositoryImpl implements IncomeRepository {
   ) async {
     try {
       await _box.put('gelirler_$userId', incomes);
+      CacheService.set('incomes_$userId', incomes);
     } catch (e) {
       debugPrint('Gelirler kaydedilirken hata: $e');
       rethrow;

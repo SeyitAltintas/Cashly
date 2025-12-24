@@ -8,6 +8,7 @@ import 'asset_recycle_bin_page.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../services/haptic_service.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
+import '../../../../core/mixins/lazy_loading_mixin.dart';
 
 class AssetsPage extends StatefulWidget {
   final List<Asset> assets;
@@ -42,7 +43,7 @@ class AssetsPage extends StatefulWidget {
   State<AssetsPage> createState() => _AssetsPageState();
 }
 
-class _AssetsPageState extends State<AssetsPage> {
+class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
   bool _aramaModu = false;
   final TextEditingController _aramaController = TextEditingController();
   List<Asset> _assets = [];
@@ -55,6 +56,7 @@ class _AssetsPageState extends State<AssetsPage> {
     _assets = List.from(widget.assets);
     _deletedAssets = List.from(widget.deletedAssets);
     _filtrelenmisVarliklar = _assets;
+    initLazyLoading();
   }
 
   @override
@@ -83,6 +85,7 @@ class _AssetsPageState extends State<AssetsPage> {
 
   @override
   void dispose() {
+    disposeLazyLoading();
     _aramaController.dispose();
     super.dispose();
   }
@@ -360,9 +363,15 @@ class _AssetsPageState extends State<AssetsPage> {
             );
     }
     return ListView.builder(
+      controller: lazyScrollController,
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: _filtrelenmisVarliklar.length,
+      itemCount: _filtrelenmisVarliklar.length + (hasMoreItems ? 1 : 0),
       itemBuilder: (context, index) {
+        // Son item ise ve daha fazla veri varsa loading göster
+        if (index >= _filtrelenmisVarliklar.length) {
+          return buildLoadingIndicator();
+        }
+
         final asset = _filtrelenmisVarliklar[index];
         // RepaintBoundary ile render izolasyonu - performans optimizasyonu
         return RepaintBoundary(
