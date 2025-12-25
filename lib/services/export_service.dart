@@ -82,6 +82,7 @@ class ExportService {
     bool includeExpenses = true,
     bool includeIncomes = true,
     bool includeAssets = true,
+    bool includeVisualSummary = false,
   }) async {
     try {
       // Fontları ve logoyu yükle
@@ -148,8 +149,20 @@ class ExportService {
             ),
             pw.SizedBox(height: 24),
 
-            // Harcamalar tablosu
+            // Görsel Özet bölümü (eğer seçiliyse) - İlk sayfada başlık ile birlikte
+            if (includeVisualSummary) ...[
+              _buildVisualSummary(
+                toplamHarcama: toplamHarcama,
+                toplamGelir: toplamGelir,
+                toplamVarlik: toplamVarlik,
+                turkishFont: turkishFont,
+                turkishFontBold: turkishFontBold,
+              ),
+            ],
+
+            // Harcamalar tablosu - Yeni sayfada başlasın
             if (includeExpenses && harcamalar.isNotEmpty) ...[
+              pw.NewPage(), // Yeni sayfa
               ..._buildTableSection(
                 title: 'Harcamalar',
                 headerColor: _expenseColor,
@@ -174,11 +187,11 @@ class ExportService {
                 turkishFont: turkishFont,
                 turkishFontBold: turkishFontBold,
               ),
-              pw.SizedBox(height: 24),
             ],
 
-            // Gelirler tablosu
+            // Gelirler tablosu - Yeni sayfada başlasın
             if (includeIncomes && gelirler.isNotEmpty) ...[
+              pw.NewPage(), // Yeni sayfa
               ..._buildTableSection(
                 title: 'Gelirler',
                 headerColor: _incomeColor,
@@ -203,11 +216,11 @@ class ExportService {
                 turkishFont: turkishFont,
                 turkishFontBold: turkishFontBold,
               ),
-              pw.SizedBox(height: 24),
             ],
 
-            // Varlıklar tablosu
+            // Varlıklar tablosu - Yeni sayfada başlasın
             if (includeAssets && varliklar.isNotEmpty) ...[
+              pw.NewPage(), // Yeni sayfa
               ..._buildTableSection(
                 title: 'Varlıklar',
                 headerColor: _assetColor,
@@ -318,6 +331,252 @@ class ExportService {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Görsel özet bölümü - Grafikli finansal özet
+  static pw.Widget _buildVisualSummary({
+    required double toplamHarcama,
+    required double toplamGelir,
+    required double toplamVarlik,
+    required pw.Font turkishFont,
+    required pw.Font turkishFontBold,
+  }) {
+    final netDurum = toplamGelir - toplamHarcama;
+    final isPositive = netDurum >= 0;
+
+    // Maksimum değeri bul (bar chart için ölçeklendirme)
+    final maxValue = [
+      toplamHarcama,
+      toplamGelir,
+      toplamVarlik,
+    ].reduce((a, b) => a > b ? a : b);
+
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(20),
+      decoration: pw.BoxDecoration(
+        color: PdfColors.grey50,
+        border: pw.Border.all(color: PdfColors.grey300, width: 1),
+        borderRadius: pw.BorderRadius.circular(12),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          // Başlık
+          pw.Row(
+            children: [
+              pw.Container(width: 4, height: 20, color: PdfColors.purple700),
+              pw.SizedBox(width: 8),
+              pw.Text(
+                'Finansal Özet',
+                style: pw.TextStyle(
+                  font: turkishFontBold,
+                  fontSize: 16,
+                  color: PdfColors.grey800,
+                ),
+              ),
+            ],
+          ),
+          pw.SizedBox(height: 20),
+
+          // Bar chart benzeri gösterim
+          pw.Row(
+            crossAxisAlignment: pw.CrossAxisAlignment.end,
+            children: [
+              // Harcama bar
+              pw.Expanded(
+                child: pw.Column(
+                  children: [
+                    pw.Container(
+                      height: maxValue > 0
+                          ? (toplamHarcama / maxValue * 80).clamp(10, 80)
+                          : 10,
+                      decoration: pw.BoxDecoration(
+                        color: _expenseColor,
+                        borderRadius: const pw.BorderRadius.only(
+                          topLeft: pw.Radius.circular(4),
+                          topRight: pw.Radius.circular(4),
+                        ),
+                      ),
+                    ),
+                    pw.Container(
+                      padding: const pw.EdgeInsets.all(8),
+                      decoration: const pw.BoxDecoration(
+                        color: PdfColors.red50,
+                        borderRadius: pw.BorderRadius.only(
+                          bottomLeft: pw.Radius.circular(4),
+                          bottomRight: pw.Radius.circular(4),
+                        ),
+                      ),
+                      child: pw.Column(
+                        children: [
+                          pw.Text(
+                            'Harcama',
+                            style: pw.TextStyle(
+                              font: turkishFont,
+                              fontSize: 9,
+                              color: PdfColors.grey600,
+                            ),
+                          ),
+                          pw.SizedBox(height: 2),
+                          pw.Text(
+                            _formatCurrency(toplamHarcama),
+                            style: pw.TextStyle(
+                              font: turkishFontBold,
+                              fontSize: 10,
+                              color: _expenseColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              pw.SizedBox(width: 8),
+
+              // Gelir bar
+              pw.Expanded(
+                child: pw.Column(
+                  children: [
+                    pw.Container(
+                      height: maxValue > 0
+                          ? (toplamGelir / maxValue * 80).clamp(10, 80)
+                          : 10,
+                      decoration: pw.BoxDecoration(
+                        color: _incomeColor,
+                        borderRadius: const pw.BorderRadius.only(
+                          topLeft: pw.Radius.circular(4),
+                          topRight: pw.Radius.circular(4),
+                        ),
+                      ),
+                    ),
+                    pw.Container(
+                      padding: const pw.EdgeInsets.all(8),
+                      decoration: const pw.BoxDecoration(
+                        color: PdfColors.green50,
+                        borderRadius: pw.BorderRadius.only(
+                          bottomLeft: pw.Radius.circular(4),
+                          bottomRight: pw.Radius.circular(4),
+                        ),
+                      ),
+                      child: pw.Column(
+                        children: [
+                          pw.Text(
+                            'Gelir',
+                            style: pw.TextStyle(
+                              font: turkishFont,
+                              fontSize: 9,
+                              color: PdfColors.grey600,
+                            ),
+                          ),
+                          pw.SizedBox(height: 2),
+                          pw.Text(
+                            _formatCurrency(toplamGelir),
+                            style: pw.TextStyle(
+                              font: turkishFontBold,
+                              fontSize: 10,
+                              color: _incomeColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              pw.SizedBox(width: 8),
+
+              // Varlık bar
+              pw.Expanded(
+                child: pw.Column(
+                  children: [
+                    pw.Container(
+                      height: maxValue > 0
+                          ? (toplamVarlik / maxValue * 80).clamp(10, 80)
+                          : 10,
+                      decoration: pw.BoxDecoration(
+                        color: _assetColor,
+                        borderRadius: const pw.BorderRadius.only(
+                          topLeft: pw.Radius.circular(4),
+                          topRight: pw.Radius.circular(4),
+                        ),
+                      ),
+                    ),
+                    pw.Container(
+                      padding: const pw.EdgeInsets.all(8),
+                      decoration: const pw.BoxDecoration(
+                        color: PdfColors.blue50,
+                        borderRadius: pw.BorderRadius.only(
+                          bottomLeft: pw.Radius.circular(4),
+                          bottomRight: pw.Radius.circular(4),
+                        ),
+                      ),
+                      child: pw.Column(
+                        children: [
+                          pw.Text(
+                            'Varlık',
+                            style: pw.TextStyle(
+                              font: turkishFont,
+                              fontSize: 9,
+                              color: PdfColors.grey600,
+                            ),
+                          ),
+                          pw.SizedBox(height: 2),
+                          pw.Text(
+                            _formatCurrency(toplamVarlik),
+                            style: pw.TextStyle(
+                              font: turkishFontBold,
+                              fontSize: 10,
+                              color: _assetColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          pw.SizedBox(height: 16),
+
+          // Net durum kartı
+          pw.Container(
+            width: double.infinity,
+            padding: const pw.EdgeInsets.all(12),
+            decoration: pw.BoxDecoration(
+              color: isPositive ? PdfColors.green50 : PdfColors.red50,
+              border: pw.Border.all(
+                color: isPositive ? _incomeColor : _expenseColor,
+                width: 1,
+              ),
+              borderRadius: pw.BorderRadius.circular(8),
+            ),
+            child: pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  'Aylık Net Durum (Gelir - Harcama)',
+                  style: pw.TextStyle(
+                    font: turkishFont,
+                    fontSize: 11,
+                    color: PdfColors.grey700,
+                  ),
+                ),
+                pw.Text(
+                  '${isPositive ? '+' : ''}${_formatCurrency(netDurum)}',
+                  style: pw.TextStyle(
+                    font: turkishFontBold,
+                    fontSize: 12,
+                    color: isPositive ? _incomeColor : _expenseColor,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -20,10 +20,11 @@ class PdfExportPage extends StatefulWidget {
 }
 
 class _PdfExportPageState extends State<PdfExportPage> {
-  // Checkbox durumları - varsayılan hepsi seçili
+  // Switch durumları - varsayılan hepsi seçili
   bool _includeExpenses = true;
   bool _includeIncomes = true;
   bool _includeAssets = true;
+  bool _includeVisualSummary = false; // Görsel özet varsayılan olarak kapalı
   bool _isExporting = false;
 
   bool get _hasSelection =>
@@ -115,52 +116,60 @@ class _PdfExportPageState extends State<PdfExportPage> {
             ),
             const SizedBox(height: 24),
 
-            // Bölüm başlığı
-            Padding(
-              padding: const EdgeInsets.only(left: 4, bottom: 12),
-              child: Text(
-                'Rapora Dahil Edilecek Tablolar',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-            ),
+            // Görsel Özet bölümü - çerçeveli başlık
+            _buildSectionHeader('Rapor Seçenekleri', theme),
+            const SizedBox(height: 12),
 
-            // Checkbox listesi
-            _buildCheckboxTile(
+            // Görsel özet switch'i
+            _buildSwitchTile(
+              title: 'Görsel Özet',
+              subtitle: 'PDF\'in başına grafikli özet ekle',
+              icon: Icons.pie_chart_outline_rounded,
+              color: Colors.purple,
+              value: _includeVisualSummary,
+              onChanged: (value) {
+                setState(() => _includeVisualSummary = value);
+              },
+            ),
+            const SizedBox(height: 20),
+
+            // Tablolar bölüm başlığı - çerçeveli
+            _buildSectionHeader('Rapora Dahil Edilecek Tablolar', theme),
+            const SizedBox(height: 12),
+
+            // Switch listesi
+            _buildSwitchTile(
               title: 'Harcamalarım',
               subtitle: 'Aylık harcama detayları',
               icon: Icons.shopping_cart_outlined,
               color: Colors.red,
               value: _includeExpenses,
               onChanged: (value) {
-                setState(() => _includeExpenses = value ?? true);
+                setState(() => _includeExpenses = value);
               },
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
-            _buildCheckboxTile(
+            _buildSwitchTile(
               title: 'Gelirlerim',
               subtitle: 'Aylık gelir detayları',
               icon: Icons.wallet_outlined,
               color: Colors.green,
               value: _includeIncomes,
               onChanged: (value) {
-                setState(() => _includeIncomes = value ?? true);
+                setState(() => _includeIncomes = value);
               },
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
-            _buildCheckboxTile(
+            _buildSwitchTile(
               title: 'Varlıklarım',
               subtitle: 'Varlık listesi ve değerleri',
               icon: Icons.account_balance_outlined,
               color: Colors.blue,
               value: _includeAssets,
               onChanged: (value) {
-                setState(() => _includeAssets = value ?? true);
+                setState(() => _includeAssets = value);
               },
             ),
             const SizedBox(height: 24),
@@ -276,43 +285,58 @@ class _PdfExportPageState extends State<PdfExportPage> {
     );
   }
 
-  Widget _buildCheckboxTile({
+  /// Çerçeveli bölüm başlığı oluşturur
+  Widget _buildSectionHeader(String title, ThemeData theme) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.15),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+        ),
+      ),
+    );
+  }
+
+  /// Switch ile seçim kartı oluşturur - minimal tasarım
+  Widget _buildSwitchTile({
     required String title,
     required String subtitle,
     required IconData icon,
     required Color color,
     required bool value,
-    required ValueChanged<bool?> onChanged,
+    required ValueChanged<bool> onChanged,
   }) {
     final theme = Theme.of(context);
 
     return InkWell(
       onTap: () => onChanged(!value),
-      borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: value
-                ? color.withValues(alpha: 0.5)
-                : theme.colorScheme.onSurface.withValues(alpha: 0.1),
-            width: value ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          color: value ? color.withValues(alpha: 0.05) : null,
-        ),
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         child: Row(
           children: [
+            // İkon - küçük ve minimal
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: value ? 0.2 : 0.1),
-                borderRadius: BorderRadius.circular(12),
+                color: color.withValues(alpha: value ? 0.15 : 0.08),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, color: color, size: 24),
+              child: Icon(icon, color: color, size: 20),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
+            // Başlık ve alt başlık
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,28 +344,27 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                       color: theme.colorScheme.onSurface,
                     ),
                   ),
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: 12,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      fontSize: 11,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   ),
                 ],
               ),
             ),
-            Checkbox(
+            // Switch
+            Switch(
               value: value,
               onChanged: onChanged,
               activeColor: color,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(6),
-              ),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ],
         ),
@@ -390,6 +413,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
       includeExpenses: _includeExpenses,
       includeIncomes: _includeIncomes,
       includeAssets: _includeAssets,
+      includeVisualSummary: _includeVisualSummary,
     );
 
     setState(() => _isExporting = false);
