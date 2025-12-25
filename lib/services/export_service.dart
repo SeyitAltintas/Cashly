@@ -30,7 +30,6 @@ class ExportService {
   static const _incomeColorLight = PdfColors.green50;
   static const _assetColor = PdfColors.blue700;
   static const _assetColorLight = PdfColors.blue50;
-  static const _totalRowColor = PdfColors.grey300;
   static const _tableBorderColor = PdfColors.grey800;
 
   /// Font'ları yükle
@@ -134,6 +133,8 @@ class ExportService {
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           margin: const pw.EdgeInsets.all(32),
+          maxPages:
+              100, // Sayfa limitini artır - TooManyPagesException hatasını önler
           footer: (context) => _buildFooter(context, turkishFont),
           build: (context) => [
             // Başlık bölümü - Logo ile
@@ -149,7 +150,7 @@ class ExportService {
 
             // Harcamalar tablosu
             if (includeExpenses && harcamalar.isNotEmpty) ...[
-              _buildTableSection(
+              ..._buildTableSection(
                 title: 'Harcamalar',
                 headerColor: _expenseColor,
                 data: harcamalar.asMap().entries.map((entry) {
@@ -178,7 +179,7 @@ class ExportService {
 
             // Gelirler tablosu
             if (includeIncomes && gelirler.isNotEmpty) ...[
-              _buildTableSection(
+              ..._buildTableSection(
                 title: 'Gelirler',
                 headerColor: _incomeColor,
                 data: gelirler.asMap().entries.map((entry) {
@@ -207,7 +208,7 @@ class ExportService {
 
             // Varlıklar tablosu
             if (includeAssets && varliklar.isNotEmpty) ...[
-              _buildTableSection(
+              ..._buildTableSection(
                 title: 'Varlıklar',
                 headerColor: _assetColor,
                 data: varliklar.asMap().entries.map((entry) {
@@ -323,8 +324,9 @@ class ExportService {
     );
   }
 
-  /// Tablo bölümü oluştur
-  static pw.Widget _buildTableSection({
+  /// Tablo bölümü oluştur (sayfa geçişlerini destekler)
+  /// Liste olarak döndürülür çünkü Column widget'ı MultiPage içinde bölünemez
+  static List<pw.Widget> _buildTableSection({
     required String title,
     required PdfColor headerColor,
     required List<_TableRowData> data,
@@ -340,86 +342,69 @@ class ExportService {
       color: PdfColors.white,
     );
     final cellStyle = pw.TextStyle(font: turkishFont, fontSize: 10);
-    final totalStyle = pw.TextStyle(font: turkishFontBold, fontSize: 11);
 
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        // Tablo başlığı - sadece isim, simge yok
-        pw.Container(
-          width: double.infinity,
-          padding: const pw.EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: pw.BoxDecoration(
-            color: headerColor,
-            border: pw.Border.all(color: _tableBorderColor, width: 0.5),
-            borderRadius: const pw.BorderRadius.only(
-              topLeft: pw.Radius.circular(8),
-              topRight: pw.Radius.circular(8),
-            ),
-          ),
-          child: pw.Text(
-            title,
-            style: pw.TextStyle(
-              font: turkishFontBold,
-              fontSize: 14,
-              color: PdfColors.white,
-            ),
+    // Toplam satırı için veriyi hazırla
+    final totalRow = List<String>.generate(headers.length, (index) {
+      if (index == totalColumnIndex - 1) return 'TOPLAM';
+      if (index == totalColumnIndex) return total;
+      return '';
+    });
+
+    // Tüm satır verilerini hazırla
+    final allRows = <List<String>>[];
+    for (final row in data) {
+      allRows.add(row.cells);
+    }
+    allRows.add(totalRow);
+
+    return [
+      // Tablo başlığı
+      pw.Container(
+        width: double.infinity,
+        padding: const pw.EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: pw.BoxDecoration(
+          color: headerColor,
+          border: pw.Border.all(color: _tableBorderColor, width: 0.5),
+          borderRadius: const pw.BorderRadius.only(
+            topLeft: pw.Radius.circular(8),
+            topRight: pw.Radius.circular(8),
           ),
         ),
-        // Tablo - daha belirgin çizgiler
-        pw.Table(
-          border: pw.TableBorder.all(color: _tableBorderColor, width: 0.5),
-          columnWidths: _getColumnWidths(headers.length),
-          children: [
-            // Başlık satırı
-            pw.TableRow(
-              decoration: pw.BoxDecoration(color: headerColor.shade(0.8)),
-              children: headers
-                  .map(
-                    (h) => pw.Container(
-                      padding: const pw.EdgeInsets.all(10),
-                      child: pw.Text(h, style: headerStyle),
-                    ),
-                  )
-                  .toList(),
-            ),
-            // Veri satırları - Zebra pattern
-            ...data.map(
-              (row) => pw.TableRow(
-                decoration: pw.BoxDecoration(color: row.backgroundColor),
-                children: row.cells
-                    .map(
-                      (cell) => pw.Container(
-                        padding: const pw.EdgeInsets.all(10),
-                        child: pw.Text(cell, style: cellStyle),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ),
-            // Toplam satırı
-            pw.TableRow(
-              decoration: const pw.BoxDecoration(color: _totalRowColor),
-              children: List.generate(headers.length, (index) {
-                if (index == totalColumnIndex - 1) {
-                  return pw.Container(
-                    padding: const pw.EdgeInsets.all(10),
-                    child: pw.Text('TOPLAM', style: totalStyle),
-                  );
-                } else if (index == totalColumnIndex) {
-                  return pw.Container(
-                    padding: const pw.EdgeInsets.all(10),
-                    alignment: pw.Alignment.centerRight,
-                    child: pw.Text(total, style: totalStyle),
-                  );
-                }
-                return pw.Container(padding: const pw.EdgeInsets.all(10));
-              }),
-            ),
-          ],
+        child: pw.Text(
+          title,
+          style: pw.TextStyle(
+            font: turkishFontBold,
+            fontSize: 14,
+            color: PdfColors.white,
+          ),
         ),
-      ],
-    );
+      ),
+      // TableHelper.fromTextArray sayfa geçişlerini otomatik destekler
+      pw.TableHelper.fromTextArray(
+        headers: headers,
+        data: allRows,
+        border: pw.TableBorder.all(color: _tableBorderColor, width: 0.5),
+        headerStyle: headerStyle,
+        cellStyle: cellStyle,
+        headerDecoration: pw.BoxDecoration(color: headerColor.shade(0.8)),
+        columnWidths: _getColumnWidths(headers.length),
+        cellAlignments: {headers.length - 1: pw.Alignment.centerRight},
+        oddRowDecoration: pw.BoxDecoration(
+          color: _getZebraColorLight(headerColor),
+        ),
+        rowDecoration: const pw.BoxDecoration(color: PdfColors.white),
+        cellPadding: const pw.EdgeInsets.all(10),
+        headerCellDecoration: pw.BoxDecoration(color: headerColor.shade(0.8)),
+      ),
+    ];
+  }
+
+  /// Zebra pattern için açık renk al
+  static PdfColor _getZebraColorLight(PdfColor headerColor) {
+    if (headerColor == _expenseColor) return _expenseColorLight;
+    if (headerColor == _incomeColor) return _incomeColorLight;
+    if (headerColor == _assetColor) return _assetColorLight;
+    return PdfColors.grey100;
   }
 
   /// Sütun genişliklerini ayarla
