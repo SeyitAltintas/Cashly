@@ -96,38 +96,39 @@ class ExportService {
       final incomeRepo = getIt<IncomeRepository>();
       final assetRepo = getIt<AssetRepository>();
 
-      // Seçime göre verileri al
-      final harcamalar = includeExpenses
-          ? _filterByDateRange(
-              expenseRepo.getExpenses(userId),
-              startDate,
-              endDate,
-            )
-          : <Map<String, dynamic>>[];
-      final gelirler = includeIncomes
-          ? _filterIncomesByDateRange(
-              incomeRepo.getIncomes(userId),
-              startDate,
-              endDate,
-            )
-          : <Map<String, dynamic>>[];
-      final varliklar = includeAssets
-          ? assetRepo.getAssets(userId)
-          : <Map<String, dynamic>>[];
+      // Finansal özet için TÜM verileri al (switch durumuna bakmaksızın)
+      final tumHarcamalar = _filterByDateRange(
+        expenseRepo.getExpenses(userId),
+        startDate,
+        endDate,
+      );
+      final tumGelirler = _filterIncomesByDateRange(
+        incomeRepo.getIncomes(userId),
+        startDate,
+        endDate,
+      );
+      final tumVarliklar = assetRepo.getAssets(userId);
 
-      // Toplamları hesapla
-      final toplamHarcama = harcamalar.fold<double>(
+      // Finansal özet için toplamları hesapla (TÜM verilerden)
+      final toplamHarcama = tumHarcamalar.fold<double>(
         0,
         (sum, h) => sum + (h['tutar'] as num).toDouble(),
       );
-      final toplamGelir = gelirler.fold<double>(
+      final toplamGelir = tumGelirler.fold<double>(
         0,
         (sum, g) => sum + ((g['amount'] as num?) ?? 0).toDouble(),
       );
-      final toplamVarlik = varliklar.fold<double>(
+      final toplamVarlik = tumVarliklar.fold<double>(
         0,
         (sum, v) => sum + ((v['amount'] as num?) ?? 0).toDouble(),
       );
+
+      // Tablolar için seçime göre verileri al
+      final harcamalar = includeExpenses
+          ? tumHarcamalar
+          : <Map<String, dynamic>>[];
+      final gelirler = includeIncomes ? tumGelirler : <Map<String, dynamic>>[];
+      final varliklar = includeAssets ? tumVarliklar : <Map<String, dynamic>>[];
 
       // PDF sayfası oluştur
       pdf.addPage(
@@ -523,31 +524,58 @@ class ExportService {
     required pw.Font font,
     required pw.Font fontBold,
   }) {
-    return pw.Container(
-      padding: const pw.EdgeInsets.all(14),
-      decoration: pw.BoxDecoration(
-        color: bgColor,
-        border: pw.Border(left: pw.BorderSide(color: color, width: 3)),
-        borderRadius: pw.BorderRadius.circular(8),
-      ),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(
-            title,
-            style: pw.TextStyle(
-              font: font,
-              fontSize: 10,
-              color: PdfColors.grey600,
+    // PDF'de borderRadius sadece Border.all ile kullanılabilir
+    // Sol kenardaki renkli çizgi için Row kullanıyoruz
+    return pw.Row(
+      children: [
+        // Sol kenardaki renkli çizgi
+        pw.Container(
+          width: 3,
+          height: 50,
+          decoration: pw.BoxDecoration(
+            color: color,
+            borderRadius: const pw.BorderRadius.only(
+              topLeft: pw.Radius.circular(4),
+              bottomLeft: pw.Radius.circular(4),
             ),
           ),
-          pw.SizedBox(height: 8),
-          pw.Text(
-            value,
-            style: pw.TextStyle(font: fontBold, fontSize: 13, color: color),
+        ),
+        // Ana içerik kartı
+        pw.Expanded(
+          child: pw.Container(
+            padding: const pw.EdgeInsets.all(14),
+            decoration: pw.BoxDecoration(
+              color: bgColor,
+              borderRadius: const pw.BorderRadius.only(
+                topRight: pw.Radius.circular(8),
+                bottomRight: pw.Radius.circular(8),
+              ),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  title,
+                  style: pw.TextStyle(
+                    font: font,
+                    fontSize: 10,
+                    color: PdfColors.grey600,
+                  ),
+                ),
+                pw.SizedBox(height: 8),
+                pw.Text(
+                  value,
+                  style: pw.TextStyle(
+                    font: fontBold,
+                    fontSize: 13,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
