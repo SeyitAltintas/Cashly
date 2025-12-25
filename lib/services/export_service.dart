@@ -337,7 +337,7 @@ class ExportService {
     );
   }
 
-  /// Görsel özet bölümü - Grafikli finansal özet
+  /// Görsel özet bölümü - Finansal özet kartları
   static pw.Widget _buildVisualSummary({
     required double toplamHarcama,
     required double toplamGelir,
@@ -348,17 +348,15 @@ class ExportService {
     final netDurum = toplamGelir - toplamHarcama;
     final isPositive = netDurum >= 0;
 
-    // Maksimum değeri bul (bar chart için ölçeklendirme)
-    final maxValue = [
-      toplamHarcama,
-      toplamGelir,
-      toplamVarlik,
-    ].reduce((a, b) => a > b ? a : b);
+    // Tasarruf oranı hesapla (Gelir > 0 ise)
+    final tasarrufOrani = toplamGelir > 0
+        ? ((toplamGelir - toplamHarcama) / toplamGelir * 100)
+        : 0.0;
 
     return pw.Container(
-      padding: const pw.EdgeInsets.all(20),
+      padding: const pw.EdgeInsets.all(24),
       decoration: pw.BoxDecoration(
-        color: PdfColors.grey50,
+        color: PdfColors.white,
         border: pw.Border.all(color: PdfColors.grey300, width: 1),
         borderRadius: pw.BorderRadius.circular(12),
       ),
@@ -368,215 +366,185 @@ class ExportService {
           // Başlık
           pw.Row(
             children: [
-              pw.Container(width: 4, height: 20, color: PdfColors.purple700),
-              pw.SizedBox(width: 8),
+              pw.Container(width: 4, height: 24, color: PdfColors.purple700),
+              pw.SizedBox(width: 12),
               pw.Text(
                 'Finansal Özet',
                 style: pw.TextStyle(
                   font: turkishFontBold,
-                  fontSize: 16,
+                  fontSize: 18,
                   color: PdfColors.grey800,
+                ),
+              ),
+            ],
+          ),
+          pw.SizedBox(height: 24),
+
+          // Üç özet kartı - Harcama, Gelir, Varlık
+          pw.Row(
+            children: [
+              // Harcama kartı
+              pw.Expanded(
+                child: _buildSummaryCard(
+                  title: 'Toplam Harcama',
+                  value: _formatCurrency(toplamHarcama),
+                  color: _expenseColor,
+                  bgColor: PdfColors.red50,
+                  font: turkishFont,
+                  fontBold: turkishFontBold,
+                ),
+              ),
+              pw.SizedBox(width: 12),
+              // Gelir kartı
+              pw.Expanded(
+                child: _buildSummaryCard(
+                  title: 'Toplam Gelir',
+                  value: _formatCurrency(toplamGelir),
+                  color: _incomeColor,
+                  bgColor: PdfColors.green50,
+                  font: turkishFont,
+                  fontBold: turkishFontBold,
+                ),
+              ),
+              pw.SizedBox(width: 12),
+              // Varlık kartı
+              pw.Expanded(
+                child: _buildSummaryCard(
+                  title: 'Toplam Varlık',
+                  value: _formatCurrency(toplamVarlik),
+                  color: _assetColor,
+                  bgColor: PdfColors.blue50,
+                  font: turkishFont,
+                  fontBold: turkishFontBold,
                 ),
               ),
             ],
           ),
           pw.SizedBox(height: 20),
 
-          // Bar chart benzeri gösterim
+          // Alt kısım - Net durum ve Tasarruf oranı
           pw.Row(
-            crossAxisAlignment: pw.CrossAxisAlignment.end,
             children: [
-              // Harcama bar
+              // Net durum kartı
               pw.Expanded(
-                child: pw.Column(
-                  children: [
-                    pw.Container(
-                      height: maxValue > 0
-                          ? (toplamHarcama / maxValue * 80).clamp(10, 80)
-                          : 10,
-                      decoration: pw.BoxDecoration(
-                        color: _expenseColor,
-                        borderRadius: const pw.BorderRadius.only(
-                          topLeft: pw.Radius.circular(4),
-                          topRight: pw.Radius.circular(4),
+                flex: 2,
+                child: pw.Container(
+                  padding: const pw.EdgeInsets.all(16),
+                  decoration: pw.BoxDecoration(
+                    color: isPositive ? PdfColors.green50 : PdfColors.red50,
+                    border: pw.Border.all(
+                      color: isPositive ? _incomeColor : _expenseColor,
+                      width: 1.5,
+                    ),
+                    borderRadius: pw.BorderRadius.circular(10),
+                  ),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'Aylık Net Durum',
+                        style: pw.TextStyle(
+                          font: turkishFont,
+                          fontSize: 11,
+                          color: PdfColors.grey600,
                         ),
                       ),
-                    ),
-                    pw.Container(
-                      padding: const pw.EdgeInsets.all(8),
-                      decoration: const pw.BoxDecoration(
-                        color: PdfColors.red50,
-                        borderRadius: pw.BorderRadius.only(
-                          bottomLeft: pw.Radius.circular(4),
-                          bottomRight: pw.Radius.circular(4),
+                      pw.SizedBox(height: 4),
+                      pw.Text(
+                        'Gelir - Harcama',
+                        style: pw.TextStyle(
+                          font: turkishFont,
+                          fontSize: 9,
+                          color: PdfColors.grey500,
                         ),
                       ),
-                      child: pw.Column(
-                        children: [
-                          pw.Text(
-                            'Harcama',
-                            style: pw.TextStyle(
-                              font: turkishFont,
-                              fontSize: 9,
-                              color: PdfColors.grey600,
-                            ),
-                          ),
-                          pw.SizedBox(height: 2),
-                          pw.Text(
-                            _formatCurrency(toplamHarcama),
-                            style: pw.TextStyle(
-                              font: turkishFontBold,
-                              fontSize: 10,
-                              color: _expenseColor,
-                            ),
-                          ),
-                        ],
+                      pw.SizedBox(height: 8),
+                      pw.Text(
+                        '${isPositive ? '+' : ''}${_formatCurrency(netDurum)}',
+                        style: pw.TextStyle(
+                          font: turkishFontBold,
+                          fontSize: 16,
+                          color: isPositive ? _incomeColor : _expenseColor,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-              pw.SizedBox(width: 8),
-
-              // Gelir bar
+              pw.SizedBox(width: 12),
+              // Tasarruf oranı kartı
               pw.Expanded(
-                child: pw.Column(
-                  children: [
-                    pw.Container(
-                      height: maxValue > 0
-                          ? (toplamGelir / maxValue * 80).clamp(10, 80)
-                          : 10,
-                      decoration: pw.BoxDecoration(
-                        color: _incomeColor,
-                        borderRadius: const pw.BorderRadius.only(
-                          topLeft: pw.Radius.circular(4),
-                          topRight: pw.Radius.circular(4),
+                child: pw.Container(
+                  padding: const pw.EdgeInsets.all(16),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.purple50,
+                    border: pw.Border.all(color: PdfColors.purple300, width: 1),
+                    borderRadius: pw.BorderRadius.circular(10),
+                  ),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'Tasarruf Oranı',
+                        style: pw.TextStyle(
+                          font: turkishFont,
+                          fontSize: 11,
+                          color: PdfColors.grey600,
                         ),
                       ),
-                    ),
-                    pw.Container(
-                      padding: const pw.EdgeInsets.all(8),
-                      decoration: const pw.BoxDecoration(
-                        color: PdfColors.green50,
-                        borderRadius: pw.BorderRadius.only(
-                          bottomLeft: pw.Radius.circular(4),
-                          bottomRight: pw.Radius.circular(4),
+                      pw.SizedBox(height: 12),
+                      pw.Text(
+                        '%${tasarrufOrani.toStringAsFixed(1)}',
+                        style: pw.TextStyle(
+                          font: turkishFontBold,
+                          fontSize: 20,
+                          color: tasarrufOrani >= 0
+                              ? PdfColors.purple700
+                              : _expenseColor,
                         ),
                       ),
-                      child: pw.Column(
-                        children: [
-                          pw.Text(
-                            'Gelir',
-                            style: pw.TextStyle(
-                              font: turkishFont,
-                              fontSize: 9,
-                              color: PdfColors.grey600,
-                            ),
-                          ),
-                          pw.SizedBox(height: 2),
-                          pw.Text(
-                            _formatCurrency(toplamGelir),
-                            style: pw.TextStyle(
-                              font: turkishFontBold,
-                              fontSize: 10,
-                              color: _incomeColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              pw.SizedBox(width: 8),
-
-              // Varlık bar
-              pw.Expanded(
-                child: pw.Column(
-                  children: [
-                    pw.Container(
-                      height: maxValue > 0
-                          ? (toplamVarlik / maxValue * 80).clamp(10, 80)
-                          : 10,
-                      decoration: pw.BoxDecoration(
-                        color: _assetColor,
-                        borderRadius: const pw.BorderRadius.only(
-                          topLeft: pw.Radius.circular(4),
-                          topRight: pw.Radius.circular(4),
-                        ),
-                      ),
-                    ),
-                    pw.Container(
-                      padding: const pw.EdgeInsets.all(8),
-                      decoration: const pw.BoxDecoration(
-                        color: PdfColors.blue50,
-                        borderRadius: pw.BorderRadius.only(
-                          bottomLeft: pw.Radius.circular(4),
-                          bottomRight: pw.Radius.circular(4),
-                        ),
-                      ),
-                      child: pw.Column(
-                        children: [
-                          pw.Text(
-                            'Varlık',
-                            style: pw.TextStyle(
-                              font: turkishFont,
-                              fontSize: 9,
-                              color: PdfColors.grey600,
-                            ),
-                          ),
-                          pw.SizedBox(height: 2),
-                          pw.Text(
-                            _formatCurrency(toplamVarlik),
-                            style: pw.TextStyle(
-                              font: turkishFontBold,
-                              fontSize: 10,
-                              color: _assetColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-          pw.SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
 
-          // Net durum kartı
-          pw.Container(
-            width: double.infinity,
-            padding: const pw.EdgeInsets.all(12),
-            decoration: pw.BoxDecoration(
-              color: isPositive ? PdfColors.green50 : PdfColors.red50,
-              border: pw.Border.all(
-                color: isPositive ? _incomeColor : _expenseColor,
-                width: 1,
-              ),
-              borderRadius: pw.BorderRadius.circular(8),
+  /// Özet kartı widget'ı
+  static pw.Widget _buildSummaryCard({
+    required String title,
+    required String value,
+    required PdfColor color,
+    required PdfColor bgColor,
+    required pw.Font font,
+    required pw.Font fontBold,
+  }) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(14),
+      decoration: pw.BoxDecoration(
+        color: bgColor,
+        border: pw.Border(left: pw.BorderSide(color: color, width: 3)),
+        borderRadius: pw.BorderRadius.circular(8),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            title,
+            style: pw.TextStyle(
+              font: font,
+              fontSize: 10,
+              color: PdfColors.grey600,
             ),
-            child: pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Text(
-                  'Aylık Net Durum (Gelir - Harcama)',
-                  style: pw.TextStyle(
-                    font: turkishFont,
-                    fontSize: 11,
-                    color: PdfColors.grey700,
-                  ),
-                ),
-                pw.Text(
-                  '${isPositive ? '+' : ''}${_formatCurrency(netDurum)}',
-                  style: pw.TextStyle(
-                    font: turkishFontBold,
-                    fontSize: 12,
-                    color: isPositive ? _incomeColor : _expenseColor,
-                  ),
-                ),
-              ],
-            ),
+          ),
+          pw.SizedBox(height: 8),
+          pw.Text(
+            value,
+            style: pw.TextStyle(font: fontBold, fontSize: 13, color: color),
           ),
         ],
       ),
