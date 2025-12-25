@@ -19,9 +19,6 @@ class PdfExportPage extends StatefulWidget {
   State<PdfExportPage> createState() => _PdfExportPageState();
 }
 
-/// Seçilebilecek tablo türleri
-enum TableType { expenses, incomes, assets }
-
 class _PdfExportPageState extends State<PdfExportPage> {
   // Switch durumları - varsayılan hepsi seçili
   bool _includeExpenses = true;
@@ -30,11 +27,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
   bool _includeVisualSummary = false; // Görsel özet varsayılan olarak kapalı
   bool _isExporting = false;
 
-  bool get _hasSelection => _selectedTable != null;
-
-  bool get _includeExpenses => _selectedTable == TableType.expenses;
-  bool get _includeIncomes => _selectedTable == TableType.incomes;
-  bool get _includeAssets => _selectedTable == TableType.assets;
+  bool get _hasSelection =>
+      _includeExpenses || _includeIncomes || _includeAssets;
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +120,6 @@ class _PdfExportPageState extends State<PdfExportPage> {
             _buildSectionHeader('Rapor Seçenekleri', theme),
             const SizedBox(height: 12),
 
-<<<<<<< HEAD
             // Görsel özet switch'i
             _buildSwitchTile(
               title: 'Görsel Özet',
@@ -145,22 +138,15 @@ class _PdfExportPageState extends State<PdfExportPage> {
             const SizedBox(height: 12),
 
             // Switch listesi
-=======
-            // Switch listesi - sadece biri seçilebilir
->>>>>>> 858a1c1588a8bd72f9b0844adebea9e42f3533ac
             _buildSwitchTile(
               title: 'Harcamalarım',
               subtitle: 'Aylık harcama detayları',
               icon: Icons.shopping_cart_outlined,
               color: Colors.red,
               value: _includeExpenses,
-<<<<<<< HEAD
               onChanged: (value) {
                 setState(() => _includeExpenses = value);
               },
-=======
-              tableType: TableType.expenses,
->>>>>>> 858a1c1588a8bd72f9b0844adebea9e42f3533ac
             ),
             const SizedBox(height: 8),
 
@@ -170,13 +156,9 @@ class _PdfExportPageState extends State<PdfExportPage> {
               icon: Icons.wallet_outlined,
               color: Colors.green,
               value: _includeIncomes,
-<<<<<<< HEAD
               onChanged: (value) {
                 setState(() => _includeIncomes = value);
               },
-=======
-              tableType: TableType.incomes,
->>>>>>> 858a1c1588a8bd72f9b0844adebea9e42f3533ac
             ),
             const SizedBox(height: 8),
 
@@ -186,13 +168,9 @@ class _PdfExportPageState extends State<PdfExportPage> {
               icon: Icons.account_balance_outlined,
               color: Colors.blue,
               value: _includeAssets,
-<<<<<<< HEAD
               onChanged: (value) {
                 setState(() => _includeAssets = value);
               },
-=======
-              tableType: TableType.assets,
->>>>>>> 858a1c1588a8bd72f9b0844adebea9e42f3533ac
             ),
             const SizedBox(height: 24),
 
@@ -307,7 +285,6 @@ class _PdfExportPageState extends State<PdfExportPage> {
     );
   }
 
-<<<<<<< HEAD
   /// Çerçeveli bölüm başlığı oluşturur
   Widget _buildSectionHeader(String title, ThemeData theme) {
     return Container(
@@ -332,55 +309,21 @@ class _PdfExportPageState extends State<PdfExportPage> {
   }
 
   /// Switch ile seçim kartı oluşturur - minimal tasarım
-=======
-  /// Switch tile: seçildiğinde diğer switch'ler kapanır
->>>>>>> 858a1c1588a8bd72f9b0844adebea9e42f3533ac
   Widget _buildSwitchTile({
     required String title,
     required String subtitle,
     required IconData icon,
     required Color color,
     required bool value,
-<<<<<<< HEAD
     required ValueChanged<bool> onChanged,
-=======
-    required TableType tableType,
->>>>>>> 858a1c1588a8bd72f9b0844adebea9e42f3533ac
   }) {
     final theme = Theme.of(context);
 
     return InkWell(
-<<<<<<< HEAD
       onTap: () => onChanged(!value),
       borderRadius: BorderRadius.circular(12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-=======
-      onTap: () {
-        setState(() {
-          // Zaten seçili ise kapat, değilse bu tabloyu seç
-          if (_selectedTable == tableType) {
-            _selectedTable = null;
-          } else {
-            _selectedTable = tableType;
-          }
-        });
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: value
-                ? color.withValues(alpha: 0.5)
-                : theme.colorScheme.onSurface.withValues(alpha: 0.1),
-            width: value ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          color: value ? color.withValues(alpha: 0.05) : null,
-        ),
->>>>>>> 858a1c1588a8bd72f9b0844adebea9e42f3533ac
         child: Row(
           children: [
             // İkon - küçük ve minimal
@@ -416,30 +359,12 @@ class _PdfExportPageState extends State<PdfExportPage> {
                 ],
               ),
             ),
-<<<<<<< HEAD
             // Switch
             Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: color,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-=======
-            Switch(
-              value: value,
-              onChanged: (newValue) {
-                setState(() {
-                  if (newValue) {
-                    // Açılırsa bu tabloyu seç (diğerleri otomatik kapanır)
-                    _selectedTable = tableType;
-                  } else {
-                    // Kapanırsa seçimi kaldır
-                    _selectedTable = null;
-                  }
-                });
-              },
-              activeTrackColor: color.withValues(alpha: 0.5),
               activeThumbColor: color,
->>>>>>> 858a1c1588a8bd72f9b0844adebea9e42f3533ac
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ],
         ),
