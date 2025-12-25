@@ -19,15 +19,19 @@ class PdfExportPage extends StatefulWidget {
   State<PdfExportPage> createState() => _PdfExportPageState();
 }
 
+/// Seçilebilecek tablo türleri
+enum TableType { expenses, incomes, assets }
+
 class _PdfExportPageState extends State<PdfExportPage> {
-  // Checkbox durumları - varsayılan hepsi seçili
-  bool _includeExpenses = true;
-  bool _includeIncomes = true;
-  bool _includeAssets = true;
+  // Sadece bir tablo seçilebilir - varsayılan olarak harcamalar seçili
+  TableType? _selectedTable = TableType.expenses;
   bool _isExporting = false;
 
-  bool get _hasSelection =>
-      _includeExpenses || _includeIncomes || _includeAssets;
+  bool get _hasSelection => _selectedTable != null;
+
+  bool get _includeExpenses => _selectedTable == TableType.expenses;
+  bool get _includeIncomes => _selectedTable == TableType.incomes;
+  bool get _includeAssets => _selectedTable == TableType.assets;
 
   @override
   Widget build(BuildContext context) {
@@ -128,40 +132,34 @@ class _PdfExportPageState extends State<PdfExportPage> {
               ),
             ),
 
-            // Checkbox listesi
-            _buildCheckboxTile(
+            // Switch listesi - sadece biri seçilebilir
+            _buildSwitchTile(
               title: 'Harcamalarım',
               subtitle: 'Aylık harcama detayları',
               icon: Icons.shopping_cart_outlined,
               color: Colors.red,
               value: _includeExpenses,
-              onChanged: (value) {
-                setState(() => _includeExpenses = value ?? true);
-              },
+              tableType: TableType.expenses,
             ),
             const SizedBox(height: 12),
 
-            _buildCheckboxTile(
+            _buildSwitchTile(
               title: 'Gelirlerim',
               subtitle: 'Aylık gelir detayları',
               icon: Icons.wallet_outlined,
               color: Colors.green,
               value: _includeIncomes,
-              onChanged: (value) {
-                setState(() => _includeIncomes = value ?? true);
-              },
+              tableType: TableType.incomes,
             ),
             const SizedBox(height: 12),
 
-            _buildCheckboxTile(
+            _buildSwitchTile(
               title: 'Varlıklarım',
               subtitle: 'Varlık listesi ve değerleri',
               icon: Icons.account_balance_outlined,
               color: Colors.blue,
               value: _includeAssets,
-              onChanged: (value) {
-                setState(() => _includeAssets = value ?? true);
-              },
+              tableType: TableType.assets,
             ),
             const SizedBox(height: 24),
 
@@ -276,18 +274,28 @@ class _PdfExportPageState extends State<PdfExportPage> {
     );
   }
 
-  Widget _buildCheckboxTile({
+  /// Switch tile: seçildiğinde diğer switch'ler kapanır
+  Widget _buildSwitchTile({
     required String title,
     required String subtitle,
     required IconData icon,
     required Color color,
     required bool value,
-    required ValueChanged<bool?> onChanged,
+    required TableType tableType,
   }) {
     final theme = Theme.of(context);
 
     return InkWell(
-      onTap: () => onChanged(!value),
+      onTap: () {
+        setState(() {
+          // Zaten seçili ise kapat, değilse bu tabloyu seç
+          if (_selectedTable == tableType) {
+            _selectedTable = null;
+          } else {
+            _selectedTable = tableType;
+          }
+        });
+      },
       borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -335,13 +343,21 @@ class _PdfExportPageState extends State<PdfExportPage> {
                 ],
               ),
             ),
-            Checkbox(
+            Switch(
               value: value,
-              onChanged: onChanged,
-              activeColor: color,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(6),
-              ),
+              onChanged: (newValue) {
+                setState(() {
+                  if (newValue) {
+                    // Açılırsa bu tabloyu seç (diğerleri otomatik kapanır)
+                    _selectedTable = tableType;
+                  } else {
+                    // Kapanırsa seçimi kaldır
+                    _selectedTable = null;
+                  }
+                });
+              },
+              activeTrackColor: color.withValues(alpha: 0.5),
+              activeThumbColor: color,
             ),
           ],
         ),
