@@ -32,10 +32,10 @@ class ExportService {
   static const _assetColorLight = PdfColors.blue50;
   static const _tableBorderColor = PdfColors.grey800;
 
-  /// Font'ları yükle
+  /// Font'ları yükle (Inter)
   static Future<pw.Font> _loadTurkishFont() async {
     if (_turkishFont != null) return _turkishFont!;
-    final fontData = await rootBundle.load('assets/fonts/Roboto-Regular.ttf');
+    final fontData = await rootBundle.load('assets/fonts/Inter-Regular.ttf');
     _turkishFont = pw.Font.ttf(fontData);
     return _turkishFont!;
   }
@@ -43,7 +43,7 @@ class ExportService {
   static Future<pw.Font> _loadTurkishFontBold() async {
     if (_turkishFontBold != null) return _turkishFontBold!;
     try {
-      final fontData = await rootBundle.load('assets/fonts/Roboto-Bold.ttf');
+      final fontData = await rootBundle.load('assets/fonts/Inter-Bold.ttf');
       _turkishFontBold = pw.Font.ttf(fontData);
     } catch (_) {
       _turkishFontBold = await _loadTurkishFont();
@@ -153,7 +153,7 @@ class ExportService {
               endDate,
               logoBytes,
             ),
-            pw.SizedBox(height: 24),
+            pw.SizedBox(height: 12),
 
             // Görsel Özet bölümü (eğer seçiliyse) - İlk sayfada başlık ile birlikte
             if (includeVisualSummary) ...[
@@ -298,7 +298,7 @@ class ExportService {
                 style: pw.TextStyle(
                   font: fontBold,
                   fontSize: 28,
-                  color: PdfColor.fromHex('#10B981'), // Yeşil renk
+                  color: PdfColor.fromHex('#000000'), // Siyah renk
                 ),
               ),
               pw.SizedBox(height: 8),
@@ -321,7 +321,7 @@ class ExportService {
                 style: pw.TextStyle(
                   font: fontBold,
                   fontSize: 12,
-                  color: PdfColors.grey700,
+                  color: PdfColors.black,
                 ),
               ),
               pw.SizedBox(height: 4),
@@ -330,7 +330,7 @@ class ExportService {
                 style: pw.TextStyle(
                   font: font,
                   fontSize: 11,
-                  color: PdfColors.grey100,
+                  color: PdfColors.grey800,
                 ),
               ),
             ],
@@ -370,9 +370,9 @@ class ExportService {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        // Bölüm başlığı - Referans resme göre
+        // Bölüm başlığı
         pw.Padding(
-          padding: const pw.EdgeInsets.only(left: 4, bottom: 20),
+          padding: const pw.EdgeInsets.only(left: 4, bottom: 12),
           child: pw.Text(
             'Finansal Özet',
             style: pw.TextStyle(
@@ -383,71 +383,124 @@ class ExportService {
           ),
         ),
 
-        // Üst satır - 3 Özet Kartı (Referans resme göre)
-        pw.Row(
-          children: [
-            pw.Expanded(
-              child: _buildSummaryCard(
-                iconText: '↘',
-                iconColor: _expenseColor,
-                title: 'Toplam Harcama',
-                value: _formatCurrency(toplamHarcama),
-                font: turkishFont,
-                fontBold: turkishFontBold,
+        // Üst satır - 3 Özet Kartı TEK CONTAINER içinde, gri çizgilerle ayrılmış
+        pw.Container(
+          decoration: pw.BoxDecoration(
+            color: PdfColors.white,
+            borderRadius: pw.BorderRadius.circular(8),
+          ),
+          child: pw.Row(
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            children: [
+              // Harcama
+              pw.Expanded(
+                child: _buildCompactSummaryItem(
+                  title: 'Toplam Harcama',
+                  value: _formatCurrency(toplamHarcama),
+                  valueColor: _expenseColor,
+                  font: turkishFont,
+                  fontBold: turkishFontBold,
+                ),
               ),
-            ),
-            pw.SizedBox(width: 10),
-            pw.Expanded(
-              child: _buildSummaryCard(
-                iconText: '↗',
-                iconColor: _incomeColor,
-                title: 'Toplam Gelir',
-                value: _formatCurrency(toplamGelir),
-                font: turkishFont,
-                fontBold: turkishFontBold,
+              // Dikey çizgi
+              pw.Container(width: 1, height: 40, color: PdfColors.grey300),
+              // Gelir
+              pw.Expanded(
+                child: _buildCompactSummaryItem(
+                  title: 'Toplam Gelir',
+                  value: _formatCurrency(toplamGelir),
+                  valueColor: _incomeColor,
+                  font: turkishFont,
+                  fontBold: turkishFontBold,
+                ),
               ),
-            ),
-            pw.SizedBox(width: 10),
-            pw.Expanded(
-              child: _buildSummaryCard(
-                iconText: '≈',
-                iconColor: _assetColor,
-                title: 'Toplam Varlık',
-                value: _formatCurrency(toplamVarlik),
-                font: turkishFont,
-                fontBold: turkishFontBold,
+              // Dikey çizgi
+              pw.Container(width: 1, height: 40, color: PdfColors.grey300),
+              // Varlık
+              pw.Expanded(
+                child: _buildCompactSummaryItem(
+                  title: 'Toplam Varlık',
+                  value: _formatCurrency(toplamVarlik),
+                  valueColor: _assetColor,
+                  font: turkishFont,
+                  fontBold: turkishFontBold,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         pw.SizedBox(height: 10),
 
-        // Alt satır - 2 Kart (Referans resme göre)
+        // Alt satır - 2 Kart AYRI AYRI, beyaz arka plan, gri çerçeve
         pw.Row(
           children: [
+            // Aylık Net Durum
             pw.Expanded(
-              child: _buildSummaryCard(
-                iconText: '⚖',
-                iconColor: isPositive ? _incomeColor : _expenseColor,
-                title: 'Aylık Net Durum',
-                value: '${isPositive ? '+' : ''}${_formatCurrency(netDurum)}',
-                valueColor: isPositive ? _incomeColor : _expenseColor,
-                font: turkishFont,
-                fontBold: turkishFontBold,
+              child: pw.Container(
+                padding: const pw.EdgeInsets.all(14),
+                decoration: pw.BoxDecoration(
+                  color: PdfColors.white,
+                  borderRadius: pw.BorderRadius.circular(8),
+                  border: pw.Border.all(color: PdfColors.grey300, width: 1),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'Aylık Net Durum',
+                      style: pw.TextStyle(
+                        font: turkishFont,
+                        fontSize: 9,
+                        color: PdfColors.grey600,
+                      ),
+                    ),
+                    pw.SizedBox(height: 6),
+                    pw.Text(
+                      '${isPositive ? '+' : ''}${_formatCurrency(netDurum)}',
+                      style: pw.TextStyle(
+                        font: turkishFontBold,
+                        fontSize: 14,
+                        color: isPositive ? _incomeColor : _expenseColor,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             pw.SizedBox(width: 10),
+            // Tasarruf Oranı
             pw.Expanded(
-              child: _buildSummaryCard(
-                iconText: '%',
-                iconColor: PdfColors.blue700,
-                title: 'Tasarruf Oranı',
-                value: '%${tasarrufOrani.toStringAsFixed(1)}',
-                valueColor: tasarrufOrani >= 0
-                    ? PdfColors.blue700
-                    : _expenseColor,
-                font: turkishFont,
-                fontBold: turkishFontBold,
+              child: pw.Container(
+                padding: const pw.EdgeInsets.all(14),
+                decoration: pw.BoxDecoration(
+                  color: PdfColors.white,
+                  borderRadius: pw.BorderRadius.circular(8),
+                  border: pw.Border.all(color: PdfColors.grey300, width: 1),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'Tasarruf Oranı',
+                      style: pw.TextStyle(
+                        font: turkishFont,
+                        fontSize: 9,
+                        color: PdfColors.grey600,
+                      ),
+                    ),
+                    pw.SizedBox(height: 6),
+                    pw.Text(
+                      '%${tasarrufOrani.toStringAsFixed(1)}',
+                      style: pw.TextStyle(
+                        font: turkishFontBold,
+                        fontSize: 14,
+                        color: tasarrufOrani >= 0
+                            ? PdfColors.blue700
+                            : _expenseColor,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -663,41 +716,6 @@ class ExportService {
                       color: PdfColors.grey500,
                     ),
                   ),
-                  pw.Row(
-                    children: [
-                      pw.Container(width: 8, height: 8, color: _incomeColor),
-                      pw.Text(
-                        ' <70%  ',
-                        style: pw.TextStyle(
-                          font: turkishFont,
-                          fontSize: 8,
-                          color: PdfColors.grey500,
-                        ),
-                      ),
-                      pw.Container(
-                        width: 8,
-                        height: 8,
-                        color: PdfColors.orange,
-                      ),
-                      pw.Text(
-                        ' 70-90%  ',
-                        style: pw.TextStyle(
-                          font: turkishFont,
-                          fontSize: 8,
-                          color: PdfColors.grey500,
-                        ),
-                      ),
-                      pw.Container(width: 8, height: 8, color: _expenseColor),
-                      pw.Text(
-                        ' >90%',
-                        style: pw.TextStyle(
-                          font: turkishFont,
-                          fontSize: 8,
-                          color: PdfColors.grey500,
-                        ),
-                      ),
-                    ],
-                  ),
                   pw.Text(
                     '100%',
                     style: pw.TextStyle(
@@ -742,58 +760,34 @@ class ExportService {
     );
   }
 
-  /// Özet kartı widget'ı - Referans resme göre tasarım
-  static pw.Widget _buildSummaryCard({
-    required String iconText,
-    required PdfColor iconColor,
+  /// Kompakt özet öğesi (tek container içindeki 3 kart için)
+  static pw.Widget _buildCompactSummaryItem({
     required String title,
     required String value,
-    PdfColor? valueColor,
+    required PdfColor valueColor,
     required pw.Font font,
     required pw.Font fontBold,
   }) {
-    return pw.Container(
-      padding: const pw.EdgeInsets.all(14),
-      decoration: pw.BoxDecoration(
-        color: PdfColors.grey100,
-        borderRadius: pw.BorderRadius.circular(8),
-      ),
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
-          // İkon ve başlık satırı
-          pw.Row(
-            crossAxisAlignment: pw.CrossAxisAlignment.center,
-            children: [
-              pw.Text(
-                iconText,
-                style: pw.TextStyle(
-                  font: fontBold,
-                  fontSize: 11,
-                  color: iconColor,
-                ),
-              ),
-              pw.SizedBox(width: 4),
-              pw.Expanded(
-                child: pw.Text(
-                  title,
-                  style: pw.TextStyle(
-                    font: font,
-                    fontSize: 9,
-                    color: PdfColors.grey600,
-                  ),
-                ),
-              ),
-            ],
+          pw.Text(
+            title,
+            style: pw.TextStyle(
+              font: font,
+              fontSize: 9,
+              color: PdfColors.grey600,
+            ),
           ),
           pw.SizedBox(height: 6),
-          // Değer - Büyük ve belirgin (siyah)
           pw.Text(
             value,
             style: pw.TextStyle(
               font: fontBold,
               fontSize: 13,
-              color: valueColor ?? PdfColors.grey900,
+              color: valueColor,
             ),
           ),
         ],
