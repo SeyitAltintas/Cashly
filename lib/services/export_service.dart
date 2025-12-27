@@ -51,9 +51,9 @@ class ExportService {
     return _turkishFontBold!;
   }
 
-  /// Logo resmini yükle
-  static Future<Uint8List> _loadLogoImage() async {
-    final logoData = await rootBundle.load('assets/image/seffaflogo.png');
+  /// Siyah logo resmini yükle (seffaflogosiyah.png - koyu logo)
+  static Future<Uint8List> _loadBlackLogoImage() async {
+    final logoData = await rootBundle.load('assets/image/seffaflogosiyah.png');
     return logoData.buffer.asUint8List();
   }
 
@@ -88,7 +88,7 @@ class ExportService {
       // Fontları ve logoyu yükle
       final turkishFont = await _loadTurkishFont();
       final turkishFontBold = await _loadTurkishFontBold();
-      final logoBytes = await _loadLogoImage();
+      final logoBytes = await _loadBlackLogoImage();
       final pdf = pw.Document();
 
       // Repository'leri al
@@ -123,6 +123,9 @@ class ExportService {
         (sum, v) => sum + ((v['amount'] as num?) ?? 0).toDouble(),
       );
 
+      // Kullanıcının ayarladığı aylık bütçe limitini al
+      final aylikButceLimiti = expenseRepo.getBudget(userId);
+
       // Tablolar için seçime göre verileri al
       final harcamalar = includeExpenses
           ? tumHarcamalar
@@ -139,7 +142,7 @@ class ExportService {
             margin: const pw.EdgeInsets.all(32),
             buildBackground: (context) => pw.FullPage(
               ignoreMargins: true,
-              child: pw.Container(color: PdfColors.grey100),
+              child: pw.Container(color: PdfColor.fromHex('#F5F9FC')),
             ),
           ),
           footer: (context) => _buildFooter(context, turkishFont),
@@ -161,6 +164,7 @@ class ExportService {
                 toplamHarcama: toplamHarcama,
                 toplamGelir: toplamGelir,
                 toplamVarlik: toplamVarlik,
+                aylikButceLimiti: aylikButceLimiti,
                 turkishFont: turkishFont,
                 turkishFontBold: turkishFontBold,
               ),
@@ -274,7 +278,7 @@ class ExportService {
     }
   }
 
-  /// PDF başlık bölümü - Minimalist tasarım (referans resme göre)
+  /// PDF başlık bölümü - Logo ile minimalist tasarım
   static pw.Widget _buildHeader(
     pw.Font font,
     pw.Font fontBold,
@@ -283,31 +287,28 @@ class ExportService {
     DateTime endDate,
     Uint8List logoBytes,
   ) {
+    // Koyu gri renk tanımı (siyaha yakın)
+    final darkGrey = PdfColor.fromHex('#1F2937');
+
     return pw.Container(
-      padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+      padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 16),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
-          // Sol taraf - Cashly başlık ve alt başlık
+          // Sol taraf - Logo ve alt başlık
           pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(
-                'Cashly',
-                style: pw.TextStyle(
-                  font: fontBold,
-                  fontSize: 28,
-                  color: PdfColor.fromHex('#000000'), // Siyah renk
-                ),
-              ),
-              pw.SizedBox(height: 8),
+              // Logo
+              pw.Image(pw.MemoryImage(logoBytes), height: 35),
+              pw.SizedBox(height: 6),
               pw.Text(
                 'Finansal Durum Raporu',
                 style: pw.TextStyle(
                   font: fontBold,
-                  fontSize: 18,
-                  color: PdfColors.grey800,
+                  fontSize: 14,
+                  color: darkGrey,
                 ),
               ),
             ],
@@ -320,18 +321,14 @@ class ExportService {
                 userName,
                 style: pw.TextStyle(
                   font: fontBold,
-                  fontSize: 12,
-                  color: PdfColors.black,
+                  fontSize: 11,
+                  color: darkGrey,
                 ),
               ),
-              pw.SizedBox(height: 4),
+              pw.SizedBox(height: 3),
               pw.Text(
                 '${_dateFormat.format(startDate)} - ${_dateFormat.format(endDate)}',
-                style: pw.TextStyle(
-                  font: font,
-                  fontSize: 11,
-                  color: PdfColors.grey800,
-                ),
+                style: pw.TextStyle(font: font, fontSize: 10, color: darkGrey),
               ),
             ],
           ),
@@ -345,6 +342,7 @@ class ExportService {
     required double toplamHarcama,
     required double toplamGelir,
     required double toplamVarlik,
+    required double aylikButceLimiti,
     required pw.Font turkishFont,
     required pw.Font turkishFontBold,
   }) {
@@ -356,9 +354,9 @@ class ExportService {
         ? ((toplamGelir - toplamHarcama) / toplamGelir * 100)
         : 0.0;
 
-    // Bütçe durumu için oran
-    final butceDurumu = toplamGelir > 0
-        ? (toplamHarcama / toplamGelir * 100).clamp(0.0, 100.0)
+    // Bütçe durumu için oran (kullanıcının ayarladığı bütçe limitine göre)
+    final butceDurumu = aylikButceLimiti > 0
+        ? (toplamHarcama / aylikButceLimiti * 100).clamp(0.0, 100.0)
         : 0.0;
 
     // Pasta grafiği için toplam ve oranlar
@@ -378,7 +376,7 @@ class ExportService {
             style: pw.TextStyle(
               font: turkishFont,
               fontSize: 13,
-              color: PdfColors.grey700,
+              color: PdfColor.fromHex('#1F2937'),
             ),
           ),
         ),
@@ -387,7 +385,7 @@ class ExportService {
         pw.Container(
           decoration: pw.BoxDecoration(
             color: PdfColors.white,
-            borderRadius: pw.BorderRadius.circular(8),
+            borderRadius: pw.BorderRadius.circular(4),
           ),
           child: pw.Row(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -395,6 +393,8 @@ class ExportService {
               // Harcama
               pw.Expanded(
                 child: _buildCompactSummaryItem(
+                  icon: '↓',
+                  iconColor: _expenseColor,
                   title: 'Toplam Harcama',
                   value: _formatCurrency(toplamHarcama),
                   valueColor: _expenseColor,
@@ -407,6 +407,8 @@ class ExportService {
               // Gelir
               pw.Expanded(
                 child: _buildCompactSummaryItem(
+                  icon: '↑',
+                  iconColor: _incomeColor,
                   title: 'Toplam Gelir',
                   value: _formatCurrency(toplamGelir),
                   valueColor: _incomeColor,
@@ -419,6 +421,8 @@ class ExportService {
               // Varlık
               pw.Expanded(
                 child: _buildCompactSummaryItem(
+                  icon: '≈',
+                  iconColor: _assetColor,
                   title: 'Toplam Varlık',
                   value: _formatCurrency(toplamVarlik),
                   valueColor: _assetColor,
@@ -440,19 +444,33 @@ class ExportService {
                 padding: const pw.EdgeInsets.all(14),
                 decoration: pw.BoxDecoration(
                   color: PdfColors.white,
-                  borderRadius: pw.BorderRadius.circular(8),
+                  borderRadius: pw.BorderRadius.circular(4),
                   border: pw.Border.all(color: PdfColors.grey300, width: 1),
                 ),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text(
-                      'Aylık Net Durum',
-                      style: pw.TextStyle(
-                        font: turkishFont,
-                        fontSize: 9,
-                        color: PdfColors.grey600,
-                      ),
+                    pw.Row(
+                      mainAxisSize: pw.MainAxisSize.min,
+                      children: [
+                        pw.Text(
+                          isPositive ? '+/-' : '-/+',
+                          style: pw.TextStyle(
+                            font: turkishFontBold,
+                            fontSize: 10,
+                            color: isPositive ? _incomeColor : _expenseColor,
+                          ),
+                        ),
+                        pw.SizedBox(width: 4),
+                        pw.Text(
+                          'Aylık Net Durum',
+                          style: pw.TextStyle(
+                            font: turkishFont,
+                            fontSize: 9,
+                            color: PdfColor.fromHex('#1F2937'),
+                          ),
+                        ),
+                      ],
                     ),
                     pw.SizedBox(height: 6),
                     pw.Text(
@@ -474,19 +492,33 @@ class ExportService {
                 padding: const pw.EdgeInsets.all(14),
                 decoration: pw.BoxDecoration(
                   color: PdfColors.white,
-                  borderRadius: pw.BorderRadius.circular(8),
+                  borderRadius: pw.BorderRadius.circular(4),
                   border: pw.Border.all(color: PdfColors.grey300, width: 1),
                 ),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text(
-                      'Tasarruf Oranı',
-                      style: pw.TextStyle(
-                        font: turkishFont,
-                        fontSize: 9,
-                        color: PdfColors.grey600,
-                      ),
+                    pw.Row(
+                      mainAxisSize: pw.MainAxisSize.min,
+                      children: [
+                        pw.Text(
+                          '%',
+                          style: pw.TextStyle(
+                            font: turkishFontBold,
+                            fontSize: 10,
+                            color: PdfColors.blue700,
+                          ),
+                        ),
+                        pw.SizedBox(width: 4),
+                        pw.Text(
+                          'Tasarruf Oranı',
+                          style: pw.TextStyle(
+                            font: turkishFont,
+                            fontSize: 9,
+                            color: PdfColor.fromHex('#1F2937'),
+                          ),
+                        ),
+                      ],
                     ),
                     pw.SizedBox(height: 6),
                     pw.Text(
@@ -512,7 +544,7 @@ class ExportService {
           padding: const pw.EdgeInsets.all(16),
           decoration: pw.BoxDecoration(
             color: PdfColors.white,
-            borderRadius: pw.BorderRadius.circular(12),
+            borderRadius: pw.BorderRadius.circular(6),
             border: pw.Border.all(color: PdfColors.grey200, width: 1),
           ),
           child: pw.Row(
@@ -581,7 +613,7 @@ class ExportService {
                       style: pw.TextStyle(
                         font: turkishFontBold,
                         fontSize: 11,
-                        color: PdfColors.grey700,
+                        color: PdfColor.fromHex('#1F2937'),
                       ),
                     ),
                     pw.SizedBox(height: 10),
@@ -642,7 +674,7 @@ class ExportService {
           padding: const pw.EdgeInsets.all(16),
           decoration: pw.BoxDecoration(
             color: PdfColors.white,
-            borderRadius: pw.BorderRadius.circular(12),
+            borderRadius: pw.BorderRadius.circular(6),
             border: pw.Border.all(color: PdfColors.grey200, width: 1),
           ),
           child: pw.Column(
@@ -656,7 +688,7 @@ class ExportService {
                     style: pw.TextStyle(
                       font: turkishFontBold,
                       fontSize: 11,
-                      color: PdfColors.grey700,
+                      color: PdfColor.fromHex('#1F2937'),
                     ),
                   ),
                   pw.Text(
@@ -713,7 +745,7 @@ class ExportService {
                     style: pw.TextStyle(
                       font: turkishFont,
                       fontSize: 8,
-                      color: PdfColors.grey500,
+                      color: PdfColor.fromHex('#1F2937'),
                     ),
                   ),
                   pw.Text(
@@ -721,10 +753,39 @@ class ExportService {
                     style: pw.TextStyle(
                       font: turkishFont,
                       fontSize: 8,
-                      color: PdfColors.grey500,
+                      color: PdfColor.fromHex('#1F2937'),
                     ),
                   ),
                 ],
+              ),
+              pw.SizedBox(height: 8),
+              // Aylık gelir bütçe limiti ve aşım durumu
+              pw.Center(
+                child: pw.Column(
+                  children: [
+                    pw.Text(
+                      'Harcama limitiniz: ${_formatCurrency(aylikButceLimiti)}',
+                      style: pw.TextStyle(
+                        font: turkishFont,
+                        fontSize: 9,
+                        color: PdfColor.fromHex('#1F2937'),
+                      ),
+                    ),
+                    // Bütçe aşıldıysa aşım miktarını göster
+                    if (toplamHarcama > aylikButceLimiti &&
+                        aylikButceLimiti > 0) ...[
+                      pw.SizedBox(height: 4),
+                      pw.Text(
+                        'Limit aşımı: ${_formatCurrency(toplamHarcama - aylikButceLimiti)}',
+                        style: pw.TextStyle(
+                          font: turkishFontBold,
+                          fontSize: 9,
+                          color: _expenseColor,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -749,7 +810,7 @@ class ExportService {
           style: pw.TextStyle(
             font: font,
             fontSize: 10,
-            color: PdfColors.grey600,
+            color: PdfColor.fromHex('#1F2937'),
           ),
         ),
         pw.Text(
@@ -762,6 +823,8 @@ class ExportService {
 
   /// Kompakt özet öğesi (tek container içindeki 3 kart için)
   static pw.Widget _buildCompactSummaryItem({
+    required String icon,
+    required PdfColor iconColor,
     required String title,
     required String value,
     required PdfColor valueColor,
@@ -769,19 +832,33 @@ class ExportService {
     required pw.Font fontBold,
   }) {
     return pw.Padding(
-      padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.center,
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          pw.Text(
-            title,
-            style: pw.TextStyle(
-              font: font,
-              fontSize: 9,
-              color: PdfColors.grey600,
-            ),
+          pw.Row(
+            mainAxisSize: pw.MainAxisSize.min,
+            children: [
+              pw.Text(
+                icon,
+                style: pw.TextStyle(
+                  font: fontBold,
+                  fontSize: 10,
+                  color: iconColor,
+                ),
+              ),
+              pw.SizedBox(width: 4),
+              pw.Text(
+                title,
+                style: pw.TextStyle(
+                  font: font,
+                  fontSize: 9,
+                  color: PdfColor.fromHex('#1F2937'),
+                ),
+              ),
+            ],
           ),
-          pw.SizedBox(height: 6),
+          pw.SizedBox(height: 4),
           pw.Text(
             value,
             style: pw.TextStyle(
@@ -884,7 +961,7 @@ class ExportService {
           style: pw.TextStyle(
             font: font,
             fontSize: 9,
-            color: PdfColors.grey700,
+            color: PdfColor.fromHex('#1F2937'),
           ),
         ),
       ],

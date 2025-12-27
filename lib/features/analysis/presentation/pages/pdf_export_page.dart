@@ -24,7 +24,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
   bool _includeExpenses = true;
   bool _includeIncomes = true;
   bool _includeAssets = true;
-  bool _includeVisualSummary = false; // Görsel özet varsayılan olarak kapalı
+  bool _includeVisualSummary = true; // Görsel özet varsayılan olarak açık
   bool _isExporting = false;
 
   bool get _hasSelection =>

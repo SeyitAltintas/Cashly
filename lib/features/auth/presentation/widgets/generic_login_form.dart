@@ -91,7 +91,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 60),
-                Image.asset('assets/image/seffaflogo.png', height: 100),
+                Image.asset('assets/image/seffaflogo.png', height: 70),
                 const SizedBox(height: 120),
                 Text(
                   "Giriş Yap",

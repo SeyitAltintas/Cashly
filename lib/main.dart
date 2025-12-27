@@ -143,7 +143,7 @@ class _CashlyAppState extends State<CashlyApp> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset('assets/image/seffaflogo.png', height: 100),
+                    Image.asset('assets/image/seffaflogo.png', height: 70),
                     const SizedBox(height: 20),
                     CircularProgressIndicator(color: Colors.white),
                   ],

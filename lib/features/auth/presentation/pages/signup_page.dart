@@ -57,7 +57,7 @@ class _SignUpPageState extends State<SignUpPage> {
               children: [
                 const SizedBox(height: 40),
                 Center(
-                  child: Image.asset('assets/image/seffaflogo.png', height: 80),
+                  child: Image.asset('assets/image/seffaflogo.png', height: 60),
                 ),
                 const SizedBox(height: 100),
                 Text(
