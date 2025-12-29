@@ -126,6 +126,43 @@ class ExportService {
       // Kullanıcının ayarladığı aylık bütçe limitini al
       final aylikButceLimiti = expenseRepo.getBudget(userId);
 
+      // --- YENİ: İçerik Zenginleştirme Hesaplamaları ---
+
+      // 1. En Yüksek Harcamalar Top 5
+      final sortedHarcamalar = List<Map<String, dynamic>>.from(tumHarcamalar)
+        ..sort(
+          (a, b) => ((b['tutar'] as num).toDouble()).compareTo(
+            (a['tutar'] as num).toDouble(),
+          ),
+        );
+      final top5Harcamalar = sortedHarcamalar.take(5).toList();
+
+      // 2. Ortalama Günlük Harcama
+      final gunSayisi = endDate.difference(startDate).inDays + 1;
+      final ortalamaGunlukHarcama = gunSayisi > 0
+          ? toplamHarcama / gunSayisi
+          : 0.0;
+
+      // 3. Geçen Aya Kıyasla Değişim
+      final gecenAyBaslangic = DateTime(startDate.year, startDate.month - 1, 1);
+      final gecenAyBitis = DateTime(
+        startDate.year,
+        startDate.month,
+        0,
+      ); // Geçen ayın son günü
+      final gecenAyHarcamalar = _filterByDateRange(
+        expenseRepo.getExpenses(userId),
+        gecenAyBaslangic,
+        gecenAyBitis,
+      );
+      final gecenAyToplam = gecenAyHarcamalar.fold<double>(
+        0,
+        (sum, h) => sum + (h['tutar'] as num).toDouble(),
+      );
+      final degisimYuzdesi = gecenAyToplam > 0
+          ? ((toplamHarcama - gecenAyToplam) / gecenAyToplam * 100)
+          : 0.0;
+
       // Tablolar için seçime göre verileri al
       final harcamalar = includeExpenses
           ? tumHarcamalar
@@ -165,6 +202,10 @@ class ExportService {
                 toplamGelir: toplamGelir,
                 toplamVarlik: toplamVarlik,
                 aylikButceLimiti: aylikButceLimiti,
+                top5Harcamalar: top5Harcamalar,
+                ortalamaGunlukHarcama: ortalamaGunlukHarcama,
+                gecenAyToplam: gecenAyToplam,
+                degisimYuzdesi: degisimYuzdesi,
                 turkishFont: turkishFont,
                 turkishFontBold: turkishFontBold,
               ),
@@ -343,6 +384,10 @@ class ExportService {
     required double toplamGelir,
     required double toplamVarlik,
     required double aylikButceLimiti,
+    required List<Map<String, dynamic>> top5Harcamalar,
+    required double ortalamaGunlukHarcama,
+    required double gecenAyToplam,
+    required double degisimYuzdesi,
     required pw.Font turkishFont,
     required pw.Font turkishFontBold,
   }) {
@@ -790,6 +835,236 @@ class ExportService {
             ],
           ),
         ),
+        pw.SizedBox(height: 16),
+
+        // --- YENİ BÖLÜM: İstatistik Kartları (Günlük Ortalama + Geçen Ay Karşılaştırma) ---
+        pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            // Ortalama Günlük Harcama
+            pw.Expanded(
+              child: pw.Container(
+                height: 65,
+                padding: const pw.EdgeInsets.all(14),
+                decoration: pw.BoxDecoration(
+                  color: PdfColors.white,
+                  borderRadius: pw.BorderRadius.circular(4),
+                  border: pw.Border.all(color: PdfColors.grey300, width: 1),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'Günlük Ortalama',
+                      style: pw.TextStyle(
+                        font: turkishFont,
+                        fontSize: 9,
+                        color: PdfColor.fromHex('#1F2937'),
+                      ),
+                    ),
+                    pw.SizedBox(height: 6),
+                    pw.Row(
+                      crossAxisAlignment: pw.CrossAxisAlignment.center,
+                      children: [
+                        pw.Text(
+                          _formatCurrency(ortalamaGunlukHarcama),
+                          style: pw.TextStyle(
+                            font: turkishFontBold,
+                            fontSize: 14,
+                            color: _expenseColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            pw.SizedBox(width: 10),
+            // Geçen Aya Kıyasla Değişim
+            pw.Expanded(
+              child: pw.Container(
+                height: 65,
+                padding: const pw.EdgeInsets.all(14),
+                decoration: pw.BoxDecoration(
+                  color: PdfColors.white,
+                  borderRadius: pw.BorderRadius.circular(4),
+                  border: pw.Border.all(color: PdfColors.grey300, width: 1),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'Geçen Aya Göre',
+                      style: pw.TextStyle(
+                        font: turkishFont,
+                        fontSize: 9,
+                        color: PdfColor.fromHex('#1F2937'),
+                      ),
+                    ),
+                    pw.SizedBox(height: 6),
+                    pw.Row(
+                      children: [
+                        pw.Text(
+                          degisimYuzdesi >= 0 ? '+' : '',
+                          style: pw.TextStyle(
+                            font: turkishFontBold,
+                            fontSize: 14,
+                            color: degisimYuzdesi >= 0
+                                ? _expenseColor
+                                : _incomeColor,
+                          ),
+                        ),
+                        pw.Text(
+                          '%${degisimYuzdesi.toStringAsFixed(1)}',
+                          style: pw.TextStyle(
+                            font: turkishFontBold,
+                            fontSize: 14,
+                            color: degisimYuzdesi >= 0
+                                ? _expenseColor
+                                : _incomeColor,
+                          ),
+                        ),
+                        pw.SizedBox(width: 6),
+                        if (gecenAyToplam > 0)
+                          pw.Text(
+                            '(${_formatCurrency(gecenAyToplam)})',
+                            style: pw.TextStyle(
+                              font: turkishFont,
+                              fontSize: 8,
+                              color: PdfColors.grey600,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        pw.SizedBox(height: 16),
+
+        // --- YENİ BÖLÜM: En Yüksek 5 Harcama ---
+        if (top5Harcamalar.isNotEmpty)
+          pw.Container(
+            padding: const pw.EdgeInsets.all(14),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.white,
+              borderRadius: pw.BorderRadius.circular(4),
+              border: pw.Border.all(color: PdfColors.grey300, width: 1),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  'En Yüksek 5 Harcama',
+                  style: pw.TextStyle(
+                    font: turkishFontBold,
+                    fontSize: 11,
+                    color: PdfColor.fromHex('#1F2937'),
+                  ),
+                ),
+                pw.SizedBox(height: 10),
+                ...top5Harcamalar.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final h = entry.value;
+                  final kategori = h['kategori'] as String? ?? 'Diğer';
+                  final tutar = (h['tutar'] as num).toDouble();
+                  final aciklama = h['aciklama'] as String? ?? '';
+                  final tarihStr = h['tarih'] as String? ?? '';
+                  // Tarihi format
+                  String formattedTarih = '';
+                  if (tarihStr.isNotEmpty) {
+                    try {
+                      final tarih = DateTime.parse(tarihStr);
+                      formattedTarih =
+                          '${tarih.day.toString().padLeft(2, '0')}.${tarih.month.toString().padLeft(2, '0')}.${tarih.year}';
+                    } catch (_) {
+                      formattedTarih = tarihStr;
+                    }
+                  }
+                  return pw.Padding(
+                    padding: const pw.EdgeInsets.only(bottom: 6),
+                    child: pw.Row(
+                      children: [
+                        // Sıra numarası (beyaz yazı, kırmızı arka plan)
+                        pw.Container(
+                          width: 18,
+                          height: 18,
+                          decoration: pw.BoxDecoration(
+                            color: _expenseColor,
+                            borderRadius: pw.BorderRadius.circular(9),
+                          ),
+                          child: pw.Center(
+                            child: pw.Text(
+                              '${index + 1}',
+                              style: pw.TextStyle(
+                                font: turkishFontBold,
+                                fontSize: 9,
+                                color: PdfColors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        pw.SizedBox(width: 8),
+                        // Kategori, açıklama ve tarih
+                        pw.Expanded(
+                          child: pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              // Harcama ismi (önce açıklama, yoksa kategori)
+                              pw.Text(
+                                aciklama.isNotEmpty
+                                    ? (aciklama.length > 25
+                                          ? '${aciklama.substring(0, 25)}...'
+                                          : aciklama)
+                                    : kategori,
+                                style: pw.TextStyle(
+                                  font: turkishFontBold,
+                                  fontSize: 9,
+                                  color: PdfColor.fromHex('#1F2937'),
+                                ),
+                              ),
+                              // Kategori (eğer açıklama varsa kategoriyi altına yaz)
+                              if (aciklama.isNotEmpty)
+                                pw.Text(
+                                  kategori,
+                                  style: pw.TextStyle(
+                                    font: turkishFont,
+                                    fontSize: 8,
+                                    color: PdfColors.grey600,
+                                  ),
+                                ),
+                              // Tarih
+                              if (formattedTarih.isNotEmpty)
+                                pw.Text(
+                                  formattedTarih,
+                                  style: pw.TextStyle(
+                                    font: turkishFont,
+                                    fontSize: 7,
+                                    color: PdfColors.grey500,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        // Tutar
+                        pw.Text(
+                          _formatCurrency(tutar),
+                          style: pw.TextStyle(
+                            font: turkishFontBold,
+                            fontSize: 10,
+                            color: _expenseColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
       ],
     );
   }

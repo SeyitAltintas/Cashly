@@ -2,19 +2,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "cashly",
+            "name": "Redmi Note 10 Pro",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
             "deviceId": "2dec8e12",
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "cashly (Pixel 9 Pro Fold)",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "deviceId": "emulator-5554",
             "cwd": "${workspaceFolder}"
         },
         {
@@ -26,45 +18,11 @@
             "cwd": "${workspaceFolder}"
         },
         {
-            "name": "cashly (Web Server)",
+            "name": "cashly (Burağın Telefon)",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "deviceId": "web-server",
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "cashly (profile)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "profile",
-            "deviceId": "2dec8e12",
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "cashly (release)",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release",
-            "deviceId": "2dec8e12",
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "cashly (Pixel 9 Pro Fold - Profile)",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "flutterMode": "profile",
-            "deviceId": "emulator-5554",
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "cashly (Pixel 9 Pro Fold - Release)",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "flutterMode": "release",
-            "deviceId": "emulator-5554",
+            "deviceId": "R58M62S4AYR",
             "cwd": "${workspaceFolder}"
         }
     ]
