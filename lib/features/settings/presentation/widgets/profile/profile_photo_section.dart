@@ -16,10 +16,9 @@ class ProfilePhotoSection extends StatelessWidget {
     required this.onEditTap,
   });
 
+  /// Yerel dosya veya asset'ten image provider oluştur
   ImageProvider? _getImageProvider(String path) {
-    if (path.startsWith('http')) {
-      return NetworkImage(path);
-    } else if (path.startsWith('lib/') || path.startsWith('assets/')) {
+    if (path.startsWith('lib/') || path.startsWith('assets/')) {
       return AssetImage(path);
     } else {
       return FileImage(File(path));

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../auth/domain/entities/user_entity.dart';
@@ -17,7 +16,6 @@ class ProfileSettingsHelper {
   final UserEntity currentUser;
   final AuthRepositoryImpl authRepository;
   final VoidCallback onUserUpdated;
-  final List<String> profileImageUrls;
 
   ProfileSettingsHelper({
     required this.context,
@@ -25,23 +23,15 @@ class ProfileSettingsHelper {
     required this.currentUser,
     required this.authRepository,
     required this.onUserUpdated,
-    required this.profileImageUrls,
   });
 
+  /// Yerel dosya veya asset'ten image provider oluştur
   ImageProvider _getImageProvider(String path) {
-    if (path.startsWith('http')) {
-      return NetworkImage(path);
-    } else if (path.startsWith('lib/') || path.startsWith('assets/')) {
+    if (path.startsWith('lib/') || path.startsWith('assets/')) {
       return AssetImage(path);
     } else {
       return FileImage(File(path));
     }
-  }
-
-  List<String> _getRandomImages() {
-    final random = Random();
-    final List<String> shuffled = List.from(profileImageUrls)..shuffle(random);
-    return shuffled.take(9).toList();
   }
 
   Future<void> _updateUser({
@@ -138,102 +128,57 @@ class ProfileSettingsHelper {
     );
   }
 
-  /// Avatar seçim dialog'u
+  /// Avatar seçim dialog'u - Sadece galeriden seçim
   void showAvatarSelectionDialog() {
-    List<String> displayedImages = _getRandomImages();
-
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setStateBottomSheet) {
-          return Container(
-            height: MediaQuery.of(ctx).size.height * 0.6,
-            decoration: BoxDecoration(
-              color: Theme.of(ctx).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(24),
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(ctx).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSheetHeader(ctx, "Profil Resmi Seç"),
+            const SizedBox(height: 24),
+            // Açıklama metni
+            Text(
+              "Galerinizden bir fotoğraf seçerek profil resminizi değiştirebilirsiniz.",
+              style: TextStyle(
+                color: Theme.of(
+                  ctx,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                fontSize: 14,
               ),
             ),
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSheetHeader(ctx, "Profil Resmi Seç"),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _pickImageFromGallery,
-                        icon: const Icon(Icons.photo_library),
-                        label: const Text("Galeriden Seç"),
-                        style: _outlinedButtonStyle(),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          setStateBottomSheet(() {
-                            displayedImages = _getRandomImages();
-                          });
-                        },
-                        icon: const Icon(Icons.refresh),
-                        label: const Text("Resimleri Yenile"),
-                        style: _outlinedButtonStyle(),
-                      ),
-                    ),
-                  ],
+            const SizedBox(height: 24),
+            // Galeriden Seç butonu
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _pickImageFromGallery,
+                icon: const Icon(Icons.photo_library),
+                label: const Text(
+                  "Galeriden Fotoğraf Seç",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
-                    itemCount: displayedImages.length,
-                    itemBuilder: (ctx, index) {
-                      final imagePath = displayedImages[index];
-                      return GestureDetector(
-                        onTap: () {
-                          _updateUser(
-                            profileImage: imagePath,
-                            successMessage: "Profil resmi güncellendi",
-                          );
-                          Navigator.pop(ctx);
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Theme.of(
-                                ctx,
-                              ).colorScheme.primary.withValues(alpha: 0.2),
-                              width: 1,
-                            ),
-                          ),
-                          child: ClipOval(
-                            child: Image(
-                              image: _getImageProvider(imagePath),
-                              fit: BoxFit.cover,
-                              errorBuilder: (ctx, error, stackTrace) =>
-                                  const Icon(Icons.error),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(ctx).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-              ],
+              ),
             ),
-          );
-        },
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
@@ -836,15 +781,6 @@ class ProfileSettingsHelper {
       ),
       filled: true,
       fillColor: Theme.of(ctx).colorScheme.surface,
-    );
-  }
-
-  ButtonStyle _outlinedButtonStyle() {
-    return OutlinedButton.styleFrom(
-      foregroundColor: Colors.white,
-      side: const BorderSide(color: Colors.white),
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
 
