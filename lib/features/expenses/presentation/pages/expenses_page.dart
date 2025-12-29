@@ -7,7 +7,7 @@ import '../widgets/expense_list_item.dart';
 import '../widgets/expense_summary_card.dart';
 import '../widgets/add_expense_sheet.dart';
 import '../widgets/voice_input_sheet.dart';
-import '../../../../recycle_bin_page.dart';
+import 'recycle_bin_page.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../../../core/widgets/money_animation.dart';

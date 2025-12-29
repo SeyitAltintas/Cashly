@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
-import '../../../../home_page.dart';
+import '../../../home/presentation/pages/home_page.dart';
 import 'signup_page.dart';
 import 'user_list_page.dart';
 import '../../../../services/biometric_service.dart';

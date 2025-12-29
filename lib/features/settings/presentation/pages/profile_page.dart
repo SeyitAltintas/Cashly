@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'settings_page.dart';
-import 'features/settings/presentation/pages/profile_settings_page.dart';
-import 'features/auth/presentation/controllers/auth_controller.dart';
-import 'features/auth/presentation/pages/login_page.dart';
-import 'core/constants/color_constants.dart';
-import 'services/haptic_service.dart';
+import 'main_settings_page.dart';
+import 'profile_settings_page.dart';
+import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:cashly/features/auth/presentation/pages/login_page.dart';
+import 'package:cashly/core/constants/color_constants.dart';
+import 'package:cashly/services/haptic_service.dart';
 
 class ProfilSayfasi extends StatelessWidget {
   final AuthController authController;
@@ -73,18 +73,10 @@ class ProfilSayfasi extends StatelessWidget {
                     ).colorScheme.surfaceContainerHighest,
                     backgroundImage:
                         authController.currentUser?.profileImage != null
-                        ? (authController.currentUser!.profileImage!.startsWith(
-                                    'http',
-                                  )
-                                  ? NetworkImage(
-                                      authController.currentUser!.profileImage!,
-                                    )
-                                  : (authController.currentUser!.profileImage!
-                                            .startsWith('lib/') ||
-                                        authController
-                                            .currentUser!
-                                            .profileImage!
-                                            .startsWith('assets/'))
+                        ? ((authController.currentUser!.profileImage!
+                                          .startsWith('lib/') ||
+                                      authController.currentUser!.profileImage!
+                                          .startsWith('assets/'))
                                   ? AssetImage(
                                       authController.currentUser!.profileImage!,
                                     )

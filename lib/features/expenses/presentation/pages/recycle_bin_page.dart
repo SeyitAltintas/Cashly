@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'core/constants/color_constants.dart';
-import 'core/di/injection_container.dart';
-import 'features/expenses/domain/repositories/expense_repository.dart';
-import 'features/payment_methods/domain/repositories/payment_method_repository.dart';
-import 'features/payment_methods/data/models/payment_method_model.dart';
+import 'package:cashly/core/constants/color_constants.dart';
+import 'package:cashly/core/di/injection_container.dart';
+import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
+import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
+import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 
 class CopKutusuSayfasi extends StatefulWidget {
   final String userId;

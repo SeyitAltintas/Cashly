@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controllers/auth_controller.dart';
-import '../../../../home_page.dart';
+import '../../../home/presentation/pages/home_page.dart';
 import 'login_page.dart';
 import '../../../../core/utils/validators.dart';
 

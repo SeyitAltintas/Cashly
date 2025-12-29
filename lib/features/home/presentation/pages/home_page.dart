@@ -1,38 +1,38 @@
 import 'package:flutter/material.dart';
 
-import 'package:cashly/profile_page.dart';
-import 'core/di/injection_container.dart';
-import 'core/services/asset_price_update_service.dart';
+import 'package:cashly/features/settings/presentation/pages/profile_page.dart';
+import 'package:cashly/core/di/injection_container.dart';
+import 'package:cashly/core/services/asset_price_update_service.dart';
 
 // Auth
-import 'features/auth/presentation/controllers/auth_controller.dart';
+import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
 
 // Features
-import 'features/tools/presentation/pages/tools_page.dart';
-import 'features/dashboard/presentation/pages/dashboard_page.dart';
-import 'features/expenses/presentation/pages/expenses_page.dart';
-import 'features/income/presentation/pages/incomes_page.dart';
-import 'features/assets/presentation/pages/assets_page.dart';
-import 'features/assets/data/models/asset_model.dart';
-import 'features/analysis/presentation/pages/analysis_page.dart';
-import 'features/payment_methods/presentation/pages/payment_methods_page.dart';
-import 'features/payment_methods/presentation/pages/transfer_page.dart';
-import 'features/payment_methods/presentation/pages/payment_method_detail_page.dart';
-import 'features/payment_methods/data/models/payment_method_model.dart';
-import 'features/payment_methods/data/models/transfer_model.dart';
-import 'features/income/data/models/income_model.dart';
-import 'features/home/presentation/widgets/home_app_bar.dart';
-import 'features/home/presentation/widgets/home_bottom_nav.dart';
-import 'features/streak/data/models/streak_model.dart';
-import 'features/streak/presentation/widgets/streak_celebration_dialog.dart';
+import 'package:cashly/features/tools/presentation/pages/tools_page.dart';
+import 'package:cashly/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:cashly/features/expenses/presentation/pages/expenses_page.dart';
+import 'package:cashly/features/income/presentation/pages/incomes_page.dart';
+import 'package:cashly/features/assets/presentation/pages/assets_page.dart';
+import 'package:cashly/features/assets/data/models/asset_model.dart';
+import 'package:cashly/features/analysis/presentation/pages/analysis_page.dart';
+import 'package:cashly/features/payment_methods/presentation/pages/payment_methods_page.dart';
+import 'package:cashly/features/payment_methods/presentation/pages/transfer_page.dart';
+import 'package:cashly/features/payment_methods/presentation/pages/payment_method_detail_page.dart';
+import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
+import 'package:cashly/features/payment_methods/data/models/transfer_model.dart';
+import 'package:cashly/features/income/data/models/income_model.dart';
+import 'package:cashly/features/home/presentation/widgets/home_app_bar.dart';
+import 'package:cashly/features/home/presentation/widgets/home_bottom_nav.dart';
+import 'package:cashly/features/streak/data/models/streak_model.dart';
+import 'package:cashly/features/streak/presentation/widgets/streak_celebration_dialog.dart';
 
 // Repository imports
-import 'features/expenses/domain/repositories/expense_repository.dart';
-import 'features/income/domain/repositories/income_repository.dart';
-import 'features/assets/domain/repositories/asset_repository.dart';
-import 'features/payment_methods/domain/repositories/payment_method_repository.dart';
-import 'features/streak/domain/repositories/streak_repository.dart';
-import 'features/streak/data/services/streak_service.dart';
+import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
+import 'package:cashly/features/income/domain/repositories/income_repository.dart';
+import 'package:cashly/features/assets/domain/repositories/asset_repository.dart';
+import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
+import 'package:cashly/features/streak/domain/repositories/streak_repository.dart';
+import 'package:cashly/features/streak/data/services/streak_service.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
 /// Araçlar (0), Dashboard (1), Profil (2)

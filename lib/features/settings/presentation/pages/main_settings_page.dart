@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-import 'core/di/injection_container.dart';
-import 'features/expenses/domain/repositories/expense_repository.dart';
-import 'features/payment_methods/domain/repositories/payment_method_repository.dart';
-import 'features/expenses/presentation/pages/category_management_page.dart';
-import 'features/income/presentation/pages/income_settings_page.dart';
-import 'features/settings/presentation/pages/appearance_page.dart';
-import 'features/settings/presentation/pages/voice_assistant_page.dart';
-import 'features/settings/presentation/pages/recurring_transactions_page.dart';
-import 'features/settings/presentation/pages/haptic_settings_page.dart';
-import 'features/payment_methods/data/models/payment_method_model.dart';
+import 'package:cashly/core/di/injection_container.dart';
+import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
+import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
+import 'package:cashly/features/expenses/presentation/pages/category_management_page.dart';
+import 'package:cashly/features/income/presentation/pages/income_settings_page.dart';
+import 'appearance_page.dart';
+import 'voice_assistant_page.dart';
+import 'recurring_transactions_page.dart';
+import 'haptic_settings_page.dart';
+import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 
-import 'features/auth/presentation/controllers/auth_controller.dart';
-import 'core/utils/validators.dart';
-import 'core/utils/error_handler.dart';
+import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:cashly/core/utils/validators.dart';
+import 'package:cashly/core/utils/error_handler.dart';
 
 // Modüler widget'lar
-import 'features/settings/presentation/widgets/settings_tile.dart';
-import 'features/settings/presentation/widgets/expense_settings/budget_section.dart';
-import 'features/settings/presentation/widgets/expense_settings/recurring_expense_section.dart';
-import 'features/settings/presentation/widgets/expense_settings/default_payment_section.dart';
-import 'features/settings/presentation/widgets/expense_settings/category_section.dart';
-import 'services/backup_service.dart';
-import 'services/haptic_service.dart';
-import 'home_page.dart';
+import '../widgets/settings_tile.dart';
+import '../widgets/expense_settings/budget_section.dart';
+import '../widgets/expense_settings/recurring_expense_section.dart';
+import '../widgets/expense_settings/default_payment_section.dart';
+import '../widgets/expense_settings/category_section.dart';
+import 'package:cashly/services/backup_service.dart';
+import 'package:cashly/services/haptic_service.dart';
+import 'package:cashly/features/home/presentation/pages/home_page.dart';
 
 /// Ayarlar Sayfası
 class AyarlarSayfasi extends StatefulWidget {

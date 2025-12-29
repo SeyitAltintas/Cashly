@@ -6,7 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'services/database_helper.dart';
 import 'services/haptic_service.dart';
 import 'features/streak/data/services/streak_service.dart';
-import 'home_page.dart';
+import 'features/home/presentation/pages/home_page.dart';
 import 'features/auth/data/initialize_default_user.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/auth/presentation/pages/login_page.dart';
