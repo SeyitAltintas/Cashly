@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../controllers/auth_controller.dart';
 import '../../../../home_page.dart';
 import 'login_page.dart';
@@ -62,7 +61,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 100),
                 Text(
                   "Hesap Oluştur",
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -71,7 +71,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 10),
                 Text(
                   "Harcamalarınızı yönetmeye başlamak için kayıt olun.",
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 16,
                     color: Theme.of(
                       context,

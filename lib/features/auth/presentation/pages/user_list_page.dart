@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
 import 'login_page.dart';
@@ -40,9 +39,9 @@ class _UserListPageState extends State<UserListPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Kullanıcılar",
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+          style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
@@ -50,12 +49,12 @@ class _UserListPageState extends State<UserListPage> {
         ),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: Colors.white))
+          ? const Center(child: CircularProgressIndicator(color: Colors.white))
           : _users.isEmpty
-          ? Center(
+          ? const Center(
               child: Text(
                 "Kayıtlı kullanıcı yok.",
-                style: GoogleFonts.outfit(color: Colors.white70),
+                style: TextStyle(fontFamily: 'Inter', color: Colors.white70),
               ),
             )
           : ListView.builder(
@@ -82,12 +81,10 @@ class _UserListPageState extends State<UserListPage> {
                         context,
                       ).colorScheme.primary.withValues(alpha: 0.2),
                       backgroundImage: user.profileImage != null
-                          ? (user.profileImage!.startsWith('http')
-                                    ? NetworkImage(user.profileImage!)
-                                    : (user.profileImage!.startsWith('lib/') ||
-                                          user.profileImage!.startsWith(
-                                            'assets/',
-                                          ))
+                          ? ((user.profileImage!.startsWith('lib/') ||
+                                        user.profileImage!.startsWith(
+                                          'assets/',
+                                        ))
                                     ? AssetImage(user.profileImage!)
                                     : FileImage(File(user.profileImage!)))
                                 as ImageProvider
@@ -105,7 +102,8 @@ class _UserListPageState extends State<UserListPage> {
                     ),
                     title: Text(
                       user.name,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'Inter',
                         color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -113,7 +111,10 @@ class _UserListPageState extends State<UserListPage> {
                     ),
                     subtitle: Text(
                       user.email,
-                      style: GoogleFonts.outfit(color: Colors.white54),
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        color: Colors.white54,
+                      ),
                     ),
                     onTap: () {
                       // Seçilen kullanıcı ile giriş ekranına dön

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Varsayılan tema için sayfa bazlı renkler
 class PageThemeColors {
@@ -62,11 +61,15 @@ class AppTheme {
   // Private constructor - statik metodlarla kullanılacak
   AppTheme._();
 
+  // Inter font ailesi - Yerel assets'ten yükleniyor
+  static const String _fontFamily = 'Inter';
+
   /// Varsayılan Tema - Koyu gri / açık gri renk şeması
   static ThemeData get defaultTheme {
     return ThemeData.dark().copyWith(
       scaffoldBackgroundColor: const Color(0xFF000000),
-      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
+      // Yerel Inter fontu ile TextTheme
+      textTheme: ThemeData.dark().textTheme.apply(fontFamily: _fontFamily),
       colorScheme: const ColorScheme.dark(
         primary: PageThemeColors.darkGray,
         secondary: PageThemeColors.lightGray,
@@ -104,12 +107,14 @@ class AppTheme {
         headerBackgroundColor: const Color(0xFF2A2A2A),
         headerForegroundColor: Colors.white,
         // Başlık stili
-        headerHeadlineStyle: GoogleFonts.outfit(
+        headerHeadlineStyle: const TextStyle(
+          fontFamily: _fontFamily,
           fontSize: 28,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
-        headerHelpStyle: GoogleFonts.outfit(
+        headerHelpStyle: TextStyle(
+          fontFamily: _fontFamily,
           fontSize: 14,
           fontWeight: FontWeight.w500,
           color: Colors.white.withValues(alpha: 0.7),
@@ -154,13 +159,15 @@ class AppTheme {
           Colors.white.withValues(alpha: 0.1),
         ),
         // Hafta günleri stili
-        weekdayStyle: GoogleFonts.outfit(
+        weekdayStyle: TextStyle(
+          fontFamily: _fontFamily,
           color: Colors.white.withValues(alpha: 0.6),
           fontWeight: FontWeight.w600,
           fontSize: 13,
         ),
         // Gün stili
-        dayStyle: GoogleFonts.outfit(
+        dayStyle: const TextStyle(
+          fontFamily: _fontFamily,
           color: Colors.white,
           fontWeight: FontWeight.w500,
         ),
@@ -173,14 +180,16 @@ class AppTheme {
         // İptal ve Tamam butonları
         cancelButtonStyle: TextButton.styleFrom(
           foregroundColor: Colors.white60,
-          textStyle: GoogleFonts.outfit(
+          textStyle: const TextStyle(
+            fontFamily: _fontFamily,
             fontWeight: FontWeight.w500,
             fontSize: 15,
           ),
         ),
         confirmButtonStyle: TextButton.styleFrom(
           foregroundColor: Colors.white,
-          textStyle: GoogleFonts.outfit(
+          textStyle: const TextStyle(
+            fontFamily: _fontFamily,
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
 import '../../../../services/biometric_service.dart';
@@ -195,10 +194,8 @@ class _UserLoginFormState extends State<UserLoginForm> {
       radius: 50,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       backgroundImage: widget.targetUser.profileImage != null
-          ? (widget.targetUser.profileImage!.startsWith('http')
-                    ? NetworkImage(widget.targetUser.profileImage!)
-                    : (widget.targetUser.profileImage!.startsWith('lib/') ||
-                          widget.targetUser.profileImage!.startsWith('assets/'))
+          ? ((widget.targetUser.profileImage!.startsWith('lib/') ||
+                        widget.targetUser.profileImage!.startsWith('assets/'))
                     ? AssetImage(widget.targetUser.profileImage!)
                     : FileImage(File(widget.targetUser.profileImage!)))
                 as ImageProvider
@@ -218,7 +215,8 @@ class _UserLoginFormState extends State<UserLoginForm> {
       children: [
         Text(
           "Hoşgeldiniz",
-          style: GoogleFonts.outfit(
+          style: TextStyle(
+            fontFamily: 'Inter',
             fontSize: 24,
             color: Theme.of(
               context,
@@ -233,10 +231,10 @@ class _UserLoginFormState extends State<UserLoginForm> {
             children: [
               Text(
                 widget.targetUser.name,
-                style: GoogleFonts.outfit(
+                style: const TextStyle(
+                  fontFamily: 'Inter',
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(width: 5),

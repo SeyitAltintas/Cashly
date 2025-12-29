@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../controllers/auth_controller.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
@@ -95,7 +94,8 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
                 const SizedBox(height: 120),
                 Text(
                   "Giriş Yap",
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onSurface,
