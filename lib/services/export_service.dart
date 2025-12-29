@@ -195,107 +195,181 @@ class ExportService {
             ),
             pw.SizedBox(height: 12),
 
-            // Görsel Özet bölümü (eğer seçiliyse) - İlk sayfada başlık ile birlikte
-            if (includeVisualSummary) ...[
-              _buildVisualSummary(
-                toplamHarcama: toplamHarcama,
-                toplamGelir: toplamGelir,
-                toplamVarlik: toplamVarlik,
-                aylikButceLimiti: aylikButceLimiti,
-                top5Harcamalar: top5Harcamalar,
-                ortalamaGunlukHarcama: ortalamaGunlukHarcama,
-                gecenAyToplam: gecenAyToplam,
-                degisimYuzdesi: degisimYuzdesi,
-                turkishFont: turkishFont,
-                turkishFontBold: turkishFontBold,
-              ),
-            ],
-
-            // Harcamalar tablosu - Yeni sayfada başlasın
-            if (includeExpenses && harcamalar.isNotEmpty) ...[
-              pw.NewPage(), // Yeni sayfa
-              ..._buildTableSection(
-                title: 'Harcamalar',
-                headerColor: _expenseColor,
-                data: harcamalar.asMap().entries.map((entry) {
-                  final h = entry.value;
-                  final isEven = entry.key % 2 == 0;
-                  return _TableRowData(
-                    cells: [
-                      h['isim'] ?? '-',
-                      h['kategori'] ?? '-',
-                      _dateFormat.format(DateTime.parse(h['tarih'])),
-                      _formatCurrency((h['tutar'] as num).toDouble()),
+            // TÜM VERİLER BOŞ İSE BİLGİ MESAJI GÖSTER
+            if (tumHarcamalar.isEmpty &&
+                tumGelirler.isEmpty &&
+                tumVarliklar.isEmpty) ...[
+              pw.SizedBox(height: 80),
+              pw.Center(
+                child: pw.Container(
+                  width: 400,
+                  padding: const pw.EdgeInsets.all(32),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.white,
+                    borderRadius: pw.BorderRadius.circular(8),
+                    border: pw.Border.all(color: PdfColors.grey300, width: 1),
+                  ),
+                  child: pw.Column(
+                    mainAxisAlignment: pw.MainAxisAlignment.center,
+                    children: [
+                      pw.Text(
+                        '!',
+                        style: pw.TextStyle(
+                          font: turkishFontBold,
+                          fontSize: 48,
+                          color: PdfColors.orange,
+                        ),
+                      ),
+                      pw.SizedBox(height: 16),
+                      pw.Text(
+                        'Veri Bulunamadı',
+                        style: pw.TextStyle(
+                          font: turkishFontBold,
+                          fontSize: 18,
+                          color: PdfColor.fromHex('#1F2937'),
+                        ),
+                      ),
+                      pw.SizedBox(height: 12),
+                      pw.Text(
+                        'Finansal durum raporunu görebilmeniz için\nharcama, gelir veya varlık verisi eklemeniz gerekmektedir.',
+                        textAlign: pw.TextAlign.center,
+                        style: pw.TextStyle(
+                          font: turkishFont,
+                          fontSize: 11,
+                          color: PdfColors.grey700,
+                          lineSpacing: 4,
+                        ),
+                      ),
+                      pw.SizedBox(height: 20),
+                      pw.Container(
+                        padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: pw.BoxDecoration(
+                          color: PdfColor.fromHex('#F0F9FF'),
+                          borderRadius: pw.BorderRadius.circular(4),
+                        ),
+                        child: pw.Text(
+                          'Uygulamadan veri ekledikten sonra tekrar deneyin.',
+                          style: pw.TextStyle(
+                            font: turkishFont,
+                            fontSize: 9,
+                            color: PdfColor.fromHex('#0369A1'),
+                          ),
+                        ),
+                      ),
                     ],
-                    backgroundColor: isEven
-                        ? _expenseColorLight
-                        : PdfColors.white,
-                  );
-                }).toList(),
-                headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
-                total: _formatCurrency(toplamHarcama),
-                totalColumnIndex: 3,
-                turkishFont: turkishFont,
-                turkishFontBold: turkishFontBold,
+                  ),
+                ),
               ),
-            ],
+            ] else ...[
+              // Görsel Özet bölümü (eğer seçiliyse) - İlk sayfada başlık ile birlikte
+              if (includeVisualSummary) ...[
+                _buildVisualSummary(
+                  toplamHarcama: toplamHarcama,
+                  toplamGelir: toplamGelir,
+                  toplamVarlik: toplamVarlik,
+                  aylikButceLimiti: aylikButceLimiti,
+                  top5Harcamalar: top5Harcamalar,
+                  ortalamaGunlukHarcama: ortalamaGunlukHarcama,
+                  gecenAyToplam: gecenAyToplam,
+                  degisimYuzdesi: degisimYuzdesi,
+                  turkishFont: turkishFont,
+                  turkishFontBold: turkishFontBold,
+                ),
+              ],
 
-            // Gelirler tablosu - Yeni sayfada başlasın
-            if (includeIncomes && gelirler.isNotEmpty) ...[
-              pw.NewPage(), // Yeni sayfa
-              ..._buildTableSection(
-                title: 'Gelirler',
-                headerColor: _incomeColor,
-                data: gelirler.asMap().entries.map((entry) {
-                  final g = entry.value;
-                  final isEven = entry.key % 2 == 0;
-                  return _TableRowData(
-                    cells: [
-                      g['name'] ?? '-',
-                      g['category'] ?? '-',
-                      _dateFormat.format(DateTime.parse(g['date'])),
-                      _formatCurrency(((g['amount'] as num?) ?? 0).toDouble()),
-                    ],
-                    backgroundColor: isEven
-                        ? _incomeColorLight
-                        : PdfColors.white,
-                  );
-                }).toList(),
-                headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
-                total: _formatCurrency(toplamGelir),
-                totalColumnIndex: 3,
-                turkishFont: turkishFont,
-                turkishFontBold: turkishFontBold,
-              ),
-            ],
+              // Harcamalar tablosu - Yeni sayfada başlasın
+              if (includeExpenses && harcamalar.isNotEmpty) ...[
+                pw.NewPage(), // Yeni sayfa
+                ..._buildTableSection(
+                  title: 'Harcamalar',
+                  headerColor: _expenseColor,
+                  data: harcamalar.asMap().entries.map((entry) {
+                    final h = entry.value;
+                    final isEven = entry.key % 2 == 0;
+                    return _TableRowData(
+                      cells: [
+                        h['isim'] ?? '-',
+                        h['kategori'] ?? '-',
+                        _dateFormat.format(DateTime.parse(h['tarih'])),
+                        _formatCurrency((h['tutar'] as num).toDouble()),
+                      ],
+                      backgroundColor: isEven
+                          ? _expenseColorLight
+                          : PdfColors.white,
+                    );
+                  }).toList(),
+                  headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
+                  total: _formatCurrency(toplamHarcama),
+                  totalColumnIndex: 3,
+                  turkishFont: turkishFont,
+                  turkishFontBold: turkishFontBold,
+                ),
+              ],
 
-            // Varlıklar tablosu - Yeni sayfada başlasın
-            if (includeAssets && varliklar.isNotEmpty) ...[
-              pw.NewPage(), // Yeni sayfa
-              ..._buildTableSection(
-                title: 'Varlıklar',
-                headerColor: _assetColor,
-                data: varliklar.asMap().entries.map((entry) {
-                  final v = entry.value;
-                  final isEven = entry.key % 2 == 0;
-                  return _TableRowData(
-                    cells: [
-                      v['name'] ?? '-',
-                      v['category'] ?? '-',
-                      _formatCurrency(((v['amount'] as num?) ?? 0).toDouble()),
-                    ],
-                    backgroundColor: isEven
-                        ? _assetColorLight
-                        : PdfColors.white,
-                  );
-                }).toList(),
-                headers: ['İsim', 'Kategori', 'Değer'],
-                total: _formatCurrency(toplamVarlik),
-                totalColumnIndex: 2,
-                turkishFont: turkishFont,
-                turkishFontBold: turkishFontBold,
-              ),
-            ],
+              // Gelirler tablosu - Yeni sayfada başlasın
+              if (includeIncomes && gelirler.isNotEmpty) ...[
+                pw.NewPage(), // Yeni sayfa
+                ..._buildTableSection(
+                  title: 'Gelirler',
+                  headerColor: _incomeColor,
+                  data: gelirler.asMap().entries.map((entry) {
+                    final g = entry.value;
+                    final isEven = entry.key % 2 == 0;
+                    return _TableRowData(
+                      cells: [
+                        g['name'] ?? '-',
+                        g['category'] ?? '-',
+                        _dateFormat.format(DateTime.parse(g['date'])),
+                        _formatCurrency(
+                          ((g['amount'] as num?) ?? 0).toDouble(),
+                        ),
+                      ],
+                      backgroundColor: isEven
+                          ? _incomeColorLight
+                          : PdfColors.white,
+                    );
+                  }).toList(),
+                  headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
+                  total: _formatCurrency(toplamGelir),
+                  totalColumnIndex: 3,
+                  turkishFont: turkishFont,
+                  turkishFontBold: turkishFontBold,
+                ),
+              ],
+
+              // Varlıklar tablosu - Yeni sayfada başlasın
+              if (includeAssets && varliklar.isNotEmpty) ...[
+                pw.NewPage(), // Yeni sayfa
+                ..._buildTableSection(
+                  title: 'Varlıklar',
+                  headerColor: _assetColor,
+                  data: varliklar.asMap().entries.map((entry) {
+                    final v = entry.value;
+                    final isEven = entry.key % 2 == 0;
+                    return _TableRowData(
+                      cells: [
+                        v['name'] ?? '-',
+                        v['category'] ?? '-',
+                        _formatCurrency(
+                          ((v['amount'] as num?) ?? 0).toDouble(),
+                        ),
+                      ],
+                      backgroundColor: isEven
+                          ? _assetColorLight
+                          : PdfColors.white,
+                    );
+                  }).toList(),
+                  headers: ['İsim', 'Kategori', 'Değer'],
+                  total: _formatCurrency(toplamVarlik),
+                  totalColumnIndex: 2,
+                  turkishFont: turkishFont,
+                  turkishFontBold: turkishFontBold,
+                ),
+              ],
+            ], // else bloğu sonu
           ],
         ),
       );
