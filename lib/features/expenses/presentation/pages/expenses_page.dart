@@ -12,7 +12,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../../../core/widgets/money_animation.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
-import '../../../../services/haptic_service.dart';
+import '../../../../core/services/haptic_service.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';

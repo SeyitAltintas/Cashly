@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../services/export_service.dart';
+import '../../../../core/services/export_service.dart';
 
 /// PDF Rapor Hazırlama Sayfası
 /// Kullanıcı hangi tabloların PDF'e ekleneceğini seçebilir

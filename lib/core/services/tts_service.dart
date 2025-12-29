@@ -1,7 +1,7 @@
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter/foundation.dart';
-import '../core/di/injection_container.dart';
-import '../features/settings/domain/repositories/settings_repository.dart';
+import '../di/injection_container.dart';
+import '../../features/settings/domain/repositories/settings_repository.dart';
 
 /// Text-to-Speech servisi - Sesli geri bildirim için kullanılır
 class TtsService {

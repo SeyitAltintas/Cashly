@@ -4,7 +4,7 @@ import '../controllers/auth_controller.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import 'signup_page.dart';
 import 'user_list_page.dart';
-import '../../../../services/biometric_service.dart';
+import '../../../../core/services/biometric_service.dart';
 
 // Modüler widget'lar
 import '../widgets/generic_login_form.dart';

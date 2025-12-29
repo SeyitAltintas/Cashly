@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
-import '../../../../services/biometric_service.dart';
+import '../../../../core/services/biometric_service.dart';
 
 /// Kullanıcı seçili giriş formu widget'ı
 /// Belirli bir kullanıcı için PIN ile giriş ekranı

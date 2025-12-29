@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../services/haptic_service.dart';
+import '../../../../core/services/haptic_service.dart';
 
 /// Ayarlar Sayfası için ortak tile widget'ı
 /// İkon, başlık, alt başlık ve tıklama işlevi içerir

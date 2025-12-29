@@ -5,7 +5,7 @@ import 'profile_settings_page.dart';
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:cashly/features/auth/presentation/pages/login_page.dart';
 import 'package:cashly/core/constants/color_constants.dart';
-import 'package:cashly/services/haptic_service.dart';
+import 'package:cashly/core/services/haptic_service.dart';
 
 class ProfilSayfasi extends StatelessWidget {
   final AuthController authController;

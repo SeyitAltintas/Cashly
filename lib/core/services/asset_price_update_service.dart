@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../../../features/assets/data/models/asset_model.dart';
+import '../../../../features/assets/data/models/asset_model.dart';
 import 'price_service.dart';
 
 /// Varlık fiyat güncelleme servisi

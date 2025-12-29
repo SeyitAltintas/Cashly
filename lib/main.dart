@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'services/database_helper.dart';
-import 'services/haptic_service.dart';
+import 'core/services/database_helper.dart';
+import 'core/services/haptic_service.dart';
 import 'features/streak/data/services/streak_service.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/auth/data/initialize_default_user.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cashly/services/pdf_utils/pdf_utils.dart';
+import 'package:cashly/core/services/pdf_utils/pdf_utils.dart';
 
 /// PDF Utils Test Suite
 /// formatCurrency fonksiyonunu test eder

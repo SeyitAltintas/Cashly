@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../settings/domain/repositories/settings_repository.dart';
-import '../../../../services/tts_service.dart';
+import '../../../../core/services/tts_service.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import 'voice_commands_page.dart';
 

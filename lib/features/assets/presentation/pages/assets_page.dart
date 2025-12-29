@@ -7,7 +7,7 @@ import '../widgets/add_asset_sheet.dart';
 import 'asset_recycle_bin_page.dart';
 import 'asset_detail_page.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
-import '../../../../services/haptic_service.dart';
+import '../../../../core/services/haptic_service.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 

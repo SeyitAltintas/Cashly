@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../data/models/asset_model.dart';
 import '../widgets/add_asset_sheet.dart';
-import '../../../../services/haptic_service.dart';
+import '../../../../core/services/haptic_service.dart';
 
 /// Varlık detay sayfası - Varlığın alış bilgileri ve güncel değerini gösterir
 class AssetDetailPage extends StatelessWidget {

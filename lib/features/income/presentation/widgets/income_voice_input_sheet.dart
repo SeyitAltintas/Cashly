@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../services/speech/speech_service.dart';
+import '../../../../core/services/speech/speech_service.dart';
 
 /// Sesli gelir girişi için modal bottom sheet widget'ı
 class IncomeVoiceInputSheet extends StatefulWidget {

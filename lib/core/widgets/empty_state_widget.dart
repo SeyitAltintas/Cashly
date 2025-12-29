@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/haptic_service.dart';
+import '../../core/services/haptic_service.dart';
 
 /// Boş durum widget'ı
 /// Veri olmadığında gösterilir

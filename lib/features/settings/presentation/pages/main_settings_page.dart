@@ -22,8 +22,8 @@ import '../widgets/expense_settings/budget_section.dart';
 import '../widgets/expense_settings/recurring_expense_section.dart';
 import '../widgets/expense_settings/default_payment_section.dart';
 import '../widgets/expense_settings/category_section.dart';
-import 'package:cashly/services/backup_service.dart';
-import 'package:cashly/services/haptic_service.dart';
+import 'package:cashly/core/services/backup_service.dart';
+import 'package:cashly/core/services/haptic_service.dart';
 import 'package:cashly/features/home/presentation/pages/home_page.dart';
 
 /// Ayarlar Sayfası

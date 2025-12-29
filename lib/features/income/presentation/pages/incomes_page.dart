@@ -6,7 +6,7 @@ import '../../../income/presentation/widgets/income_voice_input_sheet.dart';
 import '../../../income/presentation/pages/income_recycle_bin_page.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
-import '../../../../services/haptic_service.dart';
+import '../../../../core/services/haptic_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';

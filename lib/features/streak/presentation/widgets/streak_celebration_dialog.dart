@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import '../../../../services/haptic_service.dart';
+import '../../../../core/services/haptic_service.dart';
 
 /// Seri yükseldiğinde gösterilen kutlama dialog'u
 /// Ekranın ortasında büyük animasyon ve tebrik mesajı gösterir
