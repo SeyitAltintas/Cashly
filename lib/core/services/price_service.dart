@@ -1,16 +1,23 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'price_cache_service.dart';
 
+/// Fiyat API servisi - Döviz, kripto, altın ve gümüş fiyatlarını çeker
+/// Offline fallback: API başarısız olursa cache'ten okur
 class PriceService {
   static const String _truncgilUrl = 'https://finans.truncgil.com/today.json';
   static const String _coingeckoBaseUrl =
       'https://api.coingecko.com/api/v3/simple/price';
 
+  final PriceCacheService _cache = PriceCacheService();
+
   // Truncgil API'den veri çek
   Future<Map<String, dynamic>?> _fetchTruncgilData() async {
     try {
-      final response = await http.get(Uri.parse(_truncgilUrl));
+      final response = await http
+          .get(Uri.parse(_truncgilUrl))
+          .timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         return json.decode(response.body);
       }
@@ -29,10 +36,6 @@ class PriceService {
       priceStr = priceStr.replaceAll('\$', '').replaceAll(' ', '');
 
       // Binlik ayracı olan noktayı kaldır (varsa)
-      // Örn: 2.138,86 -> 2138,86
-      // Ancak API bazen 42,45 veriyor (nokta yok).
-      // Truncgil formatı genelde: Binlik nokta, ondalık virgül.
-
       if (priceStr.contains('.') && priceStr.contains(',')) {
         priceStr = priceStr.replaceAll('.', '');
       }
@@ -47,41 +50,69 @@ class PriceService {
     }
   }
 
-  // Döviz kurlarını çek
+  /// Döviz kurlarını çek
+  /// Offline fallback: Cache'ten son başarılı değeri döndürür
   Future<double?> getCurrencyPrice(String currencyCode) async {
     if (currencyCode == 'TRY') return 1.0;
 
+    final cacheKey = 'currency_$currencyCode';
+
+    // API'den çekmeyi dene
     final data = await _fetchTruncgilData();
     if (data != null && data.containsKey(currencyCode)) {
-      // Satış fiyatını al
-      return _parsePrice(data[currencyCode]['Satış']);
+      final price = _parsePrice(data[currencyCode]['Satış']);
+      if (price != null) {
+        // Başarılı - cache'e kaydet
+        await _cache.cachePrice(cacheKey, price);
+        return price;
+      }
     }
-    return null;
+
+    // API başarısız - cache'ten oku
+    final cachedPrice = _cache.getCachedPrice(cacheKey);
+    if (cachedPrice != null) {
+      debugPrint('Offline fallback: $currencyCode cache\'ten okunuyor');
+    }
+    return cachedPrice;
   }
 
-  // Kripto fiyatlarını çek (CoinGecko - Değişmedi)
+  /// Kripto fiyatlarını çek (CoinGecko)
+  /// Offline fallback: Cache'ten son başarılı değeri döndürür
   Future<double?> getCryptoPrice(String id, {String currency = 'try'}) async {
+    final cacheKey = 'crypto_${id}_$currency';
+
     try {
-      final response = await http.get(
-        Uri.parse('$_coingeckoBaseUrl?ids=$id&vs_currencies=$currency'),
-      );
+      final response = await http
+          .get(Uri.parse('$_coingeckoBaseUrl?ids=$id&vs_currencies=$currency'))
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data[id] != null && data[id][currency] != null) {
-          return (data[id][currency] as num).toDouble();
+          final price = (data[id][currency] as num).toDouble();
+          // Başarılı - cache'e kaydet
+          await _cache.cachePrice(cacheKey, price);
+          return price;
         }
       }
     } catch (e) {
       debugPrint('Kripto hatası ($id): $e');
     }
-    return null;
+
+    // API başarısız - cache'ten oku
+    final cachedPrice = _cache.getCachedPrice(cacheKey);
+    if (cachedPrice != null) {
+      debugPrint('Offline fallback: $id cache\'ten okunuyor');
+    }
+    return cachedPrice;
   }
 
-  // Altın fiyatlarını çek (Direkt Truncgil'den)
+  /// Altın fiyatlarını çek (Truncgil)
+  /// Offline fallback: Cache'ten son başarılı değeri döndürür
   Future<double?> getGoldPrice(String type) async {
+    final cacheKey = 'gold_$type';
+
     final data = await _fetchTruncgilData();
-    if (data == null) return null;
 
     String key = '';
     switch (type.toLowerCase()) {
@@ -110,37 +141,61 @@ class PriceService {
         key = 'gram-altin';
     }
 
-    if (data.containsKey(key)) {
-      double? price = _parsePrice(data[key]['Satış']);
-      // Ons fiyatı zaten USD geliyor, çevirmeye gerek yok.
-      // Diğerleri TL geliyor.
-      return price;
+    if (data != null && data.containsKey(key)) {
+      final price = _parsePrice(data[key]['Satış']);
+      if (price != null) {
+        // Başarılı - cache'e kaydet
+        await _cache.cachePrice(cacheKey, price);
+        return price;
+      }
     }
-    return null;
+
+    // API başarısız - cache'ten oku
+    final cachedPrice = _cache.getCachedPrice(cacheKey);
+    if (cachedPrice != null) {
+      debugPrint('Offline fallback: Altın ($type) cache\'ten okunuyor');
+    }
+    return cachedPrice;
   }
 
-  // Gümüş fiyatlarını çek
+  /// Gümüş fiyatlarını çek
+  /// Offline fallback: Cache'ten son başarılı değeri döndürür
   Future<double?> getSilverPrice(String type) async {
+    final cacheKey = 'silver_$type';
+
     final data = await _fetchTruncgilData();
     if (data != null && data.containsKey('gumus')) {
       double? gramPrice = _parsePrice(data['gumus']['Satış']);
 
       if (gramPrice != null) {
+        double price;
         if (type == 'Ons') {
-          // Gümüş ons genelde USD takip edilir ama Truncgil 'gumus' genelde gram TL verir.
-          // API'de 'gumus' -> "71,25" (TL).
-          // Ons istenirse: Gram TL / USD Kuru * 31.1035 = Ons USD?
-          // Veya direkt Gram TL * 31.1035 = Ons TL.
-          // Kullanıcı Ons fiyatını USD mi bekliyor TL mi?
-          // Altın Ons USD idi. Gümüş Ons da USD beklenebilir.
-          // Ancak basitlik için TL karşılığını verelim veya USD'ye çevirelim.
-          // Şimdilik Ons TL olarak hesaplayalım:
-          return gramPrice * 31.1035;
+          // Gram TL * 31.1035 = Ons TL
+          price = gramPrice * 31.1035;
         } else {
-          return gramPrice;
+          price = gramPrice;
         }
+        // Başarılı - cache'e kaydet
+        await _cache.cachePrice(cacheKey, price);
+        return price;
       }
     }
-    return null;
+
+    // API başarısız - cache'ten oku
+    final cachedPrice = _cache.getCachedPrice(cacheKey);
+    if (cachedPrice != null) {
+      debugPrint('Offline fallback: Gümüş ($type) cache\'ten okunuyor');
+    }
+    return cachedPrice;
+  }
+
+  /// Son güncelleme zamanını al (UI için)
+  DateTime? getLastPriceUpdate(String cacheKey) {
+    return _cache.getLastUpdateTime(cacheKey);
+  }
+
+  /// Cache'in yaşını al (dakika cinsinden)
+  int? getCacheAgeMinutes(String cacheKey) {
+    return _cache.getCacheAgeMinutes(cacheKey);
   }
 }
