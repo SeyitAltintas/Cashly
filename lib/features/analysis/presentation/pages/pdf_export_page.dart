@@ -116,61 +116,65 @@ class _PdfExportPageState extends State<PdfExportPage> {
             ),
             const SizedBox(height: 24),
 
-            // Görsel Özet bölümü - çerçeveli başlık
-            _buildSectionHeader('Rapor Seçenekleri', theme),
-            const SizedBox(height: 12),
-
-            // Görsel özet switch'i
-            _buildSwitchTile(
-              title: 'Görsel Özet',
-              subtitle: 'PDF\'in başına grafikli özet ekle',
-              icon: Icons.pie_chart_outline_rounded,
-              color: Colors.purple,
-              value: _includeVisualSummary,
-              onChanged: (value) {
-                setState(() => _includeVisualSummary = value);
-              },
+            // Görsel Özet bölümü - fieldset tarzı çerçeveli section
+            _buildFieldsetSection(
+              title: 'Rapor Seçenekleri',
+              theme: theme,
+              child: _buildSwitchTile(
+                title: 'Görsel Özet',
+                subtitle: 'PDF\'in başına grafikli özet ekle',
+                icon: Icons.pie_chart_outline_rounded,
+                color: Colors.purple,
+                value: _includeVisualSummary,
+                onChanged: (value) {
+                  setState(() => _includeVisualSummary = value);
+                },
+              ),
             ),
             const SizedBox(height: 20),
 
-            // Tablolar bölüm başlığı - çerçeveli
-            _buildSectionHeader('Rapora Dahil Edilecek Tablolar', theme),
-            const SizedBox(height: 12),
+            // Tablolar bölümü - fieldset tarzı çerçeveli section
+            _buildFieldsetSection(
+              title: 'Rapora Dahil Edilecek Tablolar',
+              theme: theme,
+              child: Column(
+                children: [
+                  _buildSwitchTile(
+                    title: 'Harcamalarım',
+                    subtitle: 'Aylık harcama detayları',
+                    icon: Icons.shopping_cart_outlined,
+                    color: Colors.red,
+                    value: _includeExpenses,
+                    onChanged: (value) {
+                      setState(() => _includeExpenses = value);
+                    },
+                  ),
+                  const SizedBox(height: 8),
 
-            // Switch listesi
-            _buildSwitchTile(
-              title: 'Harcamalarım',
-              subtitle: 'Aylık harcama detayları',
-              icon: Icons.shopping_cart_outlined,
-              color: Colors.red,
-              value: _includeExpenses,
-              onChanged: (value) {
-                setState(() => _includeExpenses = value);
-              },
-            ),
-            const SizedBox(height: 8),
+                  _buildSwitchTile(
+                    title: 'Gelirlerim',
+                    subtitle: 'Aylık gelir detayları',
+                    icon: Icons.wallet_outlined,
+                    color: Colors.green,
+                    value: _includeIncomes,
+                    onChanged: (value) {
+                      setState(() => _includeIncomes = value);
+                    },
+                  ),
+                  const SizedBox(height: 8),
 
-            _buildSwitchTile(
-              title: 'Gelirlerim',
-              subtitle: 'Aylık gelir detayları',
-              icon: Icons.wallet_outlined,
-              color: Colors.green,
-              value: _includeIncomes,
-              onChanged: (value) {
-                setState(() => _includeIncomes = value);
-              },
-            ),
-            const SizedBox(height: 8),
-
-            _buildSwitchTile(
-              title: 'Varlıklarım',
-              subtitle: 'Varlık listesi ve değerleri',
-              icon: Icons.account_balance_outlined,
-              color: Colors.blue,
-              value: _includeAssets,
-              onChanged: (value) {
-                setState(() => _includeAssets = value);
-              },
+                  _buildSwitchTile(
+                    title: 'Varlıklarım',
+                    subtitle: 'Varlık listesi ve değerleri',
+                    icon: Icons.account_balance_outlined,
+                    color: Colors.blue,
+                    value: _includeAssets,
+                    onChanged: (value) {
+                      setState(() => _includeAssets = value);
+                    },
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -285,26 +289,46 @@ class _PdfExportPageState extends State<PdfExportPage> {
     );
   }
 
-  /// Çerçeveli bölüm başlığı oluşturur
-  Widget _buildSectionHeader(String title, ThemeData theme) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.15),
-          width: 1,
+  /// Fieldset tarzı çerçeveli section oluşturur
+  /// Başlık çerçevenin üst kenarının ortasından geçer (HTML fieldset/legend gibi)
+  Widget _buildFieldsetSection({
+    required String title,
+    required ThemeData theme,
+    required Widget child,
+  }) {
+    return Stack(
+      children: [
+        // Çerçeve - üstten padding bırakarak başlık için yer aç
+        Container(
+          margin: const EdgeInsets.only(top: 10),
+          padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.15),
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: child,
         ),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+        // Başlık - çerçevenin üst kenarının ortasında
+        Positioned(
+          left: 16,
+          top: 0,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            color: theme.colorScheme.surface,
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 
