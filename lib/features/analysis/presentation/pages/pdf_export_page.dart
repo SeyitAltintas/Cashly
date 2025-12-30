@@ -95,10 +95,10 @@ class _PdfExportPageState extends State<PdfExportPage> {
           children: [
             const SizedBox(height: 8),
 
-            // Üst bilgi kartı
+            // Üst bilgi kartı - kompakt
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -108,47 +108,55 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: Colors.red.withValues(alpha: 0.3),
-                  width: 1.5,
+                  width: 1,
                 ),
               ),
-              child: Column(
+              child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: Colors.red.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       Icons.picture_as_pdf_rounded,
-                      size: 40,
+                      size: 24,
                       color: Colors.red,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '$month $year Raporu',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Raporunuza dahil edilecek bölümleri seçin',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$month $year Raporu',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                        Text(
+                          'Dahil edilecek bölümleri seçin',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // Rapor Seçenekleri - görsel özet alt seçenekleri
             _buildFieldsetSection(
