@@ -19,6 +19,13 @@ class PdfVisualSummaryBuilder {
     required double degisimYuzdesi,
     required pw.Font turkishFont,
     required pw.Font turkishFontBold,
+    // Alt seçenek kontrolleri
+    bool showFinansalOzet = true,
+    bool showNetDurum = true,
+    bool showPastaGrafik = true,
+    bool showButceDurumu = true,
+    bool showIstatistikler = true,
+    bool showTop5Harcama = true,
   }) {
     final netDurum = toplamGelir - toplamHarcama;
     final isPositive = netDurum >= 0;
@@ -55,65 +62,75 @@ class PdfVisualSummaryBuilder {
           ),
         ),
 
-        // Üst satır - 3 Özet Kartı TEK CONTAINER içinde
-        _buildTopSummaryCards(
-          toplamHarcama: toplamHarcama,
-          toplamGelir: toplamGelir,
-          toplamVarlik: toplamVarlik,
-          turkishFont: turkishFont,
-          turkishFontBold: turkishFontBold,
-        ),
-        pw.SizedBox(height: 10),
+        // 1. Finansal Özet Kartları (Harcama, Gelir, Varlık)
+        if (showFinansalOzet) ...[
+          _buildTopSummaryCards(
+            toplamHarcama: toplamHarcama,
+            toplamGelir: toplamGelir,
+            toplamVarlik: toplamVarlik,
+            turkishFont: turkishFont,
+            turkishFontBold: turkishFontBold,
+          ),
+          pw.SizedBox(height: 10),
+        ],
 
-        // Alt satır - Net Durum ve Tasarruf Oranı
-        _buildNetStatusCards(
-          netDurum: netDurum,
-          isPositive: isPositive,
-          tasarrufOrani: tasarrufOrani,
-          turkishFont: turkishFont,
-          turkishFontBold: turkishFontBold,
-        ),
-        pw.SizedBox(height: 20),
+        // 2. Net Durum ve Tasarruf Oranı Kartları
+        if (showNetDurum) ...[
+          _buildNetStatusCards(
+            netDurum: netDurum,
+            isPositive: isPositive,
+            tasarrufOrani: tasarrufOrani,
+            turkishFont: turkishFont,
+            turkishFontBold: turkishFontBold,
+          ),
+          pw.SizedBox(height: 20),
+        ],
 
-        // Pasta Grafiği ve İstatistikler
-        _buildPieChartSection(
-          toplamHarcama: toplamHarcama,
-          toplamGelir: toplamGelir,
-          toplamVarlik: toplamVarlik,
-          toplam: toplam,
-          harcamaOran: harcamaOran,
-          gelirOran: gelirOran,
-          varlikOran: varlikOran,
-          netDurum: netDurum,
-          isPositive: isPositive,
-          butceDurumu: butceDurumu,
-          turkishFont: turkishFont,
-          turkishFontBold: turkishFontBold,
-        ),
-        pw.SizedBox(height: 16),
+        // 3. Pasta Grafiği ve Dağılım
+        if (showPastaGrafik) ...[
+          _buildPieChartSection(
+            toplamHarcama: toplamHarcama,
+            toplamGelir: toplamGelir,
+            toplamVarlik: toplamVarlik,
+            toplam: toplam,
+            harcamaOran: harcamaOran,
+            gelirOran: gelirOran,
+            varlikOran: varlikOran,
+            netDurum: netDurum,
+            isPositive: isPositive,
+            butceDurumu: butceDurumu,
+            turkishFont: turkishFont,
+            turkishFontBold: turkishFontBold,
+          ),
+          pw.SizedBox(height: 16),
+        ],
 
-        // Bütçe İlerleme Çubuğu
-        _buildBudgetProgressBar(
-          butceDurumu: butceDurumu,
-          aylikButceLimiti: aylikButceLimiti,
-          toplamHarcama: toplamHarcama,
-          turkishFont: turkishFont,
-          turkishFontBold: turkishFontBold,
-        ),
-        pw.SizedBox(height: 16),
+        // 4. Bütçe İlerleme Çubuğu
+        if (showButceDurumu) ...[
+          _buildBudgetProgressBar(
+            butceDurumu: butceDurumu,
+            aylikButceLimiti: aylikButceLimiti,
+            toplamHarcama: toplamHarcama,
+            turkishFont: turkishFont,
+            turkishFontBold: turkishFontBold,
+          ),
+          pw.SizedBox(height: 16),
+        ],
 
-        // İstatistik Kartları (Günlük Ortalama + Geçen Ay Karşılaştırma)
-        _buildStatisticsCards(
-          ortalamaGunlukHarcama: ortalamaGunlukHarcama,
-          degisimYuzdesi: degisimYuzdesi,
-          gecenAyToplam: gecenAyToplam,
-          turkishFont: turkishFont,
-          turkishFontBold: turkishFontBold,
-        ),
-        pw.SizedBox(height: 16),
+        // 5. İstatistik Kartları (Günlük Ortalama + Geçen Ay Karşılaştırma)
+        if (showIstatistikler) ...[
+          _buildStatisticsCards(
+            ortalamaGunlukHarcama: ortalamaGunlukHarcama,
+            degisimYuzdesi: degisimYuzdesi,
+            gecenAyToplam: gecenAyToplam,
+            turkishFont: turkishFont,
+            turkishFontBold: turkishFontBold,
+          ),
+          pw.SizedBox(height: 16),
+        ],
 
-        // En Yüksek 5 Harcama
-        if (top5Harcamalar.isNotEmpty)
+        // 6. En Yüksek 5 Harcama
+        if (showTop5Harcama && top5Harcamalar.isNotEmpty)
           _buildTop5Expenses(
             top5Harcamalar: top5Harcamalar,
             turkishFont: turkishFont,

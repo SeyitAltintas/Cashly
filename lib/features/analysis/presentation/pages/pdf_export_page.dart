@@ -542,7 +542,13 @@ class _PdfExportPageState extends State<PdfExportPage> {
       includeExpenses: _includeExpenses,
       includeIncomes: _includeIncomes,
       includeAssets: _includeAssets,
-      includeVisualSummary: _hasAnyVisualOption,
+      // Görsel özet alt seçenekleri
+      includeFinansalOzet: _includeFinansalOzet,
+      includeNetDurum: _includeNetDurum,
+      includePastaGrafik: _includePastaGrafik,
+      includeButceDurumu: _includeButceDurumu,
+      includeIstatistikler: _includeIstatistikler,
+      includeTop5Harcama: _includeTop5Harcama,
     );
 
     setState(() => _isExporting = false);

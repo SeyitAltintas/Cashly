@@ -32,7 +32,13 @@ class ExportService {
     bool includeExpenses = true,
     bool includeIncomes = true,
     bool includeAssets = true,
-    bool includeVisualSummary = false,
+    // Görsel özet alt seçenekleri
+    bool includeFinansalOzet = true,
+    bool includeNetDurum = true,
+    bool includePastaGrafik = true,
+    bool includeButceDurumu = true,
+    bool includeIstatistikler = true,
+    bool includeTop5Harcama = true,
   }) async {
     try {
       // Fontları ve logoyu yükle
@@ -156,8 +162,13 @@ class ExportService {
                 fontBold: turkishFontBold,
               ),
             ] else ...[
-              // Görsel Özet bölümü (eğer seçiliyse)
-              if (includeVisualSummary) ...[
+              // Görsel Özet bölümü (herhangi bir seçenek açıksa)
+              if (includeFinansalOzet ||
+                  includeNetDurum ||
+                  includePastaGrafik ||
+                  includeButceDurumu ||
+                  includeIstatistikler ||
+                  includeTop5Harcama) ...[
                 PdfVisualSummaryBuilder.buildVisualSummary(
                   toplamHarcama: toplamHarcama,
                   toplamGelir: toplamGelir,
@@ -169,6 +180,13 @@ class ExportService {
                   degisimYuzdesi: degisimYuzdesi,
                   turkishFont: turkishFont,
                   turkishFontBold: turkishFontBold,
+                  // Alt seçenekler
+                  showFinansalOzet: includeFinansalOzet,
+                  showNetDurum: includeNetDurum,
+                  showPastaGrafik: includePastaGrafik,
+                  showButceDurumu: includeButceDurumu,
+                  showIstatistikler: includeIstatistikler,
+                  showTop5Harcama: includeTop5Harcama,
                 ),
               ],
 
