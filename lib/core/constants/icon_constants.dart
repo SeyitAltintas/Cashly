@@ -233,4 +233,203 @@ class IconConstants {
   static IconData getGelirIkonu(String ikonAdi) {
     return gelirIkonlari[ikonAdi] ?? Icons.category;
   }
+
+  /// Kategori isminden akıllı ikon bulma (Fallback mekanizması)
+  /// Eğer veritabanındaki kategori ismi ile ikon eşleşmesi bozulursa,
+  /// bu metod kategori ismindeki anahtar kelimelere bakarak doğru ikonu tahmin eder.
+  static IconData getIconFromCategoryName(String categoryName) {
+    if (categoryName.isEmpty) return Icons.category;
+
+    final lowerName = categoryName.toLowerCase();
+
+    // --- TIER 1: YÜKSEK ÖNCELİKLİ SPESİFİK KATEGORİLER ---
+
+    // Sağlık & İlaç
+    if (lowerName.contains('eczane') ||
+        lowerName.contains('ilaç') ||
+        lowerName.contains('hastane') ||
+        lowerName.contains('doktor') ||
+        lowerName.contains('muayene') ||
+        lowerName.contains('sağlık') ||
+        lowerName.contains('diş') ||
+        lowerName.contains('tedavi')) {
+      return Icons.medical_services;
+    }
+
+    // Evcil Hayvanlar
+    if (lowerName.contains('veteriner') ||
+        lowerName.contains('kedi') ||
+        lowerName.contains('köpek') ||
+        lowerName.contains('mama') ||
+        lowerName.contains('pet')) {
+      return Icons.pets;
+    }
+
+    // Eğitim & Kitap
+    if (lowerName.contains('kitap') ||
+        lowerName.contains('okul') ||
+        lowerName.contains('kurs') ||
+        lowerName.contains('eğitim') ||
+        lowerName.contains('kırtasiye') ||
+        lowerName.contains('udemy') ||
+        lowerName.contains('ders')) {
+      return Icons.school;
+    }
+
+    // Eğlence & Aktivite
+    if (lowerName.contains('sinema') ||
+        lowerName.contains('tiyatro') ||
+        lowerName.contains('oyun') ||
+        lowerName.contains('netflix') ||
+        lowerName.contains('spotify') ||
+        lowerName.contains('konser') ||
+        lowerName.contains('etkinlik') ||
+        lowerName.contains('bilet')) {
+      return Icons.confirmation_number; // Bilet ikonu daha uygun
+    }
+
+    // Teknoloji & Elektronik
+    if (lowerName.contains('telefon') ||
+        lowerName.contains('bilgisayar') ||
+        lowerName.contains('internet') || // Fatura değilse teknoloji olabilir
+        lowerName.contains('elektronik') ||
+        lowerName.contains('teknosa') ||
+        lowerName.contains('mediamarkt') ||
+        lowerName.contains('yazılım') ||
+        lowerName.contains('uygulama')) {
+      return Icons.devices;
+    }
+
+    // --- TIER 2: GENEL HARCAMA KATEGORİLERİ ---
+
+    // Giyim & Moda
+    if (lowerName.contains('giyim') ||
+        lowerName.contains('kıyafet') ||
+        lowerName.contains('ayakkabı') ||
+        lowerName.contains('moda') ||
+        lowerName.contains('tekstil') ||
+        lowerName.contains('mağaza')) {
+      return Icons.checkroom;
+    }
+
+    // Bakım & Kozmetik
+    if (lowerName.contains('kuaför') ||
+        lowerName.contains('berber') ||
+        lowerName.contains('kozmetik') ||
+        lowerName.contains('bakım') ||
+        lowerName.contains('gratis') ||
+        lowerName.contains('watsons')) {
+      return Icons.face;
+    }
+
+    // Yemek & Kafe (Geniş kapsam)
+    if (lowerName.contains('yemek') ||
+        lowerName.contains('kafe') ||
+        lowerName.contains('restoran') ||
+        lowerName.contains('cafe') ||
+        lowerName.contains('kahve') ||
+        lowerName.contains('starbucks') ||
+        lowerName.contains('burger') ||
+        lowerName.contains('pizza') ||
+        lowerName.contains('lahmacun') ||
+        lowerName.contains('kebap')) {
+      return Icons.restaurant;
+    }
+
+    // Market & Alışveriş (Geniş kapsam)
+    if (lowerName.contains('market') ||
+        lowerName.contains('bakkal') ||
+        lowerName.contains('süper') ||
+        lowerName.contains('migros') ||
+        lowerName.contains('bim') ||
+        lowerName.contains('a101') ||
+        lowerName.contains('şok') ||
+        lowerName.contains('carrefour') ||
+        lowerName.contains('pazar') ||
+        lowerName.contains('alışveriş')) {
+      return Icons.shopping_basket;
+    }
+
+    // Araç & Ulaşım
+    if (lowerName.contains('araç') ||
+        lowerName.contains('ulaşım') ||
+        lowerName.contains('taksi') ||
+        lowerName.contains('uber') ||
+        lowerName.contains('martı') ||
+        lowerName.contains('benzin') ||
+        lowerName.contains('mazot') ||
+        lowerName.contains('lpg') ||
+        lowerName.contains('yakıt') ||
+        lowerName.contains('otobüs') ||
+        lowerName.contains('metro') ||
+        lowerName.contains('uçak') ||
+        lowerName.contains('bilet') || // Uçak bileti vs
+        lowerName.contains('seyahat') ||
+        lowerName.contains('otopark') ||
+        lowerName.contains('hgs') ||
+        lowerName.contains('ogs')) {
+      return Icons.two_wheeler;
+    }
+
+    // Sabit Giderler & Faturalar
+    if (lowerName.contains('fatura') ||
+        lowerName.contains('kira') ||
+        lowerName.contains('elektrik') ||
+        lowerName.contains(
+          'su ',
+        ) || // Boşluk önemli: 'su' her kelimede geçebilir
+        lowerName.contains('doğalgaz') ||
+        lowerName.contains('internet') ||
+        lowerName.contains('telefon') ||
+        lowerName.contains('türk telekom') ||
+        lowerName.contains('turkcell') ||
+        lowerName.contains('vodafone') ||
+        lowerName.contains('aidat')) {
+      return Icons.receipt_long;
+    }
+
+    // Hediye
+    if (lowerName.contains('hediye') ||
+        lowerName.contains('bağış') ||
+        lowerName.contains('yardım') ||
+        lowerName.contains('özel gün')) {
+      return Icons.card_giftcard;
+    }
+
+    // Ev & Yaşam
+    if (lowerName.contains('ev') ||
+        lowerName.contains('mobilya') ||
+        lowerName.contains('dekor') ||
+        lowerName.contains('tadilat') ||
+        lowerName.contains('ikea') ||
+        lowerName.contains('koçtaş')) {
+      return Icons.home;
+    }
+
+    // --- TIER 3: FİNANSAL TERİMLER ---
+
+    if (lowerName.contains('maaş')) return Icons.work;
+    if (lowerName.contains('freelance') || lowerName.contains('proje')) {
+      return Icons.laptop_mac;
+    }
+    if (lowerName.contains('yatırım') ||
+        lowerName.contains('hisse') ||
+        lowerName.contains('altın') ||
+        lowerName.contains('döviz') ||
+        lowerName.contains('coin') ||
+        lowerName.contains('bitcoin')) {
+      return Icons.trending_up;
+    }
+    if (lowerName.contains('kredi') || lowerName.contains('borç')) {
+      return Icons.credit_score;
+    }
+
+    // Varsayılan: Eğer 've' bağlacı varsa muhtemelen bir kategori ismidir
+    if (lowerName.contains(' ve ')) {
+      // Kategori isminden tahmin edemiyorsak standart ikon
+      return Icons.category;
+    }
+
+    return Icons.category;
+  }
 }

@@ -11,10 +11,10 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   /// Varsayılan harcama kategorileri
   static List<Map<String, dynamic>> get defaultCategories => [
-    {'isim': 'Yemek & Kafe', 'ikon': 'restaurant'},
-    {'isim': 'Market & Atıştırmalık', 'ikon': 'shopping_basket'},
-    {'isim': 'Araç & Ulaşım', 'ikon': 'two_wheeler'},
-    {'isim': 'Hediye & Özel', 'ikon': 'card_giftcard'},
+    {'isim': 'Yemek ve Kafe', 'ikon': 'restaurant'},
+    {'isim': 'Market ve Atıştırmalık', 'ikon': 'shopping_basket'},
+    {'isim': 'Araç ve Ulaşım', 'ikon': 'two_wheeler'},
+    {'isim': 'Hediye ve Özel', 'ikon': 'card_giftcard'},
     {'isim': 'Sabit Giderler', 'ikon': 'credit_card'},
     {'isim': 'Diğer', 'ikon': 'category'},
   ];

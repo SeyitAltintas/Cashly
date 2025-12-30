@@ -62,8 +62,12 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
     if (widget.incomeToEdit != null) {
       _nameController.text = widget.incomeToEdit!['name'] ?? '';
       _amountController.text = widget.incomeToEdit!['amount'].toString();
-      _selectedCategory =
-          widget.incomeToEdit!['category'] ?? _categoryIcons.keys.first;
+      // Kategorinin mevcut kategoriler arasında olup olmadığını kontrol et
+      final editCategory = widget.incomeToEdit!['category'] as String?;
+      if (editCategory != null && _categoryIcons.containsKey(editCategory)) {
+        _selectedCategory = editCategory;
+      }
+      // Yoksa varsayılan kategori kullanılır (_categoryIcons.keys.first - satır 60)
       _selectedDate =
           DateTime.tryParse(widget.incomeToEdit!['date'].toString()) ??
           DateTime.now();

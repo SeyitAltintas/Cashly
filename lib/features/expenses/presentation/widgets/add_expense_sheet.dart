@@ -65,8 +65,12 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     if (widget.expenseToEdit != null) {
       _nameController.text = widget.expenseToEdit!['isim'];
       _amountController.text = widget.expenseToEdit!['tutar'].toString();
-      _selectedCategory =
-          widget.expenseToEdit!['kategori'] ?? _categoryIcons.keys.first;
+      // Kategorinin mevcut kategoriler arasında olup olmadığını kontrol et
+      final editCategory = widget.expenseToEdit!['kategori'] as String?;
+      if (editCategory != null && _categoryIcons.containsKey(editCategory)) {
+        _selectedCategory = editCategory;
+      }
+      // Yoksa varsayılan kategori kullanılır (_categoryIcons.keys.first - satır 63)
       _selectedDate =
           DateTime.tryParse(widget.expenseToEdit!['tarih'].toString()) ??
           DateTime.now();

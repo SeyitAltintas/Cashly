@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/theme_manager.dart';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../core/constants/icon_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../widgets/expense_list_item.dart';
 import '../widgets/expense_summary_card.dart';
@@ -439,7 +440,11 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                             return ExpenseListItem(
                               harcama: harcama,
                               categoryIcon:
-                                  widget.kategoriIkonlari[harcama['kategori']],
+                                  widget
+                                      .kategoriIkonlari[harcama['kategori']] ??
+                                  IconConstants.getIconFromCategoryName(
+                                    harcama['kategori'],
+                                  ),
                               paymentMethods: widget.tumOdemeYontemleri,
                               itemIndex: gosterilenHarcamalar.indexOf(harcama),
                               onDelete: () => harcamaSil(harcama),
