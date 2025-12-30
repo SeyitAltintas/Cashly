@@ -345,46 +345,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
               title: 'Sonuç bulunamadı',
               subtitle: 'Farklı bir arama terimi deneyin',
             )
-          : EmptyStateWidget.noAssets(
-              onAdd: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => AddAssetSheet(
-                    onSave:
-                        (
-                          name,
-                          amount,
-                          quantity,
-                          category,
-                          type,
-                          purchaseDate,
-                          purchasePrice,
-                        ) {
-                          final newAsset = Asset(
-                            id: DateTime.now().millisecondsSinceEpoch
-                                .toString(),
-                            name: name,
-                            amount: amount,
-                            quantity: quantity,
-                            category: category,
-                            type: type,
-                            lastUpdated: DateTime.now(),
-                            purchaseDate: purchaseDate,
-                            purchasePrice: purchasePrice,
-                            isDeleted: false,
-                          );
-                          setState(() {
-                            _assets.add(newAsset);
-                            _filtrele();
-                          });
-                          widget.onAdd(name, amount, quantity, category, type);
-                        },
-                  ),
-                );
-              },
-            );
+          : EmptyStateWidget.noAssets();
     }
     return ListView.builder(
       controller: lazyScrollController,

@@ -567,7 +567,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                           title: 'Sonuç bulunamadı',
                           subtitle: 'Farklı bir arama terimi deneyin',
                         )
-                      : EmptyStateWidget.noIncomes(onAdd: yeniGelirEkle)
+                      : EmptyStateWidget.noIncomes()
                 : ListView.builder(
                     controller: lazyScrollController,
                     padding: const EdgeInsets.symmetric(horizontal: 16),

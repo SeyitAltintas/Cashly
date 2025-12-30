@@ -397,7 +397,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                           title: 'Sonuç bulunamadı',
                           subtitle: 'Farklı bir arama terimi deneyin',
                         )
-                      : EmptyStateWidget.noExpenses(onAdd: pencereAc)
+                      : EmptyStateWidget.noExpenses()
                 : ListView.builder(
                     controller: lazyScrollController,
                     padding: const EdgeInsets.symmetric(

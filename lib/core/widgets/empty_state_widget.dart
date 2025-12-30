@@ -99,37 +99,31 @@ class EmptyStateWidget extends StatelessWidget {
   }
 
   /// Harcama yok durumu
-  factory EmptyStateWidget.noExpenses({VoidCallback? onAdd}) {
-    return EmptyStateWidget(
+  factory EmptyStateWidget.noExpenses() {
+    return const EmptyStateWidget(
       icon: Icons.receipt_long_outlined,
       title: 'Henüz harcama yok',
       subtitle: 'İlk harcamanızı ekleyerek başlayın',
-      actionLabel: onAdd != null ? 'Harcama Ekle' : null,
-      onAction: onAdd,
       iconColor: Colors.red,
     );
   }
 
   /// Gelir yok durumu
-  factory EmptyStateWidget.noIncomes({VoidCallback? onAdd}) {
-    return EmptyStateWidget(
+  factory EmptyStateWidget.noIncomes() {
+    return const EmptyStateWidget(
       icon: Icons.trending_up,
       title: 'Henüz gelir yok',
       subtitle: 'İlk gelirinizi ekleyerek başlayın',
-      actionLabel: onAdd != null ? 'Gelir Ekle' : null,
-      onAction: onAdd,
       iconColor: Colors.green,
     );
   }
 
   /// Varlık yok durumu
-  factory EmptyStateWidget.noAssets({VoidCallback? onAdd}) {
-    return EmptyStateWidget(
+  factory EmptyStateWidget.noAssets() {
+    return const EmptyStateWidget(
       icon: Icons.account_balance_wallet_outlined,
       title: 'Henüz varlık yok',
       subtitle: 'Varlıklarınızı takip etmeye başlayın',
-      actionLabel: onAdd != null ? 'Varlık Ekle' : null,
-      onAction: onAdd,
       iconColor: Colors.blue,
     );
   }
