@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'dart:math';
 
 import 'package:cashly/core/di/injection_container.dart';
 import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
@@ -182,10 +183,10 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           ),
           const SettingsDivider(),
           SettingsTile(
-            icon: Icons.backup_outlined,
+            icon: Icons.storage_outlined,
             iconColor: Colors.blue,
-            title: 'Veri Yedekleme',
-            subtitle: 'Verilerinizi yedekleyin veya geri yükleyin',
+            title: 'Veri İşlemleri',
+            subtitle: 'Yedekleme, geri yükleme ve silme',
             isLast: true,
             onTap: () => _showBackupDialog(context),
           ),
@@ -219,7 +220,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Veri Yedekleme',
+              'Veri İşlemleri',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -271,6 +272,41 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 ),
               ),
               onTap: () => _handleRestoreData(sheetContext, userId),
+            ),
+            const SizedBox(height: 16),
+            // Ayırıcı çizgi
+            Divider(
+              color: Theme.of(
+                sheetContext,
+              ).colorScheme.onSurface.withValues(alpha: 0.1),
+              height: 1,
+            ),
+            const SizedBox(height: 16),
+            // Tüm verileri sil butonu
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.delete_forever, color: Colors.red),
+              ),
+              title: const Text(
+                'Tüm Verilerimi Sil',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                'Dikkat! Bu işlem geri alınamaz',
+                style: TextStyle(
+                  color: Colors.red.withValues(alpha: 0.7),
+                  fontSize: 12,
+                ),
+              ),
+              onTap: () => _handleDeleteAllData(sheetContext, userId),
             ),
             const SizedBox(height: 16),
           ],
@@ -476,6 +512,266 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
     // Overlay'i kapat
     if (mounted) {
       Navigator.of(context).pop();
+    }
+  }
+
+  /// Tüm verileri silme işlemini yönetir
+  Future<void> _handleDeleteAllData(
+    BuildContext sheetContext,
+    String userId,
+  ) async {
+    Navigator.pop(sheetContext); // Bottom sheet'i kapat
+
+    // İlk onay dialogu
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF8B0000).withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.warning_amber_rounded,
+                color: Color(0xFF8B0000),
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Dikkat!',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Yedekleme tavsiyesi
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.lightbulb_outline, color: Colors.amber, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Silmeden önce verilerinizi yedeklemenizi öneririz!',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Tüm verileriniz kalıcı olarak silinecek:',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 12),
+            const Text('• Tüm harcamalar'),
+            const Text('• Tüm gelirler'),
+            const Text('• Tüm varlıklar'),
+            const Text('• Ödeme yöntemleri'),
+            const Text('• Transferler'),
+            const Text('• Seri kayıtları'),
+            const SizedBox(height: 16),
+            const Text(
+              'Bu işlem geri alınamaz!',
+              style: TextStyle(
+                color: Color(0xFF8B0000),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('İptal', style: TextStyle(color: Colors.white)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF8B0000),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Devam Et'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    // İkinci onay - Matematik işlemi
+    final random = Random();
+    // 0: Toplama, 1: Çıkarma, 2: Çarpma
+    final operatorType = random.nextInt(3);
+
+    int num1, num2, expectedResult;
+    String operatorSign;
+
+    if (operatorType == 0) {
+      // Toplama: Sayılar 1-20 arası
+      num1 = random.nextInt(20) + 1;
+      num2 = random.nextInt(20) + 1;
+      expectedResult = num1 + num2;
+      operatorSign = '+';
+    } else if (operatorType == 1) {
+      // Çıkarma: Pozitif sonuç için num1 > num2
+      num1 = random.nextInt(20) + 10; // 10-29
+      num2 = random.nextInt(9) + 1; // 1-9
+      expectedResult = num1 - num2;
+      operatorSign = '-';
+    } else {
+      // Çarpma: Sayılar 2-9 arası (tablo çarpım kolaylığı)
+      num1 = random.nextInt(8) + 2;
+      num2 = random.nextInt(8) + 2;
+      expectedResult = num1 * num2;
+      operatorSign = 'x';
+    }
+
+    final confirmSum = await showDialog<int>(
+      context: context,
+      builder: (context) {
+        final controller = TextEditingController();
+        return AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text('Güvenlik Doğrulaması'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Silme işlemini onaylamak için sonucu yazın:'),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 24,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '$num1 $operatorSign $num2 = ?',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 20),
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(
+                        alpha: 0.2,
+                      ), // Silik beyaz/gri çerçeve
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(
+                        alpha: 0.5,
+                      ), // Odaklanınca biraz daha belirgin
+                    ),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, null),
+              child: const Text('İptal', style: TextStyle(color: Colors.white)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final val = int.tryParse(controller.text);
+                Navigator.pop(context, val);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF8B0000),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Sil'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmSum != expectedResult || !mounted) {
+      if (confirmSum != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Hatalı işlem sonucu. Silme iptal edildi.'),
+            backgroundColor: Colors.orange.shade800,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    // Silme işlemini gerçekleştir
+    await HapticService.heavyImpact();
+    final success = await BackupService.deleteAllData(userId);
+
+    if (mounted) {
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Tüm veriler silindi ✅'),
+            backgroundColor: Colors.green.shade700,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+        // Ana sayfaya yönlendir
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (_) => AnaSayfa(authController: widget.authController),
+          ),
+          (route) => false,
+        );
+      } else {
+        _showErrorSnackBar('Veriler silinirken bir hata oluştu');
+      }
     }
   }
 }

@@ -320,6 +320,35 @@ class BackupService {
       return BackupResult(success: false, message: 'Geri yükleme hatası: $e');
     }
   }
+
+  /// Tüm kullanıcı verilerini sil
+  static Future<bool> deleteAllData(String userId) async {
+    try {
+      // Repository'leri al
+      final expenseRepo = getIt<ExpenseRepository>();
+      final incomeRepo = getIt<IncomeRepository>();
+      final assetRepo = getIt<AssetRepository>();
+      final paymentRepo = getIt<PaymentMethodRepository>();
+      final streakRepo = getIt<StreakRepository>();
+
+      // Tüm verileri temizle
+      await expenseRepo.saveExpenses(userId, []);
+      await incomeRepo.saveIncomes(userId, []);
+      await assetRepo.saveAssets(userId, []);
+      await paymentRepo.savePaymentMethods(userId, []);
+      await paymentRepo.saveTransfers(userId, []);
+      await expenseRepo.saveBudget(userId, 0);
+      await paymentRepo.saveDefaultPaymentMethod(userId, null);
+
+      // Streak verilerini sıfırla
+      await StreakService.initialize();
+      await streakRepo.saveStreakData(userId, StreakData.empty());
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
 /// Yedekleme işlemi sonucu
