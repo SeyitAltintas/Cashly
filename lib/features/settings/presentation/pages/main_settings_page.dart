@@ -112,7 +112,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             icon: Icons.palette_outlined,
             iconColor: Colors.purple,
             title: 'Görünüm',
-            subtitle: 'Tema ve renk ayarları',
+            subtitle: 'Tema, animasyon ve görsel efektler',
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const AppearancePage()),
@@ -123,7 +123,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             icon: Icons.vibration,
             iconColor: Colors.cyan,
             title: 'Titreşim Geri Bildirimi',
-            subtitle: 'Dokunsal geri bildirim ayarları',
+            subtitle: 'Tıklama, işlem ve uyarı titreşimleri',
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -136,7 +136,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             icon: Icons.mic_outlined,
             iconColor: Colors.orange,
             title: 'Sesli Asistan',
-            subtitle: 'Ses komutları ve geri bildirim',
+            subtitle: 'Sesli geri bildirim ve komut listesi',
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -150,7 +150,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             icon: Icons.account_balance_wallet_outlined,
             iconColor: Colors.green,
             title: 'Harcamalar',
-            subtitle: 'Bütçe, kategoriler ve sabit giderler',
+            subtitle: 'Bütçe, kategori ve ödeme yöntemleri',
             onTap: () async {
               final result = await Navigator.push(
                 context,
@@ -168,7 +168,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             icon: Icons.trending_up,
             iconColor: Colors.teal,
             title: 'Gelirler',
-            subtitle: 'Gelir kategorilerini özelleştirin',
+            subtitle: 'Gelir kategorileri ve düzenli gelirler',
             onTap: () async {
               final result = await Navigator.push(
                 context,
@@ -186,7 +186,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             icon: Icons.storage_outlined,
             iconColor: Colors.blue,
             title: 'Veri İşlemleri',
-            subtitle: 'Yedekleme, geri yükleme ve silme',
+            subtitle: 'Yedekleme, geri yükleme ve sıfırlama',
             isLast: true,
             onTap: () => _showBackupDialog(context),
           ),

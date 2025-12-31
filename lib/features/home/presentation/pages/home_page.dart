@@ -361,7 +361,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(50),
           ),
-          width: 170,
+          width: 135,
           elevation: 4,
         ),
       );
