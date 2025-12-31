@@ -302,7 +302,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   _buildCheckboxTile(
                     title: 'Bütçe Durumu',
                     subtitle: 'Bütçe ilerleme çubuğu ve limit bilgisi',
-                    icon: Icons.savings_outlined,
+                    icon: Icons.account_balance_wallet,
                     color: Colors.green,
                     value: _includeButceDurumu,
                     onChanged: (value) =>

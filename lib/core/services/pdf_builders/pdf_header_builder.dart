@@ -88,7 +88,7 @@ class PdfHeaderBuilder {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text(
-            'Cashly ile oluşturuldu • ${dateTimeFormat.format(now)}',
+            'Cashly ile oluşturuldu •  ${dateTimeFormat.format(now)}',
             style: pw.TextStyle(
               font: font,
               fontSize: 9,
@@ -113,69 +113,67 @@ class PdfHeaderBuilder {
     required pw.Font font,
     required pw.Font fontBold,
   }) {
-    return pw.SizedBox(
-      height: 80,
-      child: pw.Center(
-        child: pw.Container(
-          width: 400,
-          padding: const pw.EdgeInsets.all(32),
-          decoration: pw.BoxDecoration(
-            color: PdfColors.white,
-            borderRadius: pw.BorderRadius.circular(8),
-            border: pw.Border.all(color: PdfColors.grey300, width: 1),
-          ),
-          child: pw.Column(
-            mainAxisAlignment: pw.MainAxisAlignment.center,
-            children: [
-              pw.Text(
-                '!',
-                style: pw.TextStyle(
-                  font: fontBold,
-                  fontSize: 48,
-                  color: PdfColors.orange,
-                ),
+    return pw.Center(
+      child: pw.Container(
+        width: 400,
+        padding: const pw.EdgeInsets.all(32),
+        decoration: pw.BoxDecoration(
+          color: PdfColors.white,
+          borderRadius: pw.BorderRadius.circular(8),
+          border: pw.Border.all(color: PdfColors.grey300, width: 1),
+        ),
+        child: pw.Column(
+          mainAxisSize: pw.MainAxisSize.min,
+          mainAxisAlignment: pw.MainAxisAlignment.center,
+          children: [
+            pw.Text(
+              '!',
+              style: pw.TextStyle(
+                font: fontBold,
+                fontSize: 48,
+                color: PdfColors.orange,
               ),
-              pw.SizedBox(height: 16),
-              pw.Text(
-                'Veri Bulunamadı',
-                style: pw.TextStyle(
-                  font: fontBold,
-                  fontSize: 18,
-                  color: PdfUtils.darkGrey,
-                ),
+            ),
+            pw.SizedBox(height: 16),
+            pw.Text(
+              'Veri Bulunamadı',
+              style: pw.TextStyle(
+                font: fontBold,
+                fontSize: 18,
+                color: PdfUtils.darkGrey,
               ),
-              pw.SizedBox(height: 12),
-              pw.Text(
-                'Finansal durum raporunu görebilmeniz için\nharcama, gelir veya varlık verisi eklemeniz gerekmektedir.',
-                textAlign: pw.TextAlign.center,
+            ),
+            pw.SizedBox(height: 12),
+            pw.Text(
+              'Seçilen dönemde harcama, gelir veya varlık verisi bulunamadı.',
+              textAlign: pw.TextAlign.center,
+              style: pw.TextStyle(
+                font: font,
+                fontSize: 11,
+                color: PdfColors.grey700,
+                lineSpacing: 4,
+              ),
+            ),
+            pw.SizedBox(height: 20),
+            pw.Container(
+              padding: const pw.EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              decoration: pw.BoxDecoration(
+                color: PdfColor.fromHex('#F0F9FF'),
+                borderRadius: pw.BorderRadius.circular(4),
+              ),
+              child: pw.Text(
+                'Farklı bir dönem seçerek tekrar deneyin.',
                 style: pw.TextStyle(
                   font: font,
-                  fontSize: 11,
-                  color: PdfColors.grey700,
-                  lineSpacing: 4,
+                  fontSize: 9,
+                  color: PdfColor.fromHex('#0369A1'),
                 ),
               ),
-              pw.SizedBox(height: 20),
-              pw.Container(
-                padding: const pw.EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: pw.BoxDecoration(
-                  color: PdfColor.fromHex('#F0F9FF'),
-                  borderRadius: pw.BorderRadius.circular(4),
-                ),
-                child: pw.Text(
-                  'Uygulamadan veri ekledikten sonra tekrar deneyin.',
-                  style: pw.TextStyle(
-                    font: font,
-                    fontSize: 9,
-                    color: PdfColor.fromHex('#0369A1'),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
