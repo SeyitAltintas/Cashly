@@ -165,7 +165,7 @@ class ToolsAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       title: Image.asset(
         'assets/image/seffaflogo.png',
-        height: 45,
+        height: 35,
         fit: BoxFit.contain,
       ),
       centerTitle: true,
@@ -188,7 +188,7 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       title: Image.asset(
         'assets/image/seffaflogo.png',
-        height: 45,
+        height: 35,
         fit: BoxFit.contain,
       ),
       centerTitle: true,
@@ -211,7 +211,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       title: Image.asset(
         'assets/image/seffaflogo.png',
-        height: 45,
+        height: 35,
         fit: BoxFit.contain,
       ),
       centerTitle: true,
