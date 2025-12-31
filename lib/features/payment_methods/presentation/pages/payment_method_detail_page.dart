@@ -178,7 +178,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
     final transactions = applyPagination(allFilteredTransactions);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text(pm.name),
         backgroundColor: Colors.transparent,

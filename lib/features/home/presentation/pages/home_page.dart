@@ -190,10 +190,6 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     // Streak verisi
     _streakData = streakRepo.getStreakData(userId);
 
-    debugPrint(
-      '📂 Veriler okundu: ${varliklar.length} varlık, ${tumHarcamalar.length} harcama, ${tumGelirler.length} gelir',
-    );
-
     setState(() => _isLoading = false);
 
     // Varlık fiyatlarını arka planda güncelle
@@ -204,13 +200,8 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   Future<void> _updateAssetPrices() async {
     // Güncellenecek varlık yoksa çık
     if (varliklar.isEmpty) {
-      debugPrint('📊 Güncellenecek varlık yok');
       return;
     }
-
-    debugPrint(
-      '📊 Varlık fiyatları güncelleniyor... (${varliklar.length} adet)',
-    );
 
     try {
       final priceUpdateService = AssetPriceUpdateService();
@@ -218,21 +209,12 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         varliklar,
       );
 
-      // Toplam değişimi hesapla
-      double eskiToplam = varliklar.fold(0.0, (sum, a) => sum + a.amount);
-      double yeniToplam = updatedAssets.fold(0.0, (sum, a) => sum + a.amount);
-
       if (mounted) {
         setState(() => varliklar = updatedAssets);
         _varliklariKaydet();
       }
-
-      debugPrint('✅ Varlık fiyatları güncellendi!');
-      debugPrint('   Eski Toplam: ${eskiToplam.toStringAsFixed(2)} TL');
-      debugPrint('   Yeni Toplam: ${yeniToplam.toStringAsFixed(2)} TL');
-      debugPrint('   Fark: ${(yeniToplam - eskiToplam).toStringAsFixed(2)} TL');
     } catch (e) {
-      debugPrint('❌ Varlık fiyat güncelleme hatası: $e');
+      // Sessizce geç, kullanıcıyı rahatsız etme
     }
   }
 
