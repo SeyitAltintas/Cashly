@@ -2,18 +2,39 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../income/data/models/income_model.dart';
+import '../../../payment_methods/data/models/transfer_model.dart';
+import '../../../payment_methods/data/models/payment_method_model.dart';
 
 /// Son İşlemler Kartı Widget'ı
-/// Harcama ve gelirlerdeki son işlemleri gösterir
+/// Harcama, gelir ve transferlerdeki son işlemleri gösterir
 class RecentTransactionsCard extends StatelessWidget {
   final List<Map<String, dynamic>> harcamalar;
   final List<Income> gelirler;
+  final List<Transfer> transferler;
+  final List<PaymentMethod> odemeYontemleri;
 
   const RecentTransactionsCard({
     super.key,
     required this.harcamalar,
     required this.gelirler,
+    required this.transferler,
+    required this.odemeYontemleri,
   });
+
+  /// Ödeme yöntemi adını ID'ye göre bulur
+  String _getPaymentMethodName(String id) {
+    final pm = odemeYontemleri.firstWhere(
+      (p) => p.id == id,
+      orElse: () => PaymentMethod(
+        id: '',
+        name: 'Bilinmeyen',
+        type: 'banka',
+        balance: 0,
+        createdAt: DateTime.now(),
+      ),
+    );
+    return pm.name;
+  }
 
   /// Son işlemleri birleştirir ve sıralar
   List<Map<String, dynamic>> _getRecentTransactions() {
@@ -43,6 +64,19 @@ class RecentTransactionsCard extends StatelessWidget {
         'amount': g.amount,
         'date': g.date,
         'category': g.category,
+      });
+    }
+
+    // Transferler ekle
+    for (var t in transferler) {
+      final fromName = _getPaymentMethodName(t.fromAccountId);
+      final toName = _getPaymentMethodName(t.toAccountId);
+      transactions.add({
+        'type': 'transfer',
+        'name': '$fromName → $toName',
+        'amount': t.amount,
+        'date': t.date,
+        'category': 'Transfer',
       });
     }
 
@@ -139,7 +173,28 @@ class RecentTransactionsCard extends StatelessWidget {
     BuildContext context,
     Map<String, dynamic> transaction,
   ) {
-    final isExpense = transaction['type'] == 'expense';
+    final type = transaction['type'];
+    final isExpense = type == 'expense';
+    final isTransfer = type == 'transfer';
+
+    // Renk ve ikon belirleme
+    Color iconColor;
+    IconData icon;
+    String prefix;
+
+    if (isTransfer) {
+      iconColor = Colors.orange;
+      icon = Icons.swap_horiz;
+      prefix = '';
+    } else if (isExpense) {
+      iconColor = Colors.red;
+      icon = Icons.arrow_downward;
+      prefix = '-';
+    } else {
+      iconColor = Colors.green;
+      icon = Icons.arrow_upward;
+      prefix = '+';
+    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -148,14 +203,12 @@ class RecentTransactionsCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: (isExpense ? Colors.red : Colors.green).withValues(
-                alpha: 0.15,
-              ),
+              color: iconColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
-              isExpense ? Icons.arrow_downward : Icons.arrow_upward,
-              color: isExpense ? Colors.red.shade400 : Colors.green.shade400,
+              icon,
+              color: iconColor.withValues(alpha: 0.8),
               size: 18,
             ),
           ),
@@ -186,9 +239,9 @@ class RecentTransactionsCard extends StatelessWidget {
             ),
           ),
           Text(
-            "${isExpense ? '-' : '+'}${CurrencyFormatter.formatWithoutSymbol(transaction['amount'] as double)} ₺",
+            "$prefix${CurrencyFormatter.formatWithoutSymbol(transaction['amount'] as double)} ₺",
             style: TextStyle(
-              color: isExpense ? Colors.red.shade300 : Colors.green.shade300,
+              color: iconColor.withValues(alpha: 0.9),
               fontWeight: FontWeight.bold,
             ),
           ),

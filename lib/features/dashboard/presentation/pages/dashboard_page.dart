@@ -11,6 +11,7 @@ import '../widgets/budget_status_card.dart';
 import '../widgets/asset_summary_card.dart';
 import '../widgets/recent_transactions_card.dart';
 import '../widgets/credit_debt_card.dart';
+import '../../../payment_methods/data/models/transfer_model.dart';
 
 /// Dashboard Sayfası
 /// Ana finansal özeti gösterir
@@ -23,6 +24,7 @@ class DashboardPage extends StatelessWidget {
   final double butceLimiti;
   final DateTime secilenAy;
   final StreakData streakData;
+  final List<Transfer> transferler;
 
   const DashboardPage({
     super.key,
@@ -34,6 +36,7 @@ class DashboardPage extends StatelessWidget {
     required this.butceLimiti,
     required this.secilenAy,
     required this.streakData,
+    required this.transferler,
   });
 
   /// Saate göre selamlama mesajı
@@ -127,6 +130,8 @@ class DashboardPage extends StatelessWidget {
               RecentTransactionsCard(
                 harcamalar: harcamalar,
                 gelirler: gelirler,
+                transferler: transferler,
+                odemeYontemleri: odemeYontemleri,
               ),
               const SizedBox(height: 20),
             ],

@@ -369,6 +369,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         butceLimiti: butceLimiti,
         secilenAy: secilenAy,
         streakData: _streakData,
+        transferler: tumTransferler,
       ),
     );
   }
