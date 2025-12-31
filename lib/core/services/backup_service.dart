@@ -10,6 +10,7 @@ import '../../features/expenses/domain/repositories/expense_repository.dart';
 import '../../features/income/domain/repositories/income_repository.dart';
 import '../../features/assets/domain/repositories/asset_repository.dart';
 import '../../features/payment_methods/domain/repositories/payment_method_repository.dart';
+import '../../features/payment_methods/data/repositories/payment_method_repository_impl.dart';
 import '../../features/streak/domain/repositories/streak_repository.dart';
 import 'haptic_service.dart';
 import '../../features/streak/data/services/streak_service.dart';
@@ -335,7 +336,11 @@ class BackupService {
       await expenseRepo.saveExpenses(userId, []);
       await incomeRepo.saveIncomes(userId, []);
       await assetRepo.saveAssets(userId, []);
-      await paymentRepo.savePaymentMethods(userId, []);
+      // Ödeme yöntemlerini sıfırla ama varsayılan Nakit'i koru
+      await paymentRepo.savePaymentMethods(
+        userId,
+        PaymentMethodRepositoryImpl.defaultPaymentMethods,
+      );
       await paymentRepo.saveTransfers(userId, []);
       await expenseRepo.saveBudget(userId, 0);
       await paymentRepo.saveDefaultPaymentMethod(userId, null);

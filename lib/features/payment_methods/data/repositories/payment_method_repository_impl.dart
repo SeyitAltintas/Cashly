@@ -27,7 +27,8 @@ class PaymentMethodRepositoryImpl implements PaymentMethodRepository {
   List<Map<String, dynamic>> getPaymentMethods(String userId) {
     try {
       final data = _box.get('odeme_yontemleri_$userId', defaultValue: null);
-      if (data == null) {
+      // Null veya boş liste ise varsayılan Nakit'i oluştur
+      if (data == null || (data is List && data.isEmpty)) {
         savePaymentMethods(userId, defaultPaymentMethods);
         return defaultPaymentMethods;
       }
