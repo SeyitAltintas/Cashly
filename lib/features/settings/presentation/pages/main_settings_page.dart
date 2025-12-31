@@ -25,6 +25,7 @@ import '../widgets/expense_settings/category_section.dart';
 import 'package:cashly/core/services/backup_service.dart';
 import 'package:cashly/core/services/haptic_service.dart';
 import 'package:cashly/features/home/presentation/pages/home_page.dart';
+import 'package:share_plus/share_plus.dart';
 
 /// Ayarlar Sayfası
 class AyarlarSayfasi extends StatefulWidget {
@@ -287,18 +288,36 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
     await HapticService.lightImpact();
     final path = await BackupService.exportData(userId);
     if (path != null && mounted) {
-      await BackupService.shareBackup(path);
+      final shareResult = await BackupService.shareBackup(path);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Yedek dosyası oluşturuldu ✅'),
-            backgroundColor: Colors.green.shade700,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+        if (shareResult.status == ShareResultStatus.success) {
+          // Kullanıcı dosyayı gerçekten kaydetti
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Yedek dosyası başarıyla kaydedildi ✅'),
+              backgroundColor: Colors.green.shade700,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-          ),
-        );
+          );
+        } else if (shareResult.status == ShareResultStatus.dismissed) {
+          // Kullanıcı iptal etti
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                'Yedekleme iptal edildi',
+                style: TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.deepOrange.shade900,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        }
       }
     }
   }

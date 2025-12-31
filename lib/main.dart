@@ -91,8 +91,8 @@ class _CashlyAppState extends State<CashlyApp> {
 
   Future<void> _initializeApp() async {
     try {
-      // UI'ın çizilmesi için bekle (büyük asset yükleme süresini kapsasın)
-      await Future.delayed(const Duration(milliseconds: 300));
+      // Splash screen'in daha uzun görünmesi için bekle
+      await Future.delayed(const Duration(milliseconds: 2500));
 
       // Veritabanını başlat
       await DatabaseHelper.baslat();
@@ -144,14 +144,7 @@ class _CashlyAppState extends State<CashlyApp> {
             home: Scaffold(
               backgroundColor: Colors.black,
               body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset('assets/image/seffaflogo.png', height: 70),
-                    const SizedBox(height: 20),
-                    CircularProgressIndicator(color: Colors.white),
-                  ],
-                ),
+                child: Image.asset('assets/image/seffaflogo.png', height: 60),
               ),
             ),
           );

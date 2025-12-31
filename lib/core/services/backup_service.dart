@@ -112,9 +112,10 @@ class BackupService {
   }
 
   /// Yedek dosyasını paylaş
-  static Future<void> shareBackup(String filePath) async {
+  /// Paylaşım sonucunu döndürür (başarı/iptal kontrolü için)
+  static Future<ShareResult> shareBackup(String filePath) async {
     // ignore: deprecated_member_use
-    await Share.shareXFiles([XFile(filePath)], subject: 'Cashly Yedek');
+    return await Share.shareXFiles([XFile(filePath)], subject: 'Cashly Yedek');
   }
 
   /// JSON dosyasından verileri geri yükle
