@@ -409,8 +409,8 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           // Özet Kartı
           if (!gelirAramaModu)
             Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
