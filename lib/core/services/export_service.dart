@@ -316,12 +316,23 @@ class ExportService {
     DateTime startDate,
     DateTime endDate,
   ) {
+    // Tarihleri gün başlangıcına normalize et (saat, dakika, saniye sıfırla)
+    final normalizedStart = DateTime(
+      startDate.year,
+      startDate.month,
+      startDate.day,
+    );
+    final normalizedEnd = DateTime(endDate.year, endDate.month, endDate.day);
+
     return items.where((item) {
         final tarihStr = item['tarih'] as String?;
         if (tarihStr == null) return false;
         final tarih = DateTime.parse(tarihStr);
-        return tarih.isAfter(startDate.subtract(const Duration(days: 1))) &&
-            tarih.isBefore(endDate.add(const Duration(days: 1)));
+        // Tarihi gün başlangıcına normalize et
+        final normalizedTarih = DateTime(tarih.year, tarih.month, tarih.day);
+        // startDate <= tarih <= endDate (dahil)
+        return !normalizedTarih.isBefore(normalizedStart) &&
+            !normalizedTarih.isAfter(normalizedEnd);
       }).toList()
       ..sort((a, b) => (b['tarih'] as String).compareTo(a['tarih'] as String));
   }
@@ -332,12 +343,23 @@ class ExportService {
     DateTime startDate,
     DateTime endDate,
   ) {
+    // Tarihleri gün başlangıcına normalize et (saat, dakika, saniye sıfırla)
+    final normalizedStart = DateTime(
+      startDate.year,
+      startDate.month,
+      startDate.day,
+    );
+    final normalizedEnd = DateTime(endDate.year, endDate.month, endDate.day);
+
     return items.where((item) {
         final dateStr = item['date'] as String?;
         if (dateStr == null) return false;
         final date = DateTime.parse(dateStr);
-        return date.isAfter(startDate.subtract(const Duration(days: 1))) &&
-            date.isBefore(endDate.add(const Duration(days: 1)));
+        // Tarihi gün başlangıcına normalize et
+        final normalizedDate = DateTime(date.year, date.month, date.day);
+        // startDate <= date <= endDate (dahil)
+        return !normalizedDate.isBefore(normalizedStart) &&
+            !normalizedDate.isAfter(normalizedEnd);
       }).toList()
       ..sort((a, b) => (b['date'] as String).compareTo(a['date'] as String));
   }

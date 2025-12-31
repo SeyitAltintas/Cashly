@@ -79,7 +79,7 @@ class PdfTableBuilder {
           color: _getZebraColorLight(headerColor),
         ),
         rowDecoration: const pw.BoxDecoration(color: PdfColors.white),
-        cellPadding: const pw.EdgeInsets.all(10),
+        cellPadding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         headerCellDecoration: pw.BoxDecoration(color: headerColor.shade(0.8)),
       ),
     ];

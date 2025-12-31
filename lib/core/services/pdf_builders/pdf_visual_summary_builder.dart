@@ -737,7 +737,21 @@ class PdfVisualSummaryBuilder {
             final kategori = h['kategori'] as String? ?? 'Diğer';
             final tutar = (h['tutar'] as num).toDouble();
             final aciklama = h['aciklama'] as String? ?? '';
+            final isim = h['isim'] as String? ?? '';
             final tarihStr = h['tarih'] as String? ?? '';
+
+            // Harcama display ismi: önce name, sonra aciklama, en son kategori
+            String displayName = '';
+            if (isim.isNotEmpty) {
+              displayName = isim;
+            } else if (aciklama.isNotEmpty) {
+              displayName = aciklama;
+            }
+
+            // Uzun isimleri kısalt
+            if (displayName.length > 30) {
+              displayName = '${displayName.substring(0, 27)}...';
+            }
 
             // Tarihi format
             String formattedTarih = '';
@@ -775,34 +789,34 @@ class PdfVisualSummaryBuilder {
                     ),
                   ),
                   pw.SizedBox(width: 8),
-                  // Kategori, açıklama ve tarih
+                  // Harcama ismi, kategori ve tarih
                   pw.Expanded(
                     child: pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
-                        // Harcama ismi (önce açıklama, yoksa kategori)
-                        pw.Text(
-                          aciklama.isNotEmpty
-                              ? (aciklama.length > 25
-                                    ? '${aciklama.substring(0, 25)}...'
-                                    : aciklama)
-                              : kategori,
-                          style: pw.TextStyle(
-                            font: turkishFontBold,
-                            fontSize: 9,
-                            color: PdfUtils.darkGrey,
-                          ),
-                        ),
-                        // Kategori (eğer açıklama varsa kategoriyi altına yaz)
-                        if (aciklama.isNotEmpty)
+                        // Harcama ismi (varsa göster)
+                        if (displayName.isNotEmpty)
                           pw.Text(
-                            kategori,
+                            displayName,
                             style: pw.TextStyle(
-                              font: turkishFont,
-                              fontSize: 8,
-                              color: PdfColors.grey600,
+                              font: turkishFontBold,
+                              fontSize: 9,
+                              color: PdfUtils.darkGrey,
                             ),
                           ),
+                        // Kategori (her zaman göster - ikon ile)
+                        pw.Text(
+                          kategori,
+                          style: pw.TextStyle(
+                            font: displayName.isNotEmpty
+                                ? turkishFont
+                                : turkishFontBold,
+                            fontSize: displayName.isNotEmpty ? 8 : 9,
+                            color: displayName.isNotEmpty
+                                ? PdfColors.grey600
+                                : PdfUtils.darkGrey,
+                          ),
+                        ),
                         // Tarih
                         if (formattedTarih.isNotEmpty)
                           pw.Text(
