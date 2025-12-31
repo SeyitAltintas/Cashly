@@ -267,8 +267,8 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-            Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+            Colors.black.withValues(alpha: 0.8),
+            const Color(0xFF1a1a2e).withValues(alpha: 0.6),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

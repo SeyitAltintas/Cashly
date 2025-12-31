@@ -91,7 +91,7 @@ class _PaymentMethodRecycleBinPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('Çöp Kutusu'),
         backgroundColor: Colors.transparent,
