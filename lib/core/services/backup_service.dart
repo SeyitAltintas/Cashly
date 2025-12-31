@@ -343,7 +343,8 @@ class BackupService {
       );
       await paymentRepo.saveTransfers(userId, []);
       await expenseRepo.saveBudget(userId, 0);
-      await paymentRepo.saveDefaultPaymentMethod(userId, null);
+      // Varsayılan ödeme yöntemi olarak Nakit seçili olsun
+      await paymentRepo.saveDefaultPaymentMethod(userId, 'nakit_default');
 
       // Streak verilerini sıfırla
       await StreakService.initialize();

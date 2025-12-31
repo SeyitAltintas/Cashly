@@ -86,10 +86,16 @@ class PaymentMethodRepositoryImpl implements PaymentMethodRepository {
   @override
   String? getDefaultPaymentMethod(String userId) {
     try {
-      return _box.get('varsayilan_odeme_yontemi_$userId');
+      final savedValue = _box.get('varsayilan_odeme_yontemi_$userId');
+      // Null ise varsayılan olarak Nakit'i ayarla ve döndür
+      if (savedValue == null) {
+        saveDefaultPaymentMethod(userId, 'nakit_default');
+        return 'nakit_default';
+      }
+      return savedValue;
     } catch (e) {
       debugPrint('Varsayılan ödeme yöntemi getirilirken hata: $e');
-      return null;
+      return 'nakit_default';
     }
   }
 

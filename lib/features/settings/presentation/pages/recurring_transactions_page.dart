@@ -105,7 +105,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    islem == null ? 'Yeni Tekrarlayan İşlem' : 'İşlemi Düzenle',
+                    islem == null ? 'Yeni Tekrarlayan Gider' : 'İşlemi Düzenle',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 20,
@@ -133,6 +133,21 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.5),
+                        ),
                       ),
                     ),
                     validator: (value) {
@@ -166,6 +181,21 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.5),
+                        ),
                       ),
                     ),
                     validator: (value) {
@@ -257,6 +287,21 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.5),
+                        ),
                       ),
                     ),
                     items: _odemeYontemleri
@@ -383,9 +428,9 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Tekrarlayan İşlemler'),
+        title: const Text('Tekrarlayan Giderler'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
