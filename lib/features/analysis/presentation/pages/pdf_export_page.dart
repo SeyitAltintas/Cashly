@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/services/export_service.dart';
+import '../../../../core/widgets/month_year_picker.dart';
 
 /// PDF Rapor Hazırlama Sayfası
 /// Kullanıcı hangi tabloların PDF'e ekleneceğini seçebilir
@@ -20,6 +21,9 @@ class PdfExportPage extends StatefulWidget {
 }
 
 class _PdfExportPageState extends State<PdfExportPage> {
+  // Tarih seçimi - widget'tan başlangıç değeri alınır, sonra kullanıcı değiştirebilir
+  late DateTime _selectedDate;
+
   // Tablo seçenekleri - varsayılan hepsi seçili
   bool _includeExpenses = true;
   bool _includeIncomes = true;
@@ -33,6 +37,12 @@ class _PdfExportPageState extends State<PdfExportPage> {
   bool _includeButceDurumu = true;
   bool _includeIstatistikler = true;
   bool _includeTop5Harcama = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = widget.selectedDate;
+  }
 
   bool get _hasSelection =>
       _includeExpenses || _includeIncomes || _includeAssets;
@@ -67,8 +77,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final month = _getMonthName(widget.selectedDate.month);
-    final year = widget.selectedDate.year;
+    final month = _getMonthName(_selectedDate.month);
+    final year = _selectedDate.year;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -95,7 +105,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
           children: [
             const SizedBox(height: 8),
 
-            // Üst bilgi kartı - kompakt
+            // Üst bilgi kartı - tarih seçici ile
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -134,7 +144,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '$month $year Raporu',
+                          'PDF Raporu',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -154,6 +164,84 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     ),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Tarih Seçici Kartı
+            InkWell(
+              onTap: () async {
+                final newDate = await MonthYearPicker.show(
+                  context,
+                  initialDate: _selectedDate,
+                  accentColor: Colors.red,
+                );
+                if (newDate != null) {
+                  setState(() => _selectedDate = newDate);
+                }
+              },
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.15),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.calendar_month_rounded,
+                        size: 22,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Rapor Dönemi',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$month $year',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.edit_calendar_rounded,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      size: 22,
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -531,16 +619,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
     setState(() => _isExporting = true);
 
     // Ayın başı ve sonu
-    final startDate = DateTime(
-      widget.selectedDate.year,
-      widget.selectedDate.month,
-      1,
-    );
-    final endDate = DateTime(
-      widget.selectedDate.year,
-      widget.selectedDate.month + 1,
-      0,
-    );
+    final startDate = DateTime(_selectedDate.year, _selectedDate.month, 1);
+    final endDate = DateTime(_selectedDate.year, _selectedDate.month + 1, 0);
 
     final result = await ExportService.exportToPdf(
       userId: widget.userId,

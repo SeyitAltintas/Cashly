@@ -152,6 +152,7 @@ class PdfVisualSummaryBuilder {
       decoration: pw.BoxDecoration(
         color: PdfColors.white,
         borderRadius: pw.BorderRadius.circular(4),
+        border: pw.Border.all(color: PdfColors.grey300, width: 1),
       ),
       child: pw.Row(
         crossAxisAlignment: pw.CrossAxisAlignment.center,
