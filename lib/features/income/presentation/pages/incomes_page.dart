@@ -6,6 +6,7 @@ import '../../../income/presentation/widgets/income_voice_input_sheet.dart';
 import '../../../income/presentation/pages/income_recycle_bin_page.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/month_year_picker.dart';
@@ -158,42 +159,62 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
 
   void gelirSil(Income income) {
     HapticService.delete(); // Silme haptic feedback
+
+    // Eski değerleri sakla (geri alma için)
+    final eskiIsDeleted = income.isDeleted;
+    final String? eskiPmId = income.paymentMethodId;
+    double? eskiBakiye;
+    int? pmIndex;
+
+    if (eskiPmId != null) {
+      pmIndex = widget.tumOdemeYontemleri.indexWhere((p) => p.id == eskiPmId);
+      if (pmIndex != -1) {
+        eskiBakiye = widget.tumOdemeYontemleri[pmIndex].balance;
+      }
+    }
+
     setState(() {
       income.isDeleted = true;
 
       // Bakiyeyi geri al
-      if (income.paymentMethodId != null) {
-        final pmIndex = widget.tumOdemeYontemleri.indexWhere(
-          (p) => p.id == income.paymentMethodId,
-        );
-        if (pmIndex != -1) {
-          final pm = widget.tumOdemeYontemleri[pmIndex];
-          double yeniBakiye;
-          if (pm.type == 'kredi') {
-            yeniBakiye = pm.balance + income.amount;
-          } else {
-            yeniBakiye = pm.balance - income.amount;
-          }
-          widget.tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: yeniBakiye);
+      if (income.paymentMethodId != null && pmIndex != null && pmIndex != -1) {
+        final pm = widget.tumOdemeYontemleri[pmIndex];
+        double yeniBakiye;
+        if (pm.type == 'kredi') {
+          yeniBakiye = pm.balance + income.amount;
+        } else {
+          yeniBakiye = pm.balance - income.amount;
         }
+        widget.tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: yeniBakiye);
       }
     });
 
     widget.onGelirlerChanged(widget.tumGelirler);
     widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          "Gelir çöp kutusuna taşındı 🗑️",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.red.shade700,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(12),
-        duration: const Duration(seconds: 1),
-      ),
+    // Geri Al özelliği ile SnackBar göster
+    AppSnackBar.deleted(
+      context,
+      'Gelir çöp kutusuna taşındı 🗑️',
+      onUndo: () {
+        // Silme işlemini geri al
+        setState(() {
+          income.isDeleted = eskiIsDeleted;
+          if (eskiPmId != null &&
+              pmIndex != null &&
+              pmIndex != -1 &&
+              eskiBakiye != null) {
+            widget.tumOdemeYontemleri[pmIndex] = widget
+                .tumOdemeYontemleri[pmIndex]
+                .copyWith(balance: eskiBakiye);
+          }
+        });
+        widget.onGelirlerChanged(widget.tumGelirler);
+        widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+
+        // Geri alındı bildirimi
+        AppSnackBar.success(context, 'Gelir geri yüklendi ✅');
+      },
     );
   }
 

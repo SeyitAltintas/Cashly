@@ -13,6 +13,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../../../core/widgets/money_animation.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
@@ -166,26 +167,36 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
 
   void harcamaSil(Map<String, dynamic> harcama) {
     HapticService.delete(); // Silme haptic feedback
+
+    // Eski değerleri sakla (geri alma için)
+    final eskiSilindi = harcama['silindi'];
+    final paymentMethodId = harcama['odemeYontemiId'];
+    double? eskiBakiye;
+    int? pmIndex;
+
+    if (paymentMethodId != null) {
+      pmIndex = widget.tumOdemeYontemleri.indexWhere(
+        (p) => p.id == paymentMethodId,
+      );
+      if (pmIndex != -1) {
+        eskiBakiye = widget.tumOdemeYontemleri[pmIndex].balance;
+      }
+    }
+
     setState(() {
       harcama['silindi'] = true;
 
       // Ödeme yönteminin bakiyesini geri ekle
-      final paymentMethodId = harcama['odemeYontemiId'];
-      if (paymentMethodId != null) {
-        final pmIndex = widget.tumOdemeYontemleri.indexWhere(
-          (p) => p.id == paymentMethodId,
-        );
-        if (pmIndex != -1) {
-          final pm = widget.tumOdemeYontemleri[pmIndex];
-          final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
-          double newBalance;
-          if (pm.type == 'kredi') {
-            newBalance = pm.balance - amount;
-          } else {
-            newBalance = pm.balance + amount;
-          }
-          widget.tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+      if (pmIndex != null && pmIndex != -1) {
+        final pm = widget.tumOdemeYontemleri[pmIndex];
+        final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+        double newBalance;
+        if (pm.type == 'kredi') {
+          newBalance = pm.balance - amount;
+        } else {
+          newBalance = pm.balance + amount;
         }
+        widget.tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
       }
 
       filtreleVeGoster();
@@ -194,18 +205,27 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     widget.onHarcamalarChanged(widget.tumHarcamalar);
     widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          "Harcama çöp kutusuna taşındı 🗑️",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: ColorConstants.koyuKirmizi,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(12),
-        duration: const Duration(seconds: 1),
-      ),
+    // Geri Al özelliği ile SnackBar göster
+    AppSnackBar.deleted(
+      context,
+      'Harcama çöp kutusuna taşındı 🗑️',
+      onUndo: () {
+        // Silme işlemini geri al
+        setState(() {
+          harcama['silindi'] = eskiSilindi ?? false;
+          if (pmIndex != null && pmIndex != -1 && eskiBakiye != null) {
+            widget.tumOdemeYontemleri[pmIndex] = widget
+                .tumOdemeYontemleri[pmIndex]
+                .copyWith(balance: eskiBakiye);
+          }
+          filtreleVeGoster();
+        });
+        widget.onHarcamalarChanged(widget.tumHarcamalar);
+        widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+
+        // Geri alındı bildirimi
+        AppSnackBar.success(context, 'Harcama geri yüklendi ✅');
+      },
     );
   }
 
