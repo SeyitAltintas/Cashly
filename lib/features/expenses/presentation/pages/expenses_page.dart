@@ -210,6 +210,9 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
       context,
       'Harcama çöp kutusuna taşındı 🗑️',
       onUndo: () {
+        // Sayfa hala aktif mi kontrol et
+        if (!mounted) return;
+
         // Silme işlemini geri al
         setState(() {
           harcama['silindi'] = eskiSilindi ?? false;

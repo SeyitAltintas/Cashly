@@ -186,6 +186,9 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
       context,
       'Gelir çöp kutusuna taşındı 🗑️',
       onUndo: () {
+        // Sayfa hala aktif mi kontrol et
+        if (!mounted) return;
+
         // Silme işlemini geri al
         setState(() {
           income.isDeleted = eskiIsDeleted;

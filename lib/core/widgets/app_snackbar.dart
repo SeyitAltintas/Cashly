@@ -78,13 +78,17 @@ class AppSnackBar {
   }
 
   /// Silme mesajı gösterir - "Geri Al" butonu ile (kırmızı tema)
+  /// ⚠️ onUndo callback'i çağrılmadan önce context.mounted kontrolü yapılmalıdır
   static void deleted(
     BuildContext context,
     String message, {
     VoidCallback? onUndo,
-    Duration duration = const Duration(seconds: 4),
+    Duration duration = const Duration(milliseconds: 1500),
   }) {
     if (!context.mounted) return;
+
+    // Önce mevcut SnackBar'ı temizle
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -108,6 +112,8 @@ class AppSnackBar {
         margin: const EdgeInsets.all(12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         duration: duration,
+        // Kullanıcı kaydırarak kapatabilsin
+        dismissDirection: DismissDirection.horizontal,
         action: onUndo != null
             ? SnackBarAction(
                 label: 'Geri Al',
@@ -117,6 +123,12 @@ class AppSnackBar {
             : null,
       ),
     );
+  }
+
+  /// Aktif SnackBar'ı gizler (sayfa değişimlerinde kullanışlı)
+  static void hide(BuildContext context) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }
 
   /// Özel SnackBar gösterir
