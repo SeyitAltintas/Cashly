@@ -7,6 +7,7 @@ import '../../../../auth/data/repositories/auth_repository_impl.dart';
 import '../../../../auth/presentation/pages/login_page.dart';
 import '../../../../../core/di/injection_container.dart';
 import '../../../../settings/domain/repositories/settings_repository.dart';
+import '../../../../../core/widgets/app_snackbar.dart';
 
 /// Profil ayarları dialog/sheet yardımcı sınıfı
 /// Avatar seçimi, isim değiştirme, PIN değiştirme, hesap silme akışlarını yönetir
@@ -56,21 +57,11 @@ class ProfileSettingsHelper {
       await authController.checkAuth();
       onUserUpdated();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(successMessage ?? "Profil güncellendi"),
-            backgroundColor: Colors.green,
-          ),
-        );
+        AppSnackBar.success(context, successMessage ?? "Profil güncellendi");
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Güncelleme başarısız: $e"),
-            backgroundColor: Colors.red,
-          ),
-        );
+        AppSnackBar.error(context, "Güncelleme başarısız: $e");
       }
     }
   }
@@ -563,7 +554,6 @@ class ProfileSettingsHelper {
             Navigator.pop(ctx);
 
             final navigator = Navigator.of(context, rootNavigator: true);
-            final scaffoldMessenger = ScaffoldMessenger.of(context);
 
             final confirmed = await showDialog<bool>(
               context: context,
@@ -623,11 +613,9 @@ class ProfileSettingsHelper {
                   MaterialPageRoute(
                     builder: (newCtx) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        ScaffoldMessenger.of(newCtx).showSnackBar(
-                          const SnackBar(
-                            content: Text("Hesabınız başarıyla silindi"),
-                            backgroundColor: Colors.green,
-                          ),
+                        AppSnackBar.success(
+                          newCtx,
+                          "Hesabınız başarıyla silindi",
                         );
                       });
                       return LoginPage(authController: authController);
@@ -636,12 +624,12 @@ class ProfileSettingsHelper {
                   (route) => false,
                 );
               } catch (e) {
-                scaffoldMessenger.showSnackBar(
-                  SnackBar(
-                    content: Text("Hesap silinirken hata oluştu: $e"),
-                    backgroundColor: Colors.red.shade800,
-                  ),
-                );
+                if (context.mounted) {
+                  AppSnackBar.error(
+                    context,
+                    "Hesap silinirken hata oluştu: $e",
+                  );
+                }
               }
             }
           }

@@ -4,6 +4,7 @@ import 'package:cashly/core/theme/app_theme.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../data/repositories/expense_repository_impl.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 
 class KategoriYonetimiSayfasi extends StatefulWidget {
   final String userId;
@@ -190,18 +191,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
     secilenIkon = 'category';
     Navigator.pop(context);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          'Kategori eklendi ✅',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.green.shade700,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(12),
-      ),
-    );
+    AppSnackBar.success(context, 'Kategori eklendi ✅');
   }
 
   void kategoriSil(int index) {
@@ -209,19 +199,9 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
 
     // Sistem kategorisi silinemez
     if (sistemKategorileri.contains(kategoriIsmi)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '"$kategoriIsmi" sistem kategorisidir ve silinemez',
-            style: const TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.orange.shade700,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.all(12),
-        ),
+      AppSnackBar.warning(
+        context,
+        '"$kategoriIsmi" sistem kategorisidir ve silinemez',
       );
       return;
     }
@@ -265,20 +245,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
               );
               Navigator.pop(context);
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text(
-                    'Kategori silindi',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: Colors.red.shade800,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  margin: const EdgeInsets.all(12),
-                ),
-              );
+              AppSnackBar.deleted(context, 'Kategori silindi');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red.shade800,
@@ -332,20 +299,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
               );
               Navigator.pop(context);
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text(
-                    'Varsayılan kategoriler yüklendi',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: Colors.green.shade700,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  margin: const EdgeInsets.all(12),
-                ),
-              );
+              AppSnackBar.success(context, 'Varsayılan kategoriler yüklendi');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -686,20 +640,10 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                     kategoriler,
                   );
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text(
-                        'Kategori sırası güncellendi',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      backgroundColor: Colors.green.shade700,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      margin: const EdgeInsets.all(12),
-                      duration: const Duration(seconds: 1),
-                    ),
+                  AppSnackBar.success(
+                    context,
+                    'Kategori sırası güncellendi',
+                    duration: const Duration(seconds: 1),
                   );
                 },
                 itemBuilder: (context, index) {

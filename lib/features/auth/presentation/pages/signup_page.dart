@@ -3,6 +3,7 @@ import '../controllers/auth_controller.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import 'login_page.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 
 class SignUpPage extends StatefulWidget {
   final AuthController authController;
@@ -386,12 +387,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
                             // Context'i async işlemden önce lokal değişkene al
                             final navigator = Navigator.of(context);
-                            final scaffoldMessenger = ScaffoldMessenger.of(
-                              context,
-                            );
-                            final errorColor = Theme.of(
-                              context,
-                            ).colorScheme.error;
 
                             setState(() {
                               _isLoading = true;
@@ -411,14 +406,9 @@ class _SignUpPageState extends State<SignUpPage> {
                               if (!mounted) return;
 
                               if (success) {
-                                scaffoldMessenger.showSnackBar(
-                                  SnackBar(
-                                    content: const Text(
-                                      "Kayıt başarılı! Hoş geldiniz! 🎉",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    backgroundColor: Colors.green,
-                                  ),
+                                AppSnackBar.success(
+                                  context,
+                                  "Kayıt başarılı! Hoş geldiniz! 🎉",
                                 );
                                 if (!mounted) return;
                                 navigator.pushReplacement(
@@ -429,23 +419,17 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                 );
                               } else {
-                                scaffoldMessenger.showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      widget.authController.error ??
-                                          "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.",
-                                    ),
-                                    backgroundColor: errorColor,
-                                  ),
+                                AppSnackBar.error(
+                                  context,
+                                  widget.authController.error ??
+                                      "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.",
                                 );
                               }
                             } catch (e) {
                               if (!mounted) return;
-                              scaffoldMessenger.showSnackBar(
-                                SnackBar(
-                                  content: Text("Hata: ${e.toString()}"),
-                                  backgroundColor: errorColor,
-                                ),
+                              AppSnackBar.error(
+                                context,
+                                "Hata: ${e.toString()}",
                               );
                             } finally {
                               if (mounted) {

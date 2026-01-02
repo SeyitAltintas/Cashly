@@ -4,6 +4,7 @@ import '../../../income/domain/repositories/income_repository.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/utils/validators.dart';
 import 'package:cashly/core/theme/app_theme.dart';
+import 'package:cashly/core/widgets/app_snackbar.dart';
 
 /// Gelir kategorilerini yönetmek için sayfa
 class GelirKategoriYonetimiSayfasi extends StatefulWidget {
@@ -281,19 +282,9 @@ class _GelirKategoriYonetimiSayfasiState
 
     // Sistem kategorisi silinemez
     if (sistemKategorileri.contains(kategoriIsmi)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '"$kategoriIsmi" sistem kategorisidir ve silinemez',
-            style: const TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.orange.shade700,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.all(12),
-        ),
+      AppSnackBar.warning(
+        context,
+        '"$kategoriIsmi" sistem kategorisidir ve silinemez',
       );
       return;
     }
@@ -408,22 +399,10 @@ class _GelirKategoriYonetimiSayfasiState
                           kategoriler.insert(newIndex, kategori);
                         });
                         kaydet();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text(
-                              'Kategori sırası güncellendi',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primary,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            margin: const EdgeInsets.all(12),
-                            duration: const Duration(seconds: 1),
-                          ),
+                        AppSnackBar.success(
+                          context,
+                          'Kategori sırası güncellendi',
+                          duration: const Duration(seconds: 1),
                         );
                       },
                       itemBuilder: (context, index) {

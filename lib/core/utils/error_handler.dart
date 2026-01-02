@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/exceptions/app_exceptions.dart';
+import 'package:cashly/core/widgets/app_snackbar.dart';
 
 /// Error handling ve kullanıcı feedback yardımcı fonksiyonları
 class ErrorHandler {
@@ -29,24 +30,7 @@ class ErrorHandler {
   /// Örnek: ErrorHandler.showErrorSnackBar(context, "Bir hata oluştu");
   static void showErrorSnackBar(BuildContext context, String message) {
     if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(message, style: const TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    AppSnackBar.error(context, message);
   }
 
   /// Başarı mesajı gösterir (yeşil tema)
@@ -54,24 +38,7 @@ class ErrorHandler {
   /// Örnek: ErrorHandler.showSuccessSnackBar(context, "Kayıt başarılı!");
   static void showSuccessSnackBar(BuildContext context, String message) {
     if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle_outline, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(message, style: const TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.green.shade700,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    AppSnackBar.success(context, message);
   }
 
   /// Uyarı mesajı gösterir (turuncu tema)
@@ -79,24 +46,7 @@ class ErrorHandler {
   /// Örnek: ErrorHandler.showWarningSnackBar(context, "Bütçe limitine yaklaştınız");
   static void showWarningSnackBar(BuildContext context, String message) {
     if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.warning_amber_outlined, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(message, style: const TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.orange,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    AppSnackBar.warning(context, message);
   }
 
   /// Database hata mesajlarını kullanıcı dostu hale getirir

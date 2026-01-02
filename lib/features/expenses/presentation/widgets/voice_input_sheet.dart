@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../../core/services/speech/speech_service.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 
 /// Sesli harcama girişi için modal bottom sheet widget'ı
 class VoiceInputSheet extends StatefulWidget {
@@ -298,21 +299,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
 
             // SnackBar göster ve sheet'i kapat
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    '${deletedExpense['isim']} silindi',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: Colors.red.shade700,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  margin: const EdgeInsets.all(12),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
+              AppSnackBar.deleted(context, '${deletedExpense['isim']} silindi');
               Navigator.pop(context);
             }
           } else if (mounted) {
@@ -517,20 +504,9 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
           if (mounted) {
             if ((result['adet'] as int?) != null &&
                 (result['adet'] as int) > 0) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    '${result['adet']} adet tekrarlayan işlem eklendi!',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: Colors.green.shade700,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  margin: const EdgeInsets.all(12),
-                  duration: const Duration(seconds: 2),
-                ),
+              AppSnackBar.success(
+                context,
+                '${result['adet']} adet tekrarlayan işlem eklendi!',
               );
             }
             Navigator.pop(context);
@@ -591,21 +567,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               );
 
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '$harcamaIsmi silindi',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    backgroundColor: Colors.red.shade700,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    margin: const EdgeInsets.all(12),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
+                AppSnackBar.deleted(context, '$harcamaIsmi silindi');
                 Navigator.pop(context);
               }
             } else {
@@ -618,20 +580,9 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               );
 
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '$harcamaIsmi güncellendi: ${yeniTutar.toStringAsFixed(0)} ₺',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    backgroundColor: Colors.blue.shade700,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    margin: const EdgeInsets.all(12),
-                    duration: const Duration(seconds: 2),
-                  ),
+                AppSnackBar.info(
+                  context,
+                  '$harcamaIsmi güncellendi: ${yeniTutar.toStringAsFixed(0)} ₺',
                 );
                 Navigator.pop(context);
               }
@@ -879,20 +830,9 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             );
 
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Aylık bütçe ${yeniLimit.toStringAsFixed(0)} ₺ olarak güncellendi',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: Colors.green.shade700,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  margin: const EdgeInsets.all(12),
-                  duration: const Duration(seconds: 2),
-                ),
+              AppSnackBar.success(
+                context,
+                'Aylık bütçe ${yeniLimit.toStringAsFixed(0)} ₺ olarak güncellendi',
               );
               Navigator.pop(context);
             }
@@ -996,20 +936,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     String isim = _isimController.text.trim();
 
     if (tutar == null || tutar <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Geçerli bir tutar girin',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red.shade700,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.all(12),
-        ),
-      );
+      AppSnackBar.error(context, 'Geçerli bir tutar girin');
       return;
     }
 

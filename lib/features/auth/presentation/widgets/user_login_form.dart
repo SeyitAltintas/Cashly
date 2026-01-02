@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
 import '../../../../core/services/biometric_service.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 
 /// Kullanıcı seçili giriş formu widget'ı
 /// Belirli bir kullanıcı için PIN ile giriş ekranı
@@ -68,24 +69,15 @@ class _UserLoginFormState extends State<UserLoginForm> {
         if (success) {
           widget.onLoginSuccess();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                widget.authController.error ?? "Biyometrik giriş başarısız",
-              ),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
+          AppSnackBar.error(
+            context,
+            widget.authController.error ?? "Biyometrik giriş başarısız",
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Biyometrik doğrulama başarısız: $e"),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+        AppSnackBar.error(context, "Biyometrik doğrulama başarısız: $e");
       }
     } finally {
       if (mounted) {
