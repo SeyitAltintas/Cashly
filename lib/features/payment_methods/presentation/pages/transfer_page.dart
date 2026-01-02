@@ -33,6 +33,9 @@ class _TransferPageState extends State<TransferPage> {
   String? _toAccountId;
   DateTime _selectedDate = DateTime.now();
 
+  // İşlem sonrası mesajı
+  String? _successMessage;
+
   @override
   void dispose() {
     _amountController.dispose();
@@ -42,6 +45,13 @@ class _TransferPageState extends State<TransferPage> {
   void _save() {
     // Haptic Feedback (Sadece titreşim, animasyon yok)
     HapticService.mediumImpact();
+
+    // Önceki mesajı temizle (yeni deneme yapılıyorsa)
+    if (_successMessage != null) {
+      setState(() {
+        _successMessage = null;
+      });
+    }
 
     if (!_formKey.currentState!.validate()) {
       return;
@@ -82,8 +92,27 @@ class _TransferPageState extends State<TransferPage> {
       }
     }
 
+    // Transfer işlemini gerçekleştir
     widget.onTransfer(_fromAccountId!, _toAccountId!, amount, _selectedDate);
-    Navigator.pop(context);
+
+    // Bilgi mesajı oluştur
+    final fromAccountName = widget.paymentMethods
+        .firstWhere((pm) => pm.id == _fromAccountId)
+        .name;
+    final toAccountName = toAccount.name;
+    final formattedAmount = CurrencyFormatter.format(amount);
+
+    setState(() {
+      _successMessage =
+          "$fromAccountName ➔ $toAccountName\n$formattedAmount başarıyla transfer edildi.";
+      // Tutarı temizle ki kullanıcı yanlışlıkla tekrar göndermesin
+      _amountController.clear();
+    });
+
+    // Klavye açıksa kapat
+    FocusScope.of(context).unfocus();
+
+    // Navigator.pop(context); // ARTIK SAYFA KAPANMIYOR
   }
 
   Future<void> _pickDate() async {
@@ -146,6 +175,9 @@ class _TransferPageState extends State<TransferPage> {
 
               // 4. Aksiyon Butonu
               _buildActionButton(),
+
+              // 5. Başarı Mesajı
+              if (_successMessage != null) _buildSuccessMessage(isDark),
             ],
           ),
         ),
@@ -433,6 +465,58 @@ class _TransferPageState extends State<TransferPage> {
         child: const Text(
           "Transfer Yap",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSuccessMessage(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: AnimatedOpacity(
+        opacity: _successMessage != null ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 500),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.green.withValues(alpha: isDark ? 0.15 : 0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.green.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_rounded,
+                  color: Colors.green,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  _successMessage!,
+                  style: TextStyle(
+                    color: isDark
+                        ? Colors.green.shade300
+                        : Colors.green.shade800,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
