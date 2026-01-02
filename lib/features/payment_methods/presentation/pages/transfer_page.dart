@@ -27,7 +27,7 @@ class _TransferPageState extends State<TransferPage> {
   final TextEditingController _amountController = TextEditingController();
 
   // Sabitlenen Ana Renk
-  final Color _primaryColor = const Color(0xFF00ACC1);
+  final Color _primaryColor = const Color.fromARGB(255, 0, 123, 110);
 
   String? _fromAccountId;
   String? _toAccountId;

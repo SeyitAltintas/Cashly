@@ -127,7 +127,7 @@ class ToolsPage extends StatelessWidget {
               icon: Icons.sync_alt_rounded,
               title: "Para Transferi",
               subtitle: "Hesaplar arası para aktarımı",
-              iconColor: const Color(0xFF00ACC1),
+              iconColor: const Color.fromARGB(255, 0, 123, 110),
               onTap: () {
                 HapticService.lightImpact();
                 onTransferPressed();
