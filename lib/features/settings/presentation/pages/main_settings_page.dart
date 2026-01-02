@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'dart:math';
 
 import 'package:cashly/features/income/presentation/pages/income_settings_page.dart';
@@ -14,6 +13,8 @@ import 'package:cashly/features/auth/presentation/controllers/auth_controller.da
 import '../widgets/settings_tile.dart';
 import 'package:cashly/core/services/backup_service.dart';
 import 'package:cashly/core/services/haptic_service.dart';
+import 'package:cashly/core/widgets/app_snackbar.dart';
+import 'package:cashly/core/widgets/app_loading_overlay.dart';
 import 'package:cashly/features/home/presentation/pages/home_page.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -317,31 +318,10 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
       if (mounted) {
         if (shareResult.status == ShareResultStatus.success) {
           // Kullanıcı dosyayı gerçekten kaydetti
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Yedek dosyası başarıyla kaydedildi ✅'),
-              backgroundColor: Colors.green.shade700,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          );
+          AppSnackBar.success(context, 'Yedek dosyası başarıyla kaydedildi ✅');
         } else if (shareResult.status == ShareResultStatus.dismissed) {
           // Kullanıcı iptal etti
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text(
-                'Yedekleme iptal edildi',
-                style: TextStyle(color: Colors.white),
-              ),
-              backgroundColor: Colors.deepOrange.shade900,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          );
+          AppSnackBar.warning(context, 'Yedekleme iptal edildi');
         }
       }
     }
@@ -364,7 +344,10 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
         userId,
         onFileSelected: () {
           // Dosya seçildikten sonra loading overlay'i göster
-          _showLoadingOverlay();
+          AppLoadingOverlay.show(
+            context,
+            message: 'Veriler geri yükleniyor...',
+          );
           isLoadingShown = true;
         },
       );
@@ -373,13 +356,16 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
       // Minimum 3 saniye ekranda kalması için bekle
       if (isLoadingShown && mounted) {
         await Future.delayed(const Duration(seconds: 4));
-        if (mounted) Navigator.of(context).pop();
+        if (mounted) AppLoadingOverlay.hide(context);
       }
 
       if (mounted) {
         if (result.success) {
           // Başarı animasyonunu göster
-          await _showSuccessOverlay();
+          await AppLoadingOverlay.showSuccess(
+            context,
+            message: 'Geri yükleme başarı ile tamamlandı',
+          );
           await HapticService.success();
           // Ana sayfadaki verileri yenile
           widget.onNavigationReturn?.call();
@@ -400,7 +386,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
     } catch (e) {
       // Loading overlay'i kapat (sadece gösterildiyse)
       if (isLoadingShown && mounted) {
-        Navigator.of(context).pop();
+        AppLoadingOverlay.hide(context);
       }
       // Beklenmeyen hata durumunda
       if (mounted) {
@@ -409,99 +395,9 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
     }
   }
 
-  /// Loading overlay'i gösterir (kullanıcı kapatamaz)
-  void _showLoadingOverlay() {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Kullanıcı dışarı tıklayarak kapatamaz
-      barrierColor: Colors.black.withValues(alpha: 0.7), // %50 opaklık
-      builder: (context) => PopScope(
-        canPop: false, // Geri tuşuyla kapatılamaz
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Lottie animasyonu
-              Lottie.asset(
-                'assets/lottie/verigeriyukleme.json',
-                width: 300,
-                height: 300,
-              ),
-              const SizedBox(height: 16),
-              // Yükleniyor metni
-              const Text(
-                'Veriler geri yükleniyor...',
-                style: TextStyle(
-                  fontFamily: 'sans-serif',
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   /// Hata mesajı gösterir
   void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: const TextStyle(color: Colors.white)),
-        backgroundColor: Colors.red.shade800,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 3),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
-  /// Başarı overlay'ini gösterir (2 saniye)
-  Future<void> _showSuccessOverlay() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierColor: Colors.black.withValues(alpha: 0.7),
-      builder: (context) => PopScope(
-        canPop: false,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Success animasyonu
-              Lottie.asset(
-                'assets/lottie/Success_animation.json',
-                width: 300,
-                height: 300,
-              ),
-              const SizedBox(height: 16),
-              // Başarı metni
-              const Text(
-                'Geri yükleme başarı ile tamamlandı',
-                style: TextStyle(
-                  fontFamily: 'sans-serif',
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    // 2 saniye bekle
-    await Future.delayed(const Duration(seconds: 2));
-
-    // Overlay'i kapat
-    if (mounted) {
-      Navigator.of(context).pop();
-    }
+    AppSnackBar.error(context, message);
   }
 
   /// Tüm verileri silme işlemini yönetir
@@ -721,15 +617,9 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
 
     if (confirmSum != expectedResult || !mounted) {
       if (confirmSum != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Hatalı işlem sonucu. Silme iptal edildi.'),
-            backgroundColor: Colors.orange.shade800,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
+        AppSnackBar.warning(
+          context,
+          'Hatalı işlem sonucu. Silme iptal edildi.',
         );
       }
       return;
@@ -741,16 +631,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
 
     if (mounted) {
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Tüm veriler silindi ✅'),
-            backgroundColor: Colors.green.shade700,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
+        AppSnackBar.success(context, 'Tüm veriler silindi ✅');
         // Ana sayfaya yönlendir
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
