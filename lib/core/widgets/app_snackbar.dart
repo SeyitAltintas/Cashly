@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 /// Uygulama genelinde tutarlı SnackBar gösterimi için utility sınıfı.
@@ -88,9 +89,13 @@ class AppSnackBar {
     if (!context.mounted) return;
 
     // Önce mevcut SnackBar'ı temizle
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    // SnackBar'a has flag - timer için
+    bool isSnackBarActive = true;
+
+    messenger.showSnackBar(
       SnackBar(
         content: Row(
           children: [
@@ -111,18 +116,28 @@ class AppSnackBar {
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: duration,
-        // Kullanıcı kaydırarak kapatabilsin
+        duration: const Duration(days: 365), // Timer kontrol edecek
         dismissDirection: DismissDirection.horizontal,
         action: onUndo != null
             ? SnackBarAction(
                 label: 'Geri Al',
                 textColor: Colors.white,
-                onPressed: onUndo,
+                onPressed: () {
+                  isSnackBarActive = false;
+                  messenger.hideCurrentSnackBar();
+                  onUndo();
+                },
               )
             : null,
       ),
     );
+
+    // Manuel timer ile kapanma - SnackBarAction duration'ı ignore ettiği için
+    Timer(duration, () {
+      if (isSnackBarActive) {
+        messenger.hideCurrentSnackBar();
+      }
+    });
   }
 
   /// Aktif SnackBar'ı gizler (sayfa değişimlerinde kullanışlı)
