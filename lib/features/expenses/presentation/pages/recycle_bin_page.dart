@@ -4,6 +4,7 @@ import 'package:cashly/core/di/injection_container.dart';
 import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
+import 'package:cashly/core/widgets/app_snackbar.dart';
 
 class CopKutusuSayfasi extends StatefulWidget {
   final String userId;
@@ -88,20 +89,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
           tumHarcamalarHam,
         );
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: ColorConstants.koyuKirmizi,
-              content: const Text(
-                "Çöp kutusu temizlendi.",
-                style: TextStyle(color: Colors.white),
-              ),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              margin: const EdgeInsets.all(12),
-            ),
-          );
+          AppSnackBar.deleted(context, 'Çöp kutusu temizlendi.');
         }
       });
     }
@@ -145,20 +133,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
     );
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            "Harcama geri yüklendi ♻️",
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.green.shade700,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.all(12),
-        ),
-      );
+      AppSnackBar.success(context, 'Harcama geri yüklendi ♻️');
     }
   }
 
@@ -169,20 +144,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
     });
     getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            "Harcama kalıcı olarak silindi 🗑️",
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: ColorConstants.koyuKirmizi,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.all(12),
-        ),
-      );
+      AppSnackBar.deleted(context, 'Harcama kalıcı olarak silindi 🗑️');
     }
   }
 

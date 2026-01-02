@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/widgets/app_snackbar.dart';
 
 import 'package:cashly/features/settings/presentation/pages/profile_page.dart';
 import 'package:cashly/core/di/injection_container.dart';
@@ -331,22 +332,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
     // Kullanıcıya verilerin güncellendiğini bildir
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Tüm veriler güncel',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-          ),
-          backgroundColor: Colors.black,
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
-          ),
-          width: 135,
-          elevation: 4,
-        ),
-      );
+      AppSnackBar.info(context, 'Tüm veriler güncel');
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/di/injection_container.dart';
 import '../../../income/domain/repositories/income_repository.dart';
 import 'package:cashly/core/utils/error_handler.dart';
+import 'package:cashly/core/widgets/app_snackbar.dart';
 import '../../data/models/income_model.dart';
 
 class GelirCopKutusuSayfasi extends StatefulWidget {
@@ -108,20 +109,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
         silinenGelirler.clear();
         kaydet();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: ColorConstants.koyuKirmizi,
-              content: const Text(
-                "Çöp kutusu temizlendi.",
-                style: TextStyle(color: Colors.white),
-              ),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              margin: const EdgeInsets.all(12),
-            ),
-          );
+          AppSnackBar.deleted(context, 'Çöp kutusu temizlendi.');
         }
       });
     }
@@ -137,20 +125,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
     });
     kaydet();
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            "Gelir geri yüklendi ♻️",
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.green.shade700,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.all(12),
-        ),
-      );
+      AppSnackBar.success(context, 'Gelir geri yüklendi ♻️');
     }
   }
 
@@ -161,20 +136,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
     });
     kaydet();
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            "Gelir kalıcı olarak silindi 🗑️",
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: ColorConstants.koyuKirmizi,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.all(12),
-        ),
-      );
+      AppSnackBar.deleted(context, 'Gelir kalıcı olarak silindi 🗑️');
     }
   }
 

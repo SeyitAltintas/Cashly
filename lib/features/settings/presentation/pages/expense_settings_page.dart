@@ -7,6 +7,7 @@ import 'package:cashly/features/expenses/presentation/pages/category_management_
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/core/utils/validators.dart';
 import 'package:cashly/core/utils/error_handler.dart';
+import 'package:cashly/core/widgets/app_snackbar.dart';
 
 import '../widgets/expense_settings/budget_section.dart';
 import '../widgets/expense_settings/recurring_expense_section.dart';
@@ -127,18 +128,10 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
       widget.userId,
       newValue,
     );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          "Varsayılan ödeme yöntemi güncellendi ✅",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.green.shade700,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(12),
-        duration: const Duration(seconds: 1),
-      ),
+    AppSnackBar.success(
+      context,
+      'Varsayılan ödeme yöntemi güncellendi ✅',
+      duration: const Duration(seconds: 1),
     );
   }
 

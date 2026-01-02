@@ -137,20 +137,9 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           widget.onGelirlerChanged(widget.tumGelirler);
 
           // Bildirim göster
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '$name eklendi: ${amount.toStringAsFixed(0)} ₺',
-                style: const TextStyle(color: Colors.white),
-              ),
-              backgroundColor: Colors.green.shade700,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              margin: const EdgeInsets.all(12),
-              duration: const Duration(seconds: 2),
-            ),
+          AppSnackBar.success(
+            context,
+            '$name eklendi: ${amount.toStringAsFixed(0)} ₺',
           );
         },
       ),
@@ -338,19 +327,9 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           widget.onGelirlerChanged(widget.tumGelirler);
           widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Gelir eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
-                style: const TextStyle(color: Colors.white),
-              ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              margin: const EdgeInsets.all(12),
-            ),
+          AppSnackBar.success(
+            context,
+            'Gelir eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
           );
         },
       ),
