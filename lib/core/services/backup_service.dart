@@ -18,7 +18,7 @@ import '../../features/streak/data/models/streak_model.dart';
 
 /// Veri Yedekleme ve Geri Yükleme Servisi
 /// Hive verilerini JSON olarak dışa/içe aktarır
-/// Versiyon 1.2: Seri verileri ve Haptic Kutlama ayarı eklendi
+/// Versiyon 1.3: Transfer modelinde yeni alanlar (isScheduled, isExecuted, isFailed) eklendi
 class BackupService {
   BackupService._();
 
@@ -41,7 +41,7 @@ class BackupService {
 
       // Tüm verileri topla
       final data = {
-        'version': '1.2',
+        'version': '1.3',
         'exportDate': DateTime.now().toIso8601String(),
         'userId': userId,
         'data': {
@@ -157,7 +157,10 @@ class BackupService {
 
       // Versiyon kontrolü (1.0, 1.1 ve 1.2 desteklenir)
       final version = data['version'] as String?;
-      if (version != '1.0' && version != '1.1' && version != '1.2') {
+      if (version != '1.0' &&
+          version != '1.1' &&
+          version != '1.2' &&
+          version != '1.3') {
         return BackupResult(
           success: false,
           message: 'Desteklenmeyen yedek versiyonu',
