@@ -4,17 +4,20 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../data/models/payment_method_model.dart';
+import '../../data/models/transfer_model.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/services/haptic_service.dart';
 
 class TransferPage extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
+  final List<Transfer> transfers;
   final Function(String fromId, String toId, double amount, DateTime date)
   onTransfer;
 
   const TransferPage({
     super.key,
     required this.paymentMethods,
+    required this.transfers,
     required this.onTransfer,
   });
 
@@ -206,6 +209,12 @@ class _TransferPageState extends State<TransferPage> {
 
               // 6. Başarı Mesajı
               if (_successMessage != null) _buildSuccessMessage(isDark),
+
+              const SizedBox(height: 40),
+
+              // 7. İşlem Geçmişi
+              if (widget.transfers.isNotEmpty)
+                _buildTransferHistory(textColor, isDark),
             ],
           ),
         ),
@@ -583,6 +592,236 @@ class _TransferPageState extends State<TransferPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// İşlem geçmişi bölümü
+  Widget _buildTransferHistory(Color textColor, bool isDark) {
+    // En son 10 transfer
+    final recentTransfers = widget.transfers.take(10).toList();
+
+    // Bekleyen, başarısız ve tamamlanan transferleri ayır
+    final pendingTransfers = recentTransfers
+        .where((t) => t.isScheduled && !t.isExecuted && !t.isFailed)
+        .toList();
+    final failedTransfers = recentTransfers.where((t) => t.isFailed).toList();
+    final completedTransfers = recentTransfers
+        .where((t) => t.isExecuted && !t.isFailed)
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Başlık
+        Row(
+          children: [
+            Icon(
+              Icons.history_rounded,
+              size: 20,
+              color: textColor.withValues(alpha: 0.6),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'İşlem Geçmişi',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Bekleyen transferler
+        if (pendingTransfers.isNotEmpty) ...[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.orange.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '⏳ Bekleyen (${pendingTransfers.length})',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.orange.shade700,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...pendingTransfers.map(
+            (t) => _buildTransferItem(t, textColor, isDark, status: 'pending'),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // Başarısız transferler
+        if (failedTransfers.isNotEmpty) ...[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.red.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '✗ Başarısız (${failedTransfers.length})',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.red.shade700,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...failedTransfers.map(
+            (t) => _buildTransferItem(t, textColor, isDark, status: 'failed'),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // Tamamlanan transferler
+        if (completedTransfers.isNotEmpty) ...[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.green.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '✓ Tamamlanan (${completedTransfers.length})',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.green.shade700,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...completedTransfers.map(
+            (t) =>
+                _buildTransferItem(t, textColor, isDark, status: 'completed'),
+          ),
+        ],
+
+        // Boş durum
+        if (recentTransfers.isEmpty)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                'Henüz transfer işlemi yok',
+                style: TextStyle(
+                  color: textColor.withValues(alpha: 0.5),
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// Tekil transfer öğesi
+  /// status: 'pending', 'failed', 'completed'
+  Widget _buildTransferItem(
+    Transfer transfer,
+    Color textColor,
+    bool isDark, {
+    required String status,
+  }) {
+    // Hesap isimlerini bul
+    String fromName = 'Bilinmeyen';
+    String toName = 'Bilinmeyen';
+
+    for (var pm in widget.paymentMethods) {
+      if (pm.id == transfer.fromAccountId) fromName = pm.name;
+      if (pm.id == transfer.toAccountId) toName = pm.name;
+    }
+
+    // Status'a göre renk ve ikon belirle
+    Color accentColor;
+    IconData statusIcon;
+    switch (status) {
+      case 'pending':
+        accentColor = Colors.orange;
+        statusIcon = Icons.schedule_rounded;
+        break;
+      case 'failed':
+        accentColor = Colors.red;
+        statusIcon = Icons.error_outline_rounded;
+        break;
+      default:
+        accentColor = _primaryColor;
+        statusIcon = Icons.check_rounded;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDark
+            ? accentColor.withValues(alpha: 0.08)
+            : accentColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: accentColor.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          // İkon
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(statusIcon, size: 16, color: accentColor),
+          ),
+          const SizedBox(width: 12),
+
+          // İçerik
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Hesaplar
+                Text(
+                  '$fromName → $toName',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                // Tarih veya hata mesajı
+                Text(
+                  status == 'failed' && transfer.failureReason != null
+                      ? transfer.failureReason!
+                      : DateFormat('d MMM yyyy', 'tr_TR').format(transfer.date),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: status == 'failed'
+                        ? Colors.red.shade700
+                        : textColor.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Tutar
+          Text(
+            CurrencyFormatter.format(transfer.amount),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: accentColor,
+            ),
+          ),
+        ],
       ),
     );
   }

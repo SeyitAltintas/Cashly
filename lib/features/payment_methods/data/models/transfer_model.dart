@@ -14,6 +14,12 @@ class Transfer {
   /// Zamanlanmış transfer uygulandı mı?
   final bool isExecuted;
 
+  /// Transfer başarısız mı? (yetersiz bakiye, silinmiş hesap vb.)
+  final bool isFailed;
+
+  /// Başarısızlık nedeni
+  final String? failureReason;
+
   Transfer({
     required this.id,
     required this.fromAccountId,
@@ -23,6 +29,8 @@ class Transfer {
     this.description,
     this.isScheduled = false,
     this.isExecuted = false,
+    this.isFailed = false,
+    this.failureReason,
   });
 
   /// Map'ten Transfer nesnesi oluşturur
@@ -36,6 +44,8 @@ class Transfer {
       description: map['description'],
       isScheduled: map['isScheduled'] ?? false,
       isExecuted: map['isExecuted'] ?? false,
+      isFailed: map['isFailed'] ?? false,
+      failureReason: map['failureReason'],
     );
   }
 
@@ -50,6 +60,8 @@ class Transfer {
       'description': description,
       'isScheduled': isScheduled,
       'isExecuted': isExecuted,
+      'isFailed': isFailed,
+      'failureReason': failureReason,
     };
   }
 
@@ -61,8 +73,8 @@ class Transfer {
     return !transferDate.isAfter(today);
   }
 
-  /// Bekleyen zamanlanmış transfer mi? (tarihi gelmiş ama uygulanmamış)
-  bool get isPending => isScheduled && !isExecuted && isDue;
+  /// Bekleyen zamanlanmış transfer mi? (tarihi gelmiş ama uygulanmamış ve başarısız değil)
+  bool get isPending => isScheduled && !isExecuted && !isFailed && isDue;
 
   /// Kopyalama metodu
   Transfer copyWith({
@@ -74,6 +86,8 @@ class Transfer {
     String? description,
     bool? isScheduled,
     bool? isExecuted,
+    bool? isFailed,
+    String? failureReason,
   }) {
     return Transfer(
       id: id ?? this.id,
@@ -84,6 +98,8 @@ class Transfer {
       description: description ?? this.description,
       isScheduled: isScheduled ?? this.isScheduled,
       isExecuted: isExecuted ?? this.isExecuted,
+      isFailed: isFailed ?? this.isFailed,
+      failureReason: failureReason ?? this.failureReason,
     );
   }
 }

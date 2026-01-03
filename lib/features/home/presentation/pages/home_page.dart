@@ -201,49 +201,129 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   }
 
   /// Zamanlanmış transferleri kontrol eder ve tarihi gelenleri uygular
+  /// Edge case'ler: yetersiz bakiye, silinmiş hesap
   void _zamanlanmisTransferleriKontrolEt() {
-    bool transferUygulandi = false;
+    bool transferDegisti = false;
+    List<String> basarisizTransferler = [];
 
     for (int i = 0; i < tumTransferler.length; i++) {
       final transfer = tumTransferler[i];
 
       // Bekleyen zamanlanmış transfer mi?
       if (transfer.isPending) {
-        // Bu transferi uygula
+        // Gönderen hesabı kontrol et
         final fromIndex = tumOdemeYontemleri.indexWhere(
           (pm) => pm.id == transfer.fromAccountId,
         );
-        if (fromIndex != -1) {
-          final fromPm = tumOdemeYontemleri[fromIndex];
-          double yeniBakiye = fromPm.type == 'kredi'
-              ? fromPm.balance + transfer.amount
-              : fromPm.balance - transfer.amount;
-          tumOdemeYontemleri[fromIndex] = fromPm.copyWith(balance: yeniBakiye);
-        }
 
+        // Alıcı hesabı kontrol et
         final toIndex = tumOdemeYontemleri.indexWhere(
           (pm) => pm.id == transfer.toAccountId,
         );
-        if (toIndex != -1) {
-          final toPm = tumOdemeYontemleri[toIndex];
-          double yeniBakiye = toPm.type == 'kredi'
-              ? toPm.balance - transfer.amount
-              : toPm.balance + transfer.amount;
-          tumOdemeYontemleri[toIndex] = toPm.copyWith(balance: yeniBakiye);
+
+        // Edge Case 1: Gönderen hesap silinmiş veya bulunamadı
+        if (fromIndex == -1) {
+          tumTransferler[i] = transfer.copyWith(
+            isFailed: true,
+            failureReason: 'Gönderen hesap silinmiş veya bulunamadı',
+          );
+          basarisizTransferler.add('Gönderen hesap bulunamadı');
+          transferDegisti = true;
+          continue;
         }
 
-        // Transferi uygulandı olarak işaretle
+        // Edge Case 2: Alıcı hesap silinmiş veya bulunamadı
+        if (toIndex == -1) {
+          tumTransferler[i] = transfer.copyWith(
+            isFailed: true,
+            failureReason: 'Alıcı hesap silinmiş veya bulunamadı',
+          );
+          basarisizTransferler.add('Alıcı hesap bulunamadı');
+          transferDegisti = true;
+          continue;
+        }
+
+        final fromPm = tumOdemeYontemleri[fromIndex];
+        final toPm = tumOdemeYontemleri[toIndex];
+
+        // Edge Case 3: Gönderen hesap silinmiş (isDeleted = true)
+        if (fromPm.isDeleted) {
+          tumTransferler[i] = transfer.copyWith(
+            isFailed: true,
+            failureReason: 'Gönderen hesap (${fromPm.name}) silinmiş',
+          );
+          basarisizTransferler.add('${fromPm.name} silinmiş');
+          transferDegisti = true;
+          continue;
+        }
+
+        // Edge Case 4: Alıcı hesap silinmiş (isDeleted = true)
+        if (toPm.isDeleted) {
+          tumTransferler[i] = transfer.copyWith(
+            isFailed: true,
+            failureReason: 'Alıcı hesap (${toPm.name}) silinmiş',
+          );
+          basarisizTransferler.add('${toPm.name} silinmiş');
+          transferDegisti = true;
+          continue;
+        }
+
+        // Edge Case 5: Gönderen hesapta yetersiz bakiye (banka/nakit için)
+        if (fromPm.type != 'kredi' && fromPm.balance < transfer.amount) {
+          tumTransferler[i] = transfer.copyWith(
+            isFailed: true,
+            failureReason: '${fromPm.name} hesabında yetersiz bakiye',
+          );
+          basarisizTransferler.add('${fromPm.name}: yetersiz bakiye');
+          transferDegisti = true;
+          continue;
+        }
+
+        // Edge Case 6: Alıcı kredi kartında borç yok (ödeme yapacak borç yok)
+        if (toPm.type == 'kredi' && toPm.balance <= 0) {
+          tumTransferler[i] = transfer.copyWith(
+            isFailed: true,
+            failureReason: '${toPm.name} kredi kartında ödenecek borç yok',
+          );
+          basarisizTransferler.add('${toPm.name}: borç yok');
+          transferDegisti = true;
+          continue;
+        }
+
+        // Tüm kontroller geçti - transfer uygula
+        double fromYeniBakiye = fromPm.type == 'kredi'
+            ? fromPm.balance + transfer.amount
+            : fromPm.balance - transfer.amount;
+        tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
+          balance: fromYeniBakiye,
+        );
+
+        double toYeniBakiye = toPm.type == 'kredi'
+            ? toPm.balance - transfer.amount
+            : toPm.balance + transfer.amount;
+        tumOdemeYontemleri[toIndex] = toPm.copyWith(balance: toYeniBakiye);
+
+        // Transferi başarılı olarak işaretle
         tumTransferler[i] = transfer.copyWith(isExecuted: true);
-        transferUygulandi = true;
+        transferDegisti = true;
       }
     }
 
-    if (transferUygulandi) {
+    if (transferDegisti) {
       _odemeYontemleriKaydet();
       _transferleriKaydet();
+
       // UI'ı güncelle
       if (mounted) {
         setState(() {});
+
+        // Başarısız transfer varsa kullanıcıyı bilgilendir
+        if (basarisizTransferler.isNotEmpty) {
+          AppSnackBar.warning(
+            context,
+            'Bazı zamanlanmış transferler başarısız: ${basarisizTransferler.join(", ")}',
+          );
+        }
       }
     }
   }
@@ -571,6 +651,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           paymentMethods: tumOdemeYontemleri
               .where((pm) => !pm.isDeleted)
               .toList(),
+          transfers: tumTransferler,
           onTransfer: (fromId, toId, amount, date) {
             // Tarihi kontrol et - bugün mü yoksa ileri tarih mi?
             final now = DateTime.now();

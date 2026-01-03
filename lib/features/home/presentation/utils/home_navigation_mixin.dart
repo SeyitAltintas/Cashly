@@ -210,39 +210,47 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
           paymentMethods: tumOdemeYontemleri
               .where((pm) => !pm.isDeleted)
               .toList(),
+          transfers: tumTransferler,
           onTransfer: (fromId, toId, amount, date) {
-            setState(() {
-              // Gönderen hesap
-              final fromIndex = tumOdemeYontemleri.indexWhere(
-                (pm) => pm.id == fromId,
-              );
-              if (fromIndex != -1) {
-                final fromPm = tumOdemeYontemleri[fromIndex];
-                double yeniBakiye = fromPm.type == 'kredi'
-                    ? fromPm.balance + amount
-                    : fromPm.balance - amount;
-                tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
-                  balance: yeniBakiye,
-                );
-              }
+            // Tarihi kontrol et - bugün mü yoksa ileri tarih mi?
+            final now = DateTime.now();
+            final today = DateTime(now.year, now.month, now.day);
+            final transferDate = DateTime(date.year, date.month, date.day);
+            final isScheduled = transferDate.isAfter(today);
 
-              // Alan hesap
-              final toIndex = tumOdemeYontemleri.indexWhere(
-                (pm) => pm.id == toId,
-              );
-              if (toIndex != -1) {
-                final toPm = tumOdemeYontemleri[toIndex];
-                double yeniBakiye = toPm.type == 'kredi'
-                    ? toPm.balance - amount
-                    : toPm.balance + amount;
-                tumOdemeYontemleri[toIndex] = toPm.copyWith(
-                  balance: yeniBakiye,
+            if (!isScheduled) {
+              setState(() {
+                // Gönderen hesap
+                final fromIndex = tumOdemeYontemleri.indexWhere(
+                  (pm) => pm.id == fromId,
                 );
-              }
-            });
-            odemeYontemleriKaydet();
+                if (fromIndex != -1) {
+                  final fromPm = tumOdemeYontemleri[fromIndex];
+                  double yeniBakiye = fromPm.type == 'kredi'
+                      ? fromPm.balance + amount
+                      : fromPm.balance - amount;
+                  tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
+                    balance: yeniBakiye,
+                  );
+                }
 
-            // Transfer kaydı - Bu kısım mixin dışında ele alınmalı
+                // Alan hesap
+                final toIndex = tumOdemeYontemleri.indexWhere(
+                  (pm) => pm.id == toId,
+                );
+                if (toIndex != -1) {
+                  final toPm = tumOdemeYontemleri[toIndex];
+                  double yeniBakiye = toPm.type == 'kredi'
+                      ? toPm.balance - amount
+                      : toPm.balance + amount;
+                  tumOdemeYontemleri[toIndex] = toPm.copyWith(
+                    balance: yeniBakiye,
+                  );
+                }
+              });
+              odemeYontemleriKaydet();
+            }
+
             transferleriKaydet();
           },
         ),
