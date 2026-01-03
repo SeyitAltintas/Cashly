@@ -49,16 +49,25 @@ class _TransferPageState extends State<TransferPage> {
     _paymentMethods = widget.paymentMethods.map((pm) => pm.copyWith()).toList();
   }
 
-  /// Seçilen tarih ileri tarih mi?
+  /// Seçilen tarih ve saat şu andan ileri mi?
   bool get _isScheduled {
     final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final selected = DateTime(
+    // Dakika hassasiyetinde karşılaştırma (saniye ve milisaniyeyi sıfırla)
+    final nowMinutes = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      now.hour,
+      now.minute,
+    );
+    final selectedMinutes = DateTime(
       _selectedDate.year,
       _selectedDate.month,
       _selectedDate.day,
+      _selectedDate.hour,
+      _selectedDate.minute,
     );
-    return selected.isAfter(today);
+    return selectedMinutes.isAfter(nowMinutes);
   }
 
   // İşlem geçmişi için ScrollController
@@ -176,14 +185,18 @@ class _TransferPageState extends State<TransferPage> {
       // Zamanlanmış transfer için farklı mesaj
       if (_isScheduled) {
         final formattedDate = DateFormat(
-          'd MMMM yyyy',
+          'd MMMM yyyy HH:mm',
           'tr_TR',
         ).format(_selectedDate);
         _successMessage =
             "$fromAccountName ➔ $toAccountName\n$formattedAmount $formattedDate tarihinde transfer edilmek üzere zamanlandı.";
       } else {
+        final formattedTime = DateFormat(
+          'HH:mm',
+          'tr_TR',
+        ).format(_selectedDate);
         _successMessage =
-            "$fromAccountName ➔ $toAccountName\n$formattedAmount başarıyla transfer edildi.";
+            "$fromAccountName ➔ $toAccountName\n$formattedAmount saat $formattedTime'de başarıyla transfer edildi.";
       }
 
       // Formu sıfırla
@@ -218,12 +231,12 @@ class _TransferPageState extends State<TransferPage> {
   Future<void> _pickDate() async {
     HapticService.lightImpact();
 
-    // MonthYearPicker kullanımı (Artık tam tarih seçimi)
+    // MonthYearPicker kullanımı (Tarih ve Saat seçimi)
     final DateTime? picked = await MonthYearPicker.show(
       context,
       initialDate: _selectedDate,
       accentColor: _primaryColor,
-      mode: PickerMode.date,
+      mode: PickerMode.dateTime,
       minimumDate: DateTime(2026, 1, 1), // 2026 Öncesi görünmemeli
     );
 
@@ -684,9 +697,9 @@ class _TransferPageState extends State<TransferPage> {
                 color: textColor.withValues(alpha: 0.6),
               ),
               const SizedBox(width: 8),
-              // Sadece Ay ve Yıl gösterimi
+              // Tarih ve saat gösterimi
               Text(
-                DateFormat('MMMM yyyy', 'tr_TR').format(_selectedDate),
+                DateFormat('d MMM yyyy • HH:mm', 'tr_TR').format(_selectedDate),
                 style: TextStyle(
                   color: textColor.withValues(alpha: 0.8),
                   fontSize: 14,
@@ -715,7 +728,7 @@ class _TransferPageState extends State<TransferPage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Bu transfer ${DateFormat('d MMMM yyyy', 'tr_TR').format(_selectedDate)} tarihinde gerçekleştirilecek.',
+              'Bu transfer ${DateFormat('d MMMM yyyy', 'tr_TR').format(_selectedDate)} saat ${DateFormat('HH:mm', 'tr_TR').format(_selectedDate)}\'de gerçekleştirilecek.',
               style: TextStyle(
                 color: isDark ? Colors.orange.shade300 : Colors.orange.shade800,
                 fontSize: 13,
@@ -883,11 +896,14 @@ class _TransferPageState extends State<TransferPage> {
                   ),
                 ),
                 const SizedBox(height: 2),
-                // Tarih veya hata mesajı
+                // Tarih, saat veya hata mesajı
                 Text(
                   status == 'failed' && transfer.failureReason != null
                       ? transfer.failureReason!
-                      : DateFormat('d MMM yyyy', 'tr_TR').format(transfer.date),
+                      : DateFormat(
+                          'd MMM yyyy • HH:mm',
+                          'tr_TR',
+                        ).format(transfer.date),
                   style: TextStyle(
                     fontSize: 12,
                     color: status == 'failed'

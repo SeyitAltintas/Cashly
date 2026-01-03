@@ -2,6 +2,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Vanlı",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "4837c5a9",
+            "cwd": "${workspaceFolder}"
+        },
+        {
             "name": "Redmi Note 10 Pro",
             "request": "launch",
             "type": "dart",
@@ -23,6 +31,14 @@
             "type": "dart",
             "program": "lib/main.dart",
             "deviceId": "R58M62S4AYR",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "cashly (Emulator)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "emulator-5554",
             "cwd": "${workspaceFolder}"
         }
     ]
