@@ -1,10 +1,27 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/foundation.dart';
 
+// Repository imports - geriye dönük uyumluluk için
+import '../repositories/expense_repository.dart';
+import '../repositories/income_repository.dart';
+import '../repositories/asset_repository.dart';
+import '../repositories/payment_method_repository.dart';
+
+/// Veritabanı Yardımcı Sınıfı
+///
+/// Bu sınıf artık sadece temel Hive işlemlerini ve
+/// geriye dönük uyumluluk için repository delegasyonlarını içerir.
+///
+/// Yeni kod için doğrudan repository sınıflarını kullanın:
+/// - [ExpenseRepository] - Harcama işlemleri
+/// - [IncomeRepository] - Gelir işlemleri
+/// - [AssetRepository] - Varlık işlemleri
+/// - [PaymentMethodRepository] - Ödeme yöntemi işlemleri
 class DatabaseHelper {
   static const String _boxName = 'cashly_box';
   static Box get _box => Hive.box(_boxName);
 
+  /// Veritabanını başlatır
   static Future<void> baslat() async {
     try {
       await Hive.initFlutter();
@@ -15,186 +32,126 @@ class DatabaseHelper {
     }
   }
 
-  // --- HARCAMA İŞLEMLERİ ---
-  static List<Map<String, dynamic>> harcamalariGetir(String userId) {
-    try {
-      final veri = _box.get('harcamalar_$userId', defaultValue: []);
-      return List<Map<String, dynamic>>.from(
-        veri.map((e) => Map<String, dynamic>.from(e)),
-      );
-    } catch (e) {
-      debugPrint('Error getting expenses: $e');
-      return [];
-    }
-  }
+  // ============================================================
+  // GERIYE DÖNÜK UYUMLULUK - Repository Delegasyonları
+  // Bu metodlar eski kodun çalışmaya devam etmesi için korundu.
+  // Yeni kod için doğrudan repository sınıflarını kullanın.
+  // ============================================================
+
+  // --- HARCAMA İŞLEMLERİ (ExpenseRepository'ye delege) ---
+  static List<Map<String, dynamic>> get defaultKategoriler =>
+      ExpenseRepository.defaultKategoriler;
+
+  static List<Map<String, dynamic>> harcamalariGetir(String userId) =>
+      ExpenseRepository.harcamalariGetir(userId);
 
   static Future<void> harcamalariKaydet(
     String userId,
     List<Map<String, dynamic>> harcamalar,
-  ) async {
-    try {
-      await _box.put('harcamalar_$userId', harcamalar);
-    } catch (e) {
-      debugPrint('Error saving expenses: $e');
-      rethrow;
-    }
-  }
+  ) => ExpenseRepository.harcamalariKaydet(userId, harcamalar);
 
-  // --- BÜTÇE AYARLARI ---
-  static double butceGetir(String userId) {
-    try {
-      return _box.get('butce_limiti_$userId', defaultValue: 8000.0);
-    } catch (e) {
-      debugPrint('Error getting budget: $e');
-      return 8000.0;
-    }
-  }
+  static double butceGetir(String userId) =>
+      ExpenseRepository.butceGetir(userId);
 
-  static Future<void> butceKaydet(String userId, double yeniLimit) async {
-    try {
-      await _box.put('butce_limiti_$userId', yeniLimit);
-    } catch (e) {
-      debugPrint('Error saving budget: $e');
-      rethrow;
-    }
-  }
+  static Future<void> butceKaydet(String userId, double yeniLimit) =>
+      ExpenseRepository.butceKaydet(userId, yeniLimit);
 
-  // --- SABİT GİDER ŞABLONLARI ---
-  static List<Map<String, dynamic>> sabitGiderSablonlariGetir(String userId) {
-    try {
-      final veri = _box.get('sabit_gider_sablonlari_$userId', defaultValue: []);
-      return List<Map<String, dynamic>>.from(
-        veri.map((e) => Map<String, dynamic>.from(e)),
-      );
-    } catch (e) {
-      debugPrint('Error getting fixed expenses: $e');
-      return [];
-    }
-  }
+  static List<Map<String, dynamic>> sabitGiderSablonlariGetir(String userId) =>
+      ExpenseRepository.sabitGiderSablonlariGetir(userId);
 
   static Future<void> sabitGiderSablonlariKaydet(
     String userId,
     List<Map<String, dynamic>> sablonlar,
-  ) async {
-    try {
-      await _box.put('sabit_gider_sablonlari_$userId', sablonlar);
-    } catch (e) {
-      debugPrint('Error saving fixed expenses: $e');
-      rethrow;
-    }
-  }
+  ) => ExpenseRepository.sabitGiderSablonlariKaydet(userId, sablonlar);
 
-  // --- KATEGORİ YÖNETİMİ ---
-  static List<Map<String, dynamic>> get defaultKategoriler => [
-    {'isim': 'Yemek & Kafe', 'ikon': 'restaurant'},
-    {'isim': 'Market & Atıştırmalık', 'ikon': 'shopping_basket'},
-    {'isim': 'Araç & Ulaşım', 'ikon': 'two_wheeler'},
-    {'isim': 'Hediye & Özel', 'ikon': 'card_giftcard'},
-    {'isim': 'Sabit Giderler', 'ikon': 'credit_card'},
-    {'isim': 'Diğer', 'ikon': 'category'},
-  ];
-
-  static List<Map<String, dynamic>> kategorileriGetir(String userId) {
-    try {
-      final veri = _box.get('kategoriler_$userId', defaultValue: null);
-      if (veri == null) {
-        kategorileriKaydet(userId, defaultKategoriler);
-        return defaultKategoriler;
-      }
-      return List<Map<String, dynamic>>.from(
-        veri.map((e) => Map<String, dynamic>.from(e)),
-      );
-    } catch (e) {
-      debugPrint('Error getting categories: $e');
-      return defaultKategoriler;
-    }
-  }
+  static List<Map<String, dynamic>> kategorileriGetir(String userId) =>
+      ExpenseRepository.kategorileriGetir(userId);
 
   static Future<void> kategorileriKaydet(
     String userId,
     List<Map<String, dynamic>> kategoriler,
-  ) async {
-    try {
-      await _box.put('kategoriler_$userId', kategoriler);
-    } catch (e) {
-      debugPrint('Error saving categories: $e');
-      rethrow;
-    }
-  }
+  ) => ExpenseRepository.kategorileriKaydet(userId, kategoriler);
 
-  // --- VARLIK YÖNETİMİ ---
-  /// Kullanıcının varlıklarını getirir
-  static List<Map<String, dynamic>> varliklariGetir(String userId) {
-    try {
-      final veri = _box.get('varliklar_$userId', defaultValue: []);
-      return List<Map<String, dynamic>>.from(
-        veri.map((e) => Map<String, dynamic>.from(e)),
-      );
-    } catch (e) {
-      debugPrint('Varlıklar getirilirken hata: $e');
-      return [];
-    }
-  }
+  // --- GELİR İŞLEMLERİ (IncomeRepository'ye delege) ---
+  static List<Map<String, dynamic>> get defaultGelirKategorileri =>
+      IncomeRepository.defaultGelirKategorileri;
 
-  /// Kullanıcının varlıklarını kaydeder
+  static List<Map<String, dynamic>> gelirleriGetir(String userId) =>
+      IncomeRepository.gelirleriGetir(userId);
+
+  static Future<void> gelirleriKaydet(
+    String userId,
+    List<Map<String, dynamic>> gelirler,
+  ) => IncomeRepository.gelirleriKaydet(userId, gelirler);
+
+  static List<Map<String, dynamic>> gelirKategorileriGetir(String userId) =>
+      IncomeRepository.gelirKategorileriGetir(userId);
+
+  static Future<void> gelirKategorileriKaydet(
+    String userId,
+    List<Map<String, dynamic>> kategoriler,
+  ) => IncomeRepository.gelirKategorileriKaydet(userId, kategoriler);
+
+  static List<Map<String, dynamic>> tekrarlayanGelirleriGetir(String userId) =>
+      IncomeRepository.tekrarlayanGelirleriGetir(userId);
+
+  static Future<void> tekrarlayanGelirleriKaydet(
+    String userId,
+    List<Map<String, dynamic>> gelirler,
+  ) => IncomeRepository.tekrarlayanGelirleriKaydet(userId, gelirler);
+
+  // --- VARLIK İŞLEMLERİ (AssetRepository'ye delege) ---
+  static List<Map<String, dynamic>> varliklariGetir(String userId) =>
+      AssetRepository.varliklariGetir(userId);
+
   static Future<void> varliklariKaydet(
     String userId,
     List<Map<String, dynamic>> varliklar,
-  ) async {
-    try {
-      await _box.put('varliklar_$userId', varliklar);
-    } catch (e) {
-      debugPrint('Varlıklar kaydedilirken hata: $e');
-      rethrow;
-    }
-  }
+  ) => AssetRepository.varliklariKaydet(userId, varliklar);
 
-  // --- KULLANICI VERİLERİNİ SİLME ---
-  /// Kullanıcıya ait tüm verileri siler
-  /// Bu fonksiyon hesap silme işleminde çağrılır
-  static Future<void> deleteUserData(String userId) async {
-    try {
-      // Harcama verileri
-      await _box.delete('harcamalar_$userId');
+  // --- ÖDEME YÖNTEMİ İŞLEMLERİ (PaymentMethodRepository'ye delege) ---
+  static List<Map<String, dynamic>> get defaultOdemeYontemleri =>
+      PaymentMethodRepository.defaultOdemeYontemleri;
 
-      // Bütçe ayarları
-      await _box.delete('butce_limiti_$userId');
+  static List<Map<String, dynamic>> odemeYontemleriGetir(String userId) =>
+      PaymentMethodRepository.odemeYontemleriGetir(userId);
 
-      // Sabit gider şablonları (tekrarlayan işlemler)
-      await _box.delete('sabit_gider_sablonlari_$userId');
+  static Future<void> odemeYontemleriKaydet(
+    String userId,
+    List<Map<String, dynamic>> yontemler,
+  ) => PaymentMethodRepository.odemeYontemleriKaydet(userId, yontemler);
 
-      // Kullanıcı kategorileri
-      await _box.delete('kategoriler_$userId');
+  static List<Map<String, dynamic>> silinenOdemeYontemleriGetir(
+    String userId,
+  ) => PaymentMethodRepository.silinenOdemeYontemleriGetir(userId);
 
-      // Varlıklar (assets)
-      await _box.delete('varliklar_$userId');
-      await _box.delete('silinen_varliklar_$userId');
+  static Future<void> silinenOdemeYontemleriKaydet(
+    String userId,
+    List<Map<String, dynamic>> yontemler,
+  ) => PaymentMethodRepository.silinenOdemeYontemleriKaydet(userId, yontemler);
 
-      // Ödeme yöntemleri
-      await _box.delete('odeme_yontemleri_$userId');
-      await _box.delete('silinen_odeme_yontemleri_$userId');
+  static String? varsayilanOdemeYontemiGetir(String userId) =>
+      PaymentMethodRepository.varsayilanOdemeYontemiGetir(userId);
 
-      // Gelirler
-      await _box.delete('gelirler_$userId');
+  static Future<void> varsayilanOdemeYontemiKaydet(
+    String userId,
+    String? paymentMethodId,
+  ) => PaymentMethodRepository.varsayilanOdemeYontemiKaydet(
+    userId,
+    paymentMethodId,
+  );
 
-      // Gelir kategorileri
-      await _box.delete('gelir_kategorileri_$userId');
+  static List<Map<String, dynamic>> transferleriGetir(String userId) =>
+      PaymentMethodRepository.transferleriGetir(userId);
 
-      // Varsayılan ödeme yöntemi
-      await _box.delete('varsayilan_odeme_$userId');
+  static Future<void> transferleriKaydet(
+    String userId,
+    List<Map<String, dynamic>> transferler,
+  ) => PaymentMethodRepository.transferleriKaydet(userId, transferler);
 
-      // Transferler
-      await _box.delete('transferler_$userId');
-
-      // Tekrarlayan gelirler
-      await _box.delete('tekrarlayan_gelirler_$userId');
-
-      debugPrint('✓ Tüm kullanıcı verileri silindi: $userId');
-    } catch (e) {
-      debugPrint('Kullanıcı verileri silinirken hata: $e');
-      rethrow;
-    }
-  }
+  // ============================================================
+  // SADECE DatabaseHelper'DA KALAN İŞLEMLER
+  // ============================================================
 
   // --- SESLİ GERİ BİLDİRİM AYARI ---
   /// Sesli geri bildirim ayarını kontrol eder
@@ -203,7 +160,7 @@ class DatabaseHelper {
       return _box.get('sesli_geri_bildirim_$userId', defaultValue: true);
     } catch (e) {
       debugPrint('Error getting voice feedback setting: $e');
-      return true; // Varsayılan olarak açık
+      return true;
     }
   }
 
@@ -217,225 +174,38 @@ class DatabaseHelper {
     }
   }
 
-  // --- GELİR İŞLEMLERİ ---
-  /// Varsayılan gelir kategorileri
-  static List<Map<String, dynamic>> get defaultGelirKategorileri => [
-    {'isim': 'Maaş', 'ikon': 'work'},
-    {'isim': 'Freelance', 'ikon': 'laptop'},
-    {'isim': 'Yatırım', 'ikon': 'trending_up'},
-    {'isim': 'Kira Geliri', 'ikon': 'home'},
-    {'isim': 'Hediye', 'ikon': 'card_giftcard'},
-    {'isim': 'Diğer', 'ikon': 'category'},
-  ];
-
-  /// Kullanıcının gelirlerini getirir
-  static List<Map<String, dynamic>> gelirleriGetir(String userId) {
+  // --- KULLANICI VERİLERİNİ SİLME ---
+  /// Kullanıcıya ait tüm verileri siler
+  /// Bu fonksiyon hesap silme işleminde çağrılır
+  static Future<void> deleteUserData(String userId) async {
     try {
-      final veri = _box.get('gelirler_$userId', defaultValue: []);
-      return List<Map<String, dynamic>>.from(
-        veri.map((e) => Map<String, dynamic>.from(e)),
-      );
-    } catch (e) {
-      debugPrint('Gelirler getirilirken hata: $e');
-      return [];
-    }
-  }
+      // Harcama verileri
+      await _box.delete('harcamalar_$userId');
+      await _box.delete('butce_limiti_$userId');
+      await _box.delete('sabit_gider_sablonlari_$userId');
+      await _box.delete('kategoriler_$userId');
 
-  /// Kullanıcının gelirlerini kaydeder
-  static Future<void> gelirleriKaydet(
-    String userId,
-    List<Map<String, dynamic>> gelirler,
-  ) async {
-    try {
-      await _box.put('gelirler_$userId', gelirler);
-    } catch (e) {
-      debugPrint('Gelirler kaydedilirken hata: $e');
-      rethrow;
-    }
-  }
+      // Varlıklar
+      await _box.delete('varliklar_$userId');
+      await _box.delete('silinen_varliklar_$userId');
 
-  /// Gelir kategorilerini getirir
-  static List<Map<String, dynamic>> gelirKategorileriGetir(String userId) {
-    try {
-      final veri = _box.get('gelir_kategorileri_$userId', defaultValue: null);
-      if (veri == null) {
-        gelirKategorileriKaydet(userId, defaultGelirKategorileri);
-        return defaultGelirKategorileri;
-      }
-      return List<Map<String, dynamic>>.from(
-        veri.map((e) => Map<String, dynamic>.from(e)),
-      );
-    } catch (e) {
-      debugPrint('Gelir kategorileri getirilirken hata: $e');
-      return defaultGelirKategorileri;
-    }
-  }
+      // Ödeme yöntemleri
+      await _box.delete('odeme_yontemleri_$userId');
+      await _box.delete('silinen_odeme_yontemleri_$userId');
+      await _box.delete('varsayilan_odeme_yontemi_$userId');
+      await _box.delete('transferler_$userId');
 
-  /// Gelir kategorilerini kaydeder
-  static Future<void> gelirKategorileriKaydet(
-    String userId,
-    List<Map<String, dynamic>> kategoriler,
-  ) async {
-    try {
-      await _box.put('gelir_kategorileri_$userId', kategoriler);
-    } catch (e) {
-      debugPrint('Gelir kategorileri kaydedilirken hata: $e');
-      rethrow;
-    }
-  }
+      // Gelirler
+      await _box.delete('gelirler_$userId');
+      await _box.delete('gelir_kategorileri_$userId');
+      await _box.delete('tekrarlayan_gelirler_$userId');
 
-  // --- ÖDEME YÖNTEMLERİ ---
-  /// Varsayılan ödeme yöntemleri
-  static List<Map<String, dynamic>> get defaultOdemeYontemleri => [
-    {
-      'id': 'nakit_default',
-      'name': 'Nakit',
-      'type': 'nakit',
-      'lastFourDigits': null,
-      'balance': 0.0,
-      'limit': null,
-      'colorIndex': 0,
-      'createdAt': DateTime.now().toIso8601String(),
-      'isDeleted': false,
-    },
-  ];
+      // Ayarlar
+      await _box.delete('sesli_geri_bildirim_$userId');
 
-  /// Kullanıcının ödeme yöntemlerini getirir
-  static List<Map<String, dynamic>> odemeYontemleriGetir(String userId) {
-    try {
-      final veri = _box.get('odeme_yontemleri_$userId', defaultValue: null);
-      if (veri == null) {
-        odemeYontemleriKaydet(userId, defaultOdemeYontemleri);
-        return defaultOdemeYontemleri;
-      }
-      return List<Map<String, dynamic>>.from(
-        veri.map((e) => Map<String, dynamic>.from(e)),
-      );
+      debugPrint('✓ Tüm kullanıcı verileri silindi: $userId');
     } catch (e) {
-      debugPrint('Ödeme yöntemleri getirilirken hata: $e');
-      return defaultOdemeYontemleri;
-    }
-  }
-
-  /// Kullanıcının ödeme yöntemlerini kaydeder
-  static Future<void> odemeYontemleriKaydet(
-    String userId,
-    List<Map<String, dynamic>> yontemler,
-  ) async {
-    try {
-      await _box.put('odeme_yontemleri_$userId', yontemler);
-    } catch (e) {
-      debugPrint('Ödeme yöntemleri kaydedilirken hata: $e');
-      rethrow;
-    }
-  }
-
-  /// Silinen ödeme yöntemlerini getirir
-  static List<Map<String, dynamic>> silinenOdemeYontemleriGetir(String userId) {
-    try {
-      final veri = _box.get(
-        'silinen_odeme_yontemleri_$userId',
-        defaultValue: [],
-      );
-      return List<Map<String, dynamic>>.from(
-        veri.map((e) => Map<String, dynamic>.from(e)),
-      );
-    } catch (e) {
-      debugPrint('Silinen ödeme yöntemleri getirilirken hata: $e');
-      return [];
-    }
-  }
-
-  /// Silinen ödeme yöntemlerini kaydeder
-  static Future<void> silinenOdemeYontemleriKaydet(
-    String userId,
-    List<Map<String, dynamic>> yontemler,
-  ) async {
-    try {
-      await _box.put('silinen_odeme_yontemleri_$userId', yontemler);
-    } catch (e) {
-      debugPrint('Silinen ödeme yöntemleri kaydedilirken hata: $e');
-      rethrow;
-    }
-  }
-
-  /// Varsayılan ödeme yöntemini getirir
-  static String? varsayilanOdemeYontemiGetir(String userId) {
-    try {
-      return _box.get('varsayilan_odeme_yontemi_$userId');
-    } catch (e) {
-      debugPrint('Varsayılan ödeme yöntemi getirilirken hata: $e');
-      return null;
-    }
-  }
-
-  /// Varsayılan ödeme yöntemini kaydeder
-  static Future<void> varsayilanOdemeYontemiKaydet(
-    String userId,
-    String? paymentMethodId,
-  ) async {
-    try {
-      if (paymentMethodId == null) {
-        await _box.delete('varsayilan_odeme_yontemi_$userId');
-      } else {
-        await _box.put('varsayilan_odeme_yontemi_$userId', paymentMethodId);
-      }
-    } catch (e) {
-      debugPrint('Varsayılan ödeme yöntemi kaydedilirken hata: $e');
-      rethrow;
-    }
-  }
-
-  // --- TRANSFER İŞLEMLERİ ---
-  /// Kullanıcının transferlerini getirir
-  static List<Map<String, dynamic>> transferleriGetir(String userId) {
-    try {
-      final veri = _box.get('transferler_$userId', defaultValue: []);
-      return List<Map<String, dynamic>>.from(
-        veri.map((e) => Map<String, dynamic>.from(e)),
-      );
-    } catch (e) {
-      debugPrint('Error getting transfers: $e');
-      return [];
-    }
-  }
-
-  /// Kullanıcının transferlerini kaydeder
-  static Future<void> transferleriKaydet(
-    String userId,
-    List<Map<String, dynamic>> transferler,
-  ) async {
-    try {
-      await _box.put('transferler_$userId', transferler);
-    } catch (e) {
-      debugPrint('Error saving transfers: $e');
-      rethrow;
-    }
-  }
-
-  // --- TEKRARLAYAN GELİRLER ---
-  /// Kullanıcının tekrarlayan gelirlerini getirir
-  static List<Map<String, dynamic>> tekrarlayanGelirleriGetir(String userId) {
-    try {
-      final veri = _box.get('tekrarlayan_gelirler_$userId', defaultValue: []);
-      return List<Map<String, dynamic>>.from(
-        veri.map((e) => Map<String, dynamic>.from(e)),
-      );
-    } catch (e) {
-      debugPrint('Error getting recurring incomes: $e');
-      return [];
-    }
-  }
-
-  /// Kullanıcının tekrarlayan gelirlerini kaydeder
-  static Future<void> tekrarlayanGelirleriKaydet(
-    String userId,
-    List<Map<String, dynamic>> gelirler,
-  ) async {
-    try {
-      await _box.put('tekrarlayan_gelirler_$userId', gelirler);
-    } catch (e) {
-      debugPrint('Error saving recurring incomes: $e');
+      debugPrint('Kullanıcı verileri silinirken hata: $e');
       rethrow;
     }
   }
