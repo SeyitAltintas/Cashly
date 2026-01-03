@@ -256,7 +256,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
             icon: Icons.swipe_rounded,
             iconColor: Colors.purple,
             title: "Navigasyon",
-            subtitle: "Sayfa geçişlerinde",
+            subtitle: "Sayfa geçişleri ve seçici kaydırmaları",
             settingKey: HapticService.keyNavigation,
           ),
           _buildDivider(context),

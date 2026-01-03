@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../data/models/payment_method_model.dart';
@@ -489,11 +489,39 @@ class _TransferPageState extends State<TransferPage> {
               fontWeight: FontWeight.bold,
               letterSpacing: -1,
             ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
-            validator: (value) => Validators.validateAmount(value),
+            // Sadece rakam girişine izin ver
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            // Otomatik binlik ayraç ekleme
+            onChanged: (value) {
+              _formatAmountWithThousandSeparator(value);
+            },
+            validator: (value) {
+              // Edge case: Boş değer
+              if (value == null || value.isEmpty) {
+                return 'Tutar giriniz';
+              }
+              // Nokta ve virgülleri temizle
+              final cleanValue = value.replaceAll('.', '').replaceAll(',', '');
+              final amount = double.tryParse(cleanValue);
+
+              // Edge case: Geçersiz sayı
+              if (amount == null) {
+                return 'Geçerli bir tutar giriniz';
+              }
+              // Edge case: Sıfır veya negatif
+              if (amount <= 0) {
+                return 'Tutar 0\'dan büyük olmalı';
+              }
+              // Edge case: Çok büyük değer (100 milyon TL üzeri)
+              if (amount > 100000000) {
+                return 'Maksimum tutar aşıldı';
+              }
+              return null;
+            },
             decoration: InputDecoration(
-              hintText: "0.00",
+              hintText: "0",
               hintStyle: TextStyle(
                 color: textColor.withValues(alpha: 0.2),
                 fontSize: 40,
@@ -511,6 +539,62 @@ class _TransferPageState extends State<TransferPage> {
         ),
       ],
     );
+  }
+
+  /// Tutar için binlik ayraç (nokta) ekler
+  /// Edge cases: Boş değer, çok uzun sayı, önde sıfır
+  void _formatAmountWithThousandSeparator(String value) {
+    // Sadece rakamları al
+    String digitsOnly = value.replaceAll('.', '');
+
+    // Edge case: Boş değer
+    if (digitsOnly.isEmpty) {
+      return;
+    }
+
+    // Edge case: Öndeki sıfırları temizle (tek sıfır hariç)
+    digitsOnly = digitsOnly.replaceFirst(RegExp(r'^0+'), '');
+    if (digitsOnly.isEmpty) {
+      digitsOnly = '0';
+    }
+
+    // Edge case: Çok uzun sayı (12 haneden fazla engelle)
+    if (digitsOnly.length > 12) {
+      digitsOnly = digitsOnly.substring(0, 12);
+    }
+
+    // Binlik ayraç ekle
+    final formatted = _addThousandSeparators(digitsOnly);
+
+    // Cursor pozisyonunu koru
+    if (_amountController.text != formatted) {
+      final cursorPosition = _amountController.selection.baseOffset;
+      final oldLength = _amountController.text.length;
+
+      _amountController.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(
+          offset: cursorPosition + (formatted.length - oldLength),
+        ),
+      );
+    }
+  }
+
+  /// Sayıya binlik ayraç (nokta) ekler
+  String _addThousandSeparators(String value) {
+    if (value.isEmpty) return value;
+
+    final buffer = StringBuffer();
+    final length = value.length;
+
+    for (int i = 0; i < length; i++) {
+      if (i > 0 && (length - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(value[i]);
+    }
+
+    return buffer.toString();
   }
 
   Widget _buildAccountSelection(Color textColor, bool isDark) {
