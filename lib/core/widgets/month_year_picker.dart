@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../services/haptic_service.dart';
 
 /// Picker Modları
 enum PickerMode {
@@ -335,6 +336,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
             scrollController: _monthController,
             itemExtent: 40,
             onSelectedItemChanged: (index) {
+              HapticService.selectionClick();
               setState(() {
                 _selectedMonthIndex = index % 12;
               });
@@ -362,6 +364,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
             ), // 2000'den başlatarak offset
             itemExtent: 40,
             onSelectedItemChanged: (index) {
+              HapticService.selectionClick();
               setState(() {
                 _selectedYear = 2000 + index;
               });
@@ -422,6 +425,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
           maximumYear: 2100, // Max yıl 2100
           use24hFormat: true,
           onDateTimeChanged: (date) {
+            HapticService.selectionClick();
             setState(() {
               _currentDate = date;
             });
