@@ -39,6 +39,16 @@ class _TransferPageState extends State<TransferPage> {
   // İşlem sonrası mesajı
   String? _successMessage;
 
+  // Lokal ödeme yöntemleri listesi (transfer sonrası güncellenebilir)
+  late List<PaymentMethod> _paymentMethods;
+
+  @override
+  void initState() {
+    super.initState();
+    // Widget'tan kopyala (derin kopya)
+    _paymentMethods = widget.paymentMethods.map((pm) => pm.copyWith()).toList();
+  }
+
   /// Seçilen tarih ileri tarih mi?
   bool get _isScheduled {
     final now = DateTime.now();
@@ -51,9 +61,13 @@ class _TransferPageState extends State<TransferPage> {
     return selected.isAfter(today);
   }
 
+  // İşlem geçmişi için ScrollController
+  final ScrollController _historyScrollController = ScrollController();
+
   @override
   void dispose() {
     _amountController.dispose();
+    _historyScrollController.dispose();
     super.dispose();
   }
 
@@ -91,10 +105,9 @@ class _TransferPageState extends State<TransferPage> {
       return;
     }
 
-    // Hedef hesap kredi kartıysa, borç kontrolü
-    final toAccount = widget.paymentMethods.firstWhere(
-      (pm) => pm.id == _toAccountId,
-    );
+    // Hedef hesap kredi kartıysa, borç kontrolü (lokal listeden)
+    final toIndex = _paymentMethods.indexWhere((pm) => pm.id == _toAccountId);
+    final toAccount = _paymentMethods[toIndex];
 
     if (toAccount.type == 'kredi') {
       final borcMiktari = toAccount.balance;
@@ -118,27 +131,88 @@ class _TransferPageState extends State<TransferPage> {
       }
     }
 
-    // Transfer işlemini gerçekleştir
+    // Gönderen hesabı bul
+    final fromIndex = _paymentMethods.indexWhere(
+      (pm) => pm.id == _fromAccountId,
+    );
+    final fromAccount = _paymentMethods[fromIndex];
+
+    // Transfer işlemini gerçekleştir (callback)
     widget.onTransfer(_fromAccountId!, _toAccountId!, amount, _selectedDate);
 
+    // Lokal bakiyeleri güncelle (sadece bugün veya geçmiş tarih için)
+    if (!_isScheduled) {
+      setState(() {
+        // Gönderen hesap bakiyesini güncelle
+        if (fromAccount.type == 'kredi') {
+          _paymentMethods[fromIndex] = fromAccount.copyWith(
+            balance: fromAccount.balance + amount,
+          );
+        } else {
+          _paymentMethods[fromIndex] = fromAccount.copyWith(
+            balance: fromAccount.balance - amount,
+          );
+        }
+
+        // Alan hesap bakiyesini güncelle
+        if (toAccount.type == 'kredi') {
+          _paymentMethods[toIndex] = toAccount.copyWith(
+            balance: toAccount.balance - amount,
+          );
+        } else {
+          _paymentMethods[toIndex] = toAccount.copyWith(
+            balance: toAccount.balance + amount,
+          );
+        }
+      });
+    }
+
     // Bilgi mesajı oluştur
-    final fromAccountName = widget.paymentMethods
-        .firstWhere((pm) => pm.id == _fromAccountId)
-        .name;
+    final fromAccountName = fromAccount.name;
     final toAccountName = toAccount.name;
     final formattedAmount = CurrencyFormatter.format(amount);
 
     setState(() {
-      _successMessage =
-          "$fromAccountName ➔ $toAccountName\n$formattedAmount başarıyla transfer edildi.";
-      // Tutarı temizle ki kullanıcı yanlışlıkla tekrar göndermesin
+      // Zamanlanmış transfer için farklı mesaj
+      if (_isScheduled) {
+        final formattedDate = DateFormat(
+          'd MMMM yyyy',
+          'tr_TR',
+        ).format(_selectedDate);
+        _successMessage =
+            "$fromAccountName ➔ $toAccountName\n$formattedAmount $formattedDate tarihinde transfer edilmek üzere zamanlandı.";
+      } else {
+        _successMessage =
+            "$fromAccountName ➔ $toAccountName\n$formattedAmount başarıyla transfer edildi.";
+      }
+
+      // Formu sıfırla
       _amountController.clear();
+      _fromAccountId = null;
+      _toAccountId = null;
+      _selectedDate = DateTime.now();
     });
 
     // Klavye açıksa kapat
     FocusScope.of(context).unfocus();
 
-    // Navigator.pop(context); // ARTIK SAYFA KAPANMIYOR
+    // 5 saniye sonra başarı mesajını kaldır
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted && _successMessage != null) {
+        setState(() => _successMessage = null);
+      }
+    });
+
+    // İşlem geçmişini başa kaydır (animasyonlu)
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted && _historyScrollController.hasClients) {
+        _historyScrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    });
   }
 
   Future<void> _pickDate() async {
@@ -165,7 +239,6 @@ class _TransferPageState extends State<TransferPage> {
     final textColor = Theme.of(context).colorScheme.onSurface;
 
     return Scaffold(
-      // Arka plan rengi değiştirilmedi (Theme default)
       appBar: AppBar(
         title: Text(
           "Para Transferi",
@@ -176,47 +249,183 @@ class _TransferPageState extends State<TransferPage> {
         elevation: 0,
         iconTheme: IconThemeData(color: textColor),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            // ===== SABİT ÜST KISIM =====
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 16),
 
-              // 1. Tutar Alanı (En Üstte, Odak Noktası)
-              _buildAmountField(textColor),
+                  // 1. Tutar Alanı (kompakt)
+                  _buildAmountField(textColor),
 
-              const SizedBox(height: 40),
+                  const SizedBox(height: 24),
 
-              // 2. Hesap Seçimi (Dikey Akış)
-              _buildAccountSelection(textColor, isDark),
+                  // 2. Hesap Seçimi
+                  _buildAccountSelection(textColor, isDark),
 
-              const SizedBox(height: 40),
+                  const SizedBox(height: 20),
 
-              // 3. Tarih Seçimi
-              _buildDateSelector(textColor, isDark),
+                  // 3. Tarih Seçimi
+                  _buildDateSelector(textColor, isDark),
 
-              const SizedBox(height: 50),
+                  const SizedBox(height: 16),
 
-              // 4. İleri Tarih Bilgisi
-              if (_isScheduled) _buildScheduledInfo(textColor, isDark),
+                  // 4. İleri Tarih Bilgisi
+                  if (_isScheduled) ...[
+                    _buildScheduledInfo(textColor, isDark),
+                    const SizedBox(height: 12),
+                  ],
 
-              const SizedBox(height: 16),
+                  // 5. Aksiyon Butonu
+                  _buildActionButton(),
 
-              // 5. Aksiyon Butonu
-              _buildActionButton(),
+                  // 6. Başarı Mesajı
+                  if (_successMessage != null) _buildSuccessMessage(isDark),
+                ],
+              ),
+            ),
 
-              // 6. Başarı Mesajı
-              if (_successMessage != null) _buildSuccessMessage(isDark),
+            const SizedBox(height: 16),
 
-              const SizedBox(height: 40),
+            // Ayırıcı çizgi
+            if (widget.transfers.isNotEmpty)
+              Divider(
+                color: textColor.withValues(alpha: 0.1),
+                thickness: 1,
+                height: 1,
+              ),
 
-              // 7. İşlem Geçmişi
-              if (widget.transfers.isNotEmpty)
-                _buildTransferHistory(textColor, isDark),
-            ],
+            // ===== KAYDIRILAB İLİR İŞLEM GEÇMİŞİ =====
+            if (widget.transfers.isNotEmpty)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: _buildScrollableTransferHistory(textColor, isDark),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Kaydırılabilir işlem geçmişi
+  Widget _buildScrollableTransferHistory(Color textColor, bool isDark) {
+    // En son 20 transfer (daha fazla gösterelim çünkü kaydırılabilir)
+    final recentTransfers = widget.transfers.take(20).toList();
+
+    // Bekleyen, başarısız ve tamamlanan transferleri ayır
+    final pendingTransfers = recentTransfers
+        .where((t) => t.isScheduled && !t.isExecuted && !t.isFailed)
+        .toList();
+    final failedTransfers = recentTransfers.where((t) => t.isFailed).toList();
+    // Tamamlanan: Ya açıkça isExecuted=true olan VEYA eski transferler (isScheduled=false, yani anlık yapılmış)
+    final completedTransfers = recentTransfers
+        .where((t) => !t.isFailed && (t.isExecuted || !t.isScheduled))
+        .toList();
+
+    return ListView(
+      controller: _historyScrollController,
+      padding: const EdgeInsets.only(top: 16, bottom: 24),
+      children: [
+        // Başlık
+        Row(
+          children: [
+            Icon(
+              Icons.history_rounded,
+              size: 20,
+              color: textColor.withValues(alpha: 0.6),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'İşlem Geçmişi',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Bekleyen transferler
+        if (pendingTransfers.isNotEmpty) ...[
+          _buildStatusLabel(
+            '⏳ Bekleyen (${pendingTransfers.length})',
+            Colors.orange,
           ),
+          const SizedBox(height: 8),
+          ...pendingTransfers.map(
+            (t) => _buildTransferItem(t, textColor, isDark, status: 'pending'),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // Başarısız transferler
+        if (failedTransfers.isNotEmpty) ...[
+          _buildStatusLabel(
+            '✗ Başarısız (${failedTransfers.length})',
+            Colors.red,
+          ),
+          const SizedBox(height: 8),
+          ...failedTransfers.map(
+            (t) => _buildTransferItem(t, textColor, isDark, status: 'failed'),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // Tamamlanan transferler
+        if (completedTransfers.isNotEmpty) ...[
+          _buildStatusLabel(
+            '✓ Tamamlanan (${completedTransfers.length})',
+            Colors.green,
+          ),
+          const SizedBox(height: 8),
+          ...completedTransfers.map(
+            (t) =>
+                _buildTransferItem(t, textColor, isDark, status: 'completed'),
+          ),
+        ],
+
+        // Boş durum
+        if (recentTransfers.isEmpty)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                'Henüz transfer işlemi yok',
+                style: TextStyle(
+                  color: textColor.withValues(alpha: 0.5),
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// Status etiketi widget'ı
+  Widget _buildStatusLabel(String text, MaterialColor color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: color.shade700,
         ),
       ),
     );
@@ -336,9 +545,9 @@ class _TransferPageState extends State<TransferPage> {
     required Color textColor,
     required bool isDark,
   }) {
-    // Seçili hesabı bul (varsa)
+    // Seçili hesabı bul (varsa) - lokal listeden
     final selectedAccount = value != null
-        ? widget.paymentMethods.firstWhere((pm) => pm.id == value)
+        ? _paymentMethods.firstWhere((pm) => pm.id == value)
         : null;
 
     return Row(
@@ -387,7 +596,7 @@ class _TransferPageState extends State<TransferPage> {
                       context,
                     ).textTheme.bodyMedium?.fontFamily,
                   ),
-                  items: widget.paymentMethods.map((pm) {
+                  items: _paymentMethods.map((pm) {
                     return DropdownMenuItem<String>(
                       value: pm.id,
                       child: Row(
@@ -593,134 +802,6 @@ class _TransferPageState extends State<TransferPage> {
           ),
         ),
       ),
-    );
-  }
-
-  /// İşlem geçmişi bölümü
-  Widget _buildTransferHistory(Color textColor, bool isDark) {
-    // En son 10 transfer
-    final recentTransfers = widget.transfers.take(10).toList();
-
-    // Bekleyen, başarısız ve tamamlanan transferleri ayır
-    final pendingTransfers = recentTransfers
-        .where((t) => t.isScheduled && !t.isExecuted && !t.isFailed)
-        .toList();
-    final failedTransfers = recentTransfers.where((t) => t.isFailed).toList();
-    final completedTransfers = recentTransfers
-        .where((t) => t.isExecuted && !t.isFailed)
-        .toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Başlık
-        Row(
-          children: [
-            Icon(
-              Icons.history_rounded,
-              size: 20,
-              color: textColor.withValues(alpha: 0.6),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'İşlem Geçmişi',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-
-        // Bekleyen transferler
-        if (pendingTransfers.isNotEmpty) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.orange.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '⏳ Bekleyen (${pendingTransfers.length})',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.orange.shade700,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          ...pendingTransfers.map(
-            (t) => _buildTransferItem(t, textColor, isDark, status: 'pending'),
-          ),
-          const SizedBox(height: 16),
-        ],
-
-        // Başarısız transferler
-        if (failedTransfers.isNotEmpty) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.red.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '✗ Başarısız (${failedTransfers.length})',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.red.shade700,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          ...failedTransfers.map(
-            (t) => _buildTransferItem(t, textColor, isDark, status: 'failed'),
-          ),
-          const SizedBox(height: 16),
-        ],
-
-        // Tamamlanan transferler
-        if (completedTransfers.isNotEmpty) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.green.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '✓ Tamamlanan (${completedTransfers.length})',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.green.shade700,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          ...completedTransfers.map(
-            (t) =>
-                _buildTransferItem(t, textColor, isDark, status: 'completed'),
-          ),
-        ],
-
-        // Boş durum
-        if (recentTransfers.isEmpty)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(
-                'Henüz transfer işlemi yok',
-                style: TextStyle(
-                  color: textColor.withValues(alpha: 0.5),
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ),
-      ],
     );
   }
 
