@@ -317,8 +317,12 @@ class _TransferPageState extends State<TransferPage> {
 
   /// Kaydırılabilir işlem geçmişi
   Widget _buildScrollableTransferHistory(Color textColor, bool isDark) {
-    // En son 20 transfer (daha fazla gösterelim çünkü kaydırılabilir)
-    final recentTransfers = widget.transfers.take(20).toList();
+    // Tüm transferleri kopyala ve tarihe göre azalan (yeniden eskiye) sırala
+    final sortedTransfers = List<Transfer>.from(widget.transfers)
+      ..sort((a, b) => b.date.compareTo(a.date));
+
+    // En son 20 transfer
+    final recentTransfers = sortedTransfers.take(20).toList();
 
     // Bekleyen, başarısız ve tamamlanan transferleri ayır
     final pendingTransfers = recentTransfers
