@@ -207,6 +207,7 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
       context,
       MaterialPageRoute(
         builder: (context) => TransferPage(
+          userId: userId,
           paymentMethods: tumOdemeYontemleri
               .where((pm) => !pm.isDeleted)
               .toList(),

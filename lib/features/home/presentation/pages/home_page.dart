@@ -648,6 +648,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       context,
       MaterialPageRoute(
         builder: (context) => TransferPage(
+          userId: widget.authController.currentUser?.id,
           paymentMethods: tumOdemeYontemleri
               .where((pm) => !pm.isDeleted)
               .toList(),

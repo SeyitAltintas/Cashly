@@ -6,6 +6,7 @@ import 'appearance_page.dart';
 import 'voice_assistant_page.dart';
 import 'haptic_settings_page.dart';
 import 'expense_settings_page.dart';
+import 'transfer_settings_page.dart';
 
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
 
@@ -164,6 +165,24 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => GelirlerAyarlariSayfasi(
+                    userId: widget.authController.currentUser!.id,
+                  ),
+                ),
+              );
+              if (result == true) setState(() => _needsRefresh = true);
+            },
+          ),
+          const SettingsDivider(),
+          SettingsTile(
+            icon: Icons.swap_horiz_rounded,
+            iconColor: Colors.cyan,
+            title: 'Para Transferleri',
+            subtitle: 'İşlem geçmişi görüntüleme ayarları',
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TransferSettingsPage(
                     userId: widget.authController.currentUser!.id,
                   ),
                 ),

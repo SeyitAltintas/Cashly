@@ -7,10 +7,13 @@ import '../../data/models/payment_method_model.dart';
 import '../../data/models/transfer_model.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/services/haptic_service.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../settings/domain/repositories/settings_repository.dart';
 
 class TransferPage extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
   final List<Transfer> transfers;
+  final String? userId;
   final Function(String fromId, String toId, double amount, DateTime date)
   onTransfer;
 
@@ -19,6 +22,7 @@ class TransferPage extends StatefulWidget {
     required this.paymentMethods,
     required this.transfers,
     required this.onTransfer,
+    this.userId,
   });
 
   @override
@@ -336,8 +340,22 @@ class _TransferPageState extends State<TransferPage> {
     final sortedTransfers = List<Transfer>.from(widget.transfers)
       ..sort((a, b) => b.date.compareTo(a.date));
 
-    // En son 20 transfer
-    final recentTransfers = sortedTransfers.take(20).toList();
+    // Ayarlardan limit değerini oku
+    int historyLimit = 20; // Varsayılan
+    if (widget.userId != null) {
+      try {
+        historyLimit = getIt<SettingsRepository>().getTransferHistoryLimit(
+          widget.userId!,
+        );
+      } catch (e) {
+        // Hata durumunda varsayılanı kullan
+      }
+    }
+
+    // -1 ise tümünü göster, değilse limit kadar
+    final recentTransfers = historyLimit == -1
+        ? sortedTransfers
+        : sortedTransfers.take(historyLimit).toList();
 
     // Bekleyen, başarısız ve tamamlanan transferleri ayır
     final pendingTransfers = recentTransfers

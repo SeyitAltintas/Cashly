@@ -29,6 +29,41 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
+  int getTransferHistoryLimit(String userId) {
+    try {
+      final value = _box.get(
+        'transfer_gecmisi_limiti_$userId',
+        defaultValue: 20,
+      );
+      // Edge case: Negatif değerleri (Tümü=-1 hariç) varsayılana çevir
+      if (value is int) {
+        if (value < -1) return 20;
+        if (value == 0) return 5; // 0 geçersiz, minimum 5
+        return value;
+      }
+      return 20; // Varsayılan
+    } catch (e) {
+      debugPrint('Transfer geçmişi limiti okunurken hata: $e');
+      return 20; // Hata durumunda varsayılan
+    }
+  }
+
+  @override
+  Future<void> saveTransferHistoryLimit(String userId, int limit) async {
+    try {
+      // Edge case: Geçersiz değerleri düzelt
+      int safeLimit = limit;
+      if (limit < -1) safeLimit = 20;
+      if (limit == 0) safeLimit = 5;
+
+      await _box.put('transfer_gecmisi_limiti_$userId', safeLimit);
+    } catch (e) {
+      debugPrint('Transfer geçmişi limiti kaydedilirken hata: $e');
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> deleteAllUserData(String userId) async {
     try {
       // Harcama verileri

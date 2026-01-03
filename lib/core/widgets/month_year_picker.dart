@@ -210,7 +210,50 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
             ),
           ),
 
-          const Divider(height: 1),
+          // Seçilen Tarih/Saat Gösterimi (dateTime ve date modlarında)
+          if (widget.mode != PickerMode.monthYear)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+              decoration: BoxDecoration(
+                color: useNeutral
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : accentColor.withValues(alpha: 0.08),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _getFormattedDateForMode(),
+                    style: TextStyle(
+                      color: useNeutral ? Colors.white : accentColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (widget.mode == PickerMode.dateTime ||
+                      widget.mode == PickerMode.time) ...[
+                    Text(
+                      '  •  ',
+                      style: TextStyle(
+                        color: (useNeutral ? Colors.white : accentColor)
+                            .withValues(alpha: 0.5),
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      _getFormattedTimeForMode(),
+                      style: TextStyle(
+                        color: (useNeutral ? Colors.white : accentColor)
+                            .withValues(alpha: 0.8),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
 
           // Picker Alanı
           Expanded(
@@ -249,6 +292,36 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
       case PickerMode.date:
         return "Tarih Seç";
     }
+  }
+
+  /// Seçilen tarihi formatlı döndür
+  String _getFormattedDateForMode() {
+    // Türkçe ay isimleri
+    const aylar = [
+      'Ocak',
+      'Şubat',
+      'Mart',
+      'Nisan',
+      'Mayıs',
+      'Haziran',
+      'Temmuz',
+      'Ağustos',
+      'Eylül',
+      'Ekim',
+      'Kasım',
+      'Aralık',
+    ];
+    final day = _currentDate.day;
+    final month = aylar[_currentDate.month - 1];
+    final year = _currentDate.year;
+    return '$day $month $year';
+  }
+
+  /// Seçilen saati formatlı döndür
+  String _getFormattedTimeForMode() {
+    final hour = _currentDate.hour.toString().padLeft(2, '0');
+    final minute = _currentDate.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 
   /// Özel Ay/Yıl Seçici (Custom Cupertino Pickers)
