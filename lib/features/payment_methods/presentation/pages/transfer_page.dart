@@ -218,11 +218,13 @@ class _TransferPageState extends State<TransferPage> {
   Future<void> _pickDate() async {
     HapticService.lightImpact();
 
-    // MonthYearPicker kullanımı
+    // MonthYearPicker kullanımı (Artık tam tarih seçimi)
     final DateTime? picked = await MonthYearPicker.show(
       context,
       initialDate: _selectedDate,
       accentColor: _primaryColor,
+      mode: PickerMode.date,
+      minimumDate: DateTime(2026, 1, 1), // 2026 Öncesi görünmemeli
     );
 
     if (picked != null && picked != _selectedDate) {

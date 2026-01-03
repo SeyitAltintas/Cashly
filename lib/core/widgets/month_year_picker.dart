@@ -1,4 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+/// Picker Modları
+enum PickerMode {
+  monthYear, // Sadece Ay ve Yıl
+  date, // Gün, Ay, Yıl
+  time, // Saat, Dakika
+  dateTime, // Gün, Ay, Yıl, Saat, Dakika
+}
 
 /// Ay isimleri listesi (Türkçe)
 const List<String> _aylarListesi = [
@@ -16,35 +25,37 @@ const List<String> _aylarListesi = [
   "Aralık",
 ];
 
-/// Ortak ay/yıl seçici bottom sheet widget'ı
-/// Modern glassmorphism tasarımı ile
+/// Ortak tarih/saat seçici bottom sheet widget'ı
+/// iOS tarzı (Cupertino) tasarım ve Glassmorphism efekti
 class MonthYearPicker extends StatefulWidget {
-  /// Başlangıç tarihi
   final DateTime initialDate;
-
-  /// Seçilen ay için vurgu rengi
+  final DateTime? minimumDate;
+  final DateTime? maximumDate;
   final Color? accentColor;
-
-  /// Tarih seçildiğinde çağrılacak callback
   final Function(DateTime) onDateSelected;
-
-  /// Seçili ay için nötr stil kullan (açık gri arka plan, siyah yazı)
   final bool useNeutralSelectedStyle;
+  final PickerMode mode;
 
   const MonthYearPicker({
     super.key,
     required this.initialDate,
     required this.onDateSelected,
+    this.minimumDate,
+    this.maximumDate,
     this.accentColor,
     this.useNeutralSelectedStyle = false,
+    this.mode = PickerMode.monthYear,
   });
 
   /// Bottom sheet olarak göster ve seçilen tarihi döndür
   static Future<DateTime?> show(
     BuildContext context, {
     required DateTime initialDate,
+    DateTime? minimumDate,
+    DateTime? maximumDate,
     Color? accentColor,
     bool useNeutralSelectedStyle = false,
+    PickerMode mode = PickerMode.monthYear,
   }) async {
     DateTime? selectedDate;
 
@@ -54,8 +65,11 @@ class MonthYearPicker extends StatefulWidget {
       isScrollControlled: true,
       builder: (context) => MonthYearPicker(
         initialDate: initialDate,
+        minimumDate: minimumDate,
+        maximumDate: maximumDate,
         accentColor: accentColor,
         useNeutralSelectedStyle: useNeutralSelectedStyle,
+        mode: mode,
         onDateSelected: (date) {
           selectedDate = date;
           Navigator.pop(context);
@@ -71,14 +85,28 @@ class MonthYearPicker extends StatefulWidget {
 }
 
 class _MonthYearPickerState extends State<MonthYearPicker> {
-  late int _secilenYil;
-  late int _secilenAyIndex;
+  late DateTime _currentDate;
+  late int _selectedYear;
+  late int _selectedMonthIndex;
+  late FixedExtentScrollController _monthController;
 
   @override
   void initState() {
     super.initState();
-    _secilenYil = widget.initialDate.year;
-    _secilenAyIndex = widget.initialDate.month;
+    _currentDate = widget.initialDate;
+    _selectedYear = widget.initialDate.year;
+    // 0-based index. Ortadan başlatmak için büyük bir sayı ekle (12 * 1000)
+    // Böylece hem yukarı hem aşağı sonsuz kaydırılabilir.
+    _selectedMonthIndex = widget.initialDate.month - 1;
+    _monthController = FixedExtentScrollController(
+      initialItem: (12 * 1000) + _selectedMonthIndex,
+    );
+  }
+
+  @override
+  void dispose() {
+    _monthController.dispose();
+    super.dispose();
   }
 
   @override
@@ -89,6 +117,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     final useNeutral = widget.useNeutralSelectedStyle;
 
     return Container(
+      height: 400 + MediaQuery.of(context).padding.bottom,
       decoration: BoxDecoration(
         // Glassmorphism efekti
         gradient: LinearGradient(
@@ -102,6 +131,13 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
           topLeft: Radius.circular(28),
           topRight: Radius.circular(28),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -118,11 +154,10 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
               borderRadius: BorderRadius.circular(3),
             ),
           ),
-          const SizedBox(height: 20),
 
-          // Başlık
+          // Header (Başlık ve İkon)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
             child: Row(
               children: [
                 Container(
@@ -134,227 +169,190 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
-                    Icons.calendar_month_rounded,
+                    _getIconForMode(widget.mode),
                     color: useNeutral ? Colors.white : accentColor,
                     size: 22,
                   ),
                 ),
                 const SizedBox(width: 14),
                 Text(
-                  "Tarih Seç",
+                  _getTitleForMode(widget.mode),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.5,
+                  ),
+                ),
+                const Spacer(),
+                // Tamam Butonu (Header'da da olsun, iOS tarzı)
+                TextButton(
+                  onPressed: () {
+                    // MonthYear modunda özel işlem, diğerlerinde _currentDate
+                    if (widget.mode == PickerMode.monthYear) {
+                      widget.onDateSelected(
+                        DateTime(_selectedYear, _selectedMonthIndex + 1),
+                      );
+                    } else {
+                      widget.onDateSelected(_currentDate);
+                    }
+                  },
+                  child: Text(
+                    "Bitti",
+                    style: TextStyle(
+                      color: useNeutral ? Colors.white : accentColor,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 28),
 
-          // Yıl seçici - Modern tasarım
-          _buildYearSelector(context, accentColor, isDark, useNeutral),
-          const SizedBox(height: 24),
+          const Divider(height: 1),
 
-          // Ay grid'i
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: _buildMonthGrid(context, accentColor, isDark),
+          // Picker Alanı
+          Expanded(
+            child: widget.mode == PickerMode.monthYear
+                ? _buildMonthYearPicker(isDark)
+                : _buildCupertinoDatePicker(isDark),
           ),
-          const SizedBox(height: 28),
 
-          // Uygula butonu
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-            child: _buildApplyButton(context, accentColor, useNeutral),
-          ),
+          // Alt padding (iOS safe area)
+          SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
       ),
     );
   }
 
-  Widget _buildYearSelector(
-    BuildContext context,
-    Color accentColor,
-    bool isDark,
-    bool useNeutral,
-  ) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.05)
-            : Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Önceki yıl butonu
-          _buildYearButton(
-            icon: Icons.keyboard_arrow_left_rounded,
-            onTap: () => setState(() => _secilenYil--),
-            isDark: isDark,
-          ),
-
-          // Yıl gösterimi
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              _secilenYil.toString(),
-              style: TextStyle(
-                color: useNeutral ? Colors.white : accentColor,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-
-          // Sonraki yıl butonu
-          _buildYearButton(
-            icon: Icons.keyboard_arrow_right_rounded,
-            onTap: () => setState(() => _secilenYil++),
-            isDark: isDark,
-          ),
-        ],
-      ),
-    );
+  IconData _getIconForMode(PickerMode mode) {
+    switch (mode) {
+      case PickerMode.time:
+        return Icons.access_time_rounded;
+      case PickerMode.monthYear:
+        return Icons.calendar_month_rounded;
+      case PickerMode.dateTime:
+      case PickerMode.date:
+        return Icons.calendar_today_rounded;
+    }
   }
 
-  Widget _buildYearButton({
-    required IconData icon,
-    required VoidCallback onTap,
-    required bool isDark,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          child: Icon(
-            icon,
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.7)
-                : Colors.grey.shade600,
-            size: 28,
-          ),
-        ),
-      ),
-    );
+  String _getTitleForMode(PickerMode mode) {
+    switch (mode) {
+      case PickerMode.time:
+        return "Saat Seç";
+      case PickerMode.monthYear:
+        return "Ay ve Yıl Seç";
+      case PickerMode.dateTime:
+        return "Tarih ve Saat Seç";
+      case PickerMode.date:
+        return "Tarih Seç";
+    }
   }
 
-  Widget _buildMonthGrid(BuildContext context, Color accentColor, bool isDark) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        childAspectRatio: 1.6,
-      ),
-      itemCount: 12,
-      itemBuilder: (context, index) {
-        final ayNumarasi = index + 1;
-        final seciliMi = ayNumarasi == _secilenAyIndex;
-
-        // Nötr stil: koyu gri arka plan, beyaz yazı
-        final useNeutral = widget.useNeutralSelectedStyle;
-        final selectedBgColor = useNeutral
-            ? Colors.blueGrey.shade700
-            : accentColor;
-        final selectedTextColor = useNeutral ? Colors.white : Colors.white;
-
-        return Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => setState(() => _secilenAyIndex = ayNumarasi),
-            borderRadius: BorderRadius.circular(12),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-              decoration: BoxDecoration(
-                color: seciliMi
-                    ? selectedBgColor
-                    : isDark
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(12),
-                border: seciliMi
-                    ? null
-                    : Border.all(
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.08)
-                            : Colors.grey.shade200,
-                      ),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                _aylarListesi[index].substring(0, 3),
-                style: TextStyle(
-                  color: seciliMi
-                      ? selectedTextColor
-                      : isDark
-                      ? Colors.white.withValues(alpha: 0.8)
-                      : Colors.grey.shade700,
-                  fontWeight: seciliMi ? FontWeight.bold : FontWeight.w500,
-                  fontSize: seciliMi ? 14 : 13,
+  /// Özel Ay/Yıl Seçici (Custom Cupertino Pickers)
+  Widget _buildMonthYearPicker(bool isDark) {
+    return Row(
+      children: [
+        // Ay Seçici
+        Expanded(
+          flex: 3,
+          child: CupertinoPicker.builder(
+            scrollController: _monthController,
+            itemExtent: 40,
+            onSelectedItemChanged: (index) {
+              setState(() {
+                _selectedMonthIndex = index % 12;
+              });
+            },
+            // childCount vermezsek sonsuz olur
+            itemBuilder: (context, index) {
+              return Center(
+                child: Text(
+                  _aylarListesi[index % 12],
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black,
+                    fontSize: 20,
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
-        );
-      },
+        ),
+        // Yıl Seçici
+        Expanded(
+          flex: 2,
+          child: CupertinoPicker.builder(
+            scrollController: FixedExtentScrollController(
+              initialItem: _selectedYear - 2000,
+            ), // 2000'den başlatarak offset
+            itemExtent: 40,
+            onSelectedItemChanged: (index) {
+              setState(() {
+                _selectedYear = 2000 + index;
+              });
+            },
+            childCount: 101, // 2000-2100 arası (dahil)
+            itemBuilder: (context, index) {
+              return Center(
+                child: Text(
+                  "${2000 + index}",
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black,
+                    fontSize: 20,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildApplyButton(
-    BuildContext context,
-    Color accentColor,
-    bool useNeutral,
-  ) {
-    final buttonColor = useNeutral ? Colors.blueGrey.shade700 : accentColor;
+  /// Standart Cupertino Date Picker
+  Widget _buildCupertinoDatePicker(bool isDark) {
+    CupertinoDatePickerMode cupertinoMode;
+    switch (widget.mode) {
+      case PickerMode.time:
+        cupertinoMode = CupertinoDatePickerMode.time;
+        break;
+      case PickerMode.dateTime:
+        cupertinoMode = CupertinoDatePickerMode.dateAndTime;
+        break;
+      case PickerMode.date:
+      default:
+        cupertinoMode = CupertinoDatePickerMode.date;
+        break;
+    }
 
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: () {
-          final selectedDate = DateTime(_secilenYil, _secilenAyIndex, 1);
-          widget.onDateSelected(selectedDate);
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: buttonColor,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+    return Localizations.override(
+      context: context,
+      locale: const Locale('tr', 'TR'),
+      child: CupertinoTheme(
+        data: CupertinoThemeData(
+          brightness: isDark ? Brightness.dark : Brightness.light,
+          textTheme: CupertinoTextThemeData(
+            dateTimePickerTextStyle: TextStyle(
+              color: isDark ? Colors.white : Colors.black,
+              fontSize: 20,
+            ),
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.check_circle_outline_rounded, size: 22),
-            const SizedBox(width: 10),
-            Text(
-              "${_aylarListesi[_secilenAyIndex - 1]} $_secilenYil",
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ],
+        child: CupertinoDatePicker(
+          mode: cupertinoMode,
+          initialDateTime: _currentDate,
+          minimumDate: widget.minimumDate,
+          maximumDate: widget.maximumDate,
+          minimumYear: widget.minimumDate?.year ?? 1, // Yıl tekerleğini kısıtla
+          maximumYear: 2100, // Max yıl 2100
+          use24hFormat: true,
+          onDateTimeChanged: (date) {
+            setState(() {
+              _currentDate = date;
+            });
+          },
         ),
       ),
     );
