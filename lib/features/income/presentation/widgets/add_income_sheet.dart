@@ -227,16 +227,14 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
+                keyboardType: TextInputType.number,
                 inputFormatters: [AmountInputFormatter()],
                 validator: (value) => AmountInputFormatter.validateAmount(
                   value,
                   maxAmount: 10000000,
                 ),
                 decoration: InputDecoration(
-                  hintText: "Tutar (Örn: 25.000,00)",
+                  hintText: "Tutar (Örn: 25.000)",
                   hintStyle: TextStyle(
                     color: Theme.of(
                       context,

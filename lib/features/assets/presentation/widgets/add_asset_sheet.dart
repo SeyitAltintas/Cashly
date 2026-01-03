@@ -399,9 +399,7 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
+                      keyboardType: TextInputType.number,
                       inputFormatters: [AmountInputFormatter()],
                       validator: (value) => AmountInputFormatter.validateAmount(
                         value,

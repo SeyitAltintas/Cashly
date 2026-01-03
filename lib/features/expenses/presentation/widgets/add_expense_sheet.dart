@@ -275,16 +275,14 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
+                keyboardType: TextInputType.number,
                 inputFormatters: [AmountInputFormatter()],
                 validator: (value) => AmountInputFormatter.validateAmount(
                   value,
                   maxAmount: 1000000,
                 ),
                 decoration: InputDecoration(
-                  hintText: "Tutar (Örn: 1.250,50)",
+                  hintText: "Tutar (Örn: 1.250)",
                   hintStyle: TextStyle(
                     color: Theme.of(
                       context,
