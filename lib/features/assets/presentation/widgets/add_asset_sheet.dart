@@ -4,6 +4,7 @@ import '../../data/models/asset_model.dart';
 import '../../../../core/services/price_service.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
+import '../../../../core/utils/amount_input_formatter.dart';
 import '../../../../core/widgets/app_date_picker.dart';
 
 class AddAssetSheet extends StatefulWidget {
@@ -401,7 +402,8 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      validator: (value) => Validators.validateAmount(
+                      inputFormatters: [AmountInputFormatter()],
+                      validator: (value) => AmountInputFormatter.validateAmount(
                         value,
                         maxAmount: 100000000,
                       ),

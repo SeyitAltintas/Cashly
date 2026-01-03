@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
+import '../../../../core/utils/amount_input_formatter.dart';
 import '../../../../core/widgets/app_date_picker.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
@@ -101,8 +102,8 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
       return;
     }
 
-    final double? amount = double.tryParse(
-      _amountController.text.replaceAll(',', '.'),
+    final double? amount = AmountInputFormatter.parseFormattedAmount(
+      _amountController.text,
     );
 
     if (amount == null) {
@@ -229,10 +230,13 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                validator: (value) =>
-                    Validators.validateAmount(value, maxAmount: 10000000),
+                inputFormatters: [AmountInputFormatter()],
+                validator: (value) => AmountInputFormatter.validateAmount(
+                  value,
+                  maxAmount: 10000000,
+                ),
                 decoration: InputDecoration(
-                  hintText: "Tutar (Örn: 25000)",
+                  hintText: "Tutar (Örn: 25.000,00)",
                   hintStyle: TextStyle(
                     color: Theme.of(
                       context,
