@@ -36,6 +36,18 @@ class _TransferPageState extends State<TransferPage> {
   // İşlem sonrası mesajı
   String? _successMessage;
 
+  /// Seçilen tarih ileri tarih mi?
+  bool get _isScheduled {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final selected = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+    );
+    return selected.isAfter(today);
+  }
+
   @override
   void dispose() {
     _amountController.dispose();
@@ -83,6 +95,17 @@ class _TransferPageState extends State<TransferPage> {
 
     if (toAccount.type == 'kredi') {
       final borcMiktari = toAccount.balance;
+
+      // Borç yoksa kredi kartına transfer yapılamaz
+      if (borcMiktari <= 0) {
+        ErrorHandler.showErrorSnackBar(
+          context,
+          'Bu kredi kartında borç bulunmuyor. Transfer yapılamaz.',
+        );
+        return;
+      }
+
+      // Transfer edilen miktar borçtan fazla olamaz
       if (amount > borcMiktari) {
         ErrorHandler.showErrorSnackBar(
           context,
@@ -173,10 +196,15 @@ class _TransferPageState extends State<TransferPage> {
 
               const SizedBox(height: 50),
 
-              // 4. Aksiyon Butonu
+              // 4. İleri Tarih Bilgisi
+              if (_isScheduled) _buildScheduledInfo(textColor, isDark),
+
+              const SizedBox(height: 16),
+
+              // 5. Aksiyon Butonu
               _buildActionButton(),
 
-              // 5. Başarı Mesajı
+              // 6. Başarı Mesajı
               if (_successMessage != null) _buildSuccessMessage(isDark),
             ],
           ),
@@ -448,6 +476,34 @@ class _TransferPageState extends State<TransferPage> {
     );
   }
 
+  /// İleri tarih bilgi kutusu
+  Widget _buildScheduledInfo(Color textColor, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.orange.withValues(alpha: isDark ? 0.15 : 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.schedule_rounded, color: Colors.orange.shade700, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Bu transfer ${DateFormat('d MMMM yyyy', 'tr_TR').format(_selectedDate)} tarihinde gerçekleştirilecek.',
+              style: TextStyle(
+                color: isDark ? Colors.orange.shade300 : Colors.orange.shade800,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildActionButton() {
     return SizedBox(
       width: double.infinity,
@@ -462,9 +518,18 @@ class _TransferPageState extends State<TransferPage> {
           elevation: 0,
         ),
         onPressed: _save,
-        child: const Text(
-          "Transfer Yap",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_isScheduled) ...[
+              const Icon(Icons.schedule_rounded, size: 20),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              _isScheduled ? "Transferi Zamanla" : "Transfer Yap",
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
       ),
     );

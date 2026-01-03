@@ -195,6 +195,57 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
     // Varlık fiyatlarını arka planda güncelle
     _updateAssetPrices();
+
+    // Zamanlanmış transferleri kontrol et
+    _zamanlanmisTransferleriKontrolEt();
+  }
+
+  /// Zamanlanmış transferleri kontrol eder ve tarihi gelenleri uygular
+  void _zamanlanmisTransferleriKontrolEt() {
+    bool transferUygulandi = false;
+
+    for (int i = 0; i < tumTransferler.length; i++) {
+      final transfer = tumTransferler[i];
+
+      // Bekleyen zamanlanmış transfer mi?
+      if (transfer.isPending) {
+        // Bu transferi uygula
+        final fromIndex = tumOdemeYontemleri.indexWhere(
+          (pm) => pm.id == transfer.fromAccountId,
+        );
+        if (fromIndex != -1) {
+          final fromPm = tumOdemeYontemleri[fromIndex];
+          double yeniBakiye = fromPm.type == 'kredi'
+              ? fromPm.balance + transfer.amount
+              : fromPm.balance - transfer.amount;
+          tumOdemeYontemleri[fromIndex] = fromPm.copyWith(balance: yeniBakiye);
+        }
+
+        final toIndex = tumOdemeYontemleri.indexWhere(
+          (pm) => pm.id == transfer.toAccountId,
+        );
+        if (toIndex != -1) {
+          final toPm = tumOdemeYontemleri[toIndex];
+          double yeniBakiye = toPm.type == 'kredi'
+              ? toPm.balance - transfer.amount
+              : toPm.balance + transfer.amount;
+          tumOdemeYontemleri[toIndex] = toPm.copyWith(balance: yeniBakiye);
+        }
+
+        // Transferi uygulandı olarak işaretle
+        tumTransferler[i] = transfer.copyWith(isExecuted: true);
+        transferUygulandi = true;
+      }
+    }
+
+    if (transferUygulandi) {
+      _odemeYontemleriKaydet();
+      _transferleriKaydet();
+      // UI'ı güncelle
+      if (mounted) {
+        setState(() {});
+      }
+    }
   }
 
   /// Varlık fiyatlarını güncel API verilerine göre günceller
@@ -521,33 +572,45 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
               .where((pm) => !pm.isDeleted)
               .toList(),
           onTransfer: (fromId, toId, amount, date) {
-            setState(() {
-              final fromIndex = tumOdemeYontemleri.indexWhere(
-                (pm) => pm.id == fromId,
-              );
-              if (fromIndex != -1) {
-                final fromPm = tumOdemeYontemleri[fromIndex];
-                double yeniBakiye = fromPm.type == 'kredi'
-                    ? fromPm.balance + amount
-                    : fromPm.balance - amount;
-                tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
-                  balance: yeniBakiye,
+            // Tarihi kontrol et - bugün mü yoksa ileri tarih mi?
+            final now = DateTime.now();
+            final today = DateTime(now.year, now.month, now.day);
+            final transferDate = DateTime(date.year, date.month, date.day);
+            final isScheduled = transferDate.isAfter(today);
+
+            if (!isScheduled) {
+              // Anında transfer - bakiyeleri hemen güncelle
+              setState(() {
+                final fromIndex = tumOdemeYontemleri.indexWhere(
+                  (pm) => pm.id == fromId,
                 );
-              }
-              final toIndex = tumOdemeYontemleri.indexWhere(
-                (pm) => pm.id == toId,
-              );
-              if (toIndex != -1) {
-                final toPm = tumOdemeYontemleri[toIndex];
-                double yeniBakiye = toPm.type == 'kredi'
-                    ? toPm.balance - amount
-                    : toPm.balance + amount;
-                tumOdemeYontemleri[toIndex] = toPm.copyWith(
-                  balance: yeniBakiye,
+                if (fromIndex != -1) {
+                  final fromPm = tumOdemeYontemleri[fromIndex];
+                  double yeniBakiye = fromPm.type == 'kredi'
+                      ? fromPm.balance + amount
+                      : fromPm.balance - amount;
+                  tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
+                    balance: yeniBakiye,
+                  );
+                }
+                final toIndex = tumOdemeYontemleri.indexWhere(
+                  (pm) => pm.id == toId,
                 );
-              }
-            });
-            _odemeYontemleriKaydet();
+                if (toIndex != -1) {
+                  final toPm = tumOdemeYontemleri[toIndex];
+                  double yeniBakiye = toPm.type == 'kredi'
+                      ? toPm.balance - amount
+                      : toPm.balance + amount;
+                  tumOdemeYontemleri[toIndex] = toPm.copyWith(
+                    balance: yeniBakiye,
+                  );
+                }
+              });
+              _odemeYontemleriKaydet();
+            }
+            // İleri tarihli transfer - bakiye değişmez, zamanlanmış olarak kaydedilir
+
+            // Transfer kaydını oluştur
             tumTransferler.insert(
               0,
               Transfer(
@@ -556,6 +619,8 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                 toAccountId: toId,
                 amount: amount,
                 date: date,
+                isScheduled: isScheduled,
+                isExecuted: !isScheduled, // Anında transfer zaten uygulandı
               ),
             );
             _transferleriKaydet();
