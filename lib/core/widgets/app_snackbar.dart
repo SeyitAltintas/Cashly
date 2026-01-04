@@ -30,6 +30,22 @@ class AppSnackBar {
     );
   }
 
+  /// Başarı mesajı gösterir - async gap'ler için ScaffoldMessengerState ile
+  static void successWithMessenger(
+    ScaffoldMessengerState messenger,
+    String message, {
+    Duration duration = const Duration(seconds: 2),
+    IconData icon = Icons.check_circle_outline,
+  }) {
+    _showWithMessenger(
+      messenger,
+      message: message,
+      backgroundColor: Colors.green.shade700,
+      icon: icon,
+      duration: duration,
+    );
+  }
+
   /// Hata mesajı gösterir (kırmızı tema)
   static void error(
     BuildContext context,
@@ -39,6 +55,22 @@ class AppSnackBar {
   }) {
     _show(
       context,
+      message: message,
+      backgroundColor: Colors.red.shade800,
+      icon: icon,
+      duration: duration,
+    );
+  }
+
+  /// Hata mesajı gösterir - async gap'ler için ScaffoldMessengerState ile
+  static void errorWithMessenger(
+    ScaffoldMessengerState messenger,
+    String message, {
+    Duration duration = const Duration(seconds: 3),
+    IconData icon = Icons.error_outline,
+  }) {
+    _showWithMessenger(
+      messenger,
       message: message,
       backgroundColor: Colors.red.shade800,
       icon: icon,
@@ -177,6 +209,44 @@ class AppSnackBar {
     if (!context.mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: Colors.white),
+              const SizedBox(width: 12),
+            ],
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: backgroundColor,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        duration: duration,
+        action: action,
+      ),
+    );
+  }
+
+  /// ScaffoldMessengerState ile SnackBar gösterir (async gap'ler için)
+  static void _showWithMessenger(
+    ScaffoldMessengerState messenger, {
+    required String message,
+    required Color backgroundColor,
+    IconData? icon,
+    SnackBarAction? action,
+    Duration duration = const Duration(seconds: 2),
+  }) {
+    messenger.showSnackBar(
       SnackBar(
         content: Row(
           children: [

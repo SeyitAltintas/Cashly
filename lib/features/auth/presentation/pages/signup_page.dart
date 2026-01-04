@@ -385,8 +385,9 @@ class _SignUpPageState extends State<SignUpPage> {
                               return;
                             }
 
-                            // Context'i async işlemden önce lokal değişkene al
+                            // Context bağımlılıklarını async işlemden önce yakala
                             final navigator = Navigator.of(context);
+                            final messenger = ScaffoldMessenger.of(context);
 
                             setState(() {
                               _isLoading = true;
@@ -406,8 +407,8 @@ class _SignUpPageState extends State<SignUpPage> {
                               if (!mounted) return;
 
                               if (success) {
-                                AppSnackBar.success(
-                                  context,
+                                AppSnackBar.successWithMessenger(
+                                  messenger,
                                   "Kayıt başarılı! Hoş geldiniz! 🎉",
                                 );
                                 if (!mounted) return;
@@ -419,16 +420,16 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                 );
                               } else {
-                                AppSnackBar.error(
-                                  context,
+                                AppSnackBar.errorWithMessenger(
+                                  messenger,
                                   widget.authController.error ??
                                       "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.",
                                 );
                               }
                             } catch (e) {
                               if (!mounted) return;
-                              AppSnackBar.error(
-                                context,
+                              AppSnackBar.errorWithMessenger(
+                                messenger,
                                 "Hata: ${e.toString()}",
                               );
                             } finally {
