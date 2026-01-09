@@ -240,61 +240,72 @@ class _AddExpensePageState extends State<AddExpensePage> {
   Widget _buildAmountSection() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 32),
-      child: Column(
-        children: [
-          const Text(
-            "Tutar",
-            style: TextStyle(color: Colors.white54, fontSize: 14),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+      child: FormField<String>(
+        initialValue: _amountController.text,
+        validator: (value) => AmountInputFormatter.validateAmount(
+          _amountController.text,
+          maxAmount: 1000000,
+        ),
+        builder: (FormFieldState<String> state) {
+          return Column(
             children: [
               const Text(
-                "₺",
-                style: TextStyle(
-                  color: Colors.white38,
-                  fontSize: 36,
-                  fontWeight: FontWeight.w300,
-                ),
+                "Tutar",
+                style: TextStyle(color: Colors.white54, fontSize: 14),
               ),
-              const SizedBox(width: 8),
-              IntrinsicWidth(
-                child: TextFormField(
-                  controller: _amountController,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 48,
-                    fontWeight: FontWeight.w300,
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [AmountInputFormatter()],
-                  textAlign: TextAlign.center,
-                  validator: (value) => AmountInputFormatter.validateAmount(
-                    value,
-                    maxAmount: 1000000,
-                  ),
-                  decoration: const InputDecoration(
-                    hintText: "0",
-                    hintStyle: TextStyle(
-                      color: Colors.white24,
-                      fontSize: 48,
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    "₺",
+                    style: TextStyle(
+                      color: Colors.white38,
+                      fontSize: 36,
                       fontWeight: FontWeight.w300,
                     ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
-                    isDense: true,
-                    errorStyle: TextStyle(
-                      color: ColorConstants.kirmiziVurgu,
-                      fontSize: 12,
+                  ),
+                  const SizedBox(width: 8),
+                  IntrinsicWidth(
+                    child: TextField(
+                      controller: _amountController,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 48,
+                        fontWeight: FontWeight.w300,
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [AmountInputFormatter()],
+                      textAlign: TextAlign.center,
+                      onChanged: (value) => state.didChange(value),
+                      decoration: const InputDecoration(
+                        hintText: "0",
+                        hintStyle: TextStyle(
+                          color: Colors.white24,
+                          fontSize: 48,
+                          fontWeight: FontWeight.w300,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        isDense: true,
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
+              // Hata mesajı - ayrı label olarak
+              if (state.hasError) ...[
+                const SizedBox(height: 8),
+                Text(
+                  state.errorText!,
+                  style: TextStyle(color: _accentColor, fontSize: 12),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }

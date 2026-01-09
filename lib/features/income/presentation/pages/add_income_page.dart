@@ -166,7 +166,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
             _buildTextField(
               controller: _nameController,
               label: "Gelir Adı",
-              hint: "Nereden geldi? (Örn: Maaş)",
+              hint: "Nereden geldi? (Örn: Borç Ödemesi)",
               icon: Icons.attach_money,
               validator: (value) =>
                   Validators.validateItemName(value, itemType: 'Gelir'),
@@ -196,58 +196,72 @@ class _AddIncomePageState extends State<AddIncomePage> {
   Widget _buildAmountSection() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 32),
-      child: Column(
-        children: [
-          const Text(
-            "Tutar",
-            style: TextStyle(color: Colors.white54, fontSize: 14),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+      child: FormField<String>(
+        initialValue: _amountController.text,
+        validator: (value) => AmountInputFormatter.validateAmount(
+          _amountController.text,
+          maxAmount: 10000000,
+        ),
+        builder: (FormFieldState<String> state) {
+          return Column(
             children: [
               const Text(
-                "₺",
-                style: TextStyle(
-                  color: Colors.white38,
-                  fontSize: 36,
-                  fontWeight: FontWeight.w300,
-                ),
+                "Tutar",
+                style: TextStyle(color: Colors.white54, fontSize: 14),
               ),
-              const SizedBox(width: 8),
-              IntrinsicWidth(
-                child: TextFormField(
-                  controller: _amountController,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 48,
-                    fontWeight: FontWeight.w300,
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [AmountInputFormatter()],
-                  textAlign: TextAlign.center,
-                  validator: (value) => AmountInputFormatter.validateAmount(
-                    value,
-                    maxAmount: 10000000,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: "0",
-                    hintStyle: const TextStyle(
-                      color: Colors.white24,
-                      fontSize: 48,
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    "₺",
+                    style: TextStyle(
+                      color: Colors.white38,
+                      fontSize: 36,
                       fontWeight: FontWeight.w300,
                     ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
-                    isDense: true,
-                    errorStyle: TextStyle(color: _accentColor, fontSize: 12),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  IntrinsicWidth(
+                    child: TextField(
+                      controller: _amountController,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 48,
+                        fontWeight: FontWeight.w300,
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [AmountInputFormatter()],
+                      textAlign: TextAlign.center,
+                      onChanged: (value) => state.didChange(value),
+                      decoration: const InputDecoration(
+                        hintText: "0",
+                        hintStyle: TextStyle(
+                          color: Colors.white24,
+                          fontSize: 48,
+                          fontWeight: FontWeight.w300,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        isDense: true,
+                      ),
+                    ),
+                  ),
+                ],
               ),
+              // Hata mesajı - ayrı label olarak
+              if (state.hasError) ...[
+                const SizedBox(height: 8),
+                Text(
+                  state.errorText!,
+                  style: TextStyle(color: _accentColor, fontSize: 12),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
