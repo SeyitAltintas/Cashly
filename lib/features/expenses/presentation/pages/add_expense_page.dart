@@ -4,10 +4,11 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/utils/amount_input_formatter.dart';
 import '../../../../core/widgets/app_date_picker.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
 /// Harcama ekleme/düzenleme sayfası
-/// Bottom sheet yerine tam sayfa olarak tasarlandı
+/// Modern ve sade tasarım - Harcama temasına uygun
 class AddExpensePage extends StatefulWidget {
   final Map<String, dynamic>? expenseToEdit;
   final Function(
@@ -44,6 +45,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
   late Map<String, IconData> _categoryIcons;
   String? _selectedPaymentMethodId;
 
+  // Harcama teması rengi
+  static const Color _accentColor = ColorConstants.kirmiziVurgu;
+
   final List<String> _months = [
     "Ocak",
     "Şubat",
@@ -68,7 +72,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
     if (widget.expenseToEdit != null) {
       _nameController.text = widget.expenseToEdit!['isim'];
       _amountController.text = widget.expenseToEdit!['tutar'].toString();
-      // Kategorinin mevcut kategoriler arasında olup olmadığını kontrol et
       final editCategory = widget.expenseToEdit!['kategori'] as String?;
       if (editCategory != null && _categoryIcons.containsKey(editCategory)) {
         _selectedCategory = editCategory;
@@ -81,10 +84,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
         widget.paymentMethods.any(
           (pm) => pm.id == widget.defaultPaymentMethodId,
         )) {
-      // Varsayılan ödeme yöntemini kullan
       _selectedPaymentMethodId = widget.defaultPaymentMethodId;
     } else if (widget.paymentMethods.isNotEmpty) {
-      // Varsayılan olarak ilk ödeme yöntemini seç
       _selectedPaymentMethodId = widget.paymentMethods.first.id;
     }
   }
@@ -104,17 +105,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
       lastDate: DateTime(2030),
     );
     if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
+      setState(() => _selectedDate = picked);
     }
   }
 
   Future<void> _save() async {
-    // Form validation
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     final double? amount = AmountInputFormatter.parseFormattedAmount(
       _amountController.text,
@@ -144,20 +140,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
         bool yetersizBakiye = false;
 
         if (pm.type == 'kredi') {
-          // Kredi kartı: limit kontrolü
           final kalanLimit = (pm.limit ?? 0) - pm.balance;
-          if (amount > kalanLimit) {
-            yetersizBakiye = true;
-          }
+          if (amount > kalanLimit) yetersizBakiye = true;
         } else {
-          // Banka kartı/Nakit: bakiye kontrolü
-          if (amount > pm.balance) {
-            yetersizBakiye = true;
-          }
+          if (amount > pm.balance) yetersizBakiye = true;
         }
 
         if (yetersizBakiye) {
-          // Kalan bakiye hesapla
           final currentBalance = pm.type == 'kredi'
               ? (pm.limit ?? 0) - pm.balance
               : pm.balance;
@@ -189,394 +178,386 @@ class _AddExpensePageState extends State<AddExpensePage> {
     final isEditing = widget.expenseToEdit != null;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.close, color: Colors.white70),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           isEditing ? "Harcamayı Düzenle" : "Harcama Ekle",
           style: const TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
           ),
         ),
-        actions: [
-          // Kaydet butonu AppBar'da
-          TextButton(
-            onPressed: _save,
-            child: Text(
-              "Kaydet",
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+        centerTitle: true,
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          children: [
+            // Tutar alanı - Büyük ve merkezi
+            _buildAmountSection(),
+            const SizedBox(height: 32),
+
+            // Diğer alanlar
+            _buildTextField(
+              controller: _nameController,
+              label: "Harcama Adı",
+              hint: "Ne aldın?",
+              icon: Icons.shopping_bag_outlined,
+              validator: (value) =>
+                  Validators.validateItemName(value, itemType: 'Harcama'),
             ),
+            const SizedBox(height: 16),
+
+            _buildDateSelector(),
+            const SizedBox(height: 16),
+
+            _buildCategorySelector(),
+            const SizedBox(height: 16),
+
+            if (widget.paymentMethods.isNotEmpty) ...[
+              _buildPaymentMethodSelector(),
+              const SizedBox(height: 16),
+            ],
+
+            const SizedBox(height: 24),
+            _buildSaveButton(isEditing),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Tutar alanı - Modern ve büyük
+  Widget _buildAmountSection() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      child: Column(
+        children: [
+          const Text(
+            "Tutar",
+            style: TextStyle(color: Colors.white54, fontSize: 14),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                "₺",
+                style: TextStyle(
+                  color: Colors.white38,
+                  fontSize: 36,
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+              const SizedBox(width: 8),
+              IntrinsicWidth(
+                child: TextFormField(
+                  controller: _amountController,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 48,
+                    fontWeight: FontWeight.w300,
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [AmountInputFormatter()],
+                  textAlign: TextAlign.center,
+                  validator: (value) => AmountInputFormatter.validateAmount(
+                    value,
+                    maxAmount: 1000000,
+                  ),
+                  decoration: const InputDecoration(
+                    hintText: "0",
+                    hintStyle: TextStyle(
+                      color: Colors.white24,
+                      fontSize: 48,
+                      fontWeight: FontWeight.w300,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                    isDense: true,
+                    errorStyle: TextStyle(
+                      color: ColorConstants.kirmiziVurgu,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Harcama adı
-              TextFormField(
-                controller: _nameController,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                autofocus: !isEditing,
-                validator: (value) =>
-                    Validators.validateItemName(value, itemType: 'Harcama'),
-                decoration: InputDecoration(
-                  labelText: "Harcama Adı",
-                  labelStyle: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                  hintText: "Ne aldın? (Örn: Kahve)",
-                  hintStyle: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.54),
-                  ),
-                  prefixIcon: Icon(
-                    Icons.edit,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  filled: true,
-                  fillColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.05),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                  errorStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
+    );
+  }
 
-              // Tutar
-              TextFormField(
-                controller: _amountController,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [AmountInputFormatter()],
-                validator: (value) => AmountInputFormatter.validateAmount(
-                  value,
-                  maxAmount: 1000000,
-                ),
-                decoration: InputDecoration(
-                  labelText: "Tutar",
-                  labelStyle: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                  hintText: "Tutar (Örn: 1.250)",
-                  hintStyle: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.54),
-                  ),
-                  prefixIcon: Icon(
-                    Icons.currency_lira,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  filled: true,
-                  fillColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.05),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                  errorStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ),
+  // Ortak text field builder
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    String? Function(String?)? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white54, fontSize: 13),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(color: Colors.white24),
+            prefixIcon: Icon(icon, color: _accentColor, size: 22),
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.05),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: _accentColor.withValues(alpha: 0.5),
               ),
-              const SizedBox(height: 16),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: ColorConstants.kirmiziVurgu),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-              // Tarih seçici
-              Text(
-                "Tarih",
-                style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  fontSize: 12,
+  // Tarih seçici
+  Widget _buildDateSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Tarih",
+          style: TextStyle(color: Colors.white54, fontSize: 13),
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: _pickDate,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_today_outlined,
+                  color: _accentColor,
+                  size: 22,
                 ),
-              ),
-              const SizedBox(height: 8),
-              InkWell(
-                onTap: _pickDate,
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                const SizedBox(width: 12),
+                Text(
+                  "${_selectedDate.day} ${_months[_selectedDate.month - 1]} ${_selectedDate.year}",
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const Spacer(),
+                const Icon(Icons.chevron_right, color: Colors.white38),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Kategori seçici
+  Widget _buildCategorySelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Kategori",
+          style: TextStyle(color: Colors.white54, fontSize: 13),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: _selectedCategory,
+              dropdownColor: const Color(0xFF1E1E1E),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+              isExpanded: true,
+              icon: const Icon(Icons.expand_more, color: Colors.white38),
+              items: _categoryIcons.keys.map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
                   child: Row(
                     children: [
                       Icon(
-                        Icons.calendar_month,
-                        color: Theme.of(context).colorScheme.secondary,
+                        _categoryIcons[value],
+                        color: _accentColor,
+                        size: 20,
                       ),
                       const SizedBox(width: 12),
-                      Text(
-                        "${_selectedDate.day} ${_months[_selectedDate.month - 1]} ${_selectedDate.year}",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const Spacer(),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        size: 16,
-                      ),
+                      Text(value),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 16),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                setState(() => _selectedCategory = newValue!);
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-              // Kategori seçici
-              Text(
-                "Kategori",
-                style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  fontSize: 12,
-                ),
+  // Ödeme yöntemi seçici
+  Widget _buildPaymentMethodSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Ödeme Yöntemi",
+          style: TextStyle(color: Colors.white54, fontSize: 13),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String?>(
+              value: _selectedPaymentMethodId,
+              dropdownColor: const Color(0xFF1E1E1E),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+              isExpanded: true,
+              icon: const Icon(Icons.expand_more, color: Colors.white38),
+              hint: Row(
+                children: [
+                  Icon(
+                    Icons.account_balance_wallet_outlined,
+                    color: _accentColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Ödeme Yöntemi Seçin',
+                    style: TextStyle(color: Colors.white38),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _selectedCategory,
-                    dropdownColor: Theme.of(context).colorScheme.surface,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    isExpanded: true,
-                    icon: const Icon(
-                      Icons.arrow_drop_down,
-                      color: Colors.white70,
-                    ),
-                    items: _categoryIcons.keys.map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Row(
-                          children: [
-                            Icon(
-                              _categoryIcons[value],
-                              color: Theme.of(context).colorScheme.secondary,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(value, style: const TextStyle(fontSize: 16)),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        _selectedCategory = newValue!;
-                      });
-                    },
-                  ),
-                ),
-              ),
-
-              // Ödeme Yöntemi Seçimi
-              if (widget.paymentMethods.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Text(
-                  "Ödeme Yöntemi",
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String?>(
-                      value: _selectedPaymentMethodId,
-                      dropdownColor: Theme.of(context).colorScheme.surface,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                      isExpanded: true,
-                      icon: const Icon(
-                        Icons.arrow_drop_down,
-                        color: Colors.white70,
-                      ),
-                      hint: Row(
-                        children: [
-                          Icon(
-                            Icons.credit_card,
-                            color: Theme.of(context).colorScheme.secondary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Ödeme Yöntemi Seçin',
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.54),
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                      items: widget.paymentMethods.map((pm) {
-                        return DropdownMenuItem<String?>(
-                          value: pm.id,
-                          child: Row(
+              items: widget.paymentMethods.map((pm) {
+                IconData icon = pm.type == 'nakit'
+                    ? Icons.wallet
+                    : pm.type == 'kredi'
+                    ? Icons.credit_card
+                    : Icons.account_balance;
+                return DropdownMenuItem<String?>(
+                  value: pm.id,
+                  child: Row(
+                    children: [
+                      Icon(icon, color: _accentColor, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text.rich(
+                          TextSpan(
                             children: [
-                              Icon(
-                                pm.type == 'nakit'
-                                    ? Icons.wallet
-                                    : pm.type == 'kredi'
-                                    ? Icons.credit_card
-                                    : Icons.account_balance,
-                                color: Theme.of(context).colorScheme.secondary,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  pm.name,
-                                  style: const TextStyle(fontSize: 16),
-                                  overflow: TextOverflow.ellipsis,
+                              TextSpan(
+                                text: pm.name,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
                                 ),
                               ),
-                              if (pm.lastFourDigits != null)
-                                Text(
-                                  '****${pm.lastFourDigits}',
-                                  style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.5),
+                              if (pm.lastFourDigits != null) ...[
+                                TextSpan(
+                                  text: ' - ****${pm.lastFourDigits}',
+                                  style: const TextStyle(
+                                    color: Colors.white38,
                                     fontSize: 12,
                                   ),
                                 ),
+                              ],
                             ],
                           ),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectedPaymentMethodId = newValue;
-                        });
-                      },
-                    ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      // Bakiye göster (en sağda)
+                      Text(
+                        '${pm.balance.toStringAsFixed(0)} ₺',
+                        style: TextStyle(
+                          color: _accentColor.withValues(alpha: 0.8),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                setState(() => _selectedPaymentMethodId = newValue);
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-              const SizedBox(height: 32),
-
-              // Alt kaydet butonu
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 0,
-                  ),
-                  onPressed: _save,
-                  child: Text(
-                    isEditing ? "Güncelle" : "Harcama Ekle",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+  // Kaydet butonu - Gradient stil (ExpenseSummaryCard benzeri)
+  Widget _buildSaveButton(bool isEditing) {
+    return Container(
+      width: double.infinity,
+      height: 56,
+      decoration: BoxDecoration(
+        color: _accentColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _save,
+          borderRadius: BorderRadius.circular(20),
+          child: Center(
+            child: Text(
+              isEditing ? "Güncelle" : "Harcama Ekle",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(height: 20),
-            ],
+            ),
           ),
         ),
       ),
