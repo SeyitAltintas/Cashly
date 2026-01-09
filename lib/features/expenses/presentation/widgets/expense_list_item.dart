@@ -37,7 +37,7 @@ class ExpenseListItem extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 8),
           decoration: BoxDecoration(
             color: ColorConstants.koyuKirmizi,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(Icons.delete, color: Colors.white),
         ),
@@ -47,9 +47,9 @@ class ExpenseListItem extends StatelessWidget {
           child: Card(
             color: Theme.of(context).colorScheme.surface,
             elevation: 0,
-            margin: const EdgeInsets.only(bottom: 8),
+            margin: const EdgeInsets.only(bottom: 6),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               side: BorderSide(
                 color: Theme.of(
                   context,
@@ -58,8 +58,8 @@ class ExpenseListItem extends StatelessWidget {
             ),
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 4,
+                horizontal: 12,
+                vertical: 2,
               ),
               leading: _buildCategoryIcon(context),
               title: Text(
@@ -69,7 +69,6 @@ class ExpenseListItem extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              subtitle: _buildSubtitle(context),
               trailing: Text(
                 "-${CurrencyFormatter.formatWithoutSymbol((harcama['tutar'] as num).toDouble())} ₺",
                 style: const TextStyle(
@@ -87,79 +86,16 @@ class ExpenseListItem extends StatelessWidget {
 
   Widget _buildCategoryIcon(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Icon(
         categoryIcon ?? Icons.help,
         color: PageThemeColors.getIconColor(itemIndex),
+        size: 20,
       ),
-    );
-  }
-
-  Widget _buildSubtitle(BuildContext context) {
-    // Ödeme yöntemini bul
-    final paymentMethodId = harcama['odemeYontemiId'];
-    PaymentMethod? pm;
-    if (paymentMethodId != null) {
-      pm = paymentMethods.firstWhere(
-        (p) => p.id == paymentMethodId,
-        orElse: () => PaymentMethod(
-          id: '',
-          name: '',
-          type: '',
-          balance: 0,
-          colorIndex: 0,
-          createdAt: DateTime.now(),
-          isDeleted: false,
-        ),
-      );
-      if (pm.id.isEmpty) pm = null;
-    }
-
-    return Row(
-      children: [
-        Text(
-          harcama['kategori'],
-          style: const TextStyle(color: Colors.white38, fontSize: 12),
-        ),
-        if (pm != null) ...[
-          const SizedBox(width: 8),
-          Icon(
-            pm.isDeleted
-                ? Icons.block
-                : pm.type == 'nakit'
-                ? Icons.wallet
-                : pm.type == 'kredi'
-                ? Icons.credit_card
-                : Icons.account_balance,
-            size: 12,
-            color: pm.isDeleted
-                ? Colors.red.withValues(alpha: 0.5)
-                : Colors.white38,
-          ),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              pm.isDeleted
-                  ? '(Silinmiş)'
-                  : pm.lastFourDigits != null
-                  ? '${pm.name} ****${pm.lastFourDigits}'
-                  : pm.name,
-              style: TextStyle(
-                color: pm.isDeleted
-                    ? Colors.red.withValues(alpha: 0.5)
-                    : Colors.white38,
-                fontSize: 11,
-                fontStyle: pm.isDeleted ? FontStyle.italic : FontStyle.normal,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ],
     );
   }
 }

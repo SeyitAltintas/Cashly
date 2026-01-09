@@ -7,6 +7,7 @@ import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../widgets/expense_list_item.dart';
 import '../widgets/expense_summary_card.dart';
 import 'add_expense_page.dart';
+import 'expense_detail_page.dart';
 import '../widgets/voice_input_sheet.dart';
 import 'recycle_bin_page.dart';
 import '../../../../core/di/injection_container.dart';
@@ -471,8 +472,41 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                               paymentMethods: widget.tumOdemeYontemleri,
                               itemIndex: gosterilenHarcamalar.indexOf(harcama),
                               onDelete: () => harcamaSil(harcama),
-                              onTap: () =>
-                                  pencereAc(duzenlenecekHarcama: harcama),
+                              onTap: () {
+                                HapticService.selectionClick();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (ctx) => ExpenseDetailPage(
+                                      harcama: harcama,
+                                      categoryIcon:
+                                          widget
+                                              .kategoriIkonlari[harcama['kategori']] ??
+                                          IconConstants.getIconFromCategoryName(
+                                            harcama['kategori'],
+                                          ),
+                                      paymentMethods: widget.tumOdemeYontemleri,
+                                      kategoriIkonlari: widget.kategoriIkonlari,
+                                      onEdit: (updatedHarcama) {
+                                        setState(() {
+                                          final index = gosterilenHarcamalar
+                                              .indexOf(harcama);
+                                          if (index != -1) {
+                                            gosterilenHarcamalar[index] =
+                                                updatedHarcama;
+                                          }
+                                        });
+                                        widget.onHarcamalarChanged(
+                                          widget.tumHarcamalar,
+                                        );
+                                      },
+                                      onDelete: (deletedHarcama) {
+                                        harcamaSil(deletedHarcama);
+                                      },
+                                    ),
+                                  ),
+                                ).then((_) => filtreleVeGoster());
+                              },
                             );
                           }),
                         ],
