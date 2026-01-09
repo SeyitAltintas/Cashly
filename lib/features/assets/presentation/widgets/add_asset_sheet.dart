@@ -90,7 +90,19 @@ class _AddAssetSheetState extends State<AddAssetSheet> {
       _amountController.text = widget.asset!.amount.toString();
       _quantityController.text = widget.asset!.quantity.toString();
       _selectedCategory = widget.asset!.category;
-      _selectedType = widget.asset!.type;
+
+      // Type değerinin dropdown items listesinde olup olmadığını kontrol et
+      // Eski yedeklerden gelen farklı formattaki değerler (örn: "gram_altin" vs "Gram")
+      // dropdown'da bulunamazsa null olarak ayarla
+      final typeFromAsset = widget.asset!.type;
+      if (typeFromAsset != null &&
+          _types.containsKey(_selectedCategory) &&
+          _types[_selectedCategory]!.contains(typeFromAsset)) {
+        _selectedType = typeFromAsset;
+      } else {
+        _selectedType = null; // Eşleşmiyorsa kullanıcı yeniden seçsin
+      }
+
       _purchaseDate = widget.asset!.purchaseDate;
       _purchasePriceController.text = widget.asset!.purchasePrice.toString();
     } else {

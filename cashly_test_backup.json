@@ -653,7 +653,7 @@
                 "amount": 92500,
                 "quantity": 28.0,
                 "category": "Altın",
-                "type": "gram_altin",
+                "type": "Gram",
                 "lastUpdated": "2026-01-03T10:00:00.000Z",
                 "purchaseDate": "2025-05-15T10:00:00.000Z",
                 "purchasePrice": 75000,
@@ -665,7 +665,7 @@
                 "amount": 14200,
                 "quantity": 2.0,
                 "category": "Altın",
-                "type": "ceyrek_altin",
+                "type": "Çeyrek",
                 "lastUpdated": "2026-01-03T10:00:00.000Z",
                 "purchaseDate": "2025-03-10T10:00:00.000Z",
                 "purchasePrice": 11500,
@@ -677,7 +677,7 @@
                 "amount": 36500,
                 "quantity": 1000,
                 "category": "Döviz",
-                "type": "usd",
+                "type": "Amerikan Doları (USD)",
                 "lastUpdated": "2026-01-03T10:00:00.000Z",
                 "purchaseDate": "2025-07-20T10:00:00.000Z",
                 "purchasePrice": 32000,
@@ -689,7 +689,7 @@
                 "amount": 19800,
                 "quantity": 500,
                 "category": "Döviz",
-                "type": "eur",
+                "type": "Euro (EUR)",
                 "lastUpdated": "2026-01-03T10:00:00.000Z",
                 "purchaseDate": "2025-08-15T10:00:00.000Z",
                 "purchasePrice": 17500,
@@ -701,7 +701,7 @@
                 "amount": 48000,
                 "quantity": 0.02,
                 "category": "Kripto",
-                "type": "btc",
+                "type": "BTC",
                 "lastUpdated": "2026-01-03T10:00:00.000Z",
                 "purchaseDate": "2025-06-01T10:00:00.000Z",
                 "purchasePrice": 35000,
@@ -713,7 +713,7 @@
                 "amount": 12500,
                 "quantity": 0.5,
                 "category": "Kripto",
-                "type": "eth",
+                "type": "ETH",
                 "lastUpdated": "2026-01-03T10:00:00.000Z",
                 "purchaseDate": "2025-09-10T10:00:00.000Z",
                 "purchasePrice": 10000,
@@ -777,7 +777,6 @@
                 "isScheduled": false,
                 "isExecuted": true,
                 "isFailed": false
-
             },
             {
                 "id": "tr_11_02",
@@ -786,7 +785,7 @@
                 "amount": 2000,
                 "date": "2025-11-25T10:00:00.000Z",
                 "description": "Kredi kartı borç ödemesi",
-                 "isScheduled": false,
+                "isScheduled": false,
                 "isExecuted": true,
                 "isFailed": false
             },
@@ -797,7 +796,7 @@
                 "amount": 7000,
                 "date": "2025-12-05T10:00:00.000Z",
                 "description": "Nakit çekim",
-                 "isScheduled": false,
+                "isScheduled": false,
                 "isExecuted": true,
                 "isFailed": false
             },
@@ -808,7 +807,7 @@
                 "amount": 3000,
                 "date": "2025-12-28T10:00:00.000Z",
                 "description": "Kredi kartı borç ödemesi",
-                 "isScheduled": false,
+                "isScheduled": false,
                 "isExecuted": true,
                 "isFailed": false
             },
@@ -834,7 +833,7 @@
                 "isExecuted": true,
                 "isFailed": false
             },
-             {
+            {
                 "id": "tr_01_03",
                 "fromAccountId": "pm_ziraat",
                 "toAccountId": "pm_nakit",
