@@ -254,7 +254,18 @@ class BackupService {
         await StreakService.initialize();
         final streakMap = Map<String, dynamic>.from(backupData['streak']);
         final streakData = StreakData.fromMap(streakMap);
-        await streakRepo.saveStreakData(userId, streakData);
+
+        // lastLoginDate'i bugüne güncelle ki uygulama açıldığında
+        // checkAndUpdateStreak seriyi sıfırlamasın
+        final today = DateTime.now();
+        final todayString =
+            '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+        final updatedStreakData = streakData.copyWith(
+          lastLoginDate: todayString,
+        );
+
+        await streakRepo.saveStreakData(userId, updatedStreakData);
       }
 
       // Ayarları geri yükle (v1.1+)
