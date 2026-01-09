@@ -41,7 +41,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      height: 120, // Sabit yükseklik
+      height: 180, // Sabit yükseklik - Daha da artırıldı
       child: Column(
         children: [
           // Carousel içeriği
@@ -68,7 +68,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
   /// Sayfa 1: Toplam Harcama ve Tarih Seçimi
   Widget _buildTotalExpensePage(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -84,47 +84,152 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
         ),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Ay seçici satırı
-          _buildMonthSelector(context),
-          const SizedBox(height: 4),
-          // Toplam harcama satırı
+          // Üst Satır: Başlık ve Tarih
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Sol Üst: Etiket
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Toplam Harcama",
-                    style: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
-                      fontSize: 12,
-                    ),
-                  ),
-                  Text(
-                    CurrencyFormatter.format(widget.toplamTutar),
-                    style: TextStyle(
-                      color: ColorConstants.kirmiziVurgu,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.wallet,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
+                        size: 14,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "TOPLAM HARCAMA",
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
+                          fontSize: 11,
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
+              // Sağ Üst: Ay Seçici (Minimal & Touch Optimized)
               Container(
-                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.black.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
                 ),
-                child: Icon(
-                  Icons.trending_down,
-                  color: ColorConstants.kirmiziVurgu,
-                  size: 24,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Sol Ok - Genişletilmiş Dokunma Alanı
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: widget.oncekiAy,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          bottomLeft: Radius.circular(20),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          child: Icon(
+                            Icons.chevron_left,
+                            color: Colors.white.withValues(alpha: 0.7),
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Ay İsmi - Ayrı Dokunma Alanı
+                    GestureDetector(
+                      onTap: widget.ayYilSeciciAc,
+                      behavior: HitTestBehavior.opaque,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text(
+                          widget.ayIsmi.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Sağ Ok - Genişletilmiş Dokunma Alanı
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: widget.sonrakiAy,
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          child: Icon(
+                            Icons.chevron_right,
+                            color: Colors.white.withValues(alpha: 0.7),
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const Spacer(),
+
+          // Orta: Büyük Tutar
+          Text(
+            CurrencyFormatter.format(widget.toplamTutar),
+            style: TextStyle(
+              color: ColorConstants.kirmiziVurgu,
+              fontSize: 36,
+              height: 1.1,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1,
+            ),
+          ),
+
+          const SizedBox(height: 15),
+
+          // Alt: İkonik Gösterim
+          Row(
+            children: [
+              Icon(
+                Icons.trending_down,
+                color: Colors.redAccent.shade100,
+                size: 16,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                "Bu ayki harcamalar",
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.5),
+                  fontSize: 12,
                 ),
               ),
             ],
@@ -141,14 +246,13 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
       1.0,
     );
     final double kalanLimit = widget.butceLimiti - widget.toplamTutar;
-    final double asilanMiktar = widget.toplamTutar - widget.butceLimiti;
 
     Color barRengi = Theme.of(context).colorScheme.secondary;
     if (dolulukOrani > 0.5) barRengi = Colors.orangeAccent;
     if (dolulukOrani > 0.8) barRengi = ColorConstants.kirmiziVurgu;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -164,148 +268,106 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
         ),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.account_balance_wallet,
-                    color: Theme.of(context).colorScheme.secondary,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    "Bütçe Durumu",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
               Text(
-                "%${(dolulukOrani * 100).toStringAsFixed(0)}",
-                style: TextStyle(
-                  color: barRengi,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: dolulukOrani,
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.1),
-              valueColor: AlwaysStoppedAnimation<Color>(barRengi),
-              minHeight: 8,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Limit: ${CurrencyFormatter.format(widget.butceLimiti)}",
+                "BÜTÇE DURUMU",
                 style: TextStyle(
                   color: Theme.of(
                     context,
                   ).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 11,
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              kalanLimit < 0
-                  ? Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: ColorConstants.kirmiziVurgu,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        "Aşıldı: ${CurrencyFormatter.formatWithoutSymbol(asilanMiktar)} ₺",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
-                  : Text(
-                      "Kalan: ${CurrencyFormatter.format(kalanLimit)}",
-                      style: TextStyle(
-                        color: Colors.green.shade400,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: barRengi.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "%${(dolulukOrani * 100).toStringAsFixed(0)}",
+                  style: TextStyle(
+                    color: barRengi,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const Spacer(),
+
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: LinearProgressIndicator(
+              value: dolulukOrani,
+              backgroundColor: Colors.black.withValues(alpha: 0.2),
+              valueColor: AlwaysStoppedAnimation<Color>(barRengi),
+              minHeight: 12,
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "KALAN",
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.4),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
                     ),
+                  ),
+                  Text(
+                    CurrencyFormatter.format(kalanLimit),
+                    style: TextStyle(
+                      color: kalanLimit < 0
+                          ? ColorConstants.kirmiziVurgu
+                          : Colors.white.withValues(alpha: 0.9),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "TOPLAM LİMİT",
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.4),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    CurrencyFormatter.format(widget.butceLimiti),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ],
       ),
-    );
-  }
-
-  /// Ay seçici
-  Widget _buildMonthSelector(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        GestureDetector(
-          onTap: widget.oncekiAy,
-          child: Icon(
-            Icons.arrow_back_ios,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.7),
-            size: 16,
-          ),
-        ),
-        GestureDetector(
-          onTap: widget.ayYilSeciciAc,
-          child: Row(
-            children: [
-              Text(
-                widget.ayIsmi.toUpperCase(),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Icon(
-                Icons.arrow_drop_down,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-                size: 18,
-              ),
-            ],
-          ),
-        ),
-        GestureDetector(
-          onTap: widget.sonrakiAy,
-          child: Icon(
-            Icons.arrow_forward_ios,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.7),
-            size: 16,
-          ),
-        ),
-      ],
     );
   }
 

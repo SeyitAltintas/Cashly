@@ -4,14 +4,15 @@ import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../income/presentation/pages/add_income_page.dart';
 import '../../../income/presentation/widgets/income_voice_input_sheet.dart';
 import '../../../income/presentation/pages/income_recycle_bin_page.dart';
-import '../../../../core/utils/currency_formatter.dart';
+
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/services/haptic_service.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
+import '../widgets/income_summary_card.dart';
+import '../widgets/income_list_item.dart';
 
 class IncomesPage extends StatefulWidget {
   final List<Income> tumGelirler;
@@ -411,155 +412,16 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
         children: [
           // Özet Kartı
           if (!gelirAramaModu)
-            Container(
-              margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.green.shade400.withValues(alpha: 0.25),
-                    Colors.green.shade400.withValues(alpha: 0.1),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Colors.green.shade400.withValues(alpha: 0.4),
-                ),
+            // Özet Kartı
+            if (!gelirAramaModu)
+              IncomeSummaryCard(
+                ayIsmi: ayIsmi,
+                toplamGelir: toplamGelir,
+                oncekiAy: oncekiAy,
+                sonrakiAy: sonrakiAy,
+                ayYilSeciciAc: _ayYilSeciciAc,
+                gelirSayisi: gelirler.length,
               ),
-              child: Column(
-                children: [
-                  // Ay seçici satırı
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.arrow_back_ios,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
-                          size: 18,
-                        ),
-                        onPressed: oncekiAy,
-                      ),
-                      GestureDetector(
-                        onTap: _ayYilSeciciAc,
-                        child: Row(
-                          children: [
-                            Text(
-                              ayIsmi.toUpperCase(),
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                            Icon(
-                              Icons.arrow_drop_down,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.7),
-                              size: 20,
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.arrow_forward_ios,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
-                          size: 18,
-                        ),
-                        onPressed: sonrakiAy,
-                      ),
-                    ],
-                  ),
-                  Divider(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.1),
-                  ),
-                  const SizedBox(height: 10),
-                  // Toplam gelir satırı
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Toplam Gelir",
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.7),
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            CurrencyFormatter.format(toplamGelir),
-                            style: TextStyle(
-                              color: Colors.green.shade300,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade400.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Icon(
-                          Icons.trending_up,
-                          color: Colors.green.shade300,
-                          size: 28,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  // Gelir sayısı bilgisi
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.receipt_long,
-                          color: Colors.green.shade300,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "Bu ay ${gelirler.length} gelir kaydı",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.8),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
           // Gelir listesi
           Expanded(
@@ -582,74 +444,13 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                       }
 
                       final gelir = gelirler[index];
-                      return Dismissible(
-                        key: Key(gelir.id),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade700,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(Icons.delete, color: Colors.white),
-                        ),
-                        onDismissed: (direction) => gelirSil(gelir),
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.surface.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.08),
-                            ),
-                          ),
-                          child: ListTile(
-                            onTap: () => gelirDuzenle(gelir),
-                            leading: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: PageThemeColors.getIconColor(
-                                  index,
-                                ).withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                widget.gelirKategoriIkonlari[gelir.category] ??
-                                    Icons.attach_money,
-                                color: PageThemeColors.getIconColor(index),
-                              ),
-                            ),
-                            title: Text(
-                              gelir.name,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            subtitle: Text(
-                              "${gelir.date.day}/${gelir.date.month}/${gelir.date.year} • ${gelir.category}",
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.5),
-                                fontSize: 12,
-                              ),
-                            ),
-                            trailing: Text(
-                              "+${CurrencyFormatter.formatWithoutSymbol(gelir.amount)} ₺",
-                              style: TextStyle(
-                                color: Colors.green.shade300,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ),
+                      return IncomeListItem(
+                        income: gelir,
+                        categoryIcon:
+                            widget.gelirKategoriIkonlari[gelir.category],
+                        itemIndex: index,
+                        onDelete: () => gelirSil(gelir),
+                        onTap: () => gelirDuzenle(gelir),
                       );
                     },
                   ),

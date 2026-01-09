@@ -443,6 +443,8 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Tarih başlığı kaldırıldı (Kart içinde gösteriliyor)
+                          /*
                           Padding(
                             padding: const EdgeInsets.only(
                               left: 8,
@@ -460,6 +462,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                               ),
                             ),
                           ),
+                          */
                           ...harcamalar.map((harcama) {
                             return ExpenseListItem(
                               harcama: harcama,

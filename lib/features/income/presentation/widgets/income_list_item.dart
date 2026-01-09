@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:cashly/core/theme/app_theme.dart';
-import 'package:cashly/core/constants/color_constants.dart';
-import 'package:cashly/core/utils/currency_formatter.dart';
-import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/constants/color_constants.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../data/models/income_model.dart';
 
-/// Tek bir harcama satırı widget'ı
-/// Dismissible (kaydırarak silme) ve ödeme yöntemi gösterimi içerir
-class ExpenseListItem extends StatelessWidget {
-  final Map<String, dynamic> harcama;
+class IncomeListItem extends StatelessWidget {
+  final Income income;
   final IconData? categoryIcon;
-  final List<PaymentMethod> paymentMethods;
   final int itemIndex;
   final VoidCallback onDelete;
   final VoidCallback onTap;
 
-  const ExpenseListItem({
+  const IncomeListItem({
     super.key,
-    required this.harcama,
+    required this.income,
     required this.categoryIcon,
-    required this.paymentMethods,
     required this.itemIndex,
     required this.onDelete,
     required this.onTap,
@@ -26,10 +22,9 @@ class ExpenseListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // RepaintBoundary: Bu liste öğesinin repaint'ini izole eder
     return RepaintBoundary(
       child: Dismissible(
-        key: ValueKey(harcama),
+        key: Key(income.id),
         direction: DismissDirection.endToStart,
         background: Container(
           alignment: Alignment.centerRight,
@@ -59,19 +54,19 @@ class ExpenseListItem extends StatelessWidget {
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
-                vertical: 4, // Biraz dikey padding artırıldı
+                vertical: 4,
               ),
               leading: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Tarih Alanı
                   SizedBox(
-                    width: 40, // Sabit genişlik hizalama için
+                    width: 40,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          _getDay(harcama['tarih']),
+                          _getDay(income.date),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -79,7 +74,7 @@ class ExpenseListItem extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _getMonth(harcama['tarih']),
+                          _getMonth(income.date),
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.7),
                             fontSize: 11,
@@ -101,7 +96,7 @@ class ExpenseListItem extends StatelessWidget {
                 ],
               ),
               title: Text(
-                harcama['isim'],
+                income.name,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w500,
@@ -109,9 +104,9 @@ class ExpenseListItem extends StatelessWidget {
                 ),
               ),
               trailing: Text(
-                "-${CurrencyFormatter.formatWithoutSymbol((harcama['tutar'] as num).toDouble())} ₺",
+                "+${CurrencyFormatter.formatWithoutSymbol(income.amount)} ₺",
                 style: const TextStyle(
-                  color: Colors.red,
+                  color: Colors.greenAccent,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -131,24 +126,18 @@ class ExpenseListItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Icon(
-        categoryIcon ?? Icons.help,
+        categoryIcon ?? Icons.attach_money,
         color: PageThemeColors.getIconColor(itemIndex),
         size: 20,
       ),
     );
   }
 
-  String _getDay(dynamic dateStr) {
-    if (dateStr == null) return "-";
-    final date = DateTime.tryParse(dateStr.toString());
-    if (date == null) return "-";
+  String _getDay(DateTime date) {
     return date.day.toString();
   }
 
-  String _getMonth(dynamic dateStr) {
-    if (dateStr == null) return "-";
-    final date = DateTime.tryParse(dateStr.toString());
-    if (date == null) return "-";
+  String _getMonth(DateTime date) {
     const months = [
       "OCA",
       "ŞUB",

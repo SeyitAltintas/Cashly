@@ -1,35 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:cashly/core/theme/app_theme.dart';
-import 'package:cashly/core/constants/color_constants.dart';
-import 'package:cashly/core/utils/currency_formatter.dart';
-import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../data/models/asset_model.dart';
+import '../../../../core/services/haptic_service.dart';
+import '../../../../core/constants/color_constants.dart';
 
-/// Tek bir harcama satırı widget'ı
-/// Dismissible (kaydırarak silme) ve ödeme yöntemi gösterimi içerir
-class ExpenseListItem extends StatelessWidget {
-  final Map<String, dynamic> harcama;
-  final IconData? categoryIcon;
-  final List<PaymentMethod> paymentMethods;
-  final int itemIndex;
+class AssetListItem extends StatelessWidget {
+  final Asset asset;
   final VoidCallback onDelete;
   final VoidCallback onTap;
+  final VoidCallback onLongPress;
 
-  const ExpenseListItem({
+  const AssetListItem({
     super.key,
-    required this.harcama,
-    required this.categoryIcon,
-    required this.paymentMethods,
-    required this.itemIndex,
+    required this.asset,
     required this.onDelete,
     required this.onTap,
+    required this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
-    // RepaintBoundary: Bu liste öğesinin repaint'ini izole eder
     return RepaintBoundary(
       child: Dismissible(
-        key: ValueKey(harcama),
+        key: Key(asset.id),
         direction: DismissDirection.endToStart,
         background: Container(
           alignment: Alignment.centerRight,
@@ -41,9 +34,16 @@ class ExpenseListItem extends StatelessWidget {
           ),
           child: const Icon(Icons.delete, color: Colors.white),
         ),
-        onDismissed: (direction) => onDelete(),
+        onDismissed: (direction) {
+          HapticService.delete();
+          onDelete();
+        },
         child: GestureDetector(
-          onTap: onTap,
+          onLongPress: onLongPress,
+          onTap: () {
+            HapticService.selectionClick();
+            onTap();
+          },
           child: Card(
             color: const Color.fromARGB(255, 6, 6, 6),
             elevation: 0,
@@ -59,19 +59,19 @@ class ExpenseListItem extends StatelessWidget {
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
-                vertical: 4, // Biraz dikey padding artırıldı
+                vertical: 4,
               ),
               leading: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Tarih Alanı
+                  // Tarih Alanı (Alış Tarihi)
                   SizedBox(
-                    width: 40, // Sabit genişlik hizalama için
+                    width: 40,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          _getDay(harcama['tarih']),
+                          _getDay(asset.purchaseDate),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -79,7 +79,7 @@ class ExpenseListItem extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _getMonth(harcama['tarih']),
+                          _getMonth(asset.purchaseDate),
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.7),
                             fontSize: 11,
@@ -97,11 +97,11 @@ class ExpenseListItem extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   // Kategori İkonu
-                  _buildCategoryIcon(context),
+                  _buildCategoryIcon(context, asset.category),
                 ],
               ),
               title: Text(
-                harcama['isim'],
+                asset.name,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w500,
@@ -109,9 +109,9 @@ class ExpenseListItem extends StatelessWidget {
                 ),
               ),
               trailing: Text(
-                "-${CurrencyFormatter.formatWithoutSymbol((harcama['tutar'] as num).toDouble())} ₺",
+                CurrencyFormatter.format(asset.amount),
                 style: const TextStyle(
-                  color: Colors.red,
+                  color: Colors.blueAccent,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -123,32 +123,26 @@ class ExpenseListItem extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryIcon(BuildContext context) {
+  Widget _buildCategoryIcon(BuildContext context, String category) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+        color: _getColorForCategory(context, category).withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Icon(
-        categoryIcon ?? Icons.help,
-        color: PageThemeColors.getIconColor(itemIndex),
+        _getIconForCategory(category),
+        color: _getColorForCategory(context, category),
         size: 20,
       ),
     );
   }
 
-  String _getDay(dynamic dateStr) {
-    if (dateStr == null) return "-";
-    final date = DateTime.tryParse(dateStr.toString());
-    if (date == null) return "-";
+  String _getDay(DateTime date) {
     return date.day.toString();
   }
 
-  String _getMonth(dynamic dateStr) {
-    if (dateStr == null) return "-";
-    final date = DateTime.tryParse(dateStr.toString());
-    if (date == null) return "-";
+  String _getMonth(DateTime date) {
     const months = [
       "OCA",
       "ŞUB",
@@ -164,5 +158,39 @@ class ExpenseListItem extends StatelessWidget {
       "ARA",
     ];
     return months[date.month - 1];
+  }
+
+  IconData _getIconForCategory(String category) {
+    switch (category.toLowerCase()) {
+      case 'altın':
+        return Icons.monetization_on;
+      case 'döviz':
+        return Icons.currency_exchange;
+      case 'kripto':
+        return Icons.currency_bitcoin;
+      case 'banka':
+        return Icons.account_balance;
+      case 'gümüş':
+        return Icons.api;
+      default:
+        return Icons.savings;
+    }
+  }
+
+  Color _getColorForCategory(BuildContext context, String category) {
+    switch (category.toLowerCase()) {
+      case 'altın':
+        return Colors.amber;
+      case 'döviz':
+        return Colors.green;
+      case 'kripto':
+        return Colors.orangeAccent;
+      case 'banka':
+        return Colors.blueAccent;
+      case 'gümüş':
+        return Colors.blueGrey;
+      default:
+        return Theme.of(context).colorScheme.secondary;
+    }
   }
 }
