@@ -6,7 +6,9 @@ import '../../../../core/utils/amount_input_formatter.dart';
 import '../../../../core/widgets/app_date_picker.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
-class AddExpenseSheet extends StatefulWidget {
+/// Harcama ekleme/düzenleme sayfası
+/// Bottom sheet yerine tam sayfa olarak tasarlandı
+class AddExpensePage extends StatefulWidget {
   final Map<String, dynamic>? expenseToEdit;
   final Function(
     String name,
@@ -20,7 +22,7 @@ class AddExpenseSheet extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
   final String? defaultPaymentMethodId;
 
-  const AddExpenseSheet({
+  const AddExpensePage({
     super.key,
     this.expenseToEdit,
     required this.onSave,
@@ -30,10 +32,10 @@ class AddExpenseSheet extends StatefulWidget {
   });
 
   @override
-  State<AddExpenseSheet> createState() => _AddExpenseSheetState();
+  State<AddExpensePage> createState() => _AddExpensePageState();
 }
 
-class _AddExpenseSheetState extends State<AddExpenseSheet> {
+class _AddExpensePageState extends State<AddExpensePage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -71,7 +73,6 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       if (editCategory != null && _categoryIcons.containsKey(editCategory)) {
         _selectedCategory = editCategory;
       }
-      // Yoksa varsayılan kategori kullanılır (_categoryIcons.keys.first - satır 63)
       _selectedDate =
           DateTime.tryParse(widget.expenseToEdit!['tarih'].toString()) ??
           DateTime.now();
@@ -185,55 +186,62 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-        top: 20,
-        left: 20,
-        right: 20,
+    final isEditing = widget.expenseToEdit != null;
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          isEditing ? "Harcamayı Düzenle" : "Harcama Ekle",
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          // Kaydet butonu AppBar'da
+          TextButton(
+            onPressed: _save,
+            child: Text(
+              "Kaydet",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ],
       ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                widget.expenseToEdit != null
-                    ? "Harcamayı Düzenle"
-                    : "Harcama Ekle",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 20),
+              // Harcama adı
               TextFormField(
                 controller: _nameController,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
-                autofocus: true,
+                autofocus: !isEditing,
                 validator: (value) =>
                     Validators.validateItemName(value, itemType: 'Harcama'),
                 decoration: InputDecoration(
+                  labelText: "Harcama Adı",
+                  labelStyle: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
                   hintText: "Ne aldın? (Örn: Kahve)",
                   hintStyle: TextStyle(
                     color: Theme.of(
@@ -269,7 +277,9 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
+
+              // Tutar
               TextFormField(
                 controller: _amountController,
                 style: TextStyle(
@@ -282,6 +292,12 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   maxAmount: 1000000,
                 ),
                 decoration: InputDecoration(
+                  labelText: "Tutar",
+                  labelStyle: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
                   hintText: "Tutar (Örn: 1.250)",
                   hintStyle: TextStyle(
                     color: Theme.of(
@@ -317,13 +333,25 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
+
+              // Tarih seçici
+              Text(
+                "Tarih",
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 8),
               InkWell(
                 onTap: _pickDate,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 14,
+                    vertical: 16,
                     horizontal: 12,
                   ),
                   decoration: BoxDecoration(
@@ -338,7 +366,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                         Icons.calendar_month,
                         color: Theme.of(context).colorScheme.secondary,
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       Text(
                         "${_selectedDate.day} ${_months[_selectedDate.month - 1]} ${_selectedDate.year}",
                         style: TextStyle(
@@ -347,15 +375,30 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                         ),
                       ),
                       const Spacer(),
-                      const Text(
-                        "Değiştir",
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
+                        size: 16,
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
+
+              // Kategori seçici
+              Text(
+                "Kategori",
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -403,9 +446,20 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   ),
                 ),
               ),
+
               // Ödeme Yöntemi Seçimi
               if (widget.paymentMethods.isNotEmpty) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
+                Text(
+                  "Ödeme Yöntemi",
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -494,24 +548,27 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   ),
                 ),
               ],
-              const SizedBox(height: 24),
+
+              const SizedBox(height: 32),
+
+              // Alt kaydet butonu
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 56,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 0,
                   ),
                   onPressed: _save,
                   child: Text(
-                    "Kaydet",
+                    isEditing ? "Güncelle" : "Harcama Ekle",
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),

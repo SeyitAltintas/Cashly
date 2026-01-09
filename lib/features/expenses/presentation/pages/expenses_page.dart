@@ -6,7 +6,7 @@ import '../../../../core/constants/icon_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../widgets/expense_list_item.dart';
 import '../widgets/expense_summary_card.dart';
-import '../widgets/add_expense_sheet.dart';
+import 'add_expense_page.dart';
 import '../widgets/voice_input_sheet.dart';
 import 'recycle_bin_page.dart';
 import '../../../../core/di/injection_container.dart';
@@ -238,92 +238,92 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
         : 0.0;
     final eskiOdemeYontemiId = duzenlenecekHarcama?['odemeYontemiId'];
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => AddExpenseSheet(
-        expenseToEdit: duzenlenecekHarcama,
-        categories: widget.kategoriIkonlari,
-        paymentMethods: widget.tumOdemeYontemleri
-            .where((pm) => !pm.isDeleted)
-            .toList(),
-        defaultPaymentMethodId: widget.varsayilanOdemeYontemiId,
-        onSave: (name, amount, category, date, paymentMethodId) {
-          setState(() {
-            void updateBalance(String? pmId, double amountChange) {
-              if (pmId == null) return;
-              final pmIndex = widget.tumOdemeYontemleri.indexWhere(
-                (p) => p.id == pmId,
-              );
-              if (pmIndex == -1) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddExpensePage(
+          expenseToEdit: duzenlenecekHarcama,
+          categories: widget.kategoriIkonlari,
+          paymentMethods: widget.tumOdemeYontemleri
+              .where((pm) => !pm.isDeleted)
+              .toList(),
+          defaultPaymentMethodId: widget.varsayilanOdemeYontemiId,
+          onSave: (name, amount, category, date, paymentMethodId) {
+            setState(() {
+              void updateBalance(String? pmId, double amountChange) {
+                if (pmId == null) return;
+                final pmIndex = widget.tumOdemeYontemleri.indexWhere(
+                  (p) => p.id == pmId,
+                );
+                if (pmIndex == -1) return;
 
-              final pm = widget.tumOdemeYontemleri[pmIndex];
-              double newBalance;
-              if (pm.type == 'kredi') {
-                newBalance = pm.balance + amountChange;
+                final pm = widget.tumOdemeYontemleri[pmIndex];
+                double newBalance;
+                if (pm.type == 'kredi') {
+                  newBalance = pm.balance + amountChange;
+                } else {
+                  newBalance = pm.balance - amountChange;
+                }
+                widget.tumOdemeYontemleri[pmIndex] = pm.copyWith(
+                  balance: newBalance,
+                );
+              }
+
+              if (duzenlenecekHarcama != null) {
+                if (eskiOdemeYontemiId != null) {
+                  updateBalance(eskiOdemeYontemiId, -eskiTutar);
+                }
+                if (paymentMethodId != null) {
+                  updateBalance(paymentMethodId, amount);
+                }
+
+                int index = widget.tumHarcamalar.indexOf(duzenlenecekHarcama);
+                if (index != -1) {
+                  widget.tumHarcamalar[index] = {
+                    "isim": name,
+                    "tutar": amount,
+                    "kategori": category,
+                    "tarih": date.toString(),
+                    "silindi": false,
+                    "odemeYontemiId": paymentMethodId,
+                  };
+                }
               } else {
-                newBalance = pm.balance - amountChange;
-              }
-              widget.tumOdemeYontemleri[pmIndex] = pm.copyWith(
-                balance: newBalance,
-              );
-            }
+                if (paymentMethodId != null) {
+                  updateBalance(paymentMethodId, amount);
+                }
 
-            if (duzenlenecekHarcama != null) {
-              if (eskiOdemeYontemiId != null) {
-                updateBalance(eskiOdemeYontemiId, -eskiTutar);
-              }
-              if (paymentMethodId != null) {
-                updateBalance(paymentMethodId, amount);
-              }
-
-              int index = widget.tumHarcamalar.indexOf(duzenlenecekHarcama);
-              if (index != -1) {
-                widget.tumHarcamalar[index] = {
+                widget.tumHarcamalar.add({
                   "isim": name,
                   "tutar": amount,
                   "kategori": category,
                   "tarih": date.toString(),
                   "silindi": false,
                   "odemeYontemiId": paymentMethodId,
-                };
-              }
-            } else {
-              if (paymentMethodId != null) {
-                updateBalance(paymentMethodId, amount);
+                });
               }
 
-              widget.tumHarcamalar.add({
-                "isim": name,
-                "tutar": amount,
-                "kategori": category,
-                "tarih": date.toString(),
-                "silindi": false,
-                "odemeYontemiId": paymentMethodId,
+              widget.tumHarcamalar.sort((a, b) {
+                DateTime tarihA =
+                    DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+                DateTime tarihB =
+                    DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+                return tarihB.compareTo(tarihA);
               });
-            }
 
-            widget.tumHarcamalar.sort((a, b) {
-              DateTime tarihA =
-                  DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-              DateTime tarihB =
-                  DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-              return tarihB.compareTo(tarihA);
+              filtreleVeGoster();
             });
 
-            filtreleVeGoster();
-          });
+            widget.onHarcamalarChanged(widget.tumHarcamalar);
+            widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-          widget.onHarcamalarChanged(widget.tumHarcamalar);
-          widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
-
-          if (duzenlenecekHarcama == null) {
-            if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
-              MoneyAnimationOverlay.show(context);
+            if (duzenlenecekHarcama == null) {
+              if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
+                MoneyAnimationOverlay.show(context);
+              }
             }
-          }
-        },
+          },
+        ),
       ),
     );
   }
