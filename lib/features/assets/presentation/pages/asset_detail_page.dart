@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../data/models/asset_model.dart';
-import '../widgets/add_asset_sheet.dart';
+import 'add_asset_page.dart';
 import '../../../../core/services/haptic_service.dart';
 
 /// Varlık detay sayfası - Varlığın alış bilgileri ve güncel değerini gösterir
@@ -345,36 +345,35 @@ class AssetDetailPage extends StatelessWidget {
           child: ElevatedButton.icon(
             onPressed: () {
               HapticService.lightImpact();
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (ctx) => AddAssetSheet(
-                  asset: asset,
-                  onSave:
-                      (
-                        name,
-                        amount,
-                        quantity,
-                        category,
-                        type,
-                        purchaseDate,
-                        purchasePrice,
-                      ) {
-                        // Güncellenmiş varlığı oluştur (alış bilgileri de güncellenebilir)
-                        final updatedAsset = asset.copyWith(
-                          name: name,
-                          amount: amount,
-                          quantity: quantity,
-                          category: category,
-                          type: type,
-                          lastUpdated: DateTime.now(),
-                          purchaseDate: purchaseDate,
-                          purchasePrice: purchasePrice,
-                        );
-                        onEdit(updatedAsset);
-                        Navigator.pop(context); // Detay sayfasını kapat
-                      },
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => AddAssetPage(
+                    asset: asset,
+                    onSave:
+                        (
+                          name,
+                          amount,
+                          quantity,
+                          category,
+                          type,
+                          purchaseDate,
+                          purchasePrice,
+                        ) {
+                          final updatedAsset = asset.copyWith(
+                            name: name,
+                            amount: amount,
+                            quantity: quantity,
+                            category: category,
+                            type: type,
+                            lastUpdated: DateTime.now(),
+                            purchaseDate: purchaseDate,
+                            purchasePrice: purchasePrice,
+                          );
+                          onEdit(updatedAsset);
+                          Navigator.pop(context); // Detay sayfasını kapat
+                        },
+                  ),
                 ),
               );
             },

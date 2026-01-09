@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cashly/core/widgets/balance_warning_dialog.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/utils/amount_input_formatter.dart';
@@ -8,10 +7,10 @@ import '../../../../core/widgets/app_date_picker.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
-/// Harcama ekleme/düzenleme sayfası
-/// Modern ve sade tasarım - Harcama temasına uygun
-class AddExpensePage extends StatefulWidget {
-  final Map<String, dynamic>? expenseToEdit;
+/// Gelir ekleme/düzenleme sayfası
+/// Modern ve sade tasarım - Gelir temasına uygun (yeşil)
+class AddIncomePage extends StatefulWidget {
+  final Map<String, dynamic>? incomeToEdit;
   final Function(
     String name,
     double amount,
@@ -22,22 +21,20 @@ class AddExpensePage extends StatefulWidget {
   onSave;
   final Map<String, IconData> categories;
   final List<PaymentMethod> paymentMethods;
-  final String? defaultPaymentMethodId;
 
-  const AddExpensePage({
+  const AddIncomePage({
     super.key,
-    this.expenseToEdit,
+    this.incomeToEdit,
     required this.onSave,
     required this.categories,
     this.paymentMethods = const [],
-    this.defaultPaymentMethodId,
   });
 
   @override
-  State<AddExpensePage> createState() => _AddExpensePageState();
+  State<AddIncomePage> createState() => _AddIncomePageState();
 }
 
-class _AddExpensePageState extends State<AddExpensePage> {
+class _AddIncomePageState extends State<AddIncomePage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -46,8 +43,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
   late Map<String, IconData> _categoryIcons;
   String? _selectedPaymentMethodId;
 
-  // Harcama teması rengi
-  static const Color _accentColor = ColorConstants.kirmiziVurgu;
+  // Gelir teması rengi (yeşil)
+  static const Color _accentColor = ColorConstants.yesil;
 
   final List<String> _months = [
     "Ocak",
@@ -70,24 +67,25 @@ class _AddExpensePageState extends State<AddExpensePage> {
     _categoryIcons = widget.categories;
     _selectedCategory = _categoryIcons.keys.first;
 
-    if (widget.expenseToEdit != null) {
-      _nameController.text = widget.expenseToEdit!['isim'];
-      _amountController.text = widget.expenseToEdit!['tutar'].toString();
-      final editCategory = widget.expenseToEdit!['kategori'] as String?;
+    if (widget.incomeToEdit != null) {
+      _nameController.text = widget.incomeToEdit!['name'] ?? '';
+      _amountController.text = widget.incomeToEdit!['amount'].toString();
+      final editCategory = widget.incomeToEdit!['category'] as String?;
       if (editCategory != null && _categoryIcons.containsKey(editCategory)) {
         _selectedCategory = editCategory;
       }
       _selectedDate =
-          DateTime.tryParse(widget.expenseToEdit!['tarih'].toString()) ??
+          DateTime.tryParse(widget.incomeToEdit!['date'].toString()) ??
           DateTime.now();
-      _selectedPaymentMethodId = widget.expenseToEdit!['odemeYontemiId'];
-    } else if (widget.defaultPaymentMethodId != null &&
-        widget.paymentMethods.any(
-          (pm) => pm.id == widget.defaultPaymentMethodId,
-        )) {
-      _selectedPaymentMethodId = widget.defaultPaymentMethodId;
-    } else if (widget.paymentMethods.isNotEmpty) {
-      _selectedPaymentMethodId = widget.paymentMethods.first.id;
+      _selectedPaymentMethodId = widget.incomeToEdit!['paymentMethodId'];
+    } else {
+      // Yeni gelir eklerken varsayılan olarak "Nakit" hesabını seç
+      final nakitHesap = widget.paymentMethods
+          .where((pm) => pm.type == 'nakit')
+          .firstOrNull;
+      if (nakitHesap != null) {
+        _selectedPaymentMethodId = nakitHesap.id;
+      }
     }
   }
 
@@ -110,7 +108,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     }
   }
 
-  Future<void> _save() async {
+  void _save() {
     if (!_formKey.currentState!.validate()) return;
 
     final double? amount = AmountInputFormatter.parseFormattedAmount(
@@ -120,48 +118,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
     if (amount == null) {
       ErrorHandler.showErrorSnackBar(context, 'Geçerli bir tutar girin');
       return;
-    }
-
-    // Bakiye/limit kontrolü
-    if (_selectedPaymentMethodId != null) {
-      final pm = widget.paymentMethods.firstWhere(
-        (p) => p.id == _selectedPaymentMethodId,
-        orElse: () => PaymentMethod(
-          id: '',
-          name: '',
-          type: '',
-          balance: double.infinity,
-          colorIndex: 0,
-          createdAt: DateTime.now(),
-          isDeleted: false,
-        ),
-      );
-
-      if (pm.id.isNotEmpty) {
-        bool yetersizBakiye = false;
-
-        if (pm.type == 'kredi') {
-          final kalanLimit = (pm.limit ?? 0) - pm.balance;
-          if (amount > kalanLimit) yetersizBakiye = true;
-        } else {
-          if (amount > pm.balance) yetersizBakiye = true;
-        }
-
-        if (yetersizBakiye) {
-          final currentBalance = pm.type == 'kredi'
-              ? (pm.limit ?? 0) - pm.balance
-              : pm.balance;
-
-          final onay = await BalanceWarningDialog.show(
-            context: context,
-            paymentType: pm.type,
-            currentBalance: currentBalance,
-            expenseAmount: amount,
-          );
-
-          if (onay != true) return;
-        }
-      }
     }
 
     widget.onSave(
@@ -176,7 +132,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isEditing = widget.expenseToEdit != null;
+    final isEditing = widget.incomeToEdit != null;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -188,7 +144,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          isEditing ? "Harcamayı Düzenle" : "Harcama Ekle",
+          isEditing ? "Geliri Düzenle" : "Gelir Ekle",
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
@@ -209,11 +165,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
             // Diğer alanlar
             _buildTextField(
               controller: _nameController,
-              label: "Harcama Adı",
-              hint: "Ne aldın? (Örn: Kahve)",
-              icon: Icons.shopping_bag_outlined,
+              label: "Gelir Adı",
+              hint: "Nereden geldi? (Örn: Maaş)",
+              icon: Icons.attach_money,
               validator: (value) =>
-                  Validators.validateItemName(value, itemType: 'Harcama'),
+                  Validators.validateItemName(value, itemType: 'Gelir'),
             ),
             const SizedBox(height: 16),
 
@@ -236,7 +192,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-  // Tutar alanı - Modern ve büyük
+  // Tutar alanı
   Widget _buildAmountSection() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 32),
@@ -273,11 +229,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   textAlign: TextAlign.center,
                   validator: (value) => AmountInputFormatter.validateAmount(
                     value,
-                    maxAmount: 1000000,
+                    maxAmount: 10000000,
                   ),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: "0",
-                    hintStyle: TextStyle(
+                    hintStyle: const TextStyle(
                       color: Colors.white24,
                       fontSize: 48,
                       fontWeight: FontWeight.w300,
@@ -285,10 +241,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
                     isDense: true,
-                    errorStyle: TextStyle(
-                      color: ColorConstants.kirmiziVurgu,
-                      fontSize: 12,
-                    ),
+                    errorStyle: TextStyle(color: _accentColor, fontSize: 12),
                   ),
                 ),
               ),
@@ -337,7 +290,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: ColorConstants.kirmiziVurgu),
+              borderSide: BorderSide(color: _accentColor),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -445,7 +398,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Ödeme Yöntemi",
+          "Hesap",
           style: TextStyle(color: Colors.white54, fontSize: 13),
         ),
         const SizedBox(height: 8),
@@ -471,7 +424,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   ),
                   const SizedBox(width: 12),
                   const Text(
-                    'Ödeme Yöntemi Seçin',
+                    'Hesap Seçin',
                     style: TextStyle(color: Colors.white38),
                   ),
                 ],
@@ -513,7 +466,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      // Bakiye göster (en sağda)
                       Text(
                         CurrencyFormatter.format(pm.balance),
                         style: TextStyle(
@@ -536,7 +488,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-  // Kaydet butonu - Gradient stil (ExpenseSummaryCard benzeri)
+  // Kaydet butonu
   Widget _buildSaveButton(bool isEditing) {
     return Container(
       width: double.infinity,
@@ -552,7 +504,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           borderRadius: BorderRadius.circular(20),
           child: Center(
             child: Text(
-              isEditing ? "Güncelle" : "Harcama Ekle",
+              isEditing ? "Güncelle" : "Gelir Ekle",
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 17,

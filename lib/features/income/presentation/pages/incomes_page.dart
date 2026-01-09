@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
-import '../../../income/presentation/widgets/add_income_sheet.dart';
+import '../../../income/presentation/pages/add_income_page.dart';
 import '../../../income/presentation/widgets/income_voice_input_sheet.dart';
 import '../../../income/presentation/pages/income_recycle_bin_page.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -211,130 +211,130 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   }
 
   void gelirDuzenle(Income income) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => AddIncomeSheet(
-        incomeToEdit: income.toMap(),
-        categories: widget.gelirKategoriIkonlari,
-        paymentMethods: widget.tumOdemeYontemleri
-            .where((pm) => !pm.isDeleted)
-            .toList(),
-        onSave: (name, amount, category, date, paymentMethodId) {
-          setState(() {
-            // 1. Eski bakiyeyi geri al
-            if (income.paymentMethodId != null) {
-              final eskiPmIndex = widget.tumOdemeYontemleri.indexWhere(
-                (p) => p.id == income.paymentMethodId,
-              );
-              if (eskiPmIndex != -1) {
-                final pm = widget.tumOdemeYontemleri[eskiPmIndex];
-                double yeniBakiye;
-                if (pm.type == 'kredi') {
-                  yeniBakiye = pm.balance + income.amount;
-                } else {
-                  yeniBakiye = pm.balance - income.amount;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddIncomePage(
+          incomeToEdit: income.toMap(),
+          categories: widget.gelirKategoriIkonlari,
+          paymentMethods: widget.tumOdemeYontemleri
+              .where((pm) => !pm.isDeleted)
+              .toList(),
+          onSave: (name, amount, category, date, paymentMethodId) {
+            setState(() {
+              // 1. Eski bakiyeyi geri al
+              if (income.paymentMethodId != null) {
+                final eskiPmIndex = widget.tumOdemeYontemleri.indexWhere(
+                  (p) => p.id == income.paymentMethodId,
+                );
+                if (eskiPmIndex != -1) {
+                  final pm = widget.tumOdemeYontemleri[eskiPmIndex];
+                  double yeniBakiye;
+                  if (pm.type == 'kredi') {
+                    yeniBakiye = pm.balance + income.amount;
+                  } else {
+                    yeniBakiye = pm.balance - income.amount;
+                  }
+                  widget.tumOdemeYontemleri[eskiPmIndex] = pm.copyWith(
+                    balance: yeniBakiye,
+                  );
                 }
-                widget.tumOdemeYontemleri[eskiPmIndex] = pm.copyWith(
-                  balance: yeniBakiye,
+              }
+
+              // 2. Yeni bakiyeyi ekle
+              if (paymentMethodId != null) {
+                final yeniPmIndex = widget.tumOdemeYontemleri.indexWhere(
+                  (p) => p.id == paymentMethodId,
+                );
+                if (yeniPmIndex != -1) {
+                  final pm = widget.tumOdemeYontemleri[yeniPmIndex];
+                  double yeniBakiye;
+                  if (pm.type == 'kredi') {
+                    yeniBakiye = pm.balance - amount;
+                  } else {
+                    yeniBakiye = pm.balance + amount;
+                  }
+                  widget.tumOdemeYontemleri[yeniPmIndex] = pm.copyWith(
+                    balance: yeniBakiye,
+                  );
+                }
+              }
+
+              // 3. Geliri güncelle
+              int index = widget.tumGelirler.indexOf(income);
+              if (index != -1) {
+                widget.tumGelirler[index] = Income(
+                  id: income.id,
+                  name: name,
+                  amount: amount,
+                  category: category,
+                  date: date,
+                  paymentMethodId: paymentMethodId,
+                  isDeleted: false,
                 );
               }
-            }
+            });
 
-            // 2. Yeni bakiyeyi ekle
-            if (paymentMethodId != null) {
-              final yeniPmIndex = widget.tumOdemeYontemleri.indexWhere(
-                (p) => p.id == paymentMethodId,
-              );
-              if (yeniPmIndex != -1) {
-                final pm = widget.tumOdemeYontemleri[yeniPmIndex];
-                double yeniBakiye;
-                if (pm.type == 'kredi') {
-                  yeniBakiye = pm.balance - amount;
-                } else {
-                  yeniBakiye = pm.balance + amount;
-                }
-                widget.tumOdemeYontemleri[yeniPmIndex] = pm.copyWith(
-                  balance: yeniBakiye,
-                );
-              }
-            }
-
-            // 3. Geliri güncelle
-            int index = widget.tumGelirler.indexOf(income);
-            if (index != -1) {
-              widget.tumGelirler[index] = Income(
-                id: income.id,
-                name: name,
-                amount: amount,
-                category: category,
-                date: date,
-                paymentMethodId: paymentMethodId,
-                isDeleted: false,
-              );
-            }
-          });
-
-          widget.onGelirlerChanged(widget.tumGelirler);
-          widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
-        },
+            widget.onGelirlerChanged(widget.tumGelirler);
+            widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+          },
+        ),
       ),
     );
   }
 
   void yeniGelirEkle() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => AddIncomeSheet(
-        categories: widget.gelirKategoriIkonlari,
-        paymentMethods: widget.tumOdemeYontemleri
-            .where((pm) => !pm.isDeleted)
-            .toList(),
-        onSave: (name, amount, category, date, paymentMethodId) {
-          setState(() {
-            widget.tumGelirler.insert(
-              0,
-              Income(
-                id: DateTime.now().toString(),
-                name: name,
-                amount: amount,
-                category: category,
-                date: date,
-                paymentMethodId: paymentMethodId,
-              ),
-            );
-
-            // Bakiyeyi güncelle
-            if (paymentMethodId != null) {
-              final pmIndex = widget.tumOdemeYontemleri.indexWhere(
-                (p) => p.id == paymentMethodId,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddIncomePage(
+          categories: widget.gelirKategoriIkonlari,
+          paymentMethods: widget.tumOdemeYontemleri
+              .where((pm) => !pm.isDeleted)
+              .toList(),
+          onSave: (name, amount, category, date, paymentMethodId) {
+            setState(() {
+              widget.tumGelirler.insert(
+                0,
+                Income(
+                  id: DateTime.now().toString(),
+                  name: name,
+                  amount: amount,
+                  category: category,
+                  date: date,
+                  paymentMethodId: paymentMethodId,
+                ),
               );
-              if (pmIndex != -1) {
-                final pm = widget.tumOdemeYontemleri[pmIndex];
-                double yeniBakiye;
-                if (pm.type == 'kredi') {
-                  yeniBakiye = pm.balance - amount;
-                } else {
-                  yeniBakiye = pm.balance + amount;
-                }
-                widget.tumOdemeYontemleri[pmIndex] = pm.copyWith(
-                  balance: yeniBakiye,
+
+              // Bakiyeyi güncelle
+              if (paymentMethodId != null) {
+                final pmIndex = widget.tumOdemeYontemleri.indexWhere(
+                  (p) => p.id == paymentMethodId,
                 );
+                if (pmIndex != -1) {
+                  final pm = widget.tumOdemeYontemleri[pmIndex];
+                  double yeniBakiye;
+                  if (pm.type == 'kredi') {
+                    yeniBakiye = pm.balance - amount;
+                  } else {
+                    yeniBakiye = pm.balance + amount;
+                  }
+                  widget.tumOdemeYontemleri[pmIndex] = pm.copyWith(
+                    balance: yeniBakiye,
+                  );
+                }
               }
-            }
-          });
+            });
 
-          widget.onGelirlerChanged(widget.tumGelirler);
-          widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+            widget.onGelirlerChanged(widget.tumGelirler);
+            widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-          AppSnackBar.success(
-            context,
-            'Gelir eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
-          );
-        },
+            AppSnackBar.success(
+              context,
+              'Gelir eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
+            );
+          },
+        ),
       ),
     );
   }
