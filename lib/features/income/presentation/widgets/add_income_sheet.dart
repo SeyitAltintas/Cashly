@@ -73,6 +73,14 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
           DateTime.tryParse(widget.incomeToEdit!['date'].toString()) ??
           DateTime.now();
       _selectedPaymentMethodId = widget.incomeToEdit!['paymentMethodId'];
+    } else {
+      // Yeni gelir eklerken varsayılan olarak "Nakit" hesabını seç
+      final nakitHesap = widget.paymentMethods
+          .where((pm) => pm.type == 'nakit')
+          .firstOrNull;
+      if (nakitHesap != null) {
+        _selectedPaymentMethodId = nakitHesap.id;
+      }
     }
   }
 
