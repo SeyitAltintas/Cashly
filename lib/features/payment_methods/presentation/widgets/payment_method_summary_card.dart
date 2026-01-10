@@ -145,6 +145,10 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.3),
+              width: 0.5,
+            ),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFF6C63FF).withValues(alpha: 0.3),
