@@ -12,6 +12,8 @@ class ExpenseSummaryCard extends StatefulWidget {
   final VoidCallback oncekiAy;
   final VoidCallback sonrakiAy;
   final VoidCallback ayYilSeciciAc;
+  final DateTime secilenAy;
+  final List<Map<String, dynamic>> harcamalar;
 
   const ExpenseSummaryCard({
     super.key,
@@ -21,6 +23,8 @@ class ExpenseSummaryCard extends StatefulWidget {
     required this.oncekiAy,
     required this.sonrakiAy,
     required this.ayYilSeciciAc,
+    required this.secilenAy,
+    required this.harcamalar,
   });
 
   @override
@@ -54,6 +58,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
               children: [
                 _buildTotalExpensePage(context),
                 _buildBudgetPage(context),
+                _buildDailyAveragePage(context),
               ],
             ),
           ),
@@ -371,11 +376,203 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
     );
   }
 
+  /// Sayfa 3: Günlük Harcama Ortalaması
+  Widget _buildDailyAveragePage(BuildContext context) {
+    // Aydaki gün sayısını hesapla
+    final int aydakiGunSayisi = DateTime(
+      widget.secilenAy.year,
+      widget.secilenAy.month + 1,
+      0,
+    ).day;
+
+    // Bugünün tarihi
+    final now = DateTime.now();
+    final bugunSecilenAydaMi =
+        now.year == widget.secilenAy.year &&
+        now.month == widget.secilenAy.month;
+
+    // Geçen gün sayısını hesapla (bu ay içinse bugün, değilse ay sonu)
+    final int gecenGunSayisi = bugunSecilenAydaMi ? now.day : aydakiGunSayisi;
+
+    // Günlük ortalama
+    final double gunlukOrtalama = gecenGunSayisi > 0
+        ? widget.toplamTutar / gecenGunSayisi
+        : 0;
+
+    // Bugünkü harcamayı hesapla
+    double bugunHarcama = 0;
+    for (var h in widget.harcamalar) {
+      if (h['silindi'] == true) continue;
+      DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
+      if (tarih != null) {
+        if (tarih.year == now.year &&
+            tarih.month == now.month &&
+            tarih.day == now.day) {
+          bugunHarcama += (h['tutar'] as num?)?.toDouble() ?? 0;
+        }
+      }
+    }
+
+    // Karşılaştırma
+    final bool ortalamaninAltinda = bugunHarcama < gunlukOrtalama;
+    final double fark = (bugunHarcama - gunlukOrtalama).abs();
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.25),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Başlık
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.analytics_outlined,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                    size: 14,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    "GÜNLÜK ORTALAMA",
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      fontSize: 11,
+                      letterSpacing: 1.2,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              // Gün sayısı badge'i
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "$gecenGunSayisi gün",
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w500,
+                    fontSize: 10,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const Spacer(),
+
+          // Ortalama tutar
+          Text(
+            CurrencyFormatter.format(gunlukOrtalama),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.95),
+              fontSize: 32,
+              height: 1.1,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // Alt bilgi satırı
+          Row(
+            children: [
+              // Bugünkü harcama
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.today,
+                      color: Colors.white.withValues(alpha: 0.6),
+                      size: 12,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      "Bugün: ${CurrencyFormatter.format(bugunHarcama)}",
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Karşılaştırma mesajı
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(
+                      ortalamaninAltinda
+                          ? Icons.trending_down
+                          : Icons.trending_up,
+                      color: ortalamaninAltinda
+                          ? Colors.greenAccent
+                          : Colors.redAccent.shade100,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        ortalamaninAltinda
+                            ? "${CurrencyFormatter.format(fark)} az"
+                            : "${CurrencyFormatter.format(fark)} fazla",
+                        style: TextStyle(
+                          color: ortalamaninAltinda
+                              ? Colors.greenAccent
+                              : Colors.redAccent.shade100,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Sayfa göstergesi (dots)
   Widget _buildPageIndicator() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(2, (index) {
+      children: List.generate(3, (index) {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           margin: const EdgeInsets.symmetric(horizontal: 3),

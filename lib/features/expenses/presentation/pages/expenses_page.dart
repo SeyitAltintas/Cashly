@@ -411,6 +411,8 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
               oncekiAy: oncekiAy,
               sonrakiAy: sonrakiAy,
               ayYilSeciciAc: _ayYilSeciciAc,
+              secilenAy: secilenAy,
+              harcamalar: widget.tumHarcamalar,
             ),
             const SizedBox(height: 10),
           ],
