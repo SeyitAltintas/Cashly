@@ -129,8 +129,8 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
         // Profil resmi boyutu - kart yuksekliginin %40'i, min 60, max 100
         final profileSize = (cardHeight * 0.40).clamp(60.0, 100.0);
 
-        // Logo boyutu - kart yuksekliginin %25'i, min 40, max 60
-        final logoSize = (cardHeight * 0.25).clamp(40.0, 60.0);
+        // Logo boyutu - kart yuksekliginin %35'i, min 50, max 80 (büyütülmüş)
+        final logoSize = (cardHeight * 0.35).clamp(50.0, 80.0);
 
         // Font boyutlari - kart genisligine gore
         final balanceFontSize = (cardWidth * 0.085).clamp(22.0, 32.0);
@@ -146,8 +146,8 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.3),
-              width: 0.5,
+              color: Colors.white.withValues(alpha: 0.2),
+              width: 0.2,
             ),
             boxShadow: [
               BoxShadow(
@@ -274,26 +274,29 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Ust satir: Logo
-                            Image.asset(
-                              'assets/image/seffaflogo.png',
-                              height: logoSize,
-                              width: logoSize,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  height: logoSize,
-                                  width: logoSize,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF6C63FF),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Icon(
-                                    Icons.account_balance_wallet,
-                                    color: Colors.white,
-                                    size: logoSize * 0.5,
-                                  ),
-                                );
-                              },
+                            // Ust satir: Logo (padding değiştirmeden yukarı kaydırıldı)
+                            Transform.translate(
+                              offset: const Offset(0, -20),
+                              child: Image.asset(
+                                'assets/image/seffaflogo.png',
+                                height: logoSize,
+                                width: logoSize,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: logoSize,
+                                    width: logoSize,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF6C63FF),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.account_balance_wallet,
+                                      color: Colors.white,
+                                      size: logoSize * 0.5,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
 
                             const Spacer(),
@@ -390,57 +393,70 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
 
                       // Sağ bölüm: Üstte RFID/temassız simgeler, altta profil resmi
                       Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          // Üst: Altın kart çipi ve temassız simgesi
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // Altın kart çipi (Card Chip)
-                              Container(
-                                width: 40,
-                                height: 30,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFFB8860B), // Koyu altın
-                                      Color(0xFFDAA520), // Goldenrod
-                                      Color(0xFFB8860B), // Koyu altın
-                                      Color(0xFF8B6914), // Bronz altın
-                                    ],
-                                    stops: [0.0, 0.3, 0.6, 1.0],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(
-                                        0xFFD4AF37,
-                                      ).withValues(alpha: 0.3),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
+                          // Üst: Altın kart çipi ve temassız simgesi (logo ile aynı hizada)
+                          // logoSize yüksekliğinde SizedBox ile sarılarak logo ile hizalanıyor
+                          SizedBox(
+                            height: logoSize,
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // Altın kart çipi (Card Chip)
+                                  Container(
+                                    width: 40,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFFB8860B), // Koyu altın
+                                          Color(0xFFDAA520), // Goldenrod
+                                          Color(0xFFB8860B), // Koyu altın
+                                          Color(0xFF8B6914), // Bronz altın
+                                        ],
+                                        stops: [0.0, 0.3, 0.6, 1.0],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(
+                                            0xFFD4AF37,
+                                          ).withValues(alpha: 0.3),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                child: CustomPaint(painter: _ChipLinePainter()),
+                                    child: CustomPaint(
+                                      painter: _ChipLinePainter(),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  // Temassız simgesi ())) parantez şeklinde)
+                                  Transform.rotate(
+                                    angle: 1.5708, // 90 derece (pi/2)
+                                    child: Icon(
+                                      Icons.wifi,
+                                      color: Colors.white.withValues(
+                                        alpha: 0.8,
+                                      ),
+                                      size: 24,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 12),
-                              // Temassız simgesi ())) parantez şeklinde)
-                              Transform.rotate(
-                                angle: 1.5708, // 90 derece (pi/2)
-                                child: Icon(
-                                  Icons.wifi,
-                                  color: Colors.white.withValues(alpha: 0.8),
-                                  size: 24,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
+                          // Spacer ile profil resmini alta itmek
+                          const Spacer(),
                           // Alt: Profil resmi
-                          Container(
+                          SizedBox(
                             width: profileSize,
                             height: profileSize,
                             child: ClipOval(
@@ -512,7 +528,7 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4),
+          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
         ),
       ),
       padding: const EdgeInsets.all(20),
