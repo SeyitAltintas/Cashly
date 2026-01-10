@@ -573,6 +573,8 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           deletedPaymentMethods: tumOdemeYontemleri
               .where((p) => p.isDeleted)
               .toList(),
+          userName: widget.authController.currentUser?.name,
+          userProfileUrl: widget.authController.currentUser?.profileImage,
           onDelete: (pm) {
             setState(() {
               final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
