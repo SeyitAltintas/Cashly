@@ -36,10 +36,8 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
 
   // Animasyon controller'ları
   late AnimationController _shimmerController;
-  late AnimationController _glowController;
   late AnimationController _holoController;
   late Animation<double> _shimmerAnimation;
-  late Animation<double> _glowAnimation;
   late Animation<double> _holoAnimation;
 
   @override
@@ -53,15 +51,6 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
     )..repeat();
     _shimmerAnimation = Tween<double>(begin: -1.0, end: 2.0).animate(
       CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut),
-    );
-
-    // Glow animasyonu - profil resmi için
-    _glowController = AnimationController(
-      duration: const Duration(milliseconds: 2500),
-      vsync: this,
-    )..repeat(reverse: true);
-    _glowAnimation = Tween<double>(begin: 0.3, end: 0.7).animate(
-      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
     );
 
     // Holografik stripe animasyonu
@@ -79,7 +68,6 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
   void dispose() {
     _pageController.dispose();
     _shimmerController.dispose();
-    _glowController.dispose();
     _holoController.dispose();
     super.dispose();
   }
@@ -187,33 +175,34 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
                 ),
 
                 // Animated Holografik stripe efekti
-                AnimatedBuilder(
-                  animation: _holoAnimation,
-                  builder: (context, child) {
-                    return Positioned(
-                      top: 0,
-                      bottom: 0,
-                      left:
-                          MediaQuery.of(context).size.width *
-                          _holoAnimation.value,
-                      child: Container(
-                        width: 60,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.transparent,
-                              Colors.white.withValues(alpha: 0.05),
-                              Colors.white.withValues(alpha: 0.1),
-                              Colors.white.withValues(alpha: 0.05),
-                              Colors.transparent,
-                            ],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
+                // Not: Positioned sadece Stack'in direkt çocuğu olabilir,
+                // bu yüzden AnimatedBuilder dısarida ve Transform ile konumlandırma yapıyoruz
+                Positioned.fill(
+                  child: AnimatedBuilder(
+                    animation: _holoAnimation,
+                    builder: (context, child) {
+                      return Transform.translate(
+                        offset: Offset(cardWidth * _holoAnimation.value, 0),
+                        child: child,
+                      );
+                    },
+                    child: Container(
+                      width: 60,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.transparent,
+                            Colors.white.withValues(alpha: 0.05),
+                            Colors.white.withValues(alpha: 0.1),
+                            Colors.white.withValues(alpha: 0.05),
+                            Colors.transparent,
+                          ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
                         ),
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
 
                 // Holografik şerit efekti (sağ üst köşeden)
@@ -389,44 +378,81 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
 
                       SizedBox(width: horizontalPadding * 0.5),
 
-                      // Sağ bölüm: Profil resmi - Animated glow
+                      // Sağ bölüm: Üstte RFID/temassız simgeler, altta profil resmi
                       Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          AnimatedBuilder(
-                            animation: _glowAnimation,
-                            builder: (context, child) {
-                              return Container(
-                                width: profileSize,
-                                height: profileSize,
+                          // Üst: Altın kart çipi ve temassız simgesi
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // Altın kart çipi (Card Chip)
+                              Container(
+                                width: 40,
+                                height: 30,
                                 decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.4),
-                                    width: 2,
+                                  borderRadius: BorderRadius.circular(4),
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFFB8860B), // Koyu altın
+                                      Color(0xFFDAA520), // Goldenrod
+                                      Color(0xFFB8860B), // Koyu altın
+                                      Color(0xFF8B6914), // Bronz altın
+                                    ],
+                                    stops: [0.0, 0.3, 0.6, 1.0],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
                                       color: const Color(
-                                        0xFF6C63FF,
-                                      ).withValues(alpha: _glowAnimation.value),
-                                      blurRadius: 20,
-                                      spreadRadius: 2,
-                                    ),
-                                    BoxShadow(
-                                      color: const Color(0xFF00D9FF).withValues(
-                                        alpha: _glowAnimation.value * 0.5,
-                                      ),
-                                      blurRadius: 30,
-                                      spreadRadius: -5,
+                                        0xFFD4AF37,
+                                      ).withValues(alpha: 0.3),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
                                     ),
                                   ],
                                 ),
-                                child: ClipOval(
-                                  child: _buildProfileImage(widget.userName),
+                                child: CustomPaint(painter: _ChipLinePainter()),
+                              ),
+                              const SizedBox(width: 12),
+                              // Temassız simgesi ())) parantez şeklinde)
+                              Transform.rotate(
+                                angle: 1.5708, // 90 derece (pi/2)
+                                child: Icon(
+                                  Icons.wifi,
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  size: 24,
                                 ),
-                              );
-                            },
+                              ),
+                            ],
+                          ),
+                          // Alt: Profil resmi
+                          Container(
+                            width: profileSize,
+                            height: profileSize,
+                            child: ClipOval(
+                              child: ShaderMask(
+                                shaderCallback: (Rect bounds) {
+                                  return RadialGradient(
+                                    center: Alignment.center,
+                                    radius: 0.5,
+                                    colors: [
+                                      Colors.white,
+                                      Colors.white,
+                                      Colors.white.withValues(alpha: 0.7),
+                                      Colors.white.withValues(alpha: 0.3),
+                                      Colors.white.withValues(alpha: 0.0),
+                                    ],
+                                    stops: const [0.0, 0.6, 0.8, 0.9, 1.0],
+                                  ).createShader(bounds);
+                                },
+                                blendMode: BlendMode.dstIn,
+                                child: _buildProfileImage(widget.userName),
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -743,6 +769,35 @@ class _EnhancedCardPatternPainter extends CustomPainter {
       }
     }
     canvas.drawPath(path, wavePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Altın kart çipi üzerindeki yatay çizgiler için CustomPainter
+class _ChipLinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color =
+          const Color.fromARGB(255, 152, 108, 38) // Daha koyu bronz
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+
+    // Yatay çizgiler
+    final lineSpacing = size.height / 5;
+    for (int i = 1; i < 5; i++) {
+      final y = i * lineSpacing;
+      canvas.drawLine(Offset(4, y), Offset(size.width - 4, y), paint);
+    }
+
+    // Orta dikey çizgi
+    canvas.drawLine(
+      Offset(size.width / 2, 4),
+      Offset(size.width / 2, size.height - 4),
+      paint,
+    );
   }
 
   @override
