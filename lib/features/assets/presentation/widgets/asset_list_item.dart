@@ -82,7 +82,14 @@ class AssetListItem extends StatelessWidget {
                           _getMonth(asset.purchaseDate),
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 11,
+                            fontSize: 10,
+                          ),
+                        ),
+                        Text(
+                          _getYear(asset.purchaseDate),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            fontSize: 10,
                           ),
                         ),
                       ],
@@ -158,6 +165,10 @@ class AssetListItem extends StatelessWidget {
       "ARA",
     ];
     return months[date.month - 1];
+  }
+
+  String _getYear(DateTime date) {
+    return date.year.toString();
   }
 
   IconData _getIconForCategory(String category) {
