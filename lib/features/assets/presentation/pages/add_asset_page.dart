@@ -36,6 +36,17 @@ class _AddAssetPageState extends State<AddAssetPage> {
   final TextEditingController _purchasePriceController =
       TextEditingController();
 
+  // Özel isim inputları için controller'lar
+  final TextEditingController _customCurrencyNameController =
+      TextEditingController();
+  final TextEditingController _customCryptoNameController =
+      TextEditingController();
+  final TextEditingController _customBankNameController =
+      TextEditingController();
+  final TextEditingController _stockNameController = TextEditingController();
+  final TextEditingController _customCategoryNameController =
+      TextEditingController();
+
   String _selectedCategory = 'Altın';
   String? _selectedType;
   DateTime _purchaseDate = DateTime.now();
@@ -63,8 +74,10 @@ class _AddAssetPageState extends State<AddAssetPage> {
       'İsviçre Frangı (CHF)',
       'Japon Yeni (JPY)',
       'Kanada Doları (CAD)',
+      'Diğer',
     ],
-    'Kripto': ['BTC', 'ETH', 'SOL', 'AVAX', 'XRP', 'USDT'],
+    'Kripto': ['BTC', 'ETH', 'SOL', 'AVAX', 'XRP', 'USDT', 'Diğer'],
+    'Hisse Senedi': ['Diğer'],
     'Banka': [
       'Ziraat Bankası',
       'İş Bankası',
@@ -101,8 +114,23 @@ class _AddAssetPageState extends State<AddAssetPage> {
           _types.containsKey(_selectedCategory) &&
           _types[_selectedCategory]!.contains(typeFromAsset)) {
         _selectedType = typeFromAsset;
+      } else if (typeFromAsset != null &&
+          _types.containsKey(_selectedCategory)) {
+        // Tür standart listede yok, "Diğer" olarak ayarla ve özel alana yaz
+        _selectedType = 'Diğer';
+        _populateCustomFieldFromType(_selectedCategory, typeFromAsset);
       } else {
         _selectedType = null;
+      }
+
+      // Hisse Senedi için hisse adı widget.asset.name'den gelir
+      if (_selectedCategory == 'Hisse Senedi') {
+        _stockNameController.text = widget.asset!.name;
+      }
+
+      // Kategori "Diğer" ise özel isim alanını doldur
+      if (_selectedCategory == 'Diğer') {
+        _customCategoryNameController.text = widget.asset!.name;
       }
 
       _purchaseDate = widget.asset!.purchaseDate;
@@ -111,6 +139,35 @@ class _AddAssetPageState extends State<AddAssetPage> {
       _quantityController.text = "1";
       _purchaseDate = DateTime.now();
     }
+  }
+
+  /// Özel tür alanlarını doldurur (düzenleme modunda)
+  void _populateCustomFieldFromType(String category, String typeValue) {
+    switch (category) {
+      case 'Döviz':
+        _customCurrencyNameController.text = typeValue;
+        break;
+      case 'Kripto':
+        _customCryptoNameController.text = typeValue;
+        break;
+      case 'Banka':
+        _customBankNameController.text = typeValue;
+        break;
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _amountController.dispose();
+    _quantityController.dispose();
+    _purchasePriceController.dispose();
+    _customCurrencyNameController.dispose();
+    _customCryptoNameController.dispose();
+    _customBankNameController.dispose();
+    _stockNameController.dispose();
+    _customCategoryNameController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchLivePrice() async {
@@ -185,17 +242,45 @@ class _AddAssetPageState extends State<AddAssetPage> {
 
     if (_nameController.text.trim().isNotEmpty &&
         _amountController.text.isNotEmpty) {
+      // Türkçe format desteği için parseFormattedAmount kullan
+      final amount =
+          AmountInputFormatter.parseFormattedAmount(_amountController.text) ??
+          0.0;
       final purchasePrice = _purchasePriceController.text.isNotEmpty
-          ? double.tryParse(_purchasePriceController.text) ??
-                (double.tryParse(_amountController.text) ?? 0.0)
-          : double.tryParse(_amountController.text) ?? 0.0;
+          ? AmountInputFormatter.parseFormattedAmount(
+                  _purchasePriceController.text,
+                ) ??
+                amount
+          : amount;
+
+      // "Diğer" seçilmişse özel isim alanındaki değeri type olarak kullan
+      String? effectiveType = _selectedType;
+      if (_selectedType == 'Diğer') {
+        switch (_selectedCategory) {
+          case 'Döviz':
+            if (_customCurrencyNameController.text.trim().isNotEmpty) {
+              effectiveType = _customCurrencyNameController.text.trim();
+            }
+            break;
+          case 'Kripto':
+            if (_customCryptoNameController.text.trim().isNotEmpty) {
+              effectiveType = _customCryptoNameController.text.trim();
+            }
+            break;
+          case 'Banka':
+            if (_customBankNameController.text.trim().isNotEmpty) {
+              effectiveType = _customBankNameController.text.trim();
+            }
+            break;
+        }
+      }
 
       widget.onSave(
         _nameController.text.trim(),
-        double.tryParse(_amountController.text) ?? 0.0,
+        amount,
         double.tryParse(_quantityController.text) ?? 1.0,
         _selectedCategory,
-        _selectedType,
+        effectiveType,
         _purchaseDate,
         purchasePrice,
       );
@@ -254,6 +339,71 @@ class _AddAssetPageState extends State<AddAssetPage> {
             // Tür
             if (_types.containsKey(_selectedCategory)) ...[
               _buildTypeSelector(),
+              const SizedBox(height: 16),
+            ],
+
+            // Kategori "Diğer" seçildiğinde özel isim alanı
+            if (_selectedCategory == 'Diğer') ...[
+              _buildTextField(
+                controller: _customCategoryNameController,
+                label: "Varlık İsmi",
+                hint: "Örn: Antika Saat",
+                icon: Icons.edit_outlined,
+                validator: (value) =>
+                    Validators.validateItemName(value, itemType: 'Varlık'),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Hisse Senedi seçildiğinde hisse adı alanı
+            if (_selectedCategory == 'Hisse Senedi') ...[
+              _buildTextField(
+                controller: _stockNameController,
+                label: "Hisse Adı",
+                hint: "Örn: THYAO, SASA",
+                icon: Icons.trending_up,
+                validator: (value) =>
+                    Validators.validateItemName(value, itemType: 'Hisse'),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Döviz "Diğer" seçildiğinde özel döviz ismi alanı
+            if (_selectedCategory == 'Döviz' && _selectedType == 'Diğer') ...[
+              _buildTextField(
+                controller: _customCurrencyNameController,
+                label: "Döviz İsmi",
+                hint: "Örn: İsveç Kronu (SEK)",
+                icon: Icons.attach_money,
+                validator: (value) =>
+                    Validators.validateItemName(value, itemType: 'Döviz'),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Kripto "Diğer" seçildiğinde özel kripto ismi alanı
+            if (_selectedCategory == 'Kripto' && _selectedType == 'Diğer') ...[
+              _buildTextField(
+                controller: _customCryptoNameController,
+                label: "Kripto İsmi",
+                hint: "Örn: DOGE, SHIB",
+                icon: Icons.currency_bitcoin,
+                validator: (value) =>
+                    Validators.validateItemName(value, itemType: 'Kripto'),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Banka "Diğer" seçildiğinde özel banka adı alanı
+            if (_selectedCategory == 'Banka' && _selectedType == 'Diğer') ...[
+              _buildTextField(
+                controller: _customBankNameController,
+                label: "Banka Adı",
+                hint: "Örn: N26, Revolut",
+                icon: Icons.account_balance,
+                validator: (value) =>
+                    Validators.validateItemName(value, itemType: 'Banka'),
+              ),
               const SizedBox(height: 16),
             ],
 
@@ -475,7 +625,10 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 ),
               ),
             ),
-            if (_selectedCategory != 'Banka') ...[
+            if (_selectedCategory != 'Banka' &&
+                !(_selectedCategory == 'Döviz' && _selectedType == 'Diğer') &&
+                !(_selectedCategory == 'Kripto' &&
+                    _selectedType == 'Diğer')) ...[
               const SizedBox(width: 12),
               GestureDetector(
                 onTap: _isLoading ? null : _fetchLivePrice,
