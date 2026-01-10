@@ -775,6 +775,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 Icons.shopping_cart,
                 color: Colors.amber.shade600,
               ),
+              suffixIcon: Icon(Icons.edit, color: Colors.white38, size: 18),
             ),
           ),
         ],
