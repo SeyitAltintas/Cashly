@@ -520,7 +520,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 15),
 
           // Alt bilgi satırı
           Row(

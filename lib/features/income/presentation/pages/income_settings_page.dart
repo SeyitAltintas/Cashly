@@ -88,52 +88,52 @@ class _GelirlerAyarlariSayfasiState extends State<GelirlerAyarlariSayfasi> {
                 ),
               ),
               const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white10),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.format_list_bulleted, color: Colors.white),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        "Gelir kategorilerini özelleştirin",
-                        style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
-                          fontSize: 14,
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          GelirKategoriYonetimiSayfasi(userId: widget.userId),
+                    ),
+                  ).then((_) {
+                    setState(() {
+                      categoryChanged = true;
+                    });
+                  });
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white10),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.format_list_bulleted, color: Colors.white),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          "Gelir kategorilerini özelleştirin",
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
+                            fontSize: 14,
+                          ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      icon: Icon(
+                      Icon(
                         Icons.arrow_forward_ios,
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.54),
                         size: 18,
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GelirKategoriYonetimiSayfasi(
-                              userId: widget.userId,
-                            ),
-                          ),
-                        ).then((_) {
-                          setState(() {
-                            categoryChanged = true;
-                          });
-                        });
-                      },
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 30),
