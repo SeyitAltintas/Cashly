@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/widgets/skeleton_widget.dart';
 
 import '../../data/models/payment_method_model.dart';
 import '../widgets/add_payment_method_sheet.dart';
+import '../widgets/payment_method_summary_card.dart';
 import 'payment_method_recycle_bin_page.dart';
 
 class PaymentMethodsPage extends StatefulWidget {
@@ -214,8 +214,14 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  // Toplam Özet Kartı
-                  _buildSummaryCard(context),
+                  // Toplam Özet Kartı - Kingmode Carousel
+                  PaymentMethodSummaryCard(
+                    totalBalance: totalBalance,
+                    totalDebt: totalDebt,
+                    userName: widget.userName ?? 'Kullanıcı',
+                    userProfileUrl: widget.userProfileUrl,
+                    paymentMethods: _filtrelenmisYontemler,
+                  ),
                   const SizedBox(height: 24),
                   _buildPaymentMethodsList(),
                 ],
@@ -261,312 +267,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
         label: const Text(
           "Kart Ekle",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSummaryCard(BuildContext context) {
-    final userName = widget.userName ?? 'Kullanıcı';
-
-    return Container(
-      height: 250,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6C63FF).withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-            spreadRadius: -5,
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          children: [
-            // Arka plan gradient - Premium metalik efekt
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF1a1a2e),
-                    const Color(0xFF16213e),
-                    const Color(0xFF0f3460),
-                    const Color(0xFF1a1a2e),
-                  ],
-                  stops: const [0.0, 0.3, 0.7, 1.0],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-            ),
-
-            // Holografik şerit efekti (sağ üst köşeden)
-            Positioned(
-              top: -50,
-              right: -50,
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFF6C63FF).withValues(alpha: 0.15),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Alt sol köşede ışık efekti
-            Positioned(
-              bottom: -30,
-              left: -30,
-              child: Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFF00D9FF).withValues(alpha: 0.1),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // İnce çizgi deseni (kart dokusu)
-            Positioned.fill(child: CustomPaint(painter: _CardPatternPainter())),
-
-            // Kart içeriği - Row ile sol bölüm ve sağda profil resmi
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Sol bölüm: Tüm bilgiler
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Üst satır: Sadece Cashly Logo (80px)
-                        Image.asset(
-                          'assets/image/seffaflogo.png',
-                          height: 80,
-                          width: 80,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 80,
-                              width: 80,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF6C63FF),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.account_balance_wallet,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            );
-                          },
-                        ),
-
-                        const Spacer(),
-
-                        // Toplam Bakiye
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'TOPLAM BAKİYE',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.5),
-                                fontSize: 9,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1.5,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            ShaderMask(
-                              shaderCallback: (bounds) => const LinearGradient(
-                                colors: [Colors.white, Color(0xFFE0E0E0)],
-                              ).createShader(bounds),
-                              child: Text(
-                                '${totalBalance.toStringAsFixed(2)} ₺',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 25),
-
-                        // Kullanıcı bilgisi ve borç (alt satır)
-                        Row(
-                          children: [
-                            // Kullanıcı adı ve üyelik tipi
-                            Flexible(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    userName.toUpperCase(),
-                                    style: TextStyle(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.9,
-                                      ),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 1,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                  ),
-                                  // Kredi borcu (varsa)
-                                  if (totalDebt > 0)
-                                    Container(
-                                      margin: const EdgeInsets.only(top: 4),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 3,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: ColorConstants.koyuKirmizi
-                                            .withValues(alpha: 0.25),
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(
-                                          color: ColorConstants.koyuKirmizi
-                                              .withValues(alpha: 0.3),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'Borç: ${totalDebt.toStringAsFixed(0)} ₺',
-                                        style: TextStyle(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.9,
-                                          ),
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(width: 16),
-
-                  // Sağ bölüm: Sadece Profil resmi
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Profil resmi
-                      Container(
-                        width: 90,
-                        height: 90,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.4),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0xFF6C63FF,
-                              ).withValues(alpha: 0.4),
-                              blurRadius: 16,
-                              offset: const Offset(0, 4),
-                              spreadRadius: -2,
-                            ),
-                          ],
-                        ),
-                        child: ClipOval(child: _buildProfileImage(userName)),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Profil resmini oluşturur - dosya yolu, network URL veya varsayılan avatar
-  Widget _buildProfileImage(String userName) {
-    final profileUrl = widget.userProfileUrl;
-
-    // Profil resmi yolu varsa
-    if (profileUrl != null && profileUrl.isNotEmpty) {
-      // Dosya yolu mu yoksa network URL mi kontrol et
-      if (profileUrl.startsWith('http://') ||
-          profileUrl.startsWith('https://')) {
-        // Network resmi
-        return Image.network(
-          profileUrl,
-          fit: BoxFit.cover,
-          width: 90,
-          height: 90,
-          errorBuilder: (context, error, stackTrace) {
-            return _buildDefaultAvatar(userName);
-          },
-        );
-      } else {
-        // Dosya yolu (lokal dosya)
-        final file = File(profileUrl);
-        if (file.existsSync()) {
-          return Image.file(
-            file,
-            fit: BoxFit.cover,
-            width: 90,
-            height: 90,
-            errorBuilder: (context, error, stackTrace) {
-              return _buildDefaultAvatar(userName);
-            },
-          );
-        }
-      }
-    }
-
-    // Varsayılan avatar
-    return _buildDefaultAvatar(userName);
-  }
-
-  /// Varsayılan avatar widget'ı
-  Widget _buildDefaultAvatar(String userName) {
-    return Container(
-      color: const Color(0xFF6C63FF),
-      child: Center(
-        child: Text(
-          userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 36,
-          ),
         ),
       ),
     );
@@ -794,28 +494,4 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
       ),
     );
   }
-}
-
-/// Banka kartı doku deseni için CustomPainter
-class _CardPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.03)
-      ..strokeWidth = 0.5
-      ..style = PaintingStyle.stroke;
-
-    // Çapraz ince çizgiler
-    const spacing = 20.0;
-    for (double i = -size.height; i < size.width + size.height; i += spacing) {
-      canvas.drawLine(
-        Offset(i, 0),
-        Offset(i + size.height, size.height),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
