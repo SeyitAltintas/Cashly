@@ -88,560 +88,360 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      height: 250,
-      child: Column(
-        children: [
-          // Carousel içeriği
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() => _currentPage = index);
-              },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Ekran genisligine gore kart yuksekligi hesapla
+          // Banka karti orani: yaklasik 1.586:1 (ISO standart)
+          // Ancak carousel icin biraz daha uzun oran kullaniyoruz
+          final cardWidth = constraints.maxWidth;
+          final cardHeight = (cardWidth / 1.7).clamp(180.0, 280.0);
+
+          return SizedBox(
+            height: cardHeight + 20, // Page indicator icin ek alan
+            child: Column(
               children: [
-                _buildBalancePage(context),
-                _buildDistributionPage(context),
-                _buildDebtAnalysisPage(context),
+                // Carousel icerigi
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() => _currentPage = index);
+                    },
+                    children: [
+                      _buildBalancePage(context),
+                      _buildDebtAnalysisPage(context),
+                    ],
+                  ),
+                ),
+                // Sayfa gostergesi
+                const SizedBox(height: 8),
+                _buildPageIndicator(),
               ],
             ),
-          ),
-          // Sayfa göstergesi
-          const SizedBox(height: 8),
-          _buildPageIndicator(),
-        ],
+          );
+        },
       ),
     );
   }
 
   /// Sayfa 1: Toplam Bakiye + Profil
   Widget _buildBalancePage(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6C63FF).withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-            spreadRadius: -5,
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          children: [
-            // Arka plan gradient - Premium metalik efekt
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF1a1a2e),
-                    Color(0xFF16213e),
-                    Color(0xFF0f3460),
-                    Color(0xFF1a1a2e),
-                  ],
-                  stops: [0.0, 0.3, 0.7, 1.0],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Responsive degerler hesapla
+        final cardWidth = constraints.maxWidth;
+        final cardHeight = constraints.maxHeight;
 
-            // Animated Holografik stripe efekti
-            AnimatedBuilder(
-              animation: _holoAnimation,
-              builder: (context, child) {
-                return Positioned(
-                  top: 0,
-                  bottom: 0,
-                  left:
-                      MediaQuery.of(context).size.width * _holoAnimation.value,
+        // Profil resmi boyutu - kart yuksekliginin %40'i, min 60, max 100
+        final profileSize = (cardHeight * 0.40).clamp(60.0, 100.0);
+
+        // Logo boyutu - kart yuksekliginin %25'i, min 40, max 60
+        final logoSize = (cardHeight * 0.25).clamp(40.0, 60.0);
+
+        // Font boyutlari - kart genisligine gore
+        final balanceFontSize = (cardWidth * 0.085).clamp(22.0, 32.0);
+        final labelFontSize = (cardWidth * 0.028).clamp(9.0, 11.0);
+        final userNameFontSize = (cardWidth * 0.032).clamp(10.0, 12.0);
+
+        // Padding degerleri
+        final horizontalPadding = (cardWidth * 0.06).clamp(16.0, 24.0);
+        final verticalPadding = (cardHeight * 0.08).clamp(12.0, 20.0);
+        final spacing = (cardHeight * 0.08).clamp(12.0, 20.0);
+
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF6C63FF).withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+                spreadRadius: -5,
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.4),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              children: [
+                // Arka plan gradient - Premium metalik efekt
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFF1a1a2e),
+                        Color(0xFF16213e),
+                        Color(0xFF0f3460),
+                        Color(0xFF1a1a2e),
+                      ],
+                      stops: [0.0, 0.3, 0.7, 1.0],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                ),
+
+                // Animated Holografik stripe efekti
+                AnimatedBuilder(
+                  animation: _holoAnimation,
+                  builder: (context, child) {
+                    return Positioned(
+                      top: 0,
+                      bottom: 0,
+                      left:
+                          MediaQuery.of(context).size.width *
+                          _holoAnimation.value,
+                      child: Container(
+                        width: 60,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.transparent,
+                              Colors.white.withValues(alpha: 0.05),
+                              Colors.white.withValues(alpha: 0.1),
+                              Colors.white.withValues(alpha: 0.05),
+                              Colors.transparent,
+                            ],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
+                // Holografik şerit efekti (sağ üst köşeden)
+                Positioned(
+                  top: -50,
+                  right: -50,
                   child: Container(
-                    width: 60,
+                    width: 200,
+                    height: 200,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
                         colors: [
-                          Colors.transparent,
-                          Colors.white.withValues(alpha: 0.05),
-                          Colors.white.withValues(alpha: 0.1),
-                          Colors.white.withValues(alpha: 0.05),
+                          const Color(0xFF6C63FF).withValues(alpha: 0.15),
                           Colors.transparent,
                         ],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
                       ),
                     ),
                   ),
-                );
-              },
-            ),
+                ),
 
-            // Holografik şerit efekti (sağ üst köşeden)
-            Positioned(
-              top: -50,
-              right: -50,
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFF6C63FF).withValues(alpha: 0.15),
-                      Colors.transparent,
-                    ],
+                // Alt sol köşede ışık efekti
+                Positioned(
+                  bottom: -30,
+                  left: -30,
+                  child: Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          const Color(0xFF00D9FF).withValues(alpha: 0.1),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
 
-            // Alt sol köşede ışık efekti
-            Positioned(
-              bottom: -30,
-              left: -30,
-              child: Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFF00D9FF).withValues(alpha: 0.1),
-                      Colors.transparent,
-                    ],
-                  ),
+                // Geliştirilmiş Guilloche pattern
+                Positioned.fill(
+                  child: CustomPaint(painter: _EnhancedCardPatternPainter()),
                 ),
-              ),
-            ),
 
-            // Geliştirilmiş Guilloche pattern
-            Positioned.fill(
-              child: CustomPaint(painter: _EnhancedCardPatternPainter()),
-            ),
-
-            // Kart içeriği
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Sol bölüm: Tüm bilgiler
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Üst satır: Logo ve Contactless ikonu
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // Kart icerigi
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPadding,
+                    verticalPadding,
+                    horizontalPadding,
+                    verticalPadding,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Sol bölüm: Tüm bilgiler
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Ust satir: Logo
                             Image.asset(
                               'assets/image/seffaflogo.png',
-                              height: 60,
-                              width: 60,
+                              height: logoSize,
+                              width: logoSize,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
-                                  height: 60,
-                                  width: 60,
+                                  height: logoSize,
+                                  width: logoSize,
                                   decoration: BoxDecoration(
                                     color: const Color(0xFF6C63FF),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.account_balance_wallet,
                                     color: Colors.white,
-                                    size: 30,
+                                    size: logoSize * 0.5,
                                   ),
                                 );
                               },
                             ),
-                            // Contactless/NFC ikonu
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.contactless,
-                                color: Colors.white.withValues(alpha: 0.8),
-                                size: 24,
-                              ),
-                            ),
-                          ],
-                        ),
 
-                        const Spacer(),
+                            const Spacer(),
 
-                        // Toplam Bakiye - Shimmer efektli
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'TOPLAM BAKİYE',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.6),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1.5,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            AnimatedBuilder(
-                              animation: _shimmerAnimation,
-                              builder: (context, child) {
-                                return ShaderMask(
-                                  shaderCallback: (bounds) {
-                                    return LinearGradient(
-                                      colors: const [
-                                        Colors.white,
-                                        Color(0xFF6C63FF),
-                                        Colors.white,
-                                      ],
-                                      stops: [
-                                        _shimmerAnimation.value - 0.3,
-                                        _shimmerAnimation.value,
-                                        _shimmerAnimation.value + 0.3,
-                                      ].map((s) => s.clamp(0.0, 1.0)).toList(),
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                    ).createShader(bounds);
-                                  },
-                                  child: Text(
-                                    CurrencyFormatter.format(
-                                      widget.totalBalance,
-                                    ),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: -0.5,
-                                    ),
+                            // Toplam Bakiye - Shimmer efektli
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'TOPLAM BAKİYE',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.6),
+                                    fontSize: labelFontSize,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 1.5,
                                   ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // Kullanıcı bilgisi ve borç
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    widget.userName.toUpperCase(),
-                                    style: TextStyle(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.9,
-                                      ),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 1,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                  ),
-                                  // Kredi borcu (varsa)
-                                  if (widget.totalDebt > 0)
-                                    Container(
-                                      margin: const EdgeInsets.only(top: 6),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            ColorConstants.koyuKirmizi
-                                                .withValues(alpha: 0.4),
-                                            ColorConstants.koyuKirmizi
-                                                .withValues(alpha: 0.2),
-                                          ],
-                                        ),
-                                        borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(
-                                          color: ColorConstants.koyuKirmizi
-                                              .withValues(alpha: 0.5),
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.credit_card,
-                                            color: Colors.white.withValues(
-                                              alpha: 0.8,
-                                            ),
-                                            size: 12,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            'Borç: ${CurrencyFormatter.format(widget.totalDebt)}',
-                                            style: TextStyle(
-                                              color: Colors.white.withValues(
-                                                alpha: 0.9,
-                                              ),
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(width: 16),
-
-                  // Sağ bölüm: Profil resmi - Animated glow
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AnimatedBuilder(
-                        animation: _glowAnimation,
-                        builder: (context, child) {
-                          return Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.4),
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(
-                                    0xFF6C63FF,
-                                  ).withValues(alpha: _glowAnimation.value),
-                                  blurRadius: 20,
-                                  spreadRadius: 2,
                                 ),
-                                BoxShadow(
-                                  color: const Color(0xFF00D9FF).withValues(
-                                    alpha: _glowAnimation.value * 0.5,
-                                  ),
-                                  blurRadius: 30,
-                                  spreadRadius: -5,
+                                const SizedBox(height: 4),
+                                AnimatedBuilder(
+                                  animation: _shimmerAnimation,
+                                  builder: (context, child) {
+                                    return ShaderMask(
+                                      shaderCallback: (bounds) {
+                                        return LinearGradient(
+                                          colors: const [
+                                            Colors.white,
+                                            Color(0xFF6C63FF),
+                                            Colors.white,
+                                          ],
+                                          stops:
+                                              [
+                                                    _shimmerAnimation.value -
+                                                        0.3,
+                                                    _shimmerAnimation.value,
+                                                    _shimmerAnimation.value +
+                                                        0.3,
+                                                  ]
+                                                  .map((s) => s.clamp(0.0, 1.0))
+                                                  .toList(),
+                                          begin: Alignment.centerLeft,
+                                          end: Alignment.centerRight,
+                                        ).createShader(bounds);
+                                      },
+                                      child: Text(
+                                        CurrencyFormatter.format(
+                                          widget.totalBalance,
+                                        ),
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: balanceFontSize,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: -0.5,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
-                            child: ClipOval(
-                              child: _buildProfileImage(widget.userName),
+
+                            SizedBox(height: spacing),
+
+                            // Kullanıcı bilgisi ve borç
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        widget.userName.toUpperCase(),
+                                        style: TextStyle(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.9,
+                                          ),
+                                          fontSize: userNameFontSize,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 1,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(width: horizontalPadding * 0.5),
+
+                      // Sağ bölüm: Profil resmi - Animated glow
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedBuilder(
+                            animation: _glowAnimation,
+                            builder: (context, child) {
+                              return Container(
+                                width: profileSize,
+                                height: profileSize,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.4),
+                                    width: 2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(
+                                        0xFF6C63FF,
+                                      ).withValues(alpha: _glowAnimation.value),
+                                      blurRadius: 20,
+                                      spreadRadius: 2,
+                                    ),
+                                    BoxShadow(
+                                      color: const Color(0xFF00D9FF).withValues(
+                                        alpha: _glowAnimation.value * 0.5,
+                                      ),
+                                      blurRadius: 30,
+                                      spreadRadius: -5,
+                                    ),
+                                  ],
+                                ),
+                                child: ClipOval(
+                                  child: _buildProfileImage(widget.userName),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  /// Sayfa 2: Kart Dağılımı
-  Widget _buildDistributionPage(BuildContext context) {
-    // Kart tiplerini hesapla
-    final nakitKartlar = widget.paymentMethods
-        .where((pm) => pm.type == 'nakit')
-        .toList();
-    final bankaKartlar = widget.paymentMethods
-        .where((pm) => pm.type == 'banka')
-        .toList();
-    final krediKartlar = widget.paymentMethods
-        .where((pm) => pm.type == 'kredi')
-        .toList();
-
-    final nakitToplam = nakitKartlar.fold(0.0, (sum, pm) => sum + pm.balance);
-    final bankaToplam = bankaKartlar.fold(0.0, (sum, pm) => sum + pm.balance);
-    final krediToplam = krediKartlar.fold(0.0, (sum, pm) => sum + pm.balance);
-
-    final toplamVarlik = nakitToplam + bankaToplam;
-
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFF6C63FF).withValues(alpha: 0.25),
-            const Color(0xFF6C63FF).withValues(alpha: 0.1),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFF6C63FF).withValues(alpha: 0.4),
-        ),
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Başlık
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.pie_chart_outline,
-                    color: Colors.white.withValues(alpha: 0.6),
-                    size: 14,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'KART DAĞILIMI',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
-                      fontSize: 11,
-                      letterSpacing: 1.2,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${widget.paymentMethods.length} Kart',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const Spacer(),
-
-          // Kart tipleri
-          _buildDistributionBar(
-            'Nakit',
-            nakitKartlar.length,
-            nakitToplam,
-            toplamVarlik,
-            Colors.greenAccent,
-            Icons.wallet,
-          ),
-          const SizedBox(height: 12),
-          _buildDistributionBar(
-            'Banka',
-            bankaKartlar.length,
-            bankaToplam,
-            toplamVarlik,
-            Colors.blueAccent,
-            Icons.account_balance,
-          ),
-          const SizedBox(height: 12),
-          _buildDistributionBar(
-            'Kredi',
-            krediKartlar.length,
-            krediToplam,
-            krediToplam > 0 ? krediToplam : 1, // Borç gösterimi için
-            ColorConstants.kirmiziVurgu,
-            Icons.credit_card,
-            isDebt: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Dağılım bar widget'ı
-  Widget _buildDistributionBar(
-    String label,
-    int count,
-    double amount,
-    double total,
-    Color color,
-    IconData icon, {
-    bool isDebt = false,
-  }) {
-    final ratio = total > 0 ? (amount / total).clamp(0.0, 1.0) : 0.0;
-
-    return Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: color, size: 16),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '$label ($count)',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    isDebt
-                        ? '-${CurrencyFormatter.format(amount)}'
-                        : CurrencyFormatter.format(amount),
-                    style: TextStyle(
-                      color: isDebt ? color : Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: isDebt ? 1.0 : ratio,
-                  backgroundColor: Colors.white.withValues(alpha: 0.1),
-                  valueColor: AlwaysStoppedAnimation<Color>(color),
-                  minHeight: 4,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Sayfa 3: Borc Analizi
+  /// Sayfa 2: Borc Analizi
   Widget _buildDebtAnalysisPage(BuildContext context) {
     // Kredi kartlarini al
     final krediKartlar = widget.paymentMethods
@@ -657,18 +457,11 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
         : 0.0;
 
     Color durumRengi = Colors.greenAccent;
-    String durumMesaji = 'İyi durumda';
-    IconData durumIkon = Icons.check_circle_outline;
-
     if (kullanimOrani > 0.5) {
       durumRengi = Colors.orangeAccent;
-      durumMesaji = 'Dikkatli olun';
-      durumIkon = Icons.warning_amber_outlined;
     }
     if (kullanimOrani > 0.8) {
       durumRengi = ColorConstants.kirmiziVurgu;
-      durumMesaji = 'Kritik seviye!';
-      durumIkon = Icons.error_outline;
     }
 
     return Container(
@@ -692,48 +485,20 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
         children: [
           // Başlık
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.trending_down,
-                    color: Colors.white.withValues(alpha: 0.6),
-                    size: 14,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'BORÇ ANALİZİ',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
-                      fontSize: 11,
-                      letterSpacing: 1.2,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
+              Icon(
+                Icons.trending_down,
+                color: Colors.white.withValues(alpha: 0.6),
+                size: 16,
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: durumRengi.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: durumRengi.withValues(alpha: 0.4)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(durumIkon, color: durumRengi, size: 12),
-                    const SizedBox(width: 4),
-                    Text(
-                      durumMesaji,
-                      style: TextStyle(
-                        color: durumRengi,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+              const SizedBox(width: 6),
+              Text(
+                'TOPLAM BORÇ',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  fontSize: 11,
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -903,7 +668,7 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
   Widget _buildPageIndicator() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(3, (index) {
+      children: List.generate(2, (index) {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutCubic,

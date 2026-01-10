@@ -45,35 +45,56 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      height: 180, // Sabit yükseklik - Daha da artırıldı
-      child: Column(
-        children: [
-          // Carousel içeriği
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() => _currentPage = index);
-              },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Responsive degerler hesapla
+          final cardWidth = constraints.maxWidth;
+          final cardHeight = (cardWidth / 2.2).clamp(150.0, 200.0);
+
+          return SizedBox(
+            height: cardHeight + 20, // Page indicator icin ek alan
+            child: Column(
               children: [
-                _buildTotalExpensePage(context),
-                _buildBudgetPage(context),
-                _buildDailyAveragePage(context),
+                // Carousel icerigi
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() => _currentPage = index);
+                    },
+                    children: [
+                      _buildTotalExpensePage(context, cardWidth),
+                      _buildBudgetPage(context, cardWidth),
+                      _buildDailyAveragePage(context, cardWidth),
+                    ],
+                  ),
+                ),
+                // Sayfa gostergesi
+                const SizedBox(height: 6),
+                _buildPageIndicator(),
               ],
             ),
-          ),
-          // Sayfa göstergesi
-          const SizedBox(height: 6),
-          _buildPageIndicator(),
-        ],
+          );
+        },
       ),
     );
   }
 
-  /// Sayfa 1: Toplam Harcama ve Tarih Seçimi
-  Widget _buildTotalExpensePage(BuildContext context) {
+  /// Sayfa 1: Toplam Harcama ve Tarih Secimi
+  Widget _buildTotalExpensePage(BuildContext context, double cardWidth) {
+    // Responsive font boyutlari
+    final amountFontSize = (cardWidth * 0.09).clamp(24.0, 36.0);
+    final labelFontSize = (cardWidth * 0.028).clamp(9.0, 11.0);
+    final subtitleFontSize = (cardWidth * 0.03).clamp(10.0, 12.0);
+    final padding = (cardWidth * 0.05).clamp(14.0, 20.0);
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+      padding: EdgeInsets.fromLTRB(
+        padding,
+        padding * 0.8,
+        padding,
+        padding * 0.8,
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -116,7 +137,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                           color: Theme.of(
                             context,
                           ).colorScheme.onSurface.withValues(alpha: 0.6),
-                          fontSize: 11,
+                          fontSize: labelFontSize,
                           letterSpacing: 1.2,
                           fontWeight: FontWeight.w600,
                         ),
@@ -207,12 +228,12 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
 
           const Spacer(),
 
-          // Orta: Büyük Tutar
+          // Orta: Buyuk Tutar
           Text(
             CurrencyFormatter.format(widget.toplamTutar),
             style: TextStyle(
               color: ColorConstants.kirmiziVurgu,
-              fontSize: 36,
+              fontSize: amountFontSize,
               height: 1.1,
               fontWeight: FontWeight.w800,
               letterSpacing: -1,
@@ -234,7 +255,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                 "Bu ayki harcamalar",
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.5),
-                  fontSize: 12,
+                  fontSize: subtitleFontSize,
                 ),
               ),
             ],
@@ -244,8 +265,11 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
     );
   }
 
-  /// Sayfa 2: Bütçe Durumu
-  Widget _buildBudgetPage(BuildContext context) {
+  /// Sayfa 2: Butce Durumu
+  Widget _buildBudgetPage(BuildContext context, double cardWidth) {
+    // Responsive padding
+    final padding = (cardWidth * 0.05).clamp(14.0, 20.0);
+
     final double dolulukOrani = (widget.toplamTutar / widget.butceLimiti).clamp(
       0.0,
       1.0,
@@ -257,7 +281,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
     if (dolulukOrani > 0.8) barRengi = ColorConstants.kirmiziVurgu;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -376,25 +400,25 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
     );
   }
 
-  /// Sayfa 3: Günlük Harcama Ortalaması
-  Widget _buildDailyAveragePage(BuildContext context) {
-    // Aydaki gün sayısını hesapla
+  /// Sayfa 3: Gunluk Harcama Ortalamasi
+  Widget _buildDailyAveragePage(BuildContext context, double cardWidth) {
+    // Aydaki gun sayisini hesapla
     final int aydakiGunSayisi = DateTime(
       widget.secilenAy.year,
       widget.secilenAy.month + 1,
       0,
     ).day;
 
-    // Bugünün tarihi
+    // Bugunun tarihi
     final now = DateTime.now();
     final bugunSecilenAydaMi =
         now.year == widget.secilenAy.year &&
         now.month == widget.secilenAy.month;
 
-    // Geçen gün sayısını hesapla (bu ay içinse bugün, değilse ay sonu)
+    // Gecen gun sayisini hesapla (bu ay icinse bugun, degilse ay sonu)
     final int gecenGunSayisi = bugunSecilenAydaMi ? now.day : aydakiGunSayisi;
 
-    // Günlük ortalama
+    // Gunluk ortalama
     final double gunlukOrtalama = gecenGunSayisi > 0
         ? widget.toplamTutar / gecenGunSayisi
         : 0;
