@@ -31,7 +31,7 @@ class PaymentMethodSummaryCard extends StatefulWidget {
 
 class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
     with TickerProviderStateMixin {
-  final PageController _pageController = PageController();
+  final PageController _pageController = PageController(viewportFraction: 1.0);
   int _currentPage = 0;
 
   // Animasyon controller'ları
@@ -75,7 +75,7 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       child: LayoutBuilder(
         builder: (context, constraints) {
           // Ekran genisligine gore kart yuksekligi hesapla
@@ -96,8 +96,14 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
                       setState(() => _currentPage = index);
                     },
                     children: [
-                      _buildBalancePage(context),
-                      _buildDebtAnalysisPage(context),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        child: _buildBalancePage(context),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        child: _buildDebtAnalysisPage(context),
+                      ),
                     ],
                   ),
                 ),
@@ -132,7 +138,7 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
         final userNameFontSize = (cardWidth * 0.032).clamp(10.0, 12.0);
 
         // Padding degerleri
-        final horizontalPadding = (cardWidth * 0.06).clamp(16.0, 24.0);
+        final horizontalPadding = (cardWidth * 0.04).clamp(12.0, 20.0);
         final verticalPadding = (cardHeight * 0.08).clamp(12.0, 20.0);
         final spacing = (cardHeight * 0.08).clamp(12.0, 20.0);
 

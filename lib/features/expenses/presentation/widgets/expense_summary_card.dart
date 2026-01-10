@@ -44,7 +44,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
       child: LayoutBuilder(
         builder: (context, constraints) {
           // Responsive degerler hesapla
@@ -63,9 +63,18 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                       setState(() => _currentPage = index);
                     },
                     children: [
-                      _buildTotalExpensePage(context, cardWidth),
-                      _buildBudgetPage(context, cardWidth),
-                      _buildDailyAveragePage(context, cardWidth),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: _buildTotalExpensePage(context, cardWidth),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: _buildBudgetPage(context, cardWidth),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: _buildDailyAveragePage(context, cardWidth),
+                      ),
                     ],
                   ),
                 ),
