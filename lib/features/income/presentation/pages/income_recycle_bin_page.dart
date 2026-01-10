@@ -140,6 +140,66 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
     }
   }
 
+  /// Tüm silinen gelirleri geri yükler
+  Future<void> tumunuGeriYukle() async {
+    if (silinenGelirler.isEmpty) return;
+
+    bool? onay = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: const Text(
+          "Tümünü Geri Yükle",
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          "${silinenGelirler.length} gelir geri yüklenecek. Onaylıyor musun?",
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text("İptal", style: TextStyle(color: Colors.white)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade700,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              "Evet, Geri Yükle",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (onay == true) {
+      // Tüm gelirleri geri yükle
+      for (var gelir in silinenGelirler) {
+        int index = tumGelirler.indexWhere((g) => g.id == gelir.id);
+        if (index != -1) {
+          tumGelirler[index] = gelir.copyWith(isDeleted: false);
+        }
+      }
+
+      setState(() {
+        silinenGelirler.clear();
+      });
+
+      kaydet();
+
+      if (mounted) {
+        AppSnackBar.success(context, 'Tüm gelirler geri yüklendi ♻️');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -150,6 +210,12 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
         foregroundColor: Colors.white,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
+          if (silinenGelirler.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.restore, color: Colors.green),
+              tooltip: "Tümünü Geri Yükle",
+              onPressed: tumunuGeriYukle,
+            ),
           IconButton(
             icon: const Icon(Icons.delete_sweep, color: Colors.white),
             tooltip: "Çöpü Boşalt",

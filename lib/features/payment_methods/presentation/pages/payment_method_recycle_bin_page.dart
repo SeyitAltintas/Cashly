@@ -8,6 +8,7 @@ class PaymentMethodRecycleBinPage extends StatefulWidget {
   final Function(PaymentMethod) onRestore;
   final Function(PaymentMethod) onPermanentDelete;
   final VoidCallback onEmptyBin;
+  final VoidCallback? onRestoreAll;
 
   const PaymentMethodRecycleBinPage({
     super.key,
@@ -15,6 +16,7 @@ class PaymentMethodRecycleBinPage extends StatefulWidget {
     required this.onRestore,
     required this.onPermanentDelete,
     required this.onEmptyBin,
+    this.onRestoreAll,
   });
 
   @override
@@ -39,6 +41,68 @@ class _PaymentMethodRecycleBinPageState
   void initState() {
     super.initState();
     _deletedPaymentMethods = List.from(widget.deletedPaymentMethods);
+  }
+
+  /// Tüm silinen ödeme yöntemlerini geri yükler
+  void _confirmRestoreAll() {
+    if (_deletedPaymentMethods.isEmpty) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: Text(
+          'Tümünü Geri Yükle',
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        ),
+        content: Text(
+          '${_deletedPaymentMethods.length} ödeme yöntemi geri yüklenecek. Onaylıyor musun?',
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'İptal',
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade700,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              // Tüm ödeme yöntemlerini tek tek geri yükle
+              final methodsToRestore = List<PaymentMethod>.from(
+                _deletedPaymentMethods,
+              );
+              for (var pm in methodsToRestore) {
+                widget.onRestore(pm);
+              }
+              setState(() {
+                _deletedPaymentMethods.clear();
+              });
+              if (widget.onRestoreAll != null) {
+                widget.onRestoreAll!();
+              }
+            },
+            child: const Text(
+              'Evet, Geri Yükle',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _confirmEmptyBin() {
@@ -101,6 +165,12 @@ class _PaymentMethodRecycleBinPageState
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
+          if (_deletedPaymentMethods.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.restore, color: Colors.green),
+              tooltip: 'Tümünü Geri Yükle',
+              onPressed: _confirmRestoreAll,
+            ),
           if (_deletedPaymentMethods.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.delete_forever, color: Colors.white),

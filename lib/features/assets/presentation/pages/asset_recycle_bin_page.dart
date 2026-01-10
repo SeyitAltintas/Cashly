@@ -6,6 +6,7 @@ class AssetRecycleBinPage extends StatefulWidget {
   final Function(Asset) onRestore;
   final Function(Asset) onPermanentDelete;
   final VoidCallback onEmptyBin;
+  final VoidCallback? onRestoreAll;
 
   const AssetRecycleBinPage({
     super.key,
@@ -13,6 +14,7 @@ class AssetRecycleBinPage extends StatefulWidget {
     required this.onRestore,
     required this.onPermanentDelete,
     required this.onEmptyBin,
+    this.onRestoreAll,
   });
 
   @override
@@ -20,6 +22,66 @@ class AssetRecycleBinPage extends StatefulWidget {
 }
 
 class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
+  /// Tüm silinen varlıkları geri yükler
+  void _confirmRestoreAll() {
+    if (widget.deletedAssets.isEmpty) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: Text(
+          "Tümünü Geri Yükle",
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        ),
+        content: Text(
+          "${widget.deletedAssets.length} varlık geri yüklenecek. Onaylıyor musun?",
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              "İptal",
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.54),
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade700,
+            ),
+            onPressed: () {
+              // Tüm varlıkları tek tek geri yükle
+              final assetsToRestore = List<Asset>.from(widget.deletedAssets);
+              for (var asset in assetsToRestore) {
+                widget.onRestore(asset);
+              }
+              setState(() {
+                widget.deletedAssets.clear();
+              });
+              Navigator.pop(ctx);
+              if (widget.onRestoreAll != null) {
+                widget.onRestoreAll!();
+              }
+            },
+            child: const Text(
+              "Evet, Geri Yükle",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,6 +94,12 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
           color: Theme.of(context).colorScheme.onSurface,
         ),
         actions: [
+          if (widget.deletedAssets.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.restore, color: Colors.green),
+              tooltip: "Tümünü Geri Yükle",
+              onPressed: _confirmRestoreAll,
+            ),
           IconButton(
             icon: Icon(
               Icons.delete_sweep,

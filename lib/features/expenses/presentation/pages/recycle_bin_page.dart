@@ -148,6 +148,95 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
     }
   }
 
+  /// Tüm silinen harcamaları geri yükler
+  Future<void> tumunuGeriYukle() async {
+    if (silinenHarcamalar.isEmpty) return;
+
+    bool? onay = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: const Text(
+          "Tümünü Geri Yükle",
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          "${silinenHarcamalar.length} harcama geri yüklenecek. Onaylıyor musun?",
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text("İptal", style: TextStyle(color: Colors.white)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade700,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              "Evet, Geri Yükle",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (onay == true) {
+      // Önce tüm harcamaları geri yükle ve bakiye hesaplamaları yap
+      for (var harcama in silinenHarcamalar) {
+        var hedef = tumHarcamalarHam.firstWhere(
+          (element) => element == harcama,
+        );
+        hedef['silindi'] = false;
+
+        // Ödeme yönteminin bakiyesini güncelle
+        final paymentMethodId = harcama['odemeYontemiId'];
+        if (paymentMethodId != null) {
+          final pmIndex = odemeYontemleri.indexWhere(
+            (p) => p.id == paymentMethodId,
+          );
+          if (pmIndex != -1) {
+            final pm = odemeYontemleri[pmIndex];
+            final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+            double newBalance;
+            if (pm.type == 'kredi') {
+              // Kredi kartı: borca ekle
+              newBalance = pm.balance + amount;
+            } else {
+              // Banka kartı/Nakit: bakiyeden düş
+              newBalance = pm.balance - amount;
+            }
+            odemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+          }
+        }
+      }
+
+      setState(() {
+        silinenHarcamalar.clear();
+      });
+
+      // Verileri kaydet
+      getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
+      List<Map<String, dynamic>> pmMapleri = odemeYontemleri
+          .map((pm) => pm.toMap())
+          .toList();
+      getIt<PaymentMethodRepository>().savePaymentMethods(
+        widget.userId,
+        pmMapleri,
+      );
+
+      if (mounted) {
+        AppSnackBar.success(context, 'Tüm harcamalar geri yüklendi ♻️');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,6 +247,12 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
         foregroundColor: Colors.white,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
+          if (silinenHarcamalar.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.restore, color: Colors.green),
+              tooltip: "Tümünü Geri Yükle",
+              onPressed: tumunuGeriYukle,
+            ),
           IconButton(
             icon: const Icon(Icons.delete_sweep, color: Colors.white),
             tooltip: "Çöpü Boşalt",
