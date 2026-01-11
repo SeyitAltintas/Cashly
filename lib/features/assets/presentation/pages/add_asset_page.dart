@@ -757,19 +757,72 @@ class _AddAssetPageState extends State<AddAssetPage> {
             ),
           ),
           const SizedBox(height: 12),
-          // Alış Fiyatı
+          // Alış Fiyatı - Edge case kontrolleri ile
           TextFormField(
             controller: _purchasePriceController,
             style: const TextStyle(color: Colors.white),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: TextInputType.number,
+            inputFormatters: [AmountInputFormatter()],
+            validator: (value) {
+              // Edge Case 1: Boş değer - opsiyonel olduğu için geçerli
+              if (value == null || value.trim().isEmpty) {
+                return null; // Boş bırakılabilir, mevcut değer kullanılacak
+              }
+
+              // AmountInputFormatter kullanarak parse et
+              final amount = AmountInputFormatter.parseFormattedAmount(value);
+
+              // Edge Case 2: Geçersiz sayı formatı
+              if (amount == null) {
+                return 'Geçerli bir fiyat giriniz';
+              }
+
+              // Edge Case 3: Negatif değer
+              if (amount < 0) {
+                return 'Alış fiyatı negatif olamaz';
+              }
+
+              // Edge Case 4: Sıfır değer
+              if (amount == 0) {
+                return 'Alış fiyatı 0\'dan büyük olmalı';
+              }
+
+              // Edge Case 5: Çok küçük değer (pratik olmayan)
+              if (amount < 0.01) {
+                return 'Minimum alış fiyatı 0,01 ₺ olmalı';
+              }
+
+              // Edge Case 6: Aşırı yüksek değer (100 milyon TL)
+              if (amount > 100000000) {
+                return 'Maksimum alış fiyatı 100 milyon ₺ olabilir';
+              }
+
+              return null;
+            },
             decoration: InputDecoration(
               labelText: "Alış Fiyatı (TL)",
               labelStyle: TextStyle(color: Colors.amber.shade700),
+              hintText: "Örn: 1.250,00",
+              hintStyle: TextStyle(color: Colors.white24),
               filled: true,
               fillColor: Colors.white.withValues(alpha: 0.05),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Colors.amber.withValues(alpha: 0.5),
+                ),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.red.shade400),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
               ),
               prefixIcon: Icon(
                 Icons.shopping_cart,
