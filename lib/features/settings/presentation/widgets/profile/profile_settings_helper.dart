@@ -79,6 +79,19 @@ class ProfileSettingsHelper {
     }
   }
 
+  Future<void> _pickImageFromCamera() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
+    if (image != null) {
+      _updateUser(
+        profileImage: image.path,
+        successMessage: "Profil resmi güncellendi",
+      );
+      if (context.mounted) Navigator.pop(context);
+    }
+  }
+
   /// Profil resmi tam ekran gösterimi
   void showFullScreenImage() {
     if (currentUser.profileImage == null) return;
@@ -138,7 +151,7 @@ class ProfileSettingsHelper {
             const SizedBox(height: 24),
             // Açıklama metni
             Text(
-              "Galerinizden bir fotoğraf seçerek profil resminizi değiştirebilirsiniz.",
+              "Galerinizden bir fotoğraf seçerek ya da kameradan fotoğraf çekerek profil resminizi değiştirebilirsiniz.",
               style: TextStyle(
                 color: Theme.of(
                   ctx,
@@ -148,24 +161,31 @@ class ProfileSettingsHelper {
             ),
             const SizedBox(height: 24),
             // Galeriden Seç butonu
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _pickImageFromGallery,
-                icon: const Icon(Icons.photo_library),
-                label: const Text(
-                  "Galeriden Fotoğraf Seç",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(ctx).colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            // Seçenekler: Kamera ve Galeri
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSelectionCard(
+                    ctx,
+                    icon: Icons.camera_alt_rounded,
+                    title: "Kamera",
+                    subtitle: "Fotoğraf Çek",
+                    color: Colors.blue,
+                    onTap: _pickImageFromCamera,
                   ),
                 ),
-              ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildSelectionCard(
+                    ctx,
+                    icon: Icons.photo_library_rounded,
+                    title: "Galeri",
+                    subtitle: "Fotoğraf Seç",
+                    color: Colors.purple,
+                    onTap: _pickImageFromGallery,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
           ],
@@ -792,6 +812,62 @@ class ProfileSettingsHelper {
         child: Text(
           label,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectionCard(
+    BuildContext ctx, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(
+            ctx,
+          ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.1),
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 32),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(ctx).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(
+                  ctx,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
         ),
       ),
     );
