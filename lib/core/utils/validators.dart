@@ -217,4 +217,140 @@ class Validators {
 
     return null;
   }
+
+  // ============================================================
+  // ÖDEME YÖNTEMİ VALIDATOR'LARI
+  // ============================================================
+
+  /// Ödeme yöntemi adı validasyonu
+  ///
+  /// Edge cases:
+  /// - Boş veya null değer
+  /// - 2 karakterden kısa
+  /// - 30 karakterden uzun
+  /// - Sadece boşluk karakteri
+  static String? validatePaymentMethodName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Lütfen kart adını girin';
+    }
+
+    final trimmed = value.trim();
+
+    if (trimmed.length < 2) {
+      return 'Kart adı en az 2 karakter olmalıdır';
+    }
+
+    if (trimmed.length > 30) {
+      return 'Kart adı en fazla 30 karakter olabilir';
+    }
+
+    return null;
+  }
+
+  /// Son 4 hane validasyonu (kart numarası)
+  ///
+  /// Edge cases:
+  /// - Boş değer (opsiyonel)
+  /// - 4 karakterden farklı uzunluk
+  /// - Rakam dışı karakterler
+  static String? validateLastFourDigits(
+    String? value, {
+    bool required = false,
+  }) {
+    if (value == null || value.isEmpty) {
+      return required ? 'Lütfen son 4 haneyi girin' : null;
+    }
+
+    if (value.length != 4) {
+      return 'Son 4 hane tam 4 rakam olmalıdır';
+    }
+
+    if (int.tryParse(value) == null) {
+      return 'Son 4 hane sadece rakamlardan oluşmalıdır';
+    }
+
+    return null;
+  }
+
+  /// Bakiye/borç validasyonu (Türk formatı destekli)
+  ///
+  /// Edge cases:
+  /// - Boş değer
+  /// - Negatif değer
+  /// - 100 milyonu aşan değer
+  /// - Geçersiz format
+  ///
+  /// [isDebt] true ise borç formatında kontrol eder (0 geçerlidir)
+  static String? validateBalance(
+    String? value, {
+    bool isDebt = false,
+    double maxAmount = 100000000,
+  }) {
+    if (value == null || value.isEmpty) {
+      return isDebt ? 'Lütfen borç tutarını girin' : 'Lütfen bakiye girin';
+    }
+
+    // Türk formatından parse et (1.234,56 -> 1234.56)
+    final cleaned = value.replaceAll('.', '').replaceAll(',', '.');
+    final amount = double.tryParse(cleaned);
+
+    if (amount == null) {
+      return 'Geçersiz tutar formatı';
+    }
+
+    if (amount < 0) {
+      return 'Tutar negatif olamaz';
+    }
+
+    if (amount > maxAmount) {
+      return 'Maksimum tutar ${_formatLargeNumber(maxAmount)} olabilir';
+    }
+
+    return null;
+  }
+
+  /// Kredi kartı limiti validasyonu (Türk formatı destekli)
+  ///
+  /// Edge cases:
+  /// - Boş değer (opsiyonel - null döner)
+  /// - 0 veya negatif değer
+  /// - Mevcut borçtan küçük limit
+  /// - 1 milyarı aşan limit
+  /// - 100 TL'den küçük limit
+  static String? validateCreditLimit(
+    String? value, {
+    double currentDebt = 0,
+    double maxLimit = 1000000000,
+    double minLimit = 100,
+  }) {
+    if (value == null || value.isEmpty) {
+      return null; // Opsiyonel alan
+    }
+
+    // Türk formatından parse et (10.000,00 -> 10000.00)
+    final cleaned = value.replaceAll('.', '').replaceAll(',', '.');
+    final limit = double.tryParse(cleaned);
+
+    if (limit == null) {
+      return 'Geçersiz tutar formatı';
+    }
+
+    if (limit <= 0) {
+      return 'Limit 0\'dan büyük olmalı';
+    }
+
+    if (limit < minLimit) {
+      return 'Minimum limit $minLimit ₺ olmalı';
+    }
+
+    if (limit < currentDebt) {
+      return 'Limit mevcut borçtan küçük olamaz';
+    }
+
+    if (limit > maxLimit) {
+      return 'Maksimum limit ${_formatLargeNumber(maxLimit)} olabilir';
+    }
+
+    return null;
+  }
 }
