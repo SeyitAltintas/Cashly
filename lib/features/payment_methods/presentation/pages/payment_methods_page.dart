@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/widgets/skeleton_widget.dart';
+import 'package:cashly/core/utils/amount_input_formatter.dart';
 
 import '../../data/models/payment_method_model.dart';
 import 'add_payment_method_page.dart';
@@ -482,7 +483,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                         ),
                         if (pm.type == 'kredi' && pm.limit != null)
                           Text(
-                            'Limit: ${pm.limit!.toStringAsFixed(0)} ₺',
+                            'Limit: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ₺',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.5),
                               fontSize: 10,
@@ -501,7 +502,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                           ),
                         ),
                         Text(
-                          '${pm.balance.toStringAsFixed(2)} ₺',
+                          '${AmountInputFormatter.formatInitialValue(pm.balance)} ₺',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,

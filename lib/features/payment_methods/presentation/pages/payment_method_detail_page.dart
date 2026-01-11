@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/widgets/month_selector_button.dart';
+import '../../../../core/utils/amount_input_formatter.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../data/models/transfer_model.dart';
 import '../../../income/data/models/income_model.dart';
@@ -272,7 +273,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                   ),
                 ),
                 Text(
-                  '${pm.balance.toStringAsFixed(2)} ₺',
+                  '${AmountInputFormatter.formatInitialValue(pm.balance)} ₺',
                   style: TextStyle(
                     color: pm.type == 'kredi'
                         ? Colors.redAccent
@@ -287,14 +288,14 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Limit: ${pm.limit!.toStringAsFixed(0)} ₺',
+                        'Limit: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ₺',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12,
                         ),
                       ),
                       Text(
-                        'Kalan: ${(pm.limit! - pm.balance).toStringAsFixed(0)} ₺',
+                        'Kalan: ${AmountInputFormatter.formatInitialValue(pm.limit! - pm.balance).replaceAll(',00', '')} ₺',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12,

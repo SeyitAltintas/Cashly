@@ -115,6 +115,20 @@ class AmountInputFormatter extends TextInputFormatter {
     return double.tryParse(cleaned);
   }
 
+  /// Sayısal değeri Türk formatına çevirir (başlangıç değeri için)
+  /// Örn: 1234.56 -> "1.234,56"
+  static String formatInitialValue(double value) {
+    // Tam ve ondalık kısımları ayır
+    final parts = value.toStringAsFixed(2).split('.');
+    final integerPart = parts[0];
+    final decimalPart = parts.length > 1 ? parts[1] : '00';
+
+    // Binlik ayraç ekle
+    final formattedInteger = _addThousandSeparators(integerPart);
+
+    return '$formattedInteger,$decimalPart';
+  }
+
   /// Tutar validation fonksiyonu
   /// Edge cases: Boş, negatif, çok büyük, geçersiz format
   static String? validateAmount(

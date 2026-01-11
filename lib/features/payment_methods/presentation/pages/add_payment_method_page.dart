@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../data/models/payment_method_model.dart';
+import '../../../../core/utils/amount_input_formatter.dart';
 
 /// Ödeme Yöntemi Ekleme/Düzenleme Sayfası
 /// Modern tam sayfa tasarım - Koyu tema ile uyumlu
@@ -80,11 +81,20 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
     _lastFourController = TextEditingController(
       text: widget.paymentMethod?.lastFourDigits ?? '',
     );
+    // Bakiye ve limit değerlerini Türk formatında göster
     _balanceController = TextEditingController(
-      text: widget.paymentMethod?.balance.toStringAsFixed(2) ?? '',
+      text: widget.paymentMethod != null
+          ? AmountInputFormatter.formatInitialValue(
+              widget.paymentMethod!.balance,
+            )
+          : '',
     );
     _limitController = TextEditingController(
-      text: widget.paymentMethod?.limit?.toStringAsFixed(2) ?? '',
+      text: widget.paymentMethod?.limit != null
+          ? AmountInputFormatter.formatInitialValue(
+              widget.paymentMethod!.limit!,
+            )
+          : '',
     );
     _selectedType = widget.paymentMethod?.type ?? 'banka';
     _selectedColorIndex = widget.paymentMethod?.colorIndex ?? 0;
@@ -101,10 +111,12 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
 
   void _save() {
     if (_formKey.currentState!.validate()) {
+      // Türk formatından parse et (1.234,56 -> 1234.56)
       final balance =
-          double.tryParse(_balanceController.text.replaceAll(',', '.')) ?? 0.0;
+          AmountInputFormatter.parseFormattedAmount(_balanceController.text) ??
+          0.0;
       final limit = _selectedType == 'kredi'
-          ? double.tryParse(_limitController.text.replaceAll(',', '.'))
+          ? AmountInputFormatter.parseFormattedAmount(_limitController.text)
           : null;
 
       widget.onSave(
@@ -197,9 +209,13 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
     final lastFour = _lastFourController.text.isEmpty
         ? '••••'
         : _lastFourController.text;
+    // Türk formatından parse et (1.234,56 -> 1234.56)
     final balance =
-        double.tryParse(_balanceController.text.replaceAll(',', '.')) ?? 0.0;
-    final limit = double.tryParse(_limitController.text.replaceAll(',', '.'));
+        AmountInputFormatter.parseFormattedAmount(_balanceController.text) ??
+        0.0;
+    final limit = AmountInputFormatter.parseFormattedAmount(
+      _limitController.text,
+    );
 
     return Container(
       height: 200,
@@ -289,7 +305,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                     ),
                     if (_selectedType == 'kredi' && limit != null)
                       Text(
-                        'Limit: ${limit.toStringAsFixed(0)} ₺',
+                        'Limit: ${AmountInputFormatter.formatInitialValue(limit).replaceAll(',00', '')} ₺',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.5),
                           fontSize: 11,
@@ -309,7 +325,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                     ),
                   ),
                   Text(
-                    '${balance.toStringAsFixed(2)} ₺',
+                    '${AmountInputFormatter.formatInitialValue(balance)} ₺',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
@@ -526,7 +542,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           style: const TextStyle(color: Colors.white, fontSize: 16),
           inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
+            AmountInputFormatter(), // Türk para formatı: 1.000,00
           ],
           decoration: InputDecoration(
             hintText: _selectedType == 'kredi' ? '0,00' : '1.000,00',
@@ -567,8 +583,8 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                   ? 'Lütfen borç tutarını girin (0 olabilir)'
                   : 'Lütfen bakiye girin';
             }
-            final cleanValue = value.replaceAll(',', '.');
-            final amount = double.tryParse(cleanValue);
+            // Türk formatından parse et (1.234,56 -> 1234.56)
+            final amount = AmountInputFormatter.parseFormattedAmount(value);
             if (amount == null) {
               return 'Geçersiz tutar formatı';
             }
@@ -577,12 +593,6 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             }
             if (amount > 100000000) {
               return 'Maksimum tutar 100 milyon ₺ olabilir';
-            }
-            if (cleanValue.contains('.')) {
-              final decimalPart = cleanValue.split('.').last;
-              if (decimalPart.length > 2) {
-                return 'En fazla 2 ondalık basamak kullanabilirsiniz';
-              }
             }
             return null;
           },
@@ -605,7 +615,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           style: const TextStyle(color: Colors.white, fontSize: 16),
           inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
+            AmountInputFormatter(), // Türk para formatı: 10.000,00
           ],
           decoration: InputDecoration(
             hintText: '10.000,00',
@@ -642,16 +652,20 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             if (value == null || value.isEmpty) {
               return null;
             }
-            final cleanValue = value.replaceAll(',', '.');
-            final limit = double.tryParse(cleanValue);
+            // Türk formatından parse et (10.000,00 -> 10000.00)
+            final limit = AmountInputFormatter.parseFormattedAmount(value);
             if (limit == null) {
               return 'Geçersiz tutar formatı';
             }
             if (limit <= 0) {
               return 'Limit 0\'dan büyük olmalı';
             }
-            final debtValue = _balanceController.text.replaceAll(',', '.');
-            final debt = double.tryParse(debtValue) ?? 0;
+            // Mevcut borç değerini parse et
+            final debt =
+                AmountInputFormatter.parseFormattedAmount(
+                  _balanceController.text,
+                ) ??
+                0;
             if (limit < debt) {
               return 'Limit mevcut borçtan küçük olamaz';
             }
@@ -660,12 +674,6 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             }
             if (limit < 100) {
               return 'Minimum limit 100 ₺ olmalı';
-            }
-            if (cleanValue.contains('.')) {
-              final decimalPart = cleanValue.split('.').last;
-              if (decimalPart.length > 2) {
-                return 'En fazla 2 ondalık basamak kullanabilirsiniz';
-              }
             }
             return null;
           },
