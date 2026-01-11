@@ -21,6 +21,7 @@ import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/widgets/skeleton_widget.dart';
 import '../helpers/expense_calculation_helper.dart';
+import '../state/expense_page_state.dart';
 
 class ExpensesPage extends StatefulWidget {
   final List<Map<String, dynamic>> tumHarcamalar;
@@ -52,63 +53,62 @@ class ExpensesPage extends StatefulWidget {
 
 class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   final TextEditingController tArama = TextEditingController();
-  bool aramaModu = false;
-  bool _isLoading = true; // Skeleton loading için
-  late DateTime secilenAy;
-  List<Map<String, dynamic>> gosterilenHarcamalar = [];
+
+  // State yönetimi için ChangeNotifier
+  late final ExpensePageState _pageState;
+
+  // Getter'lar - state'e kolay erişim
+  bool get aramaModu => _pageState.aramaModu;
+  bool get _isLoading => _pageState.isLoading;
+  DateTime get secilenAy => _pageState.secilenAy;
+  List<Map<String, dynamic>> get gosterilenHarcamalar =>
+      _pageState.gosterilenHarcamalar;
 
   @override
   void initState() {
     super.initState();
-    secilenAy = widget.secilenAy;
+
+    // State notifier'u başlat
+    _pageState = ExpensePageState();
+    _pageState.secilenAy = widget.secilenAy;
+
     initLazyLoading();
-    filtreleVeGoster();
+    _filtreleVeGoster();
+
+    // State değişikliklerini dinle ve UI'yı güncelle
+    _pageState.addListener(_onStateChanged);
 
     // Kısa skeleton animasyonu için 300ms bekle
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        _pageState.stopLoading();
       }
     });
   }
 
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _pageState.removeListener(_onStateChanged);
+    _pageState.dispose();
     disposeLazyLoading();
     tArama.dispose();
     super.dispose();
   }
 
-  void filtreleVeGoster() {
-    String aramaMetni = tArama.text.toLowerCase();
-    setState(() {
-      gosterilenHarcamalar = widget.tumHarcamalar.where((h) {
-        if (h['silindi'] == true) return false;
-        DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-        if (tarih == null) return false;
-        bool ayFiltrelendi =
-            tarih.year == secilenAy.year && tarih.month == secilenAy.month;
-        if (!ayFiltrelendi) return false;
-        if (aramaMetni.isEmpty) return true;
-        String isim = (h['isim'] ?? "").toString().toLowerCase();
-        String kategori = (h['kategori'] ?? "").toString().toLowerCase();
-        return isim.contains(aramaMetni) || kategori.contains(aramaMetni);
-      }).toList();
-
-      gosterilenHarcamalar.sort((a, b) {
-        DateTime tarihA =
-            DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-        DateTime tarihB =
-            DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-        return tarihB.compareTo(tarihA);
-      });
-
-      // Lazy loading'i sıfırla
-      resetLazyLoading(gosterilenHarcamalar.length);
-    });
+  void _filtreleVeGoster() {
+    _pageState.filtreleVeGoster(
+      tumHarcamalar: widget.tumHarcamalar,
+      aramaMetni: tArama.text,
+      onResetLazyLoading: resetLazyLoading,
+    );
   }
+
+  // Geriye uyumluluk için eski metod adı
+  void filtreleVeGoster() => _filtreleVeGoster();
 
   double get toplamTutar {
     double toplam = 0;
@@ -149,17 +149,13 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   }
 
   void oncekiAy() {
-    setState(() {
-      secilenAy = DateTime(secilenAy.year, secilenAy.month - 1, 1);
-      filtreleVeGoster();
-    });
+    _pageState.secilenAy = DateTime(secilenAy.year, secilenAy.month - 1, 1);
+    filtreleVeGoster();
   }
 
   void sonrakiAy() {
-    setState(() {
-      secilenAy = DateTime(secilenAy.year, secilenAy.month + 1, 1);
-      filtreleVeGoster();
-    });
+    _pageState.secilenAy = DateTime(secilenAy.year, secilenAy.month + 1, 1);
+    filtreleVeGoster();
   }
 
   void _ayYilSeciciAc() async {
@@ -171,10 +167,8 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     );
 
     if (selectedDate != null && mounted) {
-      setState(() {
-        secilenAy = selectedDate;
-        filtreleVeGoster();
-      });
+      _pageState.secilenAy = selectedDate;
+      filtreleVeGoster();
     }
   }
 
@@ -380,10 +374,8 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           if (!aramaModu && !buAyMi)
             TextButton(
               onPressed: () {
-                setState(() {
-                  secilenAy = DateTime.now();
-                  filtreleVeGoster();
-                });
+                _pageState.secilenAy = DateTime.now();
+                filtreleVeGoster();
               },
               child: Text(
                 "Bugüne git",
@@ -402,13 +394,11 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
               color: Colors.white,
             ),
             onPressed: () {
-              setState(() {
-                aramaModu = !aramaModu;
-                if (!aramaModu) {
-                  tArama.clear();
-                  filtreleVeGoster();
-                }
-              });
+              _pageState.aramaModu = !aramaModu;
+              if (!aramaModu) {
+                tArama.clear();
+                filtreleVeGoster();
+              }
             },
           ),
         ],
