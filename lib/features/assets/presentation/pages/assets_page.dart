@@ -197,7 +197,9 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                     },
                   ),
                 ),
-              ).then((_) => setState(() {}));
+              ).then((_) {
+                if (mounted) setState(() {});
+              });
             },
           ),
         ],
@@ -259,104 +261,112 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
             )
           : EmptyStateWidget.noAssets();
     }
-    return ListView.builder(
-      controller: lazyScrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: _filtrelenmisVarliklar.length + (hasMoreItems ? 1 : 0),
-      itemBuilder: (context, index) {
-        // Son item ise ve daha fazla veri varsa loading göster
-        if (index >= _filtrelenmisVarliklar.length) {
-          return buildLoadingIndicator();
-        }
-
-        final asset = _filtrelenmisVarliklar[index];
-        // RepaintBoundary ile render izolasyonu - performans optimizasyonu
-        // RepaintBoundary ile render izolasyonu - performans optimizasyonu
-        return AssetListItem(
-          asset: asset,
-          onDelete: () {
-            setState(() {
-              _assets.removeWhere((a) => a.id == asset.id);
-              asset.isDeleted = true;
-              _deletedAssets.add(asset);
-              _filtrele();
-            });
-            widget.onDelete(asset);
-          },
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AssetDetailPage(
-                  asset: asset,
-                  onEdit: (updatedAsset) {
-                    // Lokal listeyi güncelle
-                    setState(() {
-                      final index = _assets.indexWhere((a) => a.id == asset.id);
-                      if (index != -1) {
-                        _assets[index] = updatedAsset;
-                      }
-                      _filtrele();
-                    });
-                    widget.onEdit(updatedAsset);
-                  },
-                  onDelete: (deletedAsset) {
-                    setState(() {
-                      _assets.removeWhere((a) => a.id == deletedAsset.id);
-                      deletedAsset.isDeleted = true;
-                      _deletedAssets.add(deletedAsset);
-                      _filtrele();
-                    });
-                    widget.onDelete(deletedAsset);
-                  },
-                ),
-              ),
-            );
-          },
-          onLongPress: () {
-            HapticService.mediumImpact();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddAssetPage(
-                  asset: asset,
-                  onSave:
-                      (
-                        name,
-                        amount,
-                        quantity,
-                        category,
-                        type,
-                        purchaseDate,
-                        purchasePrice,
-                      ) {
-                        final updatedAsset = asset.copyWith(
-                          name: name,
-                          amount: amount,
-                          quantity: quantity,
-                          category: category,
-                          type: type,
-                          lastUpdated: DateTime.now(),
-                          purchaseDate: purchaseDate,
-                          purchasePrice: purchasePrice,
-                        );
-                        setState(() {
-                          final index = _assets.indexWhere(
-                            (a) => a.id == asset.id,
-                          );
-                          if (index != -1) {
-                            _assets[index] = updatedAsset;
-                          }
-                          _filtrele();
-                        });
-                        widget.onEdit(updatedAsset);
-                      },
-                ),
-              ),
-            );
-          },
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        // Verileri yeniden filtrele
+        _filtrele();
       },
+      color: Colors.blue.shade600,
+      child: ListView.builder(
+        controller: lazyScrollController,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: _filtrelenmisVarliklar.length + (hasMoreItems ? 1 : 0),
+        itemBuilder: (context, index) {
+          // Son item ise ve daha fazla veri varsa loading göster
+          if (index >= _filtrelenmisVarliklar.length) {
+            return buildLoadingIndicator();
+          }
+
+          final asset = _filtrelenmisVarliklar[index];
+          // RepaintBoundary ile render izolasyonu - performans optimizasyonu
+          return AssetListItem(
+            asset: asset,
+            onDelete: () {
+              setState(() {
+                _assets.removeWhere((a) => a.id == asset.id);
+                asset.isDeleted = true;
+                _deletedAssets.add(asset);
+                _filtrele();
+              });
+              widget.onDelete(asset);
+            },
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AssetDetailPage(
+                    asset: asset,
+                    onEdit: (updatedAsset) {
+                      // Lokal listeyi güncelle
+                      setState(() {
+                        final index = _assets.indexWhere(
+                          (a) => a.id == asset.id,
+                        );
+                        if (index != -1) {
+                          _assets[index] = updatedAsset;
+                        }
+                        _filtrele();
+                      });
+                      widget.onEdit(updatedAsset);
+                    },
+                    onDelete: (deletedAsset) {
+                      setState(() {
+                        _assets.removeWhere((a) => a.id == deletedAsset.id);
+                        deletedAsset.isDeleted = true;
+                        _deletedAssets.add(deletedAsset);
+                        _filtrele();
+                      });
+                      widget.onDelete(deletedAsset);
+                    },
+                  ),
+                ),
+              );
+            },
+            onLongPress: () {
+              HapticService.mediumImpact();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddAssetPage(
+                    asset: asset,
+                    onSave:
+                        (
+                          name,
+                          amount,
+                          quantity,
+                          category,
+                          type,
+                          purchaseDate,
+                          purchasePrice,
+                        ) {
+                          final updatedAsset = asset.copyWith(
+                            name: name,
+                            amount: amount,
+                            quantity: quantity,
+                            category: category,
+                            type: type,
+                            lastUpdated: DateTime.now(),
+                            purchaseDate: purchaseDate,
+                            purchasePrice: purchasePrice,
+                          );
+                          setState(() {
+                            final index = _assets.indexWhere(
+                              (a) => a.id == asset.id,
+                            );
+                            if (index != -1) {
+                              _assets[index] = updatedAsset;
+                            }
+                            _filtrele();
+                          });
+                          widget.onEdit(updatedAsset);
+                        },
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

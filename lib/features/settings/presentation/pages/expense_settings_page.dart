@@ -193,7 +193,9 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                       builder: (context) =>
                           KategoriYonetimiSayfasi(userId: widget.userId),
                     ),
-                  ).then((_) => setState(() => categoryChanged = true));
+                  ).then((_) {
+                    if (mounted) setState(() => categoryChanged = true);
+                  });
                 },
               ),
               const SizedBox(height: 50),

@@ -13,6 +13,7 @@ import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../widgets/income_summary_card.dart';
 import '../widgets/income_list_item.dart';
+import '../../../../core/widgets/skeleton_widget.dart';
 
 class IncomesPage extends StatefulWidget {
   final List<Income> tumGelirler;
@@ -41,6 +42,7 @@ class IncomesPage extends StatefulWidget {
 class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   final TextEditingController tGelirArama = TextEditingController();
   bool gelirAramaModu = false;
+  bool _isLoading = true; // Skeleton loading için
   late DateTime secilenAy;
 
   @override
@@ -48,6 +50,15 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     super.initState();
     secilenAy = widget.secilenAy;
     initLazyLoading();
+
+    // Kısa skeleton animasyonu için 300ms bekle
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    });
   }
 
   @override
@@ -408,55 +419,64 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Özet Kartı
-          if (!gelirAramaModu)
-            // Özet Kartı
-            if (!gelirAramaModu)
-              IncomeSummaryCard(
-                ayIsmi: ayIsmi,
-                toplamGelir: toplamGelir,
-                oncekiAy: oncekiAy,
-                sonrakiAy: sonrakiAy,
-                ayYilSeciciAc: _ayYilSeciciAc,
-                gelirSayisi: gelirler.length,
-              ),
+      body: _isLoading
+          ? const IncomePageSkeleton()
+          : Column(
+              children: [
+                // Özet Kartı
+                if (!gelirAramaModu)
+                  // Özet Kartı
+                  if (!gelirAramaModu)
+                    IncomeSummaryCard(
+                      ayIsmi: ayIsmi,
+                      toplamGelir: toplamGelir,
+                      oncekiAy: oncekiAy,
+                      sonrakiAy: sonrakiAy,
+                      ayYilSeciciAc: _ayYilSeciciAc,
+                      gelirSayisi: gelirler.length,
+                    ),
 
-          // Gelir listesi
-          Expanded(
-            child: gelirler.isEmpty
-                ? gelirAramaModu
-                      ? const EmptyStateWidget(
-                          icon: Icons.search_off,
-                          title: 'Sonuç bulunamadı',
-                          subtitle: 'Farklı bir arama terimi deneyin',
-                        )
-                      : EmptyStateWidget.noIncomes()
-                : ListView.builder(
-                    controller: lazyScrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: gelirler.length + (hasMoreItems ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      // Son item ise ve daha fazla veri varsa loading göster
-                      if (index >= gelirler.length) {
-                        return buildLoadingIndicator();
-                      }
+                // Gelir listesi
+                Expanded(
+                  child: gelirler.isEmpty
+                      ? gelirAramaModu
+                            ? const EmptyStateWidget(
+                                icon: Icons.search_off,
+                                title: 'Sonuç bulunamadı',
+                                subtitle: 'Farklı bir arama terimi deneyin',
+                              )
+                            : EmptyStateWidget.noIncomes()
+                      : RefreshIndicator(
+                          onRefresh: () async {
+                            // State'i yenile
+                            setState(() {});
+                          },
+                          color: Colors.green,
+                          child: ListView.builder(
+                            controller: lazyScrollController,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: gelirler.length + (hasMoreItems ? 1 : 0),
+                            itemBuilder: (context, index) {
+                              // Son item ise ve daha fazla veri varsa loading göster
+                              if (index >= gelirler.length) {
+                                return buildLoadingIndicator();
+                              }
 
-                      final gelir = gelirler[index];
-                      return IncomeListItem(
-                        income: gelir,
-                        categoryIcon:
-                            widget.gelirKategoriIkonlari[gelir.category],
-                        itemIndex: index,
-                        onDelete: () => gelirSil(gelir),
-                        onTap: () => gelirDuzenle(gelir),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
+                              final gelir = gelirler[index];
+                              return IncomeListItem(
+                                income: gelir,
+                                categoryIcon: widget
+                                    .gelirKategoriIkonlari[gelir.category],
+                                itemIndex: index,
+                                onDelete: () => gelirSil(gelir),
+                                onTap: () => gelirDuzenle(gelir),
+                              );
+                            },
+                          ),
+                        ),
+                ),
+              ],
+            ),
       // Modern floating bottom navigation bar - Ortak widget kullanımı
       bottomNavigationBar: AppFloatingBottomBar(
         items: [
@@ -472,7 +492,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                       GelirCopKutusuSayfasi(userId: widget.userId ?? ''),
                 ),
               ).then((_) {
-                setState(() {});
+                if (mounted) setState(() {});
               });
             },
           ),

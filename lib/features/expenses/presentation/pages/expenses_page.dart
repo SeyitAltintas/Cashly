@@ -19,6 +19,7 @@ import '../../../../core/services/haptic_service.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
+import '../../../../core/widgets/skeleton_widget.dart';
 
 class ExpensesPage extends StatefulWidget {
   final List<Map<String, dynamic>> tumHarcamalar;
@@ -51,6 +52,7 @@ class ExpensesPage extends StatefulWidget {
 class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   final TextEditingController tArama = TextEditingController();
   bool aramaModu = false;
+  bool _isLoading = true; // Skeleton loading için
   late DateTime secilenAy;
   List<Map<String, dynamic>> gosterilenHarcamalar = [];
 
@@ -60,6 +62,15 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     secilenAy = widget.secilenAy;
     initLazyLoading();
     filtreleVeGoster();
+
+    // Kısa skeleton animasyonu için 300ms bekle
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    });
   }
 
   @override
@@ -401,88 +412,81 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          if (!aramaModu) ...[
-            ExpenseSummaryCard(
-              ayIsmi: ayIsmi,
-              toplamTutar: toplamTutar,
-              butceLimiti: widget.butceLimiti,
-              oncekiAy: oncekiAy,
-              sonrakiAy: sonrakiAy,
-              ayYilSeciciAc: _ayYilSeciciAc,
-              secilenAy: secilenAy,
-              harcamalar: widget.tumHarcamalar,
-            ),
-            const SizedBox(height: 10),
-          ],
-          Expanded(
-            child: gosterilenHarcamalar.isEmpty
-                ? aramaModu
-                      ? const EmptyStateWidget(
-                          icon: Icons.search_off,
-                          title: 'Sonuç bulunamadı',
-                          subtitle: 'Farklı bir arama terimi deneyin',
-                        )
-                      : EmptyStateWidget.noExpenses()
-                : ListView.builder(
-                    controller: lazyScrollController,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 10,
-                    ),
-                    itemCount: gruplar.keys.length + (hasMoreItems ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      // Son item ise ve daha fazla veri varsa loading göster
-                      if (index >= gruplar.keys.length) {
-                        return buildLoadingIndicator();
-                      }
-
-                      String gunBasligi = gruplar.keys.elementAt(index);
-                      List<Map<String, dynamic>> harcamalar =
-                          gruplar[gunBasligi]!;
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Tarih başlığı kaldırıldı (Kart içinde gösteriliyor)
-                          /*
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 8,
-                              bottom: 5,
-                              top: 10,
+      body: _isLoading
+          ? const ExpensesPageSkeleton()
+          : Column(
+              children: [
+                if (!aramaModu) ...[
+                  ExpenseSummaryCard(
+                    ayIsmi: ayIsmi,
+                    toplamTutar: toplamTutar,
+                    butceLimiti: widget.butceLimiti,
+                    oncekiAy: oncekiAy,
+                    sonrakiAy: sonrakiAy,
+                    ayYilSeciciAc: _ayYilSeciciAc,
+                    secilenAy: secilenAy,
+                    harcamalar: widget.tumHarcamalar,
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                Expanded(
+                  child: gosterilenHarcamalar.isEmpty
+                      ? aramaModu
+                            ? const EmptyStateWidget(
+                                icon: Icons.search_off,
+                                title: 'Sonuç bulunamadı',
+                                subtitle: 'Farklı bir arama terimi deneyin',
+                              )
+                            : EmptyStateWidget.noExpenses()
+                      : RefreshIndicator(
+                          onRefresh: () async {
+                            // Verileri yeniden filtrele ve göster
+                            filtreleVeGoster();
+                          },
+                          color: ColorConstants.kirmiziVurgu,
+                          child: ListView.builder(
+                            controller: lazyScrollController,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 10,
                             ),
-                            child: Text(
-                              gunBasligi.toUpperCase(),
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.54),
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                            itemCount:
+                                gruplar.keys.length + (hasMoreItems ? 1 : 0),
+                            itemBuilder: (context, index) {
+                              // Son item ise ve daha fazla veri varsa loading göster
+                              if (index >= gruplar.keys.length) {
+                                return buildLoadingIndicator();
+                              }
+
+                              String gunBasligi = gruplar.keys.elementAt(index);
+                              List<Map<String, dynamic>> harcamalar =
+                                  gruplar[gunBasligi]!;
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Tarih başlığı kaldırıldı (Kart içinde gösteriliyor)
+                                  /*
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 8,
+                                bottom: 5,
+                                top: 10,
+                              ),
+                              child: Text(
+                                gunBasligi.toUpperCase(),
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withValues(alpha: 0.54),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                          */
-                          ...harcamalar.map((harcama) {
-                            return ExpenseListItem(
-                              harcama: harcama,
-                              categoryIcon:
-                                  widget
-                                      .kategoriIkonlari[harcama['kategori']] ??
-                                  IconConstants.getIconFromCategoryName(
-                                    harcama['kategori'],
-                                  ),
-                              paymentMethods: widget.tumOdemeYontemleri,
-                              itemIndex: gosterilenHarcamalar.indexOf(harcama),
-                              onDelete: () => harcamaSil(harcama),
-                              onTap: () {
-                                HapticService.selectionClick();
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (ctx) => ExpenseDetailPage(
+                            */
+                                  ...harcamalar.map((harcama) {
+                                    return ExpenseListItem(
                                       harcama: harcama,
                                       categoryIcon:
                                           widget
@@ -491,36 +495,60 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                                             harcama['kategori'],
                                           ),
                                       paymentMethods: widget.tumOdemeYontemleri,
-                                      kategoriIkonlari: widget.kategoriIkonlari,
-                                      onEdit: (updatedHarcama) {
-                                        setState(() {
-                                          final index = gosterilenHarcamalar
-                                              .indexOf(harcama);
-                                          if (index != -1) {
-                                            gosterilenHarcamalar[index] =
-                                                updatedHarcama;
-                                          }
+                                      itemIndex: gosterilenHarcamalar.indexOf(
+                                        harcama,
+                                      ),
+                                      onDelete: () => harcamaSil(harcama),
+                                      onTap: () {
+                                        HapticService.selectionClick();
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (ctx) => ExpenseDetailPage(
+                                              harcama: harcama,
+                                              categoryIcon:
+                                                  widget
+                                                      .kategoriIkonlari[harcama['kategori']] ??
+                                                  IconConstants.getIconFromCategoryName(
+                                                    harcama['kategori'],
+                                                  ),
+                                              paymentMethods:
+                                                  widget.tumOdemeYontemleri,
+                                              kategoriIkonlari:
+                                                  widget.kategoriIkonlari,
+                                              onEdit: (updatedHarcama) {
+                                                setState(() {
+                                                  final index =
+                                                      gosterilenHarcamalar
+                                                          .indexOf(harcama);
+                                                  if (index != -1) {
+                                                    gosterilenHarcamalar[index] =
+                                                        updatedHarcama;
+                                                  }
+                                                });
+                                                widget.onHarcamalarChanged(
+                                                  widget.tumHarcamalar,
+                                                );
+                                              },
+                                              onDelete: (deletedHarcama) {
+                                                harcamaSil(deletedHarcama);
+                                              },
+                                            ),
+                                          ),
+                                        ).then((_) {
+                                          if (mounted) filtreleVeGoster();
                                         });
-                                        widget.onHarcamalarChanged(
-                                          widget.tumHarcamalar,
-                                        );
                                       },
-                                      onDelete: (deletedHarcama) {
-                                        harcamaSil(deletedHarcama);
-                                      },
-                                    ),
-                                  ),
-                                ).then((_) => filtreleVeGoster());
-                              },
-                            );
-                          }),
-                        ],
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
+                                    );
+                                  }),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                ),
+              ],
+            ),
       // Modern floating bottom navigation bar - Ortak widget kullanımı
       bottomNavigationBar: AppFloatingBottomBar(
         items: [

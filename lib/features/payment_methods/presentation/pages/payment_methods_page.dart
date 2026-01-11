@@ -181,7 +181,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                     },
                   ),
                 ),
-              ).then((_) => setState(() {}));
+              ).then((_) {
+                if (mounted) setState(() {});
+              });
             },
           ),
           IconButton(
@@ -255,7 +257,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                     },
               ),
             ),
-          ).then((_) => setState(() {})); // Sayfadan dönünce state'i yenile
+          ).then((_) {
+            if (mounted) setState(() {}); // Sayfadan dönünce state'i yenile
+          });
         },
         backgroundColor: Theme.of(context).colorScheme.secondary,
         icon: const Icon(Icons.add, color: Colors.black),
@@ -368,7 +372,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       },
                 ),
               ),
-            ).then((_) => setState(() {})); // Sayfadan dönünce state'i yenile
+            ).then((_) {
+              if (mounted) setState(() {}); // Sayfadan dönünce state'i yenile
+            });
           },
           child: Container(
             height: 140,

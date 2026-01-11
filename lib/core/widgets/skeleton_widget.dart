@@ -417,3 +417,25 @@ class PaymentMethodsPageSkeleton extends StatelessWidget {
     );
   }
 }
+
+/// Harcamalar sayfası tam skeleton
+class ExpensesPageSkeleton extends StatelessWidget {
+  const ExpensesPageSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const ExpenseSummarySkeleton(),
+        const SizedBox(height: 10),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            itemCount: 5,
+            itemBuilder: (context, index) => const ExpenseCardSkeleton(),
+          ),
+        ),
+      ],
+    );
+  }
+}
