@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../widgets/asset_summary_card.dart';
 import '../widgets/asset_list_item.dart';
+import '../state/asset_page_state.dart';
 
 class AssetsPage extends StatefulWidget {
   final List<Asset> assets;
@@ -45,8 +46,14 @@ class AssetsPage extends StatefulWidget {
 }
 
 class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
-  bool _aramaModu = false;
   final TextEditingController _aramaController = TextEditingController();
+
+  // ChangeNotifier state yöneticisi
+  late final AssetPageState _pageState;
+
+  // Getter'lar
+  bool get _aramaModu => _pageState.aramaModu;
+
   List<Asset> _assets = [];
   List<Asset> _deletedAssets = [];
   List<Asset> _filtrelenmisVarliklar = [];
@@ -54,10 +61,18 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
   @override
   void initState() {
     super.initState();
+
+    _pageState = AssetPageState();
+    _pageState.addListener(_onStateChanged);
+
     _assets = List.from(widget.assets);
     _deletedAssets = List.from(widget.deletedAssets);
     _filtrelenmisVarliklar = _assets;
     initLazyLoading();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -86,6 +101,8 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
 
   @override
   void dispose() {
+    _pageState.removeListener(_onStateChanged);
+    _pageState.dispose();
     disposeLazyLoading();
     _aramaController.dispose();
     super.dispose();
@@ -136,13 +153,11 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
               color: Colors.white,
             ),
             onPressed: () {
-              setState(() {
-                _aramaModu = !_aramaModu;
-                if (!_aramaModu) {
-                  _aramaController.clear();
-                  _filtrelenmisVarliklar = widget.assets;
-                }
-              });
+              _pageState.aramaModu = !_aramaModu;
+              if (!_aramaModu) {
+                _aramaController.clear();
+                _filtrelenmisVarliklar = widget.assets;
+              }
             },
           ),
         ],

@@ -8,6 +8,7 @@ import '../../data/models/payment_method_model.dart';
 import 'add_payment_method_page.dart';
 import '../widgets/payment_method_summary_card.dart';
 import 'payment_method_recycle_bin_page.dart';
+import '../state/payment_method_page_state.dart';
 
 class PaymentMethodsPage extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
@@ -50,9 +51,15 @@ class PaymentMethodsPage extends StatefulWidget {
 }
 
 class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
-  bool _aramaModu = false;
-  bool _isLoading = true; // Skeleton loading için
   final TextEditingController _aramaController = TextEditingController();
+
+  // ChangeNotifier state yöneticisi
+  late final PaymentMethodPageState _pageState;
+
+  // Getter'lar
+  bool get _aramaModu => _pageState.aramaModu;
+  bool get _isLoading => _pageState.isLoading;
+
   List<PaymentMethod> _paymentMethods = [];
   List<PaymentMethod> _deletedPaymentMethods = [];
   List<PaymentMethod> _filtrelenmisYontemler = [];
@@ -60,18 +67,21 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   @override
   void initState() {
     super.initState();
+
+    _pageState = PaymentMethodPageState();
+    _pageState.addListener(_onStateChanged);
+
     _paymentMethods = List.from(widget.paymentMethods);
     _deletedPaymentMethods = List.from(widget.deletedPaymentMethods);
     _filtrelenmisYontemler = _paymentMethods;
 
-    // Kısa skeleton animasyonu için 300ms bekle
     Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) _pageState.stopLoading();
     });
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -99,6 +109,8 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
 
   @override
   void dispose() {
+    _pageState.removeListener(_onStateChanged);
+    _pageState.dispose();
     _aramaController.dispose();
     super.dispose();
   }
@@ -192,13 +204,11 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
               color: Colors.white,
             ),
             onPressed: () {
-              setState(() {
-                _aramaModu = !_aramaModu;
-                if (!_aramaModu) {
-                  _aramaController.clear();
-                  _filtrelenmisYontemler = widget.paymentMethods;
-                }
-              });
+              _pageState.aramaModu = !_aramaModu;
+              if (!_aramaModu) {
+                _aramaController.clear();
+                _filtrelenmisYontemler = widget.paymentMethods;
+              }
             },
           ),
         ],

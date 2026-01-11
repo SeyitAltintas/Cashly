@@ -14,6 +14,7 @@ import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../widgets/income_summary_card.dart';
 import '../widgets/income_list_item.dart';
 import '../../../../core/widgets/skeleton_widget.dart';
+import '../state/income_page_state.dart';
 
 class IncomesPage extends StatefulWidget {
   final List<Income> tumGelirler;
@@ -41,28 +42,38 @@ class IncomesPage extends StatefulWidget {
 
 class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   final TextEditingController tGelirArama = TextEditingController();
-  bool gelirAramaModu = false;
-  bool _isLoading = true; // Skeleton loading için
-  late DateTime secilenAy;
+
+  // State yönetimi için ChangeNotifier
+  late final IncomePageState _pageState;
+
+  // Getter'lar
+  bool get gelirAramaModu => _pageState.aramaModu;
+  bool get _isLoading => _pageState.isLoading;
+  DateTime get secilenAy => _pageState.secilenAy;
 
   @override
   void initState() {
     super.initState();
-    secilenAy = widget.secilenAy;
+
+    _pageState = IncomePageState();
+    _pageState.secilenAy = widget.secilenAy;
+    _pageState.addListener(_onStateChanged);
+
     initLazyLoading();
 
-    // Kısa skeleton animasyonu için 300ms bekle
     Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) _pageState.stopLoading();
     });
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _pageState.removeListener(_onStateChanged);
+    _pageState.dispose();
     disposeLazyLoading();
     tGelirArama.dispose();
     super.dispose();
@@ -94,15 +105,11 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   }
 
   void oncekiAy() {
-    setState(() {
-      secilenAy = DateTime(secilenAy.year, secilenAy.month - 1, 1);
-    });
+    _pageState.secilenAy = DateTime(secilenAy.year, secilenAy.month - 1, 1);
   }
 
   void sonrakiAy() {
-    setState(() {
-      secilenAy = DateTime(secilenAy.year, secilenAy.month + 1, 1);
-    });
+    _pageState.secilenAy = DateTime(secilenAy.year, secilenAy.month + 1, 1);
   }
 
   void _ayYilSeciciAc() async {
@@ -114,9 +121,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     );
 
     if (selectedDate != null && mounted) {
-      setState(() {
-        secilenAy = selectedDate;
-      });
+      _pageState.secilenAy = selectedDate;
     }
   }
 
@@ -388,9 +393,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           if (!gelirAramaModu && !buAyMi)
             TextButton(
               onPressed: () {
-                setState(() {
-                  secilenAy = DateTime.now();
-                });
+                _pageState.secilenAy = DateTime.now();
               },
               child: Text(
                 "Bugüne git",
@@ -409,12 +412,10 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
               color: Colors.white,
             ),
             onPressed: () {
-              setState(() {
-                gelirAramaModu = !gelirAramaModu;
-                if (!gelirAramaModu) {
-                  tGelirArama.clear();
-                }
-              });
+              _pageState.aramaModu = !gelirAramaModu;
+              if (!gelirAramaModu) {
+                tGelirArama.clear();
+              }
             },
           ),
         ],
