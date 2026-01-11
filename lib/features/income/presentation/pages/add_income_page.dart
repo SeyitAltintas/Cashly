@@ -6,6 +6,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/app_date_picker.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../state/add_income_form_state.dart';
 
 /// Gelir ekleme/düzenleme sayfası
 /// Modern ve sade tasarım - Gelir temasına uygun (yeşil)
@@ -38,10 +39,15 @@ class _AddIncomePageState extends State<AddIncomePage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
-  late String _selectedCategory;
-  DateTime _selectedDate = DateTime.now();
   late Map<String, IconData> _categoryIcons;
-  String? _selectedPaymentMethodId;
+
+  // ChangeNotifier state yöneticisi
+  late final AddIncomeFormState _formState;
+
+  // Getter'lar
+  String get _selectedCategory => _formState.selectedCategory;
+  DateTime get _selectedDate => _formState.selectedDate;
+  String? get _selectedPaymentMethodId => _formState.selectedPaymentMethodId;
 
   // Gelir teması rengi (yeşil)
   static const Color _accentColor = ColorConstants.yesil;
@@ -65,32 +71,41 @@ class _AddIncomePageState extends State<AddIncomePage> {
   void initState() {
     super.initState();
     _categoryIcons = widget.categories;
-    _selectedCategory = _categoryIcons.keys.first;
+
+    _formState = AddIncomeFormState();
+    _formState.addListener(_onFormStateChanged);
+    _formState.selectedCategory = _categoryIcons.keys.first;
 
     if (widget.incomeToEdit != null) {
       _nameController.text = widget.incomeToEdit!['name'] ?? '';
       _amountController.text = widget.incomeToEdit!['amount'].toString();
       final editCategory = widget.incomeToEdit!['category'] as String?;
       if (editCategory != null && _categoryIcons.containsKey(editCategory)) {
-        _selectedCategory = editCategory;
+        _formState.selectedCategory = editCategory;
       }
-      _selectedDate =
+      _formState.selectedDate =
           DateTime.tryParse(widget.incomeToEdit!['date'].toString()) ??
           DateTime.now();
-      _selectedPaymentMethodId = widget.incomeToEdit!['paymentMethodId'];
+      _formState.selectedPaymentMethodId =
+          widget.incomeToEdit!['paymentMethodId'];
     } else {
-      // Yeni gelir eklerken varsayılan olarak "Nakit" hesabını seç
       final nakitHesap = widget.paymentMethods
           .where((pm) => pm.type == 'nakit')
           .firstOrNull;
       if (nakitHesap != null) {
-        _selectedPaymentMethodId = nakitHesap.id;
+        _formState.selectedPaymentMethodId = nakitHesap.id;
       }
     }
   }
 
+  void _onFormStateChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _formState.removeListener(_onFormStateChanged);
+    _formState.dispose();
     _nameController.dispose();
     _amountController.dispose();
     super.dispose();
@@ -104,7 +119,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
       lastDate: DateTime(2030),
     );
     if (picked != null && picked != _selectedDate) {
-      setState(() => _selectedDate = picked);
+      _formState.selectedDate = picked;
     }
   }
 
@@ -397,7 +412,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                 );
               }).toList(),
               onChanged: (newValue) {
-                setState(() => _selectedCategory = newValue!);
+                _formState.selectedCategory = newValue!;
               },
             ),
           ),
@@ -493,7 +508,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                 );
               }).toList(),
               onChanged: (newValue) {
-                setState(() => _selectedPaymentMethodId = newValue);
+                _formState.selectedPaymentMethodId = newValue;
               },
             ),
           ),

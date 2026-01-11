@@ -7,6 +7,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/app_date_picker.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../state/add_expense_form_state.dart';
 
 /// Harcama ekleme/düzenleme sayfası
 /// Modern ve sade tasarım - Harcama temasına uygun
@@ -41,10 +42,15 @@ class _AddExpensePageState extends State<AddExpensePage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
-  late String _selectedCategory;
-  DateTime _selectedDate = DateTime.now();
   late Map<String, IconData> _categoryIcons;
-  String? _selectedPaymentMethodId;
+
+  // ChangeNotifier state yöneticisi
+  late final AddExpenseFormState _formState;
+
+  // Getter'lar - state'e kolay erişim
+  String get _selectedCategory => _formState.selectedCategory;
+  DateTime get _selectedDate => _formState.selectedDate;
+  String? get _selectedPaymentMethodId => _formState.selectedPaymentMethodId;
 
   // Harcama teması rengi
   static const Color _accentColor = ColorConstants.kirmiziVurgu;
@@ -68,31 +74,43 @@ class _AddExpensePageState extends State<AddExpensePage> {
   void initState() {
     super.initState();
     _categoryIcons = widget.categories;
-    _selectedCategory = _categoryIcons.keys.first;
+
+    _formState = AddExpenseFormState();
+    _formState.addListener(_onFormStateChanged);
+
+    // Varsayılan kategori
+    _formState.selectedCategory = _categoryIcons.keys.first;
 
     if (widget.expenseToEdit != null) {
       _nameController.text = widget.expenseToEdit!['isim'];
       _amountController.text = widget.expenseToEdit!['tutar'].toString();
       final editCategory = widget.expenseToEdit!['kategori'] as String?;
       if (editCategory != null && _categoryIcons.containsKey(editCategory)) {
-        _selectedCategory = editCategory;
+        _formState.selectedCategory = editCategory;
       }
-      _selectedDate =
+      _formState.selectedDate =
           DateTime.tryParse(widget.expenseToEdit!['tarih'].toString()) ??
           DateTime.now();
-      _selectedPaymentMethodId = widget.expenseToEdit!['odemeYontemiId'];
+      _formState.selectedPaymentMethodId =
+          widget.expenseToEdit!['odemeYontemiId'];
     } else if (widget.defaultPaymentMethodId != null &&
         widget.paymentMethods.any(
           (pm) => pm.id == widget.defaultPaymentMethodId,
         )) {
-      _selectedPaymentMethodId = widget.defaultPaymentMethodId;
+      _formState.selectedPaymentMethodId = widget.defaultPaymentMethodId;
     } else if (widget.paymentMethods.isNotEmpty) {
-      _selectedPaymentMethodId = widget.paymentMethods.first.id;
+      _formState.selectedPaymentMethodId = widget.paymentMethods.first.id;
     }
+  }
+
+  void _onFormStateChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _formState.removeListener(_onFormStateChanged);
+    _formState.dispose();
     _nameController.dispose();
     _amountController.dispose();
     super.dispose();
@@ -106,7 +124,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       lastDate: DateTime(2030),
     );
     if (picked != null && picked != _selectedDate) {
-      setState(() => _selectedDate = picked);
+      _formState.selectedDate = picked;
     }
   }
 
@@ -441,7 +459,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 );
               }).toList(),
               onChanged: (newValue) {
-                setState(() => _selectedCategory = newValue!);
+                _formState.selectedCategory = newValue!;
               },
             ),
           ),
@@ -538,7 +556,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 );
               }).toList(),
               onChanged: (newValue) {
-                setState(() => _selectedPaymentMethodId = newValue);
+                _formState.selectedPaymentMethodId = newValue;
               },
             ),
           ),
