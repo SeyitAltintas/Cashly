@@ -337,7 +337,10 @@ class _AddAssetPageState extends State<AddAssetPage> {
             const SizedBox(height: 16),
 
             // Tür
-            if (_types.containsKey(_selectedCategory)) ...[
+            // Tür Seçici - Hisse Senedi ve Diğer kategorilerinde görünmesin
+            if (_types.containsKey(_selectedCategory) &&
+                _selectedCategory != 'Hisse Senedi' &&
+                _selectedCategory != 'Diğer') ...[
               _buildTypeSelector(),
               const SizedBox(height: 16),
             ],
@@ -625,7 +628,10 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 ),
               ),
             ),
+            // Güncel butonu - Banka, Hisse Senedi, Diğer ve özel türler için görünmesin
             if (_selectedCategory != 'Banka' &&
+                _selectedCategory != 'Hisse Senedi' &&
+                _selectedCategory != 'Diğer' &&
                 !(_selectedCategory == 'Döviz' && _selectedType == 'Diğer') &&
                 !(_selectedCategory == 'Kripto' &&
                     _selectedType == 'Diğer')) ...[
