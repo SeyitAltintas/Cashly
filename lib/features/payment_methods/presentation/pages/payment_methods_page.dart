@@ -3,7 +3,7 @@ import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/widgets/skeleton_widget.dart';
 
 import '../../data/models/payment_method_model.dart';
-import '../widgets/add_payment_method_sheet.dart';
+import 'add_payment_method_page.dart';
 import '../widgets/payment_method_summary_card.dart';
 import 'payment_method_recycle_bin_page.dart';
 
@@ -55,13 +55,36 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   List<PaymentMethod> _deletedPaymentMethods = [];
   List<PaymentMethod> _filtrelenmisYontemler = [];
 
+  // 24 adet premium kart rengi - gradient paletler
   final List<List<Color>> _cardColors = [
-    [const Color(0xFF1a1a2e), const Color(0xFF16213e)], // Koyu Mavi
-    [const Color(0xFF2d132c), const Color(0xFF432371)], // Mor
-    [const Color(0xFF0f3460), const Color(0xFF16537e)], // Mavi
-    [const Color(0xFF1e5128), const Color(0xFF4e9f3d)], // Yeşil
-    [const Color(0xFF5c2018), const Color(0xFF8b3a2f)], // Kırmızı
-    [const Color(0xFF3d3d3d), const Color(0xFF5a5a5a)], // Gri
+    // === KOYU TONLAR ===
+    [const Color(0xFF1a1a2e), const Color(0xFF16213e)], // 1. Gece Mavisi
+    [const Color(0xFF2d132c), const Color(0xFF432371)], // 2. Derin Mor
+    [const Color(0xFF0f3460), const Color(0xFF16537e)], // 3. Okyanus Mavisi
+    [const Color(0xFF1e5128), const Color(0xFF4e9f3d)], // 4. Orman Yeşili
+    [const Color(0xFF5c2018), const Color(0xFF8b3a2f)], // 5. Bordo
+    [const Color(0xFF3d3d3d), const Color(0xFF5a5a5a)], // 6. Grafit
+    // === METALİK TONLAR ===
+    [const Color(0xFF232526), const Color(0xFF414345)], // 7. Karbon Siyah
+    [const Color(0xFF283048), const Color(0xFF859398)], // 8. Çelik Gri
+    [const Color(0xFF4b3621), const Color(0xFF8b6914)], // 9. Bronz
+    [const Color(0xFF1f1c2c), const Color(0xFF928DAB)], // 10. Gümüş Mor
+    [const Color(0xFF0F2027), const Color(0xFF2C5364)], // 11. Titanyum
+    [const Color(0xFF141E30), const Color(0xFF243B55)], // 12. Midnight Blue
+    // === SICAK TONLAR ===
+    [const Color(0xFF642B73), const Color(0xFFC6426E)], // 13. Magenta
+    [const Color(0xFF833ab4), const Color(0xFFfd1d1d)], // 14. Günbatımı
+    [const Color(0xFFb91d73), const Color(0xFFf953c6)], // 15. Neon Pembe
+    [const Color(0xFF6D0EB5), const Color(0xFF4059F1)], // 16. Elektrik Mor
+    [const Color(0xFFc31432), const Color(0xFF240b36)], // 17. Şarap Kırmızısı
+    [const Color(0xFFeb3349), const Color(0xFFf45c43)], // 18. Ateş Kırmızısı
+    // === SOĞUK TONLAR ===
+    [const Color(0xFF11998e), const Color(0xFF38ef7d)], // 19. Zümrüt
+    [const Color(0xFF00b4db), const Color(0xFF0083b0)], // 20. Turkuaz
+    [const Color(0xFF1CB5E0), const Color(0xFF000851)], // 21. Elektrik Mavi
+    [const Color(0xFF00c9ff), const Color(0xFF92fe9d)], // 22. Aurora
+    [const Color(0xFF373B44), const Color(0xFF4286f4)], // 23. Safir
+    [const Color(0xFF134E5E), const Color(0xFF71B280)], // 24. Deniz Yeşili
   ];
 
   @override
@@ -229,38 +252,40 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
             ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => AddPaymentMethodSheet(
-              onSave: (name, type, lastFourDigits, balance, limit, colorIndex) {
-                final newPm = PaymentMethod(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: name,
-                  type: type,
-                  lastFourDigits: lastFourDigits,
-                  balance: balance,
-                  limit: limit,
-                  colorIndex: colorIndex,
-                  createdAt: DateTime.now(),
-                  isDeleted: false,
-                );
-                setState(() {
-                  _paymentMethods.add(newPm);
-                  _filtrele();
-                });
-                widget.onAdd(
-                  name,
-                  type,
-                  lastFourDigits,
-                  balance,
-                  limit,
-                  colorIndex,
-                );
-              },
+          // Yeni ödeme yöntemi ekleme sayfasına git
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddPaymentMethodPage(
+                onSave:
+                    (name, type, lastFourDigits, balance, limit, colorIndex) {
+                      final newPm = PaymentMethod(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        name: name,
+                        type: type,
+                        lastFourDigits: lastFourDigits,
+                        balance: balance,
+                        limit: limit,
+                        colorIndex: colorIndex,
+                        createdAt: DateTime.now(),
+                        isDeleted: false,
+                      );
+                      setState(() {
+                        _paymentMethods.add(newPm);
+                        _filtrele();
+                      });
+                      widget.onAdd(
+                        name,
+                        type,
+                        lastFourDigits,
+                        balance,
+                        limit,
+                        colorIndex,
+                      );
+                    },
+              ),
             ),
-          );
+          ).then((_) => setState(() {})); // Sayfadan dönünce state'i yenile
         },
         backgroundColor: Theme.of(context).colorScheme.secondary,
         icon: const Icon(Icons.add, color: Colors.black),
@@ -340,39 +365,39 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
             }
           },
           onLongPress: () {
-            // Düzenleme sheet'ini aç
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (context) => AddPaymentMethodSheet(
-                paymentMethod: pm,
-                onSave:
-                    (name, type, lastFourDigits, balance, limit, colorIndex) {
-                      final updatedPm = PaymentMethod(
-                        id: pm.id,
-                        name: name,
-                        type: type,
-                        lastFourDigits: lastFourDigits,
-                        balance: balance,
-                        limit: limit,
-                        colorIndex: colorIndex,
-                        createdAt: pm.createdAt,
-                        isDeleted: false,
-                      );
-                      setState(() {
-                        final idx = _paymentMethods.indexWhere(
-                          (p) => p.id == pm.id,
+            // Düzenleme sayfasına git
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddPaymentMethodPage(
+                  paymentMethod: pm,
+                  onSave:
+                      (name, type, lastFourDigits, balance, limit, colorIndex) {
+                        final updatedPm = PaymentMethod(
+                          id: pm.id,
+                          name: name,
+                          type: type,
+                          lastFourDigits: lastFourDigits,
+                          balance: balance,
+                          limit: limit,
+                          colorIndex: colorIndex,
+                          createdAt: pm.createdAt,
+                          isDeleted: false,
                         );
-                        if (idx != -1) {
-                          _paymentMethods[idx] = updatedPm;
-                        }
-                        _filtrele();
-                      });
-                      widget.onEdit(updatedPm);
-                    },
+                        setState(() {
+                          final idx = _paymentMethods.indexWhere(
+                            (p) => p.id == pm.id,
+                          );
+                          if (idx != -1) {
+                            _paymentMethods[idx] = updatedPm;
+                          }
+                          _filtrele();
+                        });
+                        widget.onEdit(updatedPm);
+                      },
+                ),
               ),
-            );
+            ).then((_) => setState(() {})); // Sayfadan dönünce state'i yenile
           },
           child: Container(
             height: 140,
