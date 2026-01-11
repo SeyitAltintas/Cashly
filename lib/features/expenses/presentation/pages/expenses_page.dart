@@ -20,6 +20,7 @@ import '../../../../core/widgets/month_year_picker.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/widgets/skeleton_widget.dart';
+import '../helpers/expense_calculation_helper.dart';
 
 class ExpensesPage extends StatefulWidget {
   final List<Map<String, dynamic>> tumHarcamalar;
@@ -655,93 +656,58 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
         },
         onGetMonthlyTotal: () => toplamTutar,
         onGetTopCategory: () {
-          Map<String, double> kategoriToplamlari = {};
-          for (var h in gosterilenHarcamalar) {
-            String kat = h['kategori'] ?? "Diğer";
-            double tutar = double.tryParse(h['tutar'].toString()) ?? 0;
-            kategoriToplamlari[kat] = (kategoriToplamlari[kat] ?? 0) + tutar;
-          }
-          if (kategoriToplamlari.isEmpty) return null;
-          String? enCokKategori;
-          double enYuksekTutar = 0;
-          kategoriToplamlari.forEach((kategori, tutar) {
-            if (tutar > enYuksekTutar) {
-              enYuksekTutar = tutar;
-              enCokKategori = kategori;
-            }
-          });
-          if (enCokKategori == null || enYuksekTutar == 0) return null;
-          return {'kategori': enCokKategori, 'tutar': enYuksekTutar};
+          final helper = ExpenseCalculationHelper(
+            tumHarcamalar: widget.tumHarcamalar,
+            gosterilenHarcamalar: gosterilenHarcamalar,
+            secilenAy: secilenAy,
+            butceLimiti: widget.butceLimiti,
+          );
+          return helper.getTopCategory();
         },
         onGetWeeklyTotal: () {
-          final now = DateTime.now();
-          final weekStart = now.subtract(Duration(days: now.weekday - 1));
-          double haftalikToplam = 0;
-          for (var h in widget.tumHarcamalar) {
-            if (h['silindi'] == true) continue;
-            DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-            if (tarih != null &&
-                tarih.isAfter(weekStart.subtract(const Duration(days: 1))) &&
-                tarih.isBefore(now.add(const Duration(days: 1)))) {
-              haftalikToplam += (h['tutar'] as num?)?.toDouble() ?? 0;
-            }
-          }
-          return haftalikToplam;
+          final helper = ExpenseCalculationHelper(
+            tumHarcamalar: widget.tumHarcamalar,
+            gosterilenHarcamalar: gosterilenHarcamalar,
+            secilenAy: secilenAy,
+            butceLimiti: widget.butceLimiti,
+          );
+          return helper.getWeeklyTotal();
         },
         onGetDailyTotal: () {
-          final now = DateTime.now();
-          final today = DateTime(now.year, now.month, now.day);
-          double gunlukToplam = 0;
-          for (var h in widget.tumHarcamalar) {
-            if (h['silindi'] == true) continue;
-            DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-            if (tarih != null) {
-              final harcamaTarihi = DateTime(
-                tarih.year,
-                tarih.month,
-                tarih.day,
-              );
-              if (harcamaTarihi.isAtSameMomentAs(today)) {
-                gunlukToplam += (h['tutar'] as num?)?.toDouble() ?? 0;
-              }
-            }
-          }
-          return gunlukToplam;
+          final helper = ExpenseCalculationHelper(
+            tumHarcamalar: widget.tumHarcamalar,
+            gosterilenHarcamalar: gosterilenHarcamalar,
+            secilenAy: secilenAy,
+            butceLimiti: widget.butceLimiti,
+          );
+          return helper.getDailyTotal();
         },
         onGetLastExpenses: () {
-          final buAyHarcamalari = widget.tumHarcamalar.where((h) {
-            if (h['silindi'] == true) return false;
-            DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-            if (tarih == null) return false;
-            return tarih.year == secilenAy.year &&
-                tarih.month == secilenAy.month;
-          }).toList();
-          buAyHarcamalari.sort((a, b) {
-            DateTime tarihA =
-                DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-            DateTime tarihB =
-                DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-            return tarihB.compareTo(tarihA);
-          });
-          return buAyHarcamalari.take(5).toList();
+          final helper = ExpenseCalculationHelper(
+            tumHarcamalar: widget.tumHarcamalar,
+            gosterilenHarcamalar: gosterilenHarcamalar,
+            secilenAy: secilenAy,
+            butceLimiti: widget.butceLimiti,
+          );
+          return helper.getLastExpenses();
         },
         onCheckBudget: () {
-          double kalanLimit = widget.butceLimiti - toplamTutar;
-          double asilanMiktar = toplamTutar - widget.butceLimiti;
-          return {
-            'kalanLimit': kalanLimit > 0 ? kalanLimit : 0,
-            'asilanMiktar': asilanMiktar,
-            'butceLimiti': widget.butceLimiti,
-          };
+          final helper = ExpenseCalculationHelper(
+            tumHarcamalar: widget.tumHarcamalar,
+            gosterilenHarcamalar: gosterilenHarcamalar,
+            secilenAy: secilenAy,
+            butceLimiti: widget.butceLimiti,
+          );
+          return helper.checkBudget();
         },
         onGetCategoryTotal: (String kategori) {
-          double toplam = 0;
-          for (var h in gosterilenHarcamalar) {
-            if (h['kategori'] == kategori) {
-              toplam += double.tryParse(h['tutar'].toString()) ?? 0;
-            }
-          }
-          return toplam;
+          final helper = ExpenseCalculationHelper(
+            tumHarcamalar: widget.tumHarcamalar,
+            gosterilenHarcamalar: gosterilenHarcamalar,
+            secilenAy: secilenAy,
+            butceLimiti: widget.butceLimiti,
+          );
+          return helper.getCategoryTotal(kategori);
         },
         onAddFixedExpenses: () async {
           final expenseRepo = getIt<ExpenseRepository>();
