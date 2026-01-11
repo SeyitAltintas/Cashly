@@ -6,6 +6,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/utils/amount_input_formatter.dart';
 import '../../../../core/widgets/app_date_picker.dart';
+import '../state/add_asset_form_state.dart';
 
 /// Varlık ekleme/düzenleme sayfası
 /// Modern ve sade tasarım - Varlık temasına uygun (mor)
@@ -47,9 +48,15 @@ class _AddAssetPageState extends State<AddAssetPage> {
   final TextEditingController _customCategoryNameController =
       TextEditingController();
 
-  String _selectedCategory = 'Altın';
-  String? _selectedType;
-  DateTime _purchaseDate = DateTime.now();
+  // ChangeNotifier state yöneticisi
+  late final AddAssetFormState _formState;
+
+  // Getter'lar
+  String get _selectedCategory => _formState.selectedCategory;
+  String? get _selectedType => _formState.selectedType;
+  DateTime get _purchaseDate => _formState.purchaseDate ?? DateTime.now();
+  bool get _isLoading => _formState.isLoading;
+  String? get _errorMessage => _formState.errorMessage;
 
   // Varlık teması rengi (mavi - Varlıklarım sayfası ile uyumlu)
   static Color get _accentColor => Colors.blue.shade600;
@@ -96,49 +103,52 @@ class _AddAssetPageState extends State<AddAssetPage> {
     ],
   };
 
-  bool _isLoading = false;
-  String? _errorMessage;
   final PriceService _priceService = PriceService();
 
   @override
   void initState() {
     super.initState();
+
+    _formState = AddAssetFormState();
+    _formState.addListener(_onFormStateChanged);
+
     if (widget.asset != null) {
       _nameController.text = widget.asset!.name;
       _amountController.text = widget.asset!.amount.toString();
       _quantityController.text = widget.asset!.quantity.toString();
-      _selectedCategory = widget.asset!.category;
+      _formState.selectedCategory = widget.asset!.category;
 
       final typeFromAsset = widget.asset!.type;
       if (typeFromAsset != null &&
           _types.containsKey(_selectedCategory) &&
           _types[_selectedCategory]!.contains(typeFromAsset)) {
-        _selectedType = typeFromAsset;
+        _formState.selectedType = typeFromAsset;
       } else if (typeFromAsset != null &&
           _types.containsKey(_selectedCategory)) {
-        // Tür standart listede yok, "Diğer" olarak ayarla ve özel alana yaz
-        _selectedType = 'Diğer';
+        _formState.selectedType = 'Diğer';
         _populateCustomFieldFromType(_selectedCategory, typeFromAsset);
       } else {
-        _selectedType = null;
+        _formState.selectedType = null;
       }
 
-      // Hisse Senedi için hisse adı widget.asset.name'den gelir
       if (_selectedCategory == 'Hisse Senedi') {
         _stockNameController.text = widget.asset!.name;
       }
 
-      // Kategori "Diğer" ise özel isim alanını doldur
       if (_selectedCategory == 'Diğer') {
         _customCategoryNameController.text = widget.asset!.name;
       }
 
-      _purchaseDate = widget.asset!.purchaseDate;
+      _formState.purchaseDate = widget.asset!.purchaseDate;
       _purchasePriceController.text = widget.asset!.purchasePrice.toString();
     } else {
       _quantityController.text = "1";
-      _purchaseDate = DateTime.now();
+      _formState.purchaseDate = DateTime.now();
     }
+  }
+
+  void _onFormStateChanged() {
+    if (mounted) setState(() {});
   }
 
   /// Özel tür alanlarını doldurur (düzenleme modunda)
@@ -158,6 +168,8 @@ class _AddAssetPageState extends State<AddAssetPage> {
 
   @override
   void dispose() {
+    _formState.removeListener(_onFormStateChanged);
+    _formState.dispose();
     _nameController.dispose();
     _amountController.dispose();
     _quantityController.dispose();
@@ -171,10 +183,8 @@ class _AddAssetPageState extends State<AddAssetPage> {
   }
 
   Future<void> _fetchLivePrice() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    _formState.isLoading = true;
+    _formState.clearError();
 
     double? unitPrice;
 
@@ -215,24 +225,22 @@ class _AddAssetPageState extends State<AddAssetPage> {
       }
 
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-          if (unitPrice != null) {
-            double quantity = double.tryParse(_quantityController.text) ?? 1.0;
-            double totalAmount = unitPrice * quantity;
-            _amountController.text = totalAmount.toStringAsFixed(2);
-            _errorMessage = null;
-          } else {
-            _errorMessage = 'Fiyat çekilemedi, lütfen manuel giriniz.';
-          }
-        });
+        _formState.isLoading = false;
+        if (unitPrice != null) {
+          double quantity = double.tryParse(_quantityController.text) ?? 1.0;
+          double totalAmount = unitPrice * quantity;
+          _amountController.text = totalAmount.toStringAsFixed(2);
+          _formState.clearError();
+        } else {
+          _formState.setError('Fiyat çekilemedi, lütfen manuel giriniz.');
+        }
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = 'Fiyat alınırken hata oluştu. Lütfen manuel giriniz.';
-        });
+        _formState.isLoading = false;
+        _formState.setError(
+          'Fiyat alınırken hata oluştu. Lütfen manuel giriniz.',
+        );
       }
     }
   }
@@ -518,13 +526,11 @@ class _AddAssetPageState extends State<AddAssetPage> {
               label: Text(category),
               selected: isSelected,
               onSelected: (selected) {
-                setState(() {
-                  _selectedCategory = category;
-                  _selectedType = null;
-                  if (_selectedCategory == 'Banka') {
-                    _quantityController.text = "1";
-                  }
-                });
+                _formState.selectedCategory = category;
+                _formState.selectedType = null;
+                if (_selectedCategory == 'Banka') {
+                  _quantityController.text = "1";
+                }
               },
               backgroundColor: Colors.white.withValues(alpha: 0.05),
               selectedColor: _accentColor,
@@ -577,7 +583,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 return DropdownMenuItem<String>(value: type, child: Text(type));
               }).toList(),
               onChanged: (value) {
-                setState(() => _selectedType = value);
+                _formState.selectedType = value;
               },
             ),
           ),
@@ -734,7 +740,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 lastDate: DateTime.now(),
               );
               if (picked != null) {
-                setState(() => _purchaseDate = picked);
+                _formState.purchaseDate = picked;
               }
             },
             child: Container(

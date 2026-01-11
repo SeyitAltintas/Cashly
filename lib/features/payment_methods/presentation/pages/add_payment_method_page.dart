@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../../../core/utils/amount_input_formatter.dart';
 import '../../../../core/constants/card_color_constants.dart';
+import '../state/add_payment_method_form_state.dart';
 
 /// Ödeme Yöntemi Ekleme/Düzenleme Sayfası
 /// Modern tam sayfa tasarım - Koyu tema ile uyumlu
@@ -35,8 +36,12 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
   late TextEditingController _balanceController;
   late TextEditingController _limitController;
 
-  String _selectedType = 'banka';
-  int _selectedColorIndex = 0;
+  // ChangeNotifier state yöneticisi
+  late final AddPaymentMethodFormState _formState;
+
+  // Getter'lar
+  String get _selectedType => _formState.selectedType;
+  int get _selectedColorIndex => _formState.selectedColorIndex;
 
   final List<String> _types = ['banka', 'kredi', 'nakit'];
   final List<String> _typeLabels = ['Banka Kartı', 'Kredi Kartı', 'Nakit'];
@@ -44,13 +49,16 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
   @override
   void initState() {
     super.initState();
+
+    _formState = AddPaymentMethodFormState();
+    _formState.addListener(_onFormStateChanged);
+
     _nameController = TextEditingController(
       text: widget.paymentMethod?.name ?? '',
     );
     _lastFourController = TextEditingController(
       text: widget.paymentMethod?.lastFourDigits ?? '',
     );
-    // Bakiye ve limit değerlerini Türk formatında göster
     _balanceController = TextEditingController(
       text: widget.paymentMethod != null
           ? AmountInputFormatter.formatInitialValue(
@@ -65,12 +73,18 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             )
           : '',
     );
-    _selectedType = widget.paymentMethod?.type ?? 'banka';
-    _selectedColorIndex = widget.paymentMethod?.colorIndex ?? 0;
+    _formState.selectedType = widget.paymentMethod?.type ?? 'banka';
+    _formState.selectedColorIndex = widget.paymentMethod?.colorIndex ?? 0;
+  }
+
+  void _onFormStateChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _formState.removeListener(_onFormStateChanged);
+    _formState.dispose();
     _nameController.dispose();
     _lastFourController.dispose();
     _balanceController.dispose();
@@ -336,9 +350,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               return Expanded(
                 child: GestureDetector(
                   onTap: () {
-                    setState(() {
-                      _selectedType = _types[index];
-                    });
+                    _formState.selectedType = _types[index];
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
@@ -681,9 +693,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                 ),
                 child: GestureDetector(
                   onTap: () {
-                    setState(() {
-                      _selectedColorIndex = index;
-                    });
+                    _formState.selectedColorIndex = index;
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
