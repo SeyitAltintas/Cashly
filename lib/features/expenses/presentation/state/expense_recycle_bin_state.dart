@@ -18,11 +18,30 @@ class ExpenseRecycleBinState extends ChangeNotifier {
   // Ödeme yöntemleri
   List<PaymentMethod> odemeYontemleri = [];
 
-  /// Silinen harcamayı geri yükle
+  /// Silinen harcamayı geri yükle (bakiye güncelleme ile)
   void restoreHarcama(Map<String, dynamic> harcama) {
     var hedef = tumHarcamalarHam.firstWhere((element) => element == harcama);
     hedef['silindi'] = false;
     _silinenHarcamalar.remove(harcama);
+
+    // Ödeme yönteminin bakiyesini güncelle
+    final paymentMethodId = harcama['odemeYontemiId'];
+    if (paymentMethodId != null) {
+      final pmIndex = odemeYontemleri.indexWhere(
+        (p) => p.id == paymentMethodId,
+      );
+      if (pmIndex != -1) {
+        final pm = odemeYontemleri[pmIndex];
+        final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+        double newBalance;
+        if (pm.type == 'kredi') {
+          newBalance = pm.balance + amount;
+        } else {
+          newBalance = pm.balance - amount;
+        }
+        odemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+      }
+    }
     notifyListeners();
   }
 
@@ -40,11 +59,30 @@ class ExpenseRecycleBinState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Tümünü geri yükle
+  /// Tümünü geri yükle (bakiye güncelleme ile)
   void restoreAll() {
-    for (var harcama in _silinenHarcamalar) {
+    for (var harcama in List.from(_silinenHarcamalar)) {
       var hedef = tumHarcamalarHam.firstWhere((element) => element == harcama);
       hedef['silindi'] = false;
+
+      // Ödeme yönteminin bakiyesini güncelle
+      final paymentMethodId = harcama['odemeYontemiId'];
+      if (paymentMethodId != null) {
+        final pmIndex = odemeYontemleri.indexWhere(
+          (p) => p.id == paymentMethodId,
+        );
+        if (pmIndex != -1) {
+          final pm = odemeYontemleri[pmIndex];
+          final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+          double newBalance;
+          if (pm.type == 'kredi') {
+            newBalance = pm.balance + amount;
+          } else {
+            newBalance = pm.balance - amount;
+          }
+          odemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+        }
+      }
     }
     _silinenHarcamalar.clear();
     notifyListeners();

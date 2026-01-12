@@ -102,47 +102,16 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
     );
 
     if (onay == true) {
-      setState(() {
-        tumHarcamalarHam.removeWhere((element) => element['silindi'] == true);
-        silinenHarcamalar.clear();
-        getIt<ExpenseRepository>().saveExpenses(
-          widget.userId,
-          tumHarcamalarHam,
-        );
-        if (mounted) {
-          AppSnackBar.deleted(context, 'Çöp kutusu temizlendi.');
-        }
-      });
+      _binState.emptyBin();
+      getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
+      if (mounted) {
+        AppSnackBar.deleted(context, 'Çöp kutusu temizlendi.');
+      }
     }
   }
 
   Future<void> harcamayiGeriYukle(Map<String, dynamic> harcama) async {
-    setState(() {
-      var hedef = tumHarcamalarHam.firstWhere((element) => element == harcama);
-      hedef['silindi'] = false;
-      silinenHarcamalar.remove(harcama);
-
-      // Ödeme yönteminin bakiyesinden düş (geri yüklenince harcama aktif oluyor)
-      final paymentMethodId = harcama['odemeYontemiId'];
-      if (paymentMethodId != null) {
-        final pmIndex = odemeYontemleri.indexWhere(
-          (p) => p.id == paymentMethodId,
-        );
-        if (pmIndex != -1) {
-          final pm = odemeYontemleri[pmIndex];
-          final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
-          double newBalance;
-          if (pm.type == 'kredi') {
-            // Kredi kartı: borca ekle
-            newBalance = pm.balance + amount;
-          } else {
-            // Banka kartı/Nakit: bakiyeden düş
-            newBalance = pm.balance - amount;
-          }
-          odemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
-        }
-      }
-    });
+    _binState.restoreHarcama(harcama);
     getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
     // Ödeme yöntemlerini kaydet
     List<Map<String, dynamic>> pmMapleri = odemeYontemleri
@@ -159,10 +128,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
   }
 
   Future<void> harcamayiKaliciSil(Map<String, dynamic> harcama) async {
-    setState(() {
-      tumHarcamalarHam.remove(harcama);
-      silinenHarcamalar.remove(harcama);
-    });
+    _binState.permanentDeleteHarcama(harcama);
     getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
     if (mounted) {
       AppSnackBar.deleted(context, 'Harcama kalıcı olarak silindi 🗑️');
@@ -209,38 +175,8 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
     );
 
     if (onay == true) {
-      // Önce tüm harcamaları geri yükle ve bakiye hesaplamaları yap
-      for (var harcama in silinenHarcamalar) {
-        var hedef = tumHarcamalarHam.firstWhere(
-          (element) => element == harcama,
-        );
-        hedef['silindi'] = false;
-
-        // Ödeme yönteminin bakiyesini güncelle
-        final paymentMethodId = harcama['odemeYontemiId'];
-        if (paymentMethodId != null) {
-          final pmIndex = odemeYontemleri.indexWhere(
-            (p) => p.id == paymentMethodId,
-          );
-          if (pmIndex != -1) {
-            final pm = odemeYontemleri[pmIndex];
-            final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
-            double newBalance;
-            if (pm.type == 'kredi') {
-              // Kredi kartı: borca ekle
-              newBalance = pm.balance + amount;
-            } else {
-              // Banka kartı/Nakit: bakiyeden düş
-              newBalance = pm.balance - amount;
-            }
-            odemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
-          }
-        }
-      }
-
-      setState(() {
-        silinenHarcamalar.clear();
-      });
+      // State metoduyla tüm harcamaları geri yükle (bakiye güncelleme dahil)
+      _binState.restoreAll();
 
       // Verileri kaydet
       getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
