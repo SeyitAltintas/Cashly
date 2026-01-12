@@ -4,6 +4,7 @@ import '../../../settings/domain/repositories/settings_repository.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import 'voice_commands_page.dart';
+import '../state/voice_assistant_state.dart';
 
 /// Sesli Asistan ayarları sayfası
 class VoiceAssistantPage extends StatefulWidget {
@@ -17,23 +18,38 @@ class VoiceAssistantPage extends StatefulWidget {
 
 class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
   final TtsService _ttsService = TtsService();
-  bool _sesliGeriBildirimAktif = true;
-  bool _isLoading = true;
+  late final VoiceAssistantState _voiceState;
+
+  bool get _sesliGeriBildirimAktif => _voiceState.sesliGeriBildirimAktif;
+  bool get _isLoading => _voiceState.isLoading;
 
   @override
   void initState() {
     super.initState();
+    _voiceState = VoiceAssistantState();
+    _voiceState.addListener(_onStateChanged);
     _ayarlariYukle();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _voiceState.removeListener(_onStateChanged);
+    _voiceState.dispose();
+    super.dispose();
   }
 
   void _ayarlariYukle() {
     final userId = widget.authController.currentUser?.id;
     if (userId != null) {
       final settingsRepo = getIt<SettingsRepository>();
-      setState(() {
-        _sesliGeriBildirimAktif = settingsRepo.isVoiceFeedbackEnabled(userId);
-        _isLoading = false;
-      });
+      _voiceState.sesliGeriBildirimAktif = settingsRepo.isVoiceFeedbackEnabled(
+        userId,
+      );
+      _voiceState.isLoading = false;
     }
   }
 
@@ -44,9 +60,7 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
         userId,
         yeniDeger,
       );
-      setState(() {
-        _sesliGeriBildirimAktif = yeniDeger;
-      });
+      _voiceState.sesliGeriBildirimAktif = yeniDeger;
 
       // Açıldığında test sesi çal
       if (yeniDeger) {

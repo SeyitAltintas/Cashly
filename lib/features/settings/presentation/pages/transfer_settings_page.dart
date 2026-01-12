@@ -3,6 +3,7 @@ import 'package:cashly/core/di/injection_container.dart';
 import 'package:cashly/features/settings/domain/repositories/settings_repository.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/core/services/haptic_service.dart';
+import '../state/transfer_settings_state.dart';
 
 /// Para Transferleri Ayarları Sayfası
 /// İşlem geçmişinde gösterilecek transfer sayısını ayarlar
@@ -17,37 +18,51 @@ class TransferSettingsPage extends StatefulWidget {
 
 class _TransferSettingsPageState extends State<TransferSettingsPage> {
   final SettingsRepository _settingsRepo = getIt<SettingsRepository>();
-
-  // Seçilebilir limitler: 5'ten 100'e kadar tüm sayılar + Tümü (-1)
+  late final TransferSettingsState _tsState;
   late final List<int> _limitOptions;
 
-  late int _savedLimit; // Kaydedilmiş değer
-  late int _tempLimit; // Picker'da seçili geçici değer
-  bool _hasChanged = false;
+  int get _savedLimit => _tsState.savedLimit;
+  int get _tempLimit => _tsState.tempLimit;
+  bool get _hasChanged => _tsState.hasChanged;
 
   @override
   void initState() {
     super.initState();
+    _tsState = TransferSettingsState();
+    _tsState.addListener(_onStateChanged);
+
     // 5'ten 200'e kadar sayılar (Tümü seçeneği performans için kaldırıldı)
     _limitOptions = List.generate(196, (i) => i + 5);
 
-    _savedLimit = _settingsRepo.getTransferHistoryLimit(widget.userId);
+    var savedVal = _settingsRepo.getTransferHistoryLimit(widget.userId);
     // Eğer kayıtlı değer geçersizse varsayılana ayarla
-    if (!_limitOptions.contains(_savedLimit)) {
-      if (_savedLimit < 5) {
-        _savedLimit = 5;
-      } else if (_savedLimit > 200) {
-        _savedLimit = 200;
+    if (!_limitOptions.contains(savedVal)) {
+      if (savedVal < 5) {
+        savedVal = 5;
+      } else if (savedVal > 200) {
+        savedVal = 200;
       }
     }
-    _tempLimit = _savedLimit;
+    _tsState.savedLimit = savedVal;
+    _tsState.tempLimit = savedVal;
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _tsState.removeListener(_onStateChanged);
+    _tsState.dispose();
+    super.dispose();
   }
 
   /// Geçici değeri günceller (kaydetmez)
   void _updateTempLimit(int newLimit) {
     if (newLimit != _tempLimit) {
       HapticService.selectionClick();
-      setState(() => _tempLimit = newLimit);
+      _tsState.tempLimit = newLimit;
     }
   }
 
@@ -58,10 +73,8 @@ class _TransferSettingsPageState extends State<TransferSettingsPage> {
     await HapticService.mediumImpact();
     await _settingsRepo.saveTransferHistoryLimit(widget.userId, _tempLimit);
 
-    setState(() {
-      _savedLimit = _tempLimit;
-      _hasChanged = true;
-    });
+    _tsState.savedLimit = _tempLimit;
+    _tsState.hasChanged = true;
 
     if (mounted) {
       AppSnackBar.success(

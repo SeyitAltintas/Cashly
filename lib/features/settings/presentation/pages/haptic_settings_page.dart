@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/services/haptic_service.dart';
+import '../state/haptic_settings_state.dart';
 
 /// Haptic (titreşim) geri bildirim ayarları sayfası
 /// Kullanıcı tüm titreşim tiplerini ayrı ayrı açıp kapatabilir
@@ -11,27 +12,40 @@ class HapticSettingsPage extends StatefulWidget {
 }
 
 class _HapticSettingsPageState extends State<HapticSettingsPage> {
-  late Map<String, bool> _settings;
-  bool _hasVibrator = false;
+  late final HapticSettingsState _hapticState;
+
+  Map<String, bool> get _settings => _hapticState.settings;
+  bool get _hasVibrator => _hapticState.hasVibrator;
 
   @override
   void initState() {
     super.initState();
-    _settings = HapticService.getAllSettings();
+    _hapticState = HapticSettingsState();
+    _hapticState.settings = HapticService.getAllSettings();
+    _hapticState.addListener(_onStateChanged);
     _checkVibrator();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _hapticState.removeListener(_onStateChanged);
+    _hapticState.dispose();
+    super.dispose();
   }
 
   Future<void> _checkVibrator() async {
     final has = await HapticService.hasVibrator();
     if (mounted) {
-      setState(() => _hasVibrator = has);
+      _hapticState.hasVibrator = has;
     }
   }
 
   void _updateSetting(String key, bool value) {
-    setState(() {
-      _settings[key] = value;
-    });
+    _hapticState.updateSetting(key, value);
     HapticService.setSetting(key, value);
 
     // Test titreşimi
