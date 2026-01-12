@@ -4,6 +4,7 @@ import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
 import '../../../../core/services/biometric_service.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../state/user_login_form_state.dart';
 
 /// Kullanıcı seçili giriş formu widget'ı
 /// Belirli bir kullanıcı için PIN ile giriş ekranı
@@ -34,21 +35,34 @@ class UserLoginForm extends StatefulWidget {
 class _UserLoginFormState extends State<UserLoginForm> {
   final _pinController = TextEditingController();
   final BiometricService _biometricService = BiometricService();
-  bool _isPinVisible = false;
-  bool _isLoading = false;
-  String? _pinErrorMessage;
+  late final UserLoginFormState _formState;
+
+  // Getter'lar
+  bool get _isPinVisible => _formState.isPinVisible;
+  bool get _isLoading => _formState.isLoading;
+  String? get _pinErrorMessage => _formState.pinErrorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _formState = UserLoginFormState();
+    _formState.addListener(_onStateChanged);
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void dispose() {
+    _formState.removeListener(_onStateChanged);
+    _formState.dispose();
     _pinController.dispose();
     super.dispose();
   }
 
   Future<void> _handleBiometricLogin() async {
-    setState(() {
-      _isLoading = true;
-      _pinErrorMessage = null;
-    });
+    _formState.startLoading();
 
     try {
       // Biyometrik doğrulama yap
@@ -81,29 +95,21 @@ class _UserLoginFormState extends State<UserLoginForm> {
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        _formState.stopLoading();
       }
     }
   }
 
   Future<void> _handlePinLogin() async {
     // Önceki hata mesajını temizle
-    setState(() {
-      _pinErrorMessage = null;
-    });
+    _formState.clearError();
 
     if (_pinController.text.isEmpty) {
-      setState(() {
-        _pinErrorMessage = "Lütfen PIN giriniz";
-      });
+      _formState.setError("Lütfen PIN giriniz");
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    _formState.startPinLogin();
 
     try {
       final success = await widget.authController.login(
@@ -116,17 +122,13 @@ class _UserLoginFormState extends State<UserLoginForm> {
       if (success) {
         widget.onLoginSuccess();
       } else {
-        setState(() {
-          _pinErrorMessage =
-              widget.authController.error ??
-              "Hatalı PIN veya kullanıcı bulunamadı";
-        });
+        _formState.setError(
+          widget.authController.error ?? "Hatalı PIN veya kullanıcı bulunamadı",
+        );
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        _formState.stopLoading();
       }
     }
   }
@@ -290,9 +292,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
                     size: 20,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _isPinVisible = !_isPinVisible;
-                    });
+                    _formState.togglePinVisibility();
                   },
                 ),
               ),

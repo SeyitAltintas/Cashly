@@ -367,7 +367,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                       : RefreshIndicator(
                           onRefresh: () async {
                             // State'i yenile
-                            setState(() {});
+                            _pageState.refresh();
                           },
                           color: Colors.green,
                           child: ListView.builder(
@@ -410,7 +410,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                       GelirCopKutusuSayfasi(userId: widget.userId ?? ''),
                 ),
               ).then((_) {
-                if (mounted) setState(() {});
+                if (mounted) _pageState.refresh();
               });
             },
           ),

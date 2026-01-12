@@ -198,4 +198,9 @@ class IncomePageState extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// State'i yenile (UI rebuild için)
+  void refresh() {
+    notifyListeners();
+  }
 }

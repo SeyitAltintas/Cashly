@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../controllers/auth_controller.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
+import '../state/login_form_state.dart';
 
 /// E-posta ve PIN ile giriş formu widget'ı
 /// Generic login ekranı - kullanıcı seçimi yapılmadığında gösterilir
@@ -27,11 +28,27 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _pinController = TextEditingController();
-  bool _isPinVisible = false;
-  bool _isLoading = false;
+  late final LoginFormState _formState;
+
+  // Getter'lar
+  bool get _isLoading => _formState.isLoading;
+  bool get _isPinVisible => _formState.isPinVisible;
+
+  @override
+  void initState() {
+    super.initState();
+    _formState = LoginFormState();
+    _formState.addListener(_onStateChanged);
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void dispose() {
+    _formState.removeListener(_onStateChanged);
+    _formState.dispose();
     _emailController.dispose();
     _pinController.dispose();
     super.dispose();
@@ -43,9 +60,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    _formState.startLoading();
 
     try {
       final success = await widget.authController.loginByEmail(
@@ -70,9 +85,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        _formState.stopLoading();
       }
     }
   }
@@ -197,9 +210,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
             size: 20,
           ),
           onPressed: () {
-            setState(() {
-              _isPinVisible = !_isPinVisible;
-            });
+            _formState.togglePinVisibility();
           },
         ),
         enabledBorder: OutlineInputBorder(

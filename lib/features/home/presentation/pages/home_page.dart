@@ -288,17 +288,16 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       _odemeYontemleriKaydet();
       _transferleriKaydet();
 
-      // UI'ı güncelle
-      if (mounted) {
-        setState(() {});
+      // UI'ı güncelle - ChangeNotifier ile
+      _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+      _homeState.tumTransferler = List.from(tumTransferler);
 
-        // Başarısız transfer varsa kullanıcıyı bilgilendir
-        if (basarisizTransferler.isNotEmpty) {
-          AppSnackBar.warning(
-            context,
-            'Bazı zamanlanmış transferler başarısız: ${basarisizTransferler.join(", ")}',
-          );
-        }
+      // Başarısız transfer varsa kullanıcıyı bilgilendir
+      if (basarisizTransferler.isNotEmpty && mounted) {
+        AppSnackBar.warning(
+          context,
+          'Bazı zamanlanmış transferler başarısız: ${basarisizTransferler.join(", ")}',
+        );
       }
     }
   }
