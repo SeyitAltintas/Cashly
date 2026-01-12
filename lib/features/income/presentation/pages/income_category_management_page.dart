@@ -5,6 +5,7 @@ import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/utils/validators.dart';
 import 'package:cashly/core/theme/app_theme.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
+import '../state/income_category_management_state.dart';
 
 /// Gelir kategorilerini yönetmek için sayfa
 class GelirKategoriYonetimiSayfasi extends StatefulWidget {
@@ -19,8 +20,10 @@ class GelirKategoriYonetimiSayfasi extends StatefulWidget {
 
 class _GelirKategoriYonetimiSayfasiState
     extends State<GelirKategoriYonetimiSayfasi> {
-  List<Map<String, dynamic>> kategoriler = [];
-  bool hasChanges = false;
+  late final IncomeCategoryManagementState _catState;
+
+  List<Map<String, dynamic>> get kategoriler => _catState.kategoriler;
+  bool get hasChanges => _catState.hasChanges;
 
   final Map<String, IconData> ikonSecenekleri = {
     'work': Icons.work,
@@ -48,7 +51,20 @@ class _GelirKategoriYonetimiSayfasiState
   @override
   void initState() {
     super.initState();
+    _catState = IncomeCategoryManagementState();
+    _catState.addListener(_onStateChanged);
     kategorileriYukle();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _catState.removeListener(_onStateChanged);
+    _catState.dispose();
+    super.dispose();
   }
 
   // Sistem kategorileri (silinemez)
@@ -57,18 +73,16 @@ class _GelirKategoriYonetimiSayfasiState
   void kategorileriYukle() {
     try {
       final incomeRepo = getIt<IncomeRepository>();
-      setState(() {
-        kategoriler = incomeRepo.getCategories(widget.userId);
+      _catState.kategoriler = incomeRepo.getCategories(widget.userId);
 
-        // Sistem kategorilerini kontrol et ve yoksa ekle
-        for (final sistemKat in sistemKategorileri) {
-          final varMi = kategoriler.any((k) => k['isim'] == sistemKat);
-          if (!varMi) {
-            kategoriler.add({'isim': sistemKat, 'ikon': 'autorenew'});
-            incomeRepo.saveCategories(widget.userId, kategoriler);
-          }
+      // Sistem kategorilerini kontrol et ve yoksa ekle
+      for (final sistemKat in sistemKategorileri) {
+        final varMi = kategoriler.any((k) => k['isim'] == sistemKat);
+        if (!varMi) {
+          _catState.addKategori(sistemKat, 'autorenew');
+          incomeRepo.saveCategories(widget.userId, kategoriler);
         }
-      });
+      }
     } catch (e) {
       ErrorHandler.handleDatabaseError(context, e);
       ErrorHandler.logError('Gelir kategorileri yüklenirken hata', e);
@@ -78,9 +92,7 @@ class _GelirKategoriYonetimiSayfasiState
   void kaydet() {
     try {
       getIt<IncomeRepository>().saveCategories(widget.userId, kategoriler);
-      setState(() {
-        hasChanges = true;
-      });
+      _catState.hasChanges = true;
       ErrorHandler.showSuccessSnackBar(context, "Kategoriler kaydedildi ✅");
     } catch (e) {
       ErrorHandler.handleDatabaseError(context, e);
@@ -242,12 +254,10 @@ class _GelirKategoriYonetimiSayfasiState
                         );
                         return;
                       }
-                      setState(() {
-                        kategoriler.add({
-                          'isim': isimController.text.trim(),
-                          'ikon': secilenIkon,
-                        });
-                      });
+                      _catState.addKategori(
+                        isimController.text.trim(),
+                        secilenIkon,
+                      );
                       kaydet();
                       Navigator.pop(context);
                     },
@@ -289,9 +299,7 @@ class _GelirKategoriYonetimiSayfasiState
       return;
     }
 
-    setState(() {
-      kategoriler.removeAt(index);
-    });
+    _catState.removeKategoriAt(index);
     kaydet();
   }
 
@@ -391,13 +399,7 @@ class _GelirKategoriYonetimiSayfasiState
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: kategoriler.length,
                       onReorder: (oldIndex, newIndex) {
-                        setState(() {
-                          if (newIndex > oldIndex) {
-                            newIndex -= 1;
-                          }
-                          final kategori = kategoriler.removeAt(oldIndex);
-                          kategoriler.insert(newIndex, kategori);
-                        });
+                        _catState.reorderKategoriler(oldIndex, newIndex);
                         kaydet();
                         AppSnackBar.success(
                           context,

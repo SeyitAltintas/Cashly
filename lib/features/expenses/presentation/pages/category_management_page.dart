@@ -5,6 +5,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../data/repositories/expense_repository_impl.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../state/category_management_state.dart';
 
 class KategoriYonetimiSayfasi extends StatefulWidget {
   final String userId;
@@ -17,9 +18,13 @@ class KategoriYonetimiSayfasi extends StatefulWidget {
 }
 
 class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
-  List<Map<String, dynamic>> kategoriler = [];
+  late final CategoryManagementState _catState;
+
+  List<Map<String, dynamic>> get kategoriler => _catState.kategoriler;
+  String get secilenIkon => _catState.secilenIkon;
+  set secilenIkon(String value) => _catState.secilenIkon = value;
+
   final TextEditingController tKategoriIsmi = TextEditingController();
-  String secilenIkon = 'category';
 
   // Kategorilere göre gruplandırılmış ikonlar
   final Map<String, List<Map<String, dynamic>>> ikonKategorileri = {
@@ -157,7 +162,21 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
   @override
   void initState() {
     super.initState();
+    _catState = CategoryManagementState();
+    _catState.addListener(_onStateChanged);
     verileriYukle();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _catState.removeListener(_onStateChanged);
+    _catState.dispose();
+    tKategoriIsmi.dispose();
+    super.dispose();
   }
 
   // Sistem kategorileri (silinemez)
@@ -165,26 +184,22 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
 
   void verileriYukle() {
     final expenseRepo = getIt<ExpenseRepository>();
-    setState(() {
-      kategoriler = expenseRepo.getCategories(widget.userId);
+    _catState.kategoriler = expenseRepo.getCategories(widget.userId);
 
-      // Sistem kategorilerini kontrol et ve yoksa ekle
-      for (final sistemKat in sistemKategorileri) {
-        final varMi = kategoriler.any((k) => k['isim'] == sistemKat);
-        if (!varMi) {
-          kategoriler.add({'isim': sistemKat, 'ikon': 'autorenew'});
-          expenseRepo.saveCategories(widget.userId, kategoriler);
-        }
+    // Sistem kategorilerini kontrol et ve yoksa ekle
+    for (final sistemKat in sistemKategorileri) {
+      final varMi = kategoriler.any((k) => k['isim'] == sistemKat);
+      if (!varMi) {
+        _catState.addKategori(sistemKat, 'autorenew');
+        expenseRepo.saveCategories(widget.userId, kategoriler);
       }
-    });
+    }
   }
 
   void kategoriEkle() {
     if (tKategoriIsmi.text.isEmpty) return;
 
-    setState(() {
-      kategoriler.add({'isim': tKategoriIsmi.text, 'ikon': secilenIkon});
-    });
+    _catState.addKategori(tKategoriIsmi.text, secilenIkon);
 
     getIt<ExpenseRepository>().saveCategories(widget.userId, kategoriler);
     tKategoriIsmi.clear();
@@ -236,9 +251,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
           ),
           ElevatedButton(
             onPressed: () {
-              setState(() {
-                kategoriler.removeAt(index);
-              });
+              _catState.removeKategoriAt(index);
               getIt<ExpenseRepository>().saveCategories(
                 widget.userId,
                 kategoriler,
@@ -288,11 +301,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
           ),
           ElevatedButton(
             onPressed: () {
-              setState(() {
-                kategoriler = List.from(
-                  ExpenseRepositoryImpl.defaultCategories,
-                );
-              });
+              _catState.resetToDefault(ExpenseRepositoryImpl.defaultCategories);
               getIt<ExpenseRepository>().saveCategories(
                 widget.userId,
                 kategoriler,
@@ -628,13 +637,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
               child: ReorderableListView.builder(
                 itemCount: kategoriler.length,
                 onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    if (newIndex > oldIndex) {
-                      newIndex -= 1;
-                    }
-                    final kategori = kategoriler.removeAt(oldIndex);
-                    kategoriler.insert(newIndex, kategori);
-                  });
+                  _catState.reorderKategoriler(oldIndex, newIndex);
                   getIt<ExpenseRepository>().saveCategories(
                     widget.userId,
                     kategoriler,
