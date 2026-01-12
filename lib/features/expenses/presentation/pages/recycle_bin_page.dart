@@ -5,6 +5,7 @@ import 'package:cashly/features/expenses/domain/repositories/expense_repository.
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
+import '../state/expense_recycle_bin_state.dart';
 
 class CopKutusuSayfasi extends StatefulWidget {
   final String userId;
@@ -16,33 +17,53 @@ class CopKutusuSayfasi extends StatefulWidget {
 }
 
 class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
-  List<Map<String, dynamic>> silinenHarcamalar = [];
-  List<Map<String, dynamic>> tumHarcamalarHam = [];
-  List<PaymentMethod> odemeYontemleri = [];
+  // ChangeNotifier state yöneticisi
+  late final ExpenseRecycleBinState _binState;
+
+  // Getter'lar
+  List<Map<String, dynamic>> get silinenHarcamalar =>
+      _binState.silinenHarcamalar;
+  List<Map<String, dynamic>> get tumHarcamalarHam => _binState.tumHarcamalarHam;
+  List<PaymentMethod> get odemeYontemleri => _binState.odemeYontemleri;
 
   @override
   void initState() {
     super.initState();
+
+    _binState = ExpenseRecycleBinState();
+    _binState.addListener(_onStateChanged);
+
     verileriYukle();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _binState.removeListener(_onStateChanged);
+    _binState.dispose();
+    super.dispose();
   }
 
   void verileriYukle() {
     final expenseRepo = getIt<ExpenseRepository>();
     final paymentRepo = getIt<PaymentMethodRepository>();
 
-    tumHarcamalarHam = expenseRepo.getExpenses(widget.userId);
+    _binState.tumHarcamalarHam = expenseRepo.getExpenses(widget.userId);
 
     // Ödeme yöntemlerini yükle
     List<Map<String, dynamic>> pmVerileri = paymentRepo.getPaymentMethods(
       widget.userId,
     );
-    odemeYontemleri = pmVerileri.map((m) => PaymentMethod.fromMap(m)).toList();
+    _binState.odemeYontemleri = pmVerileri
+        .map((m) => PaymentMethod.fromMap(m))
+        .toList();
 
-    setState(() {
-      silinenHarcamalar = tumHarcamalarHam
-          .where((element) => element['silindi'] == true)
-          .toList();
-    });
+    _binState.silinenHarcamalar = tumHarcamalarHam
+        .where((element) => element['silindi'] == true)
+        .toList();
   }
 
   Future<void> copuBosalt() async {
