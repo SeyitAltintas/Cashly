@@ -3,6 +3,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../income/domain/repositories/income_repository.dart';
 import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../state/recurring_income_state.dart';
 
 /// Tekrarlayan Gelirler yönetim sayfası (maaş, kira geliri vb.)
 class RecurringIncomePage extends StatefulWidget {
@@ -15,13 +16,29 @@ class RecurringIncomePage extends StatefulWidget {
 }
 
 class _RecurringIncomePageState extends State<RecurringIncomePage> {
-  List<Map<String, dynamic>> _tekrarlayanGelirler = [];
-  List<PaymentMethod> _odemeYontemleri = [];
+  late final RecurringIncomeState _riState;
+
+  List<Map<String, dynamic>> get _tekrarlayanGelirler =>
+      _riState.tekrarlayanGelirler;
+  List<PaymentMethod> get _odemeYontemleri => _riState.odemeYontemleri;
 
   @override
   void initState() {
     super.initState();
+    _riState = RecurringIncomeState();
+    _riState.addListener(_onStateChanged);
     _verileriYukle();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _riState.removeListener(_onStateChanged);
+    _riState.dispose();
+    super.dispose();
   }
 
   void _verileriYukle() {
@@ -35,10 +52,8 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
         .where((pm) => !pm.isDeleted)
         .toList();
 
-    setState(() {
-      _tekrarlayanGelirler = gelirler;
-      _odemeYontemleri = pmList;
-    });
+    _riState.tekrarlayanGelirler = gelirler;
+    _riState.odemeYontemleri = pmList;
   }
 
   void _kaydet() {
@@ -359,13 +374,11 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                             'sonIslemTarihi': gelir?['sonIslemTarihi'],
                           };
 
-                          setState(() {
-                            if (index != null) {
-                              _tekrarlayanGelirler[index] = yeniGelir;
-                            } else {
-                              _tekrarlayanGelirler.add(yeniGelir);
-                            }
-                          });
+                          if (index != null) {
+                            _riState.updateGelir(index, yeniGelir);
+                          } else {
+                            _riState.addGelir(yeniGelir);
+                          }
                           _kaydet();
                           Navigator.pop(context);
 
@@ -565,9 +578,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
         );
       },
       onDismissed: (direction) {
-        setState(() {
-          _tekrarlayanGelirler.removeAt(index);
-        });
+        _riState.removeGelirAt(index);
         _kaydet();
       },
       child: GestureDetector(

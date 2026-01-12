@@ -7,6 +7,7 @@ import 'voice_assistant_page.dart';
 import 'haptic_settings_page.dart';
 import 'expense_settings_page.dart';
 import 'transfer_settings_page.dart';
+import '../state/main_settings_state.dart';
 
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
 
@@ -35,7 +36,27 @@ class AyarlarSayfasi extends StatefulWidget {
 }
 
 class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
-  bool _needsRefresh = false;
+  late final MainSettingsState _mainState;
+
+  bool get _needsRefresh => _mainState.needsRefresh;
+
+  @override
+  void initState() {
+    super.initState();
+    _mainState = MainSettingsState();
+    _mainState.addListener(_onStateChanged);
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _mainState.removeListener(_onStateChanged);
+    _mainState.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +172,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                   ),
                 ),
               );
-              if (result == true) setState(() => _needsRefresh = true);
+              if (result == true) _mainState.needsRefresh = true;
             },
           ),
           const SettingsDivider(),
@@ -169,7 +190,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                   ),
                 ),
               );
-              if (result == true) setState(() => _needsRefresh = true);
+              if (result == true) _mainState.needsRefresh = true;
             },
           ),
           const SettingsDivider(),
@@ -187,7 +208,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                   ),
                 ),
               );
-              if (result == true) setState(() => _needsRefresh = true);
+              if (result == true) _mainState.needsRefresh = true;
             },
           ),
           const SettingsDivider(),

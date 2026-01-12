@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'income_category_management_page.dart';
 import 'recurring_income_page.dart';
+import '../state/income_settings_state.dart';
 
 /// Gelirler ayarları ana sayfası
 class GelirlerAyarlariSayfasi extends StatefulWidget {
@@ -14,7 +15,27 @@ class GelirlerAyarlariSayfasi extends StatefulWidget {
 }
 
 class _GelirlerAyarlariSayfasiState extends State<GelirlerAyarlariSayfasi> {
-  bool categoryChanged = false;
+  late final IncomeSettingsState _incState;
+
+  bool get categoryChanged => _incState.categoryChanged;
+
+  @override
+  void initState() {
+    super.initState();
+    _incState = IncomeSettingsState();
+    _incState.addListener(_onStateChanged);
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _incState.removeListener(_onStateChanged);
+    _incState.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,9 +118,7 @@ class _GelirlerAyarlariSayfasiState extends State<GelirlerAyarlariSayfasi> {
                           GelirKategoriYonetimiSayfasi(userId: widget.userId),
                     ),
                   ).then((_) {
-                    setState(() {
-                      categoryChanged = true;
-                    });
+                    _incState.categoryChanged = true;
                   });
                 },
                 borderRadius: BorderRadius.circular(12),
