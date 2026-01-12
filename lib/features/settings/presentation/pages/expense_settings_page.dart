@@ -14,6 +14,7 @@ import '../widgets/expense_settings/recurring_expense_section.dart';
 import '../widgets/expense_settings/default_payment_section.dart';
 import '../widgets/expense_settings/category_section.dart';
 import 'recurring_transactions_page.dart';
+import '../state/expense_settings_state.dart';
 
 /// Harcama Ayarları Sayfası
 /// Bütçe limiti, varsayılan ödeme yöntemi ve kategori yönetimi ayarlarını içerir.
@@ -29,20 +30,29 @@ class HarcamalarAyarlariSayfasi extends StatefulWidget {
 
 class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
   final TextEditingController tGelir = TextEditingController();
-  bool categoryChanged = false;
-  bool _isSaved = false;
-  String _savedAmount = "";
-  List<PaymentMethod> odemeYontemleri = [];
-  String? varsayilanOdemeYontemiId;
+  late final ExpenseSettingsState _expState;
+
+  bool get categoryChanged => _expState.categoryChanged;
+  bool get _isSaved => _expState.isSaved;
+  List<PaymentMethod> get odemeYontemleri => _expState.odemeYontemleri;
+  String? get varsayilanOdemeYontemiId => _expState.varsayilanOdemeYontemiId;
 
   @override
   void initState() {
     super.initState();
+    _expState = ExpenseSettingsState();
+    _expState.addListener(_onStateChanged);
     _verileriYukle();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _expState.removeListener(_onStateChanged);
+    _expState.dispose();
     tGelir.dispose();
     super.dispose();
   }
@@ -63,10 +73,8 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
         .toList();
     String? varsayilanPm = paymentRepo.getDefaultPaymentMethod(widget.userId);
 
-    setState(() {
-      odemeYontemleri = pmList.where((pm) => !pm.isDeleted).toList();
-      varsayilanOdemeYontemiId = varsayilanPm;
-    });
+    _expState.odemeYontemleri = pmList.where((pm) => !pm.isDeleted).toList();
+    _expState.varsayilanOdemeYontemiId = varsayilanPm;
   }
 
   /// Bütçe limitini kaydeder
@@ -96,20 +104,15 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
               (Match m) => '${m[1]}.',
             );
 
-        setState(() {
-          categoryChanged = true;
-          _isSaved = true;
-          _savedAmount = formattedAmount;
-          tGelir.text =
-              "Bütçe Limitiniz $formattedAmount TL olarak güncellendi.";
-        });
+        _expState.categoryChanged = true;
+        _expState.isSaved = true;
+        _expState.savedAmount = formattedAmount;
+        tGelir.text = "Bütçe Limitiniz $formattedAmount TL olarak güncellendi.";
 
         Future.delayed(const Duration(seconds: 3), () {
           if (mounted) {
-            setState(() {
-              _isSaved = false;
-              tGelir.text = _savedAmount;
-            });
+            _expState.isSaved = false;
+            tGelir.text = _expState.savedAmount;
           }
         });
       } catch (e) {
@@ -120,10 +123,8 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
 
   /// Varsayılan ödeme yöntemi değişikliğini işler
   void _handlePaymentMethodChanged(String? newValue) {
-    setState(() {
-      varsayilanOdemeYontemiId = newValue;
-      categoryChanged = true;
-    });
+    _expState.varsayilanOdemeYontemiId = newValue;
+    _expState.categoryChanged = true;
     getIt<PaymentMethodRepository>().saveDefaultPaymentMethod(
       widget.userId,
       newValue,
@@ -194,7 +195,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                           KategoriYonetimiSayfasi(userId: widget.userId),
                     ),
                   ).then((_) {
-                    if (mounted) setState(() => categoryChanged = true);
+                    if (mounted) _expState.categoryChanged = true;
                   });
                 },
               ),

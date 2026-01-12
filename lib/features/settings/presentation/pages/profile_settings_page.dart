@@ -12,6 +12,7 @@ import '../widgets/profile/profile_info_cards.dart';
 import '../widgets/profile/security_section.dart';
 import '../widgets/profile/danger_zone_section.dart';
 import '../widgets/profile/profile_settings_helper.dart';
+import '../state/profile_settings_state.dart';
 
 /// Profil Ayarları Sayfası
 /// Kullanıcı profili yönetimi için ana sayfa
@@ -27,21 +28,36 @@ class ProfileSettingsPage extends StatefulWidget {
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   final _authRepository = AuthRepositoryImpl();
   final BiometricService _biometricService = BiometricService();
-  UserEntity? _currentUser;
-  bool _isLoading = true;
-  bool _isBiometricAvailable = false;
+  late final ProfileSettingsState _profileState;
+
+  UserEntity? get _currentUser => _profileState.currentUser;
+  bool get _isLoading => _profileState.isLoading;
+  bool get _isBiometricAvailable => _profileState.isBiometricAvailable;
 
   @override
   void initState() {
     super.initState();
+    _profileState = ProfileSettingsState();
+    _profileState.addListener(_onStateChanged);
     _loadUserData();
     _checkBiometricAvailability();
   }
 
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _profileState.removeListener(_onStateChanged);
+    _profileState.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadUserData() async {
-    setState(() => _isLoading = true);
+    _profileState.isLoading = true;
     try {
-      _currentUser = widget.authController.currentUser;
+      _profileState.currentUser = widget.authController.currentUser;
     } catch (e) {
       if (mounted) {
         ErrorHandler.showErrorSnackBar(
@@ -50,14 +66,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         );
       }
     } finally {
-      setState(() => _isLoading = false);
+      _profileState.isLoading = false;
     }
   }
 
   Future<void> _checkBiometricAvailability() async {
     final isAvailable = await _biometricService.isBiometricAvailable();
     if (mounted) {
-      setState(() => _isBiometricAvailable = isAvailable);
+      _profileState.isBiometricAvailable = isAvailable;
     }
   }
 
@@ -73,9 +89,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       currentUser: _currentUser!,
       authRepository: _authRepository,
       onUserUpdated: () {
-        setState(() {
-          _currentUser = widget.authController.currentUser;
-        });
+        _profileState.currentUser = widget.authController.currentUser;
       },
     );
   }
@@ -86,9 +100,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     if (enabled) {
       _getHelper().showPinVerificationForBiometric(() async {
         await widget.authController.setBiometricEnabled(_currentUser!.id, true);
-        setState(() {
-          _currentUser = widget.authController.currentUser;
-        });
+        _profileState.currentUser = widget.authController.currentUser;
         if (mounted) {
           ErrorHandler.showSuccessSnackBar(
             context,
@@ -98,9 +110,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       });
     } else {
       await widget.authController.setBiometricEnabled(_currentUser!.id, false);
-      setState(() {
-        _currentUser = widget.authController.currentUser;
-      });
+      _profileState.currentUser = widget.authController.currentUser;
       if (mounted) {
         ErrorHandler.showSuccessSnackBar(context, "Biyometrik giriş kapatıldı");
       }
