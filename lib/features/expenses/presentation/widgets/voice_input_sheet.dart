@@ -169,7 +169,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             );
             _voiceState.updateRecognizedText(text, parseResult);
             // Parse sonucunu düzenleme alanlarına aktar
-            if (parseResult != null && parseResult.basarili) {
+            if (parseResult.basarili) {
               _tutarController.text = parseResult.tutar!.toStringAsFixed(2);
               _isimController.text = parseResult.harcamaIsmi ?? text;
               // Kategori tahmini varsa seç, yoksa mevcut seçimi koru

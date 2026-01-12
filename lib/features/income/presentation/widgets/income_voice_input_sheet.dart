@@ -103,7 +103,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
           );
           _voiceState.updateRecognizedText(text, parseResult);
           // Parse sonucunu düzenleme alanlarına aktar
-          if (parseResult != null && parseResult.basarili) {
+          if (parseResult.basarili) {
             _tutarController.text = parseResult.tutar!.toStringAsFixed(2);
             _isimController.text = parseResult.harcamaIsmi ?? text;
             if (parseResult.kategori != null) {
