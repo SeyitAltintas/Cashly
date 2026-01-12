@@ -17,11 +17,7 @@ class ExpenseSettingsState extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _savedAmount = "";
-  String get savedAmount => _savedAmount;
-  set savedAmount(String value) {
-    _savedAmount = value;
-  }
+  String savedAmount = "";
 
   List<PaymentMethod> _odemeYontemleri = [];
   List<PaymentMethod> get odemeYontemleri => _odemeYontemleri;

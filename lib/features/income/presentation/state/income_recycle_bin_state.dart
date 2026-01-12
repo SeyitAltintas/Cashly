@@ -10,38 +10,34 @@ class IncomeRecycleBinState extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Income> _tumGelirler = [];
-  List<Income> get tumGelirler => _tumGelirler;
-  set tumGelirler(List<Income> value) {
-    _tumGelirler = value;
-  }
+  List<Income> tumGelirler = [];
 
   void restoreGelir(Income gelir) {
-    int index = _tumGelirler.indexWhere((g) => g.id == gelir.id);
+    int index = tumGelirler.indexWhere((g) => g.id == gelir.id);
     if (index != -1) {
-      _tumGelirler[index] = gelir.copyWith(isDeleted: false);
+      tumGelirler[index] = gelir.copyWith(isDeleted: false);
     }
     _silinenGelirler.removeWhere((g) => g.id == gelir.id);
     notifyListeners();
   }
 
   void permanentDeleteGelir(Income gelir) {
-    _tumGelirler.removeWhere((g) => g.id == gelir.id);
+    tumGelirler.removeWhere((g) => g.id == gelir.id);
     _silinenGelirler.removeWhere((g) => g.id == gelir.id);
     notifyListeners();
   }
 
   void emptyBin() {
-    _tumGelirler.removeWhere((g) => g.isDeleted);
+    tumGelirler.removeWhere((g) => g.isDeleted);
     _silinenGelirler.clear();
     notifyListeners();
   }
 
   void restoreAll() {
     for (var gelir in _silinenGelirler) {
-      int index = _tumGelirler.indexWhere((g) => g.id == gelir.id);
+      int index = tumGelirler.indexWhere((g) => g.id == gelir.id);
       if (index != -1) {
-        _tumGelirler[index] = gelir.copyWith(isDeleted: false);
+        tumGelirler[index] = gelir.copyWith(isDeleted: false);
       }
     }
     _silinenGelirler.clear();

@@ -13,22 +13,14 @@ class ExpenseRecycleBinState extends ChangeNotifier {
   }
 
   // Tüm harcamalar (ham)
-  List<Map<String, dynamic>> _tumHarcamalarHam = [];
-  List<Map<String, dynamic>> get tumHarcamalarHam => _tumHarcamalarHam;
-  set tumHarcamalarHam(List<Map<String, dynamic>> value) {
-    _tumHarcamalarHam = value;
-  }
+  List<Map<String, dynamic>> tumHarcamalarHam = [];
 
   // Ödeme yöntemleri
-  List<PaymentMethod> _odemeYontemleri = [];
-  List<PaymentMethod> get odemeYontemleri => _odemeYontemleri;
-  set odemeYontemleri(List<PaymentMethod> value) {
-    _odemeYontemleri = value;
-  }
+  List<PaymentMethod> odemeYontemleri = [];
 
   /// Silinen harcamayı geri yükle
   void restoreHarcama(Map<String, dynamic> harcama) {
-    var hedef = _tumHarcamalarHam.firstWhere((element) => element == harcama);
+    var hedef = tumHarcamalarHam.firstWhere((element) => element == harcama);
     hedef['silindi'] = false;
     _silinenHarcamalar.remove(harcama);
     notifyListeners();
@@ -36,14 +28,14 @@ class ExpenseRecycleBinState extends ChangeNotifier {
 
   /// Harcamayı kalıcı sil
   void permanentDeleteHarcama(Map<String, dynamic> harcama) {
-    _tumHarcamalarHam.remove(harcama);
+    tumHarcamalarHam.remove(harcama);
     _silinenHarcamalar.remove(harcama);
     notifyListeners();
   }
 
   /// Çöpü boşalt
   void emptyBin() {
-    _tumHarcamalarHam.removeWhere((element) => element['silindi'] == true);
+    tumHarcamalarHam.removeWhere((element) => element['silindi'] == true);
     _silinenHarcamalar.clear();
     notifyListeners();
   }
@@ -51,7 +43,7 @@ class ExpenseRecycleBinState extends ChangeNotifier {
   /// Tümünü geri yükle
   void restoreAll() {
     for (var harcama in _silinenHarcamalar) {
-      var hedef = _tumHarcamalarHam.firstWhere((element) => element == harcama);
+      var hedef = tumHarcamalarHam.firstWhere((element) => element == harcama);
       hedef['silindi'] = false;
     }
     _silinenHarcamalar.clear();

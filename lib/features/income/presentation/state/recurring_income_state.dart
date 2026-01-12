@@ -10,11 +10,7 @@ class RecurringIncomeState extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<PaymentMethod> _odemeYontemleri = [];
-  List<PaymentMethod> get odemeYontemleri => _odemeYontemleri;
-  set odemeYontemleri(List<PaymentMethod> value) {
-    _odemeYontemleri = value;
-  }
+  List<PaymentMethod> odemeYontemleri = [];
 
   void addGelir(Map<String, dynamic> gelir) {
     _tekrarlayanGelirler.add(gelir);
