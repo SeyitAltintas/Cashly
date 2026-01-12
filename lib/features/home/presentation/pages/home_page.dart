@@ -32,8 +32,8 @@ import 'package:cashly/features/expenses/domain/repositories/expense_repository.
 import 'package:cashly/features/income/domain/repositories/income_repository.dart';
 import 'package:cashly/features/assets/domain/repositories/asset_repository.dart';
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
-import 'package:cashly/features/streak/domain/repositories/streak_repository.dart';
 import 'package:cashly/features/streak/data/services/streak_service.dart';
+import '../state/home_page_state.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
 /// Araçlar (0), Dashboard (1), Profil (2)
@@ -51,20 +51,21 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   // ValueNotifier ile sayfa index'i yönetimi - gereksiz rebuild'leri önler
   final ValueNotifier<int> _selectedIndexNotifier = ValueNotifier(1);
   late PageController _pageController;
-  bool _isLoading = true;
 
-  // Veri state'leri
-  List<Map<String, dynamic>> tumHarcamalar = [];
-  List<Income> tumGelirler = [];
-  List<Asset> varliklar = [];
-  List<PaymentMethod> tumOdemeYontemleri = [];
-  List<Transfer> tumTransferler = [];
-  double butceLimiti = 8000.0;
-  DateTime secilenAy = DateTime.now();
-  String? varsayilanOdemeYontemiId;
+  // ChangeNotifier state yöneticisi
+  late final HomePageState _homeState;
 
-  // Seri verisi
-  StreakData _streakData = StreakData.empty();
+  // Getter'lar
+  bool get _isLoading => _homeState.isLoading;
+  List<Map<String, dynamic>> get tumHarcamalar => _homeState.tumHarcamalar;
+  List<Income> get tumGelirler => _homeState.tumGelirler;
+  List<Asset> get varliklar => _homeState.varliklar;
+  List<PaymentMethod> get tumOdemeYontemleri => _homeState.tumOdemeYontemleri;
+  List<Transfer> get tumTransferler => _homeState.tumTransferler;
+  StreakData get _streakData => _homeState.streakData;
+  double get butceLimiti => _homeState.butceLimiti;
+  DateTime get secilenAy => _homeState.secilenAy;
+  String? get varsayilanOdemeYontemiId => _homeState.varsayilanOdemeYontemiId;
 
   // Kategori ikonları
   static const Map<String, IconData> kategoriIkonlari = {
@@ -93,8 +94,16 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _pageController = PageController(initialPage: _selectedIndexNotifier.value);
+
+    _homeState = HomePageState();
+    _homeState.addListener(_onHomeStateChanged);
+
     _verileriOku();
     _seriKontrol();
+  }
+
+  void _onHomeStateChanged() {
+    if (mounted) setState(() {});
   }
 
   // Bekleyen kutlama popup'ı için flag
@@ -109,7 +118,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
     final result = await StreakService.checkAndUpdateStreak(userId);
     if (mounted) {
-      setState(() => _streakData = result.data);
+      _homeState.streakData = result.data;
 
       // Seri arttıysa kutlama için işaretle
       if (result.streakIncreased && result.data.currentStreak > 0) {
@@ -147,6 +156,8 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _pageController.dispose();
     _selectedIndexNotifier.dispose();
+    _homeState.removeListener(_onHomeStateChanged);
+    _homeState.dispose();
     super.dispose();
   }
 
@@ -155,43 +166,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
 
-    // Repository'leri DI'dan al
-    final expenseRepo = getIt<ExpenseRepository>();
-    final incomeRepo = getIt<IncomeRepository>();
-    final assetRepo = getIt<AssetRepository>();
-    final paymentRepo = getIt<PaymentMethodRepository>();
-    final streakRepo = getIt<StreakRepository>();
-
-    // Harcamalar
-    tumHarcamalar = expenseRepo.getExpenses(userId);
-    butceLimiti = expenseRepo.getBudget(userId);
-
-    // Varliklar
-    final varlikVerileri = assetRepo.getAssets(userId);
-    varliklar = varlikVerileri.map((map) => Asset.fromMap(map)).toList();
-
-    // Gelirler
-    final gelirVerileri = incomeRepo.getIncomes(userId);
-    tumGelirler = gelirVerileri.map((map) => Income.fromMap(map)).toList();
-
-    // Ödeme yöntemleri
-    final odemeVerileri = paymentRepo.getPaymentMethods(userId);
-    tumOdemeYontemleri = odemeVerileri
-        .map((map) => PaymentMethod.fromMap(map))
-        .toList();
-
-    // Transferler
-    final transferVerileri = paymentRepo.getTransfers(userId);
-    tumTransferler = transferVerileri
-        .map((map) => Transfer.fromMap(map))
-        .toList();
-
-    varsayilanOdemeYontemiId = paymentRepo.getDefaultPaymentMethod(userId);
-
-    // Streak verisi
-    _streakData = streakRepo.getStreakData(userId);
-
-    setState(() => _isLoading = false);
+    _homeState.loadData(userId);
 
     // Varlık fiyatlarını arka planda güncelle
     _updateAssetPrices();
@@ -342,7 +317,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       );
 
       if (mounted) {
-        setState(() => varliklar = updatedAssets);
+        _homeState.varliklar = updatedAssets;
         _varliklariKaydet();
       }
     } catch (e) {
@@ -727,11 +702,11 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           userId: widget.authController.currentUser?.id,
           varsayilanOdemeYontemiId: varsayilanOdemeYontemiId,
           onHarcamalarChanged: (harcamalar) {
-            setState(() => tumHarcamalar = harcamalar);
+            _homeState.tumHarcamalar = harcamalar;
             _harcamalariKaydet();
           },
           onOdemeYontemleriChanged: (odemeYontemleri) {
-            setState(() => tumOdemeYontemleri = odemeYontemleri);
+            _homeState.tumOdemeYontemleri = odemeYontemleri;
             _odemeYontemleriKaydet();
           },
         ),
@@ -753,11 +728,11 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           secilenAy: secilenAy,
           userId: widget.authController.currentUser?.id,
           onGelirlerChanged: (gelirler) {
-            setState(() => tumGelirler = gelirler);
+            _homeState.tumGelirler = gelirler;
             _gelirleriKaydet();
           },
           onOdemeYontemleriChanged: (odemeYontemleri) {
-            setState(() => tumOdemeYontemleri = odemeYontemleri);
+            _homeState.tumOdemeYontemleri = odemeYontemleri;
             _odemeYontemleriKaydet();
           },
         ),
