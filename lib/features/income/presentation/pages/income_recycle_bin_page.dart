@@ -5,6 +5,7 @@ import '../../../income/domain/repositories/income_repository.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import '../../data/models/income_model.dart';
+import '../state/income_recycle_bin_state.dart';
 
 class GelirCopKutusuSayfasi extends StatefulWidget {
   final String userId;
@@ -16,8 +17,10 @@ class GelirCopKutusuSayfasi extends StatefulWidget {
 }
 
 class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
-  List<Income> silinenGelirler = [];
-  List<Income> tumGelirler = [];
+  late final IncomeRecycleBinState _binState;
+
+  List<Income> get silinenGelirler => _binState.silinenGelirler;
+  List<Income> get tumGelirler => _binState.tumGelirler;
 
   final List<String> _months = [
     "Ocak",
@@ -37,7 +40,20 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
   @override
   void initState() {
     super.initState();
+    _binState = IncomeRecycleBinState();
+    _binState.addListener(_onStateChanged);
     verileriYukle();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _binState.removeListener(_onStateChanged);
+    _binState.dispose();
+    super.dispose();
   }
 
   void verileriYukle() {
@@ -46,10 +62,12 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
       List<Map<String, dynamic>> gelirVerileri = incomeRepo.getIncomes(
         widget.userId,
       );
-      tumGelirler = gelirVerileri.map((map) => Income.fromMap(map)).toList();
-      setState(() {
-        silinenGelirler = tumGelirler.where((g) => g.isDeleted).toList();
-      });
+      _binState.tumGelirler = gelirVerileri
+          .map((map) => Income.fromMap(map))
+          .toList();
+      _binState.silinenGelirler = tumGelirler
+          .where((g) => g.isDeleted)
+          .toList();
     } catch (e) {
       ErrorHandler.handleDatabaseError(context, e);
       ErrorHandler.logError('Silinen gelirler yüklenirken hata', e);
