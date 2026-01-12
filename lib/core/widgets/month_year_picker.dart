@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../services/haptic_service.dart';
+import '../state/month_year_picker_state.dart';
 
 /// Picker Modları
 enum PickerMode {
@@ -90,6 +91,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
   late int _selectedYear;
   late int _selectedMonthIndex;
   late FixedExtentScrollController _monthController;
+  late final MonthYearPickerState _pickerState;
 
   @override
   void initState() {
@@ -102,10 +104,25 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     _monthController = FixedExtentScrollController(
       initialItem: (12 * 1000) + _selectedMonthIndex,
     );
+
+    _pickerState = MonthYearPickerState();
+    _pickerState.initialize(widget.initialDate);
+    _pickerState.addListener(_onStateChanged);
+  }
+
+  void _onStateChanged() {
+    if (mounted) {
+      _currentDate = _pickerState.currentDate;
+      _selectedYear = _pickerState.selectedYear;
+      _selectedMonthIndex = _pickerState.selectedMonthIndex;
+      setState(() {});
+    }
   }
 
   @override
   void dispose() {
+    _pickerState.removeListener(_onStateChanged);
+    _pickerState.dispose();
     _monthController.dispose();
     super.dispose();
   }
@@ -337,9 +354,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
             itemExtent: 40,
             onSelectedItemChanged: (index) {
               HapticService.selectionClick();
-              setState(() {
-                _selectedMonthIndex = index % 12;
-              });
+              _pickerState.setMonth(index);
             },
             // childCount vermezsek sonsuz olur
             itemBuilder: (context, index) {
@@ -365,9 +380,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
             itemExtent: 40,
             onSelectedItemChanged: (index) {
               HapticService.selectionClick();
-              setState(() {
-                _selectedYear = 2000 + index;
-              });
+              _pickerState.setYear(2000 + index);
             },
             childCount: 101, // 2000-2100 arası (dahil)
             itemBuilder: (context, index) {
@@ -426,9 +439,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
           use24hFormat: true,
           onDateTimeChanged: (date) {
             HapticService.selectionClick();
-            setState(() {
-              _currentDate = date;
-            });
+            _pickerState.setDate(date);
           },
         ),
       ),

@@ -448,15 +448,14 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                                               kategoriIkonlari:
                                                   widget.kategoriIkonlari,
                                               onEdit: (updatedHarcama) {
-                                                setState(() {
-                                                  final index =
-                                                      gosterilenHarcamalar
-                                                          .indexOf(harcama);
-                                                  if (index != -1) {
-                                                    gosterilenHarcamalar[index] =
-                                                        updatedHarcama;
-                                                  }
-                                                });
+                                                final index =
+                                                    gosterilenHarcamalar
+                                                        .indexOf(harcama);
+                                                if (index != -1) {
+                                                  gosterilenHarcamalar[index] =
+                                                      updatedHarcama;
+                                                }
+                                                filtreleVeGoster();
                                                 widget.onHarcamalarChanged(
                                                   widget.tumHarcamalar,
                                                 );
@@ -526,25 +525,23 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
         categoryIcons: widget.kategoriIkonlari,
         userId: widget.userId,
         onConfirm: (name, amount, category, date) {
-          setState(() {
-            widget.tumHarcamalar.add({
-              "isim": name,
-              "tutar": amount,
-              "kategori": category,
-              "tarih": date.toString(),
-              "silindi": false,
-            });
-
-            widget.tumHarcamalar.sort((a, b) {
-              DateTime tarihA =
-                  DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-              DateTime tarihB =
-                  DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-              return tarihB.compareTo(tarihA);
-            });
-
-            filtreleVeGoster();
+          widget.tumHarcamalar.add({
+            "isim": name,
+            "tutar": amount,
+            "kategori": category,
+            "tarih": date.toString(),
+            "silindi": false,
           });
+
+          widget.tumHarcamalar.sort((a, b) {
+            DateTime tarihA =
+                DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+            DateTime tarihB =
+                DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+            return tarihB.compareTo(tarihA);
+          });
+
+          filtreleVeGoster();
           widget.onHarcamalarChanged(widget.tumHarcamalar);
 
           if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
@@ -576,10 +573,8 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           });
 
           final sonHarcama = buAyHarcamalari.first;
-          setState(() {
-            sonHarcama['silindi'] = true;
-            filtreleVeGoster();
-          });
+          sonHarcama['silindi'] = true;
+          filtreleVeGoster();
           widget.onHarcamalarChanged(widget.tumHarcamalar);
 
           return sonHarcama;
@@ -661,9 +656,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
             });
           }
           widget.onHarcamalarChanged(widget.tumHarcamalar);
-          setState(() {
-            filtreleVeGoster();
-          });
+          filtreleVeGoster();
           return {'adet': sabitGiderler.length, 'toplam': toplam};
         },
         onEditLastExpense: (double yeniTutar) async {
@@ -693,9 +686,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           widget.onHarcamalarChanged(widget.tumHarcamalar);
           Future.delayed(const Duration(milliseconds: 100), () {
             if (mounted) {
-              setState(() {
-                filtreleVeGoster();
-              });
+              filtreleVeGoster();
             }
           });
           return {
