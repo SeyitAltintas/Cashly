@@ -476,43 +476,47 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           assets: varliklar.where((a) => !a.isDeleted).toList(),
           deletedAssets: varliklar.where((a) => a.isDeleted).toList(),
           onDelete: (asset) {
-            setState(() => asset.isDeleted = true);
+            asset.isDeleted = true;
+            _homeState.varliklar = List.from(varliklar);
             _varliklariKaydet();
           },
           onEdit: (asset) {
-            setState(() {
-              final index = varliklar.indexWhere((a) => a.id == asset.id);
-              if (index != -1) varliklar[index] = asset;
-            });
+            final index = varliklar.indexWhere((a) => a.id == asset.id);
+            if (index != -1) {
+              varliklar[index] = asset;
+              _homeState.varliklar = List.from(varliklar);
+            }
             _varliklariKaydet();
           },
           onRestore: (asset) {
-            setState(() => asset.isDeleted = false);
+            asset.isDeleted = false;
+            _homeState.varliklar = List.from(varliklar);
             _varliklariKaydet();
           },
           onPermanentDelete: (asset) {
-            setState(() => varliklar.remove(asset));
+            varliklar.remove(asset);
+            _homeState.varliklar = List.from(varliklar);
             _varliklariKaydet();
           },
           onEmptyBin: () {
-            setState(() => varliklar.removeWhere((a) => a.isDeleted));
+            varliklar.removeWhere((a) => a.isDeleted);
+            _homeState.varliklar = List.from(varliklar);
             _varliklariKaydet();
           },
           onAdd: (name, amount, quantity, category, type) {
-            setState(() {
-              varliklar.add(
-                Asset(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: name,
-                  amount: amount,
-                  quantity: quantity,
-                  category: category,
-                  type: type,
-                  lastUpdated: DateTime.now(),
-                  isDeleted: false,
-                ),
-              );
-            });
+            varliklar.add(
+              Asset(
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                name: name,
+                amount: amount,
+                quantity: quantity,
+                category: category,
+                type: type,
+                lastUpdated: DateTime.now(),
+                isDeleted: false,
+              ),
+            );
+            _homeState.varliklar = List.from(varliklar);
             _varliklariKaydet();
           },
         ),
