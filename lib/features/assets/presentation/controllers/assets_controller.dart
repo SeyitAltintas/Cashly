@@ -45,6 +45,10 @@ class AssetsController extends ChangeNotifier {
 
   List<Asset> _assets = [];
   List<Asset> get assets => _assets;
+  set assets(List<Asset> value) {
+    _assets = value;
+    notifyListeners();
+  }
 
   List<Asset> _deletedAssets = [];
   List<Asset> get deletedAssets => _deletedAssets;
@@ -178,6 +182,14 @@ class AssetsController extends ChangeNotifier {
       await saveAssets();
       filtrele('');
     }
+  }
+
+  /// Widget prop'larından veriyi yükle (geriye dönük uyumluluk)
+  void setAssetsFromWidget(List<Asset> assets, List<Asset> deletedAssets) {
+    _assets = List.from(assets);
+    _deletedAssets = List.from(deletedAssets);
+    _filtrelenmisVarliklar = List.from(_assets.where((a) => !a.isDeleted));
+    notifyListeners();
   }
 
   void refresh() {

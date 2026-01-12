@@ -138,7 +138,11 @@ class IncomesController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> deleteIncome(Income income) async {
+  Future<void> deleteIncome(
+    Income income, {
+    PaymentMethod? pm,
+    int? pmIndex,
+  }) async {
     final index = _tumGelirler.indexWhere((g) => g.id == income.id);
     if (index != -1) {
       _tumGelirler[index] = income.copyWith(isDeleted: true);
@@ -158,6 +162,7 @@ class IncomesController extends ChangeNotifier {
     bool? wasDeleted,
     double? oldBalance,
     int? pmIndex,
+    PaymentMethod? pm,
   }) async {
     final index = _tumGelirler.indexWhere((g) => g.id == income.id);
     if (index != -1) {

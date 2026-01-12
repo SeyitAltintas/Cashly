@@ -197,6 +197,17 @@ class PaymentMethodsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Widget prop'larından veriyi yükle (geriye dönük uyumluluk)
+  void initData(
+    List<PaymentMethod> methods,
+    List<PaymentMethod> deletedMethods,
+  ) {
+    _paymentMethods = List.from(methods);
+    _deletedPaymentMethods = List.from(deletedMethods);
+    _filteredMethods = List.from(_paymentMethods);
+    notifyListeners();
+  }
+
   void refresh() {
     notifyListeners();
   }

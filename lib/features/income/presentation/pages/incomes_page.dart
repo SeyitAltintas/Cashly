@@ -14,7 +14,8 @@ import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../widgets/income_summary_card.dart';
 import '../widgets/income_list_item.dart';
 import '../../../../core/widgets/skeleton_widget.dart';
-import '../state/income_page_state.dart';
+import '../../../../core/di/injection_container.dart';
+import '../controllers/incomes_controller.dart';
 
 class IncomesPage extends StatefulWidget {
   final List<Income> tumGelirler;
@@ -43,28 +44,26 @@ class IncomesPage extends StatefulWidget {
 class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   final TextEditingController tGelirArama = TextEditingController();
 
-  // State yönetimi için ChangeNotifier
-  late final IncomePageState _pageState;
+  // Controller - DI'dan alınır
+  late final IncomesController _controller;
 
   // Getter'lar
-  bool get gelirAramaModu => _pageState.aramaModu;
-  bool get _isLoading => _pageState.isLoading;
-  DateTime get secilenAy => _pageState.secilenAy;
+  bool get gelirAramaModu => _controller.aramaModu;
+  bool get _isLoading => _controller.isLoading;
+  DateTime get secilenAy => _controller.secilenAy;
 
   @override
   void initState() {
     super.initState();
 
-    _pageState = IncomePageState();
-    _pageState.secilenAy = widget.secilenAy;
-    _pageState.tumGelirler = widget.tumGelirler;
-    _pageState.tumOdemeYontemleri = widget.tumOdemeYontemleri;
-    _pageState.addListener(_onStateChanged);
+    _controller = getIt<IncomesController>(param1: widget.userId ?? '');
+    _controller.secilenAy = widget.secilenAy;
+    _controller.addListener(_onStateChanged);
 
     initLazyLoading();
 
     Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) _pageState.stopLoading();
+      if (mounted) _controller.stopLoading();
     });
   }
 
@@ -74,8 +73,8 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
 
   @override
   void dispose() {
-    _pageState.removeListener(_onStateChanged);
-    _pageState.dispose();
+    _controller.removeListener(_onStateChanged);
+    _controller.dispose();
     disposeLazyLoading();
     tGelirArama.dispose();
     super.dispose();
@@ -107,11 +106,11 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   }
 
   void oncekiAy() {
-    _pageState.secilenAy = DateTime(secilenAy.year, secilenAy.month - 1, 1);
+    _controller.secilenAy = DateTime(secilenAy.year, secilenAy.month - 1, 1);
   }
 
   void sonrakiAy() {
-    _pageState.secilenAy = DateTime(secilenAy.year, secilenAy.month + 1, 1);
+    _controller.secilenAy = DateTime(secilenAy.year, secilenAy.month + 1, 1);
   }
 
   void _ayYilSeciciAc() async {
@@ -123,7 +122,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     );
 
     if (selectedDate != null && mounted) {
-      _pageState.secilenAy = selectedDate;
+      _controller.secilenAy = selectedDate;
     }
   }
 
@@ -145,7 +144,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
             date: date,
           );
 
-          _pageState.addIncome(yeniGelir);
+          _controller.addIncome(yeniGelir);
 
           // Bakiye güncelleme - mevcut ödeme yöntemi seçimi yok
           // bu yüzden sadece geliri ekliyoruz
@@ -184,7 +183,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
       pm = widget.tumOdemeYontemleri[pmIndex];
     }
 
-    _pageState.deleteIncome(income, pm: pm, pmIndex: pmIndex);
+    _controller.deleteIncome(income, pm: pm, pmIndex: pmIndex);
 
     widget.onGelirlerChanged(widget.tumGelirler);
     widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
@@ -198,7 +197,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
         if (!mounted) return;
 
         // Silme işlemini geri al
-        _pageState.undoDelete(
+        _controller.undoDelete(
           income,
           wasDeleted: eskiIsDeleted,
           pm: pm,
@@ -225,7 +224,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
               .where((pm) => !pm.isDeleted)
               .toList(),
           onSave: (name, amount, category, date, paymentMethodId) {
-            _pageState.updateIncome(
+            _controller.updateIncome(
               income: income,
               name: name,
               amount: amount,
@@ -252,7 +251,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
               .where((pm) => !pm.isDeleted)
               .toList(),
           onSave: (name, amount, category, date, paymentMethodId) {
-            _pageState.addIncomeWithPayment(
+            _controller.addIncomeWithPayment(
               name: name,
               amount: amount,
               category: category,
@@ -310,7 +309,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           if (!gelirAramaModu && !buAyMi)
             TextButton(
               onPressed: () {
-                _pageState.secilenAy = DateTime.now();
+                _controller.secilenAy = DateTime.now();
               },
               child: Text(
                 "Bugüne git",
@@ -329,7 +328,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
               color: Colors.white,
             ),
             onPressed: () {
-              _pageState.aramaModu = !gelirAramaModu;
+              _controller.aramaModu = !gelirAramaModu;
               if (!gelirAramaModu) {
                 tGelirArama.clear();
               }
@@ -367,7 +366,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                       : RefreshIndicator(
                           onRefresh: () async {
                             // State'i yenile
-                            _pageState.refresh();
+                            _controller.refresh();
                           },
                           color: Colors.green,
                           child: ListView.builder(
@@ -410,7 +409,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                       GelirCopKutusuSayfasi(userId: widget.userId ?? ''),
                 ),
               ).then((_) {
-                if (mounted) _pageState.refresh();
+                if (mounted) _controller.refresh();
               });
             },
           ),

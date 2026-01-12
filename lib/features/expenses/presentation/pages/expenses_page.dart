@@ -21,7 +21,7 @@ import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/widgets/skeleton_widget.dart';
 import '../helpers/expense_calculation_helper.dart';
-import '../state/expense_page_state.dart';
+import '../controllers/expenses_controller.dart';
 
 class ExpensesPage extends StatefulWidget {
   final List<Map<String, dynamic>> tumHarcamalar;
@@ -54,34 +54,34 @@ class ExpensesPage extends StatefulWidget {
 class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   final TextEditingController tArama = TextEditingController();
 
-  // State yönetimi için ChangeNotifier
-  late final ExpensePageState _pageState;
+  // Controller - DI'dan alınır
+  late final ExpensesController _controller;
 
-  // Getter'lar - state'e kolay erişim
-  bool get aramaModu => _pageState.aramaModu;
-  bool get _isLoading => _pageState.isLoading;
-  DateTime get secilenAy => _pageState.secilenAy;
+  // Getter'lar - controller'a kolay erişim
+  bool get aramaModu => _controller.aramaModu;
+  bool get _isLoading => _controller.isLoading;
+  DateTime get secilenAy => _controller.secilenAy;
   List<Map<String, dynamic>> get gosterilenHarcamalar =>
-      _pageState.gosterilenHarcamalar;
+      _controller.gosterilenHarcamalar;
 
   @override
   void initState() {
     super.initState();
 
-    // State notifier'u başlat
-    _pageState = ExpensePageState();
-    _pageState.secilenAy = widget.secilenAy;
+    // Controller'ı DI'dan al
+    _controller = getIt<ExpensesController>(param1: widget.userId ?? '');
+    _controller.secilenAy = widget.secilenAy;
 
     initLazyLoading();
     _filtreleVeGoster();
 
     // State değişikliklerini dinle ve UI'yı güncelle
-    _pageState.addListener(_onStateChanged);
+    _controller.addListener(_onStateChanged);
 
     // Kısa skeleton animasyonu için 300ms bekle
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
-        _pageState.stopLoading();
+        _controller.stopLoading();
       }
     });
   }
@@ -92,15 +92,15 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
 
   @override
   void dispose() {
-    _pageState.removeListener(_onStateChanged);
-    _pageState.dispose();
+    _controller.removeListener(_onStateChanged);
+    _controller.dispose();
     disposeLazyLoading();
     tArama.dispose();
     super.dispose();
   }
 
   void _filtreleVeGoster() {
-    _pageState.filtreleVeGoster(
+    _controller.filtreleVeGosterLegacy(
       tumHarcamalar: widget.tumHarcamalar,
       aramaMetni: tArama.text,
       onResetLazyLoading: resetLazyLoading,
@@ -149,12 +149,12 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   }
 
   void oncekiAy() {
-    _pageState.secilenAy = DateTime(secilenAy.year, secilenAy.month - 1, 1);
+    _controller.secilenAy = DateTime(secilenAy.year, secilenAy.month - 1, 1);
     filtreleVeGoster();
   }
 
   void sonrakiAy() {
-    _pageState.secilenAy = DateTime(secilenAy.year, secilenAy.month + 1, 1);
+    _controller.secilenAy = DateTime(secilenAy.year, secilenAy.month + 1, 1);
     filtreleVeGoster();
   }
 
@@ -167,7 +167,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     );
 
     if (selectedDate != null && mounted) {
-      _pageState.secilenAy = selectedDate;
+      _controller.secilenAy = selectedDate;
       filtreleVeGoster();
     }
   }
@@ -190,7 +190,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
       }
     }
 
-    _pageState.harcamaSil(
+    _controller.harcamaSilLegacy(
       harcama: harcama,
       tumHarcamalar: widget.tumHarcamalar,
       tumOdemeYontemleri: widget.tumOdemeYontemleri,
@@ -210,7 +210,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
         if (!mounted) return;
 
         // Silme işlemini geri al
-        _pageState.harcamaSilmeGeriAl(
+        _controller.harcamaSilmeGeriAlLegacy(
           harcama: harcama,
           tumHarcamalar: widget.tumHarcamalar,
           tumOdemeYontemleri: widget.tumOdemeYontemleri,
@@ -246,7 +246,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
               .toList(),
           defaultPaymentMethodId: widget.varsayilanOdemeYontemiId,
           onSave: (name, amount, category, date, paymentMethodId) {
-            _pageState.harcamaEkleVeyaDuzenle(
+            _controller.harcamaEkleVeyaDuzenleLegacy(
               tumHarcamalar: widget.tumHarcamalar,
               tumOdemeYontemleri: widget.tumOdemeYontemleri,
               name: name,
@@ -314,7 +314,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           if (!aramaModu && !buAyMi)
             TextButton(
               onPressed: () {
-                _pageState.secilenAy = DateTime.now();
+                _controller.secilenAy = DateTime.now();
                 filtreleVeGoster();
               },
               child: Text(
@@ -334,7 +334,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
               color: Colors.white,
             ),
             onPressed: () {
-              _pageState.aramaModu = !aramaModu;
+              _controller.aramaModu = !aramaModu;
               if (!aramaModu) {
                 tArama.clear();
                 filtreleVeGoster();

@@ -176,6 +176,177 @@ class ExpensesController extends ChangeNotifier {
     }
   }
 
+  // ===== GERİYE DÖNÜK UYUMLULUK =====
+  // Bu metodlar mevcut sayfa yapısıyla uyumluluk için widget prop'larını kabul eder
+
+  /// Widget prop'larıyla filtrele (geriye dönük uyumluluk)
+  void filtreleVeGosterLegacy({
+    required List<Map<String, dynamic>> tumHarcamalar,
+    String aramaMetni = '',
+    Function(int)? onResetLazyLoading,
+  }) {
+    _tumHarcamalar = tumHarcamalar;
+    filtreleVeGoster(
+      aramaMetni: aramaMetni,
+      onResetLazyLoading: onResetLazyLoading,
+    );
+  }
+
+  /// Widget prop'larıyla harcama sil (geriye dönük uyumluluk)
+  void harcamaSilLegacy({
+    required Map<String, dynamic> harcama,
+    required List<Map<String, dynamic>> tumHarcamalar,
+    required List<dynamic> tumOdemeYontemleri,
+    String? aramaMetni,
+    Function(int)? onResetLazyLoading,
+  }) {
+    _tumHarcamalar = tumHarcamalar;
+    _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
+
+    harcama['silindi'] = true;
+
+    final paymentMethodId = harcama['odemeYontemiId'];
+    if (paymentMethodId != null) {
+      final pmIndex = _tumOdemeYontemleri.indexWhere(
+        (p) => p.id == paymentMethodId,
+      );
+      if (pmIndex != -1) {
+        final pm = _tumOdemeYontemleri[pmIndex];
+        final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+        double newBalance;
+        if (pm.type == 'kredi') {
+          newBalance = pm.balance - amount;
+        } else {
+          newBalance = pm.balance + amount;
+        }
+        _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+        tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex];
+      }
+    }
+
+    filtreleVeGoster(
+      aramaMetni: aramaMetni ?? '',
+      onResetLazyLoading: onResetLazyLoading,
+    );
+  }
+
+  /// Widget prop'larıyla silme geri al (geriye dönük uyumluluk)
+  void harcamaSilmeGeriAlLegacy({
+    required Map<String, dynamic> harcama,
+    required List<Map<String, dynamic>> tumHarcamalar,
+    required List<dynamic> tumOdemeYontemleri,
+    bool? eskiSilindi,
+    double? eskiBakiye,
+    int? pmIndex,
+    String? aramaMetni,
+    Function(int)? onResetLazyLoading,
+  }) {
+    _tumHarcamalar = tumHarcamalar;
+    _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
+
+    harcama['silindi'] = eskiSilindi ?? false;
+    if (pmIndex != null && pmIndex != -1 && eskiBakiye != null) {
+      _tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex].copyWith(
+        balance: eskiBakiye,
+      );
+      tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex];
+    }
+    filtreleVeGoster(
+      aramaMetni: aramaMetni ?? '',
+      onResetLazyLoading: onResetLazyLoading,
+    );
+  }
+
+  /// Widget prop'larıyla harcama ekle/düzenle (geriye dönük uyumluluk)
+  void harcamaEkleVeyaDuzenleLegacy({
+    required List<Map<String, dynamic>> tumHarcamalar,
+    required List<dynamic> tumOdemeYontemleri,
+    required String name,
+    required double amount,
+    required String category,
+    required DateTime date,
+    String? paymentMethodId,
+    Map<String, dynamic>? duzenlenecekHarcama,
+    String? eskiOdemeYontemiId,
+    double? eskiTutar,
+    String? aramaMetni,
+    Function(int)? onResetLazyLoading,
+  }) {
+    _tumHarcamalar = tumHarcamalar;
+    _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
+
+    void updateBalance(String? pmId, double amountChange) {
+      if (pmId == null) return;
+      final pmIdx = _tumOdemeYontemleri.indexWhere((p) => p.id == pmId);
+      if (pmIdx == -1) return;
+
+      final pm = _tumOdemeYontemleri[pmIdx];
+      double newBalance;
+      if (pm.type == 'kredi') {
+        newBalance = pm.balance + amountChange;
+      } else {
+        newBalance = pm.balance - amountChange;
+      }
+      _tumOdemeYontemleri[pmIdx] = pm.copyWith(balance: newBalance);
+      tumOdemeYontemleri[pmIdx] = _tumOdemeYontemleri[pmIdx];
+    }
+
+    if (duzenlenecekHarcama != null) {
+      if (eskiOdemeYontemiId != null) {
+        updateBalance(eskiOdemeYontemiId, -(eskiTutar ?? 0));
+      }
+      if (paymentMethodId != null) {
+        updateBalance(paymentMethodId, amount);
+      }
+
+      int index = _tumHarcamalar.indexOf(duzenlenecekHarcama);
+      if (index != -1) {
+        _tumHarcamalar[index] = {
+          "isim": name,
+          "tutar": amount,
+          "kategori": category,
+          "tarih": date.toString(),
+          "silindi": false,
+          "odemeYontemiId": paymentMethodId,
+        };
+      }
+    } else {
+      if (paymentMethodId != null) {
+        updateBalance(paymentMethodId, amount);
+      }
+
+      _tumHarcamalar.add({
+        "isim": name,
+        "tutar": amount,
+        "kategori": category,
+        "tarih": date.toString(),
+        "silindi": false,
+        "odemeYontemiId": paymentMethodId,
+      });
+    }
+
+    _tumHarcamalar.sort((a, b) {
+      DateTime tarihA =
+          DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+      DateTime tarihB =
+          DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+      return tarihB.compareTo(tarihA);
+    });
+
+    filtreleVeGoster(
+      aramaMetni: aramaMetni ?? '',
+      onResetLazyLoading: onResetLazyLoading,
+    );
+  }
+
+  /// Dynamic listeden PaymentMethod'lara sync et
+  void _syncPaymentMethodsFromDynamic(List<dynamic> list) {
+    _tumOdemeYontemleri = list.map((item) {
+      if (item is PaymentMethod) return item;
+      return PaymentMethod.fromMap(item as Map<String, dynamic>);
+    }).toList();
+  }
+
   // ===== CRUD İŞLEMLERİ =====
 
   /// Harcamayı sil (çöp kutusuna taşı)

@@ -10,7 +10,10 @@ import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../widgets/asset_summary_card.dart';
 import '../widgets/asset_list_item.dart';
-import '../state/asset_page_state.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
+import 'package:provider/provider.dart';
+import '../controllers/assets_controller.dart';
 
 class AssetsPage extends StatefulWidget {
   final List<Asset> assets;
@@ -47,24 +50,25 @@ class AssetsPage extends StatefulWidget {
 
 class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
   final TextEditingController _aramaController = TextEditingController();
-  // ChangeNotifier state yöneticisi
-  late final AssetPageState _pageState;
+  // Controller - DI'dan alınır
+  late final AssetsController _controller;
 
   // Getter'lar
-  bool get _aramaModu => _pageState.aramaModu;
-  List<Asset> get _deletedAssets => _pageState.deletedAssets;
-  List<Asset> get _filtrelenmisVarliklar => _pageState.filtrelenmisVarliklar;
+  bool get _aramaModu => _controller.aramaModu;
+  List<Asset> get _deletedAssets => _controller.deletedAssets;
+  List<Asset> get _filtrelenmisVarliklar => _controller.filtrelenmisVarliklar;
 
   @override
   void initState() {
     super.initState();
 
-    _pageState = AssetPageState();
-    _pageState.addListener(_onStateChanged);
+    final authController = Provider.of<AuthController>(context, listen: false);
+    final userId = authController.currentUser?.id ?? '';
+    _controller = getIt<AssetsController>(param1: userId);
+    _controller.addListener(_onStateChanged);
 
-    _pageState.assets = List.from(widget.assets);
-    _pageState.deletedAssets = List.from(widget.deletedAssets);
-    _pageState.filtrelenmisVarliklar = _pageState.assets;
+    // Widget prop'larından veriyi controller'a yükle
+    _controller.setAssetsFromWidget(widget.assets, widget.deletedAssets);
     initLazyLoading();
   }
 
@@ -76,26 +80,26 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
   void didUpdateWidget(covariant AssetsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.assets != oldWidget.assets) {
-      _pageState.assets = List.from(widget.assets);
-      _pageState.filtrele(_aramaController.text);
+      _controller.assets = List.from(widget.assets);
+      _controller.filtrele(_aramaController.text);
     }
   }
 
   void _filtrele() {
-    _pageState.filtrele(_aramaController.text);
+    _controller.filtrele(_aramaController.text);
   }
 
   @override
   void dispose() {
-    _pageState.removeListener(_onStateChanged);
-    _pageState.dispose();
+    _controller.removeListener(_onStateChanged);
+    _controller.dispose();
     disposeLazyLoading();
     _aramaController.dispose();
     super.dispose();
   }
 
   double get totalAssets {
-    return _pageState.filtrelenmisVarliklar.fold(
+    return _controller.filtrelenmisVarliklar.fold(
       0.0,
       (sum, asset) => sum + asset.amount,
     );
@@ -142,10 +146,10 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
               color: Colors.white,
             ),
             onPressed: () {
-              _pageState.aramaModu = !_aramaModu;
-              if (!_pageState.aramaModu) {
+              _controller.aramaModu = !_aramaModu;
+              if (!_controller.aramaModu) {
                 _aramaController.clear();
-                _pageState.filtrele('');
+                _controller.filtrele('');
               }
             },
           ),
@@ -179,15 +183,15 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                   builder: (context) => AssetRecycleBinPage(
                     deletedAssets: _deletedAssets,
                     onRestore: (asset) {
-                      _pageState.restoreAsset(asset);
+                      _controller.restoreAsset(asset);
                       widget.onRestore(asset);
                     },
                     onPermanentDelete: (asset) {
-                      _pageState.permanentDeleteAsset(asset);
+                      _controller.permanentDeleteAsset(asset);
                       widget.onPermanentDelete(asset);
                     },
                     onEmptyBin: () {
-                      _pageState.emptyBin();
+                      _controller.emptyBin();
                       widget.onEmptyBin();
                     },
                   ),
@@ -235,7 +239,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                   purchasePrice: purchasePrice,
                   isDeleted: false,
                 );
-                _pageState.addAsset(newAsset);
+                _controller.addAsset(newAsset);
                 widget.onAdd(name, amount, quantity, category, type);
               },
         ),
@@ -274,7 +278,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
           return AssetListItem(
             asset: asset,
             onDelete: () {
-              _pageState.deleteAsset(asset);
+              _controller.deleteAsset(asset);
               widget.onDelete(asset);
             },
             onTap: () {
@@ -285,11 +289,11 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                     asset: asset,
                     onEdit: (updatedAsset) {
                       // Lokal listeyi güncelle
-                      _pageState.updateAsset(updatedAsset);
+                      _controller.updateAsset(updatedAsset);
                       widget.onEdit(updatedAsset);
                     },
                     onDelete: (deletedAsset) {
-                      _pageState.deleteAsset(deletedAsset);
+                      _controller.deleteAsset(deletedAsset);
                       widget.onDelete(deletedAsset);
                     },
                   ),
@@ -323,7 +327,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                             purchaseDate: purchaseDate,
                             purchasePrice: purchasePrice,
                           );
-                          _pageState.updateAsset(updatedAsset);
+                          _controller.updateAsset(updatedAsset);
                           widget.onEdit(updatedAsset);
                         },
                   ),

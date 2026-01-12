@@ -8,7 +8,10 @@ import '../../data/models/payment_method_model.dart';
 import 'add_payment_method_page.dart';
 import '../widgets/payment_method_summary_card.dart';
 import 'payment_method_recycle_bin_page.dart';
-import '../state/payment_method_page_state.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
+import 'package:provider/provider.dart';
+import '../controllers/payment_methods_controller.dart';
 
 class PaymentMethodsPage extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
@@ -53,29 +56,31 @@ class PaymentMethodsPage extends StatefulWidget {
 class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   final TextEditingController _aramaController = TextEditingController();
 
-  // ChangeNotifier state yöneticisi
-  late final PaymentMethodPageState _pageState;
+  // Controller - DI'dan alınır
+  late final PaymentMethodsController _controller;
 
   // Getter'lar
-  bool get _aramaModu => _pageState.aramaModu;
-  bool get _isLoading => _pageState.isLoading;
+  bool get _aramaModu => _controller.aramaModu;
+  bool get _isLoading => _controller.isLoading;
 
-  List<PaymentMethod> get _filteredMethods => _pageState.filteredMethods;
+  List<PaymentMethod> get _filteredMethods => _controller.filteredMethods;
   List<PaymentMethod> get _deletedPaymentMethods =>
-      _pageState.deletedPaymentMethods;
+      _controller.deletedPaymentMethods;
 
   @override
   void initState() {
     super.initState();
 
-    _pageState = PaymentMethodPageState();
-    _pageState.addListener(_onStateChanged);
+    final authController = Provider.of<AuthController>(context, listen: false);
+    final userId = authController.currentUser?.id ?? '';
+    _controller = getIt<PaymentMethodsController>(param1: userId);
+    _controller.addListener(_onStateChanged);
 
-    // Listeler artık state yöneticisinde
-    _pageState.initData(widget.paymentMethods, widget.deletedPaymentMethods);
+    // Widget prop'larından veriyi controller'a yükle
+    _controller.initData(widget.paymentMethods, widget.deletedPaymentMethods);
 
     Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) _pageState.stopLoading();
+      if (mounted) _controller.stopLoading();
     });
   }
 
@@ -87,24 +92,24 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   void didUpdateWidget(covariant PaymentMethodsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.paymentMethods != oldWidget.paymentMethods) {
-      _pageState.initData(widget.paymentMethods, widget.deletedPaymentMethods);
+      _controller.initData(widget.paymentMethods, widget.deletedPaymentMethods);
     }
   }
 
   void _filtrele() {
-    _pageState.aramaMetni = _aramaController.text;
+    _controller.aramaMetni = _aramaController.text;
   }
 
   @override
   void dispose() {
-    _pageState.removeListener(_onStateChanged);
-    _pageState.dispose();
+    _controller.removeListener(_onStateChanged);
+    _controller.dispose();
     _aramaController.dispose();
     super.dispose();
   }
 
-  double get totalBalance => _pageState.totalBalance;
-  double get totalDebt => _pageState.totalDebt;
+  double get totalBalance => _controller.totalBalance;
+  double get totalDebt => _controller.totalDebt;
 
   @override
   Widget build(BuildContext context) {
@@ -146,15 +151,15 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                   builder: (context) => PaymentMethodRecycleBinPage(
                     deletedPaymentMethods: _deletedPaymentMethods,
                     onRestore: (pm) {
-                      _pageState.restoreMethod(pm);
+                      _controller.restoreMethod(pm);
                       widget.onRestore(pm);
                     },
                     onPermanentDelete: (pm) {
-                      _pageState.permanentDelete(pm);
+                      _controller.permanentDelete(pm);
                       widget.onPermanentDelete(pm);
                     },
                     onEmptyBin: () {
-                      _pageState.emptyBin();
+                      _controller.emptyBin();
                       widget.onEmptyBin();
                     },
                   ),
@@ -170,10 +175,10 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
               color: Colors.white,
             ),
             onPressed: () {
-              _pageState.aramaModu = !_aramaModu;
+              _controller.aramaModu = !_aramaModu;
               if (!_aramaModu) {
                 _aramaController.clear();
-                _pageState.aramaMetni = '';
+                _controller.aramaMetni = '';
               }
             },
           ),
@@ -218,7 +223,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                         createdAt: DateTime.now(),
                         isDeleted: false,
                       );
-                      _pageState.addMethod(newPm);
+                      _controller.addMethod(newPm);
                       widget.onAdd(
                         name,
                         type,
@@ -297,7 +302,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
           child: const Icon(Icons.delete, color: Colors.white),
         ),
         onDismissed: (direction) {
-          _pageState.moveToBin(pm);
+          _controller.moveToBin(pm);
           widget.onDelete(pm);
         },
         child: GestureDetector(
@@ -327,7 +332,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                           createdAt: pm.createdAt,
                           isDeleted: false,
                         );
-                        _pageState.updateMethod(updatedPm);
+                        _controller.updateMethod(updatedPm);
                         widget.onEdit(updatedPm);
                       },
                 ),
