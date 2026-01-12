@@ -47,16 +47,13 @@ class AssetsPage extends StatefulWidget {
 
 class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
   final TextEditingController _aramaController = TextEditingController();
-
   // ChangeNotifier state yöneticisi
   late final AssetPageState _pageState;
 
   // Getter'lar
   bool get _aramaModu => _pageState.aramaModu;
-
-  List<Asset> _assets = [];
-  List<Asset> _deletedAssets = [];
-  List<Asset> _filtrelenmisVarliklar = [];
+  List<Asset> get _deletedAssets => _pageState.deletedAssets;
+  List<Asset> get _filtrelenmisVarliklar => _pageState.filtrelenmisVarliklar;
 
   @override
   void initState() {
@@ -65,9 +62,9 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
     _pageState = AssetPageState();
     _pageState.addListener(_onStateChanged);
 
-    _assets = List.from(widget.assets);
-    _deletedAssets = List.from(widget.deletedAssets);
-    _filtrelenmisVarliklar = _assets;
+    _pageState.assets = List.from(widget.assets);
+    _pageState.deletedAssets = List.from(widget.deletedAssets);
+    _pageState.filtrelenmisVarliklar = _pageState.assets;
     initLazyLoading();
   }
 
@@ -79,24 +76,13 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
   void didUpdateWidget(covariant AssetsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.assets != oldWidget.assets) {
-      _assets = List.from(widget.assets);
-      _filtrele();
+      _pageState.assets = List.from(widget.assets);
+      _pageState.filtrele(_aramaController.text);
     }
   }
 
   void _filtrele() {
-    setState(() {
-      if (_aramaModu && _aramaController.text.isNotEmpty) {
-        String aranan = _aramaController.text.toLowerCase();
-        _filtrelenmisVarliklar = _assets.where((asset) {
-          return asset.name.toLowerCase().contains(aranan) ||
-              asset.category.toLowerCase().contains(aranan) ||
-              (asset.type?.toLowerCase().contains(aranan) ?? false);
-        }).toList();
-      } else {
-        _filtrelenmisVarliklar = _assets;
-      }
-    });
+    _pageState.filtrele(_aramaController.text);
   }
 
   @override
@@ -109,7 +95,10 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
   }
 
   double get totalAssets {
-    return _filtrelenmisVarliklar.fold(0.0, (sum, asset) => sum + asset.amount);
+    return _pageState.filtrelenmisVarliklar.fold(
+      0.0,
+      (sum, asset) => sum + asset.amount,
+    );
   }
 
   @override
@@ -154,9 +143,9 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
             ),
             onPressed: () {
               _pageState.aramaModu = !_aramaModu;
-              if (!_aramaModu) {
+              if (!_pageState.aramaModu) {
                 _aramaController.clear();
-                _filtrelenmisVarliklar = widget.assets;
+                _pageState.filtrele('');
               }
             },
           ),
@@ -190,24 +179,15 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                   builder: (context) => AssetRecycleBinPage(
                     deletedAssets: _deletedAssets,
                     onRestore: (asset) {
-                      setState(() {
-                        _deletedAssets.removeWhere((a) => a.id == asset.id);
-                        asset.isDeleted = false;
-                        _assets.add(asset);
-                        _filtrele();
-                      });
+                      _pageState.restoreAsset(asset);
                       widget.onRestore(asset);
                     },
                     onPermanentDelete: (asset) {
-                      setState(() {
-                        _deletedAssets.removeWhere((a) => a.id == asset.id);
-                      });
+                      _pageState.permanentDeleteAsset(asset);
                       widget.onPermanentDelete(asset);
                     },
                     onEmptyBin: () {
-                      setState(() {
-                        _deletedAssets.clear();
-                      });
+                      _pageState.emptyBin();
                       widget.onEmptyBin();
                     },
                   ),
@@ -255,10 +235,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                   purchasePrice: purchasePrice,
                   isDeleted: false,
                 );
-                setState(() {
-                  _assets.add(newAsset);
-                  _filtrele();
-                });
+                _pageState.addAsset(newAsset);
                 widget.onAdd(name, amount, quantity, category, type);
               },
         ),
@@ -297,12 +274,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
           return AssetListItem(
             asset: asset,
             onDelete: () {
-              setState(() {
-                _assets.removeWhere((a) => a.id == asset.id);
-                asset.isDeleted = true;
-                _deletedAssets.add(asset);
-                _filtrele();
-              });
+              _pageState.deleteAsset(asset);
               widget.onDelete(asset);
             },
             onTap: () {
@@ -313,24 +285,11 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                     asset: asset,
                     onEdit: (updatedAsset) {
                       // Lokal listeyi güncelle
-                      setState(() {
-                        final index = _assets.indexWhere(
-                          (a) => a.id == asset.id,
-                        );
-                        if (index != -1) {
-                          _assets[index] = updatedAsset;
-                        }
-                        _filtrele();
-                      });
+                      _pageState.updateAsset(updatedAsset);
                       widget.onEdit(updatedAsset);
                     },
                     onDelete: (deletedAsset) {
-                      setState(() {
-                        _assets.removeWhere((a) => a.id == deletedAsset.id);
-                        deletedAsset.isDeleted = true;
-                        _deletedAssets.add(deletedAsset);
-                        _filtrele();
-                      });
+                      _pageState.deleteAsset(deletedAsset);
                       widget.onDelete(deletedAsset);
                     },
                   ),
@@ -364,15 +323,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                             purchaseDate: purchaseDate,
                             purchasePrice: purchasePrice,
                           );
-                          setState(() {
-                            final index = _assets.indexWhere(
-                              (a) => a.id == asset.id,
-                            );
-                            if (index != -1) {
-                              _assets[index] = updatedAsset;
-                            }
-                            _filtrele();
-                          });
+                          _pageState.updateAsset(updatedAsset);
                           widget.onEdit(updatedAsset);
                         },
                   ),

@@ -1,10 +1,14 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import '../../data/models/asset_model.dart';
 
 /// Varlıklar sayfası state yöneticisi
 /// ChangeNotifier kullanarak granular rebuild sağlar
 class AssetPageState extends ChangeNotifier {
+  // Varlık listeleri (referanslar)
+  List<Asset> assets = [];
+  List<Asset> deletedAssets = [];
+  List<Asset> filtrelenmisVarliklar = [];
+
   // Arama modu state'i
   bool _aramaModu = false;
   bool get aramaModu => _aramaModu;
@@ -35,25 +39,62 @@ class AssetPageState extends ChangeNotifier {
     }
   }
 
-  /// Filtrelenmiş varlıkları hesapla
-  List<Asset> filtrelenmisVarliklar({
-    required List<Asset> tumVarliklar,
-    required String aramaMetni,
-  }) {
-    return tumVarliklar.where((v) {
-      if (v.isDeleted) return false;
+  /// Varlık ekle
+  void addAsset(Asset asset) {
+    assets.add(asset);
+    filtrele('');
+  }
 
-      // Kategori filtresi
-      if (_secilenKategori != 'Tümü' && v.type != _secilenKategori) {
-        return false;
-      }
+  /// Varlık sil (soft delete)
+  void deleteAsset(Asset asset) {
+    asset.isDeleted = true;
+    deletedAssets.add(asset);
+    assets.removeWhere((a) => a.id == asset.id);
+    filtrele('');
+  }
 
-      // Arama filtresi
-      if (aramaMetni.isEmpty) return true;
-      final typeLower = v.type?.toLowerCase() ?? '';
-      return v.name.toLowerCase().contains(aramaMetni.toLowerCase()) ||
-          typeLower.contains(aramaMetni.toLowerCase());
-    }).toList();
+  /// Varlık geri yükle
+  void restoreAsset(Asset asset) {
+    deletedAssets.removeWhere((a) => a.id == asset.id);
+    asset.isDeleted = false;
+    assets.add(asset);
+    filtrele('');
+  }
+
+  /// Kalıcı sil
+  void permanentDeleteAsset(Asset asset) {
+    deletedAssets.removeWhere((a) => a.id == asset.id);
+    notifyListeners();
+  }
+
+  /// Çöp kutusunu boşalt
+  void emptyBin() {
+    deletedAssets.clear();
+    notifyListeners();
+  }
+
+  /// Varlık güncelle
+  void updateAsset(Asset updatedAsset) {
+    final index = assets.indexWhere((a) => a.id == updatedAsset.id);
+    if (index != -1) {
+      assets[index] = updatedAsset;
+      filtrele('');
+    }
+  }
+
+  /// Filtreleme yap
+  void filtrele(String aramaMetni) {
+    if (_aramaModu && aramaMetni.isNotEmpty) {
+      String aranan = aramaMetni.toLowerCase();
+      filtrelenmisVarliklar = assets.where((asset) {
+        return asset.name.toLowerCase().contains(aranan) ||
+            asset.category.toLowerCase().contains(aranan) ||
+            (asset.type?.toLowerCase().contains(aranan) ?? false);
+      }).toList();
+    } else {
+      filtrelenmisVarliklar = List.from(assets);
+    }
+    notifyListeners();
   }
 
   /// Arama modunu toggle et
