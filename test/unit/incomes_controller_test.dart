@@ -3,7 +3,6 @@ import 'package:cashly/features/income/presentation/controllers/incomes_controll
 import 'package:cashly/features/income/domain/repositories/income_repository.dart';
 import 'package:cashly/features/income/data/models/income_model.dart';
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
-import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 
 /// Mock IncomeRepository
 class MockIncomeRepository implements IncomeRepository {

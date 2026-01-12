@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/features/expenses/presentation/controllers/expenses_controller.dart';
 import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
-import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 
 /// Mock ExpenseRepository - testlerde gerçek veritabanını kullanmadan test yapabilmek için
 class MockExpenseRepository implements ExpenseRepository {
