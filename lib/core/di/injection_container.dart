@@ -20,6 +20,10 @@ import '../../features/settings/data/repositories/settings_repository_impl.dart'
 
 // Controllers
 import '../../features/auth/presentation/controllers/auth_controller.dart';
+import '../../features/expenses/presentation/controllers/expenses_controller.dart';
+import '../../features/income/presentation/controllers/incomes_controller.dart';
+import '../../features/assets/presentation/controllers/assets_controller.dart';
+import '../../features/payment_methods/presentation/controllers/payment_methods_controller.dart';
 
 /// GetIt service locator instance
 final getIt = GetIt.instance;
@@ -59,5 +63,39 @@ Future<void> initializeDependencies() async {
   // Auth Controller - her seferinde yeni instance oluştur
   getIt.registerFactory<AuthController>(
     () => AuthController(getIt<AuthRepository>()),
+  );
+
+  // Expenses Controller - userId parametresi ile factory
+  getIt.registerFactoryParam<ExpensesController, String, void>(
+    (userId, _) => ExpensesController(
+      expenseRepository: getIt<ExpenseRepository>(),
+      paymentMethodRepository: getIt<PaymentMethodRepository>(),
+      userId: userId,
+    ),
+  );
+
+  // Incomes Controller - userId parametresi ile factory
+  getIt.registerFactoryParam<IncomesController, String, void>(
+    (userId, _) => IncomesController(
+      incomeRepository: getIt<IncomeRepository>(),
+      paymentMethodRepository: getIt<PaymentMethodRepository>(),
+      userId: userId,
+    ),
+  );
+
+  // Assets Controller - userId parametresi ile factory
+  getIt.registerFactoryParam<AssetsController, String, void>(
+    (userId, _) => AssetsController(
+      assetRepository: getIt<AssetRepository>(),
+      userId: userId,
+    ),
+  );
+
+  // Payment Methods Controller - userId parametresi ile factory
+  getIt.registerFactoryParam<PaymentMethodsController, String, void>(
+    (userId, _) => PaymentMethodsController(
+      paymentMethodRepository: getIt<PaymentMethodRepository>(),
+      userId: userId,
+    ),
   );
 }
