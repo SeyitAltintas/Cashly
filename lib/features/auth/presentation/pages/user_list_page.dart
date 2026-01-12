@@ -4,6 +4,7 @@ import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
 import 'login_page.dart';
 import 'signup_page.dart';
+import '../state/user_list_state.dart';
 
 class UserListPage extends StatefulWidget {
   final AuthController authController;
@@ -15,22 +16,34 @@ class UserListPage extends StatefulWidget {
 }
 
 class _UserListPageState extends State<UserListPage> {
-  List<UserEntity> _users = [];
-  bool _isLoading = true;
+  late final UserListState _listState;
+
+  List<UserEntity> get _users => _listState.users;
+  bool get _isLoading => _listState.isLoading;
 
   @override
   void initState() {
     super.initState();
+    _listState = UserListState();
+    _listState.addListener(_onStateChanged);
     _loadUsers();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _listState.removeListener(_onStateChanged);
+    _listState.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUsers() async {
     final users = await widget.authController.getAllUsers();
     if (mounted) {
-      setState(() {
-        _users = users;
-        _isLoading = false;
-      });
+      _listState.setUsersLoaded(users);
     }
   }
 

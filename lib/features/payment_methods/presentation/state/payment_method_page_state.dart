@@ -1,10 +1,17 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import '../../data/models/payment_method_model.dart';
 
 /// Ödeme yöntemleri sayfası state yöneticisi
-/// ChangeNotifier kullanarak granular rebuild sağlar
 class PaymentMethodPageState extends ChangeNotifier {
+  // Veri listeleri
+  List<PaymentMethod> _paymentMethods = [];
+  List<PaymentMethod> _deletedPaymentMethods = [];
+  List<PaymentMethod> _filteredMethods = [];
+
+  List<PaymentMethod> get paymentMethods => _paymentMethods;
+  List<PaymentMethod> get deletedPaymentMethods => _deletedPaymentMethods;
+  List<PaymentMethod> get filteredMethods => _filteredMethods;
+
   // Arama modu state'i
   bool _aramaModu = false;
   bool get aramaModu => _aramaModu;
@@ -12,6 +19,17 @@ class PaymentMethodPageState extends ChangeNotifier {
     if (_aramaModu != value) {
       _aramaModu = value;
       notifyListeners();
+      _filtrele();
+    }
+  }
+
+  // Arama metni
+  String _aramaMetni = '';
+  String get aramaMetni => _aramaMetni;
+  set aramaMetni(String value) {
+    if (_aramaMetni != value) {
+      _aramaMetni = value;
+      _filtrele();
     }
   }
 
@@ -25,54 +43,97 @@ class PaymentMethodPageState extends ChangeNotifier {
     }
   }
 
-  // Seçilen tür filtresi
-  String _secilenTur = 'Tümü';
-  String get secilenTur => _secilenTur;
-  set secilenTur(String value) {
-    if (_secilenTur != value) {
-      _secilenTur = value;
+  // Başlangıç verilerini yükle
+  void initData(
+    List<PaymentMethod> methods,
+    List<PaymentMethod> deletedMethods,
+  ) {
+    _paymentMethods = List.from(methods);
+    _deletedPaymentMethods = List.from(deletedMethods);
+    _filteredMethods = List.from(methods);
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  // Listeleri güncelleme metodları
+  void addMethod(PaymentMethod method) {
+    _paymentMethods.add(method);
+    _filtrele();
+    notifyListeners();
+  }
+
+  void updateMethod(PaymentMethod method) {
+    final index = _paymentMethods.indexWhere((p) => p.id == method.id);
+    if (index != -1) {
+      _paymentMethods[index] = method;
+      _filtrele();
       notifyListeners();
     }
   }
 
-  /// Filtrelenmiş ödeme yöntemlerini hesapla
-  List<PaymentMethod> filtrelenmisOdemeYontemleri({
-    required List<PaymentMethod> tumOdemeYontemleri,
-    required String aramaMetni,
-  }) {
-    return tumOdemeYontemleri.where((pm) {
-      if (pm.isDeleted) return false;
+  void moveToBin(PaymentMethod method) {
+    _paymentMethods.removeWhere((p) => p.id == method.id);
+    final deleted = method.copyWith(isDeleted: true);
+    _deletedPaymentMethods.add(deleted);
+    _filtrele();
+    notifyListeners();
+  }
 
-      // Tür filtresi
-      if (_secilenTur != 'Tümü' && pm.type != _secilenTur) {
-        return false;
-      }
+  void restoreMethod(PaymentMethod method) {
+    _deletedPaymentMethods.removeWhere((p) => p.id == method.id);
+    final restored = method.copyWith(isDeleted: false);
+    _paymentMethods.add(restored);
+    _filtrele();
+    notifyListeners();
+  }
 
-      // Arama filtresi
-      if (aramaMetni.isEmpty) return true;
-      return pm.name.toLowerCase().contains(aramaMetni.toLowerCase()) ||
-          pm.type.toLowerCase().contains(aramaMetni.toLowerCase());
-    }).toList();
+  void permanentDelete(PaymentMethod method) {
+    _deletedPaymentMethods.removeWhere((p) => p.id == method.id);
+    notifyListeners();
+  }
+
+  void emptyBin() {
+    _deletedPaymentMethods.clear();
+    notifyListeners();
+  }
+
+  // Bin syncing methods - used when returning from bin page
+  void syncFromBin(List<PaymentMethod> updatedDeletedList) {
+    // Find items that were restored (present in current deleted list but missing in updated deleted list)
+    // Actually simplicity: just update deleted list and check if any restore happens?
+    // Better: let bin page call restoreMethod/permanentDelete.
+    // If bin page modifies the passed list directly (reference), we just need to notify listeners.
+    // But better to have explicit calls.
+    // For now assuming callback approach is used.
+    _deletedPaymentMethods = List.from(updatedDeletedList);
+    notifyListeners();
+  }
+
+  void _filtrele() {
+    if (_aramaModu && _aramaMetni.isNotEmpty) {
+      final text = _aramaMetni.toLowerCase();
+      _filteredMethods = _paymentMethods.where((pm) {
+        return pm.name.toLowerCase().contains(text) ||
+            pm.typeDisplayName.toLowerCase().contains(text);
+      }).toList();
+    } else {
+      _filteredMethods = List.from(_paymentMethods);
+    }
+    notifyListeners(); // _filtrele genellikle setter'lar içinde çağrılır, ama burada liste değişimi için de gerekli
   }
 
   /// Toplam bakiye hesapla
-  double toplamBakiye(List<PaymentMethod> odemeYontemleri) {
-    return odemeYontemleri
-        .where((pm) => !pm.isDeleted && pm.type != 'kredi')
+  double get totalBalance {
+    return _filteredMethods
+        .where((pm) => pm.type != 'kredi')
         .fold(0.0, (sum, pm) => sum + pm.balance);
   }
 
   /// Toplam borç hesapla
-  double toplamBorc(List<PaymentMethod> odemeYontemleri) {
-    return odemeYontemleri
-        .where((pm) => !pm.isDeleted && pm.type == 'kredi')
+  double get totalDebt {
+    return _filteredMethods
+        .where((pm) => pm.type == 'kredi')
         .fold(0.0, (sum, pm) => sum + pm.balance);
-  }
-
-  /// Arama modunu toggle et
-  void toggleAramaModu() {
-    _aramaModu = !_aramaModu;
-    notifyListeners();
   }
 
   /// Loading durumunu kapat

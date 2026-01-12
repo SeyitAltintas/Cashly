@@ -4,6 +4,7 @@ import '../../../home/presentation/pages/home_page.dart';
 import 'login_page.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../state/signup_page_state.dart';
 
 class SignUpPage extends StatefulWidget {
   final AuthController authController;
@@ -20,9 +21,13 @@ class _SignUpPageState extends State<SignUpPage> {
   final _emailController = TextEditingController();
   final _pinController = TextEditingController();
   final _securityAnswerController = TextEditingController();
-  bool _isPinVisible = false;
-  bool _isLoading = false;
-  String? _selectedSecurityQuestion;
+
+  late final SignupPageState _signupState;
+
+  bool get _isPinVisible => _signupState.isPinVisible;
+  bool get _isLoading => _signupState.isLoading;
+  String? get _selectedSecurityQuestion =>
+      _signupState.selectedSecurityQuestion;
 
   // Önceden tanımlı güvenlik soruları
   final List<String> _securityQuestions = [
@@ -35,7 +40,20 @@ class _SignUpPageState extends State<SignUpPage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _signupState = SignupPageState();
+    _signupState.addListener(_onStateChanged);
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   void dispose() {
+    _signupState.removeListener(_onStateChanged);
+    _signupState.dispose();
     _nameController.dispose();
     _emailController.dispose();
     _pinController.dispose();
@@ -211,9 +229,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                       onPressed: () {
-                        setState(() {
-                          _isPinVisible = !_isPinVisible;
-                        });
+                        _signupState.isPinVisible = !_isPinVisible;
                       },
                     ),
                     enabledBorder: OutlineInputBorder(
@@ -307,9 +323,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     );
                   }).toList(),
                   onChanged: (value) {
-                    setState(() {
-                      _selectedSecurityQuestion = value;
-                    });
+                    _signupState.selectedSecurityQuestion = value;
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -389,9 +403,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             final navigator = Navigator.of(context);
                             final messenger = ScaffoldMessenger.of(context);
 
-                            setState(() {
-                              _isLoading = true;
-                            });
+                            _signupState.isLoading = true;
 
                             try {
                               final success = await widget.authController
@@ -434,9 +446,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               );
                             } finally {
                               if (mounted) {
-                                setState(() {
-                                  _isLoading = false;
-                                });
+                                _signupState.isLoading = false;
                               }
                             }
                           },

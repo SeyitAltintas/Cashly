@@ -6,6 +6,7 @@ import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../widgets/analysis_widgets.dart';
 import 'pdf_export_page.dart';
+import '../state/analysis_page_state.dart';
 
 /// Analiz ve Raporlar Sayfası
 /// Harcama, Gelir ve Varlık analizlerini gösterir
@@ -36,7 +37,9 @@ class AnalysisPage extends StatefulWidget {
 class _AnalysisPageState extends State<AnalysisPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  int _touchedIndex = -1;
+  late final AnalysisPageState _analysisState;
+
+  int get _touchedIndex => _analysisState.touchedIndex;
 
   // Harcama için kırmızı tonları renk paleti
   static const List<Color> expenseColors = [
@@ -79,17 +82,25 @@ class _AnalysisPageState extends State<AnalysisPage>
   @override
   void initState() {
     super.initState();
+    _analysisState = AnalysisPageState();
+    _analysisState.addListener(_onStateChanged);
     _tabController = TabController(length: 3, vsync: this);
     // Sekme değiştiğinde touchedIndex'i sıfırla
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        setState(() => _touchedIndex = -1);
+        _analysisState.resetTouchedIndex();
       }
     });
   }
 
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _analysisState.removeListener(_onStateChanged);
+    _analysisState.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -462,16 +473,14 @@ class _AnalysisPageState extends State<AnalysisPage>
           PieChartData(
             pieTouchData: PieTouchData(
               touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                setState(() {
-                  if (!event.isInterestedForInteractions ||
-                      pieTouchResponse == null ||
-                      pieTouchResponse.touchedSection == null) {
-                    _touchedIndex = -1;
-                    return;
-                  }
-                  _touchedIndex =
-                      pieTouchResponse.touchedSection!.touchedSectionIndex;
-                });
+                if (!event.isInterestedForInteractions ||
+                    pieTouchResponse == null ||
+                    pieTouchResponse.touchedSection == null) {
+                  _analysisState.touchedIndex = -1;
+                  return;
+                }
+                _analysisState.touchedIndex =
+                    pieTouchResponse.touchedSection!.touchedSectionIndex;
               },
             ),
             borderData: FlBorderData(show: false),

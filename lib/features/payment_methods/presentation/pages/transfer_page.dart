@@ -163,30 +163,24 @@ class _TransferPageState extends State<TransferPage> {
     widget.onTransfer(_fromAccountId!, _toAccountId!, amount, _selectedDate);
 
     // Lokal bakiyeleri güncelle (sadece bugün veya geçmiş tarih için)
+    // Lokal bakiyeleri güncelle (sadece bugün veya geçmiş tarih için)
     if (!_isScheduled) {
-      setState(() {
-        // Gönderen hesap bakiyesini güncelle
-        if (fromAccount.type == 'kredi') {
-          _paymentMethods[fromIndex] = fromAccount.copyWith(
-            balance: fromAccount.balance + amount,
-          );
-        } else {
-          _paymentMethods[fromIndex] = fromAccount.copyWith(
-            balance: fromAccount.balance - amount,
-          );
-        }
+      double newFromBalance;
+      if (fromAccount.type == 'kredi') {
+        newFromBalance = fromAccount.balance + amount;
+      } else {
+        newFromBalance = fromAccount.balance - amount;
+      }
 
-        // Alan hesap bakiyesini güncelle
-        if (toAccount.type == 'kredi') {
-          _paymentMethods[toIndex] = toAccount.copyWith(
-            balance: toAccount.balance - amount,
-          );
-        } else {
-          _paymentMethods[toIndex] = toAccount.copyWith(
-            balance: toAccount.balance + amount,
-          );
-        }
-      });
+      double newToBalance;
+      if (toAccount.type == 'kredi') {
+        newToBalance = toAccount.balance - amount;
+      } else {
+        newToBalance = toAccount.balance + amount;
+      }
+
+      _formState.updateAccountBalance(fromAccount.id, newFromBalance);
+      _formState.updateAccountBalance(toAccount.id, newToBalance);
     }
 
     // Bilgi mesajı oluştur
@@ -748,10 +742,8 @@ class _TransferPageState extends State<TransferPage> {
                   padding: const EdgeInsets.only(top: 8.0),
                   child: InkWell(
                     onTap: () {
-                      setState(() {
-                        _amountController.text = selectedAccount.balance
-                            .toStringAsFixed(0);
-                      });
+                      _amountController.text = selectedAccount.balance
+                          .toStringAsFixed(0);
                       HapticService.lightImpact();
                     },
                     borderRadius: BorderRadius.circular(4),

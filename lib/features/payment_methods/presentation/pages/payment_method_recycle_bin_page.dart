@@ -3,6 +3,7 @@ import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/constants/card_color_constants.dart';
 
 import '../../data/models/payment_method_model.dart';
+import '../../../settings/presentation/state/recycle_bin_states.dart';
 
 class PaymentMethodRecycleBinPage extends StatefulWidget {
   final List<PaymentMethod> deletedPaymentMethods;
@@ -27,12 +28,28 @@ class PaymentMethodRecycleBinPage extends StatefulWidget {
 
 class _PaymentMethodRecycleBinPageState
     extends State<PaymentMethodRecycleBinPage> {
-  late List<PaymentMethod> _deletedPaymentMethods;
+  late final PaymentMethodRecycleBinState _binState;
+
+  List<PaymentMethod> get _deletedPaymentMethods =>
+      _binState.deletedPaymentMethods;
 
   @override
   void initState() {
     super.initState();
-    _deletedPaymentMethods = List.from(widget.deletedPaymentMethods);
+    _binState = PaymentMethodRecycleBinState();
+    _binState.init(widget.deletedPaymentMethods);
+    _binState.addListener(_onStateChanged);
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _binState.removeListener(_onStateChanged);
+    _binState.dispose();
+    super.dispose();
   }
 
   /// Tüm silinen ödeme yöntemlerini geri yükler
@@ -80,9 +97,7 @@ class _PaymentMethodRecycleBinPageState
               for (var pm in methodsToRestore) {
                 widget.onRestore(pm);
               }
-              setState(() {
-                _deletedPaymentMethods.clear();
-              });
+              _binState.clearBin();
               if (widget.onRestoreAll != null) {
                 widget.onRestoreAll!();
               }
@@ -129,9 +144,7 @@ class _PaymentMethodRecycleBinPageState
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              setState(() {
-                _deletedPaymentMethods.clear();
-              });
+              _binState.clearBin();
               widget.onEmptyBin();
             },
             child: const Text(
@@ -265,9 +278,7 @@ class _PaymentMethodRecycleBinPageState
               ),
               tooltip: 'Geri Yükle',
               onPressed: () {
-                setState(() {
-                  _deletedPaymentMethods.removeWhere((p) => p.id == pm.id);
-                });
+                _binState.removeMethod(pm);
                 widget.onRestore(pm);
               },
             ),
@@ -311,11 +322,7 @@ class _PaymentMethodRecycleBinPageState
                       TextButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          setState(() {
-                            _deletedPaymentMethods.removeWhere(
-                              (p) => p.id == pm.id,
-                            );
-                          });
+                          _binState.removeMethod(pm);
                           widget.onPermanentDelete(pm);
                         },
                         child: const Text(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/services/export_service.dart';
 import '../../../../core/widgets/month_year_picker.dart';
+import '../state/pdf_export_state.dart';
 
 /// PDF Rapor Hazırlama Sayfası
 /// Kullanıcı hangi tabloların PDF'e ekleneceğini seçebilir
@@ -21,57 +22,45 @@ class PdfExportPage extends StatefulWidget {
 }
 
 class _PdfExportPageState extends State<PdfExportPage> {
-  // Tarih seçimi - widget'tan başlangıç değeri alınır, sonra kullanıcı değiştirebilir
-  late DateTime _selectedDate;
+  late final PdfExportState _pdfState;
 
-  // Tablo seçenekleri - varsayılan hepsi seçili
-  bool _includeExpenses = true;
-  bool _includeIncomes = true;
-  bool _includeAssets = true;
-  bool _isExporting = false;
-
-  // Görsel özet alt seçenekleri - varsayılan hepsi seçili
-  bool _includeFinansalOzet = true;
-  bool _includeNetDurum = true;
-  bool _includePastaGrafik = true;
-  bool _includeButceDurumu = true;
-  bool _includeIstatistikler = true;
-  bool _includeTop5Harcama = true;
+  DateTime get _selectedDate => _pdfState.selectedDate;
+  bool get _includeExpenses => _pdfState.includeExpenses;
+  bool get _includeIncomes => _pdfState.includeIncomes;
+  bool get _includeAssets => _pdfState.includeAssets;
+  bool get _isExporting => _pdfState.isExporting;
+  bool get _includeFinansalOzet => _pdfState.includeFinansalOzet;
+  bool get _includeNetDurum => _pdfState.includeNetDurum;
+  bool get _includePastaGrafik => _pdfState.includePastaGrafik;
+  bool get _includeButceDurumu => _pdfState.includeButceDurumu;
+  bool get _includeIstatistikler => _pdfState.includeIstatistikler;
+  bool get _includeTop5Harcama => _pdfState.includeTop5Harcama;
 
   @override
   void initState() {
     super.initState();
-    _selectedDate = widget.selectedDate;
+    _pdfState = PdfExportState();
+    _pdfState.initWithDate(widget.selectedDate);
+    _pdfState.addListener(_onStateChanged);
   }
 
-  bool get _hasSelection =>
-      _includeExpenses || _includeIncomes || _includeAssets;
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
 
-  bool get _allVisualOptionsSelected =>
-      _includeFinansalOzet &&
-      _includeNetDurum &&
-      _includePastaGrafik &&
-      _includeButceDurumu &&
-      _includeIstatistikler &&
-      _includeTop5Harcama;
+  @override
+  void dispose() {
+    _pdfState.removeListener(_onStateChanged);
+    _pdfState.dispose();
+    super.dispose();
+  }
 
-  bool get _hasAnyVisualOption =>
-      _includeFinansalOzet ||
-      _includeNetDurum ||
-      _includePastaGrafik ||
-      _includeButceDurumu ||
-      _includeIstatistikler ||
-      _includeTop5Harcama;
+  bool get _hasSelection => _pdfState.hasSelection;
+  bool get _allVisualOptionsSelected => _pdfState.allVisualOptionsSelected;
+  bool get _hasAnyVisualOption => _pdfState.hasAnyVisualOption;
 
   void _toggleAllVisualOptions(bool value) {
-    setState(() {
-      _includeFinansalOzet = value;
-      _includeNetDurum = value;
-      _includePastaGrafik = value;
-      _includeButceDurumu = value;
-      _includeIstatistikler = value;
-      _includeTop5Harcama = value;
-    });
+    _pdfState.toggleAllVisualOptions(value);
   }
 
   @override
@@ -177,7 +166,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   accentColor: Colors.red,
                 );
                 if (newDate != null) {
-                  setState(() => _selectedDate = newDate);
+                  _pdfState.selectedDate = newDate;
                 }
               },
               borderRadius: BorderRadius.circular(14),
@@ -276,7 +265,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     color: Colors.orange,
                     value: _includeFinansalOzet,
                     onChanged: (value) =>
-                        setState(() => _includeFinansalOzet = value ?? false),
+                        _pdfState.includeFinansalOzet = value ?? false,
                   ),
                   // 2. Net Durum Kartları
                   _buildCheckboxTile(
@@ -286,7 +275,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     color: Colors.teal,
                     value: _includeNetDurum,
                     onChanged: (value) =>
-                        setState(() => _includeNetDurum = value ?? false),
+                        _pdfState.includeNetDurum = value ?? false,
                   ),
                   // 3. Pasta Grafiği ve Dağılım
                   _buildCheckboxTile(
@@ -296,7 +285,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     color: Colors.indigo,
                     value: _includePastaGrafik,
                     onChanged: (value) =>
-                        setState(() => _includePastaGrafik = value ?? false),
+                        _pdfState.includePastaGrafik = value ?? false,
                   ),
                   // 4. Bütçe Durumu
                   _buildCheckboxTile(
@@ -306,7 +295,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     color: Colors.green,
                     value: _includeButceDurumu,
                     onChanged: (value) =>
-                        setState(() => _includeButceDurumu = value ?? false),
+                        _pdfState.includeButceDurumu = value ?? false,
                   ),
                   // 5. İstatistik Kartları
                   _buildCheckboxTile(
@@ -316,7 +305,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     color: Colors.blue,
                     value: _includeIstatistikler,
                     onChanged: (value) =>
-                        setState(() => _includeIstatistikler = value ?? false),
+                        _pdfState.includeIstatistikler = value ?? false,
                   ),
                   // 6. En Yüksek 5 Harcama
                   _buildCheckboxTile(
@@ -326,7 +315,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     color: Colors.red,
                     value: _includeTop5Harcama,
                     onChanged: (value) =>
-                        setState(() => _includeTop5Harcama = value ?? false),
+                        _pdfState.includeTop5Harcama = value ?? false,
                   ),
                 ],
               ),
@@ -346,7 +335,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     color: Colors.red,
                     value: _includeExpenses,
                     onChanged: (value) =>
-                        setState(() => _includeExpenses = value ?? false),
+                        _pdfState.includeExpenses = value ?? false,
                   ),
                   _buildCheckboxTile(
                     title: 'Gelirlerim',
@@ -355,7 +344,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     color: Colors.green,
                     value: _includeIncomes,
                     onChanged: (value) =>
-                        setState(() => _includeIncomes = value ?? false),
+                        _pdfState.includeIncomes = value ?? false,
                   ),
                   _buildCheckboxTile(
                     title: 'Varlıklarım',
@@ -364,7 +353,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     color: Colors.blue,
                     value: _includeAssets,
                     onChanged: (value) =>
-                        setState(() => _includeAssets = value ?? false),
+                        _pdfState.includeAssets = value ?? false,
                   ),
                 ],
               ),
@@ -616,7 +605,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
   }
 
   Future<void> _exportPdf() async {
-    setState(() => _isExporting = true);
+    _pdfState.isExporting = true;
 
     // Ayın başı ve sonu
     final startDate = DateTime(_selectedDate.year, _selectedDate.month, 1);
@@ -639,7 +628,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
       includeTop5Harcama: _includeTop5Harcama,
     );
 
-    setState(() => _isExporting = false);
+    _pdfState.isExporting = false;
 
     if (result.success && result.filePath != null) {
       // Paylaşım menüsünü aç

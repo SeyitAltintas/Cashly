@@ -60,9 +60,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   bool get _aramaModu => _pageState.aramaModu;
   bool get _isLoading => _pageState.isLoading;
 
-  List<PaymentMethod> _paymentMethods = [];
-  List<PaymentMethod> _deletedPaymentMethods = [];
-  List<PaymentMethod> _filtrelenmisYontemler = [];
+  List<PaymentMethod> get _filteredMethods => _pageState.filteredMethods;
+  List<PaymentMethod> get _deletedPaymentMethods =>
+      _pageState.deletedPaymentMethods;
 
   @override
   void initState() {
@@ -71,9 +71,8 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     _pageState = PaymentMethodPageState();
     _pageState.addListener(_onStateChanged);
 
-    _paymentMethods = List.from(widget.paymentMethods);
-    _deletedPaymentMethods = List.from(widget.deletedPaymentMethods);
-    _filtrelenmisYontemler = _paymentMethods;
+    // Listeler artık state yöneticisinde
+    _pageState.initData(widget.paymentMethods, widget.deletedPaymentMethods);
 
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) _pageState.stopLoading();
@@ -88,23 +87,12 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   void didUpdateWidget(covariant PaymentMethodsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.paymentMethods != oldWidget.paymentMethods) {
-      _paymentMethods = List.from(widget.paymentMethods);
-      _filtrele();
+      _pageState.initData(widget.paymentMethods, widget.deletedPaymentMethods);
     }
   }
 
   void _filtrele() {
-    setState(() {
-      if (_aramaModu && _aramaController.text.isNotEmpty) {
-        String aranan = _aramaController.text.toLowerCase();
-        _filtrelenmisYontemler = _paymentMethods.where((pm) {
-          return pm.name.toLowerCase().contains(aranan) ||
-              pm.typeDisplayName.toLowerCase().contains(aranan);
-        }).toList();
-      } else {
-        _filtrelenmisYontemler = _paymentMethods;
-      }
-    });
+    _pageState.aramaMetni = _aramaController.text;
   }
 
   @override
@@ -115,17 +103,8 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     super.dispose();
   }
 
-  double get totalBalance {
-    return _filtrelenmisYontemler
-        .where((pm) => pm.type != 'kredi')
-        .fold(0.0, (sum, pm) => sum + pm.balance);
-  }
-
-  double get totalDebt {
-    return _filtrelenmisYontemler
-        .where((pm) => pm.type == 'kredi')
-        .fold(0.0, (sum, pm) => sum + pm.balance);
-  }
+  double get totalBalance => _pageState.totalBalance;
+  double get totalDebt => _pageState.totalDebt;
 
   @override
   Widget build(BuildContext context) {
@@ -167,28 +146,15 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                   builder: (context) => PaymentMethodRecycleBinPage(
                     deletedPaymentMethods: _deletedPaymentMethods,
                     onRestore: (pm) {
-                      setState(() {
-                        _deletedPaymentMethods.removeWhere(
-                          (p) => p.id == pm.id,
-                        );
-                        final restored = pm.copyWith(isDeleted: false);
-                        _paymentMethods.add(restored);
-                        _filtrele();
-                      });
+                      _pageState.restoreMethod(pm);
                       widget.onRestore(pm);
                     },
                     onPermanentDelete: (pm) {
-                      setState(() {
-                        _deletedPaymentMethods.removeWhere(
-                          (p) => p.id == pm.id,
-                        );
-                      });
+                      _pageState.permanentDelete(pm);
                       widget.onPermanentDelete(pm);
                     },
                     onEmptyBin: () {
-                      setState(() {
-                        _deletedPaymentMethods.clear();
-                      });
+                      _pageState.emptyBin();
                       widget.onEmptyBin();
                     },
                   ),
@@ -207,7 +173,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
               _pageState.aramaModu = !_aramaModu;
               if (!_aramaModu) {
                 _aramaController.clear();
-                _filtrelenmisYontemler = widget.paymentMethods;
+                _pageState.aramaMetni = '';
               }
             },
           ),
@@ -225,7 +191,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                     totalDebt: totalDebt,
                     userName: widget.userName ?? 'Kullanıcı',
                     userProfileUrl: widget.userProfileUrl,
-                    paymentMethods: _filtrelenmisYontemler,
+                    paymentMethods: _filteredMethods,
                   ),
                   const SizedBox(height: 24),
                   _buildPaymentMethodsList(),
@@ -252,10 +218,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                         createdAt: DateTime.now(),
                         isDeleted: false,
                       );
-                      setState(() {
-                        _paymentMethods.add(newPm);
-                        _filtrele();
-                      });
+                      _pageState.addMethod(newPm);
                       widget.onAdd(
                         name,
                         type,
@@ -282,7 +245,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   }
 
   Widget _buildPaymentMethodsList() {
-    if (_filtrelenmisYontemler.isEmpty) {
+    if (_filteredMethods.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.only(top: 40),
@@ -303,12 +266,12 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: _filtrelenmisYontemler.length,
+      itemCount: _filteredMethods.length,
       // itemExtent: Sabit yükseklik belirterek scroll performansını artırır
       // Her kart 140px yükseklik + 16px bottom margin = 156px
       itemExtent: 156,
       itemBuilder: (context, index) {
-        final pm = _filtrelenmisYontemler[index];
+        final pm = _filteredMethods[index];
         return _buildPaymentMethodCard(pm);
       },
     );
@@ -334,12 +297,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
           child: const Icon(Icons.delete, color: Colors.white),
         ),
         onDismissed: (direction) {
-          setState(() {
-            _paymentMethods.removeWhere((p) => p.id == pm.id);
-            final deleted = pm.copyWith(isDeleted: true);
-            _deletedPaymentMethods.add(deleted);
-            _filtrele();
-          });
+          _pageState.moveToBin(pm);
           widget.onDelete(pm);
         },
         child: GestureDetector(
@@ -369,15 +327,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                           createdAt: pm.createdAt,
                           isDeleted: false,
                         );
-                        setState(() {
-                          final idx = _paymentMethods.indexWhere(
-                            (p) => p.id == pm.id,
-                          );
-                          if (idx != -1) {
-                            _paymentMethods[idx] = updatedPm;
-                          }
-                          _filtrele();
-                        });
+                        _pageState.updateMethod(updatedPm);
                         widget.onEdit(updatedPm);
                       },
                 ),

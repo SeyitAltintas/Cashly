@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/models/asset_model.dart';
+import '../../../settings/presentation/state/recycle_bin_states.dart';
 
 class AssetRecycleBinPage extends StatefulWidget {
   final List<Asset> deletedAssets;
@@ -22,6 +23,29 @@ class AssetRecycleBinPage extends StatefulWidget {
 }
 
 class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
+  late final AssetRecycleBinState _binState;
+
+  List<Asset> get _deletedAssets => _binState.deletedAssets;
+
+  @override
+  void initState() {
+    super.initState();
+    _binState = AssetRecycleBinState();
+    _binState.init(widget.deletedAssets);
+    _binState.addListener(_onStateChanged);
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _binState.removeListener(_onStateChanged);
+    _binState.dispose();
+    super.dispose();
+  }
+
   /// Tüm silinen varlıkları geri yükler
   void _confirmRestoreAll() {
     if (widget.deletedAssets.isEmpty) return;
@@ -64,9 +88,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
               for (var asset in assetsToRestore) {
                 widget.onRestore(asset);
               }
-              setState(() {
-                widget.deletedAssets.clear();
-              });
+              _binState.clearBin();
               Navigator.pop(ctx);
               if (widget.onRestoreAll != null) {
                 widget.onRestoreAll!();
@@ -94,7 +116,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
           color: Theme.of(context).colorScheme.onSurface,
         ),
         actions: [
-          if (widget.deletedAssets.isNotEmpty)
+          if (_deletedAssets.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.restore, color: Colors.green),
               tooltip: "Tümünü Geri Yükle",
@@ -107,7 +129,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
             ),
             tooltip: "Çöpü Boşalt",
             onPressed: () {
-              if (widget.deletedAssets.isEmpty) return;
+              if (_deletedAssets.isEmpty) return;
               showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
@@ -144,9 +166,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
                       ),
                       onPressed: () {
                         widget.onEmptyBin();
-                        setState(() {
-                          widget.deletedAssets.clear();
-                        });
+                        _binState.clearBin();
                         Navigator.pop(ctx);
                         Navigator.pop(context); // Sayfadan çık
                       },
@@ -162,7 +182,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
           ),
         ],
       ),
-      body: widget.deletedAssets.isEmpty
+      body: _deletedAssets.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -188,9 +208,9 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: widget.deletedAssets.length,
+              itemCount: _deletedAssets.length,
               itemBuilder: (context, index) {
-                final asset = widget.deletedAssets[index];
+                final asset = _deletedAssets[index];
                 return Card(
                   color: const Color(0xFF1E1E1E),
                   shape: RoundedRectangleBorder(
@@ -230,9 +250,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
                           ),
                           onPressed: () {
                             widget.onRestore(asset);
-                            setState(() {
-                              widget.deletedAssets.remove(asset);
-                            });
+                            _binState.removeAsset(asset);
                           },
                           tooltip: "Geri Yükle",
                         ),
@@ -243,9 +261,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
                           ),
                           onPressed: () {
                             widget.onPermanentDelete(asset);
-                            setState(() {
-                              widget.deletedAssets.remove(asset);
-                            });
+                            _binState.removeAsset(asset);
                           },
                           tooltip: "Kalıcı Sil",
                         ),

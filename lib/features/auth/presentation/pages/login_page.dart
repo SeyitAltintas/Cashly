@@ -5,6 +5,7 @@ import '../../../home/presentation/pages/home_page.dart';
 import 'signup_page.dart';
 import 'user_list_page.dart';
 import '../../../../core/services/biometric_service.dart';
+import '../state/login_page_state.dart';
 
 // Modüler widget'lar
 import '../widgets/generic_login_form.dart';
@@ -29,22 +30,37 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final BiometricService _biometricService = BiometricService();
+  late final LoginPageState _loginState;
 
-  UserEntity? _targetUser;
-  bool _isLoadingUser = true;
-  bool _isGenericLogin = false;
-  bool _isBiometricAvailable = false;
+  UserEntity? get _targetUser => _loginState.targetUser;
+  bool get _isLoadingUser => _loginState.isLoadingUser;
+  bool get _isGenericLogin => _loginState.isGenericLogin;
+  bool get _isBiometricAvailable => _loginState.isBiometricAvailable;
 
   @override
   void initState() {
     super.initState();
+    _loginState = LoginPageState();
+    _loginState.addListener(_onStateChanged);
+
     if (widget.preSelectedUser != null) {
-      _targetUser = widget.preSelectedUser;
-      _isLoadingUser = false;
+      _loginState.targetUser = widget.preSelectedUser;
+      _loginState.isLoadingUser = false;
       _checkBiometricAvailability();
     } else {
       _loadLastUser();
     }
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _loginState.removeListener(_onStateChanged);
+    _loginState.dispose();
+    super.dispose();
   }
 
   Future<void> _loadLastUser() async {
@@ -52,23 +68,22 @@ class _LoginPageState extends State<LoginPage> {
     final lastUserId = await widget.authController.getLastUserId();
 
     if (mounted) {
-      setState(() {
-        if (users.isNotEmpty) {
-          if (lastUserId != null) {
-            final lastUserIndex = users.indexWhere((u) => u.id == lastUserId);
-            if (lastUserIndex != -1) {
-              _targetUser = users[lastUserIndex];
-            } else {
-              _targetUser = users.first;
-            }
+      if (users.isNotEmpty) {
+        UserEntity? targetUser;
+        if (lastUserId != null) {
+          final lastUserIndex = users.indexWhere((u) => u.id == lastUserId);
+          if (lastUserIndex != -1) {
+            targetUser = users[lastUserIndex];
           } else {
-            _targetUser = users.first;
+            targetUser = users.first;
           }
         } else {
-          _isGenericLogin = true;
+          targetUser = users.first;
         }
-        _isLoadingUser = false;
-      });
+        _loginState.setLoginState(targetUser: targetUser, isLoadingUser: false);
+      } else {
+        _loginState.setLoginState(isGenericLogin: true, isLoadingUser: false);
+      }
 
       await _checkBiometricAvailability();
     }
@@ -77,9 +92,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _checkBiometricAvailability() async {
     final isAvailable = await _biometricService.isBiometricAvailable();
     if (mounted) {
-      setState(() {
-        _isBiometricAvailable = isAvailable;
-      });
+      _loginState.isBiometricAvailable = isAvailable;
     }
   }
 
@@ -146,9 +159,7 @@ class _LoginPageState extends State<LoginPage> {
       onLoginSuccess: _handleLoginSuccess,
       onSwitchUser: _handleSwitchUser,
       onSwitchToGenericLogin: () {
-        setState(() {
-          _isGenericLogin = true;
-        });
+        _loginState.isGenericLogin = true;
       },
       onForgotPassword: _handleForgotPassword,
     );
