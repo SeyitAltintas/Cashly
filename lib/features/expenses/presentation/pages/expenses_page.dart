@@ -246,70 +246,20 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
               .toList(),
           defaultPaymentMethodId: widget.varsayilanOdemeYontemiId,
           onSave: (name, amount, category, date, paymentMethodId) {
-            setState(() {
-              void updateBalance(String? pmId, double amountChange) {
-                if (pmId == null) return;
-                final pmIndex = widget.tumOdemeYontemleri.indexWhere(
-                  (p) => p.id == pmId,
-                );
-                if (pmIndex == -1) return;
-
-                final pm = widget.tumOdemeYontemleri[pmIndex];
-                double newBalance;
-                if (pm.type == 'kredi') {
-                  newBalance = pm.balance + amountChange;
-                } else {
-                  newBalance = pm.balance - amountChange;
-                }
-                widget.tumOdemeYontemleri[pmIndex] = pm.copyWith(
-                  balance: newBalance,
-                );
-              }
-
-              if (duzenlenecekHarcama != null) {
-                if (eskiOdemeYontemiId != null) {
-                  updateBalance(eskiOdemeYontemiId, -eskiTutar);
-                }
-                if (paymentMethodId != null) {
-                  updateBalance(paymentMethodId, amount);
-                }
-
-                int index = widget.tumHarcamalar.indexOf(duzenlenecekHarcama);
-                if (index != -1) {
-                  widget.tumHarcamalar[index] = {
-                    "isim": name,
-                    "tutar": amount,
-                    "kategori": category,
-                    "tarih": date.toString(),
-                    "silindi": false,
-                    "odemeYontemiId": paymentMethodId,
-                  };
-                }
-              } else {
-                if (paymentMethodId != null) {
-                  updateBalance(paymentMethodId, amount);
-                }
-
-                widget.tumHarcamalar.add({
-                  "isim": name,
-                  "tutar": amount,
-                  "kategori": category,
-                  "tarih": date.toString(),
-                  "silindi": false,
-                  "odemeYontemiId": paymentMethodId,
-                });
-              }
-
-              widget.tumHarcamalar.sort((a, b) {
-                DateTime tarihA =
-                    DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-                DateTime tarihB =
-                    DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-                return tarihB.compareTo(tarihA);
-              });
-
-              filtreleVeGoster();
-            });
+            _pageState.harcamaEkleVeyaDuzenle(
+              tumHarcamalar: widget.tumHarcamalar,
+              tumOdemeYontemleri: widget.tumOdemeYontemleri,
+              name: name,
+              amount: amount,
+              category: category,
+              date: date,
+              paymentMethodId: paymentMethodId,
+              duzenlenecekHarcama: duzenlenecekHarcama,
+              eskiOdemeYontemiId: eskiOdemeYontemiId,
+              eskiTutar: eskiTutar,
+              aramaMetni: tArama.text,
+              onResetLazyLoading: resetLazyLoading,
+            );
 
             widget.onHarcamalarChanged(widget.tumHarcamalar);
             widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);

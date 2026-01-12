@@ -171,4 +171,83 @@ class ExpensePageState extends ChangeNotifier {
       onResetLazyLoading: onResetLazyLoading,
     );
   }
+
+  /// Harcama ekle veya düzenle
+  void harcamaEkleVeyaDuzenle({
+    required List<Map<String, dynamic>> tumHarcamalar,
+    required List<dynamic> tumOdemeYontemleri,
+    required String name,
+    required double amount,
+    required String category,
+    required DateTime date,
+    String? paymentMethodId,
+    Map<String, dynamic>? duzenlenecekHarcama,
+    String? eskiOdemeYontemiId,
+    double? eskiTutar,
+    String? aramaMetni,
+    Function(int)? onResetLazyLoading,
+  }) {
+    void updateBalance(String? pmId, double amountChange) {
+      if (pmId == null) return;
+      final pmIndex = tumOdemeYontemleri.indexWhere((p) => p.id == pmId);
+      if (pmIndex == -1) return;
+
+      final pm = tumOdemeYontemleri[pmIndex];
+      double newBalance;
+      if (pm.type == 'kredi') {
+        newBalance = pm.balance + amountChange;
+      } else {
+        newBalance = pm.balance - amountChange;
+      }
+      tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+    }
+
+    if (duzenlenecekHarcama != null) {
+      if (eskiOdemeYontemiId != null) {
+        updateBalance(eskiOdemeYontemiId, -(eskiTutar ?? 0));
+      }
+      if (paymentMethodId != null) {
+        updateBalance(paymentMethodId, amount);
+      }
+
+      int index = tumHarcamalar.indexOf(duzenlenecekHarcama);
+      if (index != -1) {
+        tumHarcamalar[index] = {
+          "isim": name,
+          "tutar": amount,
+          "kategori": category,
+          "tarih": date.toString(),
+          "silindi": false,
+          "odemeYontemiId": paymentMethodId,
+        };
+      }
+    } else {
+      if (paymentMethodId != null) {
+        updateBalance(paymentMethodId, amount);
+      }
+
+      tumHarcamalar.add({
+        "isim": name,
+        "tutar": amount,
+        "kategori": category,
+        "tarih": date.toString(),
+        "silindi": false,
+        "odemeYontemiId": paymentMethodId,
+      });
+    }
+
+    tumHarcamalar.sort((a, b) {
+      DateTime tarihA =
+          DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+      DateTime tarihB =
+          DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+      return tarihB.compareTo(tarihA);
+    });
+
+    filtreleVeGoster(
+      tumHarcamalar: tumHarcamalar,
+      aramaMetni: aramaMetni ?? '',
+      onResetLazyLoading: onResetLazyLoading,
+    );
+  }
 }
