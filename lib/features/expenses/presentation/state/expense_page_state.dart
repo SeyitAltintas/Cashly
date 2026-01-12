@@ -111,4 +111,64 @@ class ExpensePageState extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// Harcamayı sil (çöp kutusuna taşı)
+  void harcamaSil({
+    required Map<String, dynamic> harcama,
+    required List<Map<String, dynamic>> tumHarcamalar,
+    required List<dynamic> tumOdemeYontemleri,
+    String? aramaMetni,
+    Function(int)? onResetLazyLoading,
+  }) {
+    harcama['silindi'] = true;
+
+    // Ödeme yönteminin bakiyesini geri ekle
+    final paymentMethodId = harcama['odemeYontemiId'];
+    if (paymentMethodId != null) {
+      final pmIndex = tumOdemeYontemleri.indexWhere(
+        (p) => p.id == paymentMethodId,
+      );
+      if (pmIndex != -1) {
+        final pm = tumOdemeYontemleri[pmIndex];
+        final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+        double newBalance;
+        if (pm.type == 'kredi') {
+          newBalance = pm.balance - amount;
+        } else {
+          newBalance = pm.balance + amount;
+        }
+        tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+      }
+    }
+
+    filtreleVeGoster(
+      tumHarcamalar: tumHarcamalar,
+      aramaMetni: aramaMetni ?? '',
+      onResetLazyLoading: onResetLazyLoading,
+    );
+  }
+
+  /// Harcama silme işlemini geri al
+  void harcamaSilmeGeriAl({
+    required Map<String, dynamic> harcama,
+    required List<Map<String, dynamic>> tumHarcamalar,
+    required List<dynamic> tumOdemeYontemleri,
+    bool? eskiSilindi,
+    double? eskiBakiye,
+    int? pmIndex,
+    String? aramaMetni,
+    Function(int)? onResetLazyLoading,
+  }) {
+    harcama['silindi'] = eskiSilindi ?? false;
+    if (pmIndex != null && pmIndex != -1 && eskiBakiye != null) {
+      tumOdemeYontemleri[pmIndex] = tumOdemeYontemleri[pmIndex].copyWith(
+        balance: eskiBakiye,
+      );
+    }
+    filtreleVeGoster(
+      tumHarcamalar: tumHarcamalar,
+      aramaMetni: aramaMetni ?? '',
+      onResetLazyLoading: onResetLazyLoading,
+    );
+  }
 }

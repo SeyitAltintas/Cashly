@@ -190,24 +190,13 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
       }
     }
 
-    setState(() {
-      harcama['silindi'] = true;
-
-      // Ödeme yönteminin bakiyesini geri ekle
-      if (pmIndex != null && pmIndex != -1) {
-        final pm = widget.tumOdemeYontemleri[pmIndex];
-        final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
-        double newBalance;
-        if (pm.type == 'kredi') {
-          newBalance = pm.balance - amount;
-        } else {
-          newBalance = pm.balance + amount;
-        }
-        widget.tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
-      }
-
-      filtreleVeGoster();
-    });
+    _pageState.harcamaSil(
+      harcama: harcama,
+      tumHarcamalar: widget.tumHarcamalar,
+      tumOdemeYontemleri: widget.tumOdemeYontemleri,
+      aramaMetni: tArama.text,
+      onResetLazyLoading: resetLazyLoading,
+    );
 
     widget.onHarcamalarChanged(widget.tumHarcamalar);
     widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
@@ -221,15 +210,16 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
         if (!mounted) return;
 
         // Silme işlemini geri al
-        setState(() {
-          harcama['silindi'] = eskiSilindi ?? false;
-          if (pmIndex != null && pmIndex != -1 && eskiBakiye != null) {
-            widget.tumOdemeYontemleri[pmIndex] = widget
-                .tumOdemeYontemleri[pmIndex]
-                .copyWith(balance: eskiBakiye);
-          }
-          filtreleVeGoster();
-        });
+        _pageState.harcamaSilmeGeriAl(
+          harcama: harcama,
+          tumHarcamalar: widget.tumHarcamalar,
+          tumOdemeYontemleri: widget.tumOdemeYontemleri,
+          eskiSilindi: eskiSilindi,
+          eskiBakiye: eskiBakiye,
+          pmIndex: pmIndex,
+          aramaMetni: tArama.text,
+          onResetLazyLoading: resetLazyLoading,
+        );
         widget.onHarcamalarChanged(widget.tumHarcamalar);
         widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 

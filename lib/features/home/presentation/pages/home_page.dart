@@ -555,54 +555,54 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           userName: widget.authController.currentUser?.name,
           userProfileUrl: widget.authController.currentUser?.profileImage,
           onDelete: (pm) {
-            setState(() {
-              final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-              if (i != -1) tumOdemeYontemleri[i] = pm.copyWith(isDeleted: true);
-            });
+            final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+            if (i != -1) {
+              tumOdemeYontemleri[i] = pm.copyWith(isDeleted: true);
+              _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+            }
             _odemeYontemleriKaydet();
           },
           onEdit: (pm) {
-            setState(() {
-              final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-              if (i != -1) tumOdemeYontemleri[i] = pm;
-            });
+            final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+            if (i != -1) {
+              tumOdemeYontemleri[i] = pm;
+              _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+            }
             _odemeYontemleriKaydet();
           },
           onRestore: (pm) {
-            setState(() {
-              final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-              if (i != -1) {
-                tumOdemeYontemleri[i] = pm.copyWith(isDeleted: false);
-              }
-            });
+            final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+            if (i != -1) {
+              tumOdemeYontemleri[i] = pm.copyWith(isDeleted: false);
+              _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+            }
             _odemeYontemleriKaydet();
           },
           onPermanentDelete: (pm) {
-            setState(
-              () => tumOdemeYontemleri.removeWhere((p) => p.id == pm.id),
-            );
+            tumOdemeYontemleri.removeWhere((p) => p.id == pm.id);
+            _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
             _odemeYontemleriKaydet();
           },
           onEmptyBin: () {
-            setState(() => tumOdemeYontemleri.removeWhere((p) => p.isDeleted));
+            tumOdemeYontemleri.removeWhere((p) => p.isDeleted);
+            _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
             _odemeYontemleriKaydet();
           },
           onAdd: (name, type, lastFourDigits, balance, limit, colorIndex) {
-            setState(() {
-              tumOdemeYontemleri.add(
-                PaymentMethod(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: name,
-                  type: type,
-                  lastFourDigits: lastFourDigits,
-                  balance: balance,
-                  limit: limit,
-                  colorIndex: colorIndex,
-                  createdAt: DateTime.now(),
-                  isDeleted: false,
-                ),
-              );
-            });
+            tumOdemeYontemleri.add(
+              PaymentMethod(
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                name: name,
+                type: type,
+                lastFourDigits: lastFourDigits,
+                balance: balance,
+                limit: limit,
+                colorIndex: colorIndex,
+                createdAt: DateTime.now(),
+                isDeleted: false,
+              ),
+            );
+            _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
             _odemeYontemleriKaydet();
           },
           onCardTap: (pm) {
@@ -643,32 +643,31 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
             if (!isScheduled) {
               // Anında transfer - bakiyeleri hemen güncelle
-              setState(() {
-                final fromIndex = tumOdemeYontemleri.indexWhere(
-                  (pm) => pm.id == fromId,
+              final fromIndex = tumOdemeYontemleri.indexWhere(
+                (pm) => pm.id == fromId,
+              );
+              if (fromIndex != -1) {
+                final fromPm = tumOdemeYontemleri[fromIndex];
+                double yeniBakiye = fromPm.type == 'kredi'
+                    ? fromPm.balance + amount
+                    : fromPm.balance - amount;
+                tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
+                  balance: yeniBakiye,
                 );
-                if (fromIndex != -1) {
-                  final fromPm = tumOdemeYontemleri[fromIndex];
-                  double yeniBakiye = fromPm.type == 'kredi'
-                      ? fromPm.balance + amount
-                      : fromPm.balance - amount;
-                  tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
-                    balance: yeniBakiye,
-                  );
-                }
-                final toIndex = tumOdemeYontemleri.indexWhere(
-                  (pm) => pm.id == toId,
+              }
+              final toIndex = tumOdemeYontemleri.indexWhere(
+                (pm) => pm.id == toId,
+              );
+              if (toIndex != -1) {
+                final toPm = tumOdemeYontemleri[toIndex];
+                double yeniBakiye = toPm.type == 'kredi'
+                    ? toPm.balance - amount
+                    : toPm.balance + amount;
+                tumOdemeYontemleri[toIndex] = toPm.copyWith(
+                  balance: yeniBakiye,
                 );
-                if (toIndex != -1) {
-                  final toPm = tumOdemeYontemleri[toIndex];
-                  double yeniBakiye = toPm.type == 'kredi'
-                      ? toPm.balance - amount
-                      : toPm.balance + amount;
-                  tumOdemeYontemleri[toIndex] = toPm.copyWith(
-                    balance: yeniBakiye,
-                  );
-                }
-              });
+              }
+              _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
               _odemeYontemleriKaydet();
             }
             // İleri tarihli transfer - bakiye değişmez, zamanlanmış olarak kaydedilir
