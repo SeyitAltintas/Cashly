@@ -122,25 +122,16 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
     );
 
     if (onay == true) {
-      setState(() {
-        tumGelirler.removeWhere((g) => g.isDeleted);
-        silinenGelirler.clear();
-        kaydet();
-        if (mounted) {
-          AppSnackBar.deleted(context, 'Çöp kutusu temizlendi.');
-        }
-      });
+      _binState.emptyBin();
+      kaydet();
+      if (mounted) {
+        AppSnackBar.deleted(context, 'Çöp kutusu temizlendi.');
+      }
     }
   }
 
   Future<void> geliriGeriYukle(Income gelir) async {
-    setState(() {
-      int index = tumGelirler.indexWhere((g) => g.id == gelir.id);
-      if (index != -1) {
-        tumGelirler[index] = gelir.copyWith(isDeleted: false);
-      }
-      silinenGelirler.removeWhere((g) => g.id == gelir.id);
-    });
+    _binState.restoreGelir(gelir);
     kaydet();
     if (mounted) {
       AppSnackBar.success(context, 'Gelir geri yüklendi ♻️');
@@ -148,10 +139,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
   }
 
   Future<void> geliriKaliciSil(Income gelir) async {
-    setState(() {
-      tumGelirler.removeWhere((g) => g.id == gelir.id);
-      silinenGelirler.removeWhere((g) => g.id == gelir.id);
-    });
+    _binState.permanentDeleteGelir(gelir);
     kaydet();
     if (mounted) {
       AppSnackBar.deleted(context, 'Gelir kalıcı olarak silindi 🗑️');
@@ -198,20 +186,8 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
     );
 
     if (onay == true) {
-      // Tüm gelirleri geri yükle
-      for (var gelir in silinenGelirler) {
-        int index = tumGelirler.indexWhere((g) => g.id == gelir.id);
-        if (index != -1) {
-          tumGelirler[index] = gelir.copyWith(isDeleted: false);
-        }
-      }
-
-      setState(() {
-        silinenGelirler.clear();
-      });
-
+      _binState.restoreAll();
       kaydet();
-
       if (mounted) {
         AppSnackBar.success(context, 'Tüm gelirler geri yüklendi ♻️');
       }

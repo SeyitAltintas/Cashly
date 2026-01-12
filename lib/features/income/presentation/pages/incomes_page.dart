@@ -57,6 +57,8 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
 
     _pageState = IncomePageState();
     _pageState.secilenAy = widget.secilenAy;
+    _pageState.tumGelirler = widget.tumGelirler;
+    _pageState.tumOdemeYontemleri = widget.tumOdemeYontemleri;
     _pageState.addListener(_onStateChanged);
 
     initLazyLoading();
@@ -143,9 +145,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
             date: date,
           );
 
-          setState(() {
-            widget.tumGelirler.add(yeniGelir);
-          });
+          _pageState.addIncome(yeniGelir);
 
           // Bakiye güncelleme - mevcut ödeme yöntemi seçimi yok
           // bu yüzden sadece geliri ekliyoruz
@@ -179,21 +179,12 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
       }
     }
 
-    setState(() {
-      income.isDeleted = true;
+    PaymentMethod? pm;
+    if (pmIndex != null && pmIndex != -1) {
+      pm = widget.tumOdemeYontemleri[pmIndex];
+    }
 
-      // Bakiyeyi geri al
-      if (income.paymentMethodId != null && pmIndex != null && pmIndex != -1) {
-        final pm = widget.tumOdemeYontemleri[pmIndex];
-        double yeniBakiye;
-        if (pm.type == 'kredi') {
-          yeniBakiye = pm.balance + income.amount;
-        } else {
-          yeniBakiye = pm.balance - income.amount;
-        }
-        widget.tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: yeniBakiye);
-      }
-    });
+    _pageState.deleteIncome(income, pm: pm, pmIndex: pmIndex);
 
     widget.onGelirlerChanged(widget.tumGelirler);
     widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
@@ -207,17 +198,13 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
         if (!mounted) return;
 
         // Silme işlemini geri al
-        setState(() {
-          income.isDeleted = eskiIsDeleted;
-          if (eskiPmId != null &&
-              pmIndex != null &&
-              pmIndex != -1 &&
-              eskiBakiye != null) {
-            widget.tumOdemeYontemleri[pmIndex] = widget
-                .tumOdemeYontemleri[pmIndex]
-                .copyWith(balance: eskiBakiye);
-          }
-        });
+        _pageState.undoDelete(
+          income,
+          wasDeleted: eskiIsDeleted,
+          pm: pm,
+          pmIndex: pmIndex,
+          oldBalance: eskiBakiye,
+        );
         widget.onGelirlerChanged(widget.tumGelirler);
         widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
@@ -238,59 +225,14 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
               .where((pm) => !pm.isDeleted)
               .toList(),
           onSave: (name, amount, category, date, paymentMethodId) {
-            setState(() {
-              // 1. Eski bakiyeyi geri al
-              if (income.paymentMethodId != null) {
-                final eskiPmIndex = widget.tumOdemeYontemleri.indexWhere(
-                  (p) => p.id == income.paymentMethodId,
-                );
-                if (eskiPmIndex != -1) {
-                  final pm = widget.tumOdemeYontemleri[eskiPmIndex];
-                  double yeniBakiye;
-                  if (pm.type == 'kredi') {
-                    yeniBakiye = pm.balance + income.amount;
-                  } else {
-                    yeniBakiye = pm.balance - income.amount;
-                  }
-                  widget.tumOdemeYontemleri[eskiPmIndex] = pm.copyWith(
-                    balance: yeniBakiye,
-                  );
-                }
-              }
-
-              // 2. Yeni bakiyeyi ekle
-              if (paymentMethodId != null) {
-                final yeniPmIndex = widget.tumOdemeYontemleri.indexWhere(
-                  (p) => p.id == paymentMethodId,
-                );
-                if (yeniPmIndex != -1) {
-                  final pm = widget.tumOdemeYontemleri[yeniPmIndex];
-                  double yeniBakiye;
-                  if (pm.type == 'kredi') {
-                    yeniBakiye = pm.balance - amount;
-                  } else {
-                    yeniBakiye = pm.balance + amount;
-                  }
-                  widget.tumOdemeYontemleri[yeniPmIndex] = pm.copyWith(
-                    balance: yeniBakiye,
-                  );
-                }
-              }
-
-              // 3. Geliri güncelle
-              int index = widget.tumGelirler.indexOf(income);
-              if (index != -1) {
-                widget.tumGelirler[index] = Income(
-                  id: income.id,
-                  name: name,
-                  amount: amount,
-                  category: category,
-                  date: date,
-                  paymentMethodId: paymentMethodId,
-                  isDeleted: false,
-                );
-              }
-            });
+            _pageState.updateIncome(
+              income: income,
+              name: name,
+              amount: amount,
+              category: category,
+              date: date,
+              paymentMethodId: paymentMethodId,
+            );
 
             widget.onGelirlerChanged(widget.tumGelirler);
             widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
@@ -310,38 +252,13 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
               .where((pm) => !pm.isDeleted)
               .toList(),
           onSave: (name, amount, category, date, paymentMethodId) {
-            setState(() {
-              widget.tumGelirler.insert(
-                0,
-                Income(
-                  id: DateTime.now().toString(),
-                  name: name,
-                  amount: amount,
-                  category: category,
-                  date: date,
-                  paymentMethodId: paymentMethodId,
-                ),
-              );
-
-              // Bakiyeyi güncelle
-              if (paymentMethodId != null) {
-                final pmIndex = widget.tumOdemeYontemleri.indexWhere(
-                  (p) => p.id == paymentMethodId,
-                );
-                if (pmIndex != -1) {
-                  final pm = widget.tumOdemeYontemleri[pmIndex];
-                  double yeniBakiye;
-                  if (pm.type == 'kredi') {
-                    yeniBakiye = pm.balance - amount;
-                  } else {
-                    yeniBakiye = pm.balance + amount;
-                  }
-                  widget.tumOdemeYontemleri[pmIndex] = pm.copyWith(
-                    balance: yeniBakiye,
-                  );
-                }
-              }
-            });
+            _pageState.addIncomeWithPayment(
+              name: name,
+              amount: amount,
+              category: category,
+              date: date,
+              paymentMethodId: paymentMethodId,
+            );
 
             widget.onGelirlerChanged(widget.tumGelirler);
             widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
