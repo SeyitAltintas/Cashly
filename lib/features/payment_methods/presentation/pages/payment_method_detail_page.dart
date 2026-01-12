@@ -8,6 +8,7 @@ import '../../../../core/utils/amount_input_formatter.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../data/models/transfer_model.dart';
 import '../../../income/data/models/income_model.dart';
+import '../state/payment_method_detail_state.dart';
 
 /// Hesap detay sayfası - Bir ödeme yönteminin tüm işlemlerini gösterir
 class PaymentMethodDetailPage extends StatefulWidget {
@@ -33,23 +34,28 @@ class PaymentMethodDetailPage extends StatefulWidget {
 
 class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
     with LazyLoadingMixin {
-  /// Seçilen ay ve yıl (filtreleme için)
-  late int _secilenAy;
-  late int _secilenYil;
+  late final PaymentMethodDetailState _pageState;
+
+  int get _secilenAy => _pageState.secilenAy;
+  int get _secilenYil => _pageState.secilenYil;
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    // Varsayılan olarak mevcut ay/yıl
-    final now = DateTime.now();
-    _secilenAy = now.month;
-    _secilenYil = now.year;
+    _pageState = PaymentMethodDetailState();
+    _pageState.addListener(_onStateChanged);
     // Lazy loading başlat
     initLazyLoading();
   }
 
   @override
   void dispose() {
+    _pageState.removeListener(_onStateChanged);
+    _pageState.dispose();
     disposeLazyLoading();
     super.dispose();
   }
@@ -154,13 +160,10 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
 
   /// Ay seçimi değiştiğinde
   void _onMonthSelected(DateTime date) {
-    setState(() {
-      _secilenAy = date.month;
-      _secilenYil = date.year;
-      // Lazy loading'i sıfırla
-      final filtered = _getFilteredTransactions();
-      resetLazyLoading(filtered.length);
-    });
+    _pageState.selectMonth(date.month, date.year);
+    // Lazy loading'i sıfırla
+    final filtered = _getFilteredTransactions();
+    resetLazyLoading(filtered.length);
   }
 
   @override
