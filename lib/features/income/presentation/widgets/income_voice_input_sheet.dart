@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/services/speech/speech_service.dart';
+import '../state/income_voice_input_state.dart';
 
 /// Sesli gelir girişi için modal bottom sheet widget'ı
 class IncomeVoiceInputSheet extends StatefulWidget {
@@ -23,28 +24,36 @@ class IncomeVoiceInputSheet extends StatefulWidget {
 class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
     with SingleTickerProviderStateMixin {
   final SpeechService _speechService = SpeechService();
+  late final IncomeVoiceInputState _voiceState;
 
-  bool _isListening = false;
-  bool _isInitializing = true;
-  bool _hasError = false;
-  String _errorMessage = '';
-  String _recognizedText = '';
-  SpeechParseResult? _parseResult;
+  // Getter'lar
+  bool get _isListening => _voiceState.isListening;
+  bool get _isInitializing => _voiceState.isInitializing;
+  bool get _hasError => _voiceState.hasError;
+  String get _errorMessage => _voiceState.errorMessage;
+  String get _recognizedText => _voiceState.recognizedText;
+  SpeechParseResult? get _parseResult => _voiceState.parseResult;
+  String get _selectedCategory => _voiceState.selectedCategory;
 
   // Düzenleme için controller'lar
   final TextEditingController _tutarController = TextEditingController();
   final TextEditingController _isimController = TextEditingController();
-  String _selectedCategory = '';
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
-    _selectedCategory = widget.categoryIcons.isNotEmpty
-        ? widget.categoryIcons.keys.first
-        : '';
+    _voiceState = IncomeVoiceInputState();
+    _voiceState.addListener(_onStateChanged);
+    _voiceState.setCategory(
+      widget.categoryIcons.isNotEmpty ? widget.categoryIcons.keys.first : '',
+    );
     _initAnimation();
     _initSpeech();
   }
@@ -66,15 +75,15 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
     bool success = await _speechService.initialize();
 
     if (mounted) {
-      setState(() {
-        _isInitializing = false;
-        if (!success) {
-          _hasError = true;
-          _errorMessage = 'Mikrofon izni verilemedi veya cihaz desteklemiyor.';
-        } else {
-          _startListening();
-        }
-      });
+      if (success) {
+        _voiceState.setInitialized(success: true);
+        _startListening();
+      } else {
+        _voiceState.setInitialized(
+          success: false,
+          error: 'Mikrofon izni verilemedi veya cihaz desteklemiyor.',
+        );
+      }
     }
   }
 
@@ -82,40 +91,30 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
     await SystemSound.play(SystemSoundType.click);
     await HapticFeedback.lightImpact();
 
-    setState(() {
-      _isListening = true;
-      _recognizedText = '';
-      _parseResult = null;
-      _hasError = false;
-    });
+    _voiceState.startListening();
 
     await _speechService.startListening(
       onResult: (text) {
         if (mounted) {
-          setState(() {
-            _recognizedText = text;
-            // Gelir için parse et
-            _parseResult = _speechService.parseText(
-              text,
-              widget.categoryIcons.keys.toList(),
-            );
-            // Parse sonucunu düzenleme alanlarına aktar
-            if (_parseResult != null && _parseResult!.basarili) {
-              _tutarController.text = _parseResult!.tutar!.toStringAsFixed(2);
-              _isimController.text =
-                  _parseResult!.harcamaIsmi ?? _recognizedText;
-              if (_parseResult!.kategori != null) {
-                _selectedCategory = _parseResult!.kategori!;
-              }
+          // Gelir için parse et
+          final parseResult = _speechService.parseText(
+            text,
+            widget.categoryIcons.keys.toList(),
+          );
+          _voiceState.updateRecognizedText(text, parseResult);
+          // Parse sonucunu düzenleme alanlarına aktar
+          if (parseResult != null && parseResult.basarili) {
+            _tutarController.text = parseResult.tutar!.toStringAsFixed(2);
+            _isimController.text = parseResult.harcamaIsmi ?? text;
+            if (parseResult.kategori != null) {
+              _voiceState.setCategory(parseResult.kategori!);
             }
-          });
+          }
         }
       },
       onDone: () {
         if (mounted) {
-          setState(() {
-            _isListening = false;
-          });
+          _voiceState.stopListening();
         }
       },
     );
@@ -123,6 +122,8 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
 
   @override
   void dispose() {
+    _voiceState.removeListener(_onStateChanged);
+    _voiceState.dispose();
     _speechService.stopListening();
     _pulseController.dispose();
     _tutarController.dispose();
@@ -256,9 +257,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
         GestureDetector(
           onTap: () {
             _speechService.stopListening();
-            setState(() {
-              _isListening = false;
-            });
+            _voiceState.stopListening();
           },
           child: AnimatedBuilder(
             animation: _pulseAnimation,
@@ -534,7 +533,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
                   }).toList(),
                   onChanged: (value) {
                     if (value != null) {
-                      setState(() => _selectedCategory = value);
+                      _voiceState.setCategory(value);
                     }
                   },
                 ),
@@ -550,10 +549,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () {
-                  setState(() {
-                    _parseResult = null;
-                    _recognizedText = '';
-                  });
+                  _voiceState.resetForm();
                   _startListening();
                 },
                 icon: const Icon(Icons.refresh),

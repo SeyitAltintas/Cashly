@@ -4,6 +4,7 @@ import '../../../../core/services/speech/speech_service.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../state/expense_voice_input_state.dart';
 
 /// Sesli harcama girişi için modal bottom sheet widget'ı
 class VoiceInputSheet extends StatefulWidget {
@@ -66,35 +67,43 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     with SingleTickerProviderStateMixin {
   final SpeechService _speechService = SpeechService();
   final TtsService _ttsService = TtsService();
+  late final ExpenseVoiceInputState _voiceState;
 
-  bool _isListening = false;
-  bool _isInitializing = true;
-  bool _hasError = false;
-  bool _isCommandMode = false; // Sesli komut modunda mı?
-  String _errorMessage = '';
-  String _recognizedText = '';
-  SpeechParseResult? _parseResult;
+  // Getter'lar
+  bool get _isListening => _voiceState.isListening;
+  bool get _isInitializing => _voiceState.isInitializing;
+  bool get _hasError => _voiceState.hasError;
+  bool get _isCommandMode => _voiceState.isCommandMode;
+  String get _errorMessage => _voiceState.errorMessage;
+  String get _recognizedText => _voiceState.recognizedText;
+  SpeechParseResult? get _parseResult => _voiceState.parseResult;
+  bool get _pendingConfirmation => _voiceState.pendingConfirmation;
+  String get _confirmationTitle => _voiceState.confirmationTitle;
+  String get _confirmationMessage => _voiceState.confirmationMessage;
+  String get _selectedCategory => _voiceState.selectedCategory;
 
-  // Onay modu için değişkenler
-  bool _pendingConfirmation = false;
-  String _confirmationTitle = '';
-  String _confirmationMessage = '';
+  // Onay callback (state dışında tutulur)
   Future<void> Function()? _onConfirmCallback;
 
   // Düzenleme için controller'lar
   final TextEditingController _tutarController = TextEditingController();
   final TextEditingController _isimController = TextEditingController();
-  String _selectedCategory = '';
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
-    _selectedCategory = widget.categoryIcons.isNotEmpty
-        ? widget.categoryIcons.keys.first
-        : '';
+    _voiceState = ExpenseVoiceInputState();
+    _voiceState.addListener(_onStateChanged);
+    _voiceState.setCategory(
+      widget.categoryIcons.isNotEmpty ? widget.categoryIcons.keys.first : '',
+    );
     _initAnimation();
     _initSpeech();
   }
@@ -116,15 +125,15 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     bool success = await _speechService.initialize();
 
     if (mounted) {
-      setState(() {
-        _isInitializing = false;
-        if (!success) {
-          _hasError = true;
-          _errorMessage = 'Mikrofon izni verilemedi veya cihaz desteklemiyor.';
-        } else {
-          _startListening();
-        }
-      });
+      if (success) {
+        _voiceState.setInitialized(success: true);
+        _startListening();
+      } else {
+        _voiceState.setInitialized(
+          success: false,
+          error: 'Mikrofon izni verilemedi veya cihaz desteklemiyor.',
+        );
+      }
     }
   }
 
@@ -133,13 +142,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     await SystemSound.play(SystemSoundType.click);
     await HapticFeedback.lightImpact();
 
-    setState(() {
-      _isListening = true;
-      _isCommandMode = false; // Komut modu sıfırla
-      _recognizedText = '';
-      _parseResult = null;
-      _hasError = false;
-    });
+    _voiceState.startListening();
 
     await _speechService.startListening(
       onResult: (text) {
@@ -153,43 +156,33 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
           if (commandResult.komutAlgilandi) {
             // Komut algılandı - UI'ı güncelle ve işle
             debugPrint('Komut algılandı: ${commandResult.komutTuru}');
-            setState(() {
-              _recognizedText = text;
-              _isCommandMode = true;
-              _parseResult = null; // Harcama ekleme UI'ını gösterme
-            });
+            _voiceState.setCommandMode(text);
             // Async olarak işle (callback içinde await yapamıyoruz)
             _handleVoiceCommand(commandResult).catchError((e) {
               debugPrint('_handleVoiceCommand hatası: $e');
             });
           } else {
             // Normal harcama girişi - parse et
-            setState(() {
-              _recognizedText = text;
-              _isCommandMode = false;
-              _parseResult = _speechService.parseText(
-                text,
-                widget.categoryIcons.keys.toList(),
-              );
-              // Parse sonucunu düzenleme alanlarına aktar
-              if (_parseResult != null && _parseResult!.basarili) {
-                _tutarController.text = _parseResult!.tutar!.toStringAsFixed(2);
-                _isimController.text =
-                    _parseResult!.harcamaIsmi ?? _recognizedText;
-                // Kategori tahmini varsa seç, yoksa mevcut seçimi koru
-                if (_parseResult!.kategori != null) {
-                  _selectedCategory = _parseResult!.kategori!;
-                }
+            final parseResult = _speechService.parseText(
+              text,
+              widget.categoryIcons.keys.toList(),
+            );
+            _voiceState.updateRecognizedText(text, parseResult);
+            // Parse sonucunu düzenleme alanlarına aktar
+            if (parseResult != null && parseResult.basarili) {
+              _tutarController.text = parseResult.tutar!.toStringAsFixed(2);
+              _isimController.text = parseResult.harcamaIsmi ?? text;
+              // Kategori tahmini varsa seç, yoksa mevcut seçimi koru
+              if (parseResult.kategori != null) {
+                _voiceState.setCategory(parseResult.kategori!);
               }
-            });
+            }
           }
         }
       },
       onDone: () {
         if (mounted) {
-          setState(() {
-            _isListening = false;
-          });
+          _voiceState.stopListening();
         }
       },
     );
@@ -201,9 +194,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     await _speechService.stopListening();
 
     if (mounted) {
-      setState(() {
-        _isListening = false;
-      });
+      _voiceState.stopListening();
     }
 
     switch (command.komutTuru) {
@@ -861,12 +852,8 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     required String mesaj,
     required Future<void> Function() onConfirm,
   }) {
-    setState(() {
-      _pendingConfirmation = true;
-      _confirmationTitle = baslik;
-      _confirmationMessage = mesaj;
-      _onConfirmCallback = onConfirm;
-    });
+    _voiceState.requestConfirmation(title: baslik, message: mesaj);
+    _onConfirmCallback = onConfirm;
   }
 
   /// Onay verildi
@@ -879,12 +866,8 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
 
   /// Onay durumunu sıfırla
   void _resetConfirmation() {
-    setState(() {
-      _pendingConfirmation = false;
-      _confirmationTitle = '';
-      _confirmationMessage = '';
-      _onConfirmCallback = null;
-    });
+    _voiceState.clearConfirmation();
+    _onConfirmCallback = null;
   }
 
   /// "Bu ay ne kadar tasarruf ettim?" komutunu işle
@@ -925,9 +908,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     await HapticFeedback.mediumImpact();
 
     if (mounted) {
-      setState(() {
-        _isListening = false;
-      });
+      _voiceState.stopListening();
     }
   }
 
@@ -1475,7 +1456,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                         }).toList(),
                         onChanged: (value) {
                           if (value != null) {
-                            setState(() => _selectedCategory = value);
+                            _voiceState.setCategory(value);
                           }
                         },
                       ),
@@ -1495,10 +1476,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        setState(() {
-                          _parseResult = null;
-                          _recognizedText = '';
-                        });
+                        _voiceState.resetForm();
                         _startListening();
                       },
                       icon: const Icon(Icons.refresh),
