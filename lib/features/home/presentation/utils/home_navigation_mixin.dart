@@ -55,43 +55,47 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
           assets: varliklar.where((a) => !a.isDeleted).toList(),
           deletedAssets: varliklar.where((a) => a.isDeleted).toList(),
           onDelete: (asset) {
-            setState(() => asset.isDeleted = true);
+            asset.isDeleted = true;
+            varliklar = List.from(varliklar); // trigger notifyListeners
             varliklariKaydet();
           },
           onEdit: (asset) {
-            setState(() {
-              final index = varliklar.indexWhere((a) => a.id == asset.id);
-              if (index != -1) varliklar[index] = asset;
-            });
+            final index = varliklar.indexWhere((a) => a.id == asset.id);
+            if (index != -1) {
+              varliklar[index] = asset;
+              varliklar = List.from(varliklar); // trigger notifyListeners
+            }
             varliklariKaydet();
           },
           onRestore: (asset) {
-            setState(() => asset.isDeleted = false);
+            asset.isDeleted = false;
+            varliklar = List.from(varliklar); // trigger notifyListeners
             varliklariKaydet();
           },
           onPermanentDelete: (asset) {
-            setState(() => varliklar.remove(asset));
+            varliklar.remove(asset);
+            varliklar = List.from(varliklar); // trigger notifyListeners
             varliklariKaydet();
           },
           onEmptyBin: () {
-            setState(() => varliklar.removeWhere((a) => a.isDeleted));
+            varliklar.removeWhere((a) => a.isDeleted);
+            varliklar = List.from(varliklar); // trigger notifyListeners
             varliklariKaydet();
           },
           onAdd: (name, amount, quantity, category, type) {
-            setState(() {
-              varliklar.add(
-                Asset(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: name,
-                  amount: amount,
-                  quantity: quantity,
-                  category: category,
-                  type: type,
-                  lastUpdated: DateTime.now(),
-                  isDeleted: false,
-                ),
-              );
-            });
+            varliklar.add(
+              Asset(
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                name: name,
+                amount: amount,
+                quantity: quantity,
+                category: category,
+                type: type,
+                lastUpdated: DateTime.now(),
+                isDeleted: false,
+              ),
+            );
+            varliklar = List.from(varliklar); // trigger notifyListeners
             varliklariKaydet();
           },
         ),
@@ -130,56 +134,54 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
               .where((p) => p.isDeleted)
               .toList(),
           onDelete: (pm) {
-            setState(() {
-              final index = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-              if (index != -1) {
-                tumOdemeYontemleri[index] = pm.copyWith(isDeleted: true);
-              }
-            });
+            final index = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+            if (index != -1) {
+              tumOdemeYontemleri[index] = pm.copyWith(isDeleted: true);
+              tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+            }
             odemeYontemleriKaydet();
           },
           onEdit: (pm) {
-            setState(() {
-              final index = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-              if (index != -1) tumOdemeYontemleri[index] = pm;
-            });
+            final index = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+            if (index != -1) {
+              tumOdemeYontemleri[index] = pm;
+              tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+            }
             odemeYontemleriKaydet();
           },
           onRestore: (pm) {
-            setState(() {
-              final index = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-              if (index != -1) {
-                tumOdemeYontemleri[index] = pm.copyWith(isDeleted: false);
-              }
-            });
+            final index = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+            if (index != -1) {
+              tumOdemeYontemleri[index] = pm.copyWith(isDeleted: false);
+              tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+            }
             odemeYontemleriKaydet();
           },
           onPermanentDelete: (pm) {
-            setState(
-              () => tumOdemeYontemleri.removeWhere((p) => p.id == pm.id),
-            );
+            tumOdemeYontemleri.removeWhere((p) => p.id == pm.id);
+            tumOdemeYontemleri = List.from(tumOdemeYontemleri);
             odemeYontemleriKaydet();
           },
           onEmptyBin: () {
-            setState(() => tumOdemeYontemleri.removeWhere((p) => p.isDeleted));
+            tumOdemeYontemleri.removeWhere((p) => p.isDeleted);
+            tumOdemeYontemleri = List.from(tumOdemeYontemleri);
             odemeYontemleriKaydet();
           },
           onAdd: (name, type, lastFourDigits, balance, limit, colorIndex) {
-            setState(() {
-              tumOdemeYontemleri.add(
-                PaymentMethod(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: name,
-                  type: type,
-                  lastFourDigits: lastFourDigits,
-                  balance: balance,
-                  limit: limit,
-                  colorIndex: colorIndex,
-                  createdAt: DateTime.now(),
-                  isDeleted: false,
-                ),
-              );
-            });
+            tumOdemeYontemleri.add(
+              PaymentMethod(
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                name: name,
+                type: type,
+                lastFourDigits: lastFourDigits,
+                balance: balance,
+                limit: limit,
+                colorIndex: colorIndex,
+                createdAt: DateTime.now(),
+                isDeleted: false,
+              ),
+            );
+            tumOdemeYontemleri = List.from(tumOdemeYontemleri);
             odemeYontemleriKaydet();
           },
           onCardTap: (pm) {
@@ -220,35 +222,34 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
             final isScheduled = transferDate.isAfter(today);
 
             if (!isScheduled) {
-              setState(() {
-                // Gönderen hesap
-                final fromIndex = tumOdemeYontemleri.indexWhere(
-                  (pm) => pm.id == fromId,
+              // Gönderen hesap
+              final fromIndex = tumOdemeYontemleri.indexWhere(
+                (pm) => pm.id == fromId,
+              );
+              if (fromIndex != -1) {
+                final fromPm = tumOdemeYontemleri[fromIndex];
+                double yeniBakiye = fromPm.type == 'kredi'
+                    ? fromPm.balance + amount
+                    : fromPm.balance - amount;
+                tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
+                  balance: yeniBakiye,
                 );
-                if (fromIndex != -1) {
-                  final fromPm = tumOdemeYontemleri[fromIndex];
-                  double yeniBakiye = fromPm.type == 'kredi'
-                      ? fromPm.balance + amount
-                      : fromPm.balance - amount;
-                  tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
-                    balance: yeniBakiye,
-                  );
-                }
+              }
 
-                // Alan hesap
-                final toIndex = tumOdemeYontemleri.indexWhere(
-                  (pm) => pm.id == toId,
+              // Alan hesap
+              final toIndex = tumOdemeYontemleri.indexWhere(
+                (pm) => pm.id == toId,
+              );
+              if (toIndex != -1) {
+                final toPm = tumOdemeYontemleri[toIndex];
+                double yeniBakiye = toPm.type == 'kredi'
+                    ? toPm.balance - amount
+                    : toPm.balance + amount;
+                tumOdemeYontemleri[toIndex] = toPm.copyWith(
+                  balance: yeniBakiye,
                 );
-                if (toIndex != -1) {
-                  final toPm = tumOdemeYontemleri[toIndex];
-                  double yeniBakiye = toPm.type == 'kredi'
-                      ? toPm.balance - amount
-                      : toPm.balance + amount;
-                  tumOdemeYontemleri[toIndex] = toPm.copyWith(
-                    balance: yeniBakiye,
-                  );
-                }
-              });
+              }
+              tumOdemeYontemleri = List.from(tumOdemeYontemleri);
               odemeYontemleriKaydet();
             }
 
@@ -273,11 +274,11 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
           userId: userId,
           varsayilanOdemeYontemiId: varsayilanOdemeYontemiId,
           onHarcamalarChanged: (harcamalar) {
-            setState(() => tumHarcamalar = harcamalar);
+            tumHarcamalar = harcamalar;
             harcamalariKaydet();
           },
           onOdemeYontemleriChanged: (odemeYontemleri) {
-            setState(() => tumOdemeYontemleri = odemeYontemleri);
+            tumOdemeYontemleri = odemeYontemleri;
             odemeYontemleriKaydet();
           },
         ),
@@ -297,11 +298,11 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
           secilenAy: secilenAy,
           userId: userId,
           onGelirlerChanged: (gelirler) {
-            setState(() => tumGelirler = gelirler);
+            tumGelirler = gelirler;
             gelirleriKaydet();
           },
           onOdemeYontemleriChanged: (odemeYontemleri) {
-            setState(() => tumOdemeYontemleri = odemeYontemleri);
+            tumOdemeYontemleri = odemeYontemleri;
             odemeYontemleriKaydet();
           },
         ),
