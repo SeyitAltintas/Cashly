@@ -3,6 +3,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../expenses/domain/repositories/expense_repository.dart';
 import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../state/recurring_transactions_state.dart';
 
 /// Tekrarlayan İşlemler yönetim sayfası
 class RecurringTransactionsPage extends StatefulWidget {
@@ -16,13 +17,29 @@ class RecurringTransactionsPage extends StatefulWidget {
 }
 
 class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
-  List<Map<String, dynamic>> _tekrarlayanIslemler = [];
-  List<PaymentMethod> _odemeYontemleri = [];
+  late final RecurringTransactionsState _rtState;
+
+  List<Map<String, dynamic>> get _tekrarlayanIslemler =>
+      _rtState.tekrarlayanIslemler;
+  List<PaymentMethod> get _odemeYontemleri => _rtState.odemeYontemleri;
 
   @override
   void initState() {
     super.initState();
+    _rtState = RecurringTransactionsState();
+    _rtState.addListener(_onStateChanged);
     _verileriYukle();
+  }
+
+  void _onStateChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _rtState.removeListener(_onStateChanged);
+    _rtState.dispose();
+    super.dispose();
   }
 
   void _verileriYukle() {
@@ -36,10 +53,8 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
         .where((pm) => !pm.isDeleted)
         .toList();
 
-    setState(() {
-      _tekrarlayanIslemler = islemler;
-      _odemeYontemleri = pmList;
-    });
+    _rtState.tekrarlayanIslemler = islemler;
+    _rtState.odemeYontemleri = pmList;
   }
 
   void _kaydet() {
@@ -362,13 +377,11 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                             'sonIslemTarihi': islem?['sonIslemTarihi'],
                           };
 
-                          setState(() {
-                            if (index != null) {
-                              _tekrarlayanIslemler[index] = yeniIslem;
-                            } else {
-                              _tekrarlayanIslemler.add(yeniIslem);
-                            }
-                          });
+                          if (index != null) {
+                            _rtState.updateIslem(index, yeniIslem);
+                          } else {
+                            _rtState.addIslem(yeniIslem);
+                          }
                           _kaydet();
                           Navigator.pop(context);
 
@@ -577,9 +590,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
         );
       },
       onDismissed: (direction) {
-        setState(() {
-          _tekrarlayanIslemler.removeAt(index);
-        });
+        _rtState.removeIslemAt(index);
         _kaydet();
       },
       child: GestureDetector(
