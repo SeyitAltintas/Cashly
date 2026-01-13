@@ -8,6 +8,8 @@ import '../../features/assets/domain/repositories/asset_repository.dart';
 import '../../features/payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../features/streak/domain/repositories/streak_repository.dart';
 import '../../features/settings/domain/repositories/settings_repository.dart';
+import '../domain/repositories/category_repository.dart';
+import '../domain/repositories/recurring_repository.dart';
 
 // Repository Implementations (Data)
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
@@ -17,6 +19,8 @@ import '../../features/assets/data/repositories/asset_repository_impl.dart';
 import '../../features/payment_methods/data/repositories/payment_method_repository_impl.dart';
 import '../../features/streak/data/repositories/streak_repository_impl.dart';
 import '../../features/settings/data/repositories/settings_repository_impl.dart';
+import '../data/repositories/category_repository_impl.dart';
+import '../data/repositories/recurring_repository_impl.dart';
 
 // Controllers
 import '../../features/auth/presentation/controllers/auth_controller.dart';
@@ -56,6 +60,16 @@ Future<void> initializeDependencies() async {
   // Settings Repository
   getIt.registerLazySingleton<SettingsRepository>(
     () => SettingsRepositoryImpl(),
+  );
+
+  // Category Repository (Merkezi kategori yönetimi)
+  getIt.registerLazySingleton<CategoryRepository>(
+    () => CategoryRepositoryImpl(),
+  );
+
+  // Recurring Repository (Tekrarlayan işlemler)
+  getIt.registerLazySingleton<RecurringRepository>(
+    () => RecurringRepositoryImpl(),
   );
 
   // ===== CONTROLLERS =====
