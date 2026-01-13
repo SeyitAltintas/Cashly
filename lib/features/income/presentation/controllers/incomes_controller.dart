@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../../../core/services/speech/speech_service.dart';
 import '../../data/models/income_model.dart';
 import '../../domain/repositories/income_repository.dart';
 import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
@@ -128,9 +129,28 @@ class IncomesController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Voice: Parse result
+  SpeechParseResult? _voiceParseResult;
+  SpeechParseResult? get voiceParseResult => _voiceParseResult;
+  void setVoiceParseResult(SpeechParseResult? result) {
+    _voiceParseResult = result;
+    notifyListeners();
+  }
+
+  // Voice: Seçilen kategori
+  String _voiceSelectedCategory = '';
+  String get voiceSelectedCategory => _voiceSelectedCategory;
+  void setVoiceCategory(String category) {
+    if (_voiceSelectedCategory != category) {
+      _voiceSelectedCategory = category;
+      notifyListeners();
+    }
+  }
+
   /// Voice state: Formu sıfırla
   void resetVoiceForm() {
     _voiceRecognizedText = '';
+    _voiceParseResult = null;
     notifyListeners();
   }
 
