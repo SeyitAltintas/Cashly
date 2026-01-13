@@ -23,6 +23,8 @@ import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/widgets/skeleton_widget.dart';
 import '../helpers/expense_calculation_helper.dart';
 import '../controllers/expenses_controller.dart';
+import '../../../../core/utils/error_handler.dart';
+import '../../../../core/exceptions/app_exceptions.dart';
 
 class ExpensesPage extends StatefulWidget {
   final List<Map<String, dynamic>> tumHarcamalar;
@@ -179,7 +181,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     }
   }
 
-  void harcamaSil(Map<String, dynamic> harcama) {
+  Future<void> harcamaSil(Map<String, dynamic> harcama) async {
     HapticService.delete(); // Silme haptic feedback
 
     // Eski değerleri sakla (geri alma için)
@@ -197,43 +199,60 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
       }
     }
 
-    _controller.harcamaSilLegacy(
-      harcama: harcama,
-      tumHarcamalar: widget.tumHarcamalar,
-      tumOdemeYontemleri: widget.tumOdemeYontemleri,
-      aramaMetni: tArama.text,
-      onResetLazyLoading: resetLazyLoading,
-    );
+    try {
+      await _controller.harcamaSilLegacy(
+        harcama: harcama,
+        tumHarcamalar: widget.tumHarcamalar,
+        tumOdemeYontemleri: widget.tumOdemeYontemleri,
+        aramaMetni: tArama.text,
+        onResetLazyLoading: resetLazyLoading,
+      );
 
-    widget.onHarcamalarChanged(widget.tumHarcamalar);
-    widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+      widget.onHarcamalarChanged(widget.tumHarcamalar);
+      widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-    // Geri Al özelliği ile SnackBar göster
-    AppSnackBar.deleted(
-      context,
-      'Harcama çöp kutusuna taşındı 🗑️',
-      onUndo: () {
-        // Sayfa hala aktif mi kontrol et
-        if (!mounted) return;
+      // Geri Al özelliği ile SnackBar göster
+      if (!mounted) return;
+      AppSnackBar.deleted(
+        context,
+        'Harcama çöp kutusuna taşındı 🗑️',
+        onUndo: () async {
+          // Sayfa hala aktif mi kontrol et
+          if (!mounted) return;
 
-        // Silme işlemini geri al
-        _controller.harcamaSilmeGeriAlLegacy(
-          harcama: harcama,
-          tumHarcamalar: widget.tumHarcamalar,
-          tumOdemeYontemleri: widget.tumOdemeYontemleri,
-          eskiSilindi: eskiSilindi,
-          eskiBakiye: eskiBakiye,
-          pmIndex: pmIndex,
-          aramaMetni: tArama.text,
-          onResetLazyLoading: resetLazyLoading,
-        );
-        widget.onHarcamalarChanged(widget.tumHarcamalar);
-        widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+          try {
+            // Silme işlemini geri al
+            await _controller.harcamaSilmeGeriAlLegacy(
+              harcama: harcama,
+              tumHarcamalar: widget.tumHarcamalar,
+              tumOdemeYontemleri: widget.tumOdemeYontemleri,
+              eskiSilindi: eskiSilindi,
+              eskiBakiye: eskiBakiye,
+              pmIndex: pmIndex,
+              aramaMetni: tArama.text,
+              onResetLazyLoading: resetLazyLoading,
+            );
+            widget.onHarcamalarChanged(widget.tumHarcamalar);
+            widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-        // Geri alındı bildirimi
-        AppSnackBar.success(context, 'Harcama geri yüklendi ✅');
-      },
-    );
+            // Geri alındı bildirimi
+            if (mounted) {
+              AppSnackBar.success(context, 'Harcama geri yüklendi ✅');
+            }
+          } catch (e) {
+            if (!mounted) return;
+            if (e is AppException) {
+              ErrorHandler.handleAppException(context, e);
+            }
+          }
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      if (e is AppException) {
+        ErrorHandler.handleAppException(context, e);
+      }
+    }
   }
 
   void pencereAc({Map<String, dynamic>? duzenlenecekHarcama}) {
@@ -252,28 +271,36 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
               .where((pm) => !pm.isDeleted)
               .toList(),
           defaultPaymentMethodId: widget.varsayilanOdemeYontemiId,
-          onSave: (name, amount, category, date, paymentMethodId) {
-            _controller.harcamaEkleVeyaDuzenleLegacy(
-              tumHarcamalar: widget.tumHarcamalar,
-              tumOdemeYontemleri: widget.tumOdemeYontemleri,
-              name: name,
-              amount: amount,
-              category: category,
-              date: date,
-              paymentMethodId: paymentMethodId,
-              duzenlenecekHarcama: duzenlenecekHarcama,
-              eskiOdemeYontemiId: eskiOdemeYontemiId,
-              eskiTutar: eskiTutar,
-              aramaMetni: tArama.text,
-              onResetLazyLoading: resetLazyLoading,
-            );
+          onSave: (name, amount, category, date, paymentMethodId) async {
+            try {
+              await _controller.harcamaEkleVeyaDuzenleLegacy(
+                tumHarcamalar: widget.tumHarcamalar,
+                tumOdemeYontemleri: widget.tumOdemeYontemleri,
+                name: name,
+                amount: amount,
+                category: category,
+                date: date,
+                paymentMethodId: paymentMethodId,
+                duzenlenecekHarcama: duzenlenecekHarcama,
+                eskiOdemeYontemiId: eskiOdemeYontemiId,
+                eskiTutar: eskiTutar,
+                aramaMetni: tArama.text,
+                onResetLazyLoading: resetLazyLoading,
+              );
 
-            widget.onHarcamalarChanged(widget.tumHarcamalar);
-            widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+              widget.onHarcamalarChanged(widget.tumHarcamalar);
+              widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-            if (duzenlenecekHarcama == null) {
-              if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
-                MoneyAnimationOverlay.show(context);
+              if (duzenlenecekHarcama == null) {
+                if (!mounted) return;
+                if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
+                  MoneyAnimationOverlay.show(context);
+                }
+              }
+            } catch (e) {
+              if (!mounted) return;
+              if (e is AppException) {
+                ErrorHandler.handleAppException(context, e);
               }
             }
           },

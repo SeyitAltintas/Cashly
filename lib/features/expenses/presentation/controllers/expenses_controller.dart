@@ -3,6 +3,8 @@ import '../../../../core/services/speech/speech_service.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../../../../core/utils/error_handler.dart';
+import '../../../../core/exceptions/app_exceptions.dart';
 
 /// Harcamalar Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
@@ -407,6 +409,9 @@ class ExpensesController extends ChangeNotifier {
 
       // Filtrele ve göster
       filtreleVeGoster();
+    } catch (e, s) {
+      ErrorHandler.logError('ExpensesController.loadData', e, s);
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -415,13 +420,23 @@ class ExpensesController extends ChangeNotifier {
 
   /// Harcamaları kaydet
   Future<void> saveExpenses() async {
-    await _expenseRepository.saveExpenses(userId, _tumHarcamalar);
+    try {
+      await _expenseRepository.saveExpenses(userId, _tumHarcamalar);
+    } catch (e, s) {
+      ErrorHandler.logError('ExpensesController.saveExpenses', e, s);
+      throw DatabaseException.writeFailed(e);
+    }
   }
 
   /// Ödeme yöntemlerini kaydet
   Future<void> savePaymentMethods() async {
-    final pmData = _tumOdemeYontemleri.map((pm) => pm.toMap()).toList();
-    await _paymentMethodRepository.savePaymentMethods(userId, pmData);
+    try {
+      final pmData = _tumOdemeYontemleri.map((pm) => pm.toMap()).toList();
+      await _paymentMethodRepository.savePaymentMethods(userId, pmData);
+    } catch (e, s) {
+      ErrorHandler.logError('ExpensesController.savePaymentMethods', e, s);
+      throw DatabaseException.writeFailed(e);
+    }
   }
 
   // ===== FİLTRELEME =====
@@ -503,45 +518,52 @@ class ExpensesController extends ChangeNotifier {
   }
 
   /// Widget prop'larıyla harcama sil (geriye dönük uyumluluk)
-  void harcamaSilLegacy({
+  Future<void> harcamaSilLegacy({
     required Map<String, dynamic> harcama,
     required List<Map<String, dynamic>> tumHarcamalar,
     required List<dynamic> tumOdemeYontemleri,
     String? aramaMetni,
     Function(int)? onResetLazyLoading,
-  }) {
-    _tumHarcamalar = tumHarcamalar;
-    _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
+  }) async {
+    try {
+      _tumHarcamalar = tumHarcamalar;
+      _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
 
-    harcama['silindi'] = true;
+      harcama['silindi'] = true;
 
-    final paymentMethodId = harcama['odemeYontemiId'];
-    if (paymentMethodId != null) {
-      final pmIndex = _tumOdemeYontemleri.indexWhere(
-        (p) => p.id == paymentMethodId,
-      );
-      if (pmIndex != -1) {
-        final pm = _tumOdemeYontemleri[pmIndex];
-        final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
-        double newBalance;
-        if (pm.type == 'kredi') {
-          newBalance = pm.balance - amount;
-        } else {
-          newBalance = pm.balance + amount;
+      final paymentMethodId = harcama['odemeYontemiId'];
+      if (paymentMethodId != null) {
+        final pmIndex = _tumOdemeYontemleri.indexWhere(
+          (p) => p.id == paymentMethodId,
+        );
+        if (pmIndex != -1) {
+          final pm = _tumOdemeYontemleri[pmIndex];
+          final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+          double newBalance;
+          if (pm.type == 'kredi') {
+            newBalance = pm.balance - amount;
+          } else {
+            newBalance = pm.balance + amount;
+          }
+          _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+          tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex];
         }
-        _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
-        tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex];
       }
-    }
 
-    filtreleVeGoster(
-      aramaMetni: aramaMetni ?? '',
-      onResetLazyLoading: onResetLazyLoading,
-    );
+      await saveExpenses();
+      await savePaymentMethods();
+      filtreleVeGoster(
+        aramaMetni: aramaMetni ?? '',
+        onResetLazyLoading: onResetLazyLoading,
+      );
+    } catch (e, s) {
+      ErrorHandler.logError('ExpensesController.harcamaSilLegacy', e, s);
+      rethrow;
+    }
   }
 
   /// Widget prop'larıyla silme geri al (geriye dönük uyumluluk)
-  void harcamaSilmeGeriAlLegacy({
+  Future<void> harcamaSilmeGeriAlLegacy({
     required Map<String, dynamic> harcama,
     required List<Map<String, dynamic>> tumHarcamalar,
     required List<dynamic> tumOdemeYontemleri,
@@ -550,25 +572,37 @@ class ExpensesController extends ChangeNotifier {
     int? pmIndex,
     String? aramaMetni,
     Function(int)? onResetLazyLoading,
-  }) {
-    _tumHarcamalar = tumHarcamalar;
-    _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
+  }) async {
+    try {
+      _tumHarcamalar = tumHarcamalar;
+      _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
 
-    harcama['silindi'] = eskiSilindi ?? false;
-    if (pmIndex != null && pmIndex != -1 && eskiBakiye != null) {
-      _tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex].copyWith(
-        balance: eskiBakiye,
+      harcama['silindi'] = eskiSilindi ?? false;
+      if (pmIndex != null && pmIndex != -1 && eskiBakiye != null) {
+        _tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex].copyWith(
+          balance: eskiBakiye,
+        );
+        tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex];
+      }
+
+      await saveExpenses();
+      await savePaymentMethods();
+      filtreleVeGoster(
+        aramaMetni: aramaMetni ?? '',
+        onResetLazyLoading: onResetLazyLoading,
       );
-      tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex];
+    } catch (e, s) {
+      ErrorHandler.logError(
+        'ExpensesController.harcamaSilmeGeriAlLegacy',
+        e,
+        s,
+      );
+      rethrow;
     }
-    filtreleVeGoster(
-      aramaMetni: aramaMetni ?? '',
-      onResetLazyLoading: onResetLazyLoading,
-    );
   }
 
   /// Widget prop'larıyla harcama ekle/düzenle (geriye dönük uyumluluk)
-  void harcamaEkleVeyaDuzenleLegacy({
+  Future<void> harcamaEkleVeyaDuzenleLegacy({
     required List<Map<String, dynamic>> tumHarcamalar,
     required List<dynamic> tumOdemeYontemleri,
     required String name,
@@ -581,72 +615,83 @@ class ExpensesController extends ChangeNotifier {
     double? eskiTutar,
     String? aramaMetni,
     Function(int)? onResetLazyLoading,
-  }) {
-    _tumHarcamalar = tumHarcamalar;
-    _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
+  }) async {
+    try {
+      _tumHarcamalar = tumHarcamalar;
+      _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
 
-    void updateBalance(String? pmId, double amountChange) {
-      if (pmId == null) return;
-      final pmIdx = _tumOdemeYontemleri.indexWhere((p) => p.id == pmId);
-      if (pmIdx == -1) return;
+      void updateBalance(String? pmId, double amountChange) {
+        if (pmId == null) return;
+        final pmIdx = _tumOdemeYontemleri.indexWhere((p) => p.id == pmId);
+        if (pmIdx == -1) return;
 
-      final pm = _tumOdemeYontemleri[pmIdx];
-      double newBalance;
-      if (pm.type == 'kredi') {
-        newBalance = pm.balance + amountChange;
+        final pm = _tumOdemeYontemleri[pmIdx];
+        double newBalance;
+        if (pm.type == 'kredi') {
+          newBalance = pm.balance + amountChange;
+        } else {
+          newBalance = pm.balance - amountChange;
+        }
+        _tumOdemeYontemleri[pmIdx] = pm.copyWith(balance: newBalance);
+        tumOdemeYontemleri[pmIdx] = _tumOdemeYontemleri[pmIdx];
+      }
+
+      if (duzenlenecekHarcama != null) {
+        if (eskiOdemeYontemiId != null) {
+          updateBalance(eskiOdemeYontemiId, -(eskiTutar ?? 0));
+        }
+        if (paymentMethodId != null) {
+          updateBalance(paymentMethodId, amount);
+        }
+
+        int index = _tumHarcamalar.indexOf(duzenlenecekHarcama);
+        if (index != -1) {
+          _tumHarcamalar[index] = {
+            "isim": name,
+            "tutar": amount,
+            "kategori": category,
+            "tarih": date.toString(),
+            "silindi": false,
+            "odemeYontemiId": paymentMethodId,
+          };
+        }
       } else {
-        newBalance = pm.balance - amountChange;
-      }
-      _tumOdemeYontemleri[pmIdx] = pm.copyWith(balance: newBalance);
-      tumOdemeYontemleri[pmIdx] = _tumOdemeYontemleri[pmIdx];
-    }
+        if (paymentMethodId != null) {
+          updateBalance(paymentMethodId, amount);
+        }
 
-    if (duzenlenecekHarcama != null) {
-      if (eskiOdemeYontemiId != null) {
-        updateBalance(eskiOdemeYontemiId, -(eskiTutar ?? 0));
-      }
-      if (paymentMethodId != null) {
-        updateBalance(paymentMethodId, amount);
-      }
-
-      int index = _tumHarcamalar.indexOf(duzenlenecekHarcama);
-      if (index != -1) {
-        _tumHarcamalar[index] = {
+        _tumHarcamalar.add({
           "isim": name,
           "tutar": amount,
           "kategori": category,
           "tarih": date.toString(),
           "silindi": false,
           "odemeYontemiId": paymentMethodId,
-        };
-      }
-    } else {
-      if (paymentMethodId != null) {
-        updateBalance(paymentMethodId, amount);
+        });
       }
 
-      _tumHarcamalar.add({
-        "isim": name,
-        "tutar": amount,
-        "kategori": category,
-        "tarih": date.toString(),
-        "silindi": false,
-        "odemeYontemiId": paymentMethodId,
+      _tumHarcamalar.sort((a, b) {
+        DateTime tarihA =
+            DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+        DateTime tarihB =
+            DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+        return tarihB.compareTo(tarihA);
       });
+
+      await saveExpenses();
+      await savePaymentMethods();
+      filtreleVeGoster(
+        aramaMetni: aramaMetni ?? '',
+        onResetLazyLoading: onResetLazyLoading,
+      );
+    } catch (e, s) {
+      ErrorHandler.logError(
+        'ExpensesController.harcamaEkleVeyaDuzenleLegacy',
+        e,
+        s,
+      );
+      rethrow;
     }
-
-    _tumHarcamalar.sort((a, b) {
-      DateTime tarihA =
-          DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-      DateTime tarihB =
-          DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-      return tarihB.compareTo(tarihA);
-    });
-
-    filtreleVeGoster(
-      aramaMetni: aramaMetni ?? '',
-      onResetLazyLoading: onResetLazyLoading,
-    );
   }
 
   /// Dynamic listeden PaymentMethod'lara sync et
@@ -665,34 +710,39 @@ class ExpensesController extends ChangeNotifier {
     String aramaMetni = '',
     Function(int)? onResetLazyLoading,
   }) async {
-    harcama['silindi'] = true;
+    try {
+      harcama['silindi'] = true;
 
-    // Ödeme yönteminin bakiyesini geri ekle
-    final paymentMethodId = harcama['odemeYontemiId'];
-    if (paymentMethodId != null) {
-      final pmIndex = _tumOdemeYontemleri.indexWhere(
-        (p) => p.id == paymentMethodId,
-      );
-      if (pmIndex != -1) {
-        final pm = _tumOdemeYontemleri[pmIndex];
-        final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
-        double newBalance;
-        if (pm.type == 'kredi') {
-          newBalance = pm.balance - amount;
-        } else {
-          newBalance = pm.balance + amount;
+      // Ödeme yönteminin bakiyesini geri ekle
+      final paymentMethodId = harcama['odemeYontemiId'];
+      if (paymentMethodId != null) {
+        final pmIndex = _tumOdemeYontemleri.indexWhere(
+          (p) => p.id == paymentMethodId,
+        );
+        if (pmIndex != -1) {
+          final pm = _tumOdemeYontemleri[pmIndex];
+          final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+          double newBalance;
+          if (pm.type == 'kredi') {
+            newBalance = pm.balance - amount;
+          } else {
+            newBalance = pm.balance + amount;
+          }
+          _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
         }
-        _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
       }
-    }
 
-    // Kaydet ve filtrele
-    await saveExpenses();
-    await savePaymentMethods();
-    filtreleVeGoster(
-      aramaMetni: aramaMetni,
-      onResetLazyLoading: onResetLazyLoading,
-    );
+      // Kaydet ve filtrele
+      await saveExpenses();
+      await savePaymentMethods();
+      filtreleVeGoster(
+        aramaMetni: aramaMetni,
+        onResetLazyLoading: onResetLazyLoading,
+      );
+    } catch (e, s) {
+      ErrorHandler.logError('ExpensesController.harcamaSil', e, s);
+      rethrow;
+    }
   }
 
   /// Harcama silme işlemini geri al
@@ -704,19 +754,24 @@ class ExpensesController extends ChangeNotifier {
     String aramaMetni = '',
     Function(int)? onResetLazyLoading,
   }) async {
-    harcama['silindi'] = eskiSilindi ?? false;
-    if (pmIndex != null && pmIndex != -1 && eskiBakiye != null) {
-      _tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex].copyWith(
-        balance: eskiBakiye,
-      );
-    }
+    try {
+      harcama['silindi'] = eskiSilindi ?? false;
+      if (pmIndex != null && pmIndex != -1 && eskiBakiye != null) {
+        _tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex].copyWith(
+          balance: eskiBakiye,
+        );
+      }
 
-    await saveExpenses();
-    await savePaymentMethods();
-    filtreleVeGoster(
-      aramaMetni: aramaMetni,
-      onResetLazyLoading: onResetLazyLoading,
-    );
+      await saveExpenses();
+      await savePaymentMethods();
+      filtreleVeGoster(
+        aramaMetni: aramaMetni,
+        onResetLazyLoading: onResetLazyLoading,
+      );
+    } catch (e, s) {
+      ErrorHandler.logError('ExpensesController.harcamaSilmeGeriAl', e, s);
+      rethrow;
+    }
   }
 
   /// Harcama ekle veya düzenle
@@ -747,54 +802,59 @@ class ExpensesController extends ChangeNotifier {
       _tumOdemeYontemleri[pmIdx] = pm.copyWith(balance: newBalance);
     }
 
-    if (duzenlenecekHarcama != null) {
-      if (eskiOdemeYontemiId != null) {
-        updateBalance(eskiOdemeYontemiId, -(eskiTutar ?? 0));
-      }
-      if (paymentMethodId != null) {
-        updateBalance(paymentMethodId, amount);
-      }
+    try {
+      if (duzenlenecekHarcama != null) {
+        if (eskiOdemeYontemiId != null) {
+          updateBalance(eskiOdemeYontemiId, -(eskiTutar ?? 0));
+        }
+        if (paymentMethodId != null) {
+          updateBalance(paymentMethodId, amount);
+        }
 
-      int index = _tumHarcamalar.indexOf(duzenlenecekHarcama);
-      if (index != -1) {
-        _tumHarcamalar[index] = {
+        int index = _tumHarcamalar.indexOf(duzenlenecekHarcama);
+        if (index != -1) {
+          _tumHarcamalar[index] = {
+            "isim": name,
+            "tutar": amount,
+            "kategori": category,
+            "tarih": date.toString(),
+            "silindi": false,
+            "odemeYontemiId": paymentMethodId,
+          };
+        }
+      } else {
+        if (paymentMethodId != null) {
+          updateBalance(paymentMethodId, amount);
+        }
+
+        _tumHarcamalar.add({
           "isim": name,
           "tutar": amount,
           "kategori": category,
           "tarih": date.toString(),
           "silindi": false,
           "odemeYontemiId": paymentMethodId,
-        };
-      }
-    } else {
-      if (paymentMethodId != null) {
-        updateBalance(paymentMethodId, amount);
+        });
       }
 
-      _tumHarcamalar.add({
-        "isim": name,
-        "tutar": amount,
-        "kategori": category,
-        "tarih": date.toString(),
-        "silindi": false,
-        "odemeYontemiId": paymentMethodId,
+      _tumHarcamalar.sort((a, b) {
+        DateTime tarihA =
+            DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+        DateTime tarihB =
+            DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+        return tarihB.compareTo(tarihA);
       });
+
+      await saveExpenses();
+      await savePaymentMethods();
+      filtreleVeGoster(
+        aramaMetni: aramaMetni,
+        onResetLazyLoading: onResetLazyLoading,
+      );
+    } catch (e, s) {
+      ErrorHandler.logError('ExpensesController.harcamaEkleVeyaDuzenle', e, s);
+      rethrow;
     }
-
-    _tumHarcamalar.sort((a, b) {
-      DateTime tarihA =
-          DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-      DateTime tarihB =
-          DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-      return tarihB.compareTo(tarihA);
-    });
-
-    await saveExpenses();
-    await savePaymentMethods();
-    filtreleVeGoster(
-      aramaMetni: aramaMetni,
-      onResetLazyLoading: onResetLazyLoading,
-    );
   }
 
   /// Ödeme yöntemlerini dışarıdan set et (başka controller'dan sync için)
