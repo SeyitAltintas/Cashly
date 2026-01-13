@@ -5,12 +5,17 @@ import '../../../../core/di/injection_container.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../data/repositories/expense_repository_impl.dart';
 import '../../../../core/widgets/app_snackbar.dart';
-import '../state/category_management_state.dart';
+import '../controllers/expenses_controller.dart';
 
 class KategoriYonetimiSayfasi extends StatefulWidget {
   final String userId;
+  final ExpensesController? controller;
 
-  const KategoriYonetimiSayfasi({super.key, required this.userId});
+  const KategoriYonetimiSayfasi({
+    super.key,
+    required this.userId,
+    this.controller,
+  });
 
   @override
   State<KategoriYonetimiSayfasi> createState() =>
@@ -18,11 +23,23 @@ class KategoriYonetimiSayfasi extends StatefulWidget {
 }
 
 class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
-  late final CategoryManagementState _catState;
+  // Controller veya yerel state
+  ExpensesController? _controller;
+  List<Map<String, dynamic>> _localKategoriler = [];
+  String _localSecilenIkon = 'category';
 
-  List<Map<String, dynamic>> get kategoriler => _catState.kategoriler;
-  String get secilenIkon => _catState.secilenIkon;
-  set secilenIkon(String value) => _catState.secilenIkon = value;
+  List<Map<String, dynamic>> get kategoriler =>
+      _controller?.catMgmtKategoriler ?? _localKategoriler;
+  String get secilenIkon =>
+      _controller?.catMgmtSecilenIkon ?? _localSecilenIkon;
+  set secilenIkon(String value) {
+    if (_controller != null) {
+      _controller!.setCatMgmtSecilenIkon(value);
+    } else {
+      _localSecilenIkon = value;
+      setState(() {});
+    }
+  }
 
   final TextEditingController tKategoriIsmi = TextEditingController();
 
@@ -162,8 +179,8 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
   @override
   void initState() {
     super.initState();
-    _catState = CategoryManagementState();
-    _catState.addListener(_onStateChanged);
+    _controller = widget.controller;
+    _controller?.addListener(_onStateChanged);
     verileriYukle();
   }
 
@@ -173,8 +190,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
 
   @override
   void dispose() {
-    _catState.removeListener(_onStateChanged);
-    _catState.dispose();
+    _controller?.removeListener(_onStateChanged);
     tKategoriIsmi.dispose();
     super.dispose();
   }
@@ -184,13 +200,23 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
 
   void verileriYukle() {
     final expenseRepo = getIt<ExpenseRepository>();
-    _catState.kategoriler = expenseRepo.getCategories(widget.userId);
+    final loadedCategories = expenseRepo.getCategories(widget.userId);
+
+    if (_controller != null) {
+      _controller!.setCatMgmtKategoriler(loadedCategories);
+    } else {
+      _localKategoriler = loadedCategories;
+    }
 
     // Sistem kategorilerini kontrol et ve yoksa ekle
     for (final sistemKat in sistemKategorileri) {
       final varMi = kategoriler.any((k) => k['isim'] == sistemKat);
       if (!varMi) {
-        _catState.addKategori(sistemKat, 'autorenew');
+        if (_controller != null) {
+          _controller!.addCatMgmtKategori(sistemKat, 'autorenew');
+        } else {
+          _localKategoriler.add({'isim': sistemKat, 'ikon': 'autorenew'});
+        }
         expenseRepo.saveCategories(widget.userId, kategoriler);
       }
     }
@@ -199,7 +225,11 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
   void kategoriEkle() {
     if (tKategoriIsmi.text.isEmpty) return;
 
-    _catState.addKategori(tKategoriIsmi.text, secilenIkon);
+    if (_controller != null) {
+      _controller!.addCatMgmtKategori(tKategoriIsmi.text, secilenIkon);
+    } else {
+      _localKategoriler.add({'isim': tKategoriIsmi.text, 'ikon': secilenIkon});
+    }
 
     getIt<ExpenseRepository>().saveCategories(widget.userId, kategoriler);
     tKategoriIsmi.clear();
@@ -251,7 +281,12 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
           ),
           ElevatedButton(
             onPressed: () {
-              _catState.removeKategoriAt(index);
+              if (_controller != null) {
+                _controller!.removeCatMgmtKategoriAt(index);
+              } else {
+                _localKategoriler.removeAt(index);
+                setState(() {});
+              }
               getIt<ExpenseRepository>().saveCategories(
                 widget.userId,
                 kategoriler,
@@ -301,7 +336,16 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
           ),
           ElevatedButton(
             onPressed: () {
-              _catState.resetToDefault(ExpenseRepositoryImpl.defaultCategories);
+              if (_controller != null) {
+                _controller!.resetCatMgmtToDefault(
+                  ExpenseRepositoryImpl.defaultCategories,
+                );
+              } else {
+                _localKategoriler = List.from(
+                  ExpenseRepositoryImpl.defaultCategories,
+                );
+                setState(() {});
+              }
               getIt<ExpenseRepository>().saveCategories(
                 widget.userId,
                 kategoriler,
@@ -637,7 +681,14 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
               child: ReorderableListView.builder(
                 itemCount: kategoriler.length,
                 onReorder: (oldIndex, newIndex) {
-                  _catState.reorderKategoriler(oldIndex, newIndex);
+                  if (_controller != null) {
+                    _controller!.reorderCatMgmtKategoriler(oldIndex, newIndex);
+                  } else {
+                    if (newIndex > oldIndex) newIndex -= 1;
+                    final kategori = _localKategoriler.removeAt(oldIndex);
+                    _localKategoriler.insert(newIndex, kategori);
+                    setState(() {});
+                  }
                   getIt<ExpenseRepository>().saveCategories(
                     widget.userId,
                     kategoriler,

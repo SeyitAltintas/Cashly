@@ -5,13 +5,18 @@ import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/utils/validators.dart';
 import 'package:cashly/core/theme/app_theme.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
-import '../state/income_category_management_state.dart';
+import '../controllers/incomes_controller.dart';
 
 /// Gelir kategorilerini yönetmek için sayfa
 class GelirKategoriYonetimiSayfasi extends StatefulWidget {
   final String userId;
+  final IncomesController? controller;
 
-  const GelirKategoriYonetimiSayfasi({super.key, required this.userId});
+  const GelirKategoriYonetimiSayfasi({
+    super.key,
+    required this.userId,
+    this.controller,
+  });
 
   @override
   State<GelirKategoriYonetimiSayfasi> createState() =>
@@ -20,10 +25,14 @@ class GelirKategoriYonetimiSayfasi extends StatefulWidget {
 
 class _GelirKategoriYonetimiSayfasiState
     extends State<GelirKategoriYonetimiSayfasi> {
-  late final IncomeCategoryManagementState _catState;
+  // Controller veya yerel state
+  IncomesController? _controller;
+  List<Map<String, dynamic>> _localKategoriler = [];
+  bool _localHasChanges = false;
 
-  List<Map<String, dynamic>> get kategoriler => _catState.kategoriler;
-  bool get hasChanges => _catState.hasChanges;
+  List<Map<String, dynamic>> get kategoriler =>
+      _controller?.catMgmtKategoriler ?? _localKategoriler;
+  bool get hasChanges => _controller?.catMgmtHasChanges ?? _localHasChanges;
 
   final Map<String, IconData> ikonSecenekleri = {
     'work': Icons.work,
@@ -51,8 +60,8 @@ class _GelirKategoriYonetimiSayfasiState
   @override
   void initState() {
     super.initState();
-    _catState = IncomeCategoryManagementState();
-    _catState.addListener(_onStateChanged);
+    _controller = widget.controller;
+    _controller?.addListener(_onStateChanged);
     kategorileriYukle();
   }
 
@@ -62,8 +71,7 @@ class _GelirKategoriYonetimiSayfasiState
 
   @override
   void dispose() {
-    _catState.removeListener(_onStateChanged);
-    _catState.dispose();
+    _controller?.removeListener(_onStateChanged);
     super.dispose();
   }
 
@@ -73,13 +81,23 @@ class _GelirKategoriYonetimiSayfasiState
   void kategorileriYukle() {
     try {
       final incomeRepo = getIt<IncomeRepository>();
-      _catState.kategoriler = incomeRepo.getCategories(widget.userId);
+      final loadedCategories = incomeRepo.getCategories(widget.userId);
+
+      if (_controller != null) {
+        _controller!.setCatMgmtKategoriler(loadedCategories);
+      } else {
+        _localKategoriler = loadedCategories;
+      }
 
       // Sistem kategorilerini kontrol et ve yoksa ekle
       for (final sistemKat in sistemKategorileri) {
         final varMi = kategoriler.any((k) => k['isim'] == sistemKat);
         if (!varMi) {
-          _catState.addKategori(sistemKat, 'autorenew');
+          if (_controller != null) {
+            _controller!.addCatMgmtKategori(sistemKat, 'autorenew');
+          } else {
+            _localKategoriler.add({'isim': sistemKat, 'ikon': 'autorenew'});
+          }
           incomeRepo.saveCategories(widget.userId, kategoriler);
         }
       }
@@ -92,7 +110,11 @@ class _GelirKategoriYonetimiSayfasiState
   void kaydet() {
     try {
       getIt<IncomeRepository>().saveCategories(widget.userId, kategoriler);
-      _catState.hasChanges = true;
+      if (_controller != null) {
+        _controller!.setCatMgmtHasChanges(true);
+      } else {
+        _localHasChanges = true;
+      }
       ErrorHandler.showSuccessSnackBar(context, "Kategoriler kaydedildi ✅");
     } catch (e) {
       ErrorHandler.handleDatabaseError(context, e);
@@ -254,10 +276,17 @@ class _GelirKategoriYonetimiSayfasiState
                         );
                         return;
                       }
-                      _catState.addKategori(
-                        isimController.text.trim(),
-                        secilenIkon,
-                      );
+                      if (_controller != null) {
+                        _controller!.addCatMgmtKategori(
+                          isimController.text.trim(),
+                          secilenIkon,
+                        );
+                      } else {
+                        _localKategoriler.add({
+                          'isim': isimController.text.trim(),
+                          'ikon': secilenIkon,
+                        });
+                      }
                       kaydet();
                       Navigator.pop(context);
                     },
@@ -299,7 +328,12 @@ class _GelirKategoriYonetimiSayfasiState
       return;
     }
 
-    _catState.removeKategoriAt(index);
+    if (_controller != null) {
+      _controller!.removeCatMgmtKategoriAt(index);
+    } else {
+      _localKategoriler.removeAt(index);
+      setState(() {});
+    }
     kaydet();
   }
 
@@ -399,7 +433,17 @@ class _GelirKategoriYonetimiSayfasiState
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: kategoriler.length,
                       onReorder: (oldIndex, newIndex) {
-                        _catState.reorderKategoriler(oldIndex, newIndex);
+                        if (_controller != null) {
+                          _controller!.reorderCatMgmtKategoriler(
+                            oldIndex,
+                            newIndex,
+                          );
+                        } else {
+                          if (newIndex > oldIndex) newIndex -= 1;
+                          final kategori = _localKategoriler.removeAt(oldIndex);
+                          _localKategoriler.insert(newIndex, kategori);
+                          setState(() {});
+                        }
                         kaydet();
                         AppSnackBar.success(
                           context,

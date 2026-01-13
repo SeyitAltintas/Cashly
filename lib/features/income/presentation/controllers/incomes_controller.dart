@@ -418,4 +418,44 @@ class IncomesController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // ===== CATEGORY MANAGEMENT STATE (IncomeCategoryManagementState'ten taşındı) =====
+
+  // Kategori listesi
+  List<Map<String, dynamic>> _catMgmtKategoriler = [];
+  List<Map<String, dynamic>> get catMgmtKategoriler => _catMgmtKategoriler;
+  void setCatMgmtKategoriler(List<Map<String, dynamic>> value) {
+    _catMgmtKategoriler = value;
+    notifyListeners();
+  }
+
+  // Değişiklik flag'i
+  bool _catMgmtHasChanges = false;
+  bool get catMgmtHasChanges => _catMgmtHasChanges;
+  void setCatMgmtHasChanges(bool value) {
+    _catMgmtHasChanges = value;
+    notifyListeners();
+  }
+
+  /// Kategori ekle
+  void addCatMgmtKategori(String isim, String ikon) {
+    _catMgmtKategoriler.add({'isim': isim, 'ikon': ikon});
+    notifyListeners();
+  }
+
+  /// Kategori sil
+  void removeCatMgmtKategoriAt(int index) {
+    if (index >= 0 && index < _catMgmtKategoriler.length) {
+      _catMgmtKategoriler.removeAt(index);
+      notifyListeners();
+    }
+  }
+
+  /// Kategorileri yeniden sırala
+  void reorderCatMgmtKategoriler(int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) newIndex -= 1;
+    final kategori = _catMgmtKategoriler.removeAt(oldIndex);
+    _catMgmtKategoriler.insert(newIndex, kategori);
+    notifyListeners();
+  }
 }
