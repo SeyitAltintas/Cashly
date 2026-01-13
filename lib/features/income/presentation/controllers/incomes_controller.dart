@@ -376,4 +376,46 @@ class IncomesController extends ChangeNotifier {
   void refresh() {
     notifyListeners();
   }
+
+  // ===== SETTINGS STATE (IncomeSettingsState'ten taşındı) =====
+
+  // Settings: Kategori değişikliği flag'i
+  bool _settingsCategoryChanged = false;
+  bool get settingsCategoryChanged => _settingsCategoryChanged;
+  void setSettingsCategoryChanged(bool value) {
+    _settingsCategoryChanged = value;
+    notifyListeners();
+  }
+
+  // ===== RECURRING INCOME STATE (RecurringIncomeState'ten taşındı) =====
+
+  // Recurring: Tekrarlayan gelirler listesi
+  List<Map<String, dynamic>> _tekrarlayanGelirler = [];
+  List<Map<String, dynamic>> get tekrarlayanGelirler => _tekrarlayanGelirler;
+  void setTekrarlayanGelirler(List<Map<String, dynamic>> value) {
+    _tekrarlayanGelirler = value;
+    notifyListeners();
+  }
+
+  /// Tekrarlayan gelir ekle
+  void addTekrarlayanGelir(Map<String, dynamic> gelir) {
+    _tekrarlayanGelirler.add(gelir);
+    notifyListeners();
+  }
+
+  /// Tekrarlayan gelir güncelle
+  void updateTekrarlayanGelir(int index, Map<String, dynamic> gelir) {
+    if (index >= 0 && index < _tekrarlayanGelirler.length) {
+      _tekrarlayanGelirler[index] = gelir;
+      notifyListeners();
+    }
+  }
+
+  /// Tekrarlayan gelir sil
+  void removeTekrarlayanGelirAt(int index) {
+    if (index >= 0 && index < _tekrarlayanGelirler.length) {
+      _tekrarlayanGelirler.removeAt(index);
+      notifyListeners();
+    }
+  }
 }

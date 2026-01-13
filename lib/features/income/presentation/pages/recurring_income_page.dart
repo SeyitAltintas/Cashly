@@ -3,30 +3,36 @@ import '../../../../core/di/injection_container.dart';
 import '../../../income/domain/repositories/income_repository.dart';
 import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
-import '../state/recurring_income_state.dart';
+import '../controllers/incomes_controller.dart';
 
 /// Tekrarlayan Gelirler yönetim sayfası (maaş, kira geliri vb.)
 class RecurringIncomePage extends StatefulWidget {
   final String userId;
+  final IncomesController? controller;
 
-  const RecurringIncomePage({super.key, required this.userId});
+  const RecurringIncomePage({super.key, required this.userId, this.controller});
 
   @override
   State<RecurringIncomePage> createState() => _RecurringIncomePageState();
 }
 
 class _RecurringIncomePageState extends State<RecurringIncomePage> {
-  late final RecurringIncomeState _riState;
+  // Controller veya yerel state
+  IncomesController? _controller;
+  List<Map<String, dynamic>> _localTekrarlayanGelirler = [];
+  List<PaymentMethod> _localOdemeYontemleri = [];
 
   List<Map<String, dynamic>> get _tekrarlayanGelirler =>
-      _riState.tekrarlayanGelirler;
-  List<PaymentMethod> get _odemeYontemleri => _riState.odemeYontemleri;
+      _controller?.tekrarlayanGelirler ?? _localTekrarlayanGelirler;
+  List<PaymentMethod> get _odemeYontemleri =>
+      _controller?.tumOdemeYontemleri.where((pm) => !pm.isDeleted).toList() ??
+      _localOdemeYontemleri;
 
   @override
   void initState() {
     super.initState();
-    _riState = RecurringIncomeState();
-    _riState.addListener(_onStateChanged);
+    _controller = widget.controller;
+    _controller?.addListener(_onStateChanged);
     _verileriYukle();
   }
 
@@ -36,8 +42,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
 
   @override
   void dispose() {
-    _riState.removeListener(_onStateChanged);
-    _riState.dispose();
+    _controller?.removeListener(_onStateChanged);
     super.dispose();
   }
 
@@ -52,8 +57,14 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
         .where((pm) => !pm.isDeleted)
         .toList();
 
-    _riState.tekrarlayanGelirler = gelirler;
-    _riState.odemeYontemleri = pmList;
+    if (_controller != null) {
+      _controller!.setTekrarlayanGelirler(gelirler);
+      // Ödeme yöntemleri controller'dan alınıyor
+    } else {
+      _localTekrarlayanGelirler = gelirler;
+      _localOdemeYontemleri = pmList;
+      setState(() {});
+    }
   }
 
   void _kaydet() {
@@ -375,9 +386,20 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                           };
 
                           if (index != null) {
-                            _riState.updateGelir(index, yeniGelir);
+                            if (_controller != null) {
+                              _controller!.updateTekrarlayanGelir(
+                                index,
+                                yeniGelir,
+                              );
+                            } else {
+                              _localTekrarlayanGelirler[index] = yeniGelir;
+                            }
                           } else {
-                            _riState.addGelir(yeniGelir);
+                            if (_controller != null) {
+                              _controller!.addTekrarlayanGelir(yeniGelir);
+                            } else {
+                              _localTekrarlayanGelirler.add(yeniGelir);
+                            }
                           }
                           _kaydet();
                           Navigator.pop(context);
@@ -578,7 +600,11 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
         );
       },
       onDismissed: (direction) {
-        _riState.removeGelirAt(index);
+        if (_controller != null) {
+          _controller!.removeTekrarlayanGelirAt(index);
+        } else {
+          _localTekrarlayanGelirler.removeAt(index);
+        }
         _kaydet();
       },
       child: GestureDetector(

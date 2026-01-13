@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'income_category_management_page.dart';
 import 'recurring_income_page.dart';
-import '../state/income_settings_state.dart';
+import '../controllers/incomes_controller.dart';
 
 /// Gelirler ayarları ana sayfası
 class GelirlerAyarlariSayfasi extends StatefulWidget {
   final String userId;
+  final IncomesController? controller;
 
-  const GelirlerAyarlariSayfasi({super.key, required this.userId});
+  const GelirlerAyarlariSayfasi({
+    super.key,
+    required this.userId,
+    this.controller,
+  });
 
   @override
   State<GelirlerAyarlariSayfasi> createState() =>
@@ -15,15 +20,18 @@ class GelirlerAyarlariSayfasi extends StatefulWidget {
 }
 
 class _GelirlerAyarlariSayfasiState extends State<GelirlerAyarlariSayfasi> {
-  late final IncomeSettingsState _incState;
+  // Controller veya yerel state
+  IncomesController? _controller;
+  bool _localCategoryChanged = false;
 
-  bool get categoryChanged => _incState.categoryChanged;
+  bool get categoryChanged =>
+      _controller?.settingsCategoryChanged ?? _localCategoryChanged;
 
   @override
   void initState() {
     super.initState();
-    _incState = IncomeSettingsState();
-    _incState.addListener(_onStateChanged);
+    _controller = widget.controller;
+    _controller?.addListener(_onStateChanged);
   }
 
   void _onStateChanged() {
@@ -32,8 +40,7 @@ class _GelirlerAyarlariSayfasiState extends State<GelirlerAyarlariSayfasi> {
 
   @override
   void dispose() {
-    _incState.removeListener(_onStateChanged);
-    _incState.dispose();
+    _controller?.removeListener(_onStateChanged);
     super.dispose();
   }
 
@@ -118,7 +125,12 @@ class _GelirlerAyarlariSayfasiState extends State<GelirlerAyarlariSayfasi> {
                           GelirKategoriYonetimiSayfasi(userId: widget.userId),
                     ),
                   ).then((_) {
-                    _incState.categoryChanged = true;
+                    if (_controller != null) {
+                      _controller!.setSettingsCategoryChanged(true);
+                    } else {
+                      _localCategoryChanged = true;
+                      setState(() {});
+                    }
                   });
                 },
                 borderRadius: BorderRadius.circular(12),
