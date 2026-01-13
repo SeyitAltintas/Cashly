@@ -6,7 +6,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/utils/amount_input_formatter.dart';
 import '../../../../core/widgets/app_date_picker.dart';
-import '../state/add_asset_form_state.dart';
+import '../controllers/assets_controller.dart';
 
 /// Varlık ekleme/düzenleme sayfası
 /// Modern ve sade tasarım - Varlık temasına uygun (mor)
@@ -22,8 +22,14 @@ class AddAssetPage extends StatefulWidget {
   )
   onSave;
   final Asset? asset;
+  final AssetsController? controller;
 
-  const AddAssetPage({super.key, required this.onSave, this.asset});
+  const AddAssetPage({
+    super.key,
+    required this.onSave,
+    this.asset,
+    this.controller,
+  });
 
   @override
   State<AddAssetPage> createState() => _AddAssetPageState();
@@ -48,15 +54,24 @@ class _AddAssetPageState extends State<AddAssetPage> {
   final TextEditingController _customCategoryNameController =
       TextEditingController();
 
-  // ChangeNotifier state yöneticisi
-  late final AddAssetFormState _formState;
+  // Controller veya yerel state
+  AssetsController? _controller;
+  String _localSelectedCategory = 'Döviz';
+  String? _localSelectedType;
+  DateTime? _localPurchaseDate;
+  bool _localIsLoading = false;
+  String? _localErrorMessage;
 
-  // Getter'lar
-  String get _selectedCategory => _formState.selectedCategory;
-  String? get _selectedType => _formState.selectedType;
-  DateTime get _purchaseDate => _formState.purchaseDate ?? DateTime.now();
-  bool get _isLoading => _formState.isLoading;
-  String? get _errorMessage => _formState.errorMessage;
+  // Getter'lar - controller varsa onu kullan
+  String get _selectedCategory =>
+      _controller?.formSelectedCategory ?? _localSelectedCategory;
+  String? get _selectedType =>
+      _controller?.formSelectedType ?? _localSelectedType;
+  DateTime get _purchaseDate =>
+      _controller?.formPurchaseDate ?? _localPurchaseDate ?? DateTime.now();
+  bool get _isLoading => _controller?.formIsLoading ?? _localIsLoading;
+  String? get _errorMessage =>
+      _controller?.formErrorMessage ?? _localErrorMessage;
 
   // Varlık teması rengi (mavi - Varlıklarım sayfası ile uyumlu)
   static Color get _accentColor => Colors.blue.shade600;
@@ -108,42 +123,53 @@ class _AddAssetPageState extends State<AddAssetPage> {
   @override
   void initState() {
     super.initState();
-
-    _formState = AddAssetFormState();
-    _formState.addListener(_onFormStateChanged);
+    _controller = widget.controller;
+    _controller?.addListener(_onFormStateChanged);
 
     if (widget.asset != null) {
       _nameController.text = widget.asset!.name;
       _amountController.text = widget.asset!.amount.toString();
       _quantityController.text = widget.asset!.quantity.toString();
-      _formState.selectedCategory = widget.asset!.category;
+
+      final editCategory = widget.asset!.category;
+      String? editType;
 
       final typeFromAsset = widget.asset!.type;
       if (typeFromAsset != null &&
-          _types.containsKey(_selectedCategory) &&
-          _types[_selectedCategory]!.contains(typeFromAsset)) {
-        _formState.selectedType = typeFromAsset;
-      } else if (typeFromAsset != null &&
-          _types.containsKey(_selectedCategory)) {
-        _formState.selectedType = 'Diğer';
-        _populateCustomFieldFromType(_selectedCategory, typeFromAsset);
-      } else {
-        _formState.selectedType = null;
+          _types.containsKey(editCategory) &&
+          _types[editCategory]!.contains(typeFromAsset)) {
+        editType = typeFromAsset;
+      } else if (typeFromAsset != null && _types.containsKey(editCategory)) {
+        editType = 'Diğer';
+        _populateCustomFieldFromType(editCategory, typeFromAsset);
       }
 
-      if (_selectedCategory == 'Hisse Senedi') {
+      if (_controller != null) {
+        _controller!.initializeFormState(
+          editCategory: editCategory,
+          editType: editType,
+          editPurchaseDate: widget.asset!.purchaseDate,
+        );
+      } else {
+        _localSelectedCategory = editCategory;
+        _localSelectedType = editType;
+        _localPurchaseDate = widget.asset!.purchaseDate;
+      }
+
+      if (editCategory == 'Hisse Senedi') {
         _stockNameController.text = widget.asset!.name;
       }
-
-      if (_selectedCategory == 'Diğer') {
+      if (editCategory == 'Diğer') {
         _customCategoryNameController.text = widget.asset!.name;
       }
-
-      _formState.purchaseDate = widget.asset!.purchaseDate;
       _purchasePriceController.text = widget.asset!.purchasePrice.toString();
     } else {
       _quantityController.text = "1";
-      _formState.purchaseDate = DateTime.now();
+      if (_controller != null) {
+        _controller!.initializeFormState(editPurchaseDate: DateTime.now());
+      } else {
+        _localPurchaseDate = DateTime.now();
+      }
     }
   }
 
@@ -168,8 +194,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
 
   @override
   void dispose() {
-    _formState.removeListener(_onFormStateChanged);
-    _formState.dispose();
+    _controller?.removeListener(_onFormStateChanged);
     _nameController.dispose();
     _amountController.dispose();
     _quantityController.dispose();
@@ -183,8 +208,14 @@ class _AddAssetPageState extends State<AddAssetPage> {
   }
 
   Future<void> _fetchLivePrice() async {
-    _formState.isLoading = true;
-    _formState.clearError();
+    if (_controller != null) {
+      _controller!.setFormLoading(true);
+      _controller!.clearFormError();
+    } else {
+      _localIsLoading = true;
+      _localErrorMessage = null;
+      setState(() {});
+    }
 
     double? unitPrice;
 
@@ -225,22 +256,44 @@ class _AddAssetPageState extends State<AddAssetPage> {
       }
 
       if (mounted) {
-        _formState.isLoading = false;
-        if (unitPrice != null) {
-          double quantity = double.tryParse(_quantityController.text) ?? 1.0;
-          double totalAmount = unitPrice * quantity;
-          _amountController.text = totalAmount.toStringAsFixed(2);
-          _formState.clearError();
+        if (_controller != null) {
+          _controller!.setFormLoading(false);
+          if (unitPrice != null) {
+            double quantity = double.tryParse(_quantityController.text) ?? 1.0;
+            double totalAmount = unitPrice * quantity;
+            _amountController.text = totalAmount.toStringAsFixed(2);
+            _controller!.clearFormError();
+          } else {
+            _controller!.setFormError(
+              'Fiyat çekilemedi, lütfen manuel giriniz.',
+            );
+          }
         } else {
-          _formState.setError('Fiyat çekilemedi, lütfen manuel giriniz.');
+          _localIsLoading = false;
+          if (unitPrice != null) {
+            double quantity = double.tryParse(_quantityController.text) ?? 1.0;
+            double totalAmount = unitPrice * quantity;
+            _amountController.text = totalAmount.toStringAsFixed(2);
+            _localErrorMessage = null;
+          } else {
+            _localErrorMessage = 'Fiyat çekilemedi, lütfen manuel giriniz.';
+          }
+          setState(() {});
         }
       }
     } catch (e) {
       if (mounted) {
-        _formState.isLoading = false;
-        _formState.setError(
-          'Fiyat alınırken hata oluştu. Lütfen manuel giriniz.',
-        );
+        if (_controller != null) {
+          _controller!.setFormLoading(false);
+          _controller!.setFormError(
+            'Fiyat alınırken hata oluştu. Lütfen manuel giriniz.',
+          );
+        } else {
+          _localIsLoading = false;
+          _localErrorMessage =
+              'Fiyat alınırken hata oluştu. Lütfen manuel giriniz.';
+          setState(() {});
+        }
       }
     }
   }
@@ -526,9 +579,14 @@ class _AddAssetPageState extends State<AddAssetPage> {
               label: Text(category),
               selected: isSelected,
               onSelected: (selected) {
-                _formState.selectedCategory = category;
-                _formState.selectedType = null;
-                if (_selectedCategory == 'Banka') {
+                if (_controller != null) {
+                  _controller!.setFormCategory(category);
+                } else {
+                  _localSelectedCategory = category;
+                  _localSelectedType = null;
+                  setState(() {});
+                }
+                if (category == 'Banka') {
                   _quantityController.text = "1";
                 }
               },
@@ -583,7 +641,12 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 return DropdownMenuItem<String>(value: type, child: Text(type));
               }).toList(),
               onChanged: (value) {
-                _formState.selectedType = value;
+                if (_controller != null) {
+                  _controller!.setFormType(value);
+                } else {
+                  _localSelectedType = value;
+                  setState(() {});
+                }
               },
             ),
           ),
@@ -740,7 +803,12 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 lastDate: DateTime.now(),
               );
               if (picked != null) {
-                _formState.purchaseDate = picked;
+                if (_controller != null) {
+                  _controller!.setFormPurchaseDate(picked);
+                } else {
+                  _localPurchaseDate = picked;
+                  setState(() {});
+                }
               }
             },
             child: Container(

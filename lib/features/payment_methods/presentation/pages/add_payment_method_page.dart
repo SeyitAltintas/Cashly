@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../../../core/utils/amount_input_formatter.dart';
 import '../../../../core/constants/card_color_constants.dart';
-import '../state/add_payment_method_form_state.dart';
+import '../controllers/payment_methods_controller.dart';
 
 /// Ödeme Yöntemi Ekleme/Düzenleme Sayfası
 /// Modern tam sayfa tasarım - Koyu tema ile uyumlu
@@ -18,11 +18,13 @@ class AddPaymentMethodPage extends StatefulWidget {
     int colorIndex,
   )
   onSave;
+  final PaymentMethodsController? controller;
 
   const AddPaymentMethodPage({
     super.key,
     this.paymentMethod,
     required this.onSave,
+    this.controller,
   });
 
   @override
@@ -36,12 +38,16 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
   late TextEditingController _balanceController;
   late TextEditingController _limitController;
 
-  // ChangeNotifier state yöneticisi
-  late final AddPaymentMethodFormState _formState;
+  // Controller veya yerel state
+  PaymentMethodsController? _controller;
+  String _localSelectedType = 'banka';
+  int _localSelectedColorIndex = 0;
 
   // Getter'lar
-  String get _selectedType => _formState.selectedType;
-  int get _selectedColorIndex => _formState.selectedColorIndex;
+  String get _selectedType =>
+      _controller?.formSelectedType ?? _localSelectedType;
+  int get _selectedColorIndex =>
+      _controller?.formSelectedColorIndex ?? _localSelectedColorIndex;
 
   final List<String> _types = ['banka', 'kredi', 'nakit'];
   final List<String> _typeLabels = ['Banka Kartı', 'Kredi Kartı', 'Nakit'];
@@ -49,9 +55,8 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
   @override
   void initState() {
     super.initState();
-
-    _formState = AddPaymentMethodFormState();
-    _formState.addListener(_onFormStateChanged);
+    _controller = widget.controller;
+    _controller?.addListener(_onFormStateChanged);
 
     _nameController = TextEditingController(
       text: widget.paymentMethod?.name ?? '',
@@ -73,8 +78,19 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             )
           : '',
     );
-    _formState.selectedType = widget.paymentMethod?.type ?? 'banka';
-    _formState.selectedColorIndex = widget.paymentMethod?.colorIndex ?? 0;
+
+    final editType = widget.paymentMethod?.type ?? 'banka';
+    final editColorIndex = widget.paymentMethod?.colorIndex ?? 0;
+
+    if (_controller != null) {
+      _controller!.initializeFormState(
+        editType: editType,
+        editColorIndex: editColorIndex,
+      );
+    } else {
+      _localSelectedType = editType;
+      _localSelectedColorIndex = editColorIndex;
+    }
   }
 
   void _onFormStateChanged() {
@@ -83,8 +99,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
 
   @override
   void dispose() {
-    _formState.removeListener(_onFormStateChanged);
-    _formState.dispose();
+    _controller?.removeListener(_onFormStateChanged);
     _nameController.dispose();
     _lastFourController.dispose();
     _balanceController.dispose();
@@ -350,7 +365,12 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               return Expanded(
                 child: GestureDetector(
                   onTap: () {
-                    _formState.selectedType = _types[index];
+                    if (_controller != null) {
+                      _controller!.setFormType(_types[index]);
+                    } else {
+                      _localSelectedType = _types[index];
+                      setState(() {});
+                    }
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
@@ -693,7 +713,12 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                 ),
                 child: GestureDetector(
                   onTap: () {
-                    _formState.selectedColorIndex = index;
+                    if (_controller != null) {
+                      _controller!.setFormColorIndex(index);
+                    } else {
+                      _localSelectedColorIndex = index;
+                      setState(() {});
+                    }
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
