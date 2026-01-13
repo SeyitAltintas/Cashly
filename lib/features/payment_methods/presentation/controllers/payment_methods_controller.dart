@@ -105,6 +105,27 @@ class PaymentMethodsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Alias metodları (transfer_page.dart uyumu için)
+  void setTransferFromAccountId(String? accountId) =>
+      setTransferFromAccount(accountId);
+  void setTransferToAccountId(String? accountId) =>
+      setTransferToAccount(accountId);
+  void setTransferSelectedDate(DateTime date) => setTransferDate(date);
+
+  /// Ödeme yöntemi bakiyesini güncelle
+  void updatePaymentMethodBalance(String accountId, double newBalance) {
+    final index = _paymentMethods.indexWhere((pm) => pm.id == accountId);
+    if (index != -1) {
+      _paymentMethods[index] = _paymentMethods[index].copyWith(
+        balance: newBalance,
+      );
+      notifyListeners();
+    }
+  }
+
+  /// Transfer page için ödeme yöntemleri alias
+  List<PaymentMethod> get odemeYontemleri => _paymentMethods;
+
   // ===== DETAIL PAGE STATE (PaymentMethodDetailState'ten taşındı) =====
 
   // Detail: Seçilen ay

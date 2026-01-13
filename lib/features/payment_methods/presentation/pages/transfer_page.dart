@@ -9,12 +9,13 @@ import 'package:intl/intl.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../settings/domain/repositories/settings_repository.dart';
-import '../state/transfer_page_state.dart';
+import '../controllers/payment_methods_controller.dart';
 
 class TransferPage extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
   final List<Transfer> transfers;
   final String? userId;
+  final PaymentMethodsController? controller;
   final Function(String fromId, String toId, double amount, DateTime date)
   onTransfer;
 
@@ -24,6 +25,7 @@ class TransferPage extends StatefulWidget {
     required this.transfers,
     required this.onTransfer,
     this.userId,
+    this.controller,
   });
 
   @override
@@ -37,25 +39,38 @@ class _TransferPageState extends State<TransferPage> {
   // Sabitlenen Ana Renk
   final Color _primaryColor = const Color.fromARGB(255, 0, 123, 110);
 
-  // ChangeNotifier state yöneticisi
-  late final TransferPageState _formState;
+  // Controller veya yerel state
+  PaymentMethodsController? _controller;
+  String? _localFromAccountId;
+  String? _localToAccountId;
+  DateTime _localSelectedDate = DateTime.now();
+  String? _localSuccessMessage;
+  List<PaymentMethod> _localPaymentMethods = [];
 
   // Getter'lar
-  String? get _fromAccountId => _formState.fromAccountId;
-  String? get _toAccountId => _formState.toAccountId;
-  DateTime get _selectedDate => _formState.selectedDate;
-  String? get _successMessage => _formState.successMessage;
-  List<PaymentMethod> get _paymentMethods => _formState.paymentMethods;
+  String? get _fromAccountId =>
+      _controller?.transferFromAccountId ?? _localFromAccountId;
+  String? get _toAccountId =>
+      _controller?.transferToAccountId ?? _localToAccountId;
+  DateTime get _selectedDate =>
+      _controller?.transferSelectedDate ?? _localSelectedDate;
+  String? get _successMessage =>
+      _controller?.transferSuccessMessage ?? _localSuccessMessage;
+  List<PaymentMethod> get _paymentMethods =>
+      _controller?.odemeYontemleri ?? _localPaymentMethods;
 
   @override
   void initState() {
     super.initState();
-
-    _formState = TransferPageState();
-    _formState.addListener(_onFormStateChanged);
+    _controller = widget.controller;
+    _controller?.addListener(_onFormStateChanged);
 
     // Widget'tan kopyala (derin kopya)
-    _formState.initPaymentMethods(widget.paymentMethods);
+    if (_controller == null) {
+      _localPaymentMethods = widget.paymentMethods
+          .map((pm) => pm.copyWith())
+          .toList();
+    }
   }
 
   void _onFormStateChanged() {
@@ -90,8 +105,7 @@ class _TransferPageState extends State<TransferPage> {
   void dispose() {
     _amountController.dispose();
     _historyScrollController.dispose();
-    _formState.removeListener(_onFormStateChanged);
-    _formState.dispose();
+    _controller?.removeListener(_onFormStateChanged);
     super.dispose();
   }
 
@@ -101,7 +115,12 @@ class _TransferPageState extends State<TransferPage> {
 
     // Önceki mesajı temizle (yeni deneme yapılıyorsa)
     if (_successMessage != null) {
-      _formState.clearSuccessMessage();
+      if (_controller != null) {
+        _controller!.setTransferSuccessMessage(null);
+      } else {
+        _localSuccessMessage = null;
+        setState(() {});
+      }
     }
 
     if (!_formKey.currentState!.validate()) {
@@ -179,8 +198,25 @@ class _TransferPageState extends State<TransferPage> {
         newToBalance = toAccount.balance + amount;
       }
 
-      _formState.updateAccountBalance(fromAccount.id, newFromBalance);
-      _formState.updateAccountBalance(toAccount.id, newToBalance);
+      if (_controller != null) {
+        _controller!.updatePaymentMethodBalance(fromAccount.id, newFromBalance);
+        _controller!.updatePaymentMethodBalance(toAccount.id, newToBalance);
+      } else {
+        final fromIdx = _localPaymentMethods.indexWhere(
+          (pm) => pm.id == fromAccount.id,
+        );
+        if (fromIdx != -1)
+          _localPaymentMethods[fromIdx] = _localPaymentMethods[fromIdx]
+              .copyWith(balance: newFromBalance);
+        final toIdx = _localPaymentMethods.indexWhere(
+          (pm) => pm.id == toAccount.id,
+        );
+        if (toIdx != -1)
+          _localPaymentMethods[toIdx] = _localPaymentMethods[toIdx].copyWith(
+            balance: newToBalance,
+          );
+        setState(() {});
+      }
     }
 
     // Bilgi mesajı oluştur
@@ -194,17 +230,36 @@ class _TransferPageState extends State<TransferPage> {
         'd MMMM yyyy HH:mm',
         'tr_TR',
       ).format(_selectedDate);
-      _formState.successMessage =
+      final msg =
           "$fromAccountName ➔ $toAccountName\n$formattedAmount $formattedDate tarihinde transfer edilmek üzere zamanlandı.";
+      if (_controller != null) {
+        _controller!.setTransferSuccessMessage(msg);
+      } else {
+        _localSuccessMessage = msg;
+        setState(() {});
+      }
     } else {
       final formattedTime = DateFormat('HH:mm', 'tr_TR').format(_selectedDate);
-      _formState.successMessage =
+      final msg =
           "$fromAccountName ➔ $toAccountName\n$formattedAmount saat $formattedTime'de başarıyla transfer edildi.";
+      if (_controller != null) {
+        _controller!.setTransferSuccessMessage(msg);
+      } else {
+        _localSuccessMessage = msg;
+        setState(() {});
+      }
     }
 
     // Formu sıfırla
     _amountController.clear();
-    _formState.resetForm();
+    if (_controller != null) {
+      _controller!.resetTransferForm();
+    } else {
+      _localFromAccountId = null;
+      _localToAccountId = null;
+      _localSelectedDate = DateTime.now();
+      setState(() {});
+    }
 
     // Klavye açıksa kapat
     FocusScope.of(context).unfocus();
@@ -212,7 +267,12 @@ class _TransferPageState extends State<TransferPage> {
     // 5 saniye sonra başarı mesajını kaldır
     Future.delayed(const Duration(seconds: 5), () {
       if (mounted && _successMessage != null) {
-        _formState.clearSuccessMessage();
+        if (_controller != null) {
+          _controller!.setTransferSuccessMessage(null);
+        } else {
+          _localSuccessMessage = null;
+          setState(() {});
+        }
       }
     });
 
@@ -241,7 +301,12 @@ class _TransferPageState extends State<TransferPage> {
     );
 
     if (picked != null && picked != _selectedDate) {
-      _formState.selectedDate = picked;
+      if (_controller != null) {
+        _controller!.setTransferSelectedDate(picked);
+      } else {
+        _localSelectedDate = picked;
+        setState(() {});
+      }
     }
   }
 
@@ -611,7 +676,12 @@ class _TransferPageState extends State<TransferPage> {
               hint: "Hesap Seçin",
               icon: Icons.upload_rounded,
               onChanged: (val) {
-                _formState.fromAccountId = val;
+                if (_controller != null) {
+                  _controller!.setTransferFromAccountId(val);
+                } else {
+                  _localFromAccountId = val;
+                  setState(() {});
+                }
                 HapticService.selectionClick();
               },
               textColor: textColor,
@@ -625,7 +695,12 @@ class _TransferPageState extends State<TransferPage> {
               hint: "Hesap Seçin",
               icon: Icons.download_rounded,
               onChanged: (val) {
-                _formState.toAccountId = val;
+                if (_controller != null) {
+                  _controller!.setTransferToAccountId(val);
+                } else {
+                  _localToAccountId = val;
+                  setState(() {});
+                }
                 HapticService.selectionClick();
               },
               textColor: textColor,
