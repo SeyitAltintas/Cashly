@@ -3,7 +3,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/utils/amount_input_formatter.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../core/widgets/app_date_picker.dart';
+import '../../../../core/widgets/form/form_widgets.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../controllers/incomes_controller.dart';
@@ -59,21 +59,6 @@ class _AddIncomePageState extends State<AddIncomePage> {
 
   // Gelir teması rengi (yeşil)
   static const Color _accentColor = ColorConstants.yesil;
-
-  final List<String> _months = [
-    "Ocak",
-    "Şubat",
-    "Mart",
-    "Nisan",
-    "Mayıs",
-    "Haziran",
-    "Temmuz",
-    "Ağustos",
-    "Eylül",
-    "Ekim",
-    "Kasım",
-    "Aralık",
-  ];
 
   @override
   void initState() {
@@ -137,23 +122,6 @@ class _AddIncomePageState extends State<AddIncomePage> {
     _nameController.dispose();
     _amountController.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickDate() async {
-    final DateTime? picked = await AppDatePicker.show(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-    );
-    if (picked != null && picked != _selectedDate) {
-      if (_controller != null) {
-        _controller!.setFormDate(picked);
-      } else {
-        _localSelectedDate = picked;
-        setState(() {});
-      }
-    }
   }
 
   void _save() {
@@ -364,98 +332,35 @@ class _AddIncomePageState extends State<AddIncomePage> {
     );
   }
 
-  // Tarih seçici
+  // Tarih seçici - DatePickerField.income kullanılıyor
   Widget _buildDateSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Tarih",
-          style: TextStyle(color: Colors.white54, fontSize: 13),
-        ),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: _pickDate,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.calendar_today_outlined,
-                  color: _accentColor,
-                  size: 22,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  "${_selectedDate.day} ${_months[_selectedDate.month - 1]} ${_selectedDate.year}",
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
-                ),
-                const Spacer(),
-                const Icon(Icons.chevron_right, color: Colors.white38),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return DatePickerField.income(
+      selectedDate: _selectedDate,
+      onDateChanged: (picked) {
+        if (_controller != null) {
+          _controller!.setFormDate(picked);
+        } else {
+          _localSelectedDate = picked;
+          setState(() {});
+        }
+      },
+      labelText: 'Gelir Tarihi',
     );
   }
 
-  // Kategori seçici
+  // Kategori seçici - CategorySelector.income kullanılıyor
   Widget _buildCategorySelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Kategori",
-          style: TextStyle(color: Colors.white54, fontSize: 13),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedCategory,
-              dropdownColor: const Color(0xFF1E1E1E),
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-              isExpanded: true,
-              icon: const Icon(Icons.expand_more, color: Colors.white38),
-              items: _categoryIcons.keys.map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Row(
-                    children: [
-                      Icon(
-                        _categoryIcons[value],
-                        color: _accentColor,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(value),
-                    ],
-                  ),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                if (_controller != null) {
-                  _controller!.setFormCategory(newValue!);
-                } else {
-                  _localSelectedCategory = newValue!;
-                  setState(() {});
-                }
-              },
-            ),
-          ),
-        ),
-      ],
+    return CategorySelector.income(
+      selectedCategory: _selectedCategory,
+      categoryIcons: _categoryIcons,
+      onChanged: (newValue) {
+        if (_controller != null) {
+          _controller!.setFormCategory(newValue!);
+        } else {
+          _localSelectedCategory = newValue!;
+          setState(() {});
+        }
+      },
     );
   }
 
