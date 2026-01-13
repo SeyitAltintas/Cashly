@@ -4,7 +4,7 @@ import '../../../../core/services/speech/speech_service.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/widgets/app_snackbar.dart';
-import '../state/expense_voice_input_state.dart';
+import '../controllers/expenses_controller.dart';
 
 /// Sesli harcama girişi için modal bottom sheet widget'ı
 class VoiceInputSheet extends StatefulWidget {
@@ -18,7 +18,6 @@ class VoiceInputSheet extends StatefulWidget {
   final double Function()? onGetMonthlyTotal;
   final Map<String, dynamic>? Function()? onGetTopCategory;
 
-  /// Yeni sesli komut callback'leri
   final double Function()? onGetWeeklyTotal;
   final double Function()? onGetDailyTotal;
   final List<Map<String, dynamic>> Function()? onGetLastExpenses;
@@ -28,15 +27,16 @@ class VoiceInputSheet extends StatefulWidget {
   final Future<Map<String, dynamic>?> Function(double yeniTutar)?
   onEditLastExpense;
 
-  /// Tarihli harcama sorgusu callback'leri
   final double Function(DateTime baslangic, DateTime bitis)?
   onGetDateRangeTotal;
   final double Function(DateTime baslangic, DateTime bitis, String kategori)?
   onGetDateRangeCategoryTotal;
 
-  /// Bütçe ve hedef komutları callback'leri
   final Future<void> Function(double yeniLimit)? onSetBudgetLimit;
   final Map<String, dynamic> Function()? onGetSavings;
+
+  /// Controller (opsiyonel)
+  final ExpensesController? controller;
 
   const VoiceInputSheet({
     super.key,
@@ -57,6 +57,7 @@ class VoiceInputSheet extends StatefulWidget {
     this.onGetDateRangeCategoryTotal,
     this.onSetBudgetLimit,
     this.onGetSavings,
+    this.controller,
   });
 
   @override
@@ -67,20 +68,42 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     with SingleTickerProviderStateMixin {
   final SpeechService _speechService = SpeechService();
   final TtsService _ttsService = TtsService();
-  late final ExpenseVoiceInputState _voiceState;
+
+  // Controller veya yerel state
+  ExpensesController? _controller;
+  bool _localIsListening = false;
+  bool _localIsInitializing = true;
+  bool _localHasError = false;
+  bool _localIsCommandMode = false;
+  bool _localPendingConfirmation = false;
+  String _localConfirmationTitle = '';
+  String _localConfirmationMessage = '';
+  String _localErrorMessage = '';
+  String _localRecognizedText = '';
+  SpeechParseResult? _localParseResult;
+  String _localSelectedCategory = '';
 
   // Getter'lar
-  bool get _isListening => _voiceState.isListening;
-  bool get _isInitializing => _voiceState.isInitializing;
-  bool get _hasError => _voiceState.hasError;
-  bool get _isCommandMode => _voiceState.isCommandMode;
-  String get _errorMessage => _voiceState.errorMessage;
-  String get _recognizedText => _voiceState.recognizedText;
-  SpeechParseResult? get _parseResult => _voiceState.parseResult;
-  bool get _pendingConfirmation => _voiceState.pendingConfirmation;
-  String get _confirmationTitle => _voiceState.confirmationTitle;
-  String get _confirmationMessage => _voiceState.confirmationMessage;
-  String get _selectedCategory => _voiceState.selectedCategory;
+  bool get _isListening => _controller?.voiceIsListening ?? _localIsListening;
+  bool get _isInitializing =>
+      _controller?.voiceIsInitializing ?? _localIsInitializing;
+  bool get _hasError => _controller?.voiceHasError ?? _localHasError;
+  bool get _isCommandMode =>
+      _controller?.voiceIsCommandMode ?? _localIsCommandMode;
+  String get _errorMessage =>
+      _controller?.voiceErrorMessage ?? _localErrorMessage;
+  String get _recognizedText =>
+      _controller?.voiceRecognizedText ?? _localRecognizedText;
+  SpeechParseResult? get _parseResult =>
+      _controller?.voiceParseResult ?? _localParseResult;
+  bool get _pendingConfirmation =>
+      _controller?.voicePendingConfirmation ?? _localPendingConfirmation;
+  String get _confirmationTitle =>
+      _controller?.voiceConfirmationTitle ?? _localConfirmationTitle;
+  String get _confirmationMessage =>
+      _controller?.voiceConfirmationMessage ?? _localConfirmationMessage;
+  String get _selectedCategory =>
+      _controller?.voiceSelectedCategory ?? _localSelectedCategory;
 
   // Onay callback (state dışında tutulur)
   Future<void> Function()? _onConfirmCallback;
@@ -99,11 +122,17 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
   @override
   void initState() {
     super.initState();
-    _voiceState = ExpenseVoiceInputState();
-    _voiceState.addListener(_onStateChanged);
-    _voiceState.setCategory(
-      widget.categoryIcons.isNotEmpty ? widget.categoryIcons.keys.first : '',
-    );
+    _controller = widget.controller;
+    _controller?.addListener(_onStateChanged);
+
+    // İlk kategoriyi seç
+    if (widget.categoryIcons.isNotEmpty) {
+      if (_controller != null) {
+        _controller!.setVoiceCategory(widget.categoryIcons.keys.first);
+      } else {
+        _localSelectedCategory = widget.categoryIcons.keys.first;
+      }
+    }
     _initAnimation();
     _initSpeech();
   }
@@ -126,13 +155,26 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
 
     if (mounted) {
       if (success) {
-        _voiceState.setInitialized(success: true);
+        if (_controller != null) {
+          _controller!.setVoiceInitialized(success: true);
+        } else {
+          _localIsInitializing = false;
+          setState(() {});
+        }
         _startListening();
       } else {
-        _voiceState.setInitialized(
-          success: false,
-          error: 'Mikrofon izni verilemedi veya cihaz desteklemiyor.',
-        );
+        if (_controller != null) {
+          _controller!.setVoiceInitialized(
+            success: false,
+            error: 'Mikrofon izni verilemedi veya cihaz desteklemiyor.',
+          );
+        } else {
+          _localIsInitializing = false;
+          _localHasError = true;
+          _localErrorMessage =
+              'Mikrofon izni verilemedi veya cihaz desteklemiyor.';
+          setState(() {});
+        }
       }
     }
   }
@@ -142,7 +184,17 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     await SystemSound.play(SystemSoundType.click);
     await HapticFeedback.lightImpact();
 
-    _voiceState.startListening();
+    // Listening state başlat
+    if (_controller != null) {
+      _controller!.startVoiceListening();
+    } else {
+      _localIsListening = true;
+      _localIsCommandMode = false;
+      _localRecognizedText = '';
+      _localParseResult = null;
+      _localHasError = false;
+      setState(() {});
+    }
 
     await _speechService.startListening(
       onResult: (text) {
@@ -156,7 +208,14 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
           if (commandResult.komutAlgilandi) {
             // Komut algılandı - UI'ı güncelle ve işle
             debugPrint('Komut algılandı: ${commandResult.komutTuru}');
-            _voiceState.setCommandMode(text);
+            if (_controller != null) {
+              _controller!.setVoiceCommandMode(text);
+            } else {
+              _localRecognizedText = text;
+              _localIsCommandMode = true;
+              _localParseResult = null;
+              setState(() {});
+            }
             // Async olarak işle (callback içinde await yapamıyoruz)
             _handleVoiceCommand(commandResult).catchError((e) {
               debugPrint('_handleVoiceCommand hatası: $e');
@@ -167,14 +226,28 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               text,
               widget.categoryIcons.keys.toList(),
             );
-            _voiceState.updateRecognizedText(text, parseResult);
+            // State güncelle
+            if (_controller != null) {
+              _controller!.updateVoiceRecognizedText(text);
+              _controller!.setVoiceParseResult(parseResult);
+            } else {
+              _localRecognizedText = text;
+              _localIsCommandMode = false;
+              _localParseResult = parseResult;
+              setState(() {});
+            }
             // Parse sonucunu düzenleme alanlarına aktar
             if (parseResult.basarili) {
               _tutarController.text = parseResult.tutar!.toStringAsFixed(2);
               _isimController.text = parseResult.harcamaIsmi ?? text;
               // Kategori tahmini varsa seç, yoksa mevcut seçimi koru
               if (parseResult.kategori != null) {
-                _voiceState.setCategory(parseResult.kategori!);
+                if (_controller != null) {
+                  _controller!.setVoiceCategory(parseResult.kategori!);
+                } else {
+                  _localSelectedCategory = parseResult.kategori!;
+                  setState(() {});
+                }
               }
             }
           }
@@ -182,7 +255,12 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       },
       onDone: () {
         if (mounted) {
-          _voiceState.stopListening();
+          if (_controller != null) {
+            _controller!.stopVoiceListening();
+          } else {
+            _localIsListening = false;
+            setState(() {});
+          }
         }
       },
     );
@@ -194,7 +272,12 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     await _speechService.stopListening();
 
     if (mounted) {
-      _voiceState.stopListening();
+      if (_controller != null) {
+        _controller!.stopVoiceListening();
+      } else {
+        _localIsListening = false;
+        setState(() {});
+      }
     }
 
     switch (command.komutTuru) {
@@ -852,7 +935,14 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     required String mesaj,
     required Future<void> Function() onConfirm,
   }) {
-    _voiceState.requestConfirmation(title: baslik, message: mesaj);
+    if (_controller != null) {
+      _controller!.requestVoiceConfirmation(title: baslik, message: mesaj);
+    } else {
+      _localPendingConfirmation = true;
+      _localConfirmationTitle = baslik;
+      _localConfirmationMessage = mesaj;
+      setState(() {});
+    }
     _onConfirmCallback = onConfirm;
   }
 
@@ -866,7 +956,14 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
 
   /// Onay durumunu sıfırla
   void _resetConfirmation() {
-    _voiceState.clearConfirmation();
+    if (_controller != null) {
+      _controller!.clearVoiceConfirmation();
+    } else {
+      _localPendingConfirmation = false;
+      _localConfirmationTitle = '';
+      _localConfirmationMessage = '';
+      setState(() {});
+    }
     _onConfirmCallback = null;
   }
 
@@ -908,7 +1005,12 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     await HapticFeedback.mediumImpact();
 
     if (mounted) {
-      _voiceState.stopListening();
+      if (_controller != null) {
+        _controller!.stopVoiceListening();
+      } else {
+        _localIsListening = false;
+        setState(() {});
+      }
     }
   }
 
@@ -1456,7 +1558,12 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                         }).toList(),
                         onChanged: (value) {
                           if (value != null) {
-                            _voiceState.setCategory(value);
+                            if (_controller != null) {
+                              _controller!.setVoiceCategory(value);
+                            } else {
+                              _localSelectedCategory = value;
+                              setState(() {});
+                            }
                           }
                         },
                       ),
@@ -1476,7 +1583,14 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        _voiceState.resetForm();
+                        if (_controller != null) {
+                          _controller!.resetVoiceForm();
+                        } else {
+                          _localRecognizedText = '';
+                          _localIsCommandMode = false;
+                          _localParseResult = null;
+                          setState(() {});
+                        }
                         _startListening();
                       },
                       icon: const Icon(Icons.refresh),

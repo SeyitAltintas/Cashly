@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../../../core/services/speech/speech_service.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -167,10 +168,39 @@ class ExpensesController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Voice: Parse result
+  SpeechParseResult? _voiceParseResult;
+  SpeechParseResult? get voiceParseResult => _voiceParseResult;
+  void setVoiceParseResult(SpeechParseResult? result) {
+    _voiceParseResult = result;
+    notifyListeners();
+  }
+
+  // Voice: Seçilen kategori
+  String _voiceSelectedCategory = '';
+  String get voiceSelectedCategory => _voiceSelectedCategory;
+  void setVoiceCategory(String category) {
+    if (_voiceSelectedCategory != category) {
+      _voiceSelectedCategory = category;
+      notifyListeners();
+    }
+  }
+
+  // Voice: Seçilen ödeme yöntemi
+  String? _voiceSelectedPaymentMethodId;
+  String? get voiceSelectedPaymentMethodId => _voiceSelectedPaymentMethodId;
+  void setVoicePaymentMethod(String? paymentMethodId) {
+    if (_voiceSelectedPaymentMethodId != paymentMethodId) {
+      _voiceSelectedPaymentMethodId = paymentMethodId;
+      notifyListeners();
+    }
+  }
+
   /// Voice state: Formu sıfırla
   void resetVoiceForm() {
     _voiceRecognizedText = '';
     _voiceIsCommandMode = false;
+    _voiceParseResult = null;
     notifyListeners();
   }
 

@@ -205,16 +205,18 @@ class _TransferPageState extends State<TransferPage> {
         final fromIdx = _localPaymentMethods.indexWhere(
           (pm) => pm.id == fromAccount.id,
         );
-        if (fromIdx != -1)
+        if (fromIdx != -1) {
           _localPaymentMethods[fromIdx] = _localPaymentMethods[fromIdx]
               .copyWith(balance: newFromBalance);
+        }
         final toIdx = _localPaymentMethods.indexWhere(
           (pm) => pm.id == toAccount.id,
         );
-        if (toIdx != -1)
+        if (toIdx != -1) {
           _localPaymentMethods[toIdx] = _localPaymentMethods[toIdx].copyWith(
             balance: newToBalance,
           );
+        }
         setState(() {});
       }
     }
