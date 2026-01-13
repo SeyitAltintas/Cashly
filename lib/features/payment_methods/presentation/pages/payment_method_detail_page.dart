@@ -8,7 +8,7 @@ import '../../../../core/utils/amount_input_formatter.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../data/models/transfer_model.dart';
 import '../../../income/data/models/income_model.dart';
-import '../state/payment_method_detail_state.dart';
+import '../controllers/payment_methods_controller.dart';
 
 /// Hesap detay sayfası - Bir ödeme yönteminin tüm işlemlerini gösterir
 class PaymentMethodDetailPage extends StatefulWidget {
@@ -17,6 +17,7 @@ class PaymentMethodDetailPage extends StatefulWidget {
   final List<Income> gelirler;
   final List<Transfer> transferler;
   final List<PaymentMethod> tumOdemeYontemleri;
+  final PaymentMethodsController? controller;
 
   const PaymentMethodDetailPage({
     super.key,
@@ -25,6 +26,7 @@ class PaymentMethodDetailPage extends StatefulWidget {
     required this.gelirler,
     required this.transferler,
     required this.tumOdemeYontemleri,
+    this.controller,
   });
 
   @override
@@ -34,10 +36,13 @@ class PaymentMethodDetailPage extends StatefulWidget {
 
 class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
     with LazyLoadingMixin {
-  late final PaymentMethodDetailState _pageState;
+  // Controller veya yerel state
+  PaymentMethodsController? _controller;
+  int _localSecilenAy = DateTime.now().month;
+  int _localSecilenYil = DateTime.now().year;
 
-  int get _secilenAy => _pageState.secilenAy;
-  int get _secilenYil => _pageState.secilenYil;
+  int get _secilenAy => _controller?.detailSecilenAy ?? _localSecilenAy;
+  int get _secilenYil => _controller?.detailSecilenYil ?? _localSecilenYil;
 
   void _onStateChanged() {
     if (mounted) setState(() {});
@@ -46,16 +51,15 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
   @override
   void initState() {
     super.initState();
-    _pageState = PaymentMethodDetailState();
-    _pageState.addListener(_onStateChanged);
+    _controller = widget.controller;
+    _controller?.addListener(_onStateChanged);
     // Lazy loading başlat
     initLazyLoading();
   }
 
   @override
   void dispose() {
-    _pageState.removeListener(_onStateChanged);
-    _pageState.dispose();
+    _controller?.removeListener(_onStateChanged);
     disposeLazyLoading();
     super.dispose();
   }
@@ -158,9 +162,14 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
     }).toList();
   }
 
-  /// Ay seçimi değiştiğinde
   void _onMonthSelected(DateTime date) {
-    _pageState.selectMonth(date.month, date.year);
+    if (_controller != null) {
+      _controller!.selectDetailMonth(date.month, date.year);
+    } else {
+      _localSecilenAy = date.month;
+      _localSecilenYil = date.year;
+      setState(() {});
+    }
     // Lazy loading'i sıfırla
     final filtered = _getFilteredTransactions();
     resetLazyLoading(filtered.length);

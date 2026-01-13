@@ -105,6 +105,33 @@ class PaymentMethodsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ===== DETAIL PAGE STATE (PaymentMethodDetailState'ten taşındı) =====
+
+  // Detail: Seçilen ay
+  late int _detailSecilenAy = DateTime.now().month;
+  int get detailSecilenAy => _detailSecilenAy;
+
+  // Detail: Seçilen yıl
+  late int _detailSecilenYil = DateTime.now().year;
+  int get detailSecilenYil => _detailSecilenYil;
+
+  /// Detail sayfası için ay seçimini güncelle
+  void selectDetailMonth(int month, int year) {
+    if (_detailSecilenAy != month || _detailSecilenYil != year) {
+      _detailSecilenAy = month;
+      _detailSecilenYil = year;
+      notifyListeners();
+    }
+  }
+
+  /// Detail sayfasını şu ana sıfırla
+  void resetDetailMonth() {
+    final now = DateTime.now();
+    _detailSecilenAy = now.month;
+    _detailSecilenYil = now.year;
+    notifyListeners();
+  }
+
   // ===== ANA STATE =====
 
   bool _aramaModu = false;
