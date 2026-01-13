@@ -5,34 +5,38 @@ import 'package:cashly/features/expenses/domain/repositories/expense_repository.
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
-import '../state/expense_recycle_bin_state.dart';
+import '../controllers/expenses_controller.dart';
 
 class CopKutusuSayfasi extends StatefulWidget {
   final String userId;
+  final ExpensesController? controller;
 
-  const CopKutusuSayfasi({super.key, required this.userId});
+  const CopKutusuSayfasi({super.key, required this.userId, this.controller});
 
   @override
   State<CopKutusuSayfasi> createState() => _CopKutusuSayfasiState();
 }
 
 class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
-  // ChangeNotifier state yöneticisi
-  late final ExpenseRecycleBinState _binState;
+  // Controller veya yerel state
+  ExpensesController? _controller;
+  List<Map<String, dynamic>> _localSilinenHarcamalar = [];
+  List<Map<String, dynamic>> _localTumHarcamalarHam = [];
+  List<PaymentMethod> _localOdemeYontemleri = [];
 
   // Getter'lar
   List<Map<String, dynamic>> get silinenHarcamalar =>
-      _binState.silinenHarcamalar;
-  List<Map<String, dynamic>> get tumHarcamalarHam => _binState.tumHarcamalarHam;
-  List<PaymentMethod> get odemeYontemleri => _binState.odemeYontemleri;
+      _controller?.binSilinenHarcamalar ?? _localSilinenHarcamalar;
+  List<Map<String, dynamic>> get tumHarcamalarHam =>
+      _controller?.tumHarcamalar ?? _localTumHarcamalarHam;
+  List<PaymentMethod> get odemeYontemleri =>
+      _controller?.tumOdemeYontemleri ?? _localOdemeYontemleri;
 
   @override
   void initState() {
     super.initState();
-
-    _binState = ExpenseRecycleBinState();
-    _binState.addListener(_onStateChanged);
-
+    _controller = widget.controller;
+    _controller?.addListener(_onStateChanged);
     verileriYukle();
   }
 
@@ -42,8 +46,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
 
   @override
   void dispose() {
-    _binState.removeListener(_onStateChanged);
-    _binState.dispose();
+    _controller?.removeListener(_onStateChanged);
     super.dispose();
   }
 
@@ -51,19 +54,21 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
     final expenseRepo = getIt<ExpenseRepository>();
     final paymentRepo = getIt<PaymentMethodRepository>();
 
-    _binState.tumHarcamalarHam = expenseRepo.getExpenses(widget.userId);
-
-    // Ödeme yöntemlerini yükle
+    final harcamalar = expenseRepo.getExpenses(widget.userId);
     List<Map<String, dynamic>> pmVerileri = paymentRepo.getPaymentMethods(
       widget.userId,
     );
-    _binState.odemeYontemleri = pmVerileri
-        .map((m) => PaymentMethod.fromMap(m))
-        .toList();
+    final pmList = pmVerileri.map((m) => PaymentMethod.fromMap(m)).toList();
+    final silinen = harcamalar.where((e) => e['silindi'] == true).toList();
 
-    _binState.silinenHarcamalar = tumHarcamalarHam
-        .where((element) => element['silindi'] == true)
-        .toList();
+    if (_controller != null) {
+      _controller!.setBinSilinenHarcamalar(silinen);
+    } else {
+      _localTumHarcamalarHam = harcamalar;
+      _localOdemeYontemleri = pmList;
+      _localSilinenHarcamalar = silinen;
+      setState(() {});
+    }
   }
 
   Future<void> copuBosalt() async {
@@ -102,7 +107,13 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
     );
 
     if (onay == true) {
-      _binState.emptyBin();
+      if (_controller != null) {
+        _controller!.binEmptyBin();
+      } else {
+        _localTumHarcamalarHam.removeWhere((e) => e['silindi'] == true);
+        _localSilinenHarcamalar.clear();
+        setState(() {});
+      }
       getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
       if (mounted) {
         AppSnackBar.deleted(context, 'Çöp kutusu temizlendi.');
@@ -111,7 +122,13 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
   }
 
   Future<void> harcamayiGeriYukle(Map<String, dynamic> harcama) async {
-    _binState.restoreHarcama(harcama);
+    if (_controller != null) {
+      _controller!.binRestoreHarcama(harcama);
+    } else {
+      harcama['silindi'] = false;
+      _localSilinenHarcamalar.remove(harcama);
+      setState(() {});
+    }
     getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
     // Ödeme yöntemlerini kaydet
     List<Map<String, dynamic>> pmMapleri = odemeYontemleri
@@ -128,7 +145,13 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
   }
 
   Future<void> harcamayiKaliciSil(Map<String, dynamic> harcama) async {
-    _binState.permanentDeleteHarcama(harcama);
+    if (_controller != null) {
+      _controller!.binPermanentDeleteHarcama(harcama);
+    } else {
+      _localTumHarcamalarHam.remove(harcama);
+      _localSilinenHarcamalar.remove(harcama);
+      setState(() {});
+    }
     getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
     if (mounted) {
       AppSnackBar.deleted(context, 'Harcama kalıcı olarak silindi 🗑️');
@@ -176,7 +199,15 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
 
     if (onay == true) {
       // State metoduyla tüm harcamaları geri yükle (bakiye güncelleme dahil)
-      _binState.restoreAll();
+      if (_controller != null) {
+        _controller!.binRestoreAll();
+      } else {
+        for (var harcama in List.from(_localSilinenHarcamalar)) {
+          harcama['silindi'] = false;
+        }
+        _localSilinenHarcamalar.clear();
+        setState(() {});
+      }
 
       // Verileri kaydet
       getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);

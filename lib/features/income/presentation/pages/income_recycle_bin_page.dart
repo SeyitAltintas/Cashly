@@ -5,22 +5,31 @@ import '../../../income/domain/repositories/income_repository.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import '../../data/models/income_model.dart';
-import '../state/income_recycle_bin_state.dart';
+import '../controllers/incomes_controller.dart';
 
 class GelirCopKutusuSayfasi extends StatefulWidget {
   final String userId;
+  final IncomesController? controller;
 
-  const GelirCopKutusuSayfasi({super.key, required this.userId});
+  const GelirCopKutusuSayfasi({
+    super.key,
+    required this.userId,
+    this.controller,
+  });
 
   @override
   State<GelirCopKutusuSayfasi> createState() => _GelirCopKutusuSayfasiState();
 }
 
 class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
-  late final IncomeRecycleBinState _binState;
+  // Controller veya yerel state
+  IncomesController? _controller;
+  List<Income> _localSilinenGelirler = [];
+  List<Income> _localTumGelirler = [];
 
-  List<Income> get silinenGelirler => _binState.silinenGelirler;
-  List<Income> get tumGelirler => _binState.tumGelirler;
+  List<Income> get silinenGelirler =>
+      _controller?.binSilinenGelirler ?? _localSilinenGelirler;
+  List<Income> get tumGelirler => _controller?.tumGelirler ?? _localTumGelirler;
 
   final List<String> _months = [
     "Ocak",
@@ -40,8 +49,8 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
   @override
   void initState() {
     super.initState();
-    _binState = IncomeRecycleBinState();
-    _binState.addListener(_onStateChanged);
+    _controller = widget.controller;
+    _controller?.addListener(_onStateChanged);
     verileriYukle();
   }
 
@@ -51,8 +60,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
 
   @override
   void dispose() {
-    _binState.removeListener(_onStateChanged);
-    _binState.dispose();
+    _controller?.removeListener(_onStateChanged);
     super.dispose();
   }
 
@@ -62,12 +70,16 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
       List<Map<String, dynamic>> gelirVerileri = incomeRepo.getIncomes(
         widget.userId,
       );
-      _binState.tumGelirler = gelirVerileri
-          .map((map) => Income.fromMap(map))
-          .toList();
-      _binState.silinenGelirler = tumGelirler
-          .where((g) => g.isDeleted)
-          .toList();
+      final gelirler = gelirVerileri.map((map) => Income.fromMap(map)).toList();
+      final silinen = gelirler.where((g) => g.isDeleted).toList();
+
+      if (_controller != null) {
+        _controller!.setBinSilinenGelirler(silinen);
+      } else {
+        _localTumGelirler = gelirler;
+        _localSilinenGelirler = silinen;
+        setState(() {});
+      }
     } catch (e) {
       ErrorHandler.handleDatabaseError(context, e);
       ErrorHandler.logError('Silinen gelirler yüklenirken hata', e);
@@ -122,7 +134,13 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
     );
 
     if (onay == true) {
-      _binState.emptyBin();
+      if (_controller != null) {
+        _controller!.binEmptyBin();
+      } else {
+        _localTumGelirler.removeWhere((g) => g.isDeleted);
+        _localSilinenGelirler.clear();
+        setState(() {});
+      }
       kaydet();
       if (mounted) {
         AppSnackBar.deleted(context, 'Çöp kutusu temizlendi.');
@@ -131,7 +149,16 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
   }
 
   Future<void> geliriGeriYukle(Income gelir) async {
-    _binState.restoreGelir(gelir);
+    if (_controller != null) {
+      _controller!.binRestoreGelir(gelir);
+    } else {
+      int index = _localTumGelirler.indexWhere((g) => g.id == gelir.id);
+      if (index != -1) {
+        _localTumGelirler[index] = gelir.copyWith(isDeleted: false);
+      }
+      _localSilinenGelirler.removeWhere((g) => g.id == gelir.id);
+      setState(() {});
+    }
     kaydet();
     if (mounted) {
       AppSnackBar.success(context, 'Gelir geri yüklendi ♻️');
@@ -139,7 +166,13 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
   }
 
   Future<void> geliriKaliciSil(Income gelir) async {
-    _binState.permanentDeleteGelir(gelir);
+    if (_controller != null) {
+      _controller!.binPermanentDeleteGelir(gelir);
+    } else {
+      _localTumGelirler.removeWhere((g) => g.id == gelir.id);
+      _localSilinenGelirler.removeWhere((g) => g.id == gelir.id);
+      setState(() {});
+    }
     kaydet();
     if (mounted) {
       AppSnackBar.deleted(context, 'Gelir kalıcı olarak silindi 🗑️');
@@ -186,7 +219,18 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
     );
 
     if (onay == true) {
-      _binState.restoreAll();
+      if (_controller != null) {
+        _controller!.binRestoreAll();
+      } else {
+        for (var gelir in _localSilinenGelirler) {
+          int index = _localTumGelirler.indexWhere((g) => g.id == gelir.id);
+          if (index != -1) {
+            _localTumGelirler[index] = gelir.copyWith(isDeleted: false);
+          }
+        }
+        _localSilinenGelirler.clear();
+        setState(() {});
+      }
       kaydet();
       if (mounted) {
         AppSnackBar.success(context, 'Tüm gelirler geri yüklendi ♻️');

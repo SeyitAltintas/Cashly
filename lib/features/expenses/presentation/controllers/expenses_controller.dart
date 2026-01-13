@@ -220,6 +220,84 @@ class ExpensesController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ===== RECYCLE BIN STATE (ExpenseRecycleBinState'ten taşındı) =====
+
+  // Silinen harcamalar listesi
+  List<Map<String, dynamic>> _binSilinenHarcamalar = [];
+  List<Map<String, dynamic>> get binSilinenHarcamalar => _binSilinenHarcamalar;
+  void setBinSilinenHarcamalar(List<Map<String, dynamic>> value) {
+    _binSilinenHarcamalar = value;
+    notifyListeners();
+  }
+
+  /// Silinen harcamayı geri yükle (bakiye güncelleme ile)
+  void binRestoreHarcama(Map<String, dynamic> harcama) {
+    harcama['silindi'] = false;
+    _binSilinenHarcamalar.remove(harcama);
+
+    // Ödeme yönteminin bakiyesini güncelle
+    final paymentMethodId = harcama['odemeYontemiId'];
+    if (paymentMethodId != null) {
+      final pmIndex = _tumOdemeYontemleri.indexWhere(
+        (p) => p.id == paymentMethodId,
+      );
+      if (pmIndex != -1) {
+        final pm = _tumOdemeYontemleri[pmIndex];
+        final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+        double newBalance;
+        if (pm.type == 'kredi') {
+          newBalance = pm.balance + amount;
+        } else {
+          newBalance = pm.balance - amount;
+        }
+        _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+      }
+    }
+    notifyListeners();
+  }
+
+  /// Harcamayı kalıcı sil
+  void binPermanentDeleteHarcama(Map<String, dynamic> harcama) {
+    _tumHarcamalar.remove(harcama);
+    _binSilinenHarcamalar.remove(harcama);
+    notifyListeners();
+  }
+
+  /// Çöpü boşalt
+  void binEmptyBin() {
+    _tumHarcamalar.removeWhere((element) => element['silindi'] == true);
+    _binSilinenHarcamalar.clear();
+    notifyListeners();
+  }
+
+  /// Tümünü geri yükle (bakiye güncelleme ile)
+  void binRestoreAll() {
+    for (var harcama in List.from(_binSilinenHarcamalar)) {
+      harcama['silindi'] = false;
+
+      // Ödeme yönteminin bakiyesini güncelle
+      final paymentMethodId = harcama['odemeYontemiId'];
+      if (paymentMethodId != null) {
+        final pmIndex = _tumOdemeYontemleri.indexWhere(
+          (p) => p.id == paymentMethodId,
+        );
+        if (pmIndex != -1) {
+          final pm = _tumOdemeYontemleri[pmIndex];
+          final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+          double newBalance;
+          if (pm.type == 'kredi') {
+            newBalance = pm.balance + amount;
+          } else {
+            newBalance = pm.balance - amount;
+          }
+          _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+        }
+      }
+    }
+    _binSilinenHarcamalar.clear();
+    notifyListeners();
+  }
+
   // ===== ANA STATE =====
 
   // Arama modu state'i

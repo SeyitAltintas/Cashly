@@ -458,4 +458,50 @@ class IncomesController extends ChangeNotifier {
     _catMgmtKategoriler.insert(newIndex, kategori);
     notifyListeners();
   }
+
+  // ===== RECYCLE BIN STATE (IncomeRecycleBinState'ten taşındı) =====
+
+  // Silinen gelirler listesi
+  List<Income> _binSilinenGelirler = [];
+  List<Income> get binSilinenGelirler => _binSilinenGelirler;
+  void setBinSilinenGelirler(List<Income> value) {
+    _binSilinenGelirler = value;
+    notifyListeners();
+  }
+
+  /// Silinen geliri geri yükle
+  void binRestoreGelir(Income gelir) {
+    int index = _tumGelirler.indexWhere((g) => g.id == gelir.id);
+    if (index != -1) {
+      _tumGelirler[index] = gelir.copyWith(isDeleted: false);
+    }
+    _binSilinenGelirler.removeWhere((g) => g.id == gelir.id);
+    notifyListeners();
+  }
+
+  /// Geliri kalıcı sil
+  void binPermanentDeleteGelir(Income gelir) {
+    _tumGelirler.removeWhere((g) => g.id == gelir.id);
+    _binSilinenGelirler.removeWhere((g) => g.id == gelir.id);
+    notifyListeners();
+  }
+
+  /// Çöpü boşalt
+  void binEmptyBin() {
+    _tumGelirler.removeWhere((g) => g.isDeleted);
+    _binSilinenGelirler.clear();
+    notifyListeners();
+  }
+
+  /// Tümünü geri yükle
+  void binRestoreAll() {
+    for (var gelir in _binSilinenGelirler) {
+      int index = _tumGelirler.indexWhere((g) => g.id == gelir.id);
+      if (index != -1) {
+        _tumGelirler[index] = gelir.copyWith(isDeleted: false);
+      }
+    }
+    _binSilinenGelirler.clear();
+    notifyListeners();
+  }
 }
