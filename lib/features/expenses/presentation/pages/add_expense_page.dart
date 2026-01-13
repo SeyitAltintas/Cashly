@@ -7,7 +7,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/app_date_picker.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
-import '../state/add_expense_form_state.dart';
+import '../controllers/expenses_controller.dart';
 
 /// Harcama ekleme/düzenleme sayfası
 /// Modern ve sade tasarım - Harcama temasına uygun
@@ -24,6 +24,8 @@ class AddExpensePage extends StatefulWidget {
   final Map<String, IconData> categories;
   final List<PaymentMethod> paymentMethods;
   final String? defaultPaymentMethodId;
+  final ExpensesController?
+  controller; // Opsiyonel controller - varsa formState için kullanılır
 
   const AddExpensePage({
     super.key,
@@ -32,6 +34,7 @@ class AddExpensePage extends StatefulWidget {
     required this.categories,
     this.paymentMethods = const [],
     this.defaultPaymentMethodId,
+    this.controller,
   });
 
   @override
@@ -44,13 +47,21 @@ class _AddExpensePageState extends State<AddExpensePage> {
   final TextEditingController _amountController = TextEditingController();
   late Map<String, IconData> _categoryIcons;
 
-  // ChangeNotifier state yöneticisi
-  late final AddExpenseFormState _formState;
+  // Controller'dan gelen veya yerel state
+  ExpensesController? _controller;
 
-  // Getter'lar - state'e kolay erişim
-  String get _selectedCategory => _formState.selectedCategory;
-  DateTime get _selectedDate => _formState.selectedDate;
-  String? get _selectedPaymentMethodId => _formState.selectedPaymentMethodId;
+  // Yerel state değişkenleri (controller yoksa kullanılır)
+  DateTime _localSelectedDate = DateTime.now();
+  String _localSelectedCategory = '';
+  String? _localSelectedPaymentMethodId;
+
+  // Getter'lar - controller varsa onu, yoksa yerel state'i kullan
+  String get _selectedCategory =>
+      _controller?.formSelectedCategory ?? _localSelectedCategory;
+  DateTime get _selectedDate =>
+      _controller?.formSelectedDate ?? _localSelectedDate;
+  String? get _selectedPaymentMethodId =>
+      _controller?.formSelectedPaymentMethodId ?? _localSelectedPaymentMethodId;
 
   // Harcama teması rengi
   static const Color _accentColor = ColorConstants.kirmiziVurgu;
@@ -74,32 +85,60 @@ class _AddExpensePageState extends State<AddExpensePage> {
   void initState() {
     super.initState();
     _categoryIcons = widget.categories;
+    _controller = widget.controller;
 
-    _formState = AddExpenseFormState();
-    _formState.addListener(_onFormStateChanged);
+    // Controller varsa listener ekle
+    _controller?.addListener(_onFormStateChanged);
 
     // Varsayılan kategori
-    _formState.selectedCategory = _categoryIcons.keys.first;
+    final defaultCategory = _categoryIcons.keys.first;
 
     if (widget.expenseToEdit != null) {
       _nameController.text = widget.expenseToEdit!['isim'];
       _amountController.text = widget.expenseToEdit!['tutar'].toString();
       final editCategory = widget.expenseToEdit!['kategori'] as String?;
-      if (editCategory != null && _categoryIcons.containsKey(editCategory)) {
-        _formState.selectedCategory = editCategory;
-      }
-      _formState.selectedDate =
+      final categoryToUse =
+          (editCategory != null && _categoryIcons.containsKey(editCategory))
+          ? editCategory
+          : defaultCategory;
+      final editDate =
           DateTime.tryParse(widget.expenseToEdit!['tarih'].toString()) ??
           DateTime.now();
-      _formState.selectedPaymentMethodId =
-          widget.expenseToEdit!['odemeYontemiId'];
-    } else if (widget.defaultPaymentMethodId != null &&
-        widget.paymentMethods.any(
-          (pm) => pm.id == widget.defaultPaymentMethodId,
-        )) {
-      _formState.selectedPaymentMethodId = widget.defaultPaymentMethodId;
-    } else if (widget.paymentMethods.isNotEmpty) {
-      _formState.selectedPaymentMethodId = widget.paymentMethods.first.id;
+      final editPaymentMethodId = widget.expenseToEdit!['odemeYontemiId'];
+
+      if (_controller != null) {
+        _controller!.initializeFormState(
+          defaultCategory: categoryToUse,
+          editDate: editDate,
+          editCategory: categoryToUse,
+          editPaymentMethodId: editPaymentMethodId,
+        );
+      } else {
+        _localSelectedCategory = categoryToUse;
+        _localSelectedDate = editDate;
+        _localSelectedPaymentMethodId = editPaymentMethodId;
+      }
+    } else {
+      // Yeni harcama için varsayılanlar
+      String? defaultPmId;
+      if (widget.defaultPaymentMethodId != null &&
+          widget.paymentMethods.any(
+            (pm) => pm.id == widget.defaultPaymentMethodId,
+          )) {
+        defaultPmId = widget.defaultPaymentMethodId;
+      } else if (widget.paymentMethods.isNotEmpty) {
+        defaultPmId = widget.paymentMethods.first.id;
+      }
+
+      if (_controller != null) {
+        _controller!.initializeFormState(
+          defaultCategory: defaultCategory,
+          defaultPaymentMethodId: defaultPmId,
+        );
+      } else {
+        _localSelectedCategory = defaultCategory;
+        _localSelectedPaymentMethodId = defaultPmId;
+      }
     }
   }
 
@@ -109,8 +148,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   @override
   void dispose() {
-    _formState.removeListener(_onFormStateChanged);
-    _formState.dispose();
+    _controller?.removeListener(_onFormStateChanged);
+    // Controller'ı dispose etmiyoruz çünkü o dışarıdan geldi
     _nameController.dispose();
     _amountController.dispose();
     super.dispose();
@@ -124,7 +163,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
       lastDate: DateTime(2030),
     );
     if (picked != null && picked != _selectedDate) {
-      _formState.selectedDate = picked;
+      if (_controller != null) {
+        _controller!.setFormDate(picked);
+      } else {
+        _localSelectedDate = picked;
+        setState(() {});
+      }
     }
   }
 
@@ -459,7 +503,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 );
               }).toList(),
               onChanged: (newValue) {
-                _formState.selectedCategory = newValue!;
+                if (_controller != null) {
+                  _controller!.setFormCategory(newValue!);
+                } else {
+                  _localSelectedCategory = newValue!;
+                  setState(() {});
+                }
               },
             ),
           ),
@@ -556,7 +605,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 );
               }).toList(),
               onChanged: (newValue) {
-                _formState.selectedPaymentMethodId = newValue;
+                if (_controller != null) {
+                  _controller!.setFormPaymentMethod(newValue);
+                } else {
+                  _localSelectedPaymentMethodId = newValue;
+                  setState(() {});
+                }
               },
             ),
           ),

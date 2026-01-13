@@ -6,7 +6,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/app_date_picker.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
-import '../state/add_income_form_state.dart';
+import '../controllers/incomes_controller.dart';
 
 /// Gelir ekleme/düzenleme sayfası
 /// Modern ve sade tasarım - Gelir temasına uygun (yeşil)
@@ -22,6 +22,7 @@ class AddIncomePage extends StatefulWidget {
   onSave;
   final Map<String, IconData> categories;
   final List<PaymentMethod> paymentMethods;
+  final IncomesController? controller;
 
   const AddIncomePage({
     super.key,
@@ -29,6 +30,7 @@ class AddIncomePage extends StatefulWidget {
     required this.onSave,
     required this.categories,
     this.paymentMethods = const [],
+    this.controller,
   });
 
   @override
@@ -41,13 +43,19 @@ class _AddIncomePageState extends State<AddIncomePage> {
   final TextEditingController _amountController = TextEditingController();
   late Map<String, IconData> _categoryIcons;
 
-  // ChangeNotifier state yöneticisi
-  late final AddIncomeFormState _formState;
+  // Controller veya yerel state
+  IncomesController? _controller;
+  DateTime _localSelectedDate = DateTime.now();
+  String _localSelectedCategory = '';
+  String? _localSelectedPaymentMethodId;
 
   // Getter'lar
-  String get _selectedCategory => _formState.selectedCategory;
-  DateTime get _selectedDate => _formState.selectedDate;
-  String? get _selectedPaymentMethodId => _formState.selectedPaymentMethodId;
+  String get _selectedCategory =>
+      _controller?.formSelectedCategory ?? _localSelectedCategory;
+  DateTime get _selectedDate =>
+      _controller?.formSelectedDate ?? _localSelectedDate;
+  String? get _selectedPaymentMethodId =>
+      _controller?.formSelectedPaymentMethodId ?? _localSelectedPaymentMethodId;
 
   // Gelir teması rengi (yeşil)
   static const Color _accentColor = ColorConstants.yesil;
@@ -71,29 +79,50 @@ class _AddIncomePageState extends State<AddIncomePage> {
   void initState() {
     super.initState();
     _categoryIcons = widget.categories;
+    _controller = widget.controller;
+    _controller?.addListener(_onFormStateChanged);
 
-    _formState = AddIncomeFormState();
-    _formState.addListener(_onFormStateChanged);
-    _formState.selectedCategory = _categoryIcons.keys.first;
+    final defaultCategory = _categoryIcons.keys.first;
 
     if (widget.incomeToEdit != null) {
       _nameController.text = widget.incomeToEdit!['name'] ?? '';
       _amountController.text = widget.incomeToEdit!['amount'].toString();
       final editCategory = widget.incomeToEdit!['category'] as String?;
-      if (editCategory != null && _categoryIcons.containsKey(editCategory)) {
-        _formState.selectedCategory = editCategory;
-      }
-      _formState.selectedDate =
+      final categoryToUse =
+          (editCategory != null && _categoryIcons.containsKey(editCategory))
+          ? editCategory
+          : defaultCategory;
+      final editDate =
           DateTime.tryParse(widget.incomeToEdit!['date'].toString()) ??
           DateTime.now();
-      _formState.selectedPaymentMethodId =
-          widget.incomeToEdit!['paymentMethodId'];
+      final editPaymentMethodId = widget.incomeToEdit!['paymentMethodId'];
+
+      if (_controller != null) {
+        _controller!.initializeFormState(
+          defaultCategory: categoryToUse,
+          editDate: editDate,
+          editCategory: categoryToUse,
+          editPaymentMethodId: editPaymentMethodId,
+        );
+      } else {
+        _localSelectedCategory = categoryToUse;
+        _localSelectedDate = editDate;
+        _localSelectedPaymentMethodId = editPaymentMethodId;
+      }
     } else {
       final nakitHesap = widget.paymentMethods
           .where((pm) => pm.type == 'nakit')
           .firstOrNull;
-      if (nakitHesap != null) {
-        _formState.selectedPaymentMethodId = nakitHesap.id;
+      final defaultPmId = nakitHesap?.id;
+
+      if (_controller != null) {
+        _controller!.initializeFormState(
+          defaultCategory: defaultCategory,
+          defaultPaymentMethodId: defaultPmId,
+        );
+      } else {
+        _localSelectedCategory = defaultCategory;
+        _localSelectedPaymentMethodId = defaultPmId;
       }
     }
   }
@@ -104,8 +133,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
 
   @override
   void dispose() {
-    _formState.removeListener(_onFormStateChanged);
-    _formState.dispose();
+    _controller?.removeListener(_onFormStateChanged);
     _nameController.dispose();
     _amountController.dispose();
     super.dispose();
@@ -119,7 +147,12 @@ class _AddIncomePageState extends State<AddIncomePage> {
       lastDate: DateTime(2030),
     );
     if (picked != null && picked != _selectedDate) {
-      _formState.selectedDate = picked;
+      if (_controller != null) {
+        _controller!.setFormDate(picked);
+      } else {
+        _localSelectedDate = picked;
+        setState(() {});
+      }
     }
   }
 
@@ -412,7 +445,12 @@ class _AddIncomePageState extends State<AddIncomePage> {
                 );
               }).toList(),
               onChanged: (newValue) {
-                _formState.selectedCategory = newValue!;
+                if (_controller != null) {
+                  _controller!.setFormCategory(newValue!);
+                } else {
+                  _localSelectedCategory = newValue!;
+                  setState(() {});
+                }
               },
             ),
           ),
@@ -508,7 +546,12 @@ class _AddIncomePageState extends State<AddIncomePage> {
                 );
               }).toList(),
               onChanged: (newValue) {
-                _formState.selectedPaymentMethodId = newValue;
+                if (_controller != null) {
+                  _controller!.setFormPaymentMethod(newValue);
+                } else {
+                  _localSelectedPaymentMethodId = newValue;
+                  setState(() {});
+                }
               },
             ),
           ),
