@@ -11,6 +11,7 @@ import '../../../../core/services/haptic_service.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
+import '../../../../core/utils/debouncer.dart';
 import '../widgets/income_summary_card.dart';
 import '../widgets/income_list_item.dart';
 import '../../../../core/widgets/skeleton_widget.dart';
@@ -43,6 +44,10 @@ class IncomesPage extends StatefulWidget {
 
 class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   final TextEditingController tGelirArama = TextEditingController();
+  // Debouncer - arama performansı için
+  final Debouncer _searchDebouncer = Debouncer(
+    delay: const Duration(milliseconds: 300),
+  );
 
   // Controller - DI'dan alınır
   late final IncomesController _controller;
@@ -77,6 +82,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     _controller.dispose();
     disposeLazyLoading();
     tGelirArama.dispose();
+    _searchDebouncer.dispose();
     super.dispose();
   }
 
@@ -302,7 +308,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                     ).colorScheme.onSurface.withValues(alpha: 0.54),
                   ),
                 ),
-                onChanged: (val) => setState(() {}),
+                onChanged: (val) => _searchDebouncer.run(() => setState(() {})),
               )
             : const Text("Gelirlerim"),
         actions: [

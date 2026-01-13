@@ -8,6 +8,7 @@ import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
+import '../../../../core/utils/debouncer.dart';
 import '../widgets/asset_summary_card.dart';
 import '../widgets/asset_list_item.dart';
 import '../../../../core/di/injection_container.dart';
@@ -50,6 +51,10 @@ class AssetsPage extends StatefulWidget {
 
 class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
   final TextEditingController _aramaController = TextEditingController();
+  // Debouncer - arama performansı için
+  final Debouncer _searchDebouncer = Debouncer(
+    delay: const Duration(milliseconds: 300),
+  );
   // Controller - DI'dan alınır
   late final AssetsController _controller;
 
@@ -95,6 +100,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
     _controller.dispose();
     disposeLazyLoading();
     _aramaController.dispose();
+    _searchDebouncer.dispose();
     super.dispose();
   }
 
@@ -113,7 +119,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
         title: _aramaModu
             ? TextField(
                 controller: _aramaController,
-                onChanged: (value) => _filtrele(),
+                onChanged: (value) => _searchDebouncer.run(() => _filtrele()),
                 autofocus: true,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,

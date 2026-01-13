@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/theme/theme_manager.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/constants/icon_constants.dart';
+import '../../../../core/utils/debouncer.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../widgets/expense_list_item.dart';
 import '../widgets/expense_summary_card.dart';
@@ -54,6 +55,11 @@ class ExpensesPage extends StatefulWidget {
 class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   final TextEditingController tArama = TextEditingController();
 
+  // Debouncer - arama performansı için
+  final Debouncer _searchDebouncer = Debouncer(
+    delay: const Duration(milliseconds: 300),
+  );
+
   // Controller - DI'dan alınır
   late final ExpensesController _controller;
 
@@ -96,6 +102,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     _controller.dispose();
     disposeLazyLoading();
     tArama.dispose();
+    _searchDebouncer.dispose();
     super.dispose();
   }
 

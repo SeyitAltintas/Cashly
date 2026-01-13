@@ -3,6 +3,7 @@ import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/constants/card_color_constants.dart';
 import 'package:cashly/core/widgets/skeleton_widget.dart';
 import 'package:cashly/core/utils/amount_input_formatter.dart';
+import 'package:cashly/core/utils/debouncer.dart';
 
 import '../../data/models/payment_method_model.dart';
 import 'add_payment_method_page.dart';
@@ -55,6 +56,10 @@ class PaymentMethodsPage extends StatefulWidget {
 
 class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   final TextEditingController _aramaController = TextEditingController();
+  // Debouncer - arama performansı için
+  final Debouncer _searchDebouncer = Debouncer(
+    delay: const Duration(milliseconds: 300),
+  );
 
   // Controller - DI'dan alınır
   late final PaymentMethodsController _controller;
@@ -105,6 +110,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     _controller.removeListener(_onStateChanged);
     _controller.dispose();
     _aramaController.dispose();
+    _searchDebouncer.dispose();
     super.dispose();
   }
 
@@ -119,7 +125,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
         title: _aramaModu
             ? TextField(
                 controller: _aramaController,
-                onChanged: (value) => _filtrele(),
+                onChanged: (value) => _searchDebouncer.run(() => _filtrele()),
                 autofocus: true,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(

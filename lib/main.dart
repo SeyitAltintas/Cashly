@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/services/database_helper.dart';
 import 'core/services/haptic_service.dart';
+import 'core/services/image_cache_service.dart';
 import 'features/streak/data/services/streak_service.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/auth/data/initialize_default_user.dart';
@@ -44,6 +45,8 @@ void main() async {
         await Hive.initFlutter();
         // DI container'ı başlat
         await initializeDependencies();
+        // Görsel cache servisini başlat
+        await ImageCacheService().initialize();
         runApp(
           ChangeNotifierProvider(
             create: (_) => ThemeManager(),

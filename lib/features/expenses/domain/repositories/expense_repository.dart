@@ -38,11 +38,13 @@ abstract class ExpenseRepository {
   /// Harcama kategorilerini getirir
   /// [userId] - Kullanıcı ID'si
   /// Döndürür: Kategori listesi
+  /// Not: CategoryRepository.getExpenseCategories alternatif olarak kullanılabilir
   List<Map<String, dynamic>> getCategories(String userId);
 
   /// Harcama kategorilerini kaydeder
   /// [userId] - Kullanıcı ID'si
   /// [categories] - Kaydedilecek kategori listesi
+  /// Not: CategoryRepository.saveExpenseCategories alternatif olarak kullanılabilir
   Future<void> saveCategories(
     String userId,
     List<Map<String, dynamic>> categories,
