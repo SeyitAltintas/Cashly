@@ -20,6 +20,162 @@ class ExpensesController extends ChangeNotifier {
 
   // ===== STATE =====
 
+  // ===== FORM STATE (AddExpenseFormState'ten taşındı) =====
+
+  // Form: Seçilen tarih
+  DateTime _formSelectedDate = DateTime.now();
+  DateTime get formSelectedDate => _formSelectedDate;
+  void setFormDate(DateTime date) {
+    if (_formSelectedDate != date) {
+      _formSelectedDate = date;
+      notifyListeners();
+    }
+  }
+
+  // Form: Seçilen kategori
+  String _formSelectedCategory = '';
+  String get formSelectedCategory => _formSelectedCategory;
+  void setFormCategory(String category) {
+    if (_formSelectedCategory != category) {
+      _formSelectedCategory = category;
+      notifyListeners();
+    }
+  }
+
+  // Form: Seçilen ödeme yöntemi
+  String? _formSelectedPaymentMethodId;
+  String? get formSelectedPaymentMethodId => _formSelectedPaymentMethodId;
+  void setFormPaymentMethod(String? paymentMethodId) {
+    if (_formSelectedPaymentMethodId != paymentMethodId) {
+      _formSelectedPaymentMethodId = paymentMethodId;
+      notifyListeners();
+    }
+  }
+
+  /// Form state'ini initialize et
+  void initializeFormState({
+    required String defaultCategory,
+    String? defaultPaymentMethodId,
+    DateTime? editDate,
+    String? editCategory,
+    String? editPaymentMethodId,
+  }) {
+    _formSelectedCategory = editCategory ?? defaultCategory;
+    _formSelectedPaymentMethodId =
+        editPaymentMethodId ?? defaultPaymentMethodId;
+    if (editDate != null) {
+      _formSelectedDate = editDate;
+    } else {
+      _formSelectedDate = DateTime.now();
+    }
+    notifyListeners();
+  }
+
+  /// Form state'ini sıfırla
+  void resetFormState() {
+    _formSelectedDate = DateTime.now();
+    _formSelectedCategory = '';
+    _formSelectedPaymentMethodId = null;
+    notifyListeners();
+  }
+
+  // ===== VOICE INPUT STATE (ExpenseVoiceInputState'ten taşındı) =====
+
+  bool _voiceIsListening = false;
+  bool get voiceIsListening => _voiceIsListening;
+
+  bool _voiceIsInitializing = true;
+  bool get voiceIsInitializing => _voiceIsInitializing;
+
+  bool _voiceHasError = false;
+  bool get voiceHasError => _voiceHasError;
+
+  bool _voiceIsCommandMode = false;
+  bool get voiceIsCommandMode => _voiceIsCommandMode;
+
+  bool _voicePendingConfirmation = false;
+  bool get voicePendingConfirmation => _voicePendingConfirmation;
+
+  String _voiceConfirmationTitle = '';
+  String get voiceConfirmationTitle => _voiceConfirmationTitle;
+
+  String _voiceConfirmationMessage = '';
+  String get voiceConfirmationMessage => _voiceConfirmationMessage;
+
+  String _voiceErrorMessage = '';
+  String get voiceErrorMessage => _voiceErrorMessage;
+
+  String _voiceRecognizedText = '';
+  String get voiceRecognizedText => _voiceRecognizedText;
+
+  /// Voice state: Başlatma durumunu güncelle
+  void setVoiceInitialized({bool success = true, String? error}) {
+    _voiceIsInitializing = false;
+    if (!success) {
+      _voiceHasError = true;
+      _voiceErrorMessage =
+          error ?? 'Mikrofon izni verilemedi veya cihaz desteklemiyor.';
+    }
+    notifyListeners();
+  }
+
+  /// Voice state: Dinleme başlat
+  void startVoiceListening() {
+    _voiceIsListening = true;
+    _voiceIsCommandMode = false;
+    _voiceRecognizedText = '';
+    _voiceHasError = false;
+    notifyListeners();
+  }
+
+  /// Voice state: Dinleme durdur
+  void stopVoiceListening() {
+    _voiceIsListening = false;
+    notifyListeners();
+  }
+
+  /// Voice state: Komut modu ayarla
+  void setVoiceCommandMode(String text) {
+    _voiceRecognizedText = text;
+    _voiceIsCommandMode = true;
+    notifyListeners();
+  }
+
+  /// Voice state: Tanınan metni güncelle
+  void updateVoiceRecognizedText(String text) {
+    _voiceRecognizedText = text;
+    _voiceIsCommandMode = false;
+    notifyListeners();
+  }
+
+  /// Voice state: Onay iste
+  void requestVoiceConfirmation({
+    required String title,
+    required String message,
+  }) {
+    _voicePendingConfirmation = true;
+    _voiceConfirmationTitle = title;
+    _voiceConfirmationMessage = message;
+    notifyListeners();
+  }
+
+  /// Voice state: Onayı temizle
+  void clearVoiceConfirmation() {
+    _voicePendingConfirmation = false;
+    _voiceConfirmationTitle = '';
+    _voiceConfirmationMessage = '';
+    notifyListeners();
+  }
+
+  /// Voice state: Formu sıfırla
+  void resetVoiceForm() {
+    _voiceRecognizedText = '';
+    _voiceIsCommandMode = false;
+    notifyListeners();
+  }
+
+  // ===== ANA STATE =====
+
   // Arama modu state'i
   bool _aramaModu = false;
   bool get aramaModu => _aramaModu;

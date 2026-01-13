@@ -16,6 +16,97 @@ class PaymentMethodsController extends ChangeNotifier {
 
   // ===== STATE =====
 
+  // ===== FORM STATE (AddPaymentMethodFormState'ten taşındı) =====
+
+  // Form: Seçilen tür (nakit, banka, kredi)
+  String _formSelectedType = 'nakit';
+  String get formSelectedType => _formSelectedType;
+  void setFormType(String type) {
+    if (_formSelectedType != type) {
+      _formSelectedType = type;
+      notifyListeners();
+    }
+  }
+
+  // Form: Seçilen renk index'i
+  int _formSelectedColorIndex = 0;
+  int get formSelectedColorIndex => _formSelectedColorIndex;
+  void setFormColorIndex(int index) {
+    if (_formSelectedColorIndex != index) {
+      _formSelectedColorIndex = index;
+      notifyListeners();
+    }
+  }
+
+  /// Form state'ini initialize et
+  void initializeFormState({String? editType, int? editColorIndex}) {
+    if (editType != null) _formSelectedType = editType;
+    if (editColorIndex != null) _formSelectedColorIndex = editColorIndex;
+    notifyListeners();
+  }
+
+  /// Form state'ini sıfırla
+  void resetFormState() {
+    _formSelectedType = 'nakit';
+    _formSelectedColorIndex = 0;
+    notifyListeners();
+  }
+
+  // ===== TRANSFER STATE (TransferPageState'ten taşındı) =====
+
+  // Transfer: Gönderen hesap ID
+  String? _transferFromAccountId;
+  String? get transferFromAccountId => _transferFromAccountId;
+  void setTransferFromAccount(String? accountId) {
+    if (_transferFromAccountId != accountId) {
+      _transferFromAccountId = accountId;
+      notifyListeners();
+    }
+  }
+
+  // Transfer: Alan hesap ID
+  String? _transferToAccountId;
+  String? get transferToAccountId => _transferToAccountId;
+  void setTransferToAccount(String? accountId) {
+    if (_transferToAccountId != accountId) {
+      _transferToAccountId = accountId;
+      notifyListeners();
+    }
+  }
+
+  // Transfer: Seçilen tarih
+  DateTime _transferSelectedDate = DateTime.now();
+  DateTime get transferSelectedDate => _transferSelectedDate;
+  void setTransferDate(DateTime date) {
+    _transferSelectedDate = date;
+    notifyListeners();
+  }
+
+  // Transfer: Başarı mesajı
+  String? _transferSuccessMessage;
+  String? get transferSuccessMessage => _transferSuccessMessage;
+  void setTransferSuccessMessage(String? message) {
+    _transferSuccessMessage = message;
+    notifyListeners();
+  }
+
+  void clearTransferSuccessMessage() {
+    if (_transferSuccessMessage != null) {
+      _transferSuccessMessage = null;
+      notifyListeners();
+    }
+  }
+
+  /// Transfer formunu sıfırla
+  void resetTransferForm() {
+    _transferFromAccountId = null;
+    _transferToAccountId = null;
+    _transferSelectedDate = DateTime.now();
+    notifyListeners();
+  }
+
+  // ===== ANA STATE =====
+
   bool _aramaModu = false;
   bool get aramaModu => _aramaModu;
   set aramaModu(bool value) {

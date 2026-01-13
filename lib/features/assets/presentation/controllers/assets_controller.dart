@@ -16,6 +16,101 @@ class AssetsController extends ChangeNotifier {
 
   // ===== STATE =====
 
+  // ===== FORM STATE (AddAssetFormState'ten taşındı) =====
+
+  // Form: Seçilen kategori (Döviz, Kripto, Hisse, Fiziksel)
+  String _formSelectedCategory = 'Döviz';
+  String get formSelectedCategory => _formSelectedCategory;
+  void setFormCategory(String category) {
+    if (_formSelectedCategory != category) {
+      _formSelectedCategory = category;
+      _formSelectedType = null; // Kategori değişince tür sıfırlanır
+      notifyListeners();
+    }
+  }
+
+  // Form: Seçilen tür (USD, EUR, BTC, etc.)
+  String? _formSelectedType;
+  String? get formSelectedType => _formSelectedType;
+  void setFormType(String? type) {
+    if (_formSelectedType != type) {
+      _formSelectedType = type;
+      notifyListeners();
+    }
+  }
+
+  // Form: Özel ad (Diğer seçildiğinde)
+  String _formCustomName = '';
+  String get formCustomName => _formCustomName;
+  void setFormCustomName(String name) {
+    if (_formCustomName != name) {
+      _formCustomName = name;
+      notifyListeners();
+    }
+  }
+
+  // Form: Alış tarihi
+  DateTime? _formPurchaseDate;
+  DateTime? get formPurchaseDate => _formPurchaseDate;
+  void setFormPurchaseDate(DateTime? date) {
+    if (_formPurchaseDate != date) {
+      _formPurchaseDate = date;
+      notifyListeners();
+    }
+  }
+
+  // Form: Loading state (API fiyat çekerken)
+  bool _formIsLoading = false;
+  bool get formIsLoading => _formIsLoading;
+  void setFormLoading(bool loading) {
+    if (_formIsLoading != loading) {
+      _formIsLoading = loading;
+      notifyListeners();
+    }
+  }
+
+  // Form: Hata mesajı
+  String? _formErrorMessage;
+  String? get formErrorMessage => _formErrorMessage;
+  void setFormError(String? message) {
+    _formErrorMessage = message;
+    notifyListeners();
+  }
+
+  void clearFormError() {
+    if (_formErrorMessage != null) {
+      _formErrorMessage = null;
+      notifyListeners();
+    }
+  }
+
+  /// Form state'ini initialize et
+  void initializeFormState({
+    String? editCategory,
+    String? editType,
+    String? editCustomName,
+    DateTime? editPurchaseDate,
+  }) {
+    if (editCategory != null) _formSelectedCategory = editCategory;
+    _formSelectedType = editType;
+    _formCustomName = editCustomName ?? '';
+    _formPurchaseDate = editPurchaseDate;
+    notifyListeners();
+  }
+
+  /// Form state'ini sıfırla
+  void resetFormState() {
+    _formSelectedCategory = 'Döviz';
+    _formSelectedType = null;
+    _formCustomName = '';
+    _formPurchaseDate = null;
+    _formIsLoading = false;
+    _formErrorMessage = null;
+    notifyListeners();
+  }
+
+  // ===== ANA STATE =====
+
   bool _aramaModu = false;
   bool get aramaModu => _aramaModu;
   set aramaModu(bool value) {
