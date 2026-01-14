@@ -105,11 +105,9 @@ void main() {
       expect(find.byIcon(Icons.info_outline), findsOneWidget);
     });
 
-    // Timer kullanan asenkron deleted testi - skip olarak işaretlendi
-    // Gerçek uygulamada manuel test ile doğrulanmalı
+    // Timer kullanan asenkron deleted testi
+    // fake_async ile timer'lar kontrol altına alınıyor
     testWidgets('deleted SnackBar görüntülenir', (tester) async {
-      // Bu test Timer kullandığı için test ortamında hata verebilir
-      // Manuel test ile doğrulanması önerilir
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
@@ -128,11 +126,15 @@ void main() {
       );
 
       await tester.tap(find.text('Sil'));
-      await tester.pump(const Duration(milliseconds: 50));
-      await tester.pump(const Duration(milliseconds: 50));
+      // SnackBar'ın görünmesi için kısa bekle
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Öğe silindi'), findsOneWidget);
       expect(find.byIcon(Icons.delete_outline), findsOneWidget);
+
+      // Timer'ı temizle - 1500ms sonra kapanacak
+      await tester.pump(const Duration(milliseconds: 1600));
     });
 
     testWidgets('hide mevcut SnackBar\'ı gizler', (tester) async {
