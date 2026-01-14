@@ -94,9 +94,6 @@ class _CashlyAppState extends State<CashlyApp> {
 
   Future<void> _initializeApp() async {
     try {
-      // Splash screen'in daha uzun görünmesi için bekle
-      await Future.delayed(const Duration(milliseconds: 2500));
-
       // Veritabanını başlat
       await DatabaseHelper.baslat();
 
@@ -140,14 +137,14 @@ class _CashlyAppState extends State<CashlyApp> {
   Widget build(BuildContext context) {
     return Consumer<ThemeManager>(
       builder: (context, themeManager, child) {
-        // Henüz başlatılmadıysa veya başlatılıyor ise Loading ekranı göster
+        // Henüz başlatılmadıysa Loading göster
         if (!_isInitialized) {
-          return MaterialApp(
+          return const MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
               backgroundColor: Colors.black,
               body: Center(
-                child: Image.asset('assets/image/seffaflogo.png', height: 60),
+                child: CircularProgressIndicator(color: Colors.white),
               ),
             ),
           );

@@ -38,12 +38,20 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.0
 
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/image/logokeskinbuyuk.png"
   min_sdk_android: 21
+
+flutter_native_splash:
+  color: "#0D0D0D"
+  image: assets/image/seffaflogo.png
+  android_12:
+    color: "#0D0D0D"
+    image: assets/image/seffaflogo.png
 
 flutter:
   uses-material-design: true
