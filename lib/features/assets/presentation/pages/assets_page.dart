@@ -10,6 +10,7 @@ import '../../../../core/services/haptic_service.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/utils/debouncer.dart';
+import '../../../../core/widgets/skeleton_widget.dart';
 import '../widgets/asset_summary_card.dart';
 import '../widgets/asset_list_item.dart';
 import '../../../../core/di/injection_container.dart';
@@ -63,6 +64,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
 
   // Getter'lar
   bool get _aramaModu => _controller.aramaModu;
+  bool get _isLoading => _controller.isLoading;
   List<Asset> get _deletedAssets => _controller.deletedAssets;
   List<Asset> get _filtrelenmisVarliklar => _controller.filtrelenmisVarliklar;
 
@@ -78,6 +80,11 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
     // Widget prop'larından veriyi controller'a yükle
     _controller.setAssetsFromWidget(widget.assets, widget.deletedAssets);
     initLazyLoading();
+
+    // Kısa bir gecikme ile loading state'i kapat (skeleton gösterimi için)
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) _controller.stopLoading();
+    });
   }
 
   void _onStateChanged() {
@@ -164,20 +171,22 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Toplam Varlık Kartı - Harcamalarım tarzı tasarım (mavi tema)
-          if (!_aramaModu)
-            // Toplam Varlık Kartı
-            if (!_aramaModu)
-              AssetSummaryCard(
-                totalAssets: totalAssets,
-                assetCount: _filtrelenmisVarliklar.length,
-              ),
-          // Liste veya EmptyState (ekranın kalan kısmının ortasında)
-          Expanded(child: _buildAssetList()),
-        ],
-      ),
+      body: _isLoading
+          ? const AssetsPageSkeleton()
+          : Column(
+              children: [
+                // Toplam Varlık Kartı - Harcamalarım tarzı tasarım (mavi tema)
+                if (!_aramaModu)
+                  // Toplam Varlık Kartı
+                  if (!_aramaModu)
+                    AssetSummaryCard(
+                      totalAssets: totalAssets,
+                      assetCount: _filtrelenmisVarliklar.length,
+                    ),
+                // Liste veya EmptyState (ekranın kalan kısmının ortasında)
+                Expanded(child: _buildAssetList()),
+              ],
+            ),
       // Modern floating bottom navigation bar - Ortak widget kullanımı
       bottomNavigationBar: AppFloatingBottomBar(
         items: [

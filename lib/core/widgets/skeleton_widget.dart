@@ -439,3 +439,93 @@ class ExpensesPageSkeleton extends StatelessWidget {
     );
   }
 }
+
+/// Varlık kartı skeleton
+class AssetCardSkeleton extends StatelessWidget {
+  const AssetCardSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: _skeletonContainerDecoration(context),
+      child: const Row(
+        children: [
+          // İkon placeholder
+          SkeletonWidget(width: 44, height: 44, borderRadius: 12),
+          SizedBox(width: 12),
+          // İsim ve kategori
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SkeletonWidget(height: 16, width: 120, borderRadius: 4),
+                SizedBox(height: 8),
+                SkeletonWidget(height: 12, width: 80, borderRadius: 4),
+              ],
+            ),
+          ),
+          // Değer
+          SkeletonWidget(height: 20, width: 80, borderRadius: 4),
+        ],
+      ),
+    );
+  }
+}
+
+/// Varlık özet kartı skeleton
+class AssetSummarySkeleton extends StatelessWidget {
+  const AssetSummarySkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
+      decoration: _skeletonCardDecoration(context),
+      child: const Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SkeletonWidget(width: 100, height: 14, borderRadius: 4),
+                  SizedBox(height: 8),
+                  SkeletonWidget(width: 150, height: 28, borderRadius: 4),
+                ],
+              ),
+              SkeletonWidget(width: 52, height: 52, borderRadius: 15),
+            ],
+          ),
+          SizedBox(height: 16),
+          SkeletonWidget(height: 44, borderRadius: 12),
+        ],
+      ),
+    );
+  }
+}
+
+/// Varlıklar sayfası tam skeleton
+class AssetsPageSkeleton extends StatelessWidget {
+  const AssetsPageSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const AssetSummarySkeleton(),
+        const SizedBox(height: 10),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 5,
+            itemBuilder: (context, index) => const AssetCardSkeleton(),
+          ),
+        ),
+      ],
+    );
+  }
+}

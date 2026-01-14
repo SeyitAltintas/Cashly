@@ -4,7 +4,8 @@ import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/constants/card_color_constants.dart';
 import 'package:cashly/core/widgets/skeleton_widget.dart';
 import 'package:cashly/core/utils/amount_input_formatter.dart';
-import 'package:cashly/core/utils/debouncer.dart';
+import '../../../../core/utils/debouncer.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 
 import '../../data/models/payment_method_model.dart';
 import 'add_payment_method_page.dart';
@@ -295,21 +296,18 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
 
   Widget _buildPaymentMethodsList() {
     if (_filteredMethods.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 40),
-          child: Text(
-            _aramaModu && _aramaController.text.isNotEmpty
-                ? "Sonuç bulunamadı."
-                : "Henüz ödeme yöntemi eklenmedi.",
-            style: TextStyle(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.54),
-            ),
-          ),
-        ),
-      );
+      return _aramaModu && _aramaController.text.isNotEmpty
+          ? const EmptyStateWidget(
+              icon: Icons.search_off,
+              title: 'Sonuç bulunamadı',
+              subtitle: 'Farklı bir arama terimi deneyin',
+            )
+          : const EmptyStateWidget(
+              icon: Icons.credit_card_off,
+              title: 'Henüz ödeme yöntemi yok',
+              subtitle: 'İlk ödeme yönteminizi ekleyerek başlayın',
+              iconColor: Colors.orange,
+            );
     }
 
     return ListView.builder(
