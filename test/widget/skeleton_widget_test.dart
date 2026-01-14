@@ -76,4 +76,73 @@ void main() {
       expect(find.byType(PaymentMethodSkeleton), findsOneWidget);
     });
   });
+
+  group('AssetCardSkeleton', () {
+    testWidgets('oluşturulabilmeli', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: AssetCardSkeleton())),
+      );
+
+      await tester.pump();
+
+      expect(find.byType(AssetCardSkeleton), findsOneWidget);
+    });
+  });
+
+  group('AssetSummarySkeleton', () {
+    testWidgets('oluşturulabilmeli', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: AssetSummarySkeleton())),
+      );
+
+      await tester.pump();
+
+      expect(find.byType(AssetSummarySkeleton), findsOneWidget);
+    });
+  });
+
+  group('Page Skeleton Testleri', () {
+    testWidgets('ExpensesPageSkeleton oluşturulabilmeli', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: ExpensesPageSkeleton())),
+      );
+
+      await tester.pump();
+
+      expect(find.byType(ExpensesPageSkeleton), findsOneWidget);
+      expect(find.byType(ExpenseSummarySkeleton), findsOneWidget);
+    });
+
+    testWidgets('IncomePageSkeleton oluşturulabilmeli', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: IncomePageSkeleton())),
+      );
+
+      await tester.pump();
+
+      expect(find.byType(IncomePageSkeleton), findsOneWidget);
+      expect(find.byType(IncomeSummarySkeleton), findsOneWidget);
+    });
+
+    testWidgets('PaymentMethodsPageSkeleton oluşturulabilmeli', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: PaymentMethodsPageSkeleton())),
+      );
+
+      await tester.pump();
+
+      expect(find.byType(PaymentMethodsPageSkeleton), findsOneWidget);
+    });
+
+    testWidgets('AssetsPageSkeleton oluşturulabilmeli', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: AssetsPageSkeleton())),
+      );
+
+      await tester.pump();
+
+      expect(find.byType(AssetsPageSkeleton), findsOneWidget);
+      expect(find.byType(AssetSummarySkeleton), findsOneWidget);
+    });
+  });
 }
