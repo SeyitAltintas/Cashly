@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../domain/repositories/payment_method_repository.dart';
+import '../../../../core/utils/error_handler.dart';
+import '../../../../core/exceptions/app_exceptions.dart';
 
 /// Ödeme Yöntemleri Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
@@ -223,6 +225,9 @@ class PaymentMethodsController extends ChangeNotifier {
           .toList();
 
       _filteredMethods = List.from(_paymentMethods);
+    } catch (e, s) {
+      ErrorHandler.logError('PaymentMethodsController.loadData', e, s);
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -230,13 +235,31 @@ class PaymentMethodsController extends ChangeNotifier {
   }
 
   Future<void> savePaymentMethods() async {
-    final data = _paymentMethods.map((pm) => pm.toMap()).toList();
-    await _paymentMethodRepository.savePaymentMethods(userId, data);
+    try {
+      final data = _paymentMethods.map((pm) => pm.toMap()).toList();
+      await _paymentMethodRepository.savePaymentMethods(userId, data);
+    } catch (e, s) {
+      ErrorHandler.logError(
+        'PaymentMethodsController.savePaymentMethods',
+        e,
+        s,
+      );
+      throw DatabaseException.writeFailed(e);
+    }
   }
 
   Future<void> saveDeletedPaymentMethods() async {
-    final data = _deletedPaymentMethods.map((pm) => pm.toMap()).toList();
-    await _paymentMethodRepository.saveDeletedPaymentMethods(userId, data);
+    try {
+      final data = _deletedPaymentMethods.map((pm) => pm.toMap()).toList();
+      await _paymentMethodRepository.saveDeletedPaymentMethods(userId, data);
+    } catch (e, s) {
+      ErrorHandler.logError(
+        'PaymentMethodsController.saveDeletedPaymentMethods',
+        e,
+        s,
+      );
+      throw DatabaseException.writeFailed(e);
+    }
   }
 
   // ===== FİLTRELEME =====
@@ -264,70 +287,110 @@ class PaymentMethodsController extends ChangeNotifier {
   // ===== CRUD İŞLEMLERİ =====
 
   Future<void> addMethod(PaymentMethod method) async {
-    _paymentMethods.add(method);
-    await savePaymentMethods();
-    _filtrele();
+    try {
+      _paymentMethods.add(method);
+      await savePaymentMethods();
+      _filtrele();
+    } catch (e, s) {
+      ErrorHandler.logError('PaymentMethodsController.addMethod', e, s);
+      rethrow;
+    }
   }
 
   Future<void> updateMethod(PaymentMethod method) async {
-    final index = _paymentMethods.indexWhere((p) => p.id == method.id);
-    if (index != -1) {
-      _paymentMethods[index] = method;
-      await savePaymentMethods();
-      _filtrele();
+    try {
+      final index = _paymentMethods.indexWhere((p) => p.id == method.id);
+      if (index != -1) {
+        _paymentMethods[index] = method;
+        await savePaymentMethods();
+        _filtrele();
+      }
+    } catch (e, s) {
+      ErrorHandler.logError('PaymentMethodsController.updateMethod', e, s);
+      rethrow;
     }
   }
 
   Future<void> moveToBin(PaymentMethod method) async {
-    _paymentMethods.removeWhere((p) => p.id == method.id);
-    final deleted = method.copyWith(isDeleted: true);
-    _deletedPaymentMethods.add(deleted);
+    try {
+      _paymentMethods.removeWhere((p) => p.id == method.id);
+      final deleted = method.copyWith(isDeleted: true);
+      _deletedPaymentMethods.add(deleted);
 
-    await savePaymentMethods();
-    await saveDeletedPaymentMethods();
-    _filtrele();
+      await savePaymentMethods();
+      await saveDeletedPaymentMethods();
+      _filtrele();
+    } catch (e, s) {
+      ErrorHandler.logError('PaymentMethodsController.moveToBin', e, s);
+      rethrow;
+    }
   }
 
   Future<void> restoreMethod(PaymentMethod method) async {
-    _deletedPaymentMethods.removeWhere((p) => p.id == method.id);
-    final restored = method.copyWith(isDeleted: false);
-    _paymentMethods.add(restored);
+    try {
+      _deletedPaymentMethods.removeWhere((p) => p.id == method.id);
+      final restored = method.copyWith(isDeleted: false);
+      _paymentMethods.add(restored);
 
-    await savePaymentMethods();
-    await saveDeletedPaymentMethods();
-    _filtrele();
+      await savePaymentMethods();
+      await saveDeletedPaymentMethods();
+      _filtrele();
+    } catch (e, s) {
+      ErrorHandler.logError('PaymentMethodsController.restoreMethod', e, s);
+      rethrow;
+    }
   }
 
   Future<void> permanentDelete(PaymentMethod method) async {
-    _deletedPaymentMethods.removeWhere((p) => p.id == method.id);
-    await saveDeletedPaymentMethods();
-    notifyListeners();
+    try {
+      _deletedPaymentMethods.removeWhere((p) => p.id == method.id);
+      await saveDeletedPaymentMethods();
+      notifyListeners();
+    } catch (e, s) {
+      ErrorHandler.logError('PaymentMethodsController.permanentDelete', e, s);
+      rethrow;
+    }
   }
 
   Future<void> emptyBin() async {
-    _deletedPaymentMethods.clear();
-    await saveDeletedPaymentMethods();
-    notifyListeners();
+    try {
+      _deletedPaymentMethods.clear();
+      await saveDeletedPaymentMethods();
+      notifyListeners();
+    } catch (e, s) {
+      ErrorHandler.logError('PaymentMethodsController.emptyBin', e, s);
+      rethrow;
+    }
   }
 
   Future<void> restoreAll() async {
-    for (final method in _deletedPaymentMethods) {
-      _paymentMethods.add(method.copyWith(isDeleted: false));
-    }
-    _deletedPaymentMethods.clear();
+    try {
+      for (final method in _deletedPaymentMethods) {
+        _paymentMethods.add(method.copyWith(isDeleted: false));
+      }
+      _deletedPaymentMethods.clear();
 
-    await savePaymentMethods();
-    await saveDeletedPaymentMethods();
-    _filtrele();
+      await savePaymentMethods();
+      await saveDeletedPaymentMethods();
+      _filtrele();
+    } catch (e, s) {
+      ErrorHandler.logError('PaymentMethodsController.restoreAll', e, s);
+      rethrow;
+    }
   }
 
   Future<void> updateBalance(String methodId, double amount) async {
-    final index = _paymentMethods.indexWhere((p) => p.id == methodId);
-    if (index != -1) {
-      final pm = _paymentMethods[index];
-      _paymentMethods[index] = pm.copyWith(balance: pm.balance + amount);
-      await savePaymentMethods();
-      notifyListeners();
+    try {
+      final index = _paymentMethods.indexWhere((p) => p.id == methodId);
+      if (index != -1) {
+        final pm = _paymentMethods[index];
+        _paymentMethods[index] = pm.copyWith(balance: pm.balance + amount);
+        await savePaymentMethods();
+        notifyListeners();
+      }
+    } catch (e, s) {
+      ErrorHandler.logError('PaymentMethodsController.updateBalance', e, s);
+      rethrow;
     }
   }
 

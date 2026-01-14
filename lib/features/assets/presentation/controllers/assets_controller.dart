@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import '../../data/models/asset_model.dart';
 import '../../domain/repositories/asset_repository.dart';
+import '../../../../core/utils/error_handler.dart';
+import '../../../../core/exceptions/app_exceptions.dart';
 
 /// Varlıklar Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
@@ -171,6 +173,9 @@ class AssetsController extends ChangeNotifier {
       _deletedAssets = deletedData.map((m) => Asset.fromMap(m)).toList();
 
       filtrele('');
+    } catch (e, s) {
+      ErrorHandler.logError('AssetsController.loadData', e, s);
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -178,13 +183,23 @@ class AssetsController extends ChangeNotifier {
   }
 
   Future<void> saveAssets() async {
-    final data = _assets.map((a) => a.toMap()).toList();
-    await _assetRepository.saveAssets(userId, data);
+    try {
+      final data = _assets.map((a) => a.toMap()).toList();
+      await _assetRepository.saveAssets(userId, data);
+    } catch (e, s) {
+      ErrorHandler.logError('AssetsController.saveAssets', e, s);
+      throw DatabaseException.writeFailed(e);
+    }
   }
 
   Future<void> saveDeletedAssets() async {
-    final data = _deletedAssets.map((a) => a.toMap()).toList();
-    await _assetRepository.saveDeletedAssets(userId, data);
+    try {
+      final data = _deletedAssets.map((a) => a.toMap()).toList();
+      await _assetRepository.saveDeletedAssets(userId, data);
+    } catch (e, s) {
+      ErrorHandler.logError('AssetsController.saveDeletedAssets', e, s);
+      throw DatabaseException.writeFailed(e);
+    }
   }
 
   // ===== FİLTRELEME =====
@@ -219,63 +234,98 @@ class AssetsController extends ChangeNotifier {
   // ===== CRUD İŞLEMLERİ =====
 
   Future<void> addAsset(Asset asset) async {
-    _assets.add(asset);
-    await saveAssets();
-    filtrele('');
+    try {
+      _assets.add(asset);
+      await saveAssets();
+      filtrele('');
+    } catch (e, s) {
+      ErrorHandler.logError('AssetsController.addAsset', e, s);
+      rethrow;
+    }
   }
 
   Future<void> deleteAsset(Asset asset) async {
-    final index = _assets.indexWhere((a) => a.id == asset.id);
-    if (index != -1) {
-      final deletedAsset = _assets[index].copyWith(isDeleted: true);
-      _assets.removeAt(index);
-      _deletedAssets.add(deletedAsset);
+    try {
+      final index = _assets.indexWhere((a) => a.id == asset.id);
+      if (index != -1) {
+        final deletedAsset = _assets[index].copyWith(isDeleted: true);
+        _assets.removeAt(index);
+        _deletedAssets.add(deletedAsset);
 
-      await saveAssets();
-      await saveDeletedAssets();
-      filtrele('');
+        await saveAssets();
+        await saveDeletedAssets();
+        filtrele('');
+      }
+    } catch (e, s) {
+      ErrorHandler.logError('AssetsController.deleteAsset', e, s);
+      rethrow;
     }
   }
 
   Future<void> restoreAsset(Asset asset) async {
-    _deletedAssets.removeWhere((a) => a.id == asset.id);
-    final restoredAsset = asset.copyWith(isDeleted: false);
-    _assets.add(restoredAsset);
+    try {
+      _deletedAssets.removeWhere((a) => a.id == asset.id);
+      final restoredAsset = asset.copyWith(isDeleted: false);
+      _assets.add(restoredAsset);
 
-    await saveAssets();
-    await saveDeletedAssets();
-    filtrele('');
+      await saveAssets();
+      await saveDeletedAssets();
+      filtrele('');
+    } catch (e, s) {
+      ErrorHandler.logError('AssetsController.restoreAsset', e, s);
+      rethrow;
+    }
   }
 
   Future<void> permanentDeleteAsset(Asset asset) async {
-    _deletedAssets.removeWhere((a) => a.id == asset.id);
-    await saveDeletedAssets();
-    notifyListeners();
+    try {
+      _deletedAssets.removeWhere((a) => a.id == asset.id);
+      await saveDeletedAssets();
+      notifyListeners();
+    } catch (e, s) {
+      ErrorHandler.logError('AssetsController.permanentDeleteAsset', e, s);
+      rethrow;
+    }
   }
 
   Future<void> emptyBin() async {
-    _deletedAssets.clear();
-    await saveDeletedAssets();
-    notifyListeners();
+    try {
+      _deletedAssets.clear();
+      await saveDeletedAssets();
+      notifyListeners();
+    } catch (e, s) {
+      ErrorHandler.logError('AssetsController.emptyBin', e, s);
+      rethrow;
+    }
   }
 
   Future<void> restoreAll() async {
-    for (final asset in _deletedAssets) {
-      _assets.add(asset.copyWith(isDeleted: false));
-    }
-    _deletedAssets.clear();
+    try {
+      for (final asset in _deletedAssets) {
+        _assets.add(asset.copyWith(isDeleted: false));
+      }
+      _deletedAssets.clear();
 
-    await saveAssets();
-    await saveDeletedAssets();
-    filtrele('');
+      await saveAssets();
+      await saveDeletedAssets();
+      filtrele('');
+    } catch (e, s) {
+      ErrorHandler.logError('AssetsController.restoreAll', e, s);
+      rethrow;
+    }
   }
 
   Future<void> updateAsset(Asset updatedAsset) async {
-    final index = _assets.indexWhere((a) => a.id == updatedAsset.id);
-    if (index != -1) {
-      _assets[index] = updatedAsset;
-      await saveAssets();
-      filtrele('');
+    try {
+      final index = _assets.indexWhere((a) => a.id == updatedAsset.id);
+      if (index != -1) {
+        _assets[index] = updatedAsset;
+        await saveAssets();
+        filtrele('');
+      }
+    } catch (e, s) {
+      ErrorHandler.logError('AssetsController.updateAsset', e, s);
+      rethrow;
     }
   }
 

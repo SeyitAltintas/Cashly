@@ -4,6 +4,8 @@ import '../../data/models/income_model.dart';
 import '../../domain/repositories/income_repository.dart';
 import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../../../../core/utils/error_handler.dart';
+import '../../../../core/exceptions/app_exceptions.dart';
 
 /// Gelirler Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
@@ -219,6 +221,9 @@ class IncomesController extends ChangeNotifier {
       _tumOdemeYontemleri = pmData
           .map((m) => PaymentMethod.fromMap(m))
           .toList();
+    } catch (e, s) {
+      ErrorHandler.logError('IncomesController.loadData', e, s);
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -226,13 +231,23 @@ class IncomesController extends ChangeNotifier {
   }
 
   Future<void> saveIncomes() async {
-    final data = _tumGelirler.map((g) => g.toMap()).toList();
-    await _incomeRepository.saveIncomes(userId, data);
+    try {
+      final data = _tumGelirler.map((g) => g.toMap()).toList();
+      await _incomeRepository.saveIncomes(userId, data);
+    } catch (e, s) {
+      ErrorHandler.logError('IncomesController.saveIncomes', e, s);
+      throw DatabaseException.writeFailed(e);
+    }
   }
 
   Future<void> savePaymentMethods() async {
-    final pmData = _tumOdemeYontemleri.map((pm) => pm.toMap()).toList();
-    await _paymentMethodRepository.savePaymentMethods(userId, pmData);
+    try {
+      final pmData = _tumOdemeYontemleri.map((pm) => pm.toMap()).toList();
+      await _paymentMethodRepository.savePaymentMethods(userId, pmData);
+    } catch (e, s) {
+      ErrorHandler.logError('IncomesController.savePaymentMethods', e, s);
+      throw DatabaseException.writeFailed(e);
+    }
   }
 
   // ===== AY GEÇİŞLERİ =====
@@ -262,15 +277,20 @@ class IncomesController extends ChangeNotifier {
   // ===== CRUD İŞLEMLERİ =====
 
   Future<void> addIncome(Income gelir) async {
-    _tumGelirler.insert(0, gelir);
+    try {
+      _tumGelirler.insert(0, gelir);
 
-    if (gelir.paymentMethodId != null) {
-      _updateBalance(gelir.paymentMethodId!, gelir.amount, isIncome: true);
+      if (gelir.paymentMethodId != null) {
+        _updateBalance(gelir.paymentMethodId!, gelir.amount, isIncome: true);
+      }
+
+      await saveIncomes();
+      await savePaymentMethods();
+      notifyListeners();
+    } catch (e, s) {
+      ErrorHandler.logError('IncomesController.addIncome', e, s);
+      rethrow;
     }
-
-    await saveIncomes();
-    await savePaymentMethods();
-    notifyListeners();
   }
 
   Future<void> deleteIncome(
@@ -278,17 +298,26 @@ class IncomesController extends ChangeNotifier {
     PaymentMethod? pm,
     int? pmIndex,
   }) async {
-    final index = _tumGelirler.indexWhere((g) => g.id == income.id);
-    if (index != -1) {
-      _tumGelirler[index] = income.copyWith(isDeleted: true);
+    try {
+      final index = _tumGelirler.indexWhere((g) => g.id == income.id);
+      if (index != -1) {
+        _tumGelirler[index] = income.copyWith(isDeleted: true);
 
-      if (income.paymentMethodId != null) {
-        _updateBalance(income.paymentMethodId!, income.amount, isIncome: false);
+        if (income.paymentMethodId != null) {
+          _updateBalance(
+            income.paymentMethodId!,
+            income.amount,
+            isIncome: false,
+          );
+        }
+
+        await saveIncomes();
+        await savePaymentMethods();
+        notifyListeners();
       }
-
-      await saveIncomes();
-      await savePaymentMethods();
-      notifyListeners();
+    } catch (e, s) {
+      ErrorHandler.logError('IncomesController.deleteIncome', e, s);
+      rethrow;
     }
   }
 
@@ -299,19 +328,24 @@ class IncomesController extends ChangeNotifier {
     int? pmIndex,
     PaymentMethod? pm,
   }) async {
-    final index = _tumGelirler.indexWhere((g) => g.id == income.id);
-    if (index != -1) {
-      _tumGelirler[index] = income.copyWith(isDeleted: wasDeleted ?? false);
+    try {
+      final index = _tumGelirler.indexWhere((g) => g.id == income.id);
+      if (index != -1) {
+        _tumGelirler[index] = income.copyWith(isDeleted: wasDeleted ?? false);
 
-      if (pmIndex != null && pmIndex != -1 && oldBalance != null) {
-        _tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex].copyWith(
-          balance: oldBalance,
-        );
+        if (pmIndex != null && pmIndex != -1 && oldBalance != null) {
+          _tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex].copyWith(
+            balance: oldBalance,
+          );
+        }
+
+        await saveIncomes();
+        await savePaymentMethods();
+        notifyListeners();
       }
-
-      await saveIncomes();
-      await savePaymentMethods();
-      notifyListeners();
+    } catch (e, s) {
+      ErrorHandler.logError('IncomesController.undoDelete', e, s);
+      rethrow;
     }
   }
 
@@ -323,30 +357,35 @@ class IncomesController extends ChangeNotifier {
     required DateTime date,
     String? paymentMethodId,
   }) async {
-    if (income.paymentMethodId != null) {
-      _updateBalance(income.paymentMethodId!, income.amount, isIncome: false);
-    }
+    try {
+      if (income.paymentMethodId != null) {
+        _updateBalance(income.paymentMethodId!, income.amount, isIncome: false);
+      }
 
-    if (paymentMethodId != null) {
-      _updateBalance(paymentMethodId, amount, isIncome: true);
-    }
+      if (paymentMethodId != null) {
+        _updateBalance(paymentMethodId, amount, isIncome: true);
+      }
 
-    final index = _tumGelirler.indexWhere((g) => g.id == income.id);
-    if (index != -1) {
-      _tumGelirler[index] = Income(
-        id: income.id,
-        name: name,
-        amount: amount,
-        category: category,
-        date: date,
-        paymentMethodId: paymentMethodId,
-        isDeleted: false,
-      );
-    }
+      final index = _tumGelirler.indexWhere((g) => g.id == income.id);
+      if (index != -1) {
+        _tumGelirler[index] = Income(
+          id: income.id,
+          name: name,
+          amount: amount,
+          category: category,
+          date: date,
+          paymentMethodId: paymentMethodId,
+          isDeleted: false,
+        );
+      }
 
-    await saveIncomes();
-    await savePaymentMethods();
-    notifyListeners();
+      await saveIncomes();
+      await savePaymentMethods();
+      notifyListeners();
+    } catch (e, s) {
+      ErrorHandler.logError('IncomesController.updateIncome', e, s);
+      rethrow;
+    }
   }
 
   Future<void> addIncomeWithPayment({
