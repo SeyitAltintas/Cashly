@@ -15,7 +15,7 @@ import '../widgets/asset_summary_card.dart';
 import '../widgets/asset_list_item.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
-import 'package:provider/provider.dart';
+
 import '../controllers/assets_controller.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
@@ -72,7 +72,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
   void initState() {
     super.initState();
 
-    final authController = Provider.of<AuthController>(context, listen: false);
+    final authController = getIt<AuthController>();
     final userId = authController.currentUser?.id ?? '';
     _controller = getIt<AssetsController>(param1: userId);
     _controller.addListener(_onStateChanged);

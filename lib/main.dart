@@ -16,6 +16,7 @@ import 'core/theme/theme_manager.dart';
 import 'core/widgets/error_screen.dart';
 import 'core/di/injection_container.dart';
 import 'core/services/price_cache_service.dart';
+import 'core/services/network_service.dart';
 
 void main() async {
   // Global error handling - tüm beklenmedik hataları yakala
@@ -105,6 +106,9 @@ class _CashlyAppState extends State<CashlyApp> {
 
       // Fiyat cache service'ı başlat (offline fallback için)
       await PriceCacheService().init();
+
+      // Network durumu izleme servisini başlat
+      await NetworkService().initialize();
 
       // Varsayılan test kullanıcısını oluştur (geçici)
       await initializeDefaultUser();

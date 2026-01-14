@@ -13,7 +13,7 @@ import '../widgets/payment_method_summary_card.dart';
 import 'payment_method_recycle_bin_page.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
-import 'package:provider/provider.dart';
+
 import '../controllers/payment_methods_controller.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
@@ -80,7 +80,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   void initState() {
     super.initState();
 
-    final authController = Provider.of<AuthController>(context, listen: false);
+    final authController = getIt<AuthController>();
     final userId = authController.currentUser?.id ?? '';
     _controller = getIt<PaymentMethodsController>(param1: userId);
     _controller.addListener(_onStateChanged);
