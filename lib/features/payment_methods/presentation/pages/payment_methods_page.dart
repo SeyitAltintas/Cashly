@@ -13,6 +13,8 @@ import '../../../../core/di/injection_container.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
 import '../controllers/payment_methods_controller.dart';
+import '../../../../core/utils/error_handler.dart';
+import '../../../../core/exceptions/app_exceptions.dart';
 
 class PaymentMethodsPage extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
@@ -156,17 +158,38 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                 MaterialPageRoute(
                   builder: (context) => PaymentMethodRecycleBinPage(
                     deletedPaymentMethods: _deletedPaymentMethods,
-                    onRestore: (pm) {
-                      _controller.restoreMethod(pm);
-                      widget.onRestore(pm);
+                    onRestore: (pm) async {
+                      try {
+                        await _controller.restoreMethod(pm);
+                        widget.onRestore(pm);
+                      } catch (e) {
+                        if (!mounted) return;
+                        if (e is AppException) {
+                          ErrorHandler.handleAppException(context, e);
+                        }
+                      }
                     },
-                    onPermanentDelete: (pm) {
-                      _controller.permanentDelete(pm);
-                      widget.onPermanentDelete(pm);
+                    onPermanentDelete: (pm) async {
+                      try {
+                        await _controller.permanentDelete(pm);
+                        widget.onPermanentDelete(pm);
+                      } catch (e) {
+                        if (!mounted) return;
+                        if (e is AppException) {
+                          ErrorHandler.handleAppException(context, e);
+                        }
+                      }
                     },
-                    onEmptyBin: () {
-                      _controller.emptyBin();
-                      widget.onEmptyBin();
+                    onEmptyBin: () async {
+                      try {
+                        await _controller.emptyBin();
+                        widget.onEmptyBin();
+                      } catch (e) {
+                        if (!mounted) return;
+                        if (e is AppException) {
+                          ErrorHandler.handleAppException(context, e);
+                        }
+                      }
                     },
                   ),
                 ),
@@ -217,27 +240,41 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
             MaterialPageRoute(
               builder: (context) => AddPaymentMethodPage(
                 onSave:
-                    (name, type, lastFourDigits, balance, limit, colorIndex) {
-                      final newPm = PaymentMethod(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        name: name,
-                        type: type,
-                        lastFourDigits: lastFourDigits,
-                        balance: balance,
-                        limit: limit,
-                        colorIndex: colorIndex,
-                        createdAt: DateTime.now(),
-                        isDeleted: false,
-                      );
-                      _controller.addMethod(newPm);
-                      widget.onAdd(
-                        name,
-                        type,
-                        lastFourDigits,
-                        balance,
-                        limit,
-                        colorIndex,
-                      );
+                    (
+                      name,
+                      type,
+                      lastFourDigits,
+                      balance,
+                      limit,
+                      colorIndex,
+                    ) async {
+                      try {
+                        final newPm = PaymentMethod(
+                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                          name: name,
+                          type: type,
+                          lastFourDigits: lastFourDigits,
+                          balance: balance,
+                          limit: limit,
+                          colorIndex: colorIndex,
+                          createdAt: DateTime.now(),
+                          isDeleted: false,
+                        );
+                        await _controller.addMethod(newPm);
+                        widget.onAdd(
+                          name,
+                          type,
+                          lastFourDigits,
+                          balance,
+                          limit,
+                          colorIndex,
+                        );
+                      } catch (e) {
+                        if (!mounted) return;
+                        if (e is AppException) {
+                          ErrorHandler.handleAppException(context, e);
+                        }
+                      }
                     },
               ),
             ),
@@ -307,9 +344,16 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
           ),
           child: const Icon(Icons.delete, color: Colors.white),
         ),
-        onDismissed: (direction) {
-          _controller.moveToBin(pm);
-          widget.onDelete(pm);
+        onDismissed: (direction) async {
+          try {
+            await _controller.moveToBin(pm);
+            widget.onDelete(pm);
+          } catch (e) {
+            if (!mounted) return;
+            if (e is AppException) {
+              ErrorHandler.handleAppException(context, e);
+            }
+          }
         },
         child: GestureDetector(
           onTap: () {
@@ -326,20 +370,34 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                 builder: (context) => AddPaymentMethodPage(
                   paymentMethod: pm,
                   onSave:
-                      (name, type, lastFourDigits, balance, limit, colorIndex) {
-                        final updatedPm = PaymentMethod(
-                          id: pm.id,
-                          name: name,
-                          type: type,
-                          lastFourDigits: lastFourDigits,
-                          balance: balance,
-                          limit: limit,
-                          colorIndex: colorIndex,
-                          createdAt: pm.createdAt,
-                          isDeleted: false,
-                        );
-                        _controller.updateMethod(updatedPm);
-                        widget.onEdit(updatedPm);
+                      (
+                        name,
+                        type,
+                        lastFourDigits,
+                        balance,
+                        limit,
+                        colorIndex,
+                      ) async {
+                        try {
+                          final updatedPm = PaymentMethod(
+                            id: pm.id,
+                            name: name,
+                            type: type,
+                            lastFourDigits: lastFourDigits,
+                            balance: balance,
+                            limit: limit,
+                            colorIndex: colorIndex,
+                            createdAt: pm.createdAt,
+                            isDeleted: false,
+                          );
+                          await _controller.updateMethod(updatedPm);
+                          widget.onEdit(updatedPm);
+                        } catch (e) {
+                          if (!mounted) return;
+                          if (e is AppException) {
+                            ErrorHandler.handleAppException(context, e);
+                          }
+                        }
                       },
                 ),
               ),
