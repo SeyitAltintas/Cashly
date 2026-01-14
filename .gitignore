@@ -43,3 +43,15 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Hassas dosyalar - Güvenlik için ASLA commit etmeyin!
+*.jks
+*.keystore
+key.properties
+google-services.json
+GoogleService-Info.plist
+
+# Ortam değişkenleri
+.env
+.env.*
+*.env
