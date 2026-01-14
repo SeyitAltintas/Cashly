@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/constants/card_color_constants.dart';
+import 'package:cashly/core/mixins/lazy_loading_mixin.dart';
 
 import '../../data/models/payment_method_model.dart';
 import '../../../settings/presentation/state/recycle_bin_states.dart';
@@ -27,7 +28,8 @@ class PaymentMethodRecycleBinPage extends StatefulWidget {
 }
 
 class _PaymentMethodRecycleBinPageState
-    extends State<PaymentMethodRecycleBinPage> {
+    extends State<PaymentMethodRecycleBinPage>
+    with LazyLoadingMixin {
   late final PaymentMethodRecycleBinState _binState;
 
   List<PaymentMethod> get _deletedPaymentMethods =>
@@ -39,6 +41,7 @@ class _PaymentMethodRecycleBinPageState
     _binState = PaymentMethodRecycleBinState();
     _binState.init(widget.deletedPaymentMethods);
     _binState.addListener(_onStateChanged);
+    initLazyLoading();
   }
 
   void _onStateChanged() {
@@ -49,6 +52,7 @@ class _PaymentMethodRecycleBinPageState
   void dispose() {
     _binState.removeListener(_onStateChanged);
     _binState.dispose();
+    disposeLazyLoading();
     super.dispose();
   }
 
@@ -210,9 +214,14 @@ class _PaymentMethodRecycleBinPageState
               ),
             )
           : ListView.builder(
+              controller: lazyScrollController,
               padding: const EdgeInsets.all(16),
-              itemCount: _deletedPaymentMethods.length,
+              itemCount: _deletedPaymentMethods.length + (hasMoreItems ? 1 : 0),
               itemBuilder: (context, index) {
+                // Son item ise ve daha fazla veri varsa loading göster
+                if (index >= _deletedPaymentMethods.length) {
+                  return buildLoadingIndicator();
+                }
                 final pm = _deletedPaymentMethods[index];
                 return _buildDeletedCard(pm);
               },

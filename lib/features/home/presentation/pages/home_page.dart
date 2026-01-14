@@ -34,6 +34,7 @@ import 'package:cashly/features/assets/domain/repositories/asset_repository.dart
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/streak/data/services/streak_service.dart';
 import 'package:cashly/core/widgets/network_status_banner.dart';
+import 'package:cashly/core/widgets/error_boundary.dart';
 import '../state/home_page_state.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
@@ -474,53 +475,56 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AssetsPage(
-          assets: varliklar.where((a) => !a.isDeleted).toList(),
-          deletedAssets: varliklar.where((a) => a.isDeleted).toList(),
-          onDelete: (asset) {
-            asset.isDeleted = true;
-            _homeState.varliklar = List.from(varliklar);
-            _varliklariKaydet();
-          },
-          onEdit: (asset) {
-            final index = varliklar.indexWhere((a) => a.id == asset.id);
-            if (index != -1) {
-              varliklar[index] = asset;
+        builder: (context) => PageErrorBoundary(
+          pageName: 'Varlıklar',
+          child: AssetsPage(
+            assets: varliklar.where((a) => !a.isDeleted).toList(),
+            deletedAssets: varliklar.where((a) => a.isDeleted).toList(),
+            onDelete: (asset) {
+              asset.isDeleted = true;
               _homeState.varliklar = List.from(varliklar);
-            }
-            _varliklariKaydet();
-          },
-          onRestore: (asset) {
-            asset.isDeleted = false;
-            _homeState.varliklar = List.from(varliklar);
-            _varliklariKaydet();
-          },
-          onPermanentDelete: (asset) {
-            varliklar.remove(asset);
-            _homeState.varliklar = List.from(varliklar);
-            _varliklariKaydet();
-          },
-          onEmptyBin: () {
-            varliklar.removeWhere((a) => a.isDeleted);
-            _homeState.varliklar = List.from(varliklar);
-            _varliklariKaydet();
-          },
-          onAdd: (name, amount, quantity, category, type) {
-            varliklar.add(
-              Asset(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                name: name,
-                amount: amount,
-                quantity: quantity,
-                category: category,
-                type: type,
-                lastUpdated: DateTime.now(),
-                isDeleted: false,
-              ),
-            );
-            _homeState.varliklar = List.from(varliklar);
-            _varliklariKaydet();
-          },
+              _varliklariKaydet();
+            },
+            onEdit: (asset) {
+              final index = varliklar.indexWhere((a) => a.id == asset.id);
+              if (index != -1) {
+                varliklar[index] = asset;
+                _homeState.varliklar = List.from(varliklar);
+              }
+              _varliklariKaydet();
+            },
+            onRestore: (asset) {
+              asset.isDeleted = false;
+              _homeState.varliklar = List.from(varliklar);
+              _varliklariKaydet();
+            },
+            onPermanentDelete: (asset) {
+              varliklar.remove(asset);
+              _homeState.varliklar = List.from(varliklar);
+              _varliklariKaydet();
+            },
+            onEmptyBin: () {
+              varliklar.removeWhere((a) => a.isDeleted);
+              _homeState.varliklar = List.from(varliklar);
+              _varliklariKaydet();
+            },
+            onAdd: (name, amount, quantity, category, type) {
+              varliklar.add(
+                Asset(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: name,
+                  amount: amount,
+                  quantity: quantity,
+                  category: category,
+                  type: type,
+                  lastUpdated: DateTime.now(),
+                  isDeleted: false,
+                ),
+              );
+              _homeState.varliklar = List.from(varliklar);
+              _varliklariKaydet();
+            },
+          ),
         ),
       ),
     ).then((_) => _showCelebrationIfPending());
@@ -530,14 +534,17 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AnalysisPage(
-          expenses: tumHarcamalar,
-          assets: varliklar,
-          incomes: tumGelirler,
-          selectedDate: secilenAy,
-          userId: widget.authController.currentUser?.id ?? '',
-          userName: widget.authController.currentUser?.name ?? 'Kullanici',
-          paymentMethods: tumOdemeYontemleri,
+        builder: (context) => PageErrorBoundary(
+          pageName: 'Analiz',
+          child: AnalysisPage(
+            expenses: tumHarcamalar,
+            assets: varliklar,
+            incomes: tumGelirler,
+            selectedDate: secilenAy,
+            userId: widget.authController.currentUser?.id ?? '',
+            userName: widget.authController.currentUser?.name ?? 'Kullanici',
+            paymentMethods: tumOdemeYontemleri,
+          ),
         ),
       ),
     ).then((_) => _showCelebrationIfPending());
@@ -547,80 +554,83 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PaymentMethodsPage(
-          paymentMethods: tumOdemeYontemleri
-              .where((p) => !p.isDeleted)
-              .toList(),
-          deletedPaymentMethods: tumOdemeYontemleri
-              .where((p) => p.isDeleted)
-              .toList(),
-          userName: widget.authController.currentUser?.name,
-          userProfileUrl: widget.authController.currentUser?.profileImage,
-          onDelete: (pm) {
-            final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-            if (i != -1) {
-              tumOdemeYontemleri[i] = pm.copyWith(isDeleted: true);
+        builder: (context) => PageErrorBoundary(
+          pageName: 'Ödeme Yöntemleri',
+          child: PaymentMethodsPage(
+            paymentMethods: tumOdemeYontemleri
+                .where((p) => !p.isDeleted)
+                .toList(),
+            deletedPaymentMethods: tumOdemeYontemleri
+                .where((p) => p.isDeleted)
+                .toList(),
+            userName: widget.authController.currentUser?.name,
+            userProfileUrl: widget.authController.currentUser?.profileImage,
+            onDelete: (pm) {
+              final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+              if (i != -1) {
+                tumOdemeYontemleri[i] = pm.copyWith(isDeleted: true);
+                _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+              }
+              _odemeYontemleriKaydet();
+            },
+            onEdit: (pm) {
+              final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+              if (i != -1) {
+                tumOdemeYontemleri[i] = pm;
+                _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+              }
+              _odemeYontemleriKaydet();
+            },
+            onRestore: (pm) {
+              final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+              if (i != -1) {
+                tumOdemeYontemleri[i] = pm.copyWith(isDeleted: false);
+                _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+              }
+              _odemeYontemleriKaydet();
+            },
+            onPermanentDelete: (pm) {
+              tumOdemeYontemleri.removeWhere((p) => p.id == pm.id);
               _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-            }
-            _odemeYontemleriKaydet();
-          },
-          onEdit: (pm) {
-            final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-            if (i != -1) {
-              tumOdemeYontemleri[i] = pm;
+              _odemeYontemleriKaydet();
+            },
+            onEmptyBin: () {
+              tumOdemeYontemleri.removeWhere((p) => p.isDeleted);
               _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-            }
-            _odemeYontemleriKaydet();
-          },
-          onRestore: (pm) {
-            final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-            if (i != -1) {
-              tumOdemeYontemleri[i] = pm.copyWith(isDeleted: false);
-              _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-            }
-            _odemeYontemleriKaydet();
-          },
-          onPermanentDelete: (pm) {
-            tumOdemeYontemleri.removeWhere((p) => p.id == pm.id);
-            _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-            _odemeYontemleriKaydet();
-          },
-          onEmptyBin: () {
-            tumOdemeYontemleri.removeWhere((p) => p.isDeleted);
-            _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-            _odemeYontemleriKaydet();
-          },
-          onAdd: (name, type, lastFourDigits, balance, limit, colorIndex) {
-            tumOdemeYontemleri.add(
-              PaymentMethod(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                name: name,
-                type: type,
-                lastFourDigits: lastFourDigits,
-                balance: balance,
-                limit: limit,
-                colorIndex: colorIndex,
-                createdAt: DateTime.now(),
-                isDeleted: false,
-              ),
-            );
-            _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-            _odemeYontemleriKaydet();
-          },
-          onCardTap: (pm) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PaymentMethodDetailPage(
-                  paymentMethod: pm,
-                  harcamalar: tumHarcamalar,
-                  gelirler: tumGelirler,
-                  transferler: tumTransferler,
-                  tumOdemeYontemleri: tumOdemeYontemleri,
+              _odemeYontemleriKaydet();
+            },
+            onAdd: (name, type, lastFourDigits, balance, limit, colorIndex) {
+              tumOdemeYontemleri.add(
+                PaymentMethod(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: name,
+                  type: type,
+                  lastFourDigits: lastFourDigits,
+                  balance: balance,
+                  limit: limit,
+                  colorIndex: colorIndex,
+                  createdAt: DateTime.now(),
+                  isDeleted: false,
                 ),
-              ),
-            ).then((_) => _showCelebrationIfPending());
-          },
+              );
+              _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+              _odemeYontemleriKaydet();
+            },
+            onCardTap: (pm) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PaymentMethodDetailPage(
+                    paymentMethod: pm,
+                    harcamalar: tumHarcamalar,
+                    gelirler: tumGelirler,
+                    transferler: tumTransferler,
+                    tumOdemeYontemleri: tumOdemeYontemleri,
+                  ),
+                ),
+              ).then((_) => _showCelebrationIfPending());
+            },
+          ),
         ),
       ),
     ).then((_) => _showCelebrationIfPending());
@@ -698,22 +708,25 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ExpensesPage(
-          tumHarcamalar: tumHarcamalar,
-          tumOdemeYontemleri: tumOdemeYontemleri,
-          kategoriIkonlari: kategoriIkonlari,
-          butceLimiti: butceLimiti,
-          secilenAy: secilenAy,
-          userId: widget.authController.currentUser?.id,
-          varsayilanOdemeYontemiId: varsayilanOdemeYontemiId,
-          onHarcamalarChanged: (harcamalar) {
-            _homeState.tumHarcamalar = harcamalar;
-            _harcamalariKaydet();
-          },
-          onOdemeYontemleriChanged: (odemeYontemleri) {
-            _homeState.tumOdemeYontemleri = odemeYontemleri;
-            _odemeYontemleriKaydet();
-          },
+        builder: (context) => PageErrorBoundary(
+          pageName: 'Harcamalar',
+          child: ExpensesPage(
+            tumHarcamalar: tumHarcamalar,
+            tumOdemeYontemleri: tumOdemeYontemleri,
+            kategoriIkonlari: kategoriIkonlari,
+            butceLimiti: butceLimiti,
+            secilenAy: secilenAy,
+            userId: widget.authController.currentUser?.id,
+            varsayilanOdemeYontemiId: varsayilanOdemeYontemiId,
+            onHarcamalarChanged: (harcamalar) {
+              _homeState.tumHarcamalar = harcamalar;
+              _harcamalariKaydet();
+            },
+            onOdemeYontemleriChanged: (odemeYontemleri) {
+              _homeState.tumOdemeYontemleri = odemeYontemleri;
+              _odemeYontemleriKaydet();
+            },
+          ),
         ),
       ),
     ).then((_) {
@@ -726,20 +739,23 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => IncomesPage(
-          tumGelirler: tumGelirler,
-          tumOdemeYontemleri: tumOdemeYontemleri,
-          gelirKategoriIkonlari: gelirKategoriIkonlari,
-          secilenAy: secilenAy,
-          userId: widget.authController.currentUser?.id,
-          onGelirlerChanged: (gelirler) {
-            _homeState.tumGelirler = gelirler;
-            _gelirleriKaydet();
-          },
-          onOdemeYontemleriChanged: (odemeYontemleri) {
-            _homeState.tumOdemeYontemleri = odemeYontemleri;
-            _odemeYontemleriKaydet();
-          },
+        builder: (context) => PageErrorBoundary(
+          pageName: 'Gelirler',
+          child: IncomesPage(
+            tumGelirler: tumGelirler,
+            tumOdemeYontemleri: tumOdemeYontemleri,
+            gelirKategoriIkonlari: gelirKategoriIkonlari,
+            secilenAy: secilenAy,
+            userId: widget.authController.currentUser?.id,
+            onGelirlerChanged: (gelirler) {
+              _homeState.tumGelirler = gelirler;
+              _gelirleriKaydet();
+            },
+            onOdemeYontemleriChanged: (odemeYontemleri) {
+              _homeState.tumOdemeYontemleri = odemeYontemleri;
+              _odemeYontemleriKaydet();
+            },
+          ),
         ),
       ),
     ).then((_) {

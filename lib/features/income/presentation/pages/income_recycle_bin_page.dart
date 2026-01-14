@@ -4,6 +4,7 @@ import 'package:cashly/core/di/injection_container.dart';
 import '../../../income/domain/repositories/income_repository.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
+import 'package:cashly/core/mixins/lazy_loading_mixin.dart';
 import '../../data/models/income_model.dart';
 import '../controllers/incomes_controller.dart';
 
@@ -21,7 +22,8 @@ class GelirCopKutusuSayfasi extends StatefulWidget {
   State<GelirCopKutusuSayfasi> createState() => _GelirCopKutusuSayfasiState();
 }
 
-class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
+class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
+    with LazyLoadingMixin {
   // Controller veya yerel state
   IncomesController? _controller;
   List<Income> _localSilinenGelirler = [];
@@ -51,6 +53,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
     super.initState();
     _controller = widget.controller;
     _controller?.addListener(_onStateChanged);
+    initLazyLoading();
     verileriYukle();
   }
 
@@ -61,6 +64,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
   @override
   void dispose() {
     _controller?.removeListener(_onStateChanged);
+    disposeLazyLoading();
     super.dispose();
   }
 
@@ -266,7 +270,11 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.delete_outline, size: 60, color: Colors.white12),
+                  const Icon(
+                    Icons.delete_outline,
+                    size: 60,
+                    color: Colors.white12,
+                  ),
                   const SizedBox(height: 10),
                   Text(
                     "Silinen gelir yok.",
@@ -280,9 +288,14 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
               ),
             )
           : ListView.builder(
+              controller: lazyScrollController,
               padding: const EdgeInsets.all(10),
-              itemCount: silinenGelirler.length,
+              itemCount: silinenGelirler.length + (hasMoreItems ? 1 : 0),
               itemBuilder: (context, index) {
+                // Son item ise ve daha fazla veri varsa loading göster
+                if (index >= silinenGelirler.length) {
+                  return buildLoadingIndicator();
+                }
                 final gelir = silinenGelirler[index];
 
                 return Card(

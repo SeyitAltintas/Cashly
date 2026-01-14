@@ -5,6 +5,7 @@ import 'package:cashly/features/expenses/domain/repositories/expense_repository.
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
+import 'package:cashly/core/mixins/lazy_loading_mixin.dart';
 import '../controllers/expenses_controller.dart';
 
 class CopKutusuSayfasi extends StatefulWidget {
@@ -17,7 +18,8 @@ class CopKutusuSayfasi extends StatefulWidget {
   State<CopKutusuSayfasi> createState() => _CopKutusuSayfasiState();
 }
 
-class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
+class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
+    with LazyLoadingMixin {
   // Controller veya yerel state
   ExpensesController? _controller;
   List<Map<String, dynamic>> _localSilinenHarcamalar = [];
@@ -37,6 +39,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
     super.initState();
     _controller = widget.controller;
     _controller?.addListener(_onStateChanged);
+    initLazyLoading();
     verileriYukle();
   }
 
@@ -47,6 +50,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
   @override
   void dispose() {
     _controller?.removeListener(_onStateChanged);
+    disposeLazyLoading();
     super.dispose();
   }
 
@@ -260,9 +264,14 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi> {
               ),
             )
           : ListView.builder(
+              controller: lazyScrollController,
               padding: const EdgeInsets.all(10),
-              itemCount: silinenHarcamalar.length,
+              itemCount: silinenHarcamalar.length + (hasMoreItems ? 1 : 0),
               itemBuilder: (context, index) {
+                // Son item ise ve daha fazla veri varsa loading göster
+                if (index >= silinenHarcamalar.length) {
+                  return buildLoadingIndicator();
+                }
                 final harcama = silinenHarcamalar[index];
                 DateTime tarih =
                     DateTime.tryParse(harcama['tarih'].toString()) ??

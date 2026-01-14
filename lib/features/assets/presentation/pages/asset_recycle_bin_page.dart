@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../data/models/asset_model.dart';
 import '../../../settings/presentation/state/recycle_bin_states.dart';
+import '../../../../core/mixins/lazy_loading_mixin.dart';
 
 class AssetRecycleBinPage extends StatefulWidget {
   final List<Asset> deletedAssets;
@@ -22,7 +23,8 @@ class AssetRecycleBinPage extends StatefulWidget {
   State<AssetRecycleBinPage> createState() => _AssetRecycleBinPageState();
 }
 
-class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
+class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
+    with LazyLoadingMixin {
   late final AssetRecycleBinState _binState;
 
   List<Asset> get _deletedAssets => _binState.deletedAssets;
@@ -33,6 +35,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
     _binState = AssetRecycleBinState();
     _binState.init(widget.deletedAssets);
     _binState.addListener(_onStateChanged);
+    initLazyLoading();
   }
 
   void _onStateChanged() {
@@ -43,6 +46,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
   void dispose() {
     _binState.removeListener(_onStateChanged);
     _binState.dispose();
+    disposeLazyLoading();
     super.dispose();
   }
 
@@ -207,9 +211,14 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage> {
               ),
             )
           : ListView.builder(
+              controller: lazyScrollController,
               padding: const EdgeInsets.all(16),
-              itemCount: _deletedAssets.length,
+              itemCount: _deletedAssets.length + (hasMoreItems ? 1 : 0),
               itemBuilder: (context, index) {
+                // Son item ise ve daha fazla veri varsa loading göster
+                if (index >= _deletedAssets.length) {
+                  return buildLoadingIndicator();
+                }
                 final asset = _deletedAssets[index];
                 return Card(
                   color: const Color(0xFF1E1E1E),
