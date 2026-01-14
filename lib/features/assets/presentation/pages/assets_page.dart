@@ -15,6 +15,8 @@ import '../../../../core/di/injection_container.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
 import '../controllers/assets_controller.dart';
+import '../../../../core/utils/error_handler.dart';
+import '../../../../core/exceptions/app_exceptions.dart';
 
 class AssetsPage extends StatefulWidget {
   final List<Asset> assets;
@@ -232,21 +234,28 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                 type,
                 purchaseDate,
                 purchasePrice,
-              ) {
-                final newAsset = Asset(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: name,
-                  amount: amount,
-                  quantity: quantity,
-                  category: category,
-                  type: type,
-                  lastUpdated: DateTime.now(),
-                  purchaseDate: purchaseDate,
-                  purchasePrice: purchasePrice,
-                  isDeleted: false,
-                );
-                _controller.addAsset(newAsset);
-                widget.onAdd(name, amount, quantity, category, type);
+              ) async {
+                try {
+                  final newAsset = Asset(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    name: name,
+                    amount: amount,
+                    quantity: quantity,
+                    category: category,
+                    type: type,
+                    lastUpdated: DateTime.now(),
+                    purchaseDate: purchaseDate,
+                    purchasePrice: purchasePrice,
+                    isDeleted: false,
+                  );
+                  await _controller.addAsset(newAsset);
+                  widget.onAdd(name, amount, quantity, category, type);
+                } catch (e) {
+                  if (!mounted) return;
+                  if (e is AppException) {
+                    ErrorHandler.handleAppException(context, e);
+                  }
+                }
               },
         ),
       ),
@@ -283,9 +292,16 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
           // RepaintBoundary ile render izolasyonu - performans optimizasyonu
           return AssetListItem(
             asset: asset,
-            onDelete: () {
-              _controller.deleteAsset(asset);
-              widget.onDelete(asset);
+            onDelete: () async {
+              try {
+                await _controller.deleteAsset(asset);
+                widget.onDelete(asset);
+              } catch (e) {
+                if (!mounted) return;
+                if (e is AppException) {
+                  ErrorHandler.handleAppException(context, e);
+                }
+              }
             },
             onTap: () {
               Navigator.push(
@@ -293,14 +309,28 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                 MaterialPageRoute(
                   builder: (context) => AssetDetailPage(
                     asset: asset,
-                    onEdit: (updatedAsset) {
-                      // Lokal listeyi güncelle
-                      _controller.updateAsset(updatedAsset);
-                      widget.onEdit(updatedAsset);
+                    onEdit: (updatedAsset) async {
+                      try {
+                        // Lokal listeyi güncelle
+                        await _controller.updateAsset(updatedAsset);
+                        widget.onEdit(updatedAsset);
+                      } catch (e) {
+                        if (!mounted) return;
+                        if (e is AppException) {
+                          ErrorHandler.handleAppException(context, e);
+                        }
+                      }
                     },
-                    onDelete: (deletedAsset) {
-                      _controller.deleteAsset(deletedAsset);
-                      widget.onDelete(deletedAsset);
+                    onDelete: (deletedAsset) async {
+                      try {
+                        await _controller.deleteAsset(deletedAsset);
+                        widget.onDelete(deletedAsset);
+                      } catch (e) {
+                        if (!mounted) return;
+                        if (e is AppException) {
+                          ErrorHandler.handleAppException(context, e);
+                        }
+                      }
                     },
                   ),
                 ),
@@ -322,19 +352,26 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                           type,
                           purchaseDate,
                           purchasePrice,
-                        ) {
-                          final updatedAsset = asset.copyWith(
-                            name: name,
-                            amount: amount,
-                            quantity: quantity,
-                            category: category,
-                            type: type,
-                            lastUpdated: DateTime.now(),
-                            purchaseDate: purchaseDate,
-                            purchasePrice: purchasePrice,
-                          );
-                          _controller.updateAsset(updatedAsset);
-                          widget.onEdit(updatedAsset);
+                        ) async {
+                          try {
+                            final updatedAsset = asset.copyWith(
+                              name: name,
+                              amount: amount,
+                              quantity: quantity,
+                              category: category,
+                              type: type,
+                              lastUpdated: DateTime.now(),
+                              purchaseDate: purchaseDate,
+                              purchasePrice: purchasePrice,
+                            );
+                            await _controller.updateAsset(updatedAsset);
+                            widget.onEdit(updatedAsset);
+                          } catch (e) {
+                            if (!mounted) return;
+                            if (e is AppException) {
+                              ErrorHandler.handleAppException(context, e);
+                            }
+                          }
                         },
                   ),
                 ),

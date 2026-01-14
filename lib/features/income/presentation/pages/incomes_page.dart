@@ -17,6 +17,8 @@ import '../widgets/income_list_item.dart';
 import '../../../../core/widgets/skeleton_widget.dart';
 import '../../../../core/di/injection_container.dart';
 import '../controllers/incomes_controller.dart';
+import '../../../../core/utils/error_handler.dart';
+import '../../../../core/exceptions/app_exceptions.dart';
 
 class IncomesPage extends StatefulWidget {
   final List<Income> tumGelirler;
@@ -168,7 +170,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     );
   }
 
-  void gelirSil(Income income) {
+  Future<void> gelirSil(Income income) async {
     HapticService.delete(); // Silme haptic feedback
 
     // Eski değerleri sakla (geri alma için)
@@ -189,34 +191,51 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
       pm = widget.tumOdemeYontemleri[pmIndex];
     }
 
-    _controller.deleteIncome(income, pm: pm, pmIndex: pmIndex);
+    try {
+      await _controller.deleteIncome(income, pm: pm, pmIndex: pmIndex);
 
-    widget.onGelirlerChanged(widget.tumGelirler);
-    widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+      widget.onGelirlerChanged(widget.tumGelirler);
+      widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-    // Geri Al özelliği ile SnackBar göster
-    AppSnackBar.deleted(
-      context,
-      'Gelir çöp kutusuna taşındı 🗑️',
-      onUndo: () {
-        // Sayfa hala aktif mi kontrol et
-        if (!mounted) return;
+      // Geri Al özelliği ile SnackBar göster
+      if (!mounted) return;
+      AppSnackBar.deleted(
+        context,
+        'Gelir çöp kutusuna taşındı 🗑️',
+        onUndo: () async {
+          // Sayfa hala aktif mi kontrol et
+          if (!mounted) return;
 
-        // Silme işlemini geri al
-        _controller.undoDelete(
-          income,
-          wasDeleted: eskiIsDeleted,
-          pm: pm,
-          pmIndex: pmIndex,
-          oldBalance: eskiBakiye,
-        );
-        widget.onGelirlerChanged(widget.tumGelirler);
-        widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+          try {
+            // Silme işlemini geri al
+            await _controller.undoDelete(
+              income,
+              wasDeleted: eskiIsDeleted,
+              pm: pm,
+              pmIndex: pmIndex,
+              oldBalance: eskiBakiye,
+            );
+            widget.onGelirlerChanged(widget.tumGelirler);
+            widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-        // Geri alındı bildirimi
-        AppSnackBar.success(context, 'Gelir geri yüklendi ✅');
-      },
-    );
+            // Geri alındı bildirimi
+            if (mounted) {
+              AppSnackBar.success(context, 'Gelir geri yüklendi ✅');
+            }
+          } catch (e) {
+            if (!mounted) return;
+            if (e is AppException) {
+              ErrorHandler.handleAppException(context, e);
+            }
+          }
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      if (e is AppException) {
+        ErrorHandler.handleAppException(context, e);
+      }
+    }
   }
 
   void gelirDuzenle(Income income) {
@@ -229,18 +248,25 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           paymentMethods: widget.tumOdemeYontemleri
               .where((pm) => !pm.isDeleted)
               .toList(),
-          onSave: (name, amount, category, date, paymentMethodId) {
-            _controller.updateIncome(
-              income: income,
-              name: name,
-              amount: amount,
-              category: category,
-              date: date,
-              paymentMethodId: paymentMethodId,
-            );
+          onSave: (name, amount, category, date, paymentMethodId) async {
+            try {
+              await _controller.updateIncome(
+                income: income,
+                name: name,
+                amount: amount,
+                category: category,
+                date: date,
+                paymentMethodId: paymentMethodId,
+              );
 
-            widget.onGelirlerChanged(widget.tumGelirler);
-            widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+              widget.onGelirlerChanged(widget.tumGelirler);
+              widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+            } catch (e) {
+              if (!mounted) return;
+              if (e is AppException) {
+                ErrorHandler.handleAppException(context, e);
+              }
+            }
           },
         ),
       ),
@@ -256,22 +282,30 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           paymentMethods: widget.tumOdemeYontemleri
               .where((pm) => !pm.isDeleted)
               .toList(),
-          onSave: (name, amount, category, date, paymentMethodId) {
-            _controller.addIncomeWithPayment(
-              name: name,
-              amount: amount,
-              category: category,
-              date: date,
-              paymentMethodId: paymentMethodId,
-            );
+          onSave: (name, amount, category, date, paymentMethodId) async {
+            try {
+              await _controller.addIncomeWithPayment(
+                name: name,
+                amount: amount,
+                category: category,
+                date: date,
+                paymentMethodId: paymentMethodId,
+              );
 
-            widget.onGelirlerChanged(widget.tumGelirler);
-            widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+              widget.onGelirlerChanged(widget.tumGelirler);
+              widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-            AppSnackBar.success(
-              context,
-              'Gelir eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
-            );
+              if (!mounted) return;
+              AppSnackBar.success(
+                context,
+                'Gelir eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
+              );
+            } catch (e) {
+              if (!mounted) return;
+              if (e is AppException) {
+                ErrorHandler.handleAppException(context, e);
+              }
+            }
           },
         ),
       ),
