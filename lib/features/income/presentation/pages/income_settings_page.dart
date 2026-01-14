@@ -143,7 +143,7 @@ class _GelirlerAyarlariSayfasiState extends State<GelirlerAyarlariSayfasi> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.format_list_bulleted, color: Colors.white),
+                      const Icon(Icons.format_list_bulleted, color: Colors.white),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(

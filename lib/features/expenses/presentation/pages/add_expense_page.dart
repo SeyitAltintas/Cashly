@@ -329,7 +329,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 const SizedBox(height: 8),
                 Text(
                   state.errorText!,
-                  style: TextStyle(color: _accentColor, fontSize: 12),
+                  style: const TextStyle(color: _accentColor, fontSize: 12),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -445,15 +445,15 @@ class _AddExpensePageState extends State<AddExpensePage> {
               style: const TextStyle(color: Colors.white, fontSize: 16),
               isExpanded: true,
               icon: const Icon(Icons.expand_more, color: Colors.white38),
-              hint: Row(
+              hint: const Row(
                 children: [
                   Icon(
                     Icons.account_balance_wallet_outlined,
                     color: _accentColor,
                     size: 20,
                   ),
-                  const SizedBox(width: 12),
-                  const Text(
+                  SizedBox(width: 12),
+                  Text(
                     'Ödeme Yöntemi Seçin',
                     style: TextStyle(color: Colors.white38),
                   ),

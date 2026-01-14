@@ -883,7 +883,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
               labelText: "Alış Fiyatı (TL)",
               labelStyle: TextStyle(color: Colors.amber.shade700),
               hintText: "Örn: 1.250,00",
-              hintStyle: TextStyle(color: Colors.white24),
+              hintStyle: const TextStyle(color: Colors.white24),
               filled: true,
               fillColor: Colors.white.withValues(alpha: 0.05),
               border: OutlineInputBorder(
@@ -908,7 +908,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 Icons.shopping_cart,
                 color: Colors.amber.shade600,
               ),
-              suffixIcon: Icon(Icons.edit, color: Colors.white38, size: 18),
+              suffixIcon: const Icon(Icons.edit, color: Colors.white38, size: 18),
             ),
           ),
         ],

@@ -465,7 +465,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           )
-                        : Text(
+                        : const Text(
                             "Kayıt Ol",
                             style: TextStyle(
                               fontSize: 18,

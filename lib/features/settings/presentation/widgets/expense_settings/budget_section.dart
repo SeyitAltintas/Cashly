@@ -65,9 +65,9 @@ class BudgetSection extends StatelessWidget {
                   return ScaleTransition(scale: animation, child: child);
                 },
                 child: isSaved
-                    ? IconButton(
-                        key: const ValueKey('check'),
-                        icon: const Icon(Icons.check, color: Colors.green),
+                    ? const IconButton(
+                        key: ValueKey('check'),
+                        icon: Icon(Icons.check, color: Colors.green),
                         onPressed: null,
                         tooltip: "Kaydedildi",
                       )

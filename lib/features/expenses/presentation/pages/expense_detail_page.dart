@@ -270,11 +270,11 @@ class ExpenseDetailPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.payments, color: Colors.red, size: 24),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 'Harcanan Tutar',
                 style: TextStyle(
@@ -288,7 +288,7 @@ class ExpenseDetailPage extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             '-${CurrencyFormatter.format(tutar)}',
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.red,
               fontSize: 28,
               fontWeight: FontWeight.bold,

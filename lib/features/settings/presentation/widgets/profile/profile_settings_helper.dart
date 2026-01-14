@@ -708,7 +708,7 @@ class ProfileSettingsHelper {
             size: 24,
           ),
           const SizedBox(width: 12),
-          Expanded(
+          const Expanded(
             child: Text(
               "Bu işlem geri alınamaz! Tüm verileriniz kalıcı olarak silinecektir.",
               style: TextStyle(

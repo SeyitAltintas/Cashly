@@ -63,27 +63,27 @@ class AmountExtractor {
   ) {
     // Sıralı liste kullan (Map sırası garanti değil)
     List<MapEntry<String, double>> onluklar = [
-      MapEntry('doksan', 90),
-      MapEntry('seksen', 80),
-      MapEntry('yetmiş', 70),
-      MapEntry('altmış', 60),
-      MapEntry('elli', 50),
-      MapEntry('kırk', 40),
-      MapEntry('otuz', 30),
-      MapEntry('yirmi', 20),
-      MapEntry('on', 10),
+      const MapEntry('doksan', 90),
+      const MapEntry('seksen', 80),
+      const MapEntry('yetmiş', 70),
+      const MapEntry('altmış', 60),
+      const MapEntry('elli', 50),
+      const MapEntry('kırk', 40),
+      const MapEntry('otuz', 30),
+      const MapEntry('yirmi', 20),
+      const MapEntry('on', 10),
     ];
 
     List<MapEntry<String, double>> birlikler = [
-      MapEntry('dokuz', 9),
-      MapEntry('sekiz', 8),
-      MapEntry('yedi', 7),
-      MapEntry('altı', 6),
-      MapEntry('beş', 5),
-      MapEntry('dört', 4),
-      MapEntry('üç', 3),
-      MapEntry('iki', 2),
-      MapEntry('bir', 1),
+      const MapEntry('dokuz', 9),
+      const MapEntry('sekiz', 8),
+      const MapEntry('yedi', 7),
+      const MapEntry('altı', 6),
+      const MapEntry('beş', 5),
+      const MapEntry('dört', 4),
+      const MapEntry('üç', 3),
+      const MapEntry('iki', 2),
+      const MapEntry('bir', 1),
     ];
 
     // 2a. Bileşik sayılar: "on beş bin", "yirmi üç milyon"

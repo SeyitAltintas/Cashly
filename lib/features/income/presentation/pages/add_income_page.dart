@@ -271,7 +271,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                 const SizedBox(height: 8),
                 Text(
                   state.errorText!,
-                  style: TextStyle(color: _accentColor, fontSize: 12),
+                  style: const TextStyle(color: _accentColor, fontSize: 12),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -320,7 +320,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: _accentColor),
+              borderSide: const BorderSide(color: _accentColor),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -387,15 +387,15 @@ class _AddIncomePageState extends State<AddIncomePage> {
               style: const TextStyle(color: Colors.white, fontSize: 16),
               isExpanded: true,
               icon: const Icon(Icons.expand_more, color: Colors.white38),
-              hint: Row(
+              hint: const Row(
                 children: [
                   Icon(
                     Icons.account_balance_wallet_outlined,
                     color: _accentColor,
                     size: 20,
                   ),
-                  const SizedBox(width: 12),
-                  const Text(
+                  SizedBox(width: 12),
+                  Text(
                     'Hesap Seçin',
                     style: TextStyle(color: Colors.white38),
                   ),

@@ -152,7 +152,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
-                      prefixIcon: Icon(
+                      prefixIcon: const Icon(
                         Icons.label_outline,
                         color: Colors.green,
                       ),
@@ -200,7 +200,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
-                      prefixIcon: Icon(
+                      prefixIcon: const Icon(
                         Icons.currency_lira,
                         color: Colors.green,
                       ),
@@ -304,7 +304,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
-                      prefixIcon: Icon(
+                      prefixIcon: const Icon(
                         Icons.account_balance_wallet,
                         color: Colors.green,
                       ),

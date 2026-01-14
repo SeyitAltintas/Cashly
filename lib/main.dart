@@ -240,7 +240,7 @@ class AuthWrapper extends StatelessWidget {
       animation: authController,
       builder: (context, child) {
         if (authController.isLoading) {
-          return Scaffold(
+          return const Scaffold(
             backgroundColor: Colors.black,
             body: Center(child: CircularProgressIndicator(color: Colors.white)),
           );

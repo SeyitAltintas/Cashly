@@ -284,7 +284,7 @@ class _IncomePageState extends State<IncomePage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.account_balance_wallet_outlined,
                         size: 60,
                         color: Colors.white12,

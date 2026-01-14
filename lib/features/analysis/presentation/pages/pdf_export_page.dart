@@ -421,9 +421,9 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   ),
                 ),
                 child: _isExporting
-                    ? Row(
+                    ? const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           SizedBox(
                             width: 20,
                             height: 20,
@@ -443,9 +443,9 @@ class _PdfExportPageState extends State<PdfExportPage> {
                           ),
                         ],
                       )
-                    : Row(
+                    : const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Icon(
                             Icons.share_rounded,
                             size: 22,

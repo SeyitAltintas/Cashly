@@ -266,7 +266,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.delete_outline, size: 60, color: Colors.white12),
+                  const Icon(Icons.delete_outline, size: 60, color: Colors.white12),
                   const SizedBox(height: 10),
                   Text(
                     "Silinen gelir yok.",

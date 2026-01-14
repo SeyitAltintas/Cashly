@@ -191,11 +191,11 @@ class _GelirKategoriYonetimiSayfasiState
                     fillColor: Theme.of(context).colorScheme.surface,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.white12),
+                      borderSide: const BorderSide(color: Colors.white12),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.white12),
+                      borderSide: const BorderSide(color: Colors.white12),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),

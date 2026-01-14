@@ -1446,10 +1446,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
-                  floatingLabelStyle: TextStyle(
+                  floatingLabelStyle: const TextStyle(
                     color: ColorConstants.kirmiziVurgu,
                   ),
-                  prefixIcon: Icon(
+                  prefixIcon: const Icon(
                     Icons.attach_money,
                     color: ColorConstants.kirmiziVurgu,
                   ),
@@ -1490,10 +1490,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
-                  floatingLabelStyle: TextStyle(
+                  floatingLabelStyle: const TextStyle(
                     color: ColorConstants.kirmiziVurgu,
                   ),
-                  prefixIcon: Icon(
+                  prefixIcon: const Icon(
                     Icons.description,
                     color: ColorConstants.kirmiziVurgu,
                   ),
@@ -1534,7 +1534,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.category, color: ColorConstants.kirmiziVurgu),
+                    const Icon(Icons.category, color: ColorConstants.kirmiziVurgu),
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButton<String>(
@@ -1597,7 +1597,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                       label: const Text('Yeniden'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: ColorConstants.kirmiziVurgu,
-                        side: BorderSide(color: ColorConstants.kirmiziVurgu),
+                        side: const BorderSide(color: ColorConstants.kirmiziVurgu),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

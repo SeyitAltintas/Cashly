@@ -13,7 +13,7 @@ void main() {
           theme: ThemeData.dark(),
           home: Scaffold(
             body: DefaultPaymentSection(
-              odemeYontemleri: [],
+              odemeYontemleri: const [],
               varsayilanOdemeYontemiId: null,
               onChanged: (_) {},
             ),

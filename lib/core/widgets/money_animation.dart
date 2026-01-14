@@ -140,7 +140,7 @@ class MoneyAnimationOverlay {
     hide();
 
     _overlayEntry = OverlayEntry(
-      builder: (context) => MoneyRainAnimation(onComplete: hide),
+      builder: (context) => const MoneyRainAnimation(onComplete: hide),
     );
 
     Overlay.of(context).insert(_overlayEntry!);
