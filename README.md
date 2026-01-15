@@ -1,15 +1,16 @@
 # 💰 Cashly - Kişisel Bütçe Takip Uygulaması
 
 <p align="center">
-  <img src="assets/image/logokeskinbuyuk.png" alt="Cashly Logo" width="120"/>
+  <img src="assets/image/logouzun.png" alt="Cashly Logo" width="120"/>
 </p>
+
 
 <p align="center">
   <a href="#"><img src="https://img.shields.io/badge/Flutter-3.24+-blue.svg" alt="Flutter"/></a>
   <a href="#"><img src="https://img.shields.io/badge/Dart-3.10+-blue.svg" alt="Dart"/></a>
   <a href="#"><img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS-green.svg" alt="Platform"/></a>
   <a href="#"><img src="https://img.shields.io/badge/Tests-262%2B-brightgreen.svg" alt="Tests"/></a>
-  <a href="#"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"/></a>
+  <a href="#"><img src="https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg" alt="License"/></a>
 </p>
 
 <p align="center">
@@ -370,7 +371,15 @@ Türler:
 
 ## 📄 Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+⚠️ **Tüm Haklar Saklıdır (All Rights Reserved)**
+
+Bu proje ve kaynak kodları yalnızca **eğitim ve portföy** amaçlı paylaşılmıştır.
+
+- ❌ Kopyalama, çoğaltma veya dağıtma **yasaktır**
+- ❌ Kaynak kodun herhangi bir kısmını kullanma **yasaktır**
+- ❌ Ticari veya ticari olmayan amaçlarla kullanım **yasaktır**
+
+Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
 ---
 
