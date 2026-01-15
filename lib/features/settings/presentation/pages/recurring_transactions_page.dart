@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/utils/error_handler.dart';
+import '../../../../core/exceptions/app_exceptions.dart';
 import '../../../expenses/domain/repositories/expense_repository.dart';
 import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -58,10 +60,22 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
   }
 
   void _kaydet() {
-    getIt<ExpenseRepository>().saveFixedExpenseTemplates(
-      widget.userId,
-      _tekrarlayanIslemler,
-    );
+    try {
+      getIt<ExpenseRepository>().saveFixedExpenseTemplates(
+        widget.userId,
+        _tekrarlayanIslemler,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      if (e is AppException) {
+        ErrorHandler.handleAppException(context, e);
+      } else {
+        ErrorHandler.showErrorSnackBar(
+          context,
+          'Kaydetme sırasında bir hata oluştu',
+        );
+      }
+    }
   }
 
   void _islemEkle() {

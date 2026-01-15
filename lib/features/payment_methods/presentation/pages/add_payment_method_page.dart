@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../../../core/utils/amount_input_formatter.dart';
+import '../../../../core/utils/error_handler.dart';
+import '../../../../core/exceptions/app_exceptions.dart';
 import '../../../../core/constants/card_color_constants.dart';
 import '../controllers/payment_methods_controller.dart';
 
@@ -107,27 +109,42 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
     super.dispose();
   }
 
-  void _save() {
+  void _save() async {
     if (_formKey.currentState!.validate()) {
-      // Türk formatından parse et (1.234,56 -> 1234.56)
-      final balance =
-          AmountInputFormatter.parseFormattedAmount(_balanceController.text) ??
-          0.0;
-      final limit = _selectedType == 'kredi'
-          ? AmountInputFormatter.parseFormattedAmount(_limitController.text)
-          : null;
+      try {
+        // Türk formatından parse et (1.234,56 -> 1234.56)
+        final balance =
+            AmountInputFormatter.parseFormattedAmount(
+              _balanceController.text,
+            ) ??
+            0.0;
+        final limit = _selectedType == 'kredi'
+            ? AmountInputFormatter.parseFormattedAmount(_limitController.text)
+            : null;
 
-      widget.onSave(
-        _nameController.text.trim(),
-        _selectedType,
-        _selectedType != 'nakit' && _lastFourController.text.isNotEmpty
-            ? _lastFourController.text.trim()
-            : null,
-        balance,
-        limit,
-        _selectedColorIndex,
-      );
-      Navigator.pop(context);
+        await widget.onSave(
+          _nameController.text.trim(),
+          _selectedType,
+          _selectedType != 'nakit' && _lastFourController.text.isNotEmpty
+              ? _lastFourController.text.trim()
+              : null,
+          balance,
+          limit,
+          _selectedColorIndex,
+        );
+        if (!mounted) return;
+        Navigator.pop(context);
+      } catch (e) {
+        if (!mounted) return;
+        if (e is AppException) {
+          ErrorHandler.handleAppException(context, e);
+        } else {
+          ErrorHandler.showErrorSnackBar(
+            context,
+            'Kaydetme sırasında bir hata oluştu',
+          );
+        }
+      }
     }
   }
 
