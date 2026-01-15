@@ -413,6 +413,9 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                           child: ListView.builder(
                             controller: lazyScrollController,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
+                            // cacheExtent: Görünür alan dışında önbelleğe alınacak piksel
+                            // 500px = yaklaşık 5-6 liste öğesi önden yüklenir
+                            cacheExtent: 500,
                             itemCount: gelirler.length + (hasMoreItems ? 1 : 0),
                             itemBuilder: (context, index) {
                               // Son item ise ve daha fazla veri varsa loading göster

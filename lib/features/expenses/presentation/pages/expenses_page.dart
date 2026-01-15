@@ -416,6 +416,9 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                               horizontal: 10,
                               vertical: 10,
                             ),
+                            // cacheExtent: Görünür alan dışında önbelleğe alınacak piksel
+                            // 500px = yaklaşık 5-6 gün grubu önden yüklenir
+                            cacheExtent: 500,
                             itemCount:
                                 gruplar.keys.length + (hasMoreItems ? 1 : 0),
                             itemBuilder: (context, index) {
