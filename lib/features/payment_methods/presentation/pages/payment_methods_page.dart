@@ -217,21 +217,30 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
       ),
       body: _isLoading
           ? const PaymentMethodsPageSkeleton()
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  // Toplam Özet Kartı - Kingmode Carousel
-                  PaymentMethodSummaryCard(
-                    totalBalance: totalBalance,
-                    totalDebt: totalDebt,
-                    userName: widget.userName ?? 'Kullanıcı',
-                    userProfileUrl: widget.userProfileUrl,
-                    paymentMethods: _filteredMethods,
-                  ),
-                  const SizedBox(height: 24),
-                  _buildPaymentMethodsList(),
-                ],
+          : RefreshIndicator(
+              onRefresh: () async {
+                // Verileri yeniden yükle
+                _controller.refresh();
+              },
+              color: Theme.of(context).colorScheme.secondary,
+              child: SingleChildScrollView(
+                // RefreshIndicator çalışması için physics gerekli
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    // Toplam Özet Kartı - Kingmode Carousel
+                    PaymentMethodSummaryCard(
+                      totalBalance: totalBalance,
+                      totalDebt: totalDebt,
+                      userName: widget.userName ?? 'Kullanıcı',
+                      userProfileUrl: widget.userProfileUrl,
+                      paymentMethods: _filteredMethods,
+                    ),
+                    const SizedBox(height: 24),
+                    _buildPaymentMethodsList(),
+                  ],
+                ),
               ),
             ),
       floatingActionButton: FloatingActionButton.extended(
