@@ -1,7 +1,7 @@
 # 💰 Cashly - Kişisel Bütçe Takip Uygulaması
 
 <p align="center">
-  <img src="assets/image/logouzun.png" alt="Cashly Logo" width="100%"/>
+  <img src="assets/image/logogithub.png" alt="Cashly Logo" width="100%"/>
 </p>
 
 
