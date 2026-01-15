@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 
 /// Lazy loading destekli ListView widget'ı
 /// Büyük listeler için otomatik pagination sağlar.
+///
+/// Performans özellikleri:
+/// - [itemExtent]: Sabit yükseklikli öğeler için performans optimizasyonu
+/// - [cacheExtent]: Görünür alan dışında önbelleğe alınacak piksel sayısı
+/// - [addAutomaticKeepAlives]: Widget'ların KeepAlive durumunu kontrol eder
 class LazyLoadListView<T> extends StatefulWidget {
   final List<T> items;
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
@@ -13,6 +18,22 @@ class LazyLoadListView<T> extends StatefulWidget {
   final ScrollController? controller;
   final ScrollPhysics? physics;
   final double loadMoreThreshold;
+
+  /// Sabit yükseklikli öğeler için performans optimizasyonu
+  /// Tüm öğeler aynı yükseklikte ise bu değeri belirtin
+  final double? itemExtent;
+
+  /// Görünür alan dışında önbelleğe alınacak piksel sayısı
+  /// Daha yüksek değer = daha akıcı scroll, daha fazla bellek kullanımı
+  /// Varsayılan: 500.0 piksel
+  final double cacheExtent;
+
+  /// Widget'ların otomatik KeepAlive durumunu kontrol eder
+  /// false yapıldığında görünür olmayan widget'lar dispose edilir
+  final bool addAutomaticKeepAlives;
+
+  /// Separator widget'ı (opsiyonel)
+  final Widget? separatorBuilder;
 
   const LazyLoadListView({
     super.key,
@@ -26,6 +47,10 @@ class LazyLoadListView<T> extends StatefulWidget {
     this.controller,
     this.physics,
     this.loadMoreThreshold = 200.0,
+    this.itemExtent,
+    this.cacheExtent = 500.0,
+    this.addAutomaticKeepAlives = true,
+    this.separatorBuilder,
   });
 
   @override
@@ -87,6 +112,9 @@ class _LazyLoadListViewState<T> extends State<LazyLoadListView<T>> {
       controller: _scrollController,
       padding: widget.padding,
       physics: widget.physics,
+      itemExtent: widget.itemExtent,
+      cacheExtent: widget.cacheExtent,
+      addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
       itemCount: widget.items.length + (widget.hasMore ? 1 : 0),
       itemBuilder: (context, index) {
         // Son öğe ve daha fazla yüklenecekse loading göster

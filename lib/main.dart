@@ -7,16 +7,15 @@ import 'core/services/database_helper.dart';
 import 'core/services/haptic_service.dart';
 import 'core/services/image_cache_service.dart';
 import 'features/streak/data/services/streak_service.dart';
-import 'features/home/presentation/pages/home_page.dart';
 import 'features/auth/data/initialize_default_user.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
-import 'features/auth/presentation/pages/login_page.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/theme_manager.dart';
 import 'core/widgets/error_screen.dart';
 import 'core/di/injection_container.dart';
 import 'core/services/price_cache_service.dart';
 import 'core/services/network_service.dart';
+import 'core/router/app_router.dart';
 
 void main() async {
   // Global error handling - tüm beklenmedik hataları yakala
@@ -212,8 +211,9 @@ class _CashlyAppState extends State<CashlyApp> {
           );
         }
 
-        // Başarılı başlatma
-        return MaterialApp(
+        // Başarılı başlatma - go_router ile deklaratif navigasyon
+        final appRouter = AppRouter(authController: _authController!);
+        return MaterialApp.router(
           title: 'Cashly',
           debugShowCheckedModeBanner: false,
           localizationsDelegates: const [
@@ -223,33 +223,14 @@ class _CashlyAppState extends State<CashlyApp> {
           ],
           supportedLocales: const [Locale('tr', 'TR')],
           theme: themeManager.currentTheme,
-          home: AuthWrapper(authController: _authController!),
+          routerConfig: appRouter.router,
         );
       },
     );
   }
 }
 
-class AuthWrapper extends StatelessWidget {
-  final AuthController authController;
-
-  const AuthWrapper({super.key, required this.authController});
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: authController,
-      builder: (context, child) {
-        if (authController.isLoading) {
-          return const Scaffold(
-            backgroundColor: Colors.black,
-            body: Center(child: CircularProgressIndicator(color: Colors.white)),
-          );
-        }
-        return authController.currentUser != null
-            ? AnaSayfa(authController: authController)
-            : LoginPage(authController: authController);
-      },
-    );
-  }
-}
+// Not: AuthWrapper artık gerekli değil.
+// go_router'ın redirect mekanizması auth kontrolünü yapıyor.
+// Eski AuthWrapper kodu referans için yorum olarak bırakılmıştır:
+// class AuthWrapper extends StatelessWidget { ... }

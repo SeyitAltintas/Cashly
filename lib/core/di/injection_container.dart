@@ -22,6 +22,12 @@ import '../../features/settings/data/repositories/settings_repository_impl.dart'
 import '../data/repositories/category_repository_impl.dart';
 import '../data/repositories/recurring_repository_impl.dart';
 
+// Use Cases
+import '../domain/usecases/expense_usecases.dart';
+import '../domain/usecases/income_usecases.dart';
+import '../domain/usecases/asset_usecases.dart';
+import '../domain/usecases/payment_method_usecases.dart';
+
 // Controllers
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/expenses/presentation/controllers/expenses_controller.dart';
@@ -70,6 +76,96 @@ Future<void> initializeDependencies() async {
   // Recurring Repository (Tekrarlayan işlemler)
   getIt.registerLazySingleton<RecurringRepository>(
     () => RecurringRepositoryImpl(),
+  );
+
+  // ===== USE CASES =====
+
+  // Expense Use Cases
+  getIt.registerLazySingleton<GetExpenses>(
+    () => GetExpenses(getIt<ExpenseRepository>()),
+  );
+  getIt.registerLazySingleton<SaveExpenses>(
+    () => SaveExpenses(getIt<ExpenseRepository>()),
+  );
+  getIt.registerLazySingleton<AddExpense>(
+    () => AddExpense(getIt<ExpenseRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateExpense>(
+    () => UpdateExpense(getIt<ExpenseRepository>()),
+  );
+  getIt.registerLazySingleton<DeleteExpense>(
+    () => DeleteExpense(getIt<ExpenseRepository>()),
+  );
+  getIt.registerLazySingleton<GetBudget>(
+    () => GetBudget(getIt<ExpenseRepository>()),
+  );
+  getIt.registerLazySingleton<SaveBudget>(
+    () => SaveBudget(getIt<ExpenseRepository>()),
+  );
+
+  // Income Use Cases
+  getIt.registerLazySingleton<GetIncomes>(
+    () => GetIncomes(getIt<IncomeRepository>()),
+  );
+  getIt.registerLazySingleton<SaveIncomes>(
+    () => SaveIncomes(getIt<IncomeRepository>()),
+  );
+  getIt.registerLazySingleton<AddIncome>(
+    () => AddIncome(getIt<IncomeRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateIncome>(
+    () => UpdateIncome(getIt<IncomeRepository>()),
+  );
+  getIt.registerLazySingleton<DeleteIncome>(
+    () => DeleteIncome(getIt<IncomeRepository>()),
+  );
+
+  // Asset Use Cases
+  getIt.registerLazySingleton<GetAssets>(
+    () => GetAssets(getIt<AssetRepository>()),
+  );
+  getIt.registerLazySingleton<SaveAssets>(
+    () => SaveAssets(getIt<AssetRepository>()),
+  );
+  getIt.registerLazySingleton<AddAsset>(
+    () => AddAsset(getIt<AssetRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateAsset>(
+    () => UpdateAsset(getIt<AssetRepository>()),
+  );
+  getIt.registerLazySingleton<DeleteAsset>(
+    () => DeleteAsset(getIt<AssetRepository>()),
+  );
+
+  // Payment Method Use Cases
+  getIt.registerLazySingleton<GetPaymentMethods>(
+    () => GetPaymentMethods(getIt<PaymentMethodRepository>()),
+  );
+  getIt.registerLazySingleton<SavePaymentMethods>(
+    () => SavePaymentMethods(getIt<PaymentMethodRepository>()),
+  );
+  getIt.registerLazySingleton<AddPaymentMethod>(
+    () => AddPaymentMethod(getIt<PaymentMethodRepository>()),
+  );
+  getIt.registerLazySingleton<UpdatePaymentMethod>(
+    () => UpdatePaymentMethod(getIt<PaymentMethodRepository>()),
+  );
+  getIt.registerLazySingleton<DeletePaymentMethod>(
+    () => DeletePaymentMethod(getIt<PaymentMethodRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateBalance>(
+    () => UpdateBalance(getIt<PaymentMethodRepository>()),
+  );
+
+  // Transfer Use Cases
+  getIt.registerLazySingleton<GetTransfers>(
+    () => GetTransfers(getIt<PaymentMethodRepository>()),
+  );
+  getIt.registerLazySingleton<SaveTransfers>(
+    () => SaveTransfers(getIt<PaymentMethodRepository>()),
+  );
+  getIt.registerLazySingleton<AddTransfer>(
+    () => AddTransfer(getIt<PaymentMethodRepository>()),
   );
 
   // ===== CONTROLLERS =====
