@@ -38,9 +38,18 @@ import '../../features/payment_methods/presentation/controllers/payment_methods_
 /// GetIt service locator instance
 final getIt = GetIt.instance;
 
+/// Bağımlılıkların zaten kayıtlı olup olmadığını kontrol eder
+bool _dependenciesInitialized = false;
+
 /// Tüm bağımlılıkları kaydeder
 /// Bu fonksiyon uygulama başlatılırken main.dart'ta çağrılır
 Future<void> initializeDependencies() async {
+  // Zaten kayıtlıysa tekrar kaydetme (integration testler için)
+  if (_dependenciesInitialized) {
+    return;
+  }
+  _dependenciesInitialized = true;
+
   // ===== REPOSITORIES =====
 
   // Auth Repository
