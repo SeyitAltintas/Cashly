@@ -34,6 +34,8 @@ import '../../features/expenses/presentation/controllers/expenses_controller.dar
 import '../../features/income/presentation/controllers/incomes_controller.dart';
 import '../../features/assets/presentation/controllers/assets_controller.dart';
 import '../../features/payment_methods/presentation/controllers/payment_methods_controller.dart';
+import '../../features/dashboard/presentation/controllers/dashboard_controller.dart';
+import '../../features/analysis/presentation/controllers/analysis_controller.dart';
 
 /// GetIt service locator instance
 final getIt = GetIt.instance;
@@ -217,4 +219,10 @@ Future<void> initializeDependencies() async {
       userId: userId,
     ),
   );
+
+  // Dashboard Controller - singleton (tüm veriler dışarıdan set edilir)
+  getIt.registerLazySingleton<DashboardController>(() => DashboardController());
+
+  // Analysis Controller - singleton (tüm veriler dışarıdan set edilir)
+  getIt.registerLazySingleton<AnalysisController>(() => AnalysisController());
 }
