@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../widgets/analysis_widgets.dart';
 import 'pdf_export_page.dart';
-import '../state/analysis_page_state.dart';
+import '../controllers/analysis_controller.dart';
 
 /// Analiz ve Raporlar Sayfası
 /// Harcama, Gelir ve Varlık analizlerini gösterir
@@ -37,9 +38,9 @@ class AnalysisPage extends StatefulWidget {
 class _AnalysisPageState extends State<AnalysisPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late final AnalysisPageState _analysisState;
+  late final AnalysisController _controller;
 
-  int get _touchedIndex => _analysisState.touchedIndex;
+  int get _touchedIndex => _controller.touchedIndex;
 
   // Harcama için kırmızı tonları renk paleti
   static const List<Color> expenseColors = [
@@ -82,13 +83,14 @@ class _AnalysisPageState extends State<AnalysisPage>
   @override
   void initState() {
     super.initState();
-    _analysisState = AnalysisPageState();
-    _analysisState.addListener(_onStateChanged);
+    // DI'dan controller al
+    _controller = getIt<AnalysisController>();
+    _controller.addListener(_onStateChanged);
     _tabController = TabController(length: 3, vsync: this);
     // Sekme değiştiğinde touchedIndex'i sıfırla
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        _analysisState.resetTouchedIndex();
+        _controller.resetTouchedIndex();
       }
     });
   }
@@ -99,8 +101,8 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   @override
   void dispose() {
-    _analysisState.removeListener(_onStateChanged);
-    _analysisState.dispose();
+    _controller.removeListener(_onStateChanged);
+    // Controller singleton olduğu için dispose etmiyoruz
     _tabController.dispose();
     super.dispose();
   }
@@ -476,11 +478,12 @@ class _AnalysisPageState extends State<AnalysisPage>
                 if (!event.isInterestedForInteractions ||
                     pieTouchResponse == null ||
                     pieTouchResponse.touchedSection == null) {
-                  _analysisState.touchedIndex = -1;
+                  _controller.setTouchedIndex(-1);
                   return;
                 }
-                _analysisState.touchedIndex =
-                    pieTouchResponse.touchedSection!.touchedSectionIndex;
+                _controller.setTouchedIndex(
+                  pieTouchResponse.touchedSection!.touchedSectionIndex,
+                );
               },
             ),
             borderData: FlBorderData(show: false),

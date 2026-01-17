@@ -18,7 +18,6 @@
 // 4. İptal butonunun dialogu kapattığını ve işlemi iptal ettiğini doğrulayın
 // 5. Devam Et butonunun dialogu kapattığını ve işleme devam ettiğini doğrulayın
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/core/widgets/balance_warning_dialog.dart';
 
