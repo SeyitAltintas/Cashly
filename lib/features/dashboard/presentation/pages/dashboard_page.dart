@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../assets/data/models/asset_model.dart';
@@ -12,10 +14,12 @@ import '../widgets/asset_summary_card.dart';
 import '../widgets/recent_transactions_card.dart';
 import '../widgets/credit_debt_card.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
+import '../controllers/dashboard_controller.dart';
 
 /// Dashboard Sayfası
 /// Ana finansal özeti gösterir
-class DashboardPage extends StatelessWidget {
+/// DashboardController ile entegre edilmiştir
+class DashboardPage extends StatefulWidget {
   final String userName;
   final List<Map<String, dynamic>> harcamalar;
   final List<Income> gelirler;
@@ -39,110 +43,122 @@ class DashboardPage extends StatelessWidget {
     required this.transferler,
   });
 
-  /// Saate göre selamlama mesajı
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 6) return "İyi geceler";
-    if (hour < 12) return "Günaydın";
-    if (hour < 18) return "İyi günler";
-    return "İyi akşamlar";
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  late final DashboardController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // DI'dan controller al
+    _controller = getIt<DashboardController>();
+    // İlk veri yüklemesi
+    _updateControllerData();
   }
 
-  /// Aylık toplam harcamayı hesaplar
-  double _getMonthlyExpense() {
-    double total = 0;
-    for (var h in harcamalar) {
-      if (h['silindi'] == true) continue;
-      DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-      if (tarih != null &&
-          tarih.year == secilenAy.year &&
-          tarih.month == secilenAy.month) {
-        total += (h['tutar'] as num?)?.toDouble() ?? 0;
-      }
+  @override
+  void didUpdateWidget(DashboardPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Props değiştiğinde controller'ı güncelle
+    if (oldWidget.userName != widget.userName ||
+        oldWidget.harcamalar != widget.harcamalar ||
+        oldWidget.gelirler != widget.gelirler ||
+        oldWidget.varliklar != widget.varliklar ||
+        oldWidget.odemeYontemleri != widget.odemeYontemleri ||
+        oldWidget.butceLimiti != widget.butceLimiti ||
+        oldWidget.secilenAy != widget.secilenAy ||
+        oldWidget.streakData != widget.streakData ||
+        oldWidget.transferler != widget.transferler) {
+      _updateControllerData();
     }
-    return total;
   }
 
-  /// Aylık toplam geliri hesaplar
-  double _getMonthlyIncome() {
-    double total = 0;
-    for (var g in gelirler) {
-      if (g.isDeleted) continue;
-      if (g.date.year == secilenAy.year && g.date.month == secilenAy.month) {
-        total += g.amount;
-      }
-    }
-    return total;
+  /// Controller'ı güncel verilerle güncelle
+  void _updateControllerData() {
+    _controller.updateData(
+      userName: widget.userName,
+      harcamalar: widget.harcamalar,
+      gelirler: widget.gelirler,
+      varliklar: widget.varliklar,
+      odemeYontemleri: widget.odemeYontemleri,
+      transferler: widget.transferler,
+      butceLimiti: widget.butceLimiti,
+      secilenAy: widget.secilenAy,
+      streakData: widget.streakData,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final greeting = _getGreeting();
-    final totalBalance = BalanceCard.calculateTotalBalance(odemeYontemleri);
-    final totalCreditDebt = BalanceCard.calculateTotalCreditDebt(
-      odemeYontemleri,
-    );
-    final monthlyExpense = _getMonthlyExpense();
-    final monthlyIncome = _getMonthlyIncome();
-    final netDiff = monthlyIncome - monthlyExpense;
-    final totalAssets = AssetSummaryCard.calculateTotalAssetValue(varliklar);
+    return ChangeNotifierProvider.value(
+      value: _controller,
+      child: Consumer<DashboardController>(
+        builder: (context, controller, child) {
+          return Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Hoş Geldin Bölümü
+                    _buildGreetingSection(context, controller),
+                    const SizedBox(height: 24),
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Hoş Geldin Bölümü
-              _buildGreetingSection(context, greeting),
-              const SizedBox(height: 24),
+                    // Toplam Bakiye Kartı
+                    BalanceCard(totalBalance: controller.totalBalance),
+                    const SizedBox(height: 12),
 
-              // Toplam Bakiye Kartı
-              BalanceCard(totalBalance: totalBalance),
-              const SizedBox(height: 12),
+                    // Kredi Kartı Borcu (varsa göster)
+                    CreditDebtCard(totalDebt: controller.totalCreditDebt),
+                    const SizedBox(height: 20),
 
-              // Kredi Kartı Borcu (varsa göster)
-              CreditDebtCard(totalDebt: totalCreditDebt),
-              const SizedBox(height: 20),
+                    // Bu Ay Özeti
+                    MonthlySummaryCard(
+                      monthlyExpense: controller.monthlyExpense,
+                      monthlyIncome: controller.monthlyIncome,
+                      netDiff: controller.netDiff,
+                    ),
+                    const SizedBox(height: 20),
 
-              // Bu Ay Özeti
-              MonthlySummaryCard(
-                monthlyExpense: monthlyExpense,
-                monthlyIncome: monthlyIncome,
-                netDiff: netDiff,
+                    // Bütçe Durumu
+                    BudgetStatusCard(
+                      monthlyExpense: controller.monthlyExpense,
+                      butceLimiti: controller.butceLimiti,
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Varlık Özeti
+                    AssetSummaryCard(totalAssets: controller.totalAssets),
+                    const SizedBox(height: 20),
+
+                    // Son İşlemler
+                    RecentTransactionsCard(
+                      harcamalar: controller.harcamalar,
+                      gelirler: controller.gelirler,
+                      transferler: controller.transferler,
+                      odemeYontemleri: controller.odemeYontemleri,
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
-              const SizedBox(height: 20),
-
-              // Bütçe Durumu
-              BudgetStatusCard(
-                monthlyExpense: monthlyExpense,
-                butceLimiti: butceLimiti,
-              ),
-              const SizedBox(height: 20),
-
-              // Varlık Özeti
-              AssetSummaryCard(totalAssets: totalAssets),
-              const SizedBox(height: 20),
-
-              // Son İşlemler
-              RecentTransactionsCard(
-                harcamalar: harcamalar,
-                gelirler: gelirler,
-                transferler: transferler,
-                odemeYontemleri: odemeYontemleri,
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
   /// Hoş geldin bölümünü oluşturur
-  Widget _buildGreetingSection(BuildContext context, String greeting) {
+  Widget _buildGreetingSection(
+    BuildContext context,
+    DashboardController controller,
+  ) {
     return AnimatedCard(
       delay: 0,
       child: Row(
@@ -155,7 +171,7 @@ class DashboardPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "$greeting,",
+                  "${controller.greeting},",
                   style: TextStyle(
                     fontSize: 16,
                     color: Theme.of(
@@ -165,7 +181,7 @@ class DashboardPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  userName,
+                  controller.userName,
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -176,7 +192,7 @@ class DashboardPage extends StatelessWidget {
             ),
           ),
           // Sağ taraf: Seri widget'ı
-          StreakWidget(streakData: streakData),
+          StreakWidget(streakData: controller.streakData),
         ],
       ),
     );
