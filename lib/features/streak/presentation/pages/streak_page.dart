@@ -1,81 +1,121 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../data/models/streak_model.dart';
 import '../../data/constants/streak_badges.dart';
 import 'streak_help_page.dart';
+import '../controllers/streak_controller.dart';
 
 /// Seri detay sayfası
 /// Mevcut seri, rozetler ve başarıları gösterir
-class StreakPage extends StatelessWidget {
+/// StreakController ile entegre edilmiştir
+class StreakPage extends StatefulWidget {
   final StreakData streakData;
 
   const StreakPage({super.key, required this.streakData});
 
   @override
+  State<StreakPage> createState() => _StreakPageState();
+}
+
+class _StreakPageState extends State<StreakPage> {
+  late final StreakController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // DI'dan controller al
+    _controller = getIt<StreakController>();
+    // Controller'ı güncelle
+    _controller.updateStreakData(widget.streakData);
+  }
+
+  @override
+  void didUpdateWidget(StreakPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Props değiştiğinde controller'ı güncelle
+    if (oldWidget.streakData != widget.streakData) {
+      _controller.updateStreakData(widget.streakData);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final earnedBadges = StreakBadges.getEarnedBadges(streakData.currentStreak);
-    final nextBadge = StreakBadges.getNextBadge(streakData.currentStreak);
+    return ChangeNotifierProvider.value(
+      value: _controller,
+      child: Consumer<StreakController>(
+        builder: (context, controller, child) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Seri Bilgileri'),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.help_outline, color: Colors.white),
+                  tooltip: 'Seri Nasıl Çalışır?',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StreakHelpPage(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Mevcut Seri Kartı
+                  _buildCurrentStreakCard(context, controller),
+                  const SizedBox(height: 24),
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Seri Bilgileri'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline, color: Colors.white),
-            tooltip: 'Seri Nasıl Çalışır?',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const StreakHelpPage()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Mevcut Seri Kartı
-            _buildCurrentStreakCard(context),
-            const SizedBox(height: 24),
+                  // İstatistikler
+                  _buildStatsRow(context, controller),
+                  const SizedBox(height: 16),
 
-            // İstatistikler
-            _buildStatsRow(context),
-            const SizedBox(height: 16),
+                  // Dondurucu Kartı
+                  _buildFreezeCard(context, controller),
+                  const SizedBox(height: 32),
 
-            // Dondurucu Kartı
-            _buildFreezeCard(context),
-            const SizedBox(height: 32),
+                  // Sonraki Rozet
+                  if (controller.nextBadge != null) ...[
+                    _buildNextBadgeSection(context, controller),
+                    const SizedBox(height: 32),
+                  ],
 
-            // Sonraki Rozet
-            if (nextBadge != null) ...[
-              _buildNextBadgeSection(context, nextBadge),
-              const SizedBox(height: 32),
-            ],
+                  // Rozetler Başlığı
+                  _buildSectionTitle(context, 'Rozetler'),
+                  const SizedBox(height: 16),
 
-            // Rozetler Başlığı
-            _buildSectionTitle(context, 'Rozetler'),
-            const SizedBox(height: 16),
+                  // Rozet Grid
+                  _buildBadgeGrid(context, controller),
+                  const SizedBox(height: 32),
 
-            // Rozet Grid
-            _buildBadgeGrid(context, earnedBadges),
-            const SizedBox(height: 32),
-
-            // Başarılar
-            _buildSectionTitle(context, 'Başarılar'),
-            const SizedBox(height: 16),
-            _buildAchievementsList(context),
-          ],
-        ),
+                  // Başarılar
+                  _buildSectionTitle(context, 'Başarılar'),
+                  const SizedBox(height: 16),
+                  _buildAchievementsList(context, controller),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildCurrentStreakCard(BuildContext context) {
+  Widget _buildCurrentStreakCard(
+    BuildContext context,
+    StreakController controller,
+  ) {
+    final streakData = controller.streakData;
+
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.9, end: 1.0),
       duration: const Duration(milliseconds: 500),
@@ -198,7 +238,9 @@ class StreakPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow(BuildContext context) {
+  Widget _buildStatsRow(BuildContext context, StreakController controller) {
+    final streakData = controller.streakData;
+
     return Row(
       children: [
         Expanded(
@@ -266,9 +308,10 @@ class StreakPage extends StatelessWidget {
   }
 
   /// Dondurucu (Freeze) kartı
-  Widget _buildFreezeCard(BuildContext context) {
+  Widget _buildFreezeCard(BuildContext context, StreakController controller) {
     const freezeColor = Color(0xFF00BCD4); // Cyan
-    final nextFreezeIn = 7 - (streakData.currentStreak % 7);
+    final streakData = controller.streakData;
+    final nextFreezeIn = controller.nextFreezeIn;
 
     return Container(
       width: double.infinity,
@@ -402,9 +445,13 @@ class StreakPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNextBadgeSection(BuildContext context, StreakBadge badge) {
-    final remaining = badge.requiredStreak - streakData.currentStreak;
-    final progress = streakData.currentStreak / badge.requiredStreak;
+  Widget _buildNextBadgeSection(
+    BuildContext context,
+    StreakController controller,
+  ) {
+    final badge = controller.nextBadge!;
+    final remaining = controller.daysToNextBadge;
+    final progress = controller.nextBadgeProgress;
 
     return Container(
       width: double.infinity,
@@ -484,7 +531,7 @@ class StreakPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBadgeGrid(BuildContext context, List<StreakBadge> earnedBadges) {
+  Widget _buildBadgeGrid(BuildContext context, StreakController controller) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -494,10 +541,10 @@ class StreakPage extends StatelessWidget {
         mainAxisSpacing: 12,
         childAspectRatio: 0.8,
       ),
-      itemCount: StreakBadges.allBadges.length,
+      itemCount: controller.allBadges.length,
       itemBuilder: (context, index) {
-        final badge = StreakBadges.allBadges[index];
-        final isEarned = earnedBadges.contains(badge);
+        final badge = controller.allBadges[index];
+        final isEarned = controller.isBadgeEarned(badge);
 
         return _buildBadgeItem(context, badge, isEarned);
       },
@@ -668,8 +715,11 @@ class StreakPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAchievementsList(BuildContext context) {
-    final achievements = _getAchievements();
+  Widget _buildAchievementsList(
+    BuildContext context,
+    StreakController controller,
+  ) {
+    final achievements = controller.achievements;
 
     return Column(
       children: achievements.map((achievement) {
@@ -680,7 +730,7 @@ class StreakPage extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: achievement['earned']
+              color: achievement['earned'] == true
                   ? Colors.green.withValues(alpha: 0.3)
                   : Theme.of(
                       context,
@@ -693,7 +743,7 @@ class StreakPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: achievement['earned']
+                  color: achievement['earned'] == true
                       ? Colors.green.withValues(alpha: 0.2)
                       : Theme.of(
                           context,
@@ -702,7 +752,7 @@ class StreakPage extends StatelessWidget {
                 ),
                 child: Icon(
                   achievement['icon'] as IconData,
-                  color: achievement['earned']
+                  color: achievement['earned'] == true
                       ? Colors.green
                       : Theme.of(
                           context,
@@ -736,7 +786,7 @@ class StreakPage extends StatelessWidget {
                   ],
                 ),
               ),
-              if (achievement['earned'])
+              if (achievement['earned'] == true)
                 const Icon(Icons.check_circle, color: Colors.green, size: 24)
               else
                 Icon(
@@ -751,46 +801,5 @@ class StreakPage extends StatelessWidget {
         );
       }).toList(),
     );
-  }
-
-  List<Map<String, dynamic>> _getAchievements() {
-    return [
-      {
-        'icon': Icons.play_arrow,
-        'title': 'İlk Adım',
-        'description': 'Uygulamayı ilk kez açtın',
-        'earned': streakData.totalLoginDays >= 1,
-      },
-      {
-        'icon': Icons.local_fire_department,
-        'title': 'Seri Başlatıcı',
-        'description': '3 günlük seri oluştur',
-        'earned': streakData.longestStreak >= 3,
-      },
-      {
-        'icon': Icons.ac_unit,
-        'title': 'Seri Koruyucu',
-        'description': 'Bir seri koruyucu kullan',
-        'earned': streakData.totalFreezesUsed >= 1,
-      },
-      {
-        'icon': Icons.calendar_month,
-        'title': 'Düzenli Kullanıcı',
-        'description': 'Toplam 10 gün giriş yap',
-        'earned': streakData.totalLoginDays >= 10,
-      },
-      {
-        'icon': Icons.trending_up,
-        'title': 'Süreklilik Ustası',
-        'description': '30 günlük seri oluştur',
-        'earned': streakData.longestStreak >= 30,
-      },
-      {
-        'icon': Icons.all_inclusive,
-        'title': 'Finansal Guru',
-        'description': 'Toplam 100 gün giriş yap',
-        'earned': streakData.totalLoginDays >= 100,
-      },
-    ];
   }
 }

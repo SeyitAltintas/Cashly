@@ -22,6 +22,7 @@ class HapticService {
 
   /// Hive box'ı başlat
   static Future<void> init() async {
+    if (_box != null && _box!.isOpen) return; // Zaten açıksa tekrar açma
     _box = await Hive.openBox(_boxName);
   }
 

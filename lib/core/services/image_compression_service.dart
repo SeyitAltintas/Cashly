@@ -114,6 +114,30 @@ class ImageCompressionService {
     return compressImage(imageFile, maxWidth: 600, maxHeight: 600, quality: 80);
   }
 
+  /// Profil resmini optimize et ve dosyaya kaydet
+  /// Sıkıştırılmış dosyanın yolunu döndürür
+  Future<String?> optimizeAndSaveProfileImage(File imageFile) async {
+    try {
+      final compressedBytes = await optimizeProfileImage(imageFile);
+      if (compressedBytes == null) return null;
+
+      // Yeni dosya yolu oluştur
+      final directory = imageFile.parent;
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final newPath = '${directory.path}/profile_$timestamp.png';
+
+      // Sıkıştırılmış resmi kaydet
+      final newFile = File(newPath);
+      await newFile.writeAsBytes(compressedBytes);
+
+      debugPrint('ImageCompressionService: Profil resmi kaydedildi - $newPath');
+      return newPath;
+    } catch (e) {
+      debugPrint('ImageCompressionService: Profil kaydetme hatası - $e');
+      return null;
+    }
+  }
+
   /// Byte boyutunu okunabilir formata çevir
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';

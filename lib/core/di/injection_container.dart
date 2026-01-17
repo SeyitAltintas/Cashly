@@ -36,6 +36,8 @@ import '../../features/assets/presentation/controllers/assets_controller.dart';
 import '../../features/payment_methods/presentation/controllers/payment_methods_controller.dart';
 import '../../features/dashboard/presentation/controllers/dashboard_controller.dart';
 import '../../features/analysis/presentation/controllers/analysis_controller.dart';
+import '../../features/streak/presentation/controllers/streak_controller.dart';
+import '../../features/tools/presentation/controllers/tools_controller.dart';
 
 /// GetIt service locator instance
 final getIt = GetIt.instance;
@@ -225,4 +227,10 @@ Future<void> initializeDependencies() async {
 
   // Analysis Controller - singleton (tüm veriler dışarıdan set edilir)
   getIt.registerLazySingleton<AnalysisController>(() => AnalysisController());
+
+  // Streak Controller - singleton (tüm veriler dışarıdan set edilir)
+  getIt.registerLazySingleton<StreakController>(() => StreakController());
+
+  // Tools Controller - singleton
+  getIt.registerLazySingleton<ToolsController>(() => ToolsController());
 }

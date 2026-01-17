@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/haptic_service.dart';
+import '../controllers/tools_controller.dart';
 
 /// Tüm İşlemler Sayfası
 /// Profesyonel finans uygulaması tasarımı
-class ToolsPage extends StatelessWidget {
+/// ToolsController ile entegre edilmiştir
+class ToolsPage extends StatefulWidget {
   final VoidCallback onAssetsPressed;
   final VoidCallback onAnalysisPressed;
   final VoidCallback onPaymentMethodsPressed;
@@ -22,121 +26,148 @@ class ToolsPage extends StatelessWidget {
   });
 
   @override
+  State<ToolsPage> createState() => _ToolsPageState();
+}
+
+class _ToolsPageState extends State<ToolsPage> {
+  late final ToolsController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // DI'dan controller al
+    _controller = getIt<ToolsController>();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          physics: const BouncingScrollPhysics(),
-          children: [
-            // Header
-            _buildHeader(context),
-            const SizedBox(height: 28),
+    return ChangeNotifierProvider.value(
+      value: _controller,
+      child: Consumer<ToolsController>(
+        builder: (context, controller, child) {
+          return Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SafeArea(
+              child: controller.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        // Header
+                        _buildHeader(context),
+                        const SizedBox(height: 28),
 
-            // Ana İşlemler Bölümü
-            _buildSectionTitle(context, "Nakit Akışı"),
-            const SizedBox(height: 14),
+                        // Ana İşlemler Bölümü
+                        _buildSectionTitle(context, "Nakit Akışı"),
+                        const SizedBox(height: 14),
 
-            // Harcama ve Gelir kartları (yan yana)
-            Row(
-              children: [
-                if (onExpensesPressed != null)
-                  Expanded(
-                    child: _FinanceCard(
-                      icon: Icons.arrow_downward_rounded,
-                      title: "Harcamalarım",
-                      iconColor: const Color(0xFFE53935),
-                      iconBgColor: const Color(
-                        0xFFE53935,
-                      ).withValues(alpha: 0.12),
-                      onTap: () {
-                        HapticService.lightImpact();
-                        onExpensesPressed!();
-                      },
+                        // Harcama ve Gelir kartları (yan yana)
+                        Row(
+                          children: [
+                            if (widget.onExpensesPressed != null)
+                              Expanded(
+                                child: _FinanceCard(
+                                  icon: Icons.arrow_downward_rounded,
+                                  title: "Harcamalarım",
+                                  iconColor: const Color(0xFFE53935),
+                                  iconBgColor: const Color(
+                                    0xFFE53935,
+                                  ).withValues(alpha: 0.12),
+                                  onTap: () {
+                                    HapticService.lightImpact();
+                                    widget.onExpensesPressed!();
+                                  },
+                                ),
+                              ),
+                            if (widget.onExpensesPressed != null &&
+                                widget.onIncomesPressed != null)
+                              const SizedBox(width: 14),
+                            if (widget.onIncomesPressed != null)
+                              Expanded(
+                                child: _FinanceCard(
+                                  icon: Icons.arrow_upward_rounded,
+                                  title: "Gelirlerim",
+                                  iconColor: const Color(0xFF43A047),
+                                  iconBgColor: const Color(
+                                    0xFF43A047,
+                                  ).withValues(alpha: 0.12),
+                                  onTap: () {
+                                    HapticService.lightImpact();
+                                    widget.onIncomesPressed!();
+                                  },
+                                ),
+                              ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Hesaplarım Bölümü
+                        _buildSectionTitle(context, "Cüzdanım"),
+                        const SizedBox(height: 14),
+
+                        // Varlıklar ve Ödeme Yöntemleri
+                        _FinanceListTile(
+                          icon: Icons.account_balance_wallet_outlined,
+                          title: "Varlıklarım",
+                          subtitle: "Altın, döviz, kripto ve diğer varlıklar",
+                          iconColor: const Color(0xFF1E88E5),
+                          onTap: () {
+                            HapticService.lightImpact();
+                            widget.onAssetsPressed();
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        _FinanceListTile(
+                          icon: Icons.credit_card_outlined,
+                          title: "Ödeme Yöntemlerim",
+                          subtitle: "Banka kartları ve nakit hesapları",
+                          iconColor: const Color(0xFF8E24AA),
+                          onTap: () {
+                            HapticService.lightImpact();
+                            widget.onPaymentMethodsPressed();
+                          },
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Araçlar Bölümü
+                        _buildSectionTitle(context, "Diğer İşlemler"),
+                        const SizedBox(height: 14),
+
+                        // Analiz ve Transfer
+                        _FinanceListTile(
+                          icon: Icons.insights_outlined,
+                          title: "Analiz ve Raporlar",
+                          subtitle: "Harcama ve gelir istatistikleri",
+                          iconColor: const Color(0xFFFF7043),
+                          onTap: () {
+                            HapticService.lightImpact();
+                            widget.onAnalysisPressed();
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        _FinanceListTile(
+                          icon: Icons.sync_alt_rounded,
+                          title: "Para Transferi",
+                          subtitle: "Hesaplar arası para aktarımı",
+                          iconColor: const Color.fromARGB(255, 0, 123, 110),
+                          onTap: () {
+                            HapticService.lightImpact();
+                            widget.onTransferPressed();
+                          },
+                        ),
+
+                        const SizedBox(height: 100),
+                      ],
                     ),
-                  ),
-                if (onExpensesPressed != null && onIncomesPressed != null)
-                  const SizedBox(width: 14),
-                if (onIncomesPressed != null)
-                  Expanded(
-                    child: _FinanceCard(
-                      icon: Icons.arrow_upward_rounded,
-                      title: "Gelirlerim",
-                      iconColor: const Color(0xFF43A047),
-                      iconBgColor: const Color(
-                        0xFF43A047,
-                      ).withValues(alpha: 0.12),
-                      onTap: () {
-                        HapticService.lightImpact();
-                        onIncomesPressed!();
-                      },
-                    ),
-                  ),
-              ],
             ),
-
-            const SizedBox(height: 24),
-
-            // Hesaplarım Bölümü
-            _buildSectionTitle(context, "Cüzdanım"),
-            const SizedBox(height: 14),
-
-            // Varlıklar ve Ödeme Yöntemleri
-            _FinanceListTile(
-              icon: Icons.account_balance_wallet_outlined,
-              title: "Varlıklarım",
-              subtitle: "Altın, döviz, kripto ve diğer varlıklar",
-              iconColor: const Color(0xFF1E88E5),
-              onTap: () {
-                HapticService.lightImpact();
-                onAssetsPressed();
-              },
-            ),
-            const SizedBox(height: 10),
-            _FinanceListTile(
-              icon: Icons.credit_card_outlined,
-              title: "Ödeme Yöntemlerim",
-              subtitle: "Banka kartları ve nakit hesapları",
-              iconColor: const Color(0xFF8E24AA),
-              onTap: () {
-                HapticService.lightImpact();
-                onPaymentMethodsPressed();
-              },
-            ),
-
-            const SizedBox(height: 24),
-
-            // Araçlar Bölümü
-            _buildSectionTitle(context, "Diğer İşlemler"),
-            const SizedBox(height: 14),
-
-            // Analiz ve Transfer
-            _FinanceListTile(
-              icon: Icons.insights_outlined,
-              title: "Analiz ve Raporlar",
-              subtitle: "Harcama ve gelir istatistikleri",
-              iconColor: const Color(0xFFFF7043),
-              onTap: () {
-                HapticService.lightImpact();
-                onAnalysisPressed();
-              },
-            ),
-            const SizedBox(height: 10),
-            _FinanceListTile(
-              icon: Icons.sync_alt_rounded,
-              title: "Para Transferi",
-              subtitle: "Hesaplar arası para aktarımı",
-              iconColor: const Color.fromARGB(255, 0, 123, 110),
-              onTap: () {
-                HapticService.lightImpact();
-                onTransferPressed();
-              },
-            ),
-
-            const SizedBox(height: 100),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

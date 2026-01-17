@@ -8,6 +8,7 @@ import '../../../../auth/presentation/pages/login_page.dart';
 import '../../../../../core/di/injection_container.dart';
 import '../../../../settings/domain/repositories/settings_repository.dart';
 import '../../../../../core/widgets/app_snackbar.dart';
+import '../../../../../core/services/image_compression_service.dart';
 
 /// Profil ayarları dialog/sheet yardımcı sınıfı
 /// Avatar seçimi, isim değiştirme, PIN değiştirme, hesap silme akışlarını yönetir
@@ -71,8 +72,13 @@ class ProfileSettingsHelper {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
+      // Resmi sıkıştır ve kaydet (400x400 boyutuna optimize et)
+      final compressionService = ImageCompressionService();
+      final compressedPath = await compressionService
+          .optimizeAndSaveProfileImage(File(image.path));
+
       _updateUser(
-        profileImage: image.path,
+        profileImage: compressedPath ?? image.path,
         successMessage: "Profil resmi güncellendi",
       );
       if (context.mounted) Navigator.pop(context);
@@ -84,8 +90,13 @@ class ProfileSettingsHelper {
     final XFile? image = await picker.pickImage(source: ImageSource.camera);
 
     if (image != null) {
+      // Resmi sıkıştır ve kaydet (400x400 boyutuna optimize et)
+      final compressionService = ImageCompressionService();
+      final compressedPath = await compressionService
+          .optimizeAndSaveProfileImage(File(image.path));
+
       _updateUser(
-        profileImage: image.path,
+        profileImage: compressedPath ?? image.path,
         successMessage: "Profil resmi güncellendi",
       );
       if (context.mounted) Navigator.pop(context);

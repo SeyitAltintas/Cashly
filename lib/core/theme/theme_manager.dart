@@ -15,7 +15,12 @@ class ThemeManager extends ChangeNotifier {
   }
 
   Future<void> _init() async {
-    _box = await Hive.openBox(_boxName);
+    // Zaten açıksa mevcut box'ı al, değilse yeni aç
+    if (Hive.isBoxOpen(_boxName)) {
+      _box = Hive.box(_boxName);
+    } else {
+      _box = await Hive.openBox(_boxName);
+    }
     _isMoneyAnimationEnabled = _box.get(_keyMoneyAnimation, defaultValue: true);
     notifyListeners();
   }
