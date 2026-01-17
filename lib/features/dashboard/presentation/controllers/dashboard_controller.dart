@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/domain/usecases/dashboard_usecases.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -8,7 +10,13 @@ import '../../../streak/data/models/streak_model.dart';
 /// Dashboard Controller
 /// Dashboard sayfası için ChangeNotifier tabanlı state yönetimi sağlar.
 /// Finansal özet hesaplamalarını ve görüntüleme mantığını merkezi olarak yönetir.
+/// Use Case entegrasyonu ile Clean Architecture prensiplerini destekler.
 class DashboardController extends ChangeNotifier {
+  // ===== USE CASES =====
+  late final GetFinancialSummary _getFinancialSummary;
+  late final CalculateTotalBalance _calculateTotalBalance;
+  late final CalculateTotalDebt _calculateTotalDebt;
+
   // ===== STATE =====
 
   bool _isLoading = false;
@@ -16,6 +24,9 @@ class DashboardController extends ChangeNotifier {
 
   String _userName = '';
   String get userName => _userName;
+
+  String? _userId;
+  String? get userId => _userId;
 
   List<Map<String, dynamic>> _harcamalar = [];
   List<Map<String, dynamic>> get harcamalar => _harcamalar;
@@ -41,6 +52,26 @@ class DashboardController extends ChangeNotifier {
   StreakData _streakData = StreakData.empty();
   StreakData get streakData => _streakData;
 
+  // Cached finansal özet (use case'den)
+  FinancialSummary? _cachedSummary;
+
+  // ===== CONSTRUCTOR =====
+
+  DashboardController() {
+    _initUseCases();
+  }
+
+  void _initUseCases() {
+    try {
+      _getFinancialSummary = getIt<GetFinancialSummary>();
+      _calculateTotalBalance = getIt<CalculateTotalBalance>();
+      _calculateTotalDebt = getIt<CalculateTotalDebt>();
+    } catch (e) {
+      // DI henüz hazır değilse (test ortamı vb.)
+      debugPrint('DashboardController: Use case init hatası - $e');
+    }
+  }
+
   // ===== HESAPLAMALAR =====
 
   /// Saate göre selamlama mesajı
@@ -54,10 +85,22 @@ class DashboardController extends ChangeNotifier {
 
   /// Toplam bakiye (tüm ödeme yöntemlerinin toplamı)
   double get totalBalance {
+    // Use Case varsa ve userId varsa use case kullan
+    if (_userId != null) {
+      try {
+        return _calculateTotalBalance(
+          CalculateTotalBalanceParams(userId: _userId!),
+        );
+      } catch (_) {
+        // Fallback: yerel hesaplama
+      }
+    }
+
+    // Yerel hesaplama (fallback)
     double total = 0;
     for (var pm in _odemeYontemleri) {
       if (pm.isDeleted) continue;
-      if (pm.type == 'kredi') continue; // Kredi kartı bakiyeyi olumsuz etkiler
+      if (pm.type == 'kredi') continue;
       total += pm.balance;
     }
     return total;
@@ -65,6 +108,16 @@ class DashboardController extends ChangeNotifier {
 
   /// Toplam kredi kartı borcu
   double get totalCreditDebt {
+    // Use Case varsa ve userId varsa use case kullan
+    if (_userId != null) {
+      try {
+        return _calculateTotalDebt(CalculateTotalDebtParams(userId: _userId!));
+      } catch (_) {
+        // Fallback: yerel hesaplama
+      }
+    }
+
+    // Yerel hesaplama (fallback)
     double total = 0;
     for (var pm in _odemeYontemleri) {
       if (pm.isDeleted) continue;
@@ -110,7 +163,7 @@ class DashboardController extends ChangeNotifier {
     double total = 0;
     for (var v in _varliklar) {
       if (v.isDeleted) continue;
-      total += v.amount; // Asset modelinde amount = güncel değer
+      total += v.amount;
     }
     return total;
   }
@@ -125,6 +178,21 @@ class DashboardController extends ChangeNotifier {
   bool get isBudgetExceeded =>
       _butceLimiti > 0 && monthlyExpense > _butceLimiti;
 
+  /// Finansal özet (Use Case ile)
+  FinancialSummary? getFinancialSummary() {
+    if (_userId == null) return null;
+
+    try {
+      _cachedSummary = _getFinancialSummary(
+        GetFinancialSummaryParams(userId: _userId!),
+      );
+      return _cachedSummary;
+    } catch (e) {
+      debugPrint('DashboardController: Finansal özet hatası - $e');
+      return null;
+    }
+  }
+
   // ===== VERİ YÖNETİMİ =====
 
   /// Tüm verileri güncelle
@@ -138,6 +206,7 @@ class DashboardController extends ChangeNotifier {
     required double butceLimiti,
     required DateTime secilenAy,
     required StreakData streakData,
+    String? userId,
   }) {
     _userName = userName;
     _harcamalar = harcamalar;
@@ -148,7 +217,18 @@ class DashboardController extends ChangeNotifier {
     _butceLimiti = butceLimiti;
     _secilenAy = secilenAy;
     _streakData = streakData;
+    _userId = userId;
+    _cachedSummary = null; // Cache'i temizle
     notifyListeners();
+  }
+
+  /// User ID'yi ayarla (Use Case entegrasyonu için)
+  void setUserId(String? userId) {
+    if (_userId != userId) {
+      _userId = userId;
+      _cachedSummary = null;
+      notifyListeners();
+    }
   }
 
   /// Seçilen ayı güncelle
@@ -221,6 +301,7 @@ class DashboardController extends ChangeNotifier {
 
   /// State'i yenile
   void refresh() {
+    _cachedSummary = null;
     notifyListeners();
   }
 }

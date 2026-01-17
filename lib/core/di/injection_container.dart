@@ -27,6 +27,8 @@ import '../domain/usecases/expense_usecases.dart';
 import '../domain/usecases/income_usecases.dart';
 import '../domain/usecases/asset_usecases.dart';
 import '../domain/usecases/payment_method_usecases.dart';
+import '../domain/usecases/streak_usecases.dart';
+import '../domain/usecases/dashboard_usecases.dart';
 
 // Controllers
 import '../../features/auth/presentation/controllers/auth_controller.dart';
@@ -179,6 +181,42 @@ Future<void> initializeDependencies() async {
   );
   getIt.registerLazySingleton<AddTransfer>(
     () => AddTransfer(getIt<PaymentMethodRepository>()),
+  );
+
+  // Streak Use Cases
+  getIt.registerLazySingleton<GetStreakData>(
+    () => GetStreakData(getIt<StreakRepository>()),
+  );
+  getIt.registerLazySingleton<CheckAndUpdateStreak>(
+    () => CheckAndUpdateStreak(),
+  );
+  getIt.registerLazySingleton<SaveStreakData>(() => SaveStreakData());
+  getIt.registerLazySingleton<UseFreeze>(
+    () => UseFreeze(getIt<StreakRepository>()),
+  );
+
+  // Dashboard Use Cases
+  getIt.registerLazySingleton<CalculateTotalBalance>(
+    () => CalculateTotalBalance(getIt<PaymentMethodRepository>()),
+  );
+  getIt.registerLazySingleton<CalculateTotalDebt>(
+    () => CalculateTotalDebt(getIt<PaymentMethodRepository>()),
+  );
+  getIt.registerLazySingleton<GetMonthlyExpense>(
+    () => GetMonthlyExpense(getIt<ExpenseRepository>()),
+  );
+  getIt.registerLazySingleton<GetMonthlyIncome>(
+    () => GetMonthlyIncome(getIt<IncomeRepository>()),
+  );
+  getIt.registerLazySingleton<GetFinancialSummary>(
+    () => GetFinancialSummary(
+      expenseRepository: getIt<ExpenseRepository>(),
+      incomeRepository: getIt<IncomeRepository>(),
+      paymentMethodRepository: getIt<PaymentMethodRepository>(),
+    ),
+  );
+  getIt.registerLazySingleton<GetActivePaymentMethods>(
+    () => GetActivePaymentMethods(getIt<PaymentMethodRepository>()),
   );
 
   // ===== CONTROLLERS =====

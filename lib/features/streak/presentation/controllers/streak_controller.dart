@@ -1,15 +1,47 @@
 import 'package:flutter/material.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/domain/usecases/streak_usecases.dart';
 import '../../data/models/streak_model.dart';
+import '../../data/services/streak_service.dart';
 import '../../data/constants/streak_badges.dart';
 
 /// Streak Controller
 /// Seri sayfası için ChangeNotifier tabanlı state yönetimi sağlar.
 /// Rozet hesaplamaları, başarım listesi ve freeze yönetimini merkezi olarak yönetir.
+/// Use Case entegrasyonu ile Clean Architecture prensiplerini destekler.
 class StreakController extends ChangeNotifier {
+  // ===== USE CASES =====
+  late final GetStreakData _getStreakData;
+  late final CheckAndUpdateStreak _checkAndUpdateStreak;
+  late final UseFreeze _useFreeze;
+
   // ===== STATE =====
 
   StreakData _streakData = StreakData.empty();
   StreakData get streakData => _streakData;
+
+  String? _userId;
+  String? get userId => _userId;
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  // ===== CONSTRUCTOR =====
+
+  StreakController() {
+    _initUseCases();
+  }
+
+  void _initUseCases() {
+    try {
+      _getStreakData = getIt<GetStreakData>();
+      _checkAndUpdateStreak = getIt<CheckAndUpdateStreak>();
+      _useFreeze = getIt<UseFreeze>();
+    } catch (e) {
+      // DI henüz hazır değilse (test ortamı vb.)
+      debugPrint('StreakController: Use case init hatası - $e');
+    }
+  }
 
   // ===== HESAPLAMALAR =====
 
@@ -93,9 +125,82 @@ class StreakController extends ChangeNotifier {
   /// Toplam başarı sayısı
   int get totalAchievementsCount => achievements.length;
 
+  // ===== USE CASE METODLARI =====
+
+  /// Streak verisini repository'den getir (Use Case)
+  void loadStreakData(String userId) {
+    _userId = userId;
+    try {
+      _streakData = _getStreakData(GetStreakDataParams(userId: userId));
+      notifyListeners();
+    } catch (e) {
+      debugPrint('StreakController: loadStreakData hatası - $e');
+    }
+  }
+
+  /// Streak'i kontrol et ve güncelle (Use Case)
+  Future<StreakResult?> checkAndUpdate() async {
+    if (_userId == null) return null;
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final result = await _checkAndUpdateStreak(
+        CheckAndUpdateStreakParams(userId: _userId!),
+      );
+
+      // Streak verisini güncelle
+      loadStreakData(_userId!);
+
+      return result;
+    } catch (e) {
+      debugPrint('StreakController: checkAndUpdate hatası - $e');
+      return null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Dondurucu kullan (Use Case)
+  Future<bool> useFreeze() async {
+    if (_userId == null) return false;
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final result = await _useFreeze(UseFreezeParams(userId: _userId!));
+
+      if (result != null) {
+        _streakData = result;
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('StreakController: useFreeze hatası - $e');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   // ===== VERİ YÖNETİMİ =====
 
-  /// Streak verisini güncelle
+  /// User ID'yi ayarla
+  void setUserId(String? userId) {
+    if (_userId != userId) {
+      _userId = userId;
+      if (userId != null) {
+        loadStreakData(userId);
+      }
+    }
+  }
+
+  /// Streak verisini güncelle (manuel)
   void updateStreakData(StreakData data) {
     _streakData = data;
     notifyListeners();
@@ -103,6 +208,10 @@ class StreakController extends ChangeNotifier {
 
   /// State'i yenile
   void refresh() {
-    notifyListeners();
+    if (_userId != null) {
+      loadStreakData(_userId!);
+    } else {
+      notifyListeners();
+    }
   }
 }
