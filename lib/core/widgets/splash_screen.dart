@@ -86,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen>
     final logoWidth = screenWidth * 0.40; // Ekranın %40'ı
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: Colors.black,
       body: Center(
         child: AnimatedBuilder(
           animation: _fadeAnimation,

@@ -75,12 +75,12 @@ class _CategoryBudgetSectionState extends State<CategoryBudgetSection> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.purple.withValues(alpha: 0.2),
+                    color: Colors.teal.shade600.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.pie_chart_outline_rounded,
-                    color: Colors.purple,
+                    color: Colors.teal.shade400,
                     size: 24,
                   ),
                 ),

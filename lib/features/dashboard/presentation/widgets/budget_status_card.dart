@@ -25,9 +25,6 @@ class BudgetStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final budgetUsed = butceLimiti > 0 ? (monthlyExpense / butceLimiti) : 0.0;
 
-    // Limiti aşan veya %80'i geçen kategorileri bul
-    final warningCategories = _getWarningCategories();
-
     return GestureDetector(
       onTap: onTap,
       child: AnimatedCard(
@@ -108,109 +105,10 @@ class BudgetStatusCard extends StatelessWidget {
                 ],
               ),
 
-              // Kategori uyarıları (varsa)
-              if (warningCategories.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                const Divider(height: 1),
-                const SizedBox(height: 12),
-                Text(
-                  "Kategori Limitleri",
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.8),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ...warningCategories.map(
-                  (cat) => _buildCategoryWarning(context, cat),
-                ),
-              ],
+              // Kategori limitleri kaldırıldı - detaylar için karta tıklayın
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  List<_CategoryWarningData> _getWarningCategories() {
-    if (categoryBudgets == null || categoryExpenses == null) return [];
-
-    final warnings = <_CategoryWarningData>[];
-
-    for (final entry in categoryBudgets!.entries) {
-      final kategori = entry.key;
-      final limit = entry.value;
-      if (limit <= 0) continue;
-
-      final expense = categoryExpenses![kategori] ?? 0.0;
-      final usage = expense / limit;
-
-      // %70'i geçenleri göster
-      if (usage >= 0.7) {
-        warnings.add(
-          _CategoryWarningData(
-            kategori: kategori,
-            expense: expense,
-            limit: limit,
-            usage: usage,
-          ),
-        );
-      }
-    }
-
-    // Kullanım oranına göre sırala (en yükseği önce)
-    warnings.sort((a, b) => b.usage.compareTo(a.usage));
-
-    // En fazla 3 kategori göster
-    return warnings.take(3).toList();
-  }
-
-  Widget _buildCategoryWarning(
-    BuildContext context,
-    _CategoryWarningData data,
-  ) {
-    final isOverBudget = data.usage > 1.0;
-    final color = isOverBudget
-        ? Colors.red.shade400
-        : data.usage > 0.9
-        ? Colors.orange.shade400
-        : Colors.amber.shade600;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              data.kategori,
-              style: TextStyle(
-                fontSize: 12,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.8),
-              ),
-            ),
-          ),
-          Text(
-            isOverBudget
-                ? "Aşıldı! (${(data.usage * 100).toStringAsFixed(0)}%)"
-                : "${(data.usage * 100).toStringAsFixed(0)}%",
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -220,18 +118,4 @@ class BudgetStatusCard extends StatelessWidget {
     if (budgetUsed > 0.5) return Colors.orange.shade400;
     return Colors.green.shade400;
   }
-}
-
-class _CategoryWarningData {
-  final String kategori;
-  final double expense;
-  final double limit;
-  final double usage;
-
-  _CategoryWarningData({
-    required this.kategori,
-    required this.expense,
-    required this.limit,
-    required this.usage,
-  });
 }

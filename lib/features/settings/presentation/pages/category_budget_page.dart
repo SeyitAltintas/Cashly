@@ -49,24 +49,29 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
   }
 
   void _showEditDialog(String kategori, double currentLimit) {
-    final controller = TextEditingController(
-      text: currentLimit > 0 ? currentLimit.toStringAsFixed(0) : '',
-    );
+    // Format initial value with thousand separators
+    String initialText = '';
+    if (currentLimit > 0) {
+      initialText = _formatWithThousandSeparator(
+        currentLimit.toStringAsFixed(0),
+      );
+    }
+    final controller = TextEditingController(text: initialText);
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: Theme.of(dialogContext).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.purple.withValues(alpha: 0.2),
+                color: const Color(0xFF2E7D32).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.edit, color: Colors.purple, size: 20),
+              child: const Icon(Icons.edit, color: Color(0xFF2E7D32), size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -85,10 +90,10 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bu kategori için aylık harcama limiti belirleyin. Limit aşıldığında dashboard\'da uyarı görürsünüz.',
+              'Bu kategori için aylık harcama limiti belirleyin. Limit aşıldığında ana sayfada uyarı görürsünüz.',
               style: TextStyle(
                 color: Theme.of(
-                  context,
+                  dialogContext,
                 ).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 13,
               ),
@@ -97,16 +102,75 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
             TextField(
               controller: controller,
               keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                _ThousandSeparatorFormatter(),
+                LengthLimitingTextInputFormatter(
+                  14,
+                ), // Max 10.000.000.000 (10M formatted)
+              ],
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter',
+              ),
               decoration: InputDecoration(
                 labelText: 'Aylık Limit',
+                labelStyle: TextStyle(
+                  color: Theme.of(
+                    dialogContext,
+                  ).colorScheme.onSurface.withValues(alpha: 0.8),
+                  fontFamily: 'Inter',
+                ),
                 hintText: '0 = Limitsiz',
+                hintStyle: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(
+                    dialogContext,
+                  ).colorScheme.onSurface.withValues(alpha: 0.4),
+                  fontFamily: 'Inter',
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(
+                    color: Theme.of(
+                      dialogContext,
+                    ).colorScheme.onSurface.withValues(alpha: 0.15),
+                    width: 0.5,
+                  ),
                 ),
-                prefixIcon: const Icon(Icons.account_balance_wallet_outlined),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(
+                    color: Theme.of(
+                      dialogContext,
+                    ).colorScheme.onSurface.withValues(alpha: 0.15),
+                    width: 0.5,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(
+                    color: Theme.of(
+                      dialogContext,
+                    ).colorScheme.onSurface.withValues(alpha: 0.4),
+                    width: 1,
+                  ),
+                ),
+                prefixIcon: Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: Theme.of(
+                    dialogContext,
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
                 suffixText: '₺',
+                suffixStyle: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(
+                    dialogContext,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
               ),
               autofocus: true,
             ),
@@ -116,35 +180,47 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
           if (currentLimit > 0)
             TextButton.icon(
               onPressed: () async {
+                final navigator = Navigator.of(dialogContext);
                 await _saveBudget(kategori, 0);
-                if (mounted) {
-                  Navigator.pop(context);
-                  AppSnackBar.success(context, '$kategori limiti kaldırıldı');
-                }
+                if (!mounted) return;
+                navigator.pop();
+                AppSnackBar.success(context, '$kategori limiti kaldırıldı');
               },
               icon: const Icon(Icons.delete_outline, size: 18),
-              label: const Text('Kaldır'),
+              label: const Text('Limiti Kaldır'),
               style: TextButton.styleFrom(foregroundColor: Colors.orange),
             ),
           const SizedBox(width: 8),
           ElevatedButton.icon(
             onPressed: () async {
-              final value = double.tryParse(controller.text) ?? 0;
+              final navigator = Navigator.of(dialogContext);
+              // Parse value removing thousand separators
+              final cleanText = controller.text.replaceAll('.', '');
+              final value = double.tryParse(cleanText) ?? 0;
+
+              // Edge case: Maximum limit control
+              if (value > 10000000000) {
+                AppSnackBar.warning(
+                  context,
+                  'Maximum 10 milyar ₺ limit belirleyebilirsiniz',
+                );
+                return;
+              }
+
               await _saveBudget(kategori, value);
-              if (mounted) {
-                Navigator.pop(context);
-                if (value > 0) {
-                  AppSnackBar.success(
-                    context,
-                    '$kategori limiti ${value.toStringAsFixed(0)}₺ olarak ayarlandı',
-                  );
-                }
+              if (!mounted) return;
+              navigator.pop();
+              if (value > 0) {
+                AppSnackBar.success(
+                  context,
+                  '$kategori limiti ${_formatWithThousandSeparator(value.toStringAsFixed(0))}₺ olarak ayarlandı',
+                );
               }
             },
             icon: const Icon(Icons.check, size: 18),
             label: const Text('Kaydet'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.purple,
+              backgroundColor: const Color(0xFF2E7D32),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
@@ -191,22 +267,26 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.purple.withValues(alpha: 0.2),
+                  color: const Color(0xFF2E7D32).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: const Color(0xFF2E7D32).withValues(alpha: 0.3),
+                    width: 0.5,
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
                       Icons.check_circle,
-                      color: Colors.purple,
+                      color: Color(0xFF2E7D32),
                       size: 16,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       '$activeBudgets aktif',
                       style: const TextStyle(
-                        color: Colors.purple,
+                        color: Color(0xFF2E7D32),
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
                       ),
@@ -223,40 +303,44 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.purple.shade900.withValues(alpha: 0.3),
-                    Colors.purple.shade800.withValues(alpha: 0.2),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: Theme.of(
+                  context,
+                ).colorScheme.surface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.purple.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  width: 0.5,
+                ),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.purple.withValues(alpha: 0.2),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.06),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.info_outline,
-                      color: Colors.purple,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
                       size: 24,
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Her kategori için aylık harcama limiti belirleyin. Limit yaklaştığında veya aşıldığında dashboard\'da uyarı göreceksiniz.',
+                      'Her kategori için aylık harcama limiti belirleyin. Limit yaklaştığında veya aşıldığında ana sayfada uyarı göreceksiniz.',
                       style: TextStyle(
                         fontSize: 13,
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.8),
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ),
@@ -274,6 +358,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                   final isim = kategori['isim'] as String;
                   final limit = _categoryBudgets[isim] ?? 0.0;
                   final hasLimit = limit > 0;
+                  final iconColor = _getCategoryColor(index);
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 8),
@@ -290,9 +375,9 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                             ).colorScheme.surface.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: hasLimit
-                                  ? Colors.purple.withValues(alpha: 0.3)
-                                  : Colors.white.withValues(alpha: 0.1),
+                              color: Theme.of(context).colorScheme.onSurface
+                                  .withValues(alpha: hasLimit ? 0.15 : 0.08),
+                              width: 0.5,
                             ),
                           ),
                           child: Row(
@@ -301,16 +386,14 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: hasLimit
-                                      ? Colors.purple.withValues(alpha: 0.2)
-                                      : Colors.grey.withValues(alpha: 0.1),
+                                  color: iconColor.withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
                                   _getIconData(
                                     kategori['ikon'] as String? ?? 'category',
                                   ),
-                                  color: hasLimit ? Colors.purple : Colors.grey,
+                                  color: iconColor,
                                   size: 24,
                                 ),
                               ),
@@ -333,12 +416,12 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                                           : 'Limit belirlenmemiş',
                                       style: TextStyle(
                                         fontSize: 13,
-                                        color: hasLimit
-                                            ? Colors.purple
-                                            : Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface
-                                                  .withValues(alpha: 0.5),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(
+                                              alpha: hasLimit ? 0.6 : 0.4,
+                                            ),
                                       ),
                                     ),
                                   ],
@@ -348,10 +431,9 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                                 hasLimit
                                     ? Icons.edit
                                     : Icons.add_circle_outline,
-                                color: hasLimit
-                                    ? Colors.purple
-                                    : Theme.of(context).colorScheme.onSurface
-                                          .withValues(alpha: 0.4),
+                                color: Theme.of(context).colorScheme.onSurface
+                                    .withValues(alpha: hasLimit ? 0.5 : 0.3),
+                                size: 20,
                               ),
                             ],
                           ),
@@ -366,6 +448,25 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
         ),
       ),
     );
+  }
+
+  /// Kategori için rastgele renk döndür (index tabanlı tutarlı)
+  Color _getCategoryColor(int index) {
+    const colors = [
+      Color(0xFFE57373), // Kırmızı
+      Color(0xFF81C784), // Yeşil
+      Color(0xFF64B5F6), // Mavi
+      Color(0xFFFFB74D), // Turuncu
+      Color(0xFFBA68C8), // Mor
+      Color(0xFF4DD0E1), // Cyan
+      Color(0xFFF06292), // Pembe
+      Color(0xFFAED581), // Açık yeşil
+      Color(0xFF7986CB), // İndigo
+      Color(0xFFFFD54F), // Sarı
+      Color(0xFFA1887F), // Kahverengi
+      Color(0xFF90A4AE), // Gri-mavi
+    ];
+    return colors[index % colors.length];
   }
 
   IconData _getIconData(String iconName) {
@@ -385,5 +486,66 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
       'autorenew': Icons.autorenew,
     };
     return iconMap[iconName] ?? Icons.category;
+  }
+
+  /// Binlik ayıraç ile formatla (1000 -> 1.000)
+  String _formatWithThousandSeparator(String value) {
+    if (value.isEmpty) return '';
+
+    // Sadece rakamları al
+    final digitsOnly = value.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digitsOnly.isEmpty) return '';
+
+    // Baştaki sıfırları kaldır (tek sıfır hariç)
+    final trimmed = digitsOnly.replaceFirst(RegExp(r'^0+'), '');
+    if (trimmed.isEmpty) return '0';
+
+    // Binlik ayıraç ekle
+    final buffer = StringBuffer();
+    for (int i = 0; i < trimmed.length; i++) {
+      if (i > 0 && (trimmed.length - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(trimmed[i]);
+    }
+    return buffer.toString();
+  }
+}
+
+/// Binlik ayıraç ekleyen TextInputFormatter
+class _ThousandSeparatorFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    // Sadece rakamları al
+    final digitsOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digitsOnly.isEmpty) {
+      return const TextEditingValue(
+        text: '',
+        selection: TextSelection.collapsed(offset: 0),
+      );
+    }
+
+    // Baştaki sıfırları kaldır (tek sıfır hariç)
+    String trimmed = digitsOnly.replaceFirst(RegExp(r'^0+'), '');
+    if (trimmed.isEmpty) trimmed = '0';
+
+    // Binlik ayıraç ekle
+    final buffer = StringBuffer();
+    for (int i = 0; i < trimmed.length; i++) {
+      if (i > 0 && (trimmed.length - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(trimmed[i]);
+    }
+
+    final formatted = buffer.toString();
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
   }
 }
