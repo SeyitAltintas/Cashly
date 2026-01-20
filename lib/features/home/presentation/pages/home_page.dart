@@ -33,7 +33,6 @@ import 'package:cashly/features/income/domain/repositories/income_repository.dar
 import 'package:cashly/features/assets/domain/repositories/asset_repository.dart';
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/streak/data/services/streak_service.dart';
-import 'package:cashly/core/widgets/network_status_banner.dart';
 import 'package:cashly/core/widgets/error_boundary.dart';
 import '../state/home_page_state.dart';
 
@@ -374,34 +373,32 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final userName = widget.authController.currentUser?.name ?? 'Kullanıcı';
 
-    return NetworkStatusBanner(
-      child: Scaffold(
-        // ValueListenableBuilder ile sadece AppBar değişikliklerinde rebuild
-        appBar: _buildAppBarWithNotifier(),
-        body: PageView(
-          controller: _pageController,
-          // setState yerine ValueNotifier kullanarak gereksiz rebuild'leri önle
-          onPageChanged: (index) => _selectedIndexNotifier.value = index,
-          children: [
-            _buildToolsPage(),
-            _buildDashboardPage(userName),
-            ProfilSayfasi(
-              authController: widget.authController,
-              onRefresh: _verileriOku,
-              onNavigationReturn: _showCelebrationIfPending,
-            ),
-          ],
-        ),
-        // ValueListenableBuilder ile sadece navigation değişikliklerinde rebuild
-        bottomNavigationBar: ValueListenableBuilder<int>(
-          valueListenable: _selectedIndexNotifier,
-          builder: (context, selectedIndex, _) {
-            return HomeBottomNav(
-              selectedIndex: selectedIndex,
-              onPageChanged: (index) => _pageController.jumpToPage(index),
-            );
-          },
-        ),
+    return Scaffold(
+      // ValueListenableBuilder ile sadece AppBar değişikliklerinde rebuild
+      appBar: _buildAppBarWithNotifier(),
+      body: PageView(
+        controller: _pageController,
+        // setState yerine ValueNotifier kullanarak gereksiz rebuild'leri önle
+        onPageChanged: (index) => _selectedIndexNotifier.value = index,
+        children: [
+          _buildToolsPage(),
+          _buildDashboardPage(userName),
+          ProfilSayfasi(
+            authController: widget.authController,
+            onRefresh: _verileriOku,
+            onNavigationReturn: _showCelebrationIfPending,
+          ),
+        ],
+      ),
+      // ValueListenableBuilder ile sadece navigation değişikliklerinde rebuild
+      bottomNavigationBar: ValueListenableBuilder<int>(
+        valueListenable: _selectedIndexNotifier,
+        builder: (context, selectedIndex, _) {
+          return HomeBottomNav(
+            selectedIndex: selectedIndex,
+            onPageChanged: (index) => _pageController.jumpToPage(index),
+          );
+        },
       ),
     );
   }

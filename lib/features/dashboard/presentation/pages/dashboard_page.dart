@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/widgets/animated_card.dart';
+import '../../../../core/widgets/network_status_icon.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -191,8 +192,15 @@ class _DashboardPageState extends State<DashboardPage> {
               ],
             ),
           ),
-          // Sağ taraf: Seri widget'ı
-          StreakWidget(streakData: controller.streakData),
+          // Sağ taraf: Network status ikonu ve Seri widget'ı
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const NetworkStatusIcon(),
+              const SizedBox(width: 8),
+              StreakWidget(streakData: controller.streakData),
+            ],
+          ),
         ],
       ),
     );
