@@ -34,9 +34,9 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Fade in → Görünür kalma → Fade out animasyonu
     // Ağırlıkları sürelere göre hesapla
-    final fadeInWeight = _fadeInDuration / _totalDuration * 100;
-    final visibleWeight = _visibleDuration / _totalDuration * 100;
-    final fadeOutWeight = _fadeOutDuration / _totalDuration * 100;
+    const fadeInWeight = _fadeInDuration / _totalDuration * 100;
+    const visibleWeight = _visibleDuration / _totalDuration * 100;
+    const fadeOutWeight = _fadeOutDuration / _totalDuration * 100;
 
     _fadeAnimation = TweenSequence<double>([
       // Fade in: 0 → 1 (500ms)
