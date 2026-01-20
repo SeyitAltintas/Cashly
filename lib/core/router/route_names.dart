@@ -1,6 +1,9 @@
 /// Route isimleri sabitleri
 /// Type-safe navigasyon için kullanılır
 abstract class RouteNames {
+  // Splash
+  static const String splash = 'splash';
+
   // Auth
   static const String login = 'login';
 

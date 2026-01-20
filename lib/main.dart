@@ -140,15 +140,13 @@ class _CashlyAppState extends State<CashlyApp> {
   Widget build(BuildContext context) {
     return Consumer<ThemeManager>(
       builder: (context, themeManager, child) {
-        // Henüz başlatılmadıysa Loading göster
+        // Henüz başlatılmadıysa siyah ekran göster (splash ile tutarlı)
         if (!_isInitialized) {
           return const MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
-              backgroundColor: Colors.black,
-              body: Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              ),
+              backgroundColor: Color(0xFF0D0D0D),
+              body: SizedBox.shrink(), // Boş - sadece siyah arka plan
             ),
           );
         }

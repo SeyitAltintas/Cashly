@@ -391,5 +391,5 @@ Detaylar için [LICENSE](LICENSE) dosyasına bakın.
 ---
 
 <p align="center">
-  Made with ❤️ using Flutter
+ Seyit Altıntaş
 </p>

@@ -8,6 +8,9 @@ import '../../features/auth/presentation/pages/login_page.dart';
 // Home & Navigation
 import '../../features/home/presentation/pages/home_page.dart';
 
+// Splash
+import '../widgets/splash_screen.dart';
+
 // Route names
 import 'route_names.dart';
 
@@ -23,8 +26,8 @@ class AppRouter {
     // Auth durumu değiştiğinde router'ı yenile
     refreshListenable: authController,
 
-    // Başlangıç route'u
-    initialLocation: '/',
+    // Başlangıç route'u - Splash ile başla
+    initialLocation: '/splash',
 
     // Debug modunda navigasyon logları
     debugLogDiagnostics: true,
@@ -54,7 +57,10 @@ class AppRouter {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => context.go('/'),
-              child: const Text('Ana Sayfaya Dön'),
+              child: const Text(
+                'Ana Sayfaya Dön',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -63,6 +69,23 @@ class AppRouter {
 
     // Route tanımları
     routes: [
+      // ===== SPLASH ROUTE =====
+      GoRoute(
+        path: '/splash',
+        name: RouteNames.splash,
+        builder: (context, state) => SplashScreen(
+          onInitializationComplete: () {
+            // Auth durumuna göre yönlendir
+            final isLoggedIn = authController.currentUser != null;
+            if (isLoggedIn) {
+              router.go('/');
+            } else {
+              router.go('/login');
+            }
+          },
+        ),
+      ),
+
       // ===== AUTH ROUTES =====
       GoRoute(
         path: '/login',
@@ -87,6 +110,10 @@ class AppRouter {
     final isLoggedIn = authController.currentUser != null;
     final isLoading = authController.isLoading;
     final isLoggingIn = state.matchedLocation == '/login';
+    final isSplash = state.matchedLocation == '/splash';
+
+    // Splash sayfasındayken yönlendirme yapma
+    if (isSplash) return null;
 
     // Yükleme sırasında yönlendirme yapma
     if (isLoading) return null;

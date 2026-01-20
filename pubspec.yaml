@@ -50,10 +50,12 @@ flutter_launcher_icons:
 
 flutter_native_splash:
   color: "#0D0D0D"
-  image: assets/image/seffaflogo.png
+  color_dark: "#0D0D0D"
+  # Android 12 için özel yapılandırma - app ikonunu gizle
   android_12:
     color: "#0D0D0D"
-    image: assets/image/seffaflogo.png
+    color_dark: "#0D0D0D"
+    # Boş bırakarak app ikonunun görünmesini engelle
 
 flutter:
   uses-material-design: true
