@@ -108,12 +108,13 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
         _expState.categoryChanged = true;
         _expState.isSaved = true;
         _expState.savedAmount = formattedAmount;
-        tGelir.text = "Bütçe Limitiniz $formattedAmount TL olarak güncellendi.";
+        _expState.savedMessage =
+            "Bütçe Limitiniz $formattedAmount TL olarak güncellendi.";
 
-        Future.delayed(const Duration(seconds: 3), () {
+        Future.delayed(const Duration(seconds: 4), () {
           if (mounted) {
             _expState.isSaved = false;
-            tGelir.text = _expState.savedAmount;
+            _expState.savedMessage = null;
           }
         });
       } catch (e) {
@@ -167,6 +168,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                 controller: tGelir,
                 isSaved: _isSaved,
                 onSave: _butceyiKaydet,
+                savedMessage: _expState.savedMessage,
               ),
               const SizedBox(height: 30),
               RecurringExpenseSection(
