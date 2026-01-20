@@ -34,6 +34,7 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
   String? get varsayilanOdemeYontemiId;
   String? get userId;
   String? get userName;
+  Map<String, double> get categoryBudgets; // Kategori bütçeleri
 
   Map<String, IconData> get kategoriIkonlari;
   Map<String, IconData> get gelirKategoriIkonlari;
@@ -116,6 +117,7 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
           userId: userId ?? '',
           userName: userName ?? 'Kullanici',
           paymentMethods: tumOdemeYontemleri,
+          categoryBudgets: categoryBudgets,
         ),
       ),
     ).then((_) => verileriOku()); // Sayfadan döndüğünde verileri yenile

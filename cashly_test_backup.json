@@ -873,6 +873,14 @@
                 "ikon": "category"
             }
         ],
+        "kategoriButceleri": {
+            "Yemek ve Kafe": 3000,
+            "Market ve Atıştırmalık": 5000,
+            "Araç ve Ulaşım": 4000,
+            "Hediye ve Özel": 2000,
+            "Sabit Giderler": 8000,
+            "Diğer": 3000
+        },
         "gelirKategorileri": [
             {
                 "isim": "Maaş",

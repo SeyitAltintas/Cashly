@@ -19,6 +19,7 @@ class AnalysisPage extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
   final String userId;
   final String userName;
+  final Map<String, double>? categoryBudgets; // Kategori bütçeleri
 
   const AnalysisPage({
     super.key,
@@ -29,6 +30,7 @@ class AnalysisPage extends StatefulWidget {
     required this.userId,
     required this.userName,
     this.paymentMethods = const [],
+    this.categoryBudgets,
   });
 
   @override
@@ -299,6 +301,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             totals,
             totalAmount,
             expenseColors,
+            categoryBudgets: widget.categoryBudgets,
           ),
           if (widget.paymentMethods.isNotEmpty) ...[
             const SizedBox(height: 32),
@@ -501,8 +504,9 @@ class _AnalysisPageState extends State<AnalysisPage>
     String title,
     Map<String, double> totals,
     double total,
-    List<Color> colors,
-  ) {
+    List<Color> colors, {
+    Map<String, double>? categoryBudgets,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -524,6 +528,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             value: e.value,
             color: color,
             total: total,
+            budgetLimit: categoryBudgets?[e.key],
           );
         }),
       ],

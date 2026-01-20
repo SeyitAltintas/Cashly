@@ -178,6 +178,33 @@ class DashboardController extends ChangeNotifier {
   bool get isBudgetExceeded =>
       _butceLimiti > 0 && monthlyExpense > _butceLimiti;
 
+  /// Kategori bazlı bütçe limitleri
+  Map<String, double> _categoryBudgets = {};
+  Map<String, double> get categoryBudgets => _categoryBudgets;
+
+  /// Kategori bazlı aylık harcamalar
+  Map<String, double> get categoryExpenses {
+    final expenses = <String, double>{};
+    for (var h in _harcamalar) {
+      if (h['silindi'] == true) continue;
+      DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
+      if (tarih != null &&
+          tarih.year == _secilenAy.year &&
+          tarih.month == _secilenAy.month) {
+        final kategori = h['kategori'] as String? ?? 'Diğer';
+        final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
+        expenses[kategori] = (expenses[kategori] ?? 0) + tutar;
+      }
+    }
+    return expenses;
+  }
+
+  /// Kategori bütçelerini güncelle
+  void setCategoryBudgets(Map<String, double> value) {
+    _categoryBudgets = value;
+    notifyListeners();
+  }
+
   /// Finansal özet (Use Case ile)
   FinancialSummary? getFinancialSummary() {
     if (_userId == null) return null;

@@ -141,4 +141,44 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
       rethrow;
     }
   }
+
+  @override
+  Map<String, double> getCategoryBudgets(String userId) {
+    final cacheKey = 'category_budgets_$userId';
+
+    // Önce cache'den bak
+    final cached = CacheService.get<Map<String, double>>(cacheKey);
+    if (cached != null) return cached;
+
+    try {
+      final data = _box.get('kategori_butceleri_$userId', defaultValue: null);
+      if (data == null) {
+        return {};
+      }
+      final result = Map<String, double>.from(
+        (data as Map).map(
+          (key, value) => MapEntry(key.toString(), (value as num).toDouble()),
+        ),
+      );
+      CacheService.set(cacheKey, result);
+      return result;
+    } catch (e) {
+      debugPrint('Kategori bütçeleri getirilirken hata: $e');
+      return {};
+    }
+  }
+
+  @override
+  Future<void> saveCategoryBudgets(
+    String userId,
+    Map<String, double> budgets,
+  ) async {
+    try {
+      await _box.put('kategori_butceleri_$userId', budgets);
+      CacheService.set('category_budgets_$userId', budgets);
+    } catch (e) {
+      debugPrint('Kategori bütçeleri kaydedilirken hata: $e');
+      rethrow;
+    }
+  }
 }

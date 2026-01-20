@@ -53,6 +53,7 @@ class BackupService {
           'butce': expenseRepo.getBudget(userId),
           'varsayilanOdemeYontemi': paymentRepo.getDefaultPaymentMethod(userId),
           'kategoriler': expenseRepo.getCategories(userId),
+          'kategoriButceleri': expenseRepo.getCategoryBudgets(userId),
           'gelirKategorileri': incomeRepo.getCategories(userId),
           // Yeni: Seri verileri
           'streak': streakData.toMap(),
@@ -246,6 +247,17 @@ class BackupService {
             ),
           ),
         );
+      }
+
+      // Kategori bütçelerini geri yükle (v1.4)
+      if (backupData['kategoriButceleri'] != null) {
+        final budgetMap = Map<String, dynamic>.from(
+          backupData['kategoriButceleri'],
+        );
+        final categoryBudgets = budgetMap.map(
+          (key, value) => MapEntry(key, (value as num).toDouble()),
+        );
+        await expenseRepo.saveCategoryBudgets(userId, categoryBudgets);
       }
 
       // Seri verilerini geri yükle (v1.2)

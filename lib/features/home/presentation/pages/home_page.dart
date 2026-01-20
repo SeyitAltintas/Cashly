@@ -67,6 +67,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   double get butceLimiti => _homeState.butceLimiti;
   DateTime get secilenAy => _homeState.secilenAy;
   String? get varsayilanOdemeYontemiId => _homeState.varsayilanOdemeYontemiId;
+  Map<String, double> get categoryBudgets => _homeState.categoryBudgets;
 
   // Kategori ikonları
   static const Map<String, IconData> kategoriIkonlari = {
@@ -462,6 +463,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         secilenAy: secilenAy,
         streakData: _streakData,
         transferler: tumTransferler,
+        categoryBudgets: categoryBudgets,
       ),
     );
   }
@@ -541,6 +543,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             userId: widget.authController.currentUser?.id ?? '',
             userName: widget.authController.currentUser?.name ?? 'Kullanici',
             paymentMethods: tumOdemeYontemleri,
+            categoryBudgets: categoryBudgets,
           ),
         ),
       ),

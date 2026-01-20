@@ -98,6 +98,14 @@ class HomePageState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Kategori bazlı bütçe limitleri
+  Map<String, double> _categoryBudgets = {};
+  Map<String, double> get categoryBudgets => _categoryBudgets;
+  set categoryBudgets(Map<String, double> value) {
+    _categoryBudgets = value;
+    notifyListeners();
+  }
+
   /// Tüm verileri yükler
   void loadData(String userId) {
     final expenseRepo = getIt<ExpenseRepository>();
@@ -109,6 +117,7 @@ class HomePageState extends ChangeNotifier {
     // Harcamalar
     _tumHarcamalar = expenseRepo.getExpenses(userId);
     _butceLimiti = expenseRepo.getBudget(userId);
+    _categoryBudgets = expenseRepo.getCategoryBudgets(userId);
 
     // Varlıklar
     final varlikVerileri = assetRepo.getAssets(userId);

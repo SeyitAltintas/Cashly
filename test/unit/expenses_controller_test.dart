@@ -9,6 +9,7 @@ class MockExpenseRepository implements ExpenseRepository {
   List<Map<String, dynamic>> _categories = [];
   double _budget = 8000.0;
   List<Map<String, dynamic>> _fixedExpenseTemplates = [];
+  Map<String, double> _categoryBudgets = {};
 
   @override
   List<Map<String, dynamic>> getExpenses(String userId) => _expenses;
@@ -50,6 +51,17 @@ class MockExpenseRepository implements ExpenseRepository {
     List<Map<String, dynamic>> templates,
   ) async {
     _fixedExpenseTemplates = List.from(templates);
+  }
+
+  @override
+  Map<String, double> getCategoryBudgets(String userId) => _categoryBudgets;
+
+  @override
+  Future<void> saveCategoryBudgets(
+    String userId,
+    Map<String, double> budgets,
+  ) async {
+    _categoryBudgets = Map.from(budgets);
   }
 
   // Test helper metodları

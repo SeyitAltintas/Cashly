@@ -49,4 +49,14 @@ abstract class ExpenseRepository {
     String userId,
     List<Map<String, dynamic>> categories,
   );
+
+  /// Kategori bazlı bütçe limitlerini getirir
+  /// [userId] - Kullanıcı ID'si
+  /// Döndürür: Kategori adı -> Limit miktarı Map'i
+  Map<String, double> getCategoryBudgets(String userId);
+
+  /// Kategori bazlı bütçe limitlerini kaydeder
+  /// [userId] - Kullanıcı ID'si
+  /// [budgets] - Kategori adı -> Limit miktarı Map'i
+  Future<void> saveCategoryBudgets(String userId, Map<String, double> budgets);
 }

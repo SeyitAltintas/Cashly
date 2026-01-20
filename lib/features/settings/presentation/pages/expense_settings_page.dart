@@ -13,6 +13,7 @@ import '../widgets/expense_settings/budget_section.dart';
 import '../widgets/expense_settings/recurring_expense_section.dart';
 import '../widgets/expense_settings/default_payment_section.dart';
 import '../widgets/expense_settings/category_section.dart';
+import '../widgets/expense_settings/category_budget_section.dart';
 import 'recurring_transactions_page.dart';
 import '../state/expense_settings_state.dart';
 
@@ -198,6 +199,12 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
                     if (mounted) _expState.categoryChanged = true;
                   });
                 },
+              ),
+              const SizedBox(height: 30),
+              // Kategori bazlı bütçe limitleri
+              CategoryBudgetSection(
+                userId: widget.userId,
+                onChanged: () => _expState.categoryChanged = true,
               ),
               const SizedBox(height: 50),
             ],

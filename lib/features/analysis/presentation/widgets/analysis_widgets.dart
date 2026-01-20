@@ -44,6 +44,7 @@ class LegendItem extends StatelessWidget {
   final double value;
   final Color color;
   final double total;
+  final double? budgetLimit; // Opsiyonel limit
 
   const LegendItem({
     super.key,
@@ -51,10 +52,15 @@ class LegendItem extends StatelessWidget {
     required this.value,
     required this.color,
     required this.total,
+    this.budgetLimit,
   });
 
   @override
   Widget build(BuildContext context) {
+    final hasLimit = budgetLimit != null && budgetLimit! > 0;
+    final isOverBudget = hasLimit && value > budgetLimit!;
+    final usagePercent = hasLimit ? (value / budgetLimit! * 100) : 0.0;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -66,12 +72,30 @@ class LegendItem extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 16,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 16,
+                  ),
+                ),
+                if (hasLimit)
+                  Text(
+                    'Limit: ${CurrencyFormatter.format(budgetLimit!)} (${usagePercent.toStringAsFixed(0)}%)',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isOverBudget
+                          ? Colors.red.shade400
+                          : usagePercent > 80
+                          ? Colors.orange.shade400
+                          : Colors.green.shade400,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+              ],
             ),
           ),
           Column(
@@ -80,7 +104,9 @@ class LegendItem extends StatelessWidget {
               Text(
                 CurrencyFormatter.format(value),
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: isOverBudget
+                      ? Colors.red.shade400
+                      : Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),

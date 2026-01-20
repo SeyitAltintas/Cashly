@@ -16,6 +16,7 @@ import '../widgets/recent_transactions_card.dart';
 import '../widgets/credit_debt_card.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
 import '../controllers/dashboard_controller.dart';
+import 'category_budget_detail_page.dart';
 
 /// Dashboard Sayfası
 /// Ana finansal özeti gösterir
@@ -30,6 +31,7 @@ class DashboardPage extends StatefulWidget {
   final DateTime secilenAy;
   final StreakData streakData;
   final List<Transfer> transferler;
+  final Map<String, double>? categoryBudgets;
 
   const DashboardPage({
     super.key,
@@ -42,6 +44,7 @@ class DashboardPage extends StatefulWidget {
     required this.secilenAy,
     required this.streakData,
     required this.transferler,
+    this.categoryBudgets,
   });
 
   @override
@@ -90,6 +93,10 @@ class _DashboardPageState extends State<DashboardPage> {
       secilenAy: widget.secilenAy,
       streakData: widget.streakData,
     );
+    // Kategori bütçelerini ayrıca set et (opsiyonel parametre)
+    if (widget.categoryBudgets != null) {
+      _controller.setCategoryBudgets(widget.categoryBudgets!);
+    }
   }
 
   @override
@@ -130,6 +137,21 @@ class _DashboardPageState extends State<DashboardPage> {
                     BudgetStatusCard(
                       monthlyExpense: controller.monthlyExpense,
                       butceLimiti: controller.butceLimiti,
+                      categoryBudgets: controller.categoryBudgets,
+                      categoryExpenses: controller.categoryExpenses,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CategoryBudgetDetailPage(
+                              categoryBudgets: controller.categoryBudgets,
+                              categoryExpenses: controller.categoryExpenses,
+                              totalBudget: controller.butceLimiti,
+                              totalExpense: controller.monthlyExpense,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 20),
 
