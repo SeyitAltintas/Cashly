@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../../../expenses/domain/repositories/expense_repository.dart';
 import '../../../income/domain/repositories/income_repository.dart';
 import '../../../assets/domain/repositories/asset_repository.dart';
@@ -10,6 +10,7 @@ import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
 import '../../../streak/data/models/streak_model.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/constants/icon_constants.dart';
 
 /// AnaSayfa için ChangeNotifier state yöneticisi
 /// Tüm veri state'lerini ve loading durumunu merkezi olarak yönetir
@@ -106,6 +107,22 @@ class HomePageState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Harcama kategori ikonları
+  Map<String, IconData> _kategoriIkonlari = {};
+  Map<String, IconData> get kategoriIkonlari => _kategoriIkonlari;
+  set kategoriIkonlari(Map<String, IconData> value) {
+    _kategoriIkonlari = value;
+    notifyListeners();
+  }
+
+  // Gelir kategori ikonları
+  Map<String, IconData> _gelirKategoriIkonlari = {};
+  Map<String, IconData> get gelirKategoriIkonlari => _gelirKategoriIkonlari;
+  set gelirKategoriIkonlari(Map<String, IconData> value) {
+    _gelirKategoriIkonlari = value;
+    notifyListeners();
+  }
+
   /// Tüm verileri yükler
   void loadData(String userId) {
     final expenseRepo = getIt<ExpenseRepository>();
@@ -118,6 +135,24 @@ class HomePageState extends ChangeNotifier {
     _tumHarcamalar = expenseRepo.getExpenses(userId);
     _butceLimiti = expenseRepo.getBudget(userId);
     _categoryBudgets = expenseRepo.getCategoryBudgets(userId);
+
+    // Harcama kategorilerini yükle
+    final harcamaKategorileri = expenseRepo.getCategories(userId);
+    _kategoriIkonlari = {};
+    for (var kategori in harcamaKategorileri) {
+      String isim = kategori['isim'];
+      String ikonAdi = kategori['ikon'];
+      _kategoriIkonlari[isim] = IconConstants.getHarcamaIkonu(ikonAdi);
+    }
+
+    // Gelir kategorilerini yükle
+    final gelirKategorileri = incomeRepo.getCategories(userId);
+    _gelirKategoriIkonlari = {};
+    for (var kategori in gelirKategorileri) {
+      String isim = kategori['isim'];
+      String ikonAdi = kategori['ikon'];
+      _gelirKategoriIkonlari[isim] = IconConstants.getGelirIkonu(ikonAdi);
+    }
 
     // Varlıklar
     final varlikVerileri = assetRepo.getAssets(userId);

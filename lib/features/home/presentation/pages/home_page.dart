@@ -68,28 +68,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   DateTime get secilenAy => _homeState.secilenAy;
   String? get varsayilanOdemeYontemiId => _homeState.varsayilanOdemeYontemiId;
   Map<String, double> get categoryBudgets => _homeState.categoryBudgets;
-
-  // Kategori ikonları
-  static const Map<String, IconData> kategoriIkonlari = {
-    'Yiyecek': Icons.restaurant,
-    'Ulaşım': Icons.directions_car,
-    'Eğlence': Icons.movie,
-    'Sağlık': Icons.local_hospital,
-    'Giyim': Icons.shopping_bag,
-    'Eğitim': Icons.school,
-    'Faturalar': Icons.receipt,
-    'Sabit Giderler': Icons.repeat,
-    'Diğer': Icons.category,
-  };
-
-  static const Map<String, IconData> gelirKategoriIkonlari = {
-    'Maaş': Icons.work,
-    'Freelance': Icons.laptop,
-    'Yatırım': Icons.trending_up,
-    'Kira': Icons.home,
-    'Hediye': Icons.card_giftcard,
-    'Diğer': Icons.attach_money,
-  };
+  Map<String, IconData> get kategoriIkonlari => _homeState.kategoriIkonlari;
+  Map<String, IconData> get gelirKategoriIkonlari =>
+      _homeState.gelirKategoriIkonlari;
 
   @override
   void initState() {

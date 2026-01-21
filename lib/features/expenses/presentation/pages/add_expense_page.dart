@@ -69,7 +69,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
   @override
   void initState() {
     super.initState();
-    _categoryIcons = widget.categories;
+    // "Tekrarlayan işlemler" kategorisini filtrele - bu kategori sadece otomatik tekrarlayan harcamalar için
+    _categoryIcons = Map.fromEntries(
+      widget.categories.entries.where(
+        (entry) => entry.key != 'Tekrarlayan işlemler',
+      ),
+    );
     _controller = widget.controller;
 
     // Controller varsa listener ekle
