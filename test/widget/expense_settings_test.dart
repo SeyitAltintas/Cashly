@@ -25,7 +25,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(DefaultPaymentSection), findsOneWidget);
-      expect(find.text('VARSAYILAN ÖDEME YÖNTEMİ'), findsOneWidget);
+      expect(find.text('Varsayılan Ödeme Yöntemi'), findsOneWidget);
       expect(find.byIcon(Icons.info_outline), findsOneWidget);
     });
 
@@ -56,7 +56,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(DefaultPaymentSection), findsOneWidget);
-      expect(find.byIcon(Icons.credit_card), findsOneWidget);
+      // Widget başlık ve dropdown satırında toplam 2 credit_card ikonu gösteriyor
+      expect(find.byIcon(Icons.credit_card), findsNWidgets(2));
     });
   });
 }
