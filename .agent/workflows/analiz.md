@@ -26,7 +26,7 @@ Projedeki mevcut özellikleri kategorilere ayırarak listele:
 - Tema ve stil yapısını incele
 
 ## 3. İyileştirme Önerileri Sun
-Aşağıdaki kategorilerde öneriler sun:
+Aşağıdaki kategorilerde öneriler sun: (zaten önceden yapılmış önerileri sunma)
 
 ### Kod Kalitesi
 - Refactoring gerektiren alanları tespit et
