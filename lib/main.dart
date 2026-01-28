@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/services/database_helper.dart';
 import 'core/services/haptic_service.dart';
 import 'core/services/image_cache_service.dart';
+import 'core/services/notification_service.dart';
 import 'features/streak/data/services/streak_service.dart';
 import 'features/auth/data/initialize_default_user.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
@@ -81,7 +82,7 @@ class CashlyApp extends StatefulWidget {
   State<CashlyApp> createState() => _CashlyAppState();
 }
 
-class _CashlyAppState extends State<CashlyApp> {
+class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
   AuthController? _authController;
   bool _isInitialized = false;
   String? _initError;
@@ -89,7 +90,21 @@ class _CashlyAppState extends State<CashlyApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializeApp();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Bildirim servisine uygulama durumunu bildir
+    final notificationService = getIt<NotificationService>();
+    notificationService.setAppInForeground(state == AppLifecycleState.resumed);
   }
 
   Future<void> _initializeApp() async {
@@ -108,6 +123,14 @@ class _CashlyAppState extends State<CashlyApp> {
 
       // Network durumu izleme servisini başlat
       await NetworkService().initialize();
+
+      // Bildirim servisini başlat
+      final notificationService = getIt<NotificationService>();
+      await notificationService.initialize();
+
+      // Bildirim tıklama navigasyonu ayarla
+      NotificationService.onNotificationNavigate =
+          _handleNotificationNavigation;
 
       // Varsayılan test kullanıcısını oluştur (geçici)
       await initializeDefaultUser();
@@ -133,6 +156,31 @@ class _CashlyAppState extends State<CashlyApp> {
               true; // Hata olsa bile initialized sayalım ki hata ekranını gösterebilelim
         });
       }
+    }
+  }
+
+  /// Bildirim tıklandığında navigasyon işlemlerini yönetir
+  void _handleNotificationNavigation(String payload) {
+    debugPrint('Handling notification navigation: $payload');
+
+    final context = AppRouter.navigatorKey.currentContext;
+    if (context == null) {
+      debugPrint('Navigator context bulunamadı');
+      return;
+    }
+
+    // Payload'a göre yönlendirme
+    if (payload == 'monthly_summary') {
+      // Aylık özet → Ana sayfaya git (raporlar için)
+      // Not: Bu uygulama tab-based, bu yüzden ana sayfaya yönlendiriyoruz
+      debugPrint('Monthly summary notification - navigating to home');
+      // Router zaten ana sayfada ise bir şey yapmaya gerek yok
+    } else if (payload.startsWith('recurring_')) {
+      // Tekrarlayan işlem bildirimi
+      final transactionId = payload.replaceFirst('recurring_', '');
+      debugPrint('Recurring transaction notification: $transactionId');
+      // Not: İşlem detay sayfası için transaction ID ile navigasyon
+      // Bu özellik gelecekte eklenebilir
     }
   }
 

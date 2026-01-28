@@ -22,6 +22,11 @@ import '../../features/settings/data/repositories/settings_repository_impl.dart'
 import '../data/repositories/category_repository_impl.dart';
 import '../data/repositories/recurring_repository_impl.dart';
 
+// Notification Services
+import '../services/notification_service.dart';
+import '../services/notification_scheduler.dart';
+import '../repositories/notification_settings_repository.dart';
+
 // Use Cases
 import '../domain/usecases/expense_usecases.dart';
 import '../domain/usecases/income_usecases.dart';
@@ -55,6 +60,21 @@ Future<void> initializeDependencies() async {
     return;
   }
   _dependenciesInitialized = true;
+
+  // ===== NOTIFICATION SERVICES =====
+
+  // Notification Settings Repository
+  getIt.registerLazySingleton<NotificationSettingsRepository>(
+    () => NotificationSettingsRepository(),
+  );
+
+  // Notification Service (singleton)
+  getIt.registerLazySingleton<NotificationService>(() => NotificationService());
+
+  // Notification Scheduler
+  getIt.registerLazySingleton<NotificationScheduler>(
+    () => NotificationScheduler(),
+  );
 
   // ===== REPOSITORIES =====
 

@@ -228,8 +228,9 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
             ),
           ),
 
-          // Seçilen Tarih/Saat Gösterimi (dateTime ve date modlarında)
-          if (widget.mode != PickerMode.monthYear)
+          // Seçilen Tarih/Saat Gösterimi (sadece dateTime ve date modlarında, time hariç)
+          if (widget.mode != PickerMode.monthYear &&
+              widget.mode != PickerMode.time)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
@@ -249,8 +250,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  if (widget.mode == PickerMode.dateTime ||
-                      widget.mode == PickerMode.time) ...[
+                  if (widget.mode == PickerMode.dateTime) ...[
                     Text(
                       '  •  ',
                       style: TextStyle(

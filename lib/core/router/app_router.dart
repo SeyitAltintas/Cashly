@@ -19,6 +19,10 @@ import 'route_names.dart';
 class AppRouter {
   final AuthController authController;
 
+  /// Global navigator key - notification ve diğer yerlerden erişim için
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
   AppRouter({required this.authController});
 
   /// Ana router yapılandırması

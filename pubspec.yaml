@@ -32,6 +32,8 @@ dependencies:
   get_it: ^7.6.7
   connectivity_plus: ^6.1.4
   go_router: ^14.8.1
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.9.4
 
 dev_dependencies:
   flutter_test:

@@ -5,6 +5,7 @@ import 'package:cashly/features/income/presentation/pages/income_settings_page.d
 import 'appearance_page.dart';
 import 'voice_assistant_page.dart';
 import 'haptic_settings_page.dart';
+import 'notification_settings_page.dart';
 import 'expense_settings_page.dart';
 import 'transfer_settings_page.dart';
 import '../state/main_settings_state.dart';
@@ -140,6 +141,19 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
               context,
               MaterialPageRoute(
                 builder: (context) => const HapticSettingsPage(),
+              ),
+            ),
+          ),
+          const SettingsDivider(),
+          SettingsTile(
+            icon: Icons.notifications_outlined,
+            iconColor: Colors.amber,
+            title: 'Bildirimler',
+            subtitle: 'Hatırlatıcılar ve uyarı bildirimleri',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NotificationSettingsPage(),
               ),
             ),
           ),
