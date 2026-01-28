@@ -1,5 +1,6 @@
 /// Bildirim tipleri ve modelleri
 /// Cashly uygulaması için yerel bildirim tanımlamaları
+library;
 
 /// Bildirim türlerini tanımlayan enum
 /// Sadece zamanlanabilir bildirimler (uygulama kapalıyken de çalışır)
@@ -12,6 +13,12 @@ enum NotificationType {
 
   /// Aylık finansal özet (ayın son günü)
   monthlySummary,
+
+  /// Seri kırılma uyarısı (22:00'de)
+  streakBreakWarning,
+
+  /// Haftalık mini özet (Pazar 18:00)
+  weeklyMiniSummary,
 }
 
 /// Bildirim ID'leri için sabitler
@@ -24,6 +31,12 @@ class NotificationIds {
 
   /// Aylık özet ID
   static const int monthlySummary = 1001;
+
+  /// Seri kırılma uyarısı ID
+  static const int streakBreakWarning = 1002;
+
+  /// Haftalık mini özet ID
+  static const int weeklyMiniSummary = 1003;
 
   /// Tekrarlayan işlem hatırlatıcıları için başlangıç ID
   static const int recurringReminderBase = 4000;
@@ -40,7 +53,11 @@ class NotificationChannels {
 
   static const String summaryId = 'summary';
   static const String summaryName = 'Özetler';
-  static const String summaryDesc = 'Aylık finansal özetler';
+  static const String summaryDesc = 'Aylık ve haftalık finansal özetler';
+
+  static const String warningsId = 'warnings';
+  static const String warningsName = 'Uyarılar';
+  static const String warningsDesc = 'Seri kırılma ve bütçe uyarıları';
 }
 
 /// Bildirim ayarları modeli
@@ -53,6 +70,12 @@ class NotificationSettings {
 
   /// Aylık özet aktif mi
   final bool monthlySummaryEnabled;
+
+  /// Seri kırılma uyarısı aktif mi
+  final bool streakBreakWarningEnabled;
+
+  /// Haftalık mini özet aktif mi
+  final bool weeklyMiniSummaryEnabled;
 
   /// Seri hatırlatıcı saati (saat)
   final int streakReminderHour;
@@ -70,6 +93,8 @@ class NotificationSettings {
     this.recurringReminderEnabled = true,
     this.streakReminderEnabled = true,
     this.monthlySummaryEnabled = true,
+    this.streakBreakWarningEnabled = true,
+    this.weeklyMiniSummaryEnabled = true,
     this.streakReminderHour = 20,
     this.streakReminderMinute = 0,
     this.monthlySummaryHour = 10,
@@ -85,15 +110,13 @@ class NotificationSettings {
       recurringReminderEnabled: map['recurringReminderEnabled'] ?? true,
       streakReminderEnabled: map['streakReminderEnabled'] ?? true,
       monthlySummaryEnabled:
-          map['monthlySummaryEnabled'] ??
-          map['weeklySummaryEnabled'] ??
-          true, // Geriye uyumluluk
+          map['monthlySummaryEnabled'] ?? map['weeklySummaryEnabled'] ?? true,
+      streakBreakWarningEnabled: map['streakBreakWarningEnabled'] ?? true,
+      weeklyMiniSummaryEnabled: map['weeklyMiniSummaryEnabled'] ?? true,
       streakReminderHour: map['streakReminderHour'] ?? 20,
       streakReminderMinute: map['streakReminderMinute'] ?? 0,
       monthlySummaryHour:
-          map['monthlySummaryHour'] ??
-          map['weeklySummaryHour'] ??
-          10, // Geriye uyumluluk
+          map['monthlySummaryHour'] ?? map['weeklySummaryHour'] ?? 10,
       monthlySummaryMinute: map['monthlySummaryMinute'] ?? 0,
     );
   }
@@ -104,6 +127,8 @@ class NotificationSettings {
       'recurringReminderEnabled': recurringReminderEnabled,
       'streakReminderEnabled': streakReminderEnabled,
       'monthlySummaryEnabled': monthlySummaryEnabled,
+      'streakBreakWarningEnabled': streakBreakWarningEnabled,
+      'weeklyMiniSummaryEnabled': weeklyMiniSummaryEnabled,
       'streakReminderHour': streakReminderHour,
       'streakReminderMinute': streakReminderMinute,
       'monthlySummaryHour': monthlySummaryHour,
@@ -116,6 +141,8 @@ class NotificationSettings {
     bool? recurringReminderEnabled,
     bool? streakReminderEnabled,
     bool? monthlySummaryEnabled,
+    bool? streakBreakWarningEnabled,
+    bool? weeklyMiniSummaryEnabled,
     int? streakReminderHour,
     int? streakReminderMinute,
     int? monthlySummaryHour,
@@ -128,6 +155,10 @@ class NotificationSettings {
           streakReminderEnabled ?? this.streakReminderEnabled,
       monthlySummaryEnabled:
           monthlySummaryEnabled ?? this.monthlySummaryEnabled,
+      streakBreakWarningEnabled:
+          streakBreakWarningEnabled ?? this.streakBreakWarningEnabled,
+      weeklyMiniSummaryEnabled:
+          weeklyMiniSummaryEnabled ?? this.weeklyMiniSummaryEnabled,
       streakReminderHour: streakReminderHour ?? this.streakReminderHour,
       streakReminderMinute: streakReminderMinute ?? this.streakReminderMinute,
       monthlySummaryHour: monthlySummaryHour ?? this.monthlySummaryHour,

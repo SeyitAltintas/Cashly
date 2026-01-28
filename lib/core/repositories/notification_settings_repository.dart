@@ -53,6 +53,12 @@ class NotificationSettingsRepository {
   /// Aylık özet aktif mi
   bool isMonthlySummaryEnabled() => getSettings().monthlySummaryEnabled;
 
+  /// Seri kırılma uyarısı aktif mi
+  bool isStreakBreakWarningEnabled() => getSettings().streakBreakWarningEnabled;
+
+  /// Haftalık mini özet aktif mi
+  bool isWeeklyMiniSummaryEnabled() => getSettings().weeklyMiniSummaryEnabled;
+
   /// Seri hatırlatıcı saatini getir
   (int hour, int minute) getStreakReminderTime() {
     final settings = getSettings();

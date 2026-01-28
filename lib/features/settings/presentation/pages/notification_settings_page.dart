@@ -82,8 +82,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   Future<void> _sendTestRecurringReminder() async {
     await _notificationService.showInstantNotification(
       id: 9001,
-      title: '🔔 Yarın Ödeme Günü',
-      body: 'Elektrik Faturası: ₺250.00',
+      title: '💸 Ödeme Yaklaşıyor',
+      body: 'Elektrik Faturası için ₺250.00 ödemeniz yarın.',
       type: NotificationType.recurringReminder,
       showWhenInForeground: true,
     );
@@ -96,8 +96,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   Future<void> _sendTestStreakReminder() async {
     await _notificationService.showInstantNotification(
       id: 9002,
-      title: '📊 Günlük Hatırlatma',
-      body: 'Bugün henüz gelir veya gider girmediniz. Serinizi koruyun!',
+      title: '🔥 Serinizi Koruyun!',
+      body: 'Bugün henüz işlem girmediniz. 15 günlük serinizi kaybetmeyin!',
       type: NotificationType.streakReminder,
       showWhenInForeground: true,
     );
@@ -107,8 +107,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   Future<void> _sendTestMonthlySummary() async {
     await _notificationService.showInstantNotification(
       id: 9003,
-      title: '📈 Aylık Özet',
-      body: 'Bu ayki finansal durumunuzu görüntülemek için tıklayın.',
+      title: '📊 Aylık Özet Hazır',
+      body: 'Bu ay ₺4.250 harcadınız. Detaylar için tıklayın.',
       type: NotificationType.monthlySummary,
       showWhenInForeground: true,
     );
@@ -303,7 +303,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         children: [
           _buildScenarioTile(
             context,
-            icon: Icons.replay_rounded,
+            icon: Icons.event_repeat_rounded,
             iconColor: Colors.blue,
             title: "Tekrarlayan İşlem Hatırlatıcı",
             subtitle: "Ödeme/fatura gününden 1 gün önce",
@@ -326,6 +326,18 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           _buildDivider(context),
           _buildScenarioTile(
             context,
+            icon: Icons.crisis_alert_rounded,
+            iconColor: Colors.red,
+            title: "Son Şans Uyarısı",
+            subtitle: "Her gün 22:00 - seri kırılma riski",
+            value: _settings.streakBreakWarningEnabled,
+            onChanged: (v) => _updateSettings(
+              _settings.copyWith(streakBreakWarningEnabled: v),
+            ),
+          ),
+          _buildDivider(context),
+          _buildScenarioTile(
+            context,
             icon: Icons.bar_chart_rounded,
             iconColor: Colors.purple,
             title: "Aylık Özet",
@@ -333,6 +345,18 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             value: _settings.monthlySummaryEnabled,
             onChanged: (v) =>
                 _updateSettings(_settings.copyWith(monthlySummaryEnabled: v)),
+          ),
+          _buildDivider(context),
+          _buildScenarioTile(
+            context,
+            icon: Icons.date_range_rounded,
+            iconColor: Colors.teal,
+            title: "Haftalık Rapor",
+            subtitle: "Her Pazar 18:00 - en çok harcama kategorisi",
+            value: _settings.weeklyMiniSummaryEnabled,
+            onChanged: (v) => _updateSettings(
+              _settings.copyWith(weeklyMiniSummaryEnabled: v),
+            ),
           ),
         ],
       ),
@@ -458,6 +482,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         ),
       ),
       trailing: Container(
+        width: 70,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: iconColor.withValues(alpha: enabled ? 0.1 : 0.05),
@@ -465,9 +490,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         ),
         child: Text(
           timeStr,
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: enabled ? iconColor : Colors.grey,
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -517,6 +543,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         ),
       ),
       trailing: Container(
+        width: 70,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: iconColor.withValues(alpha: enabled ? 0.1 : 0.05),
@@ -524,9 +551,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         ),
         child: Text(
           timeStr,
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: enabled ? iconColor : Colors.grey,
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -550,7 +578,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         children: [
           _buildTestButtonTile(
             context,
-            icon: Icons.replay_rounded,
+            icon: Icons.event_repeat_rounded,
             iconColor: Colors.blue,
             title: "Tekrarlayan İşlem Testi",
             subtitle: "Örnek fatura hatırlatıcısı bildirimi",
@@ -561,9 +589,18 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             context,
             icon: Icons.local_fire_department_rounded,
             iconColor: Colors.orange,
-            title: "Streak Testi",
+            title: "Seri Hatırlatıcı Testi",
             subtitle: "Günlük hatırlatma bildirimi",
             onTap: _sendTestStreakReminder,
+          ),
+          _buildDivider(context),
+          _buildTestButtonTile(
+            context,
+            icon: Icons.crisis_alert_rounded,
+            iconColor: Colors.red,
+            title: "Son Şans Uyarısı Testi",
+            subtitle: "Acil uyarı bildirimi",
+            onTap: _sendTestStreakBreakWarning,
           ),
           _buildDivider(context),
           _buildTestButtonTile(
@@ -573,6 +610,15 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             title: "Aylık Özet Testi",
             subtitle: "Finansal özet bildirimi",
             onTap: _sendTestMonthlySummary,
+          ),
+          _buildDivider(context),
+          _buildTestButtonTile(
+            context,
+            icon: Icons.date_range_rounded,
+            iconColor: Colors.teal,
+            title: "Haftalık Rapor Testi",
+            subtitle: "Kategori özet bildirimi",
+            onTap: _sendTestWeeklyMiniSummary,
           ),
         ],
       ),
@@ -685,5 +731,27 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         ),
       );
     }
+  }
+
+  void _sendTestStreakBreakWarning() {
+    _notificationService.showInstantNotification(
+      id: 9004,
+      title: '🚨 Son Şans!',
+      body: 'Seriniz kırılmak üzere! Bugün işlem girmeyi unutmayın.',
+      type: NotificationType.streakBreakWarning,
+      showWhenInForeground: true,
+    );
+    _showSnackBar('Son şans uyarısı gönderildi', Colors.red);
+  }
+
+  void _sendTestWeeklyMiniSummary() {
+    _notificationService.showInstantNotification(
+      id: 9005,
+      title: '🗓️ Haftalık Rapor',
+      body: 'Bu hafta en çok Yemek kategorisine ₺850 harcadınız.',
+      type: NotificationType.weeklyMiniSummary,
+      showWhenInForeground: true,
+    );
+    _showSnackBar('Haftalık rapor gönderildi', Colors.teal);
   }
 }

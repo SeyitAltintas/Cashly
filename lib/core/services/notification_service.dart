@@ -416,7 +416,10 @@ class NotificationService {
       case NotificationType.streakReminder:
         return NotificationChannels.remindersId;
       case NotificationType.monthlySummary:
+      case NotificationType.weeklyMiniSummary:
         return NotificationChannels.summaryId;
+      case NotificationType.streakBreakWarning:
+        return NotificationChannels.warningsId;
     }
   }
 
@@ -426,7 +429,10 @@ class NotificationService {
       case NotificationType.streakReminder:
         return NotificationChannels.remindersName;
       case NotificationType.monthlySummary:
+      case NotificationType.weeklyMiniSummary:
         return NotificationChannels.summaryName;
+      case NotificationType.streakBreakWarning:
+        return NotificationChannels.warningsName;
     }
   }
 
@@ -436,7 +442,10 @@ class NotificationService {
       case NotificationType.streakReminder:
         return NotificationChannels.remindersDesc;
       case NotificationType.monthlySummary:
+      case NotificationType.weeklyMiniSummary:
         return NotificationChannels.summaryDesc;
+      case NotificationType.streakBreakWarning:
+        return NotificationChannels.warningsDesc;
     }
   }
 
@@ -446,7 +455,10 @@ class NotificationService {
         return Importance.defaultImportance;
       case NotificationType.streakReminder:
       case NotificationType.monthlySummary:
+      case NotificationType.weeklyMiniSummary:
         return Importance.low;
+      case NotificationType.streakBreakWarning:
+        return Importance.high; // Uyarılar için yüksek öncelik
     }
   }
 
@@ -462,6 +474,10 @@ class NotificationService {
         return settingsRepo.isStreakReminderEnabled();
       case NotificationType.monthlySummary:
         return settingsRepo.isMonthlySummaryEnabled();
+      case NotificationType.streakBreakWarning:
+        return settingsRepo.isStreakBreakWarningEnabled();
+      case NotificationType.weeklyMiniSummary:
+        return settingsRepo.isWeeklyMiniSummaryEnabled();
     }
   }
 }
