@@ -917,7 +917,20 @@
                 "week_streak",
                 "two_week_streak"
             ],
-            "startDate": "2025-10-01T00:00:00.000"
+            "startDate": "2025-10-01T00:00:00.000",
+            "freezeCount": 2,
+            "usedFreezeToday": false,
+            "totalFreezesUsed": 1
+        },
+        "notificationSettings": {
+            "recurringReminderEnabled": true,
+            "streakReminderEnabled": true,
+            "streakReminderHour": 20,
+            "streakReminderMinute": 0,
+            "monthlySummaryEnabled": true,
+            "monthlySummaryHour": 18,
+            "streakBreakWarningEnabled": true,
+            "weeklyMiniSummaryEnabled": true
         },
         "onboardingComplete": true,
         "voiceFeedbackEnabled": true,
