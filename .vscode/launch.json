@@ -26,14 +26,6 @@
             "cwd": "${workspaceFolder}"
         },
         {
-            "name": "cashly (Burağın Telefon)",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "deviceId": "R58M62S4AYR",
-            "cwd": "${workspaceFolder}"
-        },
-        {
             "name": "cashly (Emulator)",
             "request": "launch",
             "type": "dart",

@@ -6,6 +6,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../di/injection_container.dart';
+import '../domain/notification_types.dart';
+import '../repositories/notification_settings_repository.dart';
 import '../../features/expenses/domain/repositories/expense_repository.dart';
 import '../../features/income/domain/repositories/income_repository.dart';
 import '../../features/assets/domain/repositories/asset_repository.dart';
@@ -18,7 +20,7 @@ import '../../features/streak/data/models/streak_model.dart';
 
 /// Veri Yedekleme ve Geri Yükleme Servisi
 /// Hive verilerini JSON olarak dışa/içe aktarır
-/// Versiyon 1.3: Transfer modelinde yeni alanlar (isScheduled, isExecuted, isFailed) eklendi
+/// Versiyon 1.4: Bildirim ayarları (notificationSettings) eklendi
 class BackupService {
   BackupService._();
 
@@ -40,8 +42,12 @@ class BackupService {
       final streakData = streakRepo.getStreakData(userId);
 
       // Tüm verileri topla
+      // Bildirim ayarlarını al
+      final notificationSettingsRepo = getIt<NotificationSettingsRepository>();
+      final notificationSettings = notificationSettingsRepo.getSettings();
+
       final data = {
-        'version': '1.3',
+        'version': '1.4',
         'exportDate': DateTime.now().toIso8601String(),
         'userId': userId,
         'data': {
@@ -90,11 +96,13 @@ class BackupService {
             HapticService.keyError,
             defaultValue: true,
           ),
-          // Yeni: Haptic kutlama ayarı
+          // Haptic kutlama ayarı
           'hapticCelebration': hapticBox.get(
             HapticService.keyCelebration,
             defaultValue: true,
           ),
+          // Bildirim ayarları (v1.4)
+          'notificationSettings': notificationSettings.toMap(),
         },
       };
 
@@ -156,12 +164,13 @@ class BackupService {
 
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      // Versiyon kontrolü (1.0, 1.1 ve 1.2 desteklenir)
+      // Versiyon kontrolü (1.0 - 1.4 desteklenir)
       final version = data['version'] as String?;
       if (version != '1.0' &&
           version != '1.1' &&
           version != '1.2' &&
-          version != '1.3') {
+          version != '1.3' &&
+          version != '1.4') {
         return BackupResult(
           success: false,
           message: 'Desteklenmeyen yedek versiyonu',
@@ -336,6 +345,20 @@ class BackupService {
             HapticService.keyCelebration,
             settings['hapticCelebration'],
           );
+        }
+
+        // Bildirim ayarlarını geri yükle (v1.4)
+        if (settings['notificationSettings'] != null) {
+          final notificationSettingsRepo =
+              getIt<NotificationSettingsRepository>();
+          await notificationSettingsRepo.init();
+          final notificationMap = Map<String, dynamic>.from(
+            settings['notificationSettings'],
+          );
+          final notificationSettings = NotificationSettings.fromMap(
+            notificationMap,
+          );
+          await notificationSettingsRepo.saveSettings(notificationSettings);
         }
       }
 

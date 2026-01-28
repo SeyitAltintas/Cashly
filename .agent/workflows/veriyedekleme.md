@@ -26,6 +26,7 @@ Bu workflow, BackupService'in güncel durumunu analiz eder ve yedeklenmesi gerek
 - Kullanıcı tercihleri (ayarlar)
 - Uygulama verileri (finansal veriler)
 - Özelleştirmeler (kategoriler, temalar)
+- cashly_test_backup.json dosyasındaki alanlar ile backup_service dosyasındaki bilgiler uyumlu mu kontrol et
 
 ### 4. Kaldırılacak Yedeklemeleri Tespit Et
 - BackupService'te yedeklenen ama artık kullanılmayan verileri tespit et

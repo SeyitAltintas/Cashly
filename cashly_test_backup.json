@@ -929,6 +929,7 @@
             "streakReminderMinute": 0,
             "monthlySummaryEnabled": true,
             "monthlySummaryHour": 18,
+            "monthlySummaryMinute": 0,
             "streakBreakWarningEnabled": true,
             "weeklyMiniSummaryEnabled": true
         },
