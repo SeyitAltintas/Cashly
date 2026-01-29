@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../../../../features/assets/data/models/asset_model.dart';
 import 'price_service.dart';
 
@@ -35,18 +34,13 @@ class AssetPriceUpdateService {
             lastUpdated: DateTime.now(),
           );
           updatedAssets.add(updatedAsset);
-          debugPrint(
-            'Varlık güncellendi: ${asset.name} - Eski: ${asset.amount.toStringAsFixed(2)} TL -> Yeni: ${newAmount.toStringAsFixed(2)} TL',
-          );
         } else {
           // Fiyat alınamadıysa mevcut değeri koru
           updatedAssets.add(asset);
-          debugPrint('Fiyat alınamadı: ${asset.name}, mevcut değer korunuyor');
         }
       } catch (e) {
         // Hata durumunda mevcut değeri koru
         updatedAssets.add(asset);
-        debugPrint('Fiyat güncelleme hatası (${asset.name}): $e');
       }
     }
 

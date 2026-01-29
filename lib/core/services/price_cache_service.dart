@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter/foundation.dart';
 
 /// Fiyat verilerini cache'leyen servis
 /// API başarısız olduğunda son başarılı değerleri döndürür
@@ -16,13 +15,11 @@ class PriceCacheService {
   Future<void> init() async {
     if (_box != null && _box!.isOpen) return;
     _box = await Hive.openBox(_boxName);
-    debugPrint('PriceCacheService: Cache başlatıldı');
   }
 
   /// Fiyatı cache'e kaydet
   Future<void> cachePrice(String key, double price) async {
     if (_box == null || !_box!.isOpen) {
-      debugPrint('PriceCacheService: Box açık değil, cache atlanıyor');
       return;
     }
 
@@ -30,7 +27,6 @@ class PriceCacheService {
       'price': price,
       'updatedAt': DateTime.now().millisecondsSinceEpoch,
     });
-    debugPrint('PriceCacheService: $key = $price cache\'lendi');
   }
 
   /// Cache'ten fiyat oku
@@ -41,7 +37,6 @@ class PriceCacheService {
     if (data != null && data is Map) {
       final price = data['price'];
       if (price is double) {
-        debugPrint('PriceCacheService: $key = $price cache\'ten okundu');
         return price;
       }
     }
@@ -70,7 +65,6 @@ class PriceCacheService {
   Future<void> clearCache() async {
     if (_box != null && _box!.isOpen) {
       await _box!.clear();
-      debugPrint('PriceCacheService: Cache temizlendi');
     }
   }
 

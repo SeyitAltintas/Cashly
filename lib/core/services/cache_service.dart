@@ -21,11 +21,9 @@ class CacheService {
     // Süresi dolmuş mu kontrol et
     if (entry.isExpired) {
       _cache.remove(key);
-      debugPrint('Cache expired: $key');
       return null;
     }
 
-    debugPrint('Cache hit: $key');
     return entry.value as T?;
   }
 
@@ -38,13 +36,11 @@ class CacheService {
       value: value,
       expiresAt: DateTime.now().add(ttl ?? defaultTtl),
     );
-    debugPrint('Cache set: $key (TTL: ${ttl ?? defaultTtl})');
   }
 
   /// Belirli bir anahtarı cache'den siler
   static void invalidate(String key) {
     _cache.remove(key);
-    debugPrint('Cache invalidated: $key');
   }
 
   /// Belirli bir prefix ile başlayan tüm anahtarları siler
@@ -55,15 +51,11 @@ class CacheService {
     for (final key in keysToRemove) {
       _cache.remove(key);
     }
-    debugPrint(
-      'Cache invalidated by prefix: $prefix (${keysToRemove.length} entries)',
-    );
   }
 
   /// Tüm cache'i temizler
   static void clear() {
     _cache.clear();
-    debugPrint('Cache cleared');
   }
 
   /// Cache içeriğini debug için gösterir

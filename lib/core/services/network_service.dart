@@ -69,14 +69,10 @@ class NetworkService extends ChangeNotifier {
       _subscription = _connectivity.onConnectivityChanged.listen(
         _updateStatus,
         onError: (error) {
-          debugPrint('NetworkService: Bağlantı dinleme hatası: $error');
           _setStatus(NetworkStatus.unknown);
         },
       );
-
-      debugPrint('NetworkService: Başlatıldı - Durum: $_status');
     } catch (e) {
-      debugPrint('NetworkService: Başlatma hatası: $e');
       _setStatus(NetworkStatus.unknown);
     }
   }
@@ -91,10 +87,6 @@ class NetworkService extends ChangeNotifier {
       // WiFi, Mobile, Ethernet, VPN, Bluetooth, Other hepsi online sayılır
       _setStatus(NetworkStatus.online);
     }
-
-    debugPrint(
-      'NetworkService: Bağlantı değişti - Durum: $_status, Türler: $results',
-    );
   }
 
   /// Durumu günceller ve dinleyicilere bildirir
@@ -113,7 +105,6 @@ class NetworkService extends ChangeNotifier {
       _updateStatus(results);
       return _status;
     } catch (e) {
-      debugPrint('NetworkService: Bağlantı kontrolü hatası: $e');
       return NetworkStatus.unknown;
     }
   }

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../domain/entities/user_entity.dart';
 import 'repositories/auth_repository_impl.dart';
 
@@ -31,9 +30,6 @@ Future<void> initializeDefaultUser() async {
 
       // Kullanıcıyı kaydet
       await authRepository.registerUser(defaultUser);
-      debugPrint(
-        '✓ Varsayılan test kullanıcısı oluşturuldu: ${defaultUser.name}',
-      );
     } else {
       // Kullanıcı mevcut, güvenlik sorusu eksik mi kontrol et
       final existingUser = allUsers.firstWhere(
@@ -55,13 +51,9 @@ Future<void> initializeDefaultUser() async {
           securityAnswer: 'pamuk', // Cevap normalize edilmiş halde (küçük harf)
         );
         await authRepository.updateUser(updatedUser);
-        debugPrint('✓ Varsayılan test kullanıcısının güvenlik sorusu eklendi');
-      } else {
-        debugPrint('✓ Varsayılan test kullanıcısı zaten mevcut');
       }
     }
   } catch (e) {
-    debugPrint('⚠ Varsayılan kullanıcı oluşturma hatası: $e');
     // Hata olsa bile uygulamayı çalıştırmaya devam et
   }
 }

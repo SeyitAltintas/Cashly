@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
 import 'price_cache_service.dart';
 
 /// Fiyat API servisi - Döviz, kripto, altın ve gümüş fiyatlarını çeker
@@ -22,7 +21,7 @@ class PriceService {
         return json.decode(response.body);
       }
     } catch (e) {
-      debugPrint('Truncgil API hatası: $e');
+      // API hatası - cache'ten okunacak
     }
     return null;
   }
@@ -45,7 +44,6 @@ class PriceService {
 
       return double.tryParse(priceStr);
     } catch (e) {
-      debugPrint('Parse hatası ($value): $e');
       return null;
     }
   }
@@ -70,9 +68,6 @@ class PriceService {
 
     // API başarısız - cache'ten oku
     final cachedPrice = _cache.getCachedPrice(cacheKey);
-    if (cachedPrice != null) {
-      debugPrint('Offline fallback: $currencyCode cache\'ten okunuyor');
-    }
     return cachedPrice;
   }
 
@@ -96,14 +91,11 @@ class PriceService {
         }
       }
     } catch (e) {
-      debugPrint('Kripto hatası ($id): $e');
+      // API hatası - cache'ten okunacak
     }
 
     // API başarısız - cache'ten oku
     final cachedPrice = _cache.getCachedPrice(cacheKey);
-    if (cachedPrice != null) {
-      debugPrint('Offline fallback: $id cache\'ten okunuyor');
-    }
     return cachedPrice;
   }
 
@@ -152,9 +144,6 @@ class PriceService {
 
     // API başarısız - cache'ten oku
     final cachedPrice = _cache.getCachedPrice(cacheKey);
-    if (cachedPrice != null) {
-      debugPrint('Offline fallback: Altın ($type) cache\'ten okunuyor');
-    }
     return cachedPrice;
   }
 
@@ -183,9 +172,6 @@ class PriceService {
 
     // API başarısız - cache'ten oku
     final cachedPrice = _cache.getCachedPrice(cacheKey);
-    if (cachedPrice != null) {
-      debugPrint('Offline fallback: Gümüş ($type) cache\'ten okunuyor');
-    }
     return cachedPrice;
   }
 
