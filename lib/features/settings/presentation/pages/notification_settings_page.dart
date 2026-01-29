@@ -93,42 +93,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
     );
   }
 
-  Future<void> _sendTestRecurringReminder() async {
-    await _notificationService.showInstantNotification(
-      id: 9001,
-      title: '💸 Ödeme Yaklaşıyor',
-      body: 'Elektrik Faturası için ₺250.00 ödemeniz yarın.',
-      type: NotificationType.recurringReminder,
-      showWhenInForeground: true,
-    );
-    _showSnackBar(
-      'Tekrarlayan işlem hatırlatıcı testi gönderildi',
-      Colors.blue,
-    );
-  }
-
-  Future<void> _sendTestStreakReminder() async {
-    await _notificationService.showInstantNotification(
-      id: 9002,
-      title: '🔥 Serinizi Koruyun!',
-      body: 'Bugün henüz işlem girmediniz. 15 günlük serinizi kaybetmeyin!',
-      type: NotificationType.streakReminder,
-      showWhenInForeground: true,
-    );
-    _showSnackBar('Seri hatırlatıcı testi gönderildi', Colors.orange);
-  }
-
-  Future<void> _sendTestMonthlySummary() async {
-    await _notificationService.showInstantNotification(
-      id: 9003,
-      title: '📊 Aylık Özet Hazır',
-      body: 'Bu ay ₺4.250 harcadınız. Detaylar için tıklayın.',
-      type: NotificationType.monthlySummary,
-      showWhenInForeground: true,
-    );
-    _showSnackBar('Aylık özet testi gönderildi', Colors.purple);
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -168,12 +132,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           _buildSectionTitle(context, 'Zamanlama Ayarları'),
           const SizedBox(height: 12),
           _buildScheduleSettings(context),
-          const SizedBox(height: 24),
-
-          // Test butonları
-          if (_hasPermission) _buildSectionTitle(context, 'Bildirim Testleri'),
-          if (_hasPermission) const SizedBox(height: 12),
-          if (_hasPermission) _buildTestButtons(context),
         ],
       ),
     );
@@ -613,113 +571,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
     );
   }
 
-  Widget _buildTestButtons(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.08),
-        ),
-      ),
-      child: Column(
-        children: [
-          _buildTestButtonTile(
-            context,
-            icon: Icons.event_repeat_rounded,
-            iconColor: Colors.blue,
-            title: "Tekrarlayan İşlem Testi",
-            subtitle: "Örnek fatura hatırlatıcısı bildirimi",
-            onTap: _sendTestRecurringReminder,
-          ),
-          _buildDivider(context),
-          _buildTestButtonTile(
-            context,
-            icon: Icons.local_fire_department_rounded,
-            iconColor: Colors.orange,
-            title: "Seri Hatırlatıcı Testi",
-            subtitle: "Günlük hatırlatma bildirimi",
-            onTap: _sendTestStreakReminder,
-          ),
-          _buildDivider(context),
-          _buildTestButtonTile(
-            context,
-            icon: Icons.crisis_alert_rounded,
-            iconColor: Colors.red,
-            title: "Son Şans Uyarısı Testi",
-            subtitle: "Acil uyarı bildirimi",
-            onTap: _sendTestStreakBreakWarning,
-          ),
-          _buildDivider(context),
-          _buildTestButtonTile(
-            context,
-            icon: Icons.bar_chart_rounded,
-            iconColor: Colors.purple,
-            title: "Aylık Özet Testi",
-            subtitle: "Finansal özet bildirimi",
-            onTap: _sendTestMonthlySummary,
-          ),
-          _buildDivider(context),
-          _buildTestButtonTile(
-            context,
-            icon: Icons.date_range_rounded,
-            iconColor: Colors.teal,
-            title: "Haftalık Rapor Testi",
-            subtitle: "Kategori özet bildirimi",
-            onTap: _sendTestWeeklyMiniSummary,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTestButtonTile(
-    BuildContext context, {
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: iconColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: iconColor, size: 22),
-      ),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface,
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-          fontSize: 12,
-        ),
-      ),
-      trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: iconColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(Icons.send_rounded, color: iconColor, size: 18),
-      ),
-      onTap: onTap,
-    );
-  }
-
   Widget _buildDivider(BuildContext context) {
     return Divider(
       height: 1,
@@ -781,27 +632,5 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
         ),
       );
     }
-  }
-
-  void _sendTestStreakBreakWarning() {
-    _notificationService.showInstantNotification(
-      id: 9004,
-      title: '🚨 Son Şans!',
-      body: 'Seriniz kırılmak üzere! Bugün işlem girmeyi unutmayın.',
-      type: NotificationType.streakBreakWarning,
-      showWhenInForeground: true,
-    );
-    _showSnackBar('Son şans uyarısı gönderildi', Colors.red);
-  }
-
-  void _sendTestWeeklyMiniSummary() {
-    _notificationService.showInstantNotification(
-      id: 9005,
-      title: '🗓️ Haftalık Rapor',
-      body: 'Bu hafta en çok Yemek kategorisine ₺850 harcadınız.',
-      type: NotificationType.weeklyMiniSummary,
-      showWhenInForeground: true,
-    );
-    _showSnackBar('Haftalık rapor gönderildi', Colors.teal);
   }
 }
