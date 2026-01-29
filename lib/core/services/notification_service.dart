@@ -5,8 +5,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
 import '../domain/notification_types.dart';
+import '../domain/notification_exception.dart';
 import '../repositories/notification_settings_repository.dart';
 import '../di/injection_container.dart';
+import '../utils/notification_logger.dart';
 
 /// Ana bildirim servisi
 /// Platform konfigürasyonu, izin yönetimi ve bildirim gönderme işlemlerini yönetir
@@ -44,36 +46,45 @@ class NotificationService {
   Future<void> initialize() async {
     if (_isInitialized) return;
 
-    // Timezone verilerini yükle
-    _ensureTimezoneInitialized();
+    try {
+      // Timezone verilerini yükle
+      _ensureTimezoneInitialized();
 
-    // Android ayarları
-    const androidSettings = AndroidInitializationSettings(
-      '@mipmap/launcher_icon',
-    );
+      // Android ayarları
+      const androidSettings = AndroidInitializationSettings(
+        '@mipmap/launcher_icon',
+      );
 
-    // iOS ayarları
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: false,
-      requestBadgePermission: false,
-      requestSoundPermission: false,
-    );
+      // iOS ayarları
+      const iosSettings = DarwinInitializationSettings(
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+      );
 
-    const initSettings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
+      const initSettings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
 
-    await _notificationsPlugin.initialize(
-      initSettings,
-      onDidReceiveNotificationResponse: _onNotificationTapped,
-    );
+      await _notificationsPlugin.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: _onNotificationTapped,
+      );
 
-    // Android bildirim kanallarını oluştur
-    await _createNotificationChannels();
+      // Android bildirim kanallarını oluştur
+      await _createNotificationChannels();
 
-    _isInitialized = true;
-    debugPrint('NotificationService initialized');
+      _isInitialized = true;
+      notificationLogger.info('NotificationService initialized successfully');
+    } catch (e, stackTrace) {
+      notificationLogger.error(
+        'Failed to initialize NotificationService',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 
   /// Bildirim kanallarını oluştur (Android)
@@ -188,40 +199,73 @@ class NotificationService {
   }) async {
     // Uygulama ön plandayken bildirim gösterme (kullanıcı isteği)
     if (_isAppInForeground && !showWhenInForeground) {
-      debugPrint('Bildirim engellendi: Uygulama ön planda');
+      notificationLogger.debug(
+        'Bildirim engellendi: Uygulama ön planda',
+        data: {'id': id},
+      );
       return;
     }
 
     // Ayarlardan kontrol et
     final settingsRepo = getIt<NotificationSettingsRepository>();
     if (!_isNotificationTypeEnabled(type, settingsRepo)) {
-      debugPrint('Bildirim engellendi: $type devre dışı');
+      notificationLogger.debug(
+        'Bildirim engellendi: $type devre dışı',
+        data: {'id': id, 'type': type.name},
+      );
       return;
     }
 
-    final channelId = _getChannelIdForType(type);
+    try {
+      final channelId = _getChannelIdForType(type);
 
-    final androidDetails = AndroidNotificationDetails(
-      channelId,
-      _getChannelNameForType(type),
-      channelDescription: _getChannelDescForType(type),
-      importance: _getImportanceForType(type),
-      priority: Priority.high,
-      icon: '@mipmap/launcher_icon',
-    );
+      final androidDetails = AndroidNotificationDetails(
+        channelId,
+        _getChannelNameForType(type),
+        channelDescription: _getChannelDescForType(type),
+        importance: _getImportanceForType(type),
+        priority: Priority.high,
+        icon: '@mipmap/launcher_icon',
+      );
 
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
+      const iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
 
-    final details = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
+      final details = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
 
-    await _notificationsPlugin.show(id, title, body, details, payload: payload);
+      await _notificationsPlugin.show(
+        id,
+        title,
+        body,
+        details,
+        payload: payload,
+      );
+
+      notificationLogger.logOperation(
+        operation: 'showInstant',
+        notificationId: id,
+        notificationType: type.name,
+        success: true,
+      );
+    } catch (e, stackTrace) {
+      notificationLogger.error(
+        'Failed to show instant notification',
+        error: e,
+        stackTrace: stackTrace,
+        data: {'id': id, 'type': type.name},
+      );
+      throw NotificationScheduleException(
+        'İşlem başarısız: Anlık bildirim gösterilemedi',
+        notificationId: id,
+        originalError: e,
+      );
+    }
   }
 
   /// Zamanlanmış bildirim oluştur
@@ -239,43 +283,71 @@ class NotificationService {
     // Ayarlardan kontrol et
     final settingsRepo = getIt<NotificationSettingsRepository>();
     if (!_isNotificationTypeEnabled(type, settingsRepo)) {
-      debugPrint('Zamanlanmış bildirim engellendi: $type devre dışı');
+      notificationLogger.debug(
+        'Zamanlanmış bildirim engellendi: $type devre dışı',
+        data: {'id': id},
+      );
       return;
     }
 
-    final channelId = _getChannelIdForType(type);
+    try {
+      final channelId = _getChannelIdForType(type);
 
-    final androidDetails = AndroidNotificationDetails(
-      channelId,
-      _getChannelNameForType(type),
-      channelDescription: _getChannelDescForType(type),
-      importance: _getImportanceForType(type),
-      priority: Priority.high,
-      icon: '@mipmap/launcher_icon',
-    );
+      final androidDetails = AndroidNotificationDetails(
+        channelId,
+        _getChannelNameForType(type),
+        channelDescription: _getChannelDescForType(type),
+        importance: _getImportanceForType(type),
+        priority: Priority.high,
+        icon: '@mipmap/launcher_icon',
+      );
 
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
+      const iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
 
-    final details = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
+      final details = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
 
-    await _notificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      tz.TZDateTime.from(scheduledDate, tz.local),
-      details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      payload: payload,
-    );
+      await _notificationsPlugin.zonedSchedule(
+        id,
+        title,
+        body,
+        tz.TZDateTime.from(scheduledDate, tz.local),
+        details,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: payload,
+      );
+
+      notificationLogger.logSchedule(
+        scheduleName: 'scheduleNotification',
+        scheduledTime: scheduledDate,
+        notificationId: id,
+        success: true,
+      );
+    } catch (e, stackTrace) {
+      notificationLogger.error(
+        'Failed to schedule notification',
+        error: e,
+        stackTrace: stackTrace,
+        data: {
+          'id': id,
+          'type': type.name,
+          'scheduledDate': scheduledDate.toIso8601String(),
+        },
+      );
+      throw NotificationScheduleException(
+        'Bildirim zamanlanamadı',
+        notificationId: id,
+        originalError: e,
+      );
+    }
   }
 
   /// Tekrarlayan bildirim oluştur (her gün belirli saatte)
@@ -394,12 +466,47 @@ class NotificationService {
 
   /// Bildirimi iptal et
   Future<void> cancelNotification(int id) async {
-    await _notificationsPlugin.cancel(id);
+    try {
+      await _notificationsPlugin.cancel(id);
+      notificationLogger.logOperation(
+        operation: 'cancelNotification',
+        notificationId: id,
+        success: true,
+      );
+    } catch (e, stackTrace) {
+      notificationLogger.error(
+        'Failed to cancel notification',
+        error: e,
+        stackTrace: stackTrace,
+        data: {'id': id},
+      );
+      throw NotificationCancelException(
+        'Bildirim iptal edilemedi',
+        notificationId: id,
+        originalError: e,
+      );
+    }
   }
 
   /// Tüm bildirimleri iptal et
   Future<void> cancelAllNotifications() async {
-    await _notificationsPlugin.cancelAll();
+    try {
+      await _notificationsPlugin.cancelAll();
+      notificationLogger.logOperation(
+        operation: 'cancelAllNotifications',
+        success: true,
+      );
+    } catch (e, stackTrace) {
+      notificationLogger.error(
+        'Failed to cancel all notifications',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      throw NotificationCancelException(
+        'Tüm bildirimler iptal edilemedi',
+        originalError: e,
+      );
+    }
   }
 
   /// Bekleyen bildirimleri getir

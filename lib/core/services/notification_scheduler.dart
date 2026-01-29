@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:timezone/timezone.dart' as tz;
 import '../domain/notification_types.dart';
 import '../repositories/notification_settings_repository.dart';
 import '../repositories/expense_repository.dart';
 import '../di/injection_container.dart';
+import '../utils/notification_logger.dart';
 import '../../features/streak/domain/repositories/streak_repository.dart';
 import 'notification_service.dart';
 
@@ -31,7 +31,7 @@ class NotificationScheduler {
   /// Her gün belirlenen saatte "Bugün işlem girmediniz" hatırlatması
   Future<void> scheduleStreakReminder() async {
     if (!_settingsRepo.isStreakReminderEnabled()) {
-      debugPrint('Seri hatırlatıcı devre dışı');
+      notificationLogger.debug('Seri hatırlatıcı devre dışı');
       return;
     }
 
@@ -58,13 +58,18 @@ class NotificationScheduler {
           }
         }
       } catch (e) {
-        debugPrint('Seri verisi alınamadı: $e');
+        notificationLogger.warning(
+          'Seri verisi alınamadı',
+          data: {'error': e.toString()},
+        );
       }
     }
 
     // Bugün işlem girilmişse hatırlatma gönderme
     if (todayHasTransaction) {
-      debugPrint('Seri hatırlatıcı atlandı: Bugün işlem girilmiş');
+      notificationLogger.debug(
+        'Seri hatırlatıcı atlandı: Bugün işlem girilmiş',
+      );
       return;
     }
 
@@ -83,8 +88,17 @@ class NotificationScheduler {
       payload: 'streak_reminder',
     );
 
-    debugPrint(
-      'Seri hatırlatıcı planlandı: $hour:$minute (seri: $streakDays gün)',
+    notificationLogger.logSchedule(
+      scheduleName: 'streakReminder',
+      scheduledTime: DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day,
+        hour,
+        minute,
+      ),
+      notificationId: NotificationIds.streakReminder,
+      success: true,
     );
   }
 
@@ -93,14 +107,18 @@ class NotificationScheduler {
     await _notificationService.cancelNotification(
       NotificationIds.streakReminder,
     );
-    debugPrint('Seri hatırlatıcı iptal edildi');
+    notificationLogger.logOperation(
+      operation: 'cancelStreakReminder',
+      notificationId: NotificationIds.streakReminder,
+      success: true,
+    );
   }
 
   /// Aylık özet bildirimini planla
   /// Her ayın son günü belirlenen saatte finansal özet
   Future<void> scheduleMonthlySummary() async {
     if (!_settingsRepo.isMonthlySummaryEnabled()) {
-      debugPrint('Aylık özet devre dışı');
+      notificationLogger.debug('Aylık özet devre dışı');
       return;
     }
 
@@ -148,7 +166,10 @@ class NotificationScheduler {
         }
       }
     } catch (e) {
-      debugPrint('Aylık harcama hesaplanamadı: $e');
+      notificationLogger.warning(
+        'Aylık harcama hesaplanamadı',
+        data: {'error': e.toString()},
+      );
     }
 
     // Mesajı duruma göre ayarla
@@ -165,8 +186,11 @@ class NotificationScheduler {
       payload: 'monthly_summary',
     );
 
-    debugPrint(
-      'Aylık özet planlandı: ${scheduledDate.day}/${scheduledDate.month}, Saat $hour',
+    notificationLogger.logSchedule(
+      scheduleName: 'monthlySummary',
+      scheduledTime: scheduledDate,
+      notificationId: NotificationIds.monthlySummary,
+      success: true,
     );
   }
 
@@ -175,7 +199,11 @@ class NotificationScheduler {
     await _notificationService.cancelNotification(
       NotificationIds.monthlySummary,
     );
-    debugPrint('Aylık özet iptal edildi');
+    notificationLogger.logOperation(
+      operation: 'cancelMonthlySummary',
+      notificationId: NotificationIds.monthlySummary,
+      success: true,
+    );
   }
 
   /// Tekrarlayan işlem hatırlatıcısı planla
@@ -188,7 +216,7 @@ class NotificationScheduler {
     required bool isExpense,
   }) async {
     if (!_settingsRepo.isRecurringReminderEnabled()) {
-      debugPrint('Tekrarlayan işlem hatırlatıcı devre dışı');
+      notificationLogger.debug('Tekrarlayan işlem hatırlatıcı devre dışı');
       return;
     }
 
@@ -256,8 +284,11 @@ class NotificationScheduler {
       payload: 'recurring_$transactionId',
     );
 
-    debugPrint(
-      'Tekrarlayan işlem hatırlatıcı planlandı: $transactionName (${scheduledDate.day}/${scheduledDate.month})',
+    notificationLogger.logSchedule(
+      scheduleName: 'recurringTransaction',
+      scheduledTime: scheduledDate,
+      notificationId: notificationId,
+      success: true,
     );
   }
 
@@ -267,14 +298,19 @@ class NotificationScheduler {
         NotificationIds.recurringReminderBase +
         transactionId.hashCode.abs() % 1000;
     await _notificationService.cancelNotification(notificationId);
-    debugPrint('Tekrarlayan işlem hatırlatıcı iptal edildi: $transactionId');
+    notificationLogger.logOperation(
+      operation: 'cancelRecurringTransaction',
+      notificationId: notificationId,
+      details: transactionId,
+      success: true,
+    );
   }
 
   /// Seri kırılma uyarısını zamanla (her gün 22:00)
   /// Sadece aktif seri varsa gönderilir
   Future<void> scheduleStreakBreakWarning() async {
     if (!_settingsRepo.isStreakBreakWarningEnabled()) {
-      debugPrint('Seri kırılma uyarısı devre dışı');
+      notificationLogger.debug('Seri kırılma uyarısı devre dışı');
       return;
     }
 
@@ -299,18 +335,23 @@ class NotificationScheduler {
           }
         }
       } catch (e) {
-        debugPrint('Seri verisi alınamadı: $e');
+        notificationLogger.warning(
+          'Seri verisi alınamadı',
+          data: {'error': e.toString()},
+        );
       }
     }
 
     // Seri 0 ise veya bugün işlem girilmişse uyarı gönderme
     if (streakDays == 0) {
-      debugPrint('Seri kırılma uyarısı atlandı: Aktif seri yok');
+      notificationLogger.debug('Seri kırılma uyarısı atlandı: Aktif seri yok');
       return;
     }
 
     if (todayHasTransaction) {
-      debugPrint('Seri kırılma uyarısı atlandı: Bugün işlem girilmiş');
+      notificationLogger.debug(
+        'Seri kırılma uyarısı atlandı: Bugün işlem girilmiş',
+      );
       return;
     }
 
@@ -338,15 +379,18 @@ class NotificationScheduler {
       payload: 'streak_break_warning',
     );
 
-    debugPrint(
-      'Seri kırılma uyarısı planlandı: $scheduledDate (seri: $streakDays gün)',
+    notificationLogger.logSchedule(
+      scheduleName: 'streakBreakWarning',
+      scheduledTime: scheduledDate,
+      notificationId: NotificationIds.streakBreakWarning,
+      success: true,
     );
   }
 
   /// Haftalık mini özet zamanla (her Pazar 18:00)
   Future<void> scheduleWeeklyMiniSummary() async {
     if (!_settingsRepo.isWeeklyMiniSummaryEnabled()) {
-      debugPrint('Haftalık mini özet devre dışı');
+      notificationLogger.debug('Haftalık mini özet devre dışı');
       return;
     }
 
@@ -397,7 +441,10 @@ class NotificationScheduler {
         topAmount = sorted.first.value;
       }
     } catch (e) {
-      debugPrint('Haftalık kategori hesaplanamadı: $e');
+      notificationLogger.warning(
+        'Haftalık kategori hesaplanamadı',
+        data: {'error': e.toString()},
+      );
     }
 
     // Mesajı duruma göre ayarla
@@ -414,8 +461,11 @@ class NotificationScheduler {
       payload: 'weekly_mini_summary',
     );
 
-    debugPrint(
-      'Haftalık mini özet planlandı: $scheduledDate (top: $topCategory ₺$topAmount)',
+    notificationLogger.logSchedule(
+      scheduleName: 'weeklyMiniSummary',
+      scheduledTime: scheduledDate,
+      notificationId: NotificationIds.weeklyMiniSummary,
+      success: true,
     );
   }
 
@@ -445,6 +495,6 @@ class NotificationScheduler {
       await scheduleWeeklyMiniSummary();
     }
 
-    debugPrint('Tüm zamanlanmış bildirimler yeniden planlandı');
+    notificationLogger.info('Tüm zamanlanmış bildirimler yeniden planlandı');
   }
 }
