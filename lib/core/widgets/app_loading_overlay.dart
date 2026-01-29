@@ -16,7 +16,7 @@ class AppLoadingOverlay {
   static void show(
     BuildContext context, {
     String message = 'Yükleniyor...',
-    String lottieAsset = 'assets/lottie/verigeriyukleme.json',
+    String lottieAsset = 'assets/lottie/searching_animation.json',
   }) {
     showDialog(
       context: context,
@@ -59,7 +59,7 @@ class AppLoadingOverlay {
     BuildContext context, {
     String message = 'İşlem başarılı!',
     String lottieAsset = 'assets/lottie/Success_animation.json',
-    Duration duration = const Duration(seconds: 2),
+    Duration duration = const Duration(seconds: 4),
   }) async {
     showDialog(
       context: context,
