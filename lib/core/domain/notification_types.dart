@@ -58,6 +58,11 @@ class NotificationChannels {
   static const String warningsId = 'warnings';
   static const String warningsName = 'Uyarılar';
   static const String warningsDesc = 'Seri kırılma ve bütçe uyarıları';
+
+  // Özel bildirim sesleri (res/raw/ klasöründe)
+  static const String reminderSound = 'cashly_reminder';
+  static const String successSound = 'cashly_success';
+  static const String warningSound = 'cashly_warning';
 }
 
 /// Bildirim ayarları modeli

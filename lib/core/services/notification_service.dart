@@ -98,23 +98,45 @@ class NotificationService {
 
     if (androidPlugin == null) return;
 
-    // Hatırlatıcılar kanalı
+    // Hatırlatıcılar kanalı (özel ses ile)
     await androidPlugin.createNotificationChannel(
       const AndroidNotificationChannel(
         NotificationChannels.remindersId,
         NotificationChannels.remindersName,
         description: NotificationChannels.remindersDesc,
         importance: Importance.defaultImportance,
+        sound: RawResourceAndroidNotificationSound(
+          NotificationChannels.reminderSound,
+        ),
+        playSound: true,
       ),
     );
 
-    // Özetler kanalı
+    // Özetler kanalı (başarı sesi ile)
     await androidPlugin.createNotificationChannel(
       const AndroidNotificationChannel(
         NotificationChannels.summaryId,
         NotificationChannels.summaryName,
         description: NotificationChannels.summaryDesc,
         importance: Importance.low,
+        sound: RawResourceAndroidNotificationSound(
+          NotificationChannels.successSound,
+        ),
+        playSound: true,
+      ),
+    );
+
+    // Uyarılar kanalı (uyarı sesi ile)
+    await androidPlugin.createNotificationChannel(
+      const AndroidNotificationChannel(
+        NotificationChannels.warningsId,
+        NotificationChannels.warningsName,
+        description: NotificationChannels.warningsDesc,
+        importance: Importance.high,
+        sound: RawResourceAndroidNotificationSound(
+          NotificationChannels.warningSound,
+        ),
+        playSound: true,
       ),
     );
   }
