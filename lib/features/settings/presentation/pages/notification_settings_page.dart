@@ -45,21 +45,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     }
   }
 
-  Future<void> _requestPermission() async {
-    final granted = await _notificationService.requestPermission();
-    if (mounted) {
-      setState(() => _hasPermission = granted);
-
-      if (granted) {
-        _showSnackBar('Bildirimler etkinleştirildi', Colors.green);
-        // İzin verildiyse zamanlanmış bildirimleri planla
-        await _scheduler.rescheduleAll();
-      } else {
-        _showSnackBar('Bildirim izni verilmedi', Colors.orange);
-      }
-    }
-  }
-
   Future<void> _updateSettings(NotificationSettings newSettings) async {
     setState(() => _settings = newSettings);
     await _settingsRepo.saveSettings(newSettings);
@@ -135,10 +120,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           _buildHeader(context),
           const SizedBox(height: 24),
 
-          // İzin durumu banner
-          if (!_hasPermission) _buildPermissionBanner(context),
-          if (!_hasPermission) const SizedBox(height: 16),
-
           // Bildirim senaryoları
           _buildSectionTitleWithToggle(
             context,
@@ -197,83 +178,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 context,
               ).colorScheme.onSurface.withValues(alpha: 0.5),
               fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPermissionBanner(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.orange.withValues(alpha: 0.15),
-            Colors.amber.withValues(alpha: 0.1),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.notifications_off_rounded,
-                  color: Colors.orange,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Bildirimler Kapalı",
-                      style: TextStyle(
-                        color: Colors.orange.shade700,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      "Hatırlatma ve uyarılar için izin verin",
-                      style: TextStyle(
-                        color: Colors.orange.shade600,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _requestPermission,
-              icon: const Icon(Icons.notifications_active_rounded, size: 20),
-              label: const Text("Bildirimleri Etkinleştir"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
             ),
           ),
         ],

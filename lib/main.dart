@@ -128,6 +128,9 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
       final notificationService = getIt<NotificationService>();
       await notificationService.initialize();
 
+      // Bildirim izni iste (ilk açılışta)
+      await notificationService.requestPermission();
+
       // Bildirim tıklama navigasyonu ayarla
       NotificationService.onNotificationNavigate =
           _handleNotificationNavigation;
