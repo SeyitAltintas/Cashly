@@ -140,7 +140,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           if (!_hasPermission) const SizedBox(height: 16),
 
           // Bildirim senaryoları
-          _buildSectionTitle(context, 'Bildirim Senaryoları'),
+          _buildSectionTitleWithToggle(
+            context,
+            'Bildirim Senaryoları',
+            _areAllNotificationsEnabled(),
+            _toggleAllNotifications,
+          ),
           const SizedBox(height: 12),
           _buildNotificationScenarios(context),
           const SizedBox(height: 24),
@@ -285,6 +290,65 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         fontWeight: FontWeight.w600,
         letterSpacing: 0.5,
       ),
+    );
+  }
+
+  /// Tüm bildirimlerin açık olup olmadığını kontrol et
+  bool _areAllNotificationsEnabled() {
+    return _settings.recurringReminderEnabled &&
+        _settings.streakReminderEnabled &&
+        _settings.monthlySummaryEnabled &&
+        _settings.streakBreakWarningEnabled &&
+        _settings.weeklyMiniSummaryEnabled;
+  }
+
+  /// Tüm bildirimleri aç/kapat
+  Future<void> _toggleAllNotifications(bool enable) async {
+    await _updateSettings(
+      _settings.copyWith(
+        recurringReminderEnabled: enable,
+        streakReminderEnabled: enable,
+        monthlySummaryEnabled: enable,
+        streakBreakWarningEnabled: enable,
+        weeklyMiniSummaryEnabled: enable,
+      ),
+    );
+  }
+
+  Widget _buildSectionTitleWithToggle(
+    BuildContext context,
+    String title,
+    bool allEnabled,
+    Future<void> Function(bool) onToggle,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+        GestureDetector(
+          onTap: _hasPermission ? () => onToggle(!allEnabled) : null,
+          child: Text(
+            allEnabled ? 'Tümünü Kapat' : 'Tümünü Aç',
+            style: TextStyle(
+              color: _hasPermission
+                  ? (allEnabled ? Colors.red.shade400 : Colors.green.shade400)
+                  : Colors.grey,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
