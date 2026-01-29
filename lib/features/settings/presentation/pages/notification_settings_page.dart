@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app_settings/app_settings.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/domain/notification_types.dart';
 import '../../../../core/repositories/notification_settings_repository.dart';
@@ -16,7 +17,8 @@ class NotificationSettingsPage extends StatefulWidget {
       _NotificationSettingsPageState();
 }
 
-class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
+class _NotificationSettingsPageState extends State<NotificationSettingsPage>
+    with WidgetsBindingObserver {
   final NotificationService _notificationService = getIt<NotificationService>();
   final NotificationSettingsRepository _settingsRepo =
       getIt<NotificationSettingsRepository>();
@@ -29,7 +31,34 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadSettings();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Kullanıcı sistem ayarlarından döndüğünde izni kontrol et
+    if (state == AppLifecycleState.resumed) {
+      _refreshPermission();
+    }
+  }
+
+  Future<void> _refreshPermission() async {
+    final hasPermission = await _notificationService.hasPermission();
+    if (mounted && hasPermission != _hasPermission) {
+      setState(() => _hasPermission = hasPermission);
+      if (hasPermission) {
+        // İzin verildiyse bildirimleri planla
+        await _scheduler.rescheduleAll();
+        _showSnackBar('Bildirimler etkinleştirildi', Colors.green);
+      }
+    }
   }
 
   Future<void> _loadSettings() async {
@@ -120,6 +149,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           _buildHeader(context),
           const SizedBox(height: 24),
 
+          // İzin yoksa uyarı
+          if (!_hasPermission) _buildPermissionWarning(context),
+          if (!_hasPermission) const SizedBox(height: 16),
+
           // Bildirim senaryoları
           _buildSectionTitleWithToggle(
             context,
@@ -181,6 +214,55 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPermissionWarning(BuildContext context) {
+    return GestureDetector(
+      onTap: () =>
+          AppSettings.openAppSettings(type: AppSettingsType.notification),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.orange.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.orange.shade600,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                "Bildirim izni verilmedi",
+                style: TextStyle(
+                  color: Colors.orange.shade600,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Text(
+              "Ayarları Aç",
+              style: TextStyle(
+                color: Colors.orange.shade700,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Colors.orange.shade600,
+              size: 14,
+            ),
+          ],
+        ),
       ),
     );
   }
