@@ -248,6 +248,8 @@ class NotificationService {
         importance: _getImportanceForType(type),
         priority: Priority.high,
         icon: '@mipmap/launcher_icon',
+        sound: _getSoundForType(type),
+        playSound: true,
       );
 
       const iosDetails = DarwinNotificationDetails(
@@ -322,6 +324,8 @@ class NotificationService {
         importance: _getImportanceForType(type),
         priority: Priority.high,
         icon: '@mipmap/launcher_icon',
+        sound: _getSoundForType(type),
+        playSound: true,
       );
 
       const iosDetails = DarwinNotificationDetails(
@@ -402,6 +406,8 @@ class NotificationService {
       importance: _getImportanceForType(type),
       priority: Priority.defaultPriority,
       icon: '@mipmap/launcher_icon',
+      sound: _getSoundForType(type),
+      playSound: true,
     );
 
     const iosDetails = DarwinNotificationDetails(
@@ -459,6 +465,8 @@ class NotificationService {
       importance: Importance.low,
       priority: Priority.low,
       icon: '@mipmap/launcher_icon',
+      sound: _getSoundForType(type),
+      playSound: true,
     );
 
     const iosDetails = DarwinNotificationDetails(
@@ -607,6 +615,26 @@ class NotificationService {
         return settingsRepo.isStreakBreakWarningEnabled();
       case NotificationType.weeklyMiniSummary:
         return settingsRepo.isWeeklyMiniSummaryEnabled();
+    }
+  }
+
+  /// Bildirim tipine göre ses dosyası
+  RawResourceAndroidNotificationSound _getSoundForType(NotificationType type) {
+    switch (type) {
+      case NotificationType.recurringReminder:
+      case NotificationType.streakReminder:
+        return const RawResourceAndroidNotificationSound(
+          NotificationChannels.reminderSound,
+        );
+      case NotificationType.monthlySummary:
+      case NotificationType.weeklyMiniSummary:
+        return const RawResourceAndroidNotificationSound(
+          NotificationChannels.successSound,
+        );
+      case NotificationType.streakBreakWarning:
+        return const RawResourceAndroidNotificationSound(
+          NotificationChannels.warningSound,
+        );
     }
   }
 }
