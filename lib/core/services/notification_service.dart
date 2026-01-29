@@ -88,6 +88,7 @@ class NotificationService {
   }
 
   /// Bildirim kanallarını oluştur (Android)
+  /// Önceki kanalları siler ve yeniden oluşturur (ses güncellemesi için)
   Future<void> _createNotificationChannels() async {
     if (!Platform.isAndroid) return;
 
@@ -97,6 +98,17 @@ class NotificationService {
         >();
 
     if (androidPlugin == null) return;
+
+    // Önceki kanalları sil (ses güncellemesi için gerekli)
+    await androidPlugin.deleteNotificationChannel(
+      NotificationChannels.remindersId,
+    );
+    await androidPlugin.deleteNotificationChannel(
+      NotificationChannels.summaryId,
+    );
+    await androidPlugin.deleteNotificationChannel(
+      NotificationChannels.warningsId,
+    );
 
     // Hatırlatıcılar kanalı (özel ses ile)
     await androidPlugin.createNotificationChannel(
@@ -118,7 +130,7 @@ class NotificationService {
         NotificationChannels.summaryId,
         NotificationChannels.summaryName,
         description: NotificationChannels.summaryDesc,
-        importance: Importance.low,
+        importance: Importance.defaultImportance,
         sound: RawResourceAndroidNotificationSound(
           NotificationChannels.successSound,
         ),
@@ -462,8 +474,8 @@ class NotificationService {
       channelId,
       _getChannelNameForType(type),
       channelDescription: _getChannelDescForType(type),
-      importance: Importance.low,
-      priority: Priority.low,
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
       icon: '@mipmap/launcher_icon',
       sound: _getSoundForType(type),
       playSound: true,
@@ -589,11 +601,10 @@ class NotificationService {
   Importance _getImportanceForType(NotificationType type) {
     switch (type) {
       case NotificationType.recurringReminder:
-        return Importance.defaultImportance;
       case NotificationType.streakReminder:
       case NotificationType.monthlySummary:
       case NotificationType.weeklyMiniSummary:
-        return Importance.low;
+        return Importance.defaultImportance;
       case NotificationType.streakBreakWarning:
         return Importance.high; // Uyarılar için yüksek öncelik
     }
