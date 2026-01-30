@@ -45,10 +45,10 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
 
   // Filtre tanımları
   final List<ImageFilter> _filters = [
-    ImageFilter(name: 'Normal', matrix: null),
-    ImageFilter(
+    const ImageFilter(name: 'Normal', matrix: null),
+    const ImageFilter(
       name: 'S/B',
-      matrix: const ColorFilter.matrix(<double>[
+      matrix: ColorFilter.matrix(<double>[
         0.2126,
         0.7152,
         0.0722,
@@ -71,9 +71,9 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
         0,
       ]),
     ),
-    ImageFilter(
+    const ImageFilter(
       name: 'Sepia',
-      matrix: const ColorFilter.matrix(<double>[
+      matrix: ColorFilter.matrix(<double>[
         0.393,
         0.769,
         0.189,
@@ -96,9 +96,9 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
         0,
       ]),
     ),
-    ImageFilter(
+    const ImageFilter(
       name: 'Vivid',
-      matrix: const ColorFilter.matrix(<double>[
+      matrix: ColorFilter.matrix(<double>[
         1.3,
         0,
         0,
@@ -121,9 +121,9 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
         0,
       ]),
     ),
-    ImageFilter(
+    const ImageFilter(
       name: 'Cool',
-      matrix: const ColorFilter.matrix(<double>[
+      matrix: ColorFilter.matrix(<double>[
         0.9,
         0,
         0,
@@ -146,9 +146,9 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
         0,
       ]),
     ),
-    ImageFilter(
+    const ImageFilter(
       name: 'Warm',
-      matrix: const ColorFilter.matrix(<double>[
+      matrix: ColorFilter.matrix(<double>[
         1.2,
         0,
         0,
@@ -171,9 +171,9 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
         0,
       ]),
     ),
-    ImageFilter(
+    const ImageFilter(
       name: 'Fade',
-      matrix: const ColorFilter.matrix(<double>[
+      matrix: ColorFilter.matrix(<double>[
         1.0,
         0,
         0,
