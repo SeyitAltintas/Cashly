@@ -10,7 +10,6 @@ import '../../../../../core/di/injection_container.dart';
 import '../../../../settings/domain/repositories/settings_repository.dart';
 import '../../../../../core/widgets/app_snackbar.dart';
 import '../../../../../core/services/image_compression_service.dart';
-import 'image_filter_screen.dart';
 
 /// Profil ayarları dialog/sheet yardımcı sınıfı
 /// Avatar seçimi, isim değiştirme, PIN değiştirme, hesap silme akışlarını yönetir
@@ -69,12 +68,11 @@ class ProfileSettingsHelper {
     }
   }
 
-  /// Resmi 1:1 kare formatında kırp - gelişmiş UI ile
+  /// Resmi 1:1 kare formatında kırp
   Future<File?> _cropImage(String imagePath) async {
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: imagePath,
       aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      compressQuality: 95,
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Profil Resmini Kırp',
@@ -82,66 +80,35 @@ class ProfileSettingsHelper {
           toolbarWidgetColor: Colors.white,
           backgroundColor: const Color(0xFF0D0D0D),
           activeControlsWidgetColor: const Color(0xFF00D293),
-          dimmedLayerColor: Colors.black.withValues(alpha: 0.7),
-          cropFrameColor: const Color(0xFF00D293),
-          cropGridColor: Colors.white.withValues(alpha: 0.3),
-          cropFrameStrokeWidth: 3,
-          cropGridRowCount: 2,
-          cropGridColumnCount: 2,
-          cropGridStrokeWidth: 1,
-          showCropGrid: true,
           initAspectRatio: CropAspectRatioPreset.square,
           lockAspectRatio: true,
           hideBottomControls: false,
-          // Daire önizleme (crop style)
-          cropStyle: CropStyle.circle,
         ),
         IOSUiSettings(
           title: 'Profil Resmini Kırp',
           aspectRatioLockEnabled: true,
-          resetAspectRatioEnabled: true, // Sıfırla butonu
+          resetAspectRatioEnabled: false,
           aspectRatioPickerButtonHidden: true,
-          rotateButtonsHidden: false, // Döndürme butonu
-          resetButtonHidden: false, // Sıfırla butonu
-          // Daire önizleme
-          cropStyle: CropStyle.circle,
-          // Tema uyumu
-          doneButtonTitle: 'Tamam',
-          cancelButtonTitle: 'İptal',
         ),
       ],
     );
     return croppedFile != null ? File(croppedFile.path) : null;
   }
 
-  /// Resmi işle: kırp, filtre uygula, sıkıştır ve kaydet
+  /// Resmi işle: kırp, sıkıştır ve kaydet
   Future<void> _processAndSaveImage(String imagePath) async {
-    // 1. Önce kırp
+    // Önce kırp
     final croppedFile = await _cropImage(imagePath);
     if (croppedFile == null) return; // Kullanıcı iptal etti
 
-    // 2. Filtre seçim ekranını göster
-    File? filteredFile;
-    if (context.mounted) {
-      filteredFile = await Navigator.push<File>(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ImageFilterScreen(imageFile: croppedFile),
-        ),
-      );
-    }
-
-    // Kullanıcı filtre ekranında iptal ettiyse tüm işlemi iptal et
-    if (filteredFile == null) return;
-
-    // 3. Sıkıştır ve kaydet
+    // Sonra sıkıştır ve kaydet
     final compressionService = ImageCompressionService();
     final compressedPath = await compressionService.optimizeAndSaveProfileImage(
-      filteredFile,
+      croppedFile,
     );
 
     _updateUser(
-      profileImage: compressedPath ?? filteredFile.path,
+      profileImage: compressedPath ?? croppedFile.path,
       successMessage: "Profil resmi güncellendi",
     );
     if (context.mounted) Navigator.pop(context);
