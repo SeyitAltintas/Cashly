@@ -421,6 +421,8 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             message: 'Geri yükleme başarı ile tamamlandı',
           );
           await HapticService.success();
+          // Profil bilgilerini yenile (profil resmi dahil)
+          await widget.authController.checkAuth();
           // Ana sayfadaki verileri yenile
           widget.onNavigationReturn?.call();
           // Dashboard sayfasına yönlendir (AnaSayfa'yı yeniden oluştur)

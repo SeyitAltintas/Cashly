@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import '../../../../auth/domain/entities/user_entity.dart';
 import '../../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../../auth/data/repositories/auth_repository_impl.dart';
@@ -67,21 +68,58 @@ class ProfileSettingsHelper {
     }
   }
 
+  /// Resmi 1:1 kare formatında kırp
+  Future<File?> _cropImage(String imagePath) async {
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: imagePath,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Profil Resmini Kırp',
+          toolbarColor: const Color(0xFF0D0D0D),
+          toolbarWidgetColor: Colors.white,
+          backgroundColor: const Color(0xFF0D0D0D),
+          activeControlsWidgetColor: const Color(0xFF00D293),
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: true,
+          hideBottomControls: false,
+        ),
+        IOSUiSettings(
+          title: 'Profil Resmini Kırp',
+          aspectRatioLockEnabled: true,
+          resetAspectRatioEnabled: false,
+          aspectRatioPickerButtonHidden: true,
+        ),
+      ],
+    );
+    return croppedFile != null ? File(croppedFile.path) : null;
+  }
+
+  /// Resmi işle: kırp, sıkıştır ve kaydet
+  Future<void> _processAndSaveImage(String imagePath) async {
+    // Önce kırp
+    final croppedFile = await _cropImage(imagePath);
+    if (croppedFile == null) return; // Kullanıcı iptal etti
+
+    // Sonra sıkıştır ve kaydet
+    final compressionService = ImageCompressionService();
+    final compressedPath = await compressionService.optimizeAndSaveProfileImage(
+      croppedFile,
+    );
+
+    _updateUser(
+      profileImage: compressedPath ?? croppedFile.path,
+      successMessage: "Profil resmi güncellendi",
+    );
+    if (context.mounted) Navigator.pop(context);
+  }
+
   Future<void> _pickImageFromGallery() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
-      // Resmi sıkıştır ve kaydet (400x400 boyutuna optimize et)
-      final compressionService = ImageCompressionService();
-      final compressedPath = await compressionService
-          .optimizeAndSaveProfileImage(File(image.path));
-
-      _updateUser(
-        profileImage: compressedPath ?? image.path,
-        successMessage: "Profil resmi güncellendi",
-      );
-      if (context.mounted) Navigator.pop(context);
+      await _processAndSaveImage(image.path);
     }
   }
 
@@ -90,16 +128,7 @@ class ProfileSettingsHelper {
     final XFile? image = await picker.pickImage(source: ImageSource.camera);
 
     if (image != null) {
-      // Resmi sıkıştır ve kaydet (400x400 boyutuna optimize et)
-      final compressionService = ImageCompressionService();
-      final compressedPath = await compressionService
-          .optimizeAndSaveProfileImage(File(image.path));
-
-      _updateUser(
-        profileImage: compressedPath ?? image.path,
-        successMessage: "Profil resmi güncellendi",
-      );
-      if (context.mounted) Navigator.pop(context);
+      await _processAndSaveImage(image.path);
     }
   }
 

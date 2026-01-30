@@ -16,15 +16,6 @@ class ProfilePhotoSection extends StatelessWidget {
     required this.onEditTap,
   });
 
-  /// Yerel dosya veya asset'ten image provider oluştur
-  ImageProvider? _getImageProvider(String path) {
-    if (path.startsWith('lib/') || path.startsWith('assets/')) {
-      return AssetImage(path);
-    } else {
-      return FileImage(File(path));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -46,20 +37,8 @@ class ProfilePhotoSection extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.3),
                       width: 2,
                     ),
-                    image: user.profileImage != null
-                        ? DecorationImage(
-                            image: _getImageProvider(user.profileImage!)!,
-                            fit: BoxFit.cover,
-                          )
-                        : null,
                   ),
-                  child: user.profileImage == null
-                      ? Icon(
-                          Icons.person,
-                          size: 60,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        )
-                      : null,
+                  child: ClipOval(child: _buildProfileImage(context)),
                 ),
               ),
               Positioned(
@@ -97,6 +76,53 @@ class ProfilePhotoSection extends StatelessWidget {
           endIndent: 40,
         ),
       ],
+    );
+  }
+
+  /// Profil resmini oluştur - error handling ile
+  Widget _buildProfileImage(BuildContext context) {
+    if (user.profileImage == null) {
+      return _buildDefaultIcon(context);
+    }
+
+    // Asset mi yoksa dosya mı kontrol et
+    if (user.profileImage!.startsWith('lib/') ||
+        user.profileImage!.startsWith('assets/')) {
+      return Image.asset(
+        user.profileImage!,
+        fit: BoxFit.cover,
+        width: 120,
+        height: 120,
+        errorBuilder: (context, error, stackTrace) =>
+            _buildDefaultIcon(context),
+      );
+    }
+
+    // Dosya resmi - error handling ile
+    final file = File(user.profileImage!);
+    return Image.file(
+      file,
+      fit: BoxFit.cover,
+      width: 120,
+      height: 120,
+      errorBuilder: (context, error, stackTrace) {
+        // Bozuk resim dosyası - varsayılan ikon göster
+        return _buildDefaultIcon(context);
+      },
+    );
+  }
+
+  /// Varsayılan profil ikonu
+  Widget _buildDefaultIcon(BuildContext context) {
+    return Container(
+      width: 120,
+      height: 120,
+      color: Theme.of(context).colorScheme.surface,
+      child: Icon(
+        Icons.person,
+        size: 60,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
     );
   }
 }

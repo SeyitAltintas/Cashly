@@ -17,10 +17,12 @@ import '../../features/streak/domain/repositories/streak_repository.dart';
 import 'haptic_service.dart';
 import '../../features/streak/data/services/streak_service.dart';
 import '../../features/streak/data/models/streak_model.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/entities/user_entity.dart';
 
 /// Veri Yedekleme ve Geri Yükleme Servisi
 /// Hive verilerini JSON olarak dışa/içe aktarır
-/// Versiyon 1.4: Bildirim ayarları (notificationSettings) eklendi
+/// Versiyon 1.5: Profil resmi (profileImageBase64) ve kullanıcı adı eklendi
 class BackupService {
   BackupService._();
 
@@ -46,8 +48,21 @@ class BackupService {
       final notificationSettingsRepo = getIt<NotificationSettingsRepository>();
       final notificationSettings = notificationSettingsRepo.getSettings();
 
+      // Profil resmi ve kullanıcı bilgilerini al (v1.5)
+      final authRepo = AuthRepositoryImpl();
+      final currentUser = await authRepo.getCurrentUser();
+      String? profileImageBase64;
+      if (currentUser?.profileImage != null &&
+          !currentUser!.profileImage!.startsWith('assets/')) {
+        final imageFile = File(currentUser.profileImage!);
+        if (await imageFile.exists()) {
+          final bytes = await imageFile.readAsBytes();
+          profileImageBase64 = base64Encode(bytes);
+        }
+      }
+
       final data = {
-        'version': '1.4',
+        'version': '1.5',
         'exportDate': DateTime.now().toIso8601String(),
         'userId': userId,
         'data': {
@@ -103,6 +118,11 @@ class BackupService {
           ),
           // Bildirim ayarları (v1.4)
           'notificationSettings': notificationSettings.toMap(),
+        },
+        // Profil verileri (v1.5)
+        'profile': {
+          'name': currentUser?.name,
+          'profileImageBase64': profileImageBase64,
         },
       };
 
@@ -164,13 +184,14 @@ class BackupService {
 
       final data = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      // Versiyon kontrolü (1.0 - 1.4 desteklenir)
+      // Versiyon kontrolü (1.0 - 1.5 desteklenir)
       final version = data['version'] as String?;
       if (version != '1.0' &&
           version != '1.1' &&
           version != '1.2' &&
           version != '1.3' &&
-          version != '1.4') {
+          version != '1.4' &&
+          version != '1.5') {
         return BackupResult(
           success: false,
           message: 'Desteklenmeyen yedek versiyonu',
@@ -359,6 +380,57 @@ class BackupService {
             notificationMap,
           );
           await notificationSettingsRepo.saveSettings(notificationSettings);
+        }
+      }
+
+      // Profil verilerini geri yükle (v1.5)
+      if (data['profile'] != null) {
+        final profileData = data['profile'] as Map<String, dynamic>;
+        final authRepo = AuthRepositoryImpl();
+        final currentUser = await authRepo.getCurrentUser();
+
+        if (currentUser != null) {
+          String? restoredProfileImagePath;
+
+          // Base64 profil resmini dosyaya kaydet
+          if (profileData['profileImageBase64'] != null &&
+              profileData['profileImageBase64'].toString().isNotEmpty) {
+            try {
+              final bytes = base64Decode(
+                profileData['profileImageBase64'] as String,
+              );
+              final directory = await getApplicationDocumentsDirectory();
+              final timestamp = DateTime.now().millisecondsSinceEpoch;
+              final imagePath =
+                  '${directory.path}/profile_restored_$timestamp.png';
+              final imageFile = File(imagePath);
+              await imageFile.writeAsBytes(bytes);
+              restoredProfileImagePath = imagePath;
+            } catch (e) {
+              // Base64 decode hatası, resmi atla
+              // ignore: avoid_print
+              print('Profil resmi restore hatası: $e');
+            }
+          }
+
+          // Kullanıcı bilgilerini güncelle (isim ve/veya profil resmi)
+          final newName = profileData['name'] as String?;
+          if (restoredProfileImagePath != null || newName != null) {
+            final updatedUser = UserEntity(
+              id: currentUser.id,
+              name: newName ?? currentUser.name,
+              email: currentUser.email,
+              pin: currentUser.pin,
+              profileImage:
+                  restoredProfileImagePath ?? currentUser.profileImage,
+              createdAt: currentUser.createdAt,
+              lastLoginAt: currentUser.lastLoginAt,
+              biometricEnabled: currentUser.biometricEnabled,
+              securityQuestion: currentUser.securityQuestion,
+              securityAnswer: currentUser.securityAnswer,
+            );
+            await authRepo.updateUser(updatedUser);
+          }
         }
       }
 

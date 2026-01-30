@@ -1,5 +1,5 @@
 {
-    "version": "1.3",
+    "version": "1.5",
     "exportDate": "2026-01-31T00:00:00.000Z",
     "userId": "test_user_2026",
     "data": {
@@ -921,7 +921,18 @@
             "freezeCount": 2,
             "usedFreezeToday": false,
             "totalFreezesUsed": 1
-        },
+        }
+    },
+    "settings": {
+        "themeIndex": 0,
+        "moneyAnimation": true,
+        "hapticMasterEnabled": true,
+        "hapticButtonTaps": true,
+        "hapticNavigation": true,
+        "hapticDelete": true,
+        "hapticSuccess": true,
+        "hapticError": true,
+        "hapticCelebration": true,
         "notificationSettings": {
             "recurringReminderEnabled": true,
             "streakReminderEnabled": true,
@@ -932,9 +943,10 @@
             "monthlySummaryMinute": 0,
             "streakBreakWarningEnabled": true,
             "weeklyMiniSummaryEnabled": true
-        },
-        "onboardingComplete": true,
-        "voiceFeedbackEnabled": true,
-        "backupReminder": true
+        }
+    },
+    "profile": {
+        "name": "Seyit Altıntaş",
+        "profileImageBase64": null
     }
 }

@@ -35,6 +35,7 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   timezone: ^0.9.4
   app_settings: ^7.0.0
+  image_cropper: ^8.0.2
 
 dev_dependencies:
   flutter_test:
