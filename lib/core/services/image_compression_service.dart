@@ -104,9 +104,9 @@ class ImageCompressionService {
   }
 
   /// Profil resmi için optimize et
-  /// Kare formata sıkıştırır
+  /// Yüksek kaliteli kare formata sıkıştırır (800x800, %95 kalite)
   Future<Uint8List?> optimizeProfileImage(File imageFile) async {
-    return compressImage(imageFile, maxWidth: 400, maxHeight: 400, quality: 85);
+    return compressImage(imageFile, maxWidth: 800, maxHeight: 800, quality: 95);
   }
 
   /// Varlık görseli için optimize et
