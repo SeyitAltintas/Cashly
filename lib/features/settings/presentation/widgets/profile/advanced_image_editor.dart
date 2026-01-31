@@ -107,24 +107,27 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 });
               },
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: RepaintBoundary(
-                      key: _imageKey,
-                      child: ClipOval(
-                        child: SizedBox(
-                          width: 320,
-                          height: 320,
-                          child: _buildEditedImage(),
+                  Expanded(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: RepaintBoundary(
+                          key: _imageKey,
+                          child: ClipOval(
+                            child: SizedBox(
+                              width: 320,
+                              height: 320,
+                              child: _buildEditedImage(),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  // Tümünü Sıfırla - Sheet dışında
+                  // Tümünü Sıfırla - Sheet'in hemen üstünde
                   Padding(
-                    padding: const EdgeInsets.only(right: 20),
+                    padding: const EdgeInsets.only(right: 20, bottom: 8),
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
@@ -478,11 +481,16 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
 
   // === TAB İÇERİKLERİ ===
 
-  /// Filtreler sekmesi
+  /// Filtreler sekmesi - Dikey kaydırılabilir grid
   Widget _buildFiltersTab() {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+    return GridView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 5,
+        mainAxisSpacing: 3,
+        crossAxisSpacing: 4,
+        childAspectRatio: 0.72,
+      ),
       itemCount: kFilterPresets.length,
       itemBuilder: (context, index) {
         final filter = kFilterPresets[index];
@@ -490,58 +498,54 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
 
         return GestureDetector(
           onTap: () => setState(() => _state.selectedFilterIndex = index),
-          child: Container(
-            width: 70,
-            margin: const EdgeInsets.symmetric(horizontal: 6),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected
-                          ? _primaryColor
-                          : Colors.white.withValues(alpha: 0.2),
-                      width: isSelected ? 3 : 1,
-                    ),
-                  ),
-                  child: ClipOval(
-                    child: ColorFiltered(
-                      colorFilter:
-                          filter.colorFilter ??
-                          const ColorFilter.mode(
-                            Colors.transparent,
-                            BlendMode.dst,
-                          ),
-                      child: Image.file(
-                        widget.imageFile,
-                        fit: BoxFit.cover,
-                        width: 56,
-                        height: 56,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  filter.name,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
                     color: isSelected
                         ? _primaryColor
-                        : Colors.white.withValues(alpha: 0.7),
-                    fontSize: 10,
-                    fontWeight: isSelected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
+                        : Colors.white.withValues(alpha: 0.2),
+                    width: isSelected ? 3 : 1,
                   ),
-                  textAlign: TextAlign.center,
                 ),
-              ],
-            ),
+                child: ClipOval(
+                  child: ColorFiltered(
+                    colorFilter:
+                        filter.colorFilter ??
+                        const ColorFilter.mode(
+                          Colors.transparent,
+                          BlendMode.dst,
+                        ),
+                    child: Image.file(
+                      widget.imageFile,
+                      fit: BoxFit.cover,
+                      width: 52,
+                      height: 52,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                filter.name,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  color: isSelected
+                      ? _primaryColor
+                      : Colors.white.withValues(alpha: 0.7),
+                  fontSize: 9,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         );
       },
