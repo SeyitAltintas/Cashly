@@ -214,12 +214,14 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
             )
           else
             TextButton(
-              onPressed: _onCrop,
-              child: const Text(
+              onPressed: (_isLoading || _imageData == null) ? null : _onCrop,
+              child: Text(
                 'Devam',
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  color: Colors.white, // Beyaz renk
+                  color: (_isLoading || _imageData == null)
+                      ? Colors.white38
+                      : Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -274,91 +276,86 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                     ),
                   ),
           ),
+          // Tümünü Sıfırla - Sheet dışında, sağa yaslı
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: _resetAll,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 20, top: 8, bottom: 8),
+                child: Text(
+                  'Tümünü Sıfırla',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
           // Modern alt menü - Tek panel tasarımı
           Container(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             decoration: const BoxDecoration(color: _surfaceColor),
-            child: Column(
-              children: [
-                // Tümünü Sıfırla - Sağa yaslı
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: _resetAll,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Text(
-                        'Tümünü Sıfırla',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          color: Colors.white.withValues(alpha: 0.7),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Döndürme kontrolleri
+                  _buildActionButton(
+                    icon: Icons.rotate_left,
+                    label: '90° Sol',
+                    onTap: () => _rotateImage(-90),
                   ),
-                ),
-                // Tüm kontroller tek satırda
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Döndürme kontrolleri
-                      _buildActionButton(
-                        icon: Icons.rotate_left,
-                        label: '90° Sol',
-                        onTap: () => _rotateImage(-90),
-                      ),
-                      const SizedBox(width: 8),
-                      _buildActionButton(
-                        icon: Icons.rotate_right,
-                        label: '90° Sağ',
-                        onTap: () => _rotateImage(90),
-                      ),
-                      const SizedBox(width: 16),
-                      // Ayıcı
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Colors.white.withValues(alpha: 0.2),
-                      ),
-                      const SizedBox(width: 16),
-                      // Çevirme kontrolleri
-                      _buildActionButton(
-                        icon: Icons.flip,
-                        label: 'Yatay',
-                        onTap: () => _flipImage(horizontal: true),
-                        isActive: _flipHorizontal,
-                      ),
-                      const SizedBox(width: 8),
-                      _buildActionButton(
-                        icon: Icons.flip,
-                        label: 'Dikey',
-                        rotateIcon: true,
-                        onTap: () => _flipImage(vertical: true),
-                        isActive: _flipVertical,
-                      ),
-                      const SizedBox(width: 16),
-                      // Ayırıcı
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Colors.white.withValues(alpha: 0.2),
-                      ),
-                      const SizedBox(width: 16),
-                      // Grid toggle
-                      _buildActionButton(
-                        icon: _showGrid ? Icons.grid_on : Icons.grid_off,
-                        label: 'Grid',
-                        onTap: () => setState(() => _showGrid = !_showGrid),
-                        isActive: _showGrid,
-                      ),
-                    ],
+                  const SizedBox(width: 8),
+                  _buildActionButton(
+                    icon: Icons.rotate_right,
+                    label: '90° Sağ',
+                    onTap: () => _rotateImage(90),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 16),
+                  // Ayıcı
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
+                  const SizedBox(width: 16),
+                  // Çevirme kontrolleri
+                  _buildActionButton(
+                    icon: Icons.flip,
+                    label: 'Yatay',
+                    onTap: () => _flipImage(horizontal: true),
+                    isActive: _flipHorizontal,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildActionButton(
+                    icon: Icons.flip,
+                    label: 'Dikey',
+                    rotateIcon: true,
+                    onTap: () => _flipImage(vertical: true),
+                    isActive: _flipVertical,
+                  ),
+                  const SizedBox(width: 16),
+                  // Ayırıcı
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
+                  const SizedBox(width: 16),
+                  // Grid toggle
+                  _buildActionButton(
+                    icon: _showGrid ? Icons.grid_on : Icons.grid_off,
+                    label: 'Grid',
+                    onTap: () => setState(() => _showGrid = !_showGrid),
+                    isActive: _showGrid,
+                  ),
+                ],
+              ),
             ),
           ),
         ],

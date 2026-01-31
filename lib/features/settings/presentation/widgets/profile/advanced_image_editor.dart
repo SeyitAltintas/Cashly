@@ -487,9 +487,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 5,
-        mainAxisSpacing: 3,
+        mainAxisSpacing: 0,
         crossAxisSpacing: 4,
-        childAspectRatio: 0.72,
+        childAspectRatio: 0.82,
       ),
       itemCount: kFilterPresets.length,
       itemBuilder: (context, index) {
