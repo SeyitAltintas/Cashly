@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_cropper/image_cropper.dart';
 import '../../../../auth/domain/entities/user_entity.dart';
 import '../../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../../auth/data/repositories/auth_repository_impl.dart';
@@ -10,6 +9,8 @@ import '../../../../../core/di/injection_container.dart';
 import '../../../../settings/domain/repositories/settings_repository.dart';
 import '../../../../../core/widgets/app_snackbar.dart';
 import '../../../../../core/services/image_compression_service.dart';
+import 'image_crop_screen.dart';
+import 'advanced_image_editor.dart';
 
 /// Profil ayarları dialog/sheet yardımcı sınıfı
 /// Avatar seçimi, isim değiştirme, PIN değiştirme, hesap silme akışlarını yönetir
@@ -68,47 +69,38 @@ class ProfileSettingsHelper {
     }
   }
 
-  /// Resmi 1:1 kare formatında kırp
-  Future<File?> _cropImage(String imagePath) async {
-    final croppedFile = await ImageCropper().cropImage(
-      sourcePath: imagePath,
-      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: 'Profil Resmini Kırp',
-          toolbarColor: const Color(0xFF0D0D0D),
-          toolbarWidgetColor: Colors.white,
-          backgroundColor: const Color(0xFF0D0D0D),
-          activeControlsWidgetColor: const Color(0xFF00D293),
-          initAspectRatio: CropAspectRatioPreset.square,
-          lockAspectRatio: true,
-          hideBottomControls: false,
-        ),
-        IOSUiSettings(
-          title: 'Profil Resmini Kırp',
-          aspectRatioLockEnabled: true,
-          resetAspectRatioEnabled: false,
-          aspectRatioPickerButtonHidden: true,
-        ),
-      ],
-    );
-    return croppedFile != null ? File(croppedFile.path) : null;
-  }
-
-  /// Resmi işle: kırp, sıkıştır ve kaydet
+  /// Yeni gelişmiş akış: Resmi kırp → Düzenle → Kaydet
   Future<void> _processAndSaveImage(String imagePath) async {
-    // Önce kırp
-    final croppedFile = await _cropImage(imagePath);
-    if (croppedFile == null) return; // Kullanıcı iptal etti
+    if (!context.mounted) return;
 
-    // Sonra sıkıştır ve kaydet
+    // Adım 1: Özel kırpma ekranına git
+    final File? croppedFile = await Navigator.push<File>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ImageCropScreen(imageFile: File(imagePath)),
+      ),
+    );
+
+    if (croppedFile == null || !context.mounted) return; // Kullanıcı iptal etti
+
+    // Adım 2: Gelişmiş düzenleme ekranına git
+    final File? editedFile = await Navigator.push<File>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AdvancedImageEditor(imageFile: croppedFile),
+      ),
+    );
+
+    if (editedFile == null || !context.mounted) return; // Kullanıcı iptal etti
+
+    // Adım 3: Sıkıştır ve kaydet
     final compressionService = ImageCompressionService();
     final compressedPath = await compressionService.optimizeAndSaveProfileImage(
-      croppedFile,
+      editedFile,
     );
 
     _updateUser(
-      profileImage: compressedPath ?? croppedFile.path,
+      profileImage: compressedPath ?? editedFile.path,
       successMessage: "Profil resmi güncellendi",
     );
     if (context.mounted) Navigator.pop(context);

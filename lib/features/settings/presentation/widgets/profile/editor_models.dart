@@ -1,0 +1,679 @@
+import 'package:flutter/material.dart';
+
+/// Filtre preset tanımları
+class FilterPreset {
+  final String name;
+  final String emoji;
+  final ColorFilter? colorFilter;
+
+  const FilterPreset({
+    required this.name,
+    required this.emoji,
+    this.colorFilter,
+  });
+}
+
+/// Metin overlay modeli
+class TextOverlay {
+  final String id;
+  String text;
+  Offset position;
+  double fontSize;
+  Color color;
+  String fontFamily;
+  bool isBold;
+  bool isItalic;
+  double rotation;
+
+  TextOverlay({
+    required this.id,
+    required this.text,
+    this.position = const Offset(0.5, 0.5),
+    this.fontSize = 24,
+    this.color = Colors.white,
+    this.fontFamily = 'Inter',
+    this.isBold = false,
+    this.isItalic = false,
+    this.rotation = 0,
+  });
+
+  TextOverlay copyWith({
+    String? text,
+    Offset? position,
+    double? fontSize,
+    Color? color,
+    String? fontFamily,
+    bool? isBold,
+    bool? isItalic,
+    double? rotation,
+  }) {
+    return TextOverlay(
+      id: id,
+      text: text ?? this.text,
+      position: position ?? this.position,
+      fontSize: fontSize ?? this.fontSize,
+      color: color ?? this.color,
+      fontFamily: fontFamily ?? this.fontFamily,
+      isBold: isBold ?? this.isBold,
+      isItalic: isItalic ?? this.isItalic,
+      rotation: rotation ?? this.rotation,
+    );
+  }
+}
+
+/// Sticker overlay modeli
+class StickerOverlay {
+  final String id;
+  String emoji;
+  Offset position;
+  double size;
+  double rotation;
+
+  StickerOverlay({
+    required this.id,
+    required this.emoji,
+    this.position = const Offset(0.5, 0.5),
+    this.size = 48,
+    this.rotation = 0,
+  });
+
+  StickerOverlay copyWith({
+    String? emoji,
+    Offset? position,
+    double? size,
+    double? rotation,
+  }) {
+    return StickerOverlay(
+      id: id,
+      emoji: emoji ?? this.emoji,
+      position: position ?? this.position,
+      size: size ?? this.size,
+      rotation: rotation ?? this.rotation,
+    );
+  }
+}
+
+/// Çerçeve overlay modeli
+class FrameOverlay {
+  final String name;
+  final Color borderColor;
+  final double borderWidth;
+  final double cornerRadius;
+  final List<Color>? gradientColors;
+  final bool isGradient;
+
+  const FrameOverlay({
+    required this.name,
+    required this.borderColor,
+    this.borderWidth = 8,
+    this.cornerRadius = 0,
+    this.gradientColors,
+    this.isGradient = false,
+  });
+}
+
+/// Editor durumu
+class EditorState {
+  // Filtre
+  int selectedFilterIndex;
+
+  // Ayarlar
+  double brightness;
+  double contrast;
+  double saturation;
+  double temperature;
+  double tint;
+  double shadows;
+  double highlights;
+  double sharpness;
+
+  // Dönüşüm
+  int rotationAngle;
+  bool flipHorizontal;
+  bool flipVertical;
+
+  // Efektler
+  double vignette;
+
+  // Overlays
+  List<TextOverlay> textOverlays;
+  List<StickerOverlay> stickerOverlays;
+  int? selectedFrameIndex;
+
+  EditorState({
+    this.selectedFilterIndex = 0,
+    this.brightness = 0,
+    this.contrast = 0,
+    this.saturation = 0,
+    this.temperature = 0,
+    this.tint = 0,
+    this.shadows = 0,
+    this.highlights = 0,
+    this.sharpness = 0,
+    this.rotationAngle = 0,
+    this.flipHorizontal = false,
+    this.flipVertical = false,
+    this.vignette = 0,
+    List<TextOverlay>? textOverlays,
+    List<StickerOverlay>? stickerOverlays,
+    this.selectedFrameIndex,
+  }) : textOverlays = textOverlays ?? [],
+       stickerOverlays = stickerOverlays ?? [];
+
+  bool get hasChanges =>
+      selectedFilterIndex != 0 ||
+      brightness != 0 ||
+      contrast != 0 ||
+      saturation != 0 ||
+      temperature != 0 ||
+      tint != 0 ||
+      shadows != 0 ||
+      highlights != 0 ||
+      sharpness != 0 ||
+      rotationAngle != 0 ||
+      flipHorizontal ||
+      flipVertical ||
+      vignette != 0 ||
+      textOverlays.isNotEmpty ||
+      stickerOverlays.isNotEmpty ||
+      selectedFrameIndex != null;
+
+  void reset() {
+    selectedFilterIndex = 0;
+    brightness = 0;
+    contrast = 0;
+    saturation = 0;
+    temperature = 0;
+    tint = 0;
+    shadows = 0;
+    highlights = 0;
+    sharpness = 0;
+    rotationAngle = 0;
+    flipHorizontal = false;
+    flipVertical = false;
+    vignette = 0;
+    textOverlays.clear();
+    stickerOverlays.clear();
+    selectedFrameIndex = null;
+  }
+}
+
+/// Önceden tanımlı filtreler
+final List<FilterPreset> kFilterPresets = [
+  const FilterPreset(name: 'Normal', emoji: '🎨', colorFilter: null),
+  FilterPreset(
+    name: 'S/B',
+    emoji: '⚫',
+    colorFilter: const ColorFilter.matrix(<double>[
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Sepia',
+    emoji: '🟤',
+    colorFilter: const ColorFilter.matrix(<double>[
+      0.393,
+      0.769,
+      0.189,
+      0,
+      0,
+      0.349,
+      0.686,
+      0.168,
+      0,
+      0,
+      0.272,
+      0.534,
+      0.131,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Vintage',
+    emoji: '📷',
+    colorFilter: const ColorFilter.matrix(<double>[
+      0.9,
+      0.1,
+      0,
+      0,
+      20,
+      0,
+      0.9,
+      0.1,
+      0,
+      10,
+      0,
+      0.1,
+      0.8,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Vivid',
+    emoji: '🌈',
+    colorFilter: const ColorFilter.matrix(<double>[
+      1.3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1.3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1.3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Cool',
+    emoji: '❄️',
+    colorFilter: const ColorFilter.matrix(<double>[
+      0.9,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0.95,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1.2,
+      0,
+      20,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Warm',
+    emoji: '🔥',
+    colorFilter: const ColorFilter.matrix(<double>[
+      1.2,
+      0,
+      0,
+      0,
+      15,
+      0,
+      1.0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0.85,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Fade',
+    emoji: '🌫️',
+    colorFilter: const ColorFilter.matrix(<double>[
+      1.0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      1.0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      1.0,
+      0,
+      30,
+      0,
+      0,
+      0,
+      0.9,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Chrome',
+    emoji: '✨',
+    colorFilter: const ColorFilter.matrix(<double>[
+      1.2,
+      -0.1,
+      -0.1,
+      0,
+      0,
+      -0.1,
+      1.2,
+      -0.1,
+      0,
+      0,
+      -0.1,
+      -0.1,
+      1.2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Clarendon',
+    emoji: '🎭',
+    colorFilter: const ColorFilter.matrix(<double>[
+      1.2,
+      0,
+      0,
+      0,
+      10,
+      0,
+      1.1,
+      0,
+      0,
+      5,
+      0,
+      0,
+      1.3,
+      0,
+      -10,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Gingham',
+    emoji: '🏡',
+    colorFilter: const ColorFilter.matrix(<double>[
+      0.9,
+      0.1,
+      0,
+      0,
+      20,
+      0.1,
+      0.9,
+      0,
+      0,
+      20,
+      0,
+      0,
+      0.9,
+      0.1,
+      20,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Juno',
+    emoji: '🌅',
+    colorFilter: const ColorFilter.matrix(<double>[
+      1.1,
+      0,
+      0,
+      0,
+      20,
+      0,
+      1.0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0.9,
+      0,
+      -20,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Lark',
+    emoji: '🐦',
+    colorFilter: const ColorFilter.matrix(<double>[
+      1.0,
+      0.1,
+      0.1,
+      0,
+      0,
+      0,
+      1.1,
+      0,
+      0,
+      10,
+      0,
+      0.1,
+      1.0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Moon',
+    emoji: '🌙',
+    colorFilter: const ColorFilter.matrix(<double>[
+      0.25,
+      0.5,
+      0.25,
+      0,
+      30,
+      0.25,
+      0.5,
+      0.25,
+      0,
+      30,
+      0.25,
+      0.5,
+      0.25,
+      0,
+      30,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+  FilterPreset(
+    name: 'Nashville',
+    emoji: '🎸',
+    colorFilter: const ColorFilter.matrix(<double>[
+      1.2,
+      0.1,
+      0,
+      0,
+      30,
+      0,
+      1.0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0.8,
+      0,
+      20,
+      0,
+      0,
+      0,
+      1,
+      0,
+    ]),
+  ),
+];
+
+/// Önceden tanımlı sticker'lar
+const List<String> kStickerEmojis = [
+  '😀',
+  '😍',
+  '🥳',
+  '😎',
+  '🤩',
+  '😇',
+  '❤️',
+  '💕',
+  '💖',
+  '💗',
+  '💓',
+  '💜',
+  '⭐',
+  '🌟',
+  '✨',
+  '💫',
+  '🌈',
+  '☀️',
+  '🎉',
+  '🎊',
+  '🎁',
+  '🎈',
+  '🎀',
+  '🎯',
+  '🔥',
+  '💯',
+  '👑',
+  '💎',
+  '🏆',
+  '🎭',
+  '🌸',
+  '🌺',
+  '🌻',
+  '🌹',
+  '🌷',
+  '💐',
+  '🦋',
+  '🐝',
+  '🐞',
+  '🌿',
+  '🍀',
+  '🌴',
+];
+
+/// Önceden tanımlı çerçeveler
+final List<FrameOverlay> kFramePresets = [
+  const FrameOverlay(
+    name: 'Yok',
+    borderColor: Colors.transparent,
+    borderWidth: 0,
+  ),
+  const FrameOverlay(name: 'Beyaz', borderColor: Colors.white, borderWidth: 8),
+  const FrameOverlay(name: 'Siyah', borderColor: Colors.black, borderWidth: 8),
+  FrameOverlay(
+    name: 'Altın',
+    borderColor: const Color(0xFFFFD700),
+    borderWidth: 10,
+    gradientColors: [
+      const Color(0xFFFFD700),
+      const Color(0xFFFFA500),
+      const Color(0xFFFFD700),
+    ],
+    isGradient: true,
+  ),
+  FrameOverlay(
+    name: 'Gümüş',
+    borderColor: const Color(0xFFC0C0C0),
+    borderWidth: 10,
+    gradientColors: [
+      const Color(0xFFC0C0C0),
+      const Color(0xFFE8E8E8),
+      const Color(0xFFC0C0C0),
+    ],
+    isGradient: true,
+  ),
+  FrameOverlay(
+    name: 'Neon',
+    borderColor: const Color(0xFF00D293),
+    borderWidth: 6,
+    gradientColors: [
+      const Color(0xFF00D293),
+      const Color(0xFF00BFFF),
+      const Color(0xFF00D293),
+    ],
+    isGradient: true,
+  ),
+  const FrameOverlay(
+    name: 'Retro',
+    borderColor: Color(0xFF8B4513),
+    borderWidth: 12,
+    cornerRadius: 0,
+  ),
+  FrameOverlay(
+    name: 'Gökkuşağı',
+    borderColor: Colors.red,
+    borderWidth: 8,
+    gradientColors: [
+      Colors.red,
+      Colors.orange,
+      Colors.yellow,
+      Colors.green,
+      Colors.blue,
+      Colors.purple,
+      Colors.red,
+    ],
+    isGradient: true,
+  ),
+];
