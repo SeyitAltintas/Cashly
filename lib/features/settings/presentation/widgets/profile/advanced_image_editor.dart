@@ -55,7 +55,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
         elevation: 0,
         title: const Text(
           'Fotoğraf Düzenle',
-          style: TextStyle(fontWeight: FontWeight.w600),
+          style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600),
         ),
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -67,7 +67,11 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               onPressed: _resetAll,
               child: const Text(
                 'Sıfırla',
-                style: TextStyle(color: Colors.white54, fontSize: 14),
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  color: Colors.white54,
+                  fontSize: 14,
+                ),
               ),
             ),
           if (_isSaving)
@@ -90,6 +94,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               child: const Text(
                 'Uygula',
                 style: TextStyle(
+                  fontFamily: 'Inter',
                   color: _primaryColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -154,10 +159,12 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       unselectedLabelColor: Colors.white60,
                       labelPadding: const EdgeInsets.symmetric(horizontal: 12),
                       labelStyle: const TextStyle(
+                        fontFamily: 'Inter',
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
                       unselectedLabelStyle: const TextStyle(
+                        fontFamily: 'Inter',
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
@@ -295,10 +302,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             padding: const EdgeInsets.all(4),
             decoration: isSelected
                 ? BoxDecoration(
-                    border: Border.all(
-                      color: _primaryColor,
-                      width: 2,
-                    ),
+                    border: Border.all(color: _primaryColor, width: 2),
                     borderRadius: BorderRadius.circular(4),
                   )
                 : null,
@@ -351,10 +355,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             padding: const EdgeInsets.all(4),
             decoration: isSelected
                 ? BoxDecoration(
-                    border: Border.all(
-                      color: _primaryColor,
-                      width: 2,
-                    ),
+                    border: Border.all(color: _primaryColor, width: 2),
                     borderRadius: BorderRadius.circular(4),
                   )
                 : null,
@@ -763,9 +764,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                             ? '${text.text.substring(0, 10)}...'
                             : text.text,
                         style: TextStyle(
-                          color: isSelected
-                              ? _primaryColor
-                              : Colors.white70,
+                          color: isSelected ? _primaryColor : Colors.white70,
                           fontSize: 12,
                         ),
                       ),
@@ -893,9 +892,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 }
                 Navigator.pop(ctx);
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _primaryColor,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: _primaryColor),
               child: const Text('Ekle', style: TextStyle(color: Colors.white)),
             ),
           ],

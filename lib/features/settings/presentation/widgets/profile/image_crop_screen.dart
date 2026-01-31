@@ -125,6 +125,21 @@ class _ImageCropScreenState extends State<ImageCropScreen>
     });
   }
 
+  /// Tüm değişiklikleri sıfırla (döndürme, çevirme, ayarlar, kırpma alanı)
+  void _resetAll() {
+    setState(() {
+      // Dönüşümleri sıfırla
+      _rotationDegrees = 0;
+      _flipHorizontal = false;
+      _flipVertical = false;
+      // Ayarları sıfırla
+      _showGrid = true;
+      _moveImageMode = false;
+    });
+    // Kırpma alanını sıfırla (resmi yeniden yükle)
+    _cropController.aspectRatio = 1;
+  }
+
   Future<void> _onCrop() async {
     if (_isCropping) return;
     setState(() => _isCropping = true);
@@ -193,7 +208,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
         elevation: 0,
         title: const Text(
           'Fotoğrafı Kırp',
-          style: TextStyle(fontWeight: FontWeight.w600),
+          style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600),
         ),
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -220,6 +235,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
               child: const Text(
                 'Devam',
                 style: TextStyle(
+                  fontFamily: 'Inter',
                   color: _primaryColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -256,18 +272,18 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                       interactive: _moveImageMode,
                       baseColor: _backgroundColor,
                       maskColor: Colors.black.withValues(alpha: 0.75),
-                      // Pinch noktaları (18px)
+                      // Pinch noktaları (24px - kolay tutulabilir)
                       cornerDotBuilder: (size, edgeAlignment) => Container(
-                        width: 18,
-                        height: 18,
+                        width: 24,
+                        height: 24,
                         decoration: BoxDecoration(
                           color: _primaryColor,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 1.5),
+                          border: Border.all(color: Colors.white, width: 2),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.3),
-                              blurRadius: 4,
+                              blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
                           ],
@@ -296,6 +312,22 @@ class _ImageCropScreenState extends State<ImageCropScreen>
             decoration: const BoxDecoration(color: _surfaceColor),
             child: Column(
               children: [
+                // Tümünü Sıfırla butonu
+                GestureDetector(
+                  onTap: _resetAll,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text(
+                      'Tümünü Sıfırla',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
                 // Pill-style tab seçici
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -315,10 +347,12 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                     labelColor: Colors.white,
                     unselectedLabelColor: Colors.white60,
                     labelStyle: const TextStyle(
+                      fontFamily: 'Inter',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
                     unselectedLabelStyle: const TextStyle(
+                      fontFamily: 'Inter',
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -448,6 +482,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
             Text(
               label,
               style: TextStyle(
+                fontFamily: 'Inter',
                 color: isActive ? Colors.white : Colors.white70,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
