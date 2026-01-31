@@ -71,7 +71,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
   bool _showGrid = true;
   bool _flipHorizontal = false;
   bool _flipVertical = false;
-  bool _moveImageMode = false; // false = kırpma alanını taşı, true = resmi taşı
+  
+  // Resmi yeniden yüklemek için key
+  UniqueKey _cropKey = UniqueKey();
 
   late TabController _tabController;
 
@@ -125,7 +127,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
     });
   }
 
-  /// Tüm değişiklikleri sıfırla (döndürme, çevirme, ayarlar, kırpma alanı)
+  /// Tüm değişiklikleri sıfırla (döndürme, çevirme, ayarlar, resim pozisyonu)
   void _resetAll() {
     setState(() {
       // Dönüşümleri sıfırla
@@ -134,10 +136,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
       _flipVertical = false;
       // Ayarları sıfırla
       _showGrid = true;
-      _moveImageMode = false;
+      // Resmi varsayılan boyuta getirmek için Crop widget'ını yeniden oluştur
+      _cropKey = UniqueKey();
     });
-    // Kırpma alanını sıfırla (resmi yeniden yükle)
-    _cropController.aspectRatio = 1;
   }
 
   Future<void> _onCrop() async {
@@ -264,31 +265,20 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                         ),
                       ),
                     child: Crop(
+                      key: _cropKey,
                       controller: _cropController,
                       image: _imageData!,
                       aspectRatio: 1,
                       withCircleUi: true,
-                      // _moveImageMode: false = kırpma alanını taşı, true = resmi taşı
-                      interactive: _moveImageMode,
+                      // Dairesel alan sabit, kullanıcı sadece resmi hareket ettirir
+                      interactive: true,
+                      // Kırpma alanının boyutunu sabitlemek için fixArea kullan
+                      fixCropRect: true,
                       baseColor: _backgroundColor,
                       maskColor: Colors.black.withValues(alpha: 0.75),
-                      // Pinch noktaları (24px - kolay tutulabilir)
-                      cornerDotBuilder: (size, edgeAlignment) => Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: _primaryColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.3),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Köşe noktalarını gizle (boş widget)
+                      cornerDotBuilder: (size, edgeAlignment) =>
+                          const SizedBox.shrink(),
                       // Grid overlay - crop alanı ile senkronize
                       overlayBuilder: _showGrid
                           ? (context, rect) => ClipOval(
@@ -434,19 +424,13 @@ class _ImageCropScreenState extends State<ImageCropScreen>
   /// Ayarlar sekmesi
   Widget _buildSettingsTab() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildActionButton(
           icon: _showGrid ? Icons.grid_on : Icons.grid_off,
           label: 'Grid',
           onTap: () => setState(() => _showGrid = !_showGrid),
           isActive: _showGrid,
-        ),
-        _buildActionButton(
-          icon: _moveImageMode ? Icons.photo_size_select_large : Icons.crop,
-          label: _moveImageMode ? 'Resmi Taşı' : 'Alanı Taşı',
-          onTap: () => setState(() => _moveImageMode = !_moveImageMode),
-          isActive: _moveImageMode,
         ),
       ],
     );
