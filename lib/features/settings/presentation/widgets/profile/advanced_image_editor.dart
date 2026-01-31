@@ -22,6 +22,12 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   final GlobalKey _imageKey = GlobalKey();
   bool _isSaving = false;
 
+  // Tema renkleri
+  static const Color _primaryColor = Color(0xFF075174);
+  static const Color _backgroundColor = Color(0xFF121212);
+  static const Color _surfaceColor = Color(0xFF1A1A1A);
+  static const Color _cardColor = Color(0xFF242424);
+
   // Editor state
   final EditorState _state = EditorState();
 
@@ -43,10 +49,14 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: _backgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
-        title: const Text('Fotoğraf Düzenle'),
+        backgroundColor: _backgroundColor,
+        elevation: 0,
+        title: const Text(
+          'Fotoğraf Düzenle',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
@@ -69,7 +79,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   height: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Color(0xFF00D293),
+                    color: _primaryColor,
                   ),
                 ),
               ),
@@ -80,7 +90,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               child: const Text(
                 'Uygula',
                 style: TextStyle(
-                  color: Color(0xFF00D293),
+                  color: _primaryColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -115,56 +125,71 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               ),
             ),
           ),
-          // Tab bar
+          // Modern alt menü
           Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.3),
-              border: Border(
-                bottom: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-              ),
-            ),
-            child: TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              indicatorColor: const Color(0xFF00D293),
-              labelColor: const Color(0xFF00D293),
-              unselectedLabelColor: Colors.white54,
-              labelStyle: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-              ),
-              tabs: const [
-                Tab(
-                  icon: Icon(Icons.auto_awesome, size: 18),
-                  text: 'Filtreler',
-                ),
-                Tab(icon: Icon(Icons.tune, size: 18), text: 'Ayarlar'),
-                Tab(icon: Icon(Icons.crop_rotate, size: 18), text: 'Dönüşüm'),
-                Tab(icon: Icon(Icons.text_fields, size: 18), text: 'Metin'),
-                Tab(
-                  icon: Icon(Icons.emoji_emotions, size: 18),
-                  text: 'Sticker',
-                ),
-                Tab(icon: Icon(Icons.filter_frames, size: 18), text: 'Çerçeve'),
-              ],
-            ),
-          ),
-          // Tab içerikleri
-          SizedBox(
-            height: 200,
-            child: TabBarView(
-              controller: _tabController,
+            padding: const EdgeInsets.only(top: 12),
+            decoration: const BoxDecoration(color: _surfaceColor),
+            child: Column(
               children: [
-                _buildFiltersTab(),
-                _buildAdjustmentsTab(),
-                _buildTransformTab(),
-                _buildTextTab(),
-                _buildStickerTab(),
-                _buildFrameTab(),
+                // Scrollable pill-style tab seçici
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: _cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: TabBar(
+                      controller: _tabController,
+                      isScrollable: true,
+                      indicator: BoxDecoration(
+                        color: _primaryColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      dividerColor: Colors.transparent,
+                      labelColor: Colors.white,
+                      unselectedLabelColor: Colors.white60,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 12),
+                      labelStyle: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      unselectedLabelStyle: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      tabs: const [
+                        Tab(height: 34, text: 'Filtreler'),
+                        Tab(height: 34, text: 'Ayarlar'),
+                        Tab(height: 34, text: 'Dönüşüm'),
+                        Tab(height: 34, text: 'Metin'),
+                        Tab(height: 34, text: 'Sticker'),
+                        Tab(height: 34, text: 'Çerçeve'),
+                      ],
+                    ),
+                  ),
+                ),
+                // Tab içerikleri
+                SizedBox(
+                  height: 190,
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildFiltersTab(),
+                      _buildAdjustmentsTab(),
+                      _buildTransformTab(),
+                      _buildTextTab(),
+                      _buildStickerTab(),
+                      _buildFrameTab(),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 8),
         ],
       ),
     );
@@ -271,7 +296,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             decoration: isSelected
                 ? BoxDecoration(
                     border: Border.all(
-                      color: const Color(0xFF00D293),
+                      color: _primaryColor,
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(4),
@@ -327,7 +352,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             decoration: isSelected
                 ? BoxDecoration(
                     border: Border.all(
-                      color: const Color(0xFF00D293),
+                      color: _primaryColor,
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(4),
@@ -448,7 +473,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isSelected
-                          ? const Color(0xFF00D293)
+                          ? _primaryColor
                           : Colors.white.withValues(alpha: 0.2),
                       width: isSelected ? 3 : 1,
                     ),
@@ -476,7 +501,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   filter.name,
                   style: TextStyle(
                     color: isSelected
-                        ? const Color(0xFF00D293)
+                        ? _primaryColor
                         : Colors.white.withValues(alpha: 0.7),
                     fontSize: 10,
                     fontWeight: isSelected
@@ -559,10 +584,10 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           Expanded(
             child: SliderTheme(
               data: SliderThemeData(
-                activeTrackColor: const Color(0xFF00D293),
+                activeTrackColor: _primaryColor,
                 inactiveTrackColor: Colors.white24,
-                thumbColor: const Color(0xFF00D293),
-                overlayColor: const Color(0xFF00D293).withValues(alpha: 0.2),
+                thumbColor: _primaryColor,
+                overlayColor: _primaryColor.withValues(alpha: 0.2),
                 trackHeight: 2,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
               ),
@@ -649,12 +674,12 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             height: 48,
             decoration: BoxDecoration(
               color: isActive
-                  ? const Color(0xFF00D293).withValues(alpha: 0.2)
+                  ? _primaryColor.withValues(alpha: 0.2)
                   : Colors.white.withValues(alpha: 0.1),
               shape: BoxShape.circle,
               border: Border.all(
                 color: isActive
-                    ? const Color(0xFF00D293)
+                    ? _primaryColor
                     : Colors.white.withValues(alpha: 0.2),
               ),
             ),
@@ -662,7 +687,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               angle: rotateIcon ? math.pi / 2 : 0,
               child: Icon(
                 icon,
-                color: isActive ? const Color(0xFF00D293) : Colors.white70,
+                color: isActive ? _primaryColor : Colors.white70,
                 size: 22,
               ),
             ),
@@ -671,7 +696,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           Text(
             label,
             style: TextStyle(
-              color: isActive ? const Color(0xFF00D293) : Colors.white54,
+              color: isActive ? _primaryColor : Colors.white54,
               fontSize: 10,
             ),
           ),
@@ -692,7 +717,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             icon: const Icon(Icons.add, size: 18),
             label: const Text('Metin Ekle'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00D293),
+              backgroundColor: _primaryColor,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
@@ -724,12 +749,12 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? const Color(0xFF00D293).withValues(alpha: 0.2)
+                            ? _primaryColor.withValues(alpha: 0.2)
                             : Colors.white.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: isSelected
-                              ? const Color(0xFF00D293)
+                              ? _primaryColor
                               : Colors.white.withValues(alpha: 0.2),
                         ),
                       ),
@@ -739,7 +764,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                             : text.text,
                         style: TextStyle(
                           color: isSelected
-                              ? const Color(0xFF00D293)
+                              ? _primaryColor
                               : Colors.white70,
                           fontSize: 12,
                         ),
@@ -775,7 +800,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           Colors.black,
           Colors.red,
           Colors.blue,
-          const Color(0xFF00D293),
+          _primaryColor,
         ].map(
           (color) => GestureDetector(
             onTap: () => setState(() => text.color = color),
@@ -788,7 +813,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: text.color == color
-                      ? const Color(0xFF00D293)
+                      ? _primaryColor
                       : Colors.white.withValues(alpha: 0.3),
                   width: text.color == color ? 2 : 1,
                 ),
@@ -802,7 +827,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           onPressed: () => setState(() => text.isBold = !text.isBold),
           icon: Icon(
             Icons.format_bold,
-            color: text.isBold ? const Color(0xFF00D293) : Colors.white54,
+            color: text.isBold ? _primaryColor : Colors.white54,
           ),
           iconSize: 20,
         ),
@@ -841,7 +866,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 borderRadius: BorderRadius.circular(8),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Color(0xFF00D293)),
+                borderSide: const BorderSide(color: _primaryColor),
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -869,7 +894,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 Navigator.pop(ctx);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00D293),
+                backgroundColor: _primaryColor,
               ),
               child: const Text('Ekle', style: TextStyle(color: Colors.white)),
             ),
@@ -908,7 +933,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     value: _getSelectedStickerOverlay()!.size,
                     min: 24,
                     max: 80,
-                    activeColor: const Color(0xFF00D293),
+                    activeColor: _primaryColor,
                     onChanged: (v) => setState(() {
                       _getSelectedStickerOverlay()!.size = v;
                     }),
@@ -1022,7 +1047,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       shape: BoxShape.circle,
                       color: Colors.grey[700],
                       border: isSelected
-                          ? Border.all(color: const Color(0xFF00D293), width: 2)
+                          ? Border.all(color: _primaryColor, width: 2)
                           : null,
                     ),
                     child: ClipOval(
@@ -1040,7 +1065,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   frame.name,
                   style: TextStyle(
                     color: isSelected
-                        ? const Color(0xFF00D293)
+                        ? _primaryColor
                         : Colors.white.withValues(alpha: 0.7),
                     fontSize: 10,
                     fontWeight: isSelected

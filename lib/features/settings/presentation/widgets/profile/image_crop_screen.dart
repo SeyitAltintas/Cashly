@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:image/image.dart' as img;
 
 /// Özelleştirilebilir profil resmi kırpma ekranı
 /// crop_your_image paketi ile tam kontrol sağlar
@@ -15,36 +17,148 @@ class ImageCropScreen extends StatefulWidget {
   State<ImageCropScreen> createState() => _ImageCropScreenState();
 }
 
-class _ImageCropScreenState extends State<ImageCropScreen> {
+class _ImageCropScreenState extends State<ImageCropScreen>
+    with SingleTickerProviderStateMixin {
   final _cropController = CropController();
   Uint8List? _imageData;
+  Uint8List? _originalImageData;
   bool _isLoading = true;
   bool _isCropping = false;
-  int _rotationTurns = 0;
+  int _rotationDegrees = 0;
+  bool _showGrid = true;
+  bool _flipHorizontal = false;
+  bool _flipVertical = false;
+
+  late TabController _tabController;
+
+  // Tema renkleri
+  static const Color _primaryColor = Color(0xFF075174);
+  static const Color _backgroundColor = Color(0xFF121212);
+  static const Color _surfaceColor = Color(0xFF1A1A1A);
+  static const Color _cardColor = Color(0xFF242424);
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
     _loadImage();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadImage() async {
     final bytes = await widget.imageFile.readAsBytes();
     setState(() {
+      _originalImageData = bytes;
       _imageData = bytes;
       _isLoading = false;
     });
   }
 
-  void _rotateLeft() {
-    setState(() {
-      _rotationTurns = (_rotationTurns - 1) % 4;
-    });
+  /// Resmi döndür ve yeni image data oluştur
+  Future<void> _rotateImage(int degrees) async {
+    if (_originalImageData == null) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final newRotation = (_rotationDegrees + degrees) % 360;
+
+      // image paketini kullanarak döndür
+      img.Image? image = img.decodeImage(_originalImageData!);
+      if (image != null) {
+        // Toplam rotasyonu uygula
+        if (newRotation == 90) {
+          image = img.copyRotate(image, angle: 90);
+        } else if (newRotation == 180) {
+          image = img.copyRotate(image, angle: 180);
+        } else if (newRotation == 270) {
+          image = img.copyRotate(image, angle: 270);
+        }
+
+        // Flip uygula
+        if (_flipHorizontal) {
+          image = img.flipHorizontal(image);
+        }
+        if (_flipVertical) {
+          image = img.flipVertical(image);
+        }
+
+        final rotatedBytes = Uint8List.fromList(img.encodePng(image));
+
+        setState(() {
+          _rotationDegrees = newRotation;
+          _imageData = rotatedBytes;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Döndürme hatası: $e')));
+      }
+    }
   }
 
-  void _rotateRight() {
+  Future<void> _flipImage({
+    bool horizontal = false,
+    bool vertical = false,
+  }) async {
+    if (_originalImageData == null) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      if (horizontal) {
+        _flipHorizontal = !_flipHorizontal;
+      }
+      if (vertical) {
+        _flipVertical = !_flipVertical;
+      }
+
+      img.Image? image = img.decodeImage(_originalImageData!);
+      if (image != null) {
+        // Rotasyon uygula
+        if (_rotationDegrees == 90) {
+          image = img.copyRotate(image, angle: 90);
+        } else if (_rotationDegrees == 180) {
+          image = img.copyRotate(image, angle: 180);
+        } else if (_rotationDegrees == 270) {
+          image = img.copyRotate(image, angle: 270);
+        }
+
+        // Flip uygula
+        if (_flipHorizontal) {
+          image = img.flipHorizontal(image);
+        }
+        if (_flipVertical) {
+          image = img.flipVertical(image);
+        }
+
+        final bytes = Uint8List.fromList(img.encodePng(image));
+
+        setState(() {
+          _imageData = bytes;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _resetTransforms() async {
     setState(() {
-      _rotationTurns = (_rotationTurns + 1) % 4;
+      _rotationDegrees = 0;
+      _flipHorizontal = false;
+      _flipVertical = false;
+      _imageData = _originalImageData;
     });
   }
 
@@ -70,7 +184,6 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
 
   Future<void> _saveCroppedImage(Uint8List croppedData) async {
     try {
-      // Kırpılmış resmi geçici dosyaya kaydet
       final directory = await getTemporaryDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final croppedPath = '${directory.path}/cropped_$timestamp.png';
@@ -93,10 +206,14 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: _backgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
-        title: const Text('Fotoğrafı Kırp'),
+        backgroundColor: _backgroundColor,
+        elevation: 0,
+        title: const Text(
+          'Fotoğrafı Kırp',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
@@ -111,7 +228,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                   height: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Color(0xFF00D293),
+                    color: _primaryColor,
                   ),
                 ),
               ),
@@ -122,7 +239,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
               child: const Text(
                 'Devam',
                 style: TextStyle(
-                  color: Color(0xFF00D293),
+                  color: _primaryColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -136,58 +253,98 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
           Expanded(
             child: _isLoading || _imageData == null
                 ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF00D293)),
+                    child: CircularProgressIndicator(color: _primaryColor),
                   )
-                : RotatedBox(
-                    quarterTurns: _rotationTurns,
-                    child: Crop(
-                      controller: _cropController,
-                      image: _imageData!,
-                      aspectRatio: 1,
-                      withCircleUi: true,
-                      baseColor: const Color(0xFF0D0D0D),
-                      maskColor: Colors.black.withValues(alpha: 0.7),
-                      cornerDotBuilder: (size, edgeAlignment) => Container(
-                        width: size,
-                        height: size,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF00D293),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 1),
-                        ),
+                : Crop(
+                    controller: _cropController,
+                    image: _imageData!,
+                    aspectRatio: 1,
+                    withCircleUi: true,
+                    interactive: true,
+                    baseColor: _backgroundColor,
+                    maskColor: Colors.black.withValues(alpha: 0.75),
+                    // Pinch noktaları (18px)
+                    cornerDotBuilder: (size, edgeAlignment) => Container(
+                      width: 18,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: _primaryColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      onCropped: _handleCropResult,
                     ),
+                    // Grid overlay - crop alanı ile senkronize
+                    overlayBuilder: _showGrid
+                        ? (context, rect) => ClipOval(
+                            child: CustomPaint(
+                              size: Size(rect.width, rect.height),
+                              painter: _GridPainter(
+                                gridColor: Colors.white.withValues(alpha: 0.3),
+                              ),
+                            ),
+                          )
+                        : null,
+                    onCropped: _handleCropResult,
                   ),
           ),
-          // Alt kontrol çubuğu
+          // Modern alt menü
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.5),
-              border: Border(
-                top: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: const BoxDecoration(color: _surfaceColor),
+            child: Column(
               children: [
-                _buildControlButton(
-                  icon: Icons.rotate_left,
-                  label: 'Sola Döndür',
-                  onTap: _rotateLeft,
+                // Pill-style tab seçici
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: _cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: TabBar(
+                    controller: _tabController,
+                    indicator: BoxDecoration(
+                      color: _primaryColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    dividerColor: Colors.transparent,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white60,
+                    labelStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    tabs: const [
+                      Tab(height: 36, text: 'Döndür'),
+                      Tab(height: 36, text: 'Çevir'),
+                      Tab(height: 36, text: 'Ayarlar'),
+                    ],
+                  ),
                 ),
-                _buildControlButton(
-                  icon: Icons.rotate_right,
-                  label: 'Sağa Döndür',
-                  onTap: _rotateRight,
-                ),
-                _buildControlButton(
-                  icon: Icons.crop_square,
-                  label: 'Sıfırla',
-                  onTap: () {
-                    setState(() => _rotationTurns = 0);
-                  },
+                const SizedBox(height: 16),
+                // Tab içerikleri
+                SizedBox(
+                  height: 80,
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildRotateTab(),
+                      _buildFlipTab(),
+                      _buildSettingsTab(),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -197,33 +354,141 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
     );
   }
 
-  Widget _buildControlButton({
+  /// Döndürme sekmesi
+  Widget _buildRotateTab() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildActionButton(
+          icon: Icons.rotate_left,
+          label: '90° Sol',
+          onTap: () => _rotateImage(-90),
+        ),
+        _buildActionButton(
+          icon: Icons.rotate_right,
+          label: '90° Sağ',
+          onTap: () => _rotateImage(90),
+        ),
+        _buildActionButton(
+          icon: Icons.refresh,
+          label: 'Sıfırla',
+          onTap: _resetTransforms,
+          isActive: _rotationDegrees != 0 || _flipHorizontal || _flipVertical,
+        ),
+      ],
+    );
+  }
+
+  /// Çevirme sekmesi
+  Widget _buildFlipTab() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildActionButton(
+          icon: Icons.flip,
+          label: 'Yatay',
+          onTap: () => _flipImage(horizontal: true),
+          isActive: _flipHorizontal,
+        ),
+        _buildActionButton(
+          icon: Icons.flip,
+          label: 'Dikey',
+          rotateIcon: true,
+          onTap: () => _flipImage(vertical: true),
+          isActive: _flipVertical,
+        ),
+      ],
+    );
+  }
+
+  /// Ayarlar sekmesi
+  Widget _buildSettingsTab() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildActionButton(
+          icon: _showGrid ? Icons.grid_on : Icons.grid_off,
+          label: 'Grid',
+          onTap: () => setState(() => _showGrid = !_showGrid),
+          isActive: _showGrid,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButton({
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    bool isActive = false,
+    bool rotateIcon = false,
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive ? _primaryColor : _cardColor,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Transform.rotate(
+              angle: rotateIcon ? math.pi / 2 : 0,
+              child: Icon(
+                icon,
+                color: isActive ? Colors.white : Colors.white70,
+                size: 18,
+              ),
             ),
-            child: Icon(icon, color: Colors.white70, size: 22),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: const TextStyle(color: Colors.white54, fontSize: 10),
-          ),
-        ],
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isActive ? Colors.white : Colors.white70,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+/// overlayBuilder için grid çizen painter
+/// crop alanının boyutlarına göre çalışır
+class _GridPainter extends CustomPainter {
+  final Color gridColor;
+
+  _GridPainter({required this.gridColor});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = gridColor
+      ..strokeWidth = 0.8
+      ..style = PaintingStyle.stroke;
+
+    // 3x3 grid çizgilerini çiz
+    final gridSpacingX = size.width / 3;
+    final gridSpacingY = size.height / 3;
+
+    // Dikey çizgiler
+    for (int i = 1; i < 3; i++) {
+      final x = gridSpacingX * i;
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+
+    // Yatay çizgiler
+    for (int i = 1; i < 3; i++) {
+      final y = gridSpacingY * i;
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

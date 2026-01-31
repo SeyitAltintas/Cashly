@@ -201,10 +201,10 @@ class EditorState {
 /// Önceden tanımlı filtreler
 final List<FilterPreset> kFilterPresets = [
   const FilterPreset(name: 'Normal', emoji: '🎨', colorFilter: null),
-  FilterPreset(
+  const FilterPreset(
     name: 'S/B',
     emoji: '⚫',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       0.2126,
       0.7152,
       0.0722,
@@ -227,10 +227,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Sepia',
     emoji: '🟤',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       0.393,
       0.769,
       0.189,
@@ -253,10 +253,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Vintage',
     emoji: '📷',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       0.9,
       0.1,
       0,
@@ -279,10 +279,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Vivid',
     emoji: '🌈',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       1.3,
       0,
       0,
@@ -305,10 +305,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Cool',
     emoji: '❄️',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       0.9,
       0,
       0,
@@ -331,10 +331,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Warm',
     emoji: '🔥',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       1.2,
       0,
       0,
@@ -357,10 +357,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Fade',
     emoji: '🌫️',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       1.0,
       0,
       0,
@@ -383,10 +383,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Chrome',
     emoji: '✨',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       1.2,
       -0.1,
       -0.1,
@@ -409,10 +409,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Clarendon',
     emoji: '🎭',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       1.2,
       0,
       0,
@@ -435,10 +435,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Gingham',
     emoji: '🏡',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       0.9,
       0.1,
       0,
@@ -461,10 +461,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Juno',
     emoji: '🌅',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       1.1,
       0,
       0,
@@ -487,10 +487,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Lark',
     emoji: '🐦',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       1.0,
       0.1,
       0.1,
@@ -513,10 +513,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Moon',
     emoji: '🌙',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       0.25,
       0.5,
       0.25,
@@ -539,10 +539,10 @@ final List<FilterPreset> kFilterPresets = [
       0,
     ]),
   ),
-  FilterPreset(
+  const FilterPreset(
     name: 'Nashville',
     emoji: '🎸',
-    colorFilter: const ColorFilter.matrix(<double>[
+    colorFilter: ColorFilter.matrix(<double>[
       1.2,
       0.1,
       0,
@@ -622,37 +622,25 @@ final List<FrameOverlay> kFramePresets = [
   ),
   const FrameOverlay(name: 'Beyaz', borderColor: Colors.white, borderWidth: 8),
   const FrameOverlay(name: 'Siyah', borderColor: Colors.black, borderWidth: 8),
-  FrameOverlay(
+  const FrameOverlay(
     name: 'Altın',
-    borderColor: const Color(0xFFFFD700),
+    borderColor: Color(0xFFFFD700),
     borderWidth: 10,
-    gradientColors: [
-      const Color(0xFFFFD700),
-      const Color(0xFFFFA500),
-      const Color(0xFFFFD700),
-    ],
+    gradientColors: [Color(0xFFFFD700), Color(0xFFFFA500), Color(0xFFFFD700)],
     isGradient: true,
   ),
-  FrameOverlay(
+  const FrameOverlay(
     name: 'Gümüş',
-    borderColor: const Color(0xFFC0C0C0),
+    borderColor: Color(0xFFC0C0C0),
     borderWidth: 10,
-    gradientColors: [
-      const Color(0xFFC0C0C0),
-      const Color(0xFFE8E8E8),
-      const Color(0xFFC0C0C0),
-    ],
+    gradientColors: [Color(0xFFC0C0C0), Color(0xFFE8E8E8), Color(0xFFC0C0C0)],
     isGradient: true,
   ),
-  FrameOverlay(
+  const FrameOverlay(
     name: 'Neon',
-    borderColor: const Color(0xFF00D293),
+    borderColor: Color(0xFF00D293),
     borderWidth: 6,
-    gradientColors: [
-      const Color(0xFF00D293),
-      const Color(0xFF00BFFF),
-      const Color(0xFF00D293),
-    ],
+    gradientColors: [Color(0xFF00D293), Color(0xFF00BFFF), Color(0xFF00D293)],
     isGradient: true,
   ),
   const FrameOverlay(
@@ -661,7 +649,7 @@ final List<FrameOverlay> kFramePresets = [
     borderWidth: 12,
     cornerRadius: 0,
   ),
-  FrameOverlay(
+  const FrameOverlay(
     name: 'Gökkuşağı',
     borderColor: Colors.red,
     borderWidth: 8,
