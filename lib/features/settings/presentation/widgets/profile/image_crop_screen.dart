@@ -70,6 +70,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
   bool _flipHorizontal = false;
   bool _flipVertical = false;
   double _fineRotation = 0.0; // -180 ile +180 arası, 1° adımlarla
+  bool _showOriginal = false; // Karşılaştırma modu - orijinali göster
 
   // Resmi yeniden yüklemek için key
   UniqueKey _cropKey = UniqueKey();
@@ -245,17 +246,22 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                 : ClipRect(
                     child: Transform(
                       alignment: Alignment.center,
-                      transform: Matrix4.identity()
-                        ..rotateZ(
-                          (_rotationDegrees + _fineRotation) * math.pi / 180,
-                        )
-                        ..multiply(
-                          Matrix4.diagonal3Values(
-                            _flipHorizontal ? -1.0 : 1.0,
-                            _flipVertical ? -1.0 : 1.0,
-                            1.0,
-                          ),
-                        ),
+                      // Karşılaştırma modunda orijinali göster (dönüşüm yok)
+                      transform: _showOriginal
+                          ? Matrix4.identity()
+                          : (Matrix4.identity()
+                              ..rotateZ(
+                                (_rotationDegrees + _fineRotation) *
+                                    math.pi /
+                                    180,
+                              )
+                              ..multiply(
+                                Matrix4.diagonal3Values(
+                                  _flipHorizontal ? -1.0 : 1.0,
+                                  _flipVertical ? -1.0 : 1.0,
+                                  1.0,
+                                ),
+                              )),
                       child: Crop(
                         key: _cropKey,
                         controller: _cropController,
@@ -306,7 +312,9 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
           ),
           // Modern alt menü - Yeniden tasarlanmış
           Container(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            height:
+                150, // Sabit yükseklik (150 = 48 slider + 12 gap + 55 buttons + 35 padding)
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
             decoration: const BoxDecoration(
               color: _surfaceColor,
               borderRadius: BorderRadius.only(
@@ -362,6 +370,8 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                       onTap: () => setState(() => _showGrid = !_showGrid),
                       isActive: _showGrid,
                     ),
+                    // Karşılaştırma butonu - basılı tut
+                    _buildCompareButton(),
                   ],
                 ),
               ],
@@ -388,9 +398,11 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
         decoration: BoxDecoration(
           color: isActive ? _cardColor : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
-          border: isActive
-              ? Border.all(color: _primaryColor, width: 1.5)
-              : null,
+          // Her zaman border var ama inactive'de şeffaf - boyut kayması önlenir
+          border: Border.all(
+            color: isActive ? _primaryColor : Colors.transparent,
+            width: 1.5,
+          ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -409,6 +421,48 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
               style: TextStyle(
                 fontFamily: 'Inter',
                 color: isActive ? _primaryColor : Colors.white54,
+                fontSize: 9,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Karşılaştırma butonu - basılı tutunca orijinali göster
+  Widget _buildCompareButton() {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _showOriginal = true),
+      onTapUp: (_) => setState(() => _showOriginal = false),
+      onTapCancel: () => setState(() => _showOriginal = false),
+      child: Container(
+        width: 56,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: _showOriginal ? _cardColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: _showOriginal ? _primaryColor : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.compare,
+              color: _showOriginal ? _primaryColor : Colors.white70,
+              size: 22,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Karşılaştır',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                color: _showOriginal ? _primaryColor : Colors.white54,
                 fontSize: 9,
                 fontWeight: FontWeight.w500,
               ),
