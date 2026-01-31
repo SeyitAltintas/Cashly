@@ -71,6 +71,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
   bool _showGrid = true;
   bool _flipHorizontal = false;
   bool _flipVertical = false;
+  bool _moveImageMode = false; // false = kırpma alanını taşı, true = resmi taşı
 
   late TabController _tabController;
 
@@ -251,7 +252,8 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                       image: _imageData!,
                       aspectRatio: 1,
                       withCircleUi: true,
-                      interactive: true,
+                      // _moveImageMode: false = kırpma alanını taşı, true = resmi taşı
+                      interactive: _moveImageMode,
                       baseColor: _backgroundColor,
                       maskColor: Colors.black.withValues(alpha: 0.75),
                       // Pinch noktaları (18px)
@@ -405,6 +407,12 @@ class _ImageCropScreenState extends State<ImageCropScreen>
           label: 'Grid',
           onTap: () => setState(() => _showGrid = !_showGrid),
           isActive: _showGrid,
+        ),
+        _buildActionButton(
+          icon: _moveImageMode ? Icons.photo_size_select_large : Icons.crop,
+          label: _moveImageMode ? 'Resmi Taşı' : 'Alanı Taşı',
+          onTap: () => setState(() => _moveImageMode = !_moveImageMode),
+          isActive: _moveImageMode,
         ),
       ],
     );
