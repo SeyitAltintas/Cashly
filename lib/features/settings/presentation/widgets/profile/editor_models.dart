@@ -622,6 +622,12 @@ final List<FrameOverlay> kFramePresets = [
   ),
   const FrameOverlay(name: 'Beyaz', borderColor: Colors.white, borderWidth: 8),
   const FrameOverlay(name: 'Siyah', borderColor: Colors.black, borderWidth: 8),
+  // Polaroid - Geniş beyaz alt kenar efekti
+  const FrameOverlay(
+    name: 'Polaroid',
+    borderColor: Color(0xFFFAFAFA),
+    borderWidth: 14,
+  ),
   const FrameOverlay(
     name: 'Altın',
     borderColor: Color(0xFFFFD700),
@@ -643,11 +649,47 @@ final List<FrameOverlay> kFramePresets = [
     gradientColors: [Color(0xFF00D293), Color(0xFF00BFFF), Color(0xFF00D293)],
     isGradient: true,
   ),
+  // Neon Pink
+  const FrameOverlay(
+    name: 'Neon Pembe',
+    borderColor: Color(0xFFFF1493),
+    borderWidth: 6,
+    gradientColors: [Color(0xFFFF1493), Color(0xFFFF69B4), Color(0xFFFF1493)],
+    isGradient: true,
+  ),
+  // Ocean - Deniz mavisi tonları
+  const FrameOverlay(
+    name: 'Okyanus',
+    borderColor: Color(0xFF006994),
+    borderWidth: 8,
+    gradientColors: [Color(0xFF006994), Color(0xFF40E0D0), Color(0xFF006994)],
+    isGradient: true,
+  ),
+  // Sunset - Gün batımı tonları
+  const FrameOverlay(
+    name: 'Günbatımı',
+    borderColor: Color(0xFFFF4500),
+    borderWidth: 8,
+    gradientColors: [
+      Color(0xFFFF4500),
+      Color(0xFFFF8C00),
+      Color(0xFFFFD700),
+      Color(0xFFFF8C00),
+      Color(0xFFFF4500),
+    ],
+    isGradient: true,
+  ),
   const FrameOverlay(
     name: 'Retro',
     borderColor: Color(0xFF8B4513),
     borderWidth: 12,
     cornerRadius: 0,
+  ),
+  // Vintage - Eski foto efekti
+  const FrameOverlay(
+    name: 'Vintage',
+    borderColor: Color(0xFFD2B48C),
+    borderWidth: 10,
   ),
   const FrameOverlay(
     name: 'Gökkuşağı',
@@ -662,6 +704,20 @@ final List<FrameOverlay> kFramePresets = [
       Colors.purple,
       Colors.red,
     ],
+    isGradient: true,
+  ),
+  // Mint - Soft mint yeşili
+  const FrameOverlay(
+    name: 'Mint',
+    borderColor: Color(0xFF98FB98),
+    borderWidth: 8,
+  ),
+  // Lavender - Lavanta tonu
+  const FrameOverlay(
+    name: 'Lavanta',
+    borderColor: Color(0xFFE6E6FA),
+    borderWidth: 8,
+    gradientColors: [Color(0xFFE6E6FA), Color(0xFFDDA0DD), Color(0xFFE6E6FA)],
     isGradient: true,
   ),
 ];

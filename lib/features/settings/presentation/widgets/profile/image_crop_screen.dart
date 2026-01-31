@@ -61,21 +61,18 @@ class ImageCropScreen extends StatefulWidget {
   State<ImageCropScreen> createState() => _ImageCropScreenState();
 }
 
-class _ImageCropScreenState extends State<ImageCropScreen>
-    with SingleTickerProviderStateMixin {
+class _ImageCropScreenState extends State<ImageCropScreen> {
   final _cropController = CropController();
   Uint8List? _imageData;
   bool _isLoading = true;
   bool _isCropping = false;
   int _rotationDegrees = 0;
-  bool _showGrid = true;
+  bool _showGrid = false; // Varsayılan olarak kapalı
   bool _flipHorizontal = false;
   bool _flipVertical = false;
-  
+
   // Resmi yeniden yüklemek için key
   UniqueKey _cropKey = UniqueKey();
-
-  late TabController _tabController;
 
   // Tema renkleri
   static const Color _primaryColor = Color(0xFF075174);
@@ -86,14 +83,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
     _loadImage();
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadImage() async {
@@ -119,14 +109,6 @@ class _ImageCropScreenState extends State<ImageCropScreen>
     });
   }
 
-  void _resetTransforms() {
-    setState(() {
-      _rotationDegrees = 0;
-      _flipHorizontal = false;
-      _flipVertical = false;
-    });
-  }
-
   /// Tüm değişiklikleri sıfırla (döndürme, çevirme, ayarlar, resim pozisyonu)
   void _resetAll() {
     setState(() {
@@ -135,7 +117,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
       _flipHorizontal = false;
       _flipVertical = false;
       // Ayarları sıfırla
-      _showGrid = true;
+      _showGrid = false;
       // Resmi varsayılan boyuta getirmek için Crop widget'ını yeniden oluştur
       _cropKey = UniqueKey();
     });
@@ -237,7 +219,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                 'Devam',
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  color: _primaryColor,
+                  color: Colors.white, // Beyaz renk
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -270,16 +252,12 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                       image: _imageData!,
                       aspectRatio: 1,
                       withCircleUi: true,
-                      // Dairesel alan sabit, kullanıcı sadece resmi hareket ettirir
                       interactive: true,
-                      // Kırpma alanının boyutunu sabitlemek için fixArea kullan
                       fixCropRect: true,
                       baseColor: _backgroundColor,
                       maskColor: Colors.black.withValues(alpha: 0.75),
-                      // Köşe noktalarını gizle (boş widget)
                       cornerDotBuilder: (size, edgeAlignment) =>
                           const SizedBox.shrink(),
-                      // Grid overlay - crop alanı ile senkronize
                       overlayBuilder: _showGrid
                           ? (context, rect) => ClipOval(
                               child: CustomPaint(
@@ -296,73 +274,87 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                     ),
                   ),
           ),
-          // Modern alt menü
+          // Modern alt menü - Tek panel tasarımı
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             decoration: const BoxDecoration(color: _surfaceColor),
             child: Column(
               children: [
-                // Tümünü Sıfırla butonu
-                GestureDetector(
-                  onTap: _resetAll,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(
-                      'Tümünü Sıfırla',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                // Tümünü Sıfırla - Sağa yaslı
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: _resetAll,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(
+                        'Tümünü Sıfırla',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          color: Colors.white.withValues(alpha: 0.7),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),
                 ),
-                // Pill-style tab seçici
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: _cardColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: TabBar(
-                    controller: _tabController,
-                    indicator: BoxDecoration(
-                      color: _primaryColor,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    dividerColor: Colors.transparent,
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.white60,
-                    labelStyle: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    unselectedLabelStyle: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    tabs: const [
-                      Tab(height: 36, text: 'Döndür'),
-                      Tab(height: 36, text: 'Çevir'),
-                      Tab(height: 36, text: 'Ayarlar'),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Tab içerikleri
-                SizedBox(
-                  height: 80,
-                  child: TabBarView(
-                    controller: _tabController,
+                // Tüm kontroller tek satırda
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildRotateTab(),
-                      _buildFlipTab(),
-                      _buildSettingsTab(),
+                      // Döndürme kontrolleri
+                      _buildActionButton(
+                        icon: Icons.rotate_left,
+                        label: '90° Sol',
+                        onTap: () => _rotateImage(-90),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildActionButton(
+                        icon: Icons.rotate_right,
+                        label: '90° Sağ',
+                        onTap: () => _rotateImage(90),
+                      ),
+                      const SizedBox(width: 16),
+                      // Ayıcı
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: Colors.white.withValues(alpha: 0.2),
+                      ),
+                      const SizedBox(width: 16),
+                      // Çevirme kontrolleri
+                      _buildActionButton(
+                        icon: Icons.flip,
+                        label: 'Yatay',
+                        onTap: () => _flipImage(horizontal: true),
+                        isActive: _flipHorizontal,
+                      ),
+                      const SizedBox(width: 8),
+                      _buildActionButton(
+                        icon: Icons.flip,
+                        label: 'Dikey',
+                        rotateIcon: true,
+                        onTap: () => _flipImage(vertical: true),
+                        isActive: _flipVertical,
+                      ),
+                      const SizedBox(width: 16),
+                      // Ayırıcı
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: Colors.white.withValues(alpha: 0.2),
+                      ),
+                      const SizedBox(width: 16),
+                      // Grid toggle
+                      _buildActionButton(
+                        icon: _showGrid ? Icons.grid_on : Icons.grid_off,
+                        label: 'Grid',
+                        onTap: () => setState(() => _showGrid = !_showGrid),
+                        isActive: _showGrid,
+                      ),
                     ],
                   ),
                 ),
@@ -371,68 +363,6 @@ class _ImageCropScreenState extends State<ImageCropScreen>
           ),
         ],
       ),
-    );
-  }
-
-  /// Döndürme sekmesi
-  Widget _buildRotateTab() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildActionButton(
-          icon: Icons.rotate_left,
-          label: '90° Sol',
-          onTap: () => _rotateImage(-90),
-        ),
-        _buildActionButton(
-          icon: Icons.rotate_right,
-          label: '90° Sağ',
-          onTap: () => _rotateImage(90),
-        ),
-        _buildActionButton(
-          icon: Icons.refresh,
-          label: 'Sıfırla',
-          onTap: _resetTransforms,
-          isActive: _rotationDegrees != 0 || _flipHorizontal || _flipVertical,
-        ),
-      ],
-    );
-  }
-
-  /// Çevirme sekmesi
-  Widget _buildFlipTab() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildActionButton(
-          icon: Icons.flip,
-          label: 'Yatay',
-          onTap: () => _flipImage(horizontal: true),
-          isActive: _flipHorizontal,
-        ),
-        _buildActionButton(
-          icon: Icons.flip,
-          label: 'Dikey',
-          rotateIcon: true,
-          onTap: () => _flipImage(vertical: true),
-          isActive: _flipVertical,
-        ),
-      ],
-    );
-  }
-
-  /// Ayarlar sekmesi
-  Widget _buildSettingsTab() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildActionButton(
-          icon: _showGrid ? Icons.grid_on : Icons.grid_off,
-          label: 'Grid',
-          onTap: () => setState(() => _showGrid = !_showGrid),
-          isActive: _showGrid,
-        ),
-      ],
     );
   }
 
@@ -446,7 +376,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: isActive ? _primaryColor : _cardColor,
           borderRadius: BorderRadius.circular(12),
@@ -462,7 +392,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                 size: 18,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(

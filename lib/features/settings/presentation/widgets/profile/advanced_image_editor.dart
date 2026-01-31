@@ -3,10 +3,11 @@ import 'dart:ui' as ui;
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'editor_models.dart';
 
 /// Gelişmiş profil resmi düzenleme ekranı
-/// 6 sekmeli: Filtreler, Ayarlar, Dönüşüm, Metin, Sticker, Çerçeve
+/// 6 sekmeli: Filtreler, Ayarlar, Dönüşüm, Metin, Emoji, Çerçeve
 class AdvancedImageEditor extends StatefulWidget {
   final File imageFile;
 
@@ -21,6 +22,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   late TabController _tabController;
   final GlobalKey _imageKey = GlobalKey();
   bool _isSaving = false;
+
+  // Metin düzenleme için controller
+  final TextEditingController _textController = TextEditingController();
 
   // Tema renkleri
   static const Color _primaryColor = Color(0xFF075174);
@@ -43,6 +47,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   @override
   void dispose() {
     _tabController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
@@ -62,18 +67,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          if (_state.hasChanges)
-            TextButton(
-              onPressed: _resetAll,
-              child: const Text(
-                'Sıfırla',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  color: Colors.white54,
-                  fontSize: 14,
-                ),
-              ),
-            ),
           if (_isSaving)
             const Center(
               child: Padding(
@@ -95,7 +88,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 'Uygula',
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  color: _primaryColor,
+                  color: Colors.white, // Beyaz renk
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -136,7 +129,29 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             decoration: const BoxDecoration(color: _surfaceColor),
             child: Column(
               children: [
-                // Scrollable pill-style tab seçici
+                // Tümünü Sıfırla - Sağa yaslı
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: _resetAll,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(
+                          'Tümünü Sıfırla',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Scrollable icon + text tab seçici
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -144,7 +159,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: _cardColor,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     child: TabBar(
                       controller: _tabController,
@@ -157,31 +172,21 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       dividerColor: Colors.transparent,
                       labelColor: Colors.white,
                       unselectedLabelColor: Colors.white60,
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      unselectedLabelStyle: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      tabs: const [
-                        Tab(height: 34, text: 'Filtreler'),
-                        Tab(height: 34, text: 'Ayarlar'),
-                        Tab(height: 34, text: 'Dönüşüm'),
-                        Tab(height: 34, text: 'Metin'),
-                        Tab(height: 34, text: 'Sticker'),
-                        Tab(height: 34, text: 'Çerçeve'),
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+                      tabs: [
+                        _buildTab(Icons.filter_vintage, 'Filtreler'),
+                        _buildTab(Icons.tune, 'Ayarlar'),
+                        _buildTab(Icons.crop_rotate, 'Dönüşüm'),
+                        _buildTab(Icons.text_fields, 'Metin'),
+                        _buildTab(Icons.emoji_emotions, 'Emoji'),
+                        _buildTab(Icons.auto_awesome, 'Çerçeve'),
                       ],
                     ),
                   ),
                 ),
                 // Tab içerikleri
                 SizedBox(
-                  height: 190,
+                  height: 200,
                   child: TabBarView(
                     controller: _tabController,
                     children: [
@@ -189,7 +194,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       _buildAdjustmentsTab(),
                       _buildTransformTab(),
                       _buildTextTab(),
-                      _buildStickerTab(),
+                      _buildEmojiTab(),
                       _buildFrameTab(),
                     ],
                   ),
@@ -198,6 +203,30 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTab(IconData icon, String label) {
+    return Tab(
+      height: 40,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -501,6 +530,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 Text(
                   filter.name,
                   style: TextStyle(
+                    fontFamily: 'Inter',
                     color: isSelected
                         ? _primaryColor
                         : Colors.white.withValues(alpha: 0.7),
@@ -519,41 +549,46 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     );
   }
 
-  /// Ayarlar sekmesi
+  /// Ayarlar sekmesi - Reset butonları ile
   Widget _buildAdjustmentsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Column(
         children: [
-          _buildSlider(
+          _buildSliderWithReset(
             'Parlaklık',
             Icons.brightness_6,
             _state.brightness,
             (v) => setState(() => _state.brightness = v),
+            () => setState(() => _state.brightness = 0),
           ),
-          _buildSlider(
+          _buildSliderWithReset(
             'Kontrast',
             Icons.contrast,
             _state.contrast,
             (v) => setState(() => _state.contrast = v),
+            () => setState(() => _state.contrast = 0),
           ),
-          _buildSlider(
+          _buildSliderWithReset(
             'Doygunluk',
             Icons.palette,
             _state.saturation,
             (v) => setState(() => _state.saturation = v),
+            () => setState(() => _state.saturation = 0),
           ),
-          _buildSlider(
+          _buildSliderWithReset(
             'Sıcaklık',
             Icons.thermostat,
             _state.temperature,
             (v) => setState(() => _state.temperature = v),
+            () => setState(() => _state.temperature = 0),
           ),
-          _buildSlider(
+          _buildSliderWithReset(
             'Vignette',
             Icons.vignette,
             _state.vignette,
             (v) => setState(() => _state.vignette = v),
+            () => setState(() => _state.vignette = 0),
             min: 0,
           ),
         ],
@@ -561,14 +596,17 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     );
   }
 
-  Widget _buildSlider(
+  Widget _buildSliderWithReset(
     String label,
     IconData icon,
     double value,
-    ValueChanged<double> onChanged, {
+    ValueChanged<double> onChanged,
+    VoidCallback onReset, {
     double min = -100,
     double max = 100,
   }) {
+    final hasChange = value != 0 && value != min;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -576,10 +614,14 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           Icon(icon, color: Colors.white54, size: 16),
           const SizedBox(width: 6),
           SizedBox(
-            width: 65,
+            width: 60,
             child: Text(
               label,
-              style: const TextStyle(color: Colors.white70, fontSize: 11),
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                color: Colors.white70,
+                fontSize: 11,
+              ),
             ),
           ),
           Expanded(
@@ -600,13 +642,34 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               ),
             ),
           ),
+          // Değer yazısı - Sola yakın
           SizedBox(
-            width: 30,
+            width: 32,
             child: Text(
               value.toInt().toString(),
-              style: const TextStyle(color: Colors.white54, fontSize: 10),
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                color: Colors.white54,
+                fontSize: 10,
+              ),
               textAlign: TextAlign.right,
             ),
+          ),
+          const SizedBox(width: 8),
+          // Reset butonu - Sağda, mesafeli
+          SizedBox(
+            width: 24,
+            height: 24,
+            child: hasChange
+                ? GestureDetector(
+                    onTap: onReset,
+                    child: Icon(
+                      Icons.refresh,
+                      color: Colors.white.withValues(alpha: 0.5),
+                      size: 16,
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ),
         ],
       ),
@@ -697,6 +760,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           Text(
             label,
             style: TextStyle(
+              fontFamily: 'Inter',
               color: isActive ? _primaryColor : Colors.white54,
               fontSize: 10,
             ),
@@ -706,27 +770,65 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     );
   }
 
-  /// Metin sekmesi
+  /// Metin sekmesi - Dialog olmadan inline düzenleme
   Widget _buildTextTab() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Column(
         children: [
-          // Yeni metin ekle butonu
-          ElevatedButton.icon(
-            onPressed: _addNewText,
-            icon: const Icon(Icons.add, size: 18),
-            label: const Text('Metin Ekle'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+          // Metin ekleme alanı - inline
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: _cardColor,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: TextField(
+                    controller: _textController,
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Metin yazın...',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Inter',
+                        color: Colors.white.withValues(alpha: 0.4),
+                        fontSize: 13,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      border: InputBorder.none,
+                    ),
+                    onSubmitted: (_) => _addNewTextFromController(),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: _addNewTextFromController,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: _primaryColor,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.add, color: Colors.white, size: 20),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           // Seçili metin ayarları
           if (_selectedOverlayId != null && _getSelectedTextOverlay() != null)
             _buildTextEditControls(),
@@ -743,10 +845,10 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     onTap: () => setState(() => _selectedOverlayId = text.id),
                     onLongPress: () => _deleteTextOverlay(text.id),
                     child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 6),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
-                        vertical: 8,
+                        vertical: 6,
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
@@ -764,8 +866,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                             ? '${text.text.substring(0, 10)}...'
                             : text.text,
                         style: TextStyle(
+                          fontFamily: 'Inter',
                           color: isSelected ? _primaryColor : Colors.white70,
-                          fontSize: 12,
+                          fontSize: 11,
                         ),
                       ),
                     ),
@@ -776,6 +879,20 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
         ],
       ),
     );
+  }
+
+  void _addNewTextFromController() {
+    if (_textController.text.isNotEmpty) {
+      setState(() {
+        final newText = TextOverlay(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          text: _textController.text,
+        );
+        _state.textOverlays.add(newText);
+        _selectedOverlayId = newText.id;
+        _textController.clear();
+      });
+    }
   }
 
   TextOverlay? _getSelectedTextOverlay() {
@@ -790,114 +907,56 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     final text = _getSelectedTextOverlay();
     if (text == null) return const SizedBox.shrink();
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Renk seçici
-        ...[
-          Colors.white,
-          Colors.black,
-          Colors.red,
-          Colors.blue,
-          _primaryColor,
-        ].map(
-          (color) => GestureDetector(
-            onTap: () => setState(() => text.color = color),
-            child: Container(
-              width: 24,
-              height: 24,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: text.color == color
-                      ? _primaryColor
-                      : Colors.white.withValues(alpha: 0.3),
-                  width: text.color == color ? 2 : 1,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Renk seçici
+          ...[
+            Colors.white,
+            Colors.black,
+            Colors.red,
+            Colors.blue,
+            _primaryColor,
+          ].map(
+            (color) => GestureDetector(
+              onTap: () => setState(() => text.color = color),
+              child: Container(
+                width: 22,
+                height: 22,
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: text.color == color
+                        ? _primaryColor
+                        : Colors.white.withValues(alpha: 0.3),
+                    width: text.color == color ? 2 : 1,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 16),
-        // Bold toggle
-        IconButton(
-          onPressed: () => setState(() => text.isBold = !text.isBold),
-          icon: Icon(
-            Icons.format_bold,
-            color: text.isBold ? _primaryColor : Colors.white54,
-          ),
-          iconSize: 20,
-        ),
-        // Sil
-        IconButton(
-          onPressed: () => _deleteTextOverlay(text.id),
-          icon: const Icon(Icons.delete, color: Colors.red),
-          iconSize: 20,
-        ),
-      ],
-    );
-  }
-
-  void _addNewText() {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        final controller = TextEditingController();
-        return AlertDialog(
-          backgroundColor: const Color(0xFF1A1A1A),
-          title: const Text(
-            'Metin Ekle',
-            style: TextStyle(color: Colors.white),
-          ),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: 'Metninizi yazın...',
-              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.3),
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: _primaryColor),
-                borderRadius: BorderRadius.circular(8),
-              ),
+          const SizedBox(width: 12),
+          // Bold toggle
+          GestureDetector(
+            onTap: () => setState(() => text.isBold = !text.isBold),
+            child: Icon(
+              Icons.format_bold,
+              color: text.isBold ? _primaryColor : Colors.white54,
+              size: 20,
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text(
-                'İptal',
-                style: TextStyle(color: Colors.white54),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (controller.text.isNotEmpty) {
-                  setState(() {
-                    final newText = TextOverlay(
-                      id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      text: controller.text,
-                    );
-                    _state.textOverlays.add(newText);
-                    _selectedOverlayId = newText.id;
-                  });
-                }
-                Navigator.pop(ctx);
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: _primaryColor),
-              child: const Text('Ekle', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        );
-      },
+          const SizedBox(width: 8),
+          // Sil
+          GestureDetector(
+            onTap: () => _deleteTextOverlay(text.id),
+            child: const Icon(Icons.delete, color: Colors.red, size: 20),
+          ),
+        ],
+      ),
     );
   }
 
@@ -908,21 +967,24 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     });
   }
 
-  /// Sticker sekmesi
-  Widget _buildStickerTab() {
+  /// Emoji sekmesi - emoji_picker_flutter ile
+  Widget _buildEmojiTab() {
     return Column(
       children: [
-        // Seçili sticker ayarları
+        // Seçili emoji ayarları
         if (_selectedOverlayId != null && _getSelectedStickerOverlay() != null)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Boyut slider
                 const Text(
                   'Boyut:',
-                  style: TextStyle(color: Colors.white54, fontSize: 11),
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: Colors.white54,
+                    fontSize: 11,
+                  ),
                 ),
                 SizedBox(
                   width: 100,
@@ -936,40 +998,44 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     }),
                   ),
                 ),
-                IconButton(
-                  onPressed: () => _deleteStickerOverlay(_selectedOverlayId!),
-                  icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                GestureDetector(
+                  onTap: () => _deleteStickerOverlay(_selectedOverlayId!),
+                  child: const Icon(Icons.delete, color: Colors.red, size: 20),
                 ),
               ],
             ),
           ),
-        // Sticker grid
+        // Emoji picker - Basitleştirilmiş config
         Expanded(
-          child: GridView.builder(
-            padding: const EdgeInsets.all(12),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 6,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-            ),
-            itemCount: kStickerEmojis.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () => _addSticker(kStickerEmojis[index]),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                    child: Text(
-                      kStickerEmojis[index],
-                      style: const TextStyle(fontSize: 24),
-                    ),
+          child: EmojiPicker(
+            onEmojiSelected: (category, emoji) {
+              _addSticker(emoji.emoji);
+            },
+            config: Config(
+              height: 140,
+              checkPlatformCompatibility: true,
+              emojiViewConfig: EmojiViewConfig(
+                columns: 8,
+                emojiSizeMax:
+                    28 *
+                    (Theme.of(context).platform == TargetPlatform.iOS
+                        ? 1.2
+                        : 1.0),
+                noRecents: const Text(
+                  'Henüz emoji yok',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: Colors.white54,
+                    fontSize: 12,
                   ),
                 ),
-              );
-            },
+              ),
+              categoryViewConfig: const CategoryViewConfig(),
+              bottomActionBarConfig: const BottomActionBarConfig(
+                enabled: false,
+              ),
+              searchViewConfig: const SearchViewConfig(),
+            ),
           ),
         ),
       ],
@@ -1004,7 +1070,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     });
   }
 
-  /// Çerçeve sekmesi
+  /// Çerçeve sekmesi - Yeniden tasarlanmış
   Widget _buildFrameTab() {
     return ListView.builder(
       scrollDirection: Axis.horizontal,
@@ -1061,6 +1127,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 Text(
                   frame.name,
                   style: TextStyle(
+                    fontFamily: 'Inter',
                     color: isSelected
                         ? _primaryColor
                         : Colors.white.withValues(alpha: 0.7),
@@ -1085,6 +1152,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     setState(() {
       _state.reset();
       _selectedOverlayId = null;
+      _textController.clear();
     });
   }
 
