@@ -1,10 +1,54 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as img;
+
+/// Isolate'de çalışacak resim işleme parametreleri
+class _ImageTransformParams {
+  final Uint8List imageData;
+  final int rotation;
+  final bool flipH;
+  final bool flipV;
+
+  _ImageTransformParams({
+    required this.imageData,
+    required this.rotation,
+    required this.flipH,
+    required this.flipV,
+  });
+}
+
+/// Isolate'de resim dönüştürme işlemi
+Uint8List? _transformImageIsolate(_ImageTransformParams params) {
+  try {
+    img.Image? image = img.decodeImage(params.imageData);
+    if (image == null) return null;
+
+    // Rotasyon uygula
+    if (params.rotation == 90) {
+      image = img.copyRotate(image, angle: 90);
+    } else if (params.rotation == 180) {
+      image = img.copyRotate(image, angle: 180);
+    } else if (params.rotation == 270) {
+      image = img.copyRotate(image, angle: 270);
+    }
+
+    // Flip uygula
+    if (params.flipH) {
+      image = img.flipHorizontal(image);
+    }
+    if (params.flipV) {
+      image = img.flipVertical(image);
+    }
+
+    return Uint8List.fromList(img.encodePng(image));
+  } catch (e) {
+    return null;
+  }
+}
 
 /// Özelleştirilebilir profil resmi kırpma ekranı
 /// crop_your_image paketi ile tam kontrol sağlar
@@ -21,7 +65,6 @@ class _ImageCropScreenState extends State<ImageCropScreen>
     with SingleTickerProviderStateMixin {
   final _cropController = CropController();
   Uint8List? _imageData;
-  Uint8List? _originalImageData;
   bool _isLoading = true;
   bool _isCropping = false;
   int _rotationDegrees = 0;
@@ -53,112 +96,31 @@ class _ImageCropScreenState extends State<ImageCropScreen>
   Future<void> _loadImage() async {
     final bytes = await widget.imageFile.readAsBytes();
     setState(() {
-      _originalImageData = bytes;
       _imageData = bytes;
       _isLoading = false;
     });
   }
 
-  /// Resmi döndür ve yeni image data oluştur
-  Future<void> _rotateImage(int degrees) async {
-    if (_originalImageData == null) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      final newRotation = (_rotationDegrees + degrees) % 360;
-
-      // image paketini kullanarak döndür
-      img.Image? image = img.decodeImage(_originalImageData!);
-      if (image != null) {
-        // Toplam rotasyonu uygula
-        if (newRotation == 90) {
-          image = img.copyRotate(image, angle: 90);
-        } else if (newRotation == 180) {
-          image = img.copyRotate(image, angle: 180);
-        } else if (newRotation == 270) {
-          image = img.copyRotate(image, angle: 270);
-        }
-
-        // Flip uygula
-        if (_flipHorizontal) {
-          image = img.flipHorizontal(image);
-        }
-        if (_flipVertical) {
-          image = img.flipVertical(image);
-        }
-
-        final rotatedBytes = Uint8List.fromList(img.encodePng(image));
-
-        setState(() {
-          _rotationDegrees = newRotation;
-          _imageData = rotatedBytes;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Döndürme hatası: $e')));
-      }
-    }
+  /// Görsel döndürme (anlık, resim işlemesi yok)
+  void _rotateImage(int degrees) {
+    setState(() {
+      _rotationDegrees = (_rotationDegrees + degrees) % 360;
+    });
   }
 
-  Future<void> _flipImage({
-    bool horizontal = false,
-    bool vertical = false,
-  }) async {
-    if (_originalImageData == null) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      if (horizontal) {
-        _flipHorizontal = !_flipHorizontal;
-      }
-      if (vertical) {
-        _flipVertical = !_flipVertical;
-      }
-
-      img.Image? image = img.decodeImage(_originalImageData!);
-      if (image != null) {
-        // Rotasyon uygula
-        if (_rotationDegrees == 90) {
-          image = img.copyRotate(image, angle: 90);
-        } else if (_rotationDegrees == 180) {
-          image = img.copyRotate(image, angle: 180);
-        } else if (_rotationDegrees == 270) {
-          image = img.copyRotate(image, angle: 270);
-        }
-
-        // Flip uygula
-        if (_flipHorizontal) {
-          image = img.flipHorizontal(image);
-        }
-        if (_flipVertical) {
-          image = img.flipVertical(image);
-        }
-
-        final bytes = Uint8List.fromList(img.encodePng(image));
-
-        setState(() {
-          _imageData = bytes;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-    }
+  /// Görsel çevirme (anlık, resim işlemesi yok)
+  void _flipImage({bool horizontal = false, bool vertical = false}) {
+    setState(() {
+      if (horizontal) _flipHorizontal = !_flipHorizontal;
+      if (vertical) _flipVertical = !_flipVertical;
+    });
   }
 
-  void _resetTransforms() async {
+  void _resetTransforms() {
     setState(() {
       _rotationDegrees = 0;
       _flipHorizontal = false;
       _flipVertical = false;
-      _imageData = _originalImageData;
     });
   }
 
@@ -184,11 +146,29 @@ class _ImageCropScreenState extends State<ImageCropScreen>
 
   Future<void> _saveCroppedImage(Uint8List croppedData) async {
     try {
+      Uint8List finalData = croppedData;
+
+      // Eğer döndürme veya çevirme varsa uygula
+      if (_rotationDegrees != 0 || _flipHorizontal || _flipVertical) {
+        final transformedData = await compute(
+          _transformImageIsolate,
+          _ImageTransformParams(
+            imageData: croppedData,
+            rotation: _rotationDegrees,
+            flipH: _flipHorizontal,
+            flipV: _flipVertical,
+          ),
+        );
+        if (transformedData != null) {
+          finalData = transformedData;
+        }
+      }
+
       final directory = await getTemporaryDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final croppedPath = '${directory.path}/cropped_$timestamp.png';
       final croppedFile = File(croppedPath);
-      await croppedFile.writeAsBytes(croppedData);
+      await croppedFile.writeAsBytes(finalData);
 
       if (mounted) {
         Navigator.pop(context, croppedFile);
@@ -255,43 +235,57 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                 ? const Center(
                     child: CircularProgressIndicator(color: _primaryColor),
                   )
-                : Crop(
-                    controller: _cropController,
-                    image: _imageData!,
-                    aspectRatio: 1,
-                    withCircleUi: true,
-                    interactive: true,
-                    baseColor: _backgroundColor,
-                    maskColor: Colors.black.withValues(alpha: 0.75),
-                    // Pinch noktaları (18px)
-                    cornerDotBuilder: (size, edgeAlignment) => Container(
-                      width: 18,
-                      height: 18,
-                      decoration: BoxDecoration(
-                        color: _primaryColor,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 1.5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                : Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.identity()
+                      ..rotateZ(_rotationDegrees * math.pi / 180)
+                      ..multiply(
+                        Matrix4.diagonal3Values(
+                          _flipHorizontal ? -1.0 : 1.0,
+                          _flipVertical ? -1.0 : 1.0,
+                          1.0,
+                        ),
                       ),
-                    ),
-                    // Grid overlay - crop alanı ile senkronize
-                    overlayBuilder: _showGrid
-                        ? (context, rect) => ClipOval(
-                            child: CustomPaint(
-                              size: Size(rect.width, rect.height),
-                              painter: _GridPainter(
-                                gridColor: Colors.white.withValues(alpha: 0.3),
-                              ),
+                    child: Crop(
+                      controller: _cropController,
+                      image: _imageData!,
+                      aspectRatio: 1,
+                      withCircleUi: true,
+                      interactive: true,
+                      baseColor: _backgroundColor,
+                      maskColor: Colors.black.withValues(alpha: 0.75),
+                      // Pinch noktaları (18px)
+                      cornerDotBuilder: (size, edgeAlignment) => Container(
+                        width: 18,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          color: _primaryColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 1.5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
                             ),
-                          )
-                        : null,
-                    onCropped: _handleCropResult,
+                          ],
+                        ),
+                      ),
+                      // Grid overlay - crop alanı ile senkronize
+                      overlayBuilder: _showGrid
+                          ? (context, rect) => ClipOval(
+                              child: CustomPaint(
+                                size: Size(rect.width, rect.height),
+                                painter: _GridPainter(
+                                  gridColor: Colors.white.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : null,
+                      onCropped: _handleCropResult,
+                    ),
                   ),
           ),
           // Modern alt menü
