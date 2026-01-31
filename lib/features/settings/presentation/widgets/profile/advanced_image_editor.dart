@@ -106,38 +106,29 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   _selectedOverlayId = null;
                 });
               },
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: RepaintBoundary(
-                    key: _imageKey,
-                    child: ClipOval(
-                      child: SizedBox(
-                        width: 320,
-                        height: 320,
-                        child: _buildEditedImage(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: RepaintBoundary(
+                      key: _imageKey,
+                      child: ClipOval(
+                        child: SizedBox(
+                          width: 320,
+                          height: 320,
+                          child: _buildEditedImage(),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-            ),
-          ),
-          // Modern alt menü
-          Container(
-            padding: const EdgeInsets.only(top: 12),
-            decoration: const BoxDecoration(color: _surfaceColor),
-            child: Column(
-              children: [
-                // Tümünü Sıfırla - Sağa yaslı
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: _resetAll,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                  // Tümünü Sıfırla - Sheet dışında
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: _resetAll,
                         child: Text(
                           'Tümünü Sıfırla',
                           style: TextStyle(
@@ -150,7 +141,16 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       ),
                     ),
                   ),
-                ),
+                ],
+              ),
+            ),
+          ),
+          // Modern alt menü
+          Container(
+            padding: const EdgeInsets.only(top: 12),
+            decoration: const BoxDecoration(color: _surfaceColor),
+            child: Column(
+              children: [
                 // Scrollable icon + text tab seçici
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -172,7 +172,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       dividerColor: Colors.transparent,
                       labelColor: Colors.white,
                       unselectedLabelColor: Colors.white60,
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+                      labelPadding: EdgeInsets.zero,
+                      tabAlignment: TabAlignment.start,
+                      padding: EdgeInsets.zero,
                       tabs: [
                         _buildTab(Icons.filter_vintage, 'Filtreler'),
                         _buildTab(Icons.tune, 'Ayarlar'),
@@ -186,7 +188,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 ),
                 // Tab içerikleri
                 SizedBox(
-                  height: 200,
+                  height: 260,
                   child: TabBarView(
                     controller: _tabController,
                     children: [
@@ -403,15 +405,13 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     final frame = kFramePresets[_state.selectedFrameIndex!];
 
     if (frame.isGradient && frame.gradientColors != null) {
-      return Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.transparent,
-            width: frame.borderWidth,
-          ),
-          gradient: SweepGradient(colors: frame.gradientColors!),
+      // Gradient çerçeve - sadece kenar
+      return CustomPaint(
+        painter: _GradientBorderPainter(
+          colors: frame.gradientColors!,
+          borderWidth: frame.borderWidth,
         ),
+        child: const SizedBox.expand(),
       );
     }
 
@@ -525,8 +525,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(filter.emoji, style: const TextStyle(fontSize: 14)),
+                const SizedBox(height: 6),
                 Text(
                   filter.name,
                   style: TextStyle(
@@ -974,9 +973,8 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
         // Seçili emoji ayarları
         if (_selectedOverlayId != null && _getSelectedStickerOverlay() != null)
           Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
                   'Boyut:',
@@ -986,18 +984,29 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     fontSize: 11,
                   ),
                 ),
-                SizedBox(
-                  width: 100,
-                  child: Slider(
-                    value: _getSelectedStickerOverlay()!.size,
-                    min: 24,
-                    max: 80,
-                    activeColor: _primaryColor,
-                    onChanged: (v) => setState(() {
-                      _getSelectedStickerOverlay()!.size = v;
-                    }),
+                Expanded(
+                  child: SliderTheme(
+                    data: SliderThemeData(
+                      activeTrackColor: _primaryColor,
+                      inactiveTrackColor: Colors.white24,
+                      thumbColor: _primaryColor,
+                      overlayColor: _primaryColor.withValues(alpha: 0.2),
+                      trackHeight: 3,
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 6,
+                      ),
+                    ),
+                    child: Slider(
+                      value: _getSelectedStickerOverlay()!.size,
+                      min: 24,
+                      max: 80,
+                      onChanged: (v) => setState(() {
+                        _getSelectedStickerOverlay()!.size = v;
+                      }),
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 GestureDetector(
                   onTap: () => _deleteStickerOverlay(_selectedOverlayId!),
                   child: const Icon(Icons.delete, color: Colors.red, size: 20),
@@ -1005,7 +1014,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               ],
             ),
           ),
-        // Emoji picker - Basitleştirilmiş config
+        // Emoji picker - Dark theme
         Expanded(
           child: EmojiPicker(
             onEmojiSelected: (category, emoji) {
@@ -1016,25 +1025,22 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               checkPlatformCompatibility: true,
               emojiViewConfig: EmojiViewConfig(
                 columns: 8,
-                emojiSizeMax:
-                    28 *
-                    (Theme.of(context).platform == TargetPlatform.iOS
-                        ? 1.2
-                        : 1.0),
-                noRecents: const Text(
-                  'Henüz emoji yok',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: Colors.white54,
-                    fontSize: 12,
-                  ),
-                ),
+                emojiSizeMax: 28,
+                backgroundColor: _surfaceColor,
               ),
-              categoryViewConfig: const CategoryViewConfig(),
+              categoryViewConfig: CategoryViewConfig(
+                backgroundColor: _surfaceColor,
+                indicatorColor: _primaryColor,
+                iconColorSelected: _primaryColor,
+                iconColor: Colors.white54,
+              ),
               bottomActionBarConfig: const BottomActionBarConfig(
                 enabled: false,
               ),
-              searchViewConfig: const SearchViewConfig(),
+              searchViewConfig: SearchViewConfig(
+                backgroundColor: _surfaceColor,
+                buttonIconColor: Colors.white54,
+              ),
             ),
           ),
         ),
@@ -1195,5 +1201,35 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     } catch (e) {
       if (mounted) Navigator.pop(context, widget.imageFile);
     }
+  }
+}
+
+/// Gradient çerçeve çizen CustomPainter
+class _GradientBorderPainter extends CustomPainter {
+  final List<Color> colors;
+  final double borderWidth;
+
+  _GradientBorderPainter({required this.colors, required this.borderWidth});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width / 2) - (borderWidth / 2);
+
+    final gradient = SweepGradient(colors: colors);
+    final rect = Rect.fromCircle(center: center, radius: radius);
+
+    final paint = Paint()
+      ..shader = gradient.createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth;
+
+    canvas.drawCircle(center, radius, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _GradientBorderPainter oldDelegate) {
+    return oldDelegate.colors != colors ||
+        oldDelegate.borderWidth != borderWidth;
   }
 }
