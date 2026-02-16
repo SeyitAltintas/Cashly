@@ -1024,7 +1024,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             onEmojiSelected: (category, emoji) {
               _addSticker(emoji.emoji);
             },
-            config: Config(
+            config: const Config(
               height: 140,
               checkPlatformCompatibility: true,
               emojiViewConfig: EmojiViewConfig(
@@ -1038,9 +1038,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 iconColorSelected: _primaryColor,
                 iconColor: Colors.white54,
               ),
-              bottomActionBarConfig: const BottomActionBarConfig(
-                enabled: false,
-              ),
+              bottomActionBarConfig: BottomActionBarConfig(enabled: false),
               searchViewConfig: SearchViewConfig(
                 backgroundColor: _surfaceColor,
                 buttonIconColor: Colors.white54,
