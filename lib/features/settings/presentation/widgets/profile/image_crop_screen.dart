@@ -101,6 +101,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
   Uint8List? _imageData;
   bool _isLoading = true;
   bool _isCropping = false;
+  bool _isCropReady = false;
   int _rotationDegrees = 0;
   bool _showGrid = false;
   bool _flipHorizontal = false;
@@ -361,6 +362,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
 
   Future<void> _onCrop() async {
     if (_isCropping) return;
+    if (_imageData == null) return;
     HapticFeedback.heavyImpact();
     setState(() => _isCropping = true);
     _cropController.crop();
@@ -464,16 +466,14 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                 ),
               ),
             )
-          else
+          else if (_isCropReady)
             TextButton(
-              onPressed: (_isLoading || _imageData == null) ? null : _onCrop,
-              child: Text(
+              onPressed: _onCrop,
+              child: const Text(
                 'Devam',
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  color: (_isLoading || _imageData == null)
-                      ? Colors.white38
-                      : Colors.white,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
@@ -537,6 +537,11 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                                       ),
                                     )
                                   : null,
+                              onStatusChanged: (status) {
+                                if (status == CropStatus.ready) {
+                                  setState(() => _isCropReady = true);
+                                }
+                              },
                               onCropped: _handleCropResult,
                             ),
                           ),

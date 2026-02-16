@@ -140,6 +140,7 @@ class EditorState {
   List<TextOverlay> textOverlays;
   List<StickerOverlay> stickerOverlays;
   int? selectedFrameIndex;
+  double frameBorderWidth;
 
   EditorState({
     this.selectedFilterIndex = 0,
@@ -159,6 +160,7 @@ class EditorState {
     List<TextOverlay>? textOverlays,
     List<StickerOverlay>? stickerOverlays,
     this.selectedFrameIndex,
+    this.frameBorderWidth = 8,
   }) : textOverlays = textOverlays ?? [],
        stickerOverlays = stickerOverlays ?? [];
 
@@ -179,7 +181,8 @@ class EditorState {
       vignette != 0 ||
       textOverlays.isNotEmpty ||
       stickerOverlays.isNotEmpty ||
-      selectedFrameIndex != null;
+      selectedFrameIndex != null ||
+      frameBorderWidth != 8;
 
   void reset() {
     selectedFilterIndex = 0;
@@ -199,6 +202,7 @@ class EditorState {
     textOverlays.clear();
     stickerOverlays.clear();
     selectedFrameIndex = null;
+    frameBorderWidth = 8;
   }
 
   EditorState clone() {
@@ -220,6 +224,7 @@ class EditorState {
       textOverlays: textOverlays.map((t) => t.copyWith()).toList(),
       stickerOverlays: stickerOverlays.map((s) => s.copyWith()).toList(),
       selectedFrameIndex: selectedFrameIndex,
+      frameBorderWidth: frameBorderWidth,
     );
   }
 
@@ -241,6 +246,7 @@ class EditorState {
     textOverlays = other.textOverlays.map((t) => t.copyWith()).toList();
     stickerOverlays = other.stickerOverlays.map((s) => s.copyWith()).toList();
     selectedFrameIndex = other.selectedFrameIndex;
+    frameBorderWidth = other.frameBorderWidth;
   }
 }
 
@@ -1148,39 +1154,91 @@ final List<FrameOverlay> kFramePresets = [
     borderWidth: 12,
     cornerRadius: 0,
   ),
-  // Vintage - Eski foto efekti
+  // Vintage
   const FrameOverlay(
     name: 'Vintage',
     borderColor: Color(0xFFD2B48C),
     borderWidth: 10,
   ),
-  const FrameOverlay(
-    name: 'Gökkuşağı',
-    borderColor: Colors.red,
-    borderWidth: 8,
-    gradientColors: [
-      Colors.red,
-      Colors.orange,
-      Colors.yellow,
-      Colors.green,
-      Colors.blue,
-      Colors.purple,
-      Colors.red,
-    ],
-    isGradient: true,
-  ),
-  // Mint - Soft mint yeşili
+  // Mint
   const FrameOverlay(
     name: 'Mint',
     borderColor: Color(0xFF98FB98),
     borderWidth: 8,
   ),
-  // Lavender - Lavanta tonu
+  // Lavanta
   const FrameOverlay(
     name: 'Lavanta',
     borderColor: Color(0xFFE6E6FA),
     borderWidth: 8,
     gradientColors: [Color(0xFFE6E6FA), Color(0xFFDDA0DD), Color(0xFFE6E6FA)],
+    isGradient: true,
+  ),
+  // Rose Gold
+  const FrameOverlay(
+    name: 'Rose Gold',
+    borderColor: Color(0xFFB76E79),
+    borderWidth: 10,
+    gradientColors: [Color(0xFFB76E79), Color(0xFFF4C2C2), Color(0xFFB76E79)],
+    isGradient: true,
+  ),
+  // Bronz
+  const FrameOverlay(
+    name: 'Bronz',
+    borderColor: Color(0xFFCD7F32),
+    borderWidth: 10,
+    gradientColors: [Color(0xFFCD7F32), Color(0xFFDAA520), Color(0xFFCD7F32)],
+    isGradient: true,
+  ),
+  // Buz Mavisi
+  const FrameOverlay(
+    name: 'Buz',
+    borderColor: Color(0xFFADD8E6),
+    borderWidth: 8,
+    gradientColors: [
+      Color(0xFFADD8E6),
+      Color(0xFFE0F7FA),
+      Color(0xFF87CEEB),
+      Color(0xFFADD8E6),
+    ],
+    isGradient: true,
+  ),
+  // Orman Yeşili
+  const FrameOverlay(
+    name: 'Orman',
+    borderColor: Color(0xFF228B22),
+    borderWidth: 8,
+    gradientColors: [Color(0xFF228B22), Color(0xFF32CD32), Color(0xFF228B22)],
+    isGradient: true,
+  ),
+  // Mercan
+  const FrameOverlay(
+    name: 'Mercan',
+    borderColor: Color(0xFFFF6F61),
+    borderWidth: 8,
+  ),
+  // Gece
+  const FrameOverlay(
+    name: 'Gece',
+    borderColor: Color(0xFF191970),
+    borderWidth: 10,
+    gradientColors: [Color(0xFF191970), Color(0xFF4169E1), Color(0xFF191970)],
+    isGradient: true,
+  ),
+  // Şampanya
+  const FrameOverlay(
+    name: 'Şampanya',
+    borderColor: Color(0xFFF7E7CE),
+    borderWidth: 8,
+    gradientColors: [Color(0xFFF7E7CE), Color(0xFFEFDECD), Color(0xFFF7E7CE)],
+    isGradient: true,
+  ),
+  // Yakut
+  const FrameOverlay(
+    name: 'Yakut',
+    borderColor: Color(0xFF9B111E),
+    borderWidth: 10,
+    gradientColors: [Color(0xFF9B111E), Color(0xFFE0115F), Color(0xFF9B111E)],
     isGradient: true,
   ),
 ];

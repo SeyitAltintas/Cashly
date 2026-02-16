@@ -43,6 +43,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   final List<EditorState> _undoStack = [];
   final List<EditorState> _redoStack = [];
 
+  // Karşılaştırma modu (Option E)
+  bool _showOriginal = false;
+
   @override
   void initState() {
     super.initState();
@@ -109,35 +112,72 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
         children: [
           // Önizleme alanı
           Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedOverlayId = null;
-                });
-              },
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: RepaintBoundary(
-                          key: _imageKey,
-                          child: ClipOval(
-                            child: SizedBox(
-                              width: 320,
-                              height: 320,
-                              child: _buildEditedImage(),
+            child: Stack(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedOverlayId = null;
+                    });
+                  },
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: RepaintBoundary(
+                              key: _imageKey,
+                              child: ClipOval(
+                                child: SizedBox(
+                                  width: 320,
+                                  height: 320,
+                                  child: _showOriginal
+                                      ? Image.file(
+                                          widget.imageFile,
+                                          fit: BoxFit.cover,
+                                          width: 320,
+                                          height: 320,
+                                        )
+                                      : _buildEditedImage(),
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
+                      // Undo/Redo + Tümünü Sıfırla
+                      _buildUndoRedoRow(),
+                    ],
+                  ),
+                ),
+                // Karşılaştırma ikonu (Option E)
+                Positioned(
+                  right: 16,
+                  bottom: 44,
+                  child: GestureDetector(
+                    onLongPressStart: (_) =>
+                        setState(() => _showOriginal = true),
+                    onLongPressEnd: (_) =>
+                        setState(() => _showOriginal = false),
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _showOriginal
+                            ? Icons.visibility
+                            : Icons.visibility_outlined,
+                        color: _showOriginal ? _primaryColor : Colors.white70,
+                        size: 18,
+                      ),
                     ),
                   ),
-                  // Undo/Redo + Tümünü Sıfırla
-                  _buildUndoRedoRow(),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           // Modern alt menü
@@ -318,7 +358,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     );
   }
 
-  /// Metin overlay widget'ı
+  /// Metin overlay widget'ı - Pinch gesture ile boyut/döndürme (Option F)
   Widget _buildTextOverlayWidget(TextOverlay text) {
     final isSelected = _selectedOverlayId == text.id;
 
@@ -331,12 +371,31 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             _selectedOverlayId = text.id;
           });
         },
-        onPanUpdate: (details) {
+        onScaleStart: (details) {
+          _pushUndo();
+          _lastScale = text.fontSize;
+          _lastRotation = text.rotation;
+        },
+        onScaleUpdate: (details) {
           setState(() {
-            text.position = Offset(
-              (text.position.dx + details.delta.dx / 320).clamp(0.1, 0.9),
-              (text.position.dy + details.delta.dy / 320).clamp(0.1, 0.9),
-            );
+            // Pan (tek parmak sürükleme)
+            if (details.pointerCount == 1) {
+              text.position = Offset(
+                (text.position.dx + details.focalPointDelta.dx / 320).clamp(
+                  0.1,
+                  0.9,
+                ),
+                (text.position.dy + details.focalPointDelta.dy / 320).clamp(
+                  0.1,
+                  0.9,
+                ),
+              );
+            }
+            // Pinch (iki parmak boyut + döndürme)
+            if (details.pointerCount == 2) {
+              text.fontSize = (_lastScale * details.scale).clamp(10.0, 80.0);
+              text.rotation = _lastRotation + details.rotation;
+            }
           });
         },
         child: Transform.rotate(
@@ -352,6 +411,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             child: Text(
               text.text,
               style: TextStyle(
+                fontFamily: text.fontFamily,
                 fontSize: text.fontSize,
                 color: text.color,
                 fontWeight: text.isBold ? FontWeight.bold : FontWeight.normal,
@@ -371,7 +431,11 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     );
   }
 
-  /// Sticker overlay widget'ı
+  // Pinch gesture için geçici değişkenler (Option F)
+  double _lastScale = 1.0;
+  double _lastRotation = 0.0;
+
+  /// Sticker overlay widget'ı - Pinch gesture ile boyut/döndürme (Option F)
   Widget _buildStickerOverlayWidget(StickerOverlay sticker) {
     final isSelected = _selectedOverlayId == sticker.id;
 
@@ -384,12 +448,31 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             _selectedOverlayId = sticker.id;
           });
         },
-        onPanUpdate: (details) {
+        onScaleStart: (details) {
+          _pushUndo();
+          _lastScale = sticker.size;
+          _lastRotation = sticker.rotation;
+        },
+        onScaleUpdate: (details) {
           setState(() {
-            sticker.position = Offset(
-              (sticker.position.dx + details.delta.dx / 320).clamp(0.1, 0.9),
-              (sticker.position.dy + details.delta.dy / 320).clamp(0.1, 0.9),
-            );
+            // Pan (tek parmak sürükleme)
+            if (details.pointerCount == 1) {
+              sticker.position = Offset(
+                (sticker.position.dx + details.focalPointDelta.dx / 320).clamp(
+                  0.1,
+                  0.9,
+                ),
+                (sticker.position.dy + details.focalPointDelta.dy / 320).clamp(
+                  0.1,
+                  0.9,
+                ),
+              );
+            }
+            // Pinch (iki parmak boyut + döndürme)
+            if (details.pointerCount == 2) {
+              sticker.size = (_lastScale * details.scale).clamp(16.0, 120.0);
+              sticker.rotation = _lastRotation + details.rotation;
+            }
           });
         },
         child: Transform.rotate(
@@ -412,25 +495,29 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     );
   }
 
-  /// Çerçeve overlay widget'ı
+  /// Çerçeve overlay widget'ı - frameBorderWidth desteği (Option G)
   Widget _buildFrameOverlayWidget() {
     final frame = kFramePresets[_state.selectedFrameIndex!];
+    final borderWidth = _state.frameBorderWidth;
 
     if (frame.isGradient && frame.gradientColors != null) {
       // Gradient çerçeve - sadece kenar
-      return CustomPaint(
-        painter: _GradientBorderPainter(
-          colors: frame.gradientColors!,
-          borderWidth: frame.borderWidth,
+      return Positioned.fill(
+        child: CustomPaint(
+          painter: _GradientBorderPainter(
+            colors: frame.gradientColors!,
+            borderWidth: borderWidth,
+          ),
         ),
-        child: const SizedBox.expand(),
       );
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: frame.borderColor, width: frame.borderWidth),
+    return Positioned.fill(
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: frame.borderColor, width: borderWidth),
+        ),
       ),
     );
   }
@@ -1050,67 +1137,175 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     }
   }
 
+  /// Metin düzenleme kontrolleri - Gelişmiş (Option D)
   Widget _buildTextEditControls() {
     final text = _getSelectedTextOverlay();
     if (text == null) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Column(
         children: [
-          // Renk seçici
-          ...[
-            Colors.white,
-            Colors.black,
-            Colors.red,
-            Colors.blue,
-            _primaryColor,
-          ].map(
-            (color) => GestureDetector(
-              onTap: () {
-                _pushUndo();
-                setState(() => text.color = color);
-              },
-              child: Container(
-                width: 22,
-                height: 22,
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: text.color == color
-                        ? _primaryColor
-                        : Colors.white.withValues(alpha: 0.3),
-                    width: text.color == color ? 2 : 1,
+          // Üst satır: Renkler + Bold/Italic/Sil
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Geniş renk paleti
+              ...[
+                Colors.white,
+                Colors.black,
+                Colors.red,
+                Colors.blue,
+                Colors.green,
+                Colors.amber,
+                Colors.pink,
+                _primaryColor,
+              ].map(
+                (color) => GestureDetector(
+                  onTap: () {
+                    _pushUndo();
+                    setState(() => text.color = color);
+                  },
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: text.color == color
+                            ? _primaryColor
+                            : Colors.white.withValues(alpha: 0.3),
+                        width: text.color == color ? 2 : 1,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+              const SizedBox(width: 8),
+              // Bold toggle
+              GestureDetector(
+                onTap: () {
+                  _pushUndo();
+                  setState(() => text.isBold = !text.isBold);
+                },
+                child: Icon(
+                  Icons.format_bold,
+                  color: text.isBold ? _primaryColor : Colors.white54,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 4),
+              // Italic toggle (Option D)
+              GestureDetector(
+                onTap: () {
+                  _pushUndo();
+                  setState(() => text.isItalic = !text.isItalic);
+                },
+                child: Icon(
+                  Icons.format_italic,
+                  color: text.isItalic ? _primaryColor : Colors.white54,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 4),
+              // Sil
+              GestureDetector(
+                onTap: () => _deleteTextOverlay(text.id),
+                child: const Icon(Icons.delete, color: Colors.red, size: 20),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          // Bold toggle
-          GestureDetector(
-            onTap: () {
-              _pushUndo();
-              setState(() => text.isBold = !text.isBold);
-            },
-            child: Icon(
-              Icons.format_bold,
-              color: text.isBold ? _primaryColor : Colors.white54,
-              size: 20,
+          const SizedBox(height: 6),
+          // Alt satır: Font boyutu slider + Font seçici
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              children: [
+                const Icon(Icons.text_fields, color: Colors.white54, size: 14),
+                const SizedBox(width: 4),
+                // Font boyutu slider (Option D)
+                Expanded(
+                  child: SliderTheme(
+                    data: SliderThemeData(
+                      activeTrackColor: _primaryColor,
+                      inactiveTrackColor: Colors.white24,
+                      thumbColor: _primaryColor,
+                      overlayColor: _primaryColor.withValues(alpha: 0.2),
+                      trackHeight: 2,
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 4,
+                      ),
+                    ),
+                    child: Slider(
+                      value: text.fontSize,
+                      min: 10,
+                      max: 80,
+                      onChangeStart: (_) => _pushUndo(),
+                      onChanged: (v) => setState(() => text.fontSize = v),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 28,
+                  child: Text(
+                    '${text.fontSize.toInt()}',
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      color: Colors.white54,
+                      fontSize: 9,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                // Font ailesi seçici (Option D)
+                ..._buildFontSelector(text),
+              ],
             ),
-          ),
-          const SizedBox(width: 8),
-          // Sil
-          GestureDetector(
-            onTap: () => _deleteTextOverlay(text.id),
-            child: const Icon(Icons.delete, color: Colors.red, size: 20),
           ),
         ],
       ),
     );
+  }
+
+  /// Font seçici - küçük yatay butonlar (Option D)
+  List<Widget> _buildFontSelector(TextOverlay text) {
+    const fonts = ['Inter', 'Roboto', 'Georgia', 'Courier'];
+    return fonts.map((font) {
+      final isActive = text.fontFamily == font;
+      return GestureDetector(
+        onTap: () {
+          _pushUndo();
+          setState(() => text.fontFamily = font);
+        },
+        child: Container(
+          margin: const EdgeInsets.only(left: 3),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: isActive
+                ? _primaryColor.withValues(alpha: 0.2)
+                : Colors.white.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: isActive
+                  ? _primaryColor
+                  : Colors.white.withValues(alpha: 0.15),
+            ),
+          ),
+          child: Text(
+            font.length > 3 ? font.substring(0, 3) : font,
+            style: TextStyle(
+              fontFamily: font,
+              color: isActive ? _primaryColor : Colors.white54,
+              fontSize: 9,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ),
+      );
+    }).toList();
   }
 
   void _deleteTextOverlay(String id) {
@@ -1153,8 +1348,8 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     ),
                     child: Slider(
                       value: _getSelectedStickerOverlay()!.size,
-                      min: 24,
-                      max: 80,
+                      min: 16,
+                      max: 120,
                       onChangeStart: (_) => _pushUndo(),
                       onChanged: (v) => setState(() {
                         _getSelectedStickerOverlay()!.size = v;
@@ -1232,82 +1427,151 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     });
   }
 
-  /// Çerçeve sekmesi - Yeniden tasarlanmış
+  /// Çerçeve sekmesi - Kalınlık slider'ı ile (Option G)
   Widget _buildFrameTab() {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      itemCount: kFramePresets.length,
-      itemBuilder: (context, index) {
-        final frame = kFramePresets[index];
-        final isSelected = _state.selectedFrameIndex == index;
-
-        return GestureDetector(
-          onTap: () {
-            _pushUndo();
-            setState(() => _state.selectedFrameIndex = index);
-          },
-          child: Container(
-            width: 80,
-            margin: const EdgeInsets.symmetric(horizontal: 6),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+    return Column(
+      children: [
+        // Kalınlık slider'ı (seçili çerçeve varsa)
+        if (_state.selectedFrameIndex != null && _state.selectedFrameIndex! > 0)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+            child: Row(
               children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey[800],
-                    border: frame.isGradient && frame.gradientColors != null
-                        ? null
-                        : Border.all(
-                            color: frame.borderColor,
-                            width: frame.borderWidth > 0 ? 4 : 1,
-                          ),
-                    gradient: frame.isGradient && frame.gradientColors != null
-                        ? SweepGradient(colors: frame.gradientColors!)
-                        : null,
-                  ),
-                  child: Container(
-                    margin: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey[700],
-                      border: isSelected
-                          ? Border.all(color: _primaryColor, width: 2)
-                          : null,
+                const Icon(Icons.line_weight, color: Colors.white54, size: 16),
+                const SizedBox(width: 6),
+                const SizedBox(
+                  width: 56,
+                  child: Text(
+                    'Kalınlık',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      color: Colors.white70,
+                      fontSize: 11,
                     ),
-                    child: ClipOval(
-                      child: Image.file(
-                        widget.imageFile,
-                        fit: BoxFit.cover,
-                        width: 48,
-                        height: 48,
+                    maxLines: 1,
+                  ),
+                ),
+                Expanded(
+                  child: SliderTheme(
+                    data: SliderThemeData(
+                      activeTrackColor: _primaryColor,
+                      inactiveTrackColor: Colors.white24,
+                      thumbColor: _primaryColor,
+                      overlayColor: _primaryColor.withValues(alpha: 0.2),
+                      trackHeight: 2,
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 5,
                       ),
+                    ),
+                    child: Slider(
+                      value: _state.frameBorderWidth,
+                      min: 2,
+                      max: 24,
+                      onChangeStart: (_) => _pushUndo(),
+                      onChanged: (v) =>
+                          setState(() => _state.frameBorderWidth = v),
                     ),
                   ),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  frame.name,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: isSelected
-                        ? _primaryColor
-                        : Colors.white.withValues(alpha: 0.7),
-                    fontSize: 10,
-                    fontWeight: isSelected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
+                SizedBox(
+                  width: 28,
+                  child: Text(
+                    '${_state.frameBorderWidth.toInt()}',
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      color: Colors.white54,
+                      fontSize: 10,
+                    ),
+                    textAlign: TextAlign.right,
+                    maxLines: 1,
                   ),
-                  textAlign: TextAlign.center,
                 ),
               ],
             ),
           ),
-        );
-      },
+        // Çerçeve listesi (dikey grid)
+        Expanded(
+          child: GridView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 2,
+              crossAxisSpacing: 4,
+              childAspectRatio: 1.0,
+            ),
+            itemCount: kFramePresets.length,
+            itemBuilder: (context, index) {
+              final frame = kFramePresets[index];
+              final isSelected = _state.selectedFrameIndex == index;
+
+              return GestureDetector(
+                onTap: () {
+                  _pushUndo();
+                  setState(() => _state.selectedFrameIndex = index);
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey[800],
+                        border: frame.isGradient && frame.gradientColors != null
+                            ? null
+                            : Border.all(
+                                color: frame.borderColor,
+                                width: frame.borderWidth > 0 ? 3 : 1,
+                              ),
+                        gradient:
+                            frame.isGradient && frame.gradientColors != null
+                            ? SweepGradient(colors: frame.gradientColors!)
+                            : null,
+                      ),
+                      child: Container(
+                        margin: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey[700],
+                          border: isSelected
+                              ? Border.all(color: _primaryColor, width: 2)
+                              : null,
+                        ),
+                        child: ClipOval(
+                          child: Image.file(
+                            widget.imageFile,
+                            fit: BoxFit.cover,
+                            width: 44,
+                            height: 44,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      frame.name,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        color: isSelected
+                            ? _primaryColor
+                            : Colors.white.withValues(alpha: 0.7),
+                        fontSize: 9,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
