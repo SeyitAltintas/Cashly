@@ -65,6 +65,25 @@ const _snapAngles = [
 ];
 const _snapThreshold = 3.0; // ±3° tolerans
 
+/// Undo/Redo için state snapshot'ı
+class _CropStateSnapshot {
+  final int rotationDegrees;
+  final double animatedRotation;
+  final double fineRotation;
+  final bool flipHorizontal;
+  final bool flipVertical;
+  final bool showGrid;
+
+  const _CropStateSnapshot({
+    required this.rotationDegrees,
+    required this.animatedRotation,
+    required this.fineRotation,
+    required this.flipHorizontal,
+    required this.flipVertical,
+    required this.showGrid,
+  });
+}
+
 /// Özelleştirilebilir profil resmi kırpma ekranı
 /// crop_your_image paketi ile tam kontrol sağlar
 class ImageCropScreen extends StatefulWidget {
@@ -104,6 +123,10 @@ class _ImageCropScreenState extends State<ImageCropScreen>
 
   // Haptic - önceki slider değeri (snap ve 0° geçiş tespiti için)
   double _previousSliderValue = 0.0;
+
+  // Undo/Redo stacks
+  final List<_CropStateSnapshot> _undoStack = [];
+  final List<_CropStateSnapshot> _redoStack = [];
 
   // Tema renkleri
   static const Color _primaryColor = Color(0xFF075174);
@@ -151,6 +174,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
 
   /// Görsel döndürme — animasyonlu
   void _rotateImage(int degrees) {
+    _pushUndo();
     HapticFeedback.mediumImpact();
 
     final from = _animatedRotation;
@@ -171,6 +195,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
 
   /// Görsel çevirme
   void _flipImage({bool horizontal = false, bool vertical = false}) {
+    _pushUndo();
     HapticFeedback.lightImpact();
     setState(() {
       if (horizontal) _flipHorizontal = !_flipHorizontal;
@@ -211,6 +236,65 @@ class _ImageCropScreenState extends State<ImageCropScreen>
     return _snapAngles.any((snap) => (value - snap).abs() < 0.5);
   }
 
+  /// Mevcut state'in snapshot'ını al
+  _CropStateSnapshot get _currentSnapshot => _CropStateSnapshot(
+    rotationDegrees: _rotationDegrees,
+    animatedRotation: _animatedRotation,
+    fineRotation: _fineRotation,
+    flipHorizontal: _flipHorizontal,
+    flipVertical: _flipVertical,
+    showGrid: _showGrid,
+  );
+
+  /// Undo stack'ine mevcut durumu kaydet
+  void _pushUndo() {
+    _undoStack.add(_currentSnapshot);
+    _redoStack.clear();
+    if (_undoStack.length > 30) _undoStack.removeAt(0);
+  }
+
+  /// Geri al
+  void _undo() {
+    if (_undoStack.isEmpty) return;
+    HapticFeedback.lightImpact();
+    _redoStack.add(_currentSnapshot);
+    final snapshot = _undoStack.removeLast();
+    _restoreSnapshot(snapshot);
+  }
+
+  /// İleri al
+  void _redo() {
+    if (_redoStack.isEmpty) return;
+    HapticFeedback.lightImpact();
+    _undoStack.add(_currentSnapshot);
+    final snapshot = _redoStack.removeLast();
+    _restoreSnapshot(snapshot);
+  }
+
+  /// Snapshot'tan durumu geri yükle
+  void _restoreSnapshot(_CropStateSnapshot snapshot) {
+    final from = _animatedRotation;
+    final to = snapshot.animatedRotation;
+    if (from != to) {
+      _rotationAnimation = Tween<double>(begin: from, end: to).animate(
+        CurvedAnimation(
+          parent: _rotationAnimController,
+          curve: Curves.easeOutCubic,
+        ),
+      );
+      _rotationAnimController.forward(from: 0);
+    }
+
+    setState(() {
+      _rotationDegrees = snapshot.rotationDegrees;
+      _fineRotation = snapshot.fineRotation;
+      _previousSliderValue = snapshot.fineRotation;
+      _flipHorizontal = snapshot.flipHorizontal;
+      _flipVertical = snapshot.flipVertical;
+      _showGrid = snapshot.showGrid;
+    });
+  }
+
   /// willUpdateScale callback — Crop widget'ı zoom değiştirdiğinde çağrılır
   bool _onWillUpdateScale(double newScale) {
     if (newScale < 1.0 || newScale > 10.0) return false;
@@ -244,6 +328,8 @@ class _ImageCropScreenState extends State<ImageCropScreen>
 
   /// Tüm değişiklikleri sıfırla
   void _resetAll() {
+    _undoStack.clear();
+    _redoStack.clear();
     HapticFeedback.mediumImpact();
 
     // Döndürme animasyonunu sıfırla
@@ -498,25 +584,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                     ],
                   ),
           ),
-          // Tümünü Sıfırla
-          Align(
-            alignment: Alignment.centerRight,
-            child: GestureDetector(
-              onTap: _resetAll,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 20, top: 8, bottom: 8),
-                child: Text(
-                  'Tümünü Sıfırla',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          ),
+
           // Modern alt menü
           Container(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
@@ -530,6 +598,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Undo/Redo + Tümünü Sıfırla
+                _buildUndoRedoRow(),
+                const SizedBox(height: 8),
                 // Fine Rotation Slider - snap + haptic
                 _buildSliderRow(
                   icon: Icons.rotate_right,
@@ -540,6 +611,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                   divisions: 360,
                   valueLabel: '${_fineRotation.round()}°',
                   onChanged: _onSliderChanged,
+                  onChangeStart: (_) => _pushUndo(),
                 ),
                 const SizedBox(height: 12),
                 // Buton satırı
@@ -573,6 +645,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                       icon: _showGrid ? Icons.grid_on : Icons.grid_off,
                       label: 'Grid',
                       onTap: () {
+                        _pushUndo();
                         HapticFeedback.selectionClick();
                         setState(() => _showGrid = !_showGrid);
                       },
@@ -687,6 +760,79 @@ class _ImageCropScreenState extends State<ImageCropScreen>
     );
   }
 
+  /// Undo/Redo + Tümünü Sıfırla satırı
+  Widget _buildUndoRedoRow() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Row(
+        children: [
+          _buildUndoRedoButton(
+            icon: Icons.undo_rounded,
+            label: 'Geri Al',
+            onTap: _undo,
+            isEnabled: _undoStack.isNotEmpty,
+          ),
+          const SizedBox(width: 12),
+          _buildUndoRedoButton(
+            icon: Icons.redo_rounded,
+            label: 'İleri Al',
+            onTap: _redo,
+            isEnabled: _redoStack.isNotEmpty,
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: _resetAll,
+            child: Text(
+              'Tümünü Sıfırla',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Undo/Redo buton widget'ı
+  Widget _buildUndoRedoButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required bool isEnabled,
+  }) {
+    return GestureDetector(
+      onTap: isEnabled ? onTap : null,
+      child: AnimatedOpacity(
+        opacity: isEnabled ? 1.0 : 0.35,
+        duration: const Duration(milliseconds: 200),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isEnabled ? _primaryColor : Colors.white38,
+              size: 16,
+            ),
+            const SizedBox(width: 3),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                color: isEnabled ? Colors.white70 : Colors.white38,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Slider satırı — snap göstergeli
   Widget _buildSliderRow({
     required IconData icon,
@@ -697,6 +843,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
     required int divisions,
     required String valueLabel,
     required ValueChanged<double> onChanged,
+    ValueChanged<double>? onChangeStart,
   }) {
     final isAtSnap = _isSnapped(value);
 
@@ -730,6 +877,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
               min: min,
               max: max,
               divisions: divisions,
+              onChangeStart: onChangeStart,
               onChanged: onChanged,
             ),
           ),
