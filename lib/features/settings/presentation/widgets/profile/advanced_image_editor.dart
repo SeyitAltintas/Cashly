@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'editor_models.dart';
 
@@ -38,6 +39,10 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   // Seçili overlay
   String? _selectedOverlayId;
 
+  // Undo/Redo stacks
+  final List<EditorState> _undoStack = [];
+  final List<EditorState> _redoStack = [];
+
   @override
   void initState() {
     super.initState();
@@ -60,7 +65,11 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
         elevation: 0,
         title: const Text(
           'Fotoğraf Düzenle',
-          style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w600,
+            fontSize: 17,
+          ),
         ),
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -125,25 +134,8 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       ),
                     ),
                   ),
-                  // Tümünü Sıfırla - Sheet'in hemen üstünde
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20, bottom: 8),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: _resetAll,
-                        child: Text(
-                          'Tümünü Sıfırla',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Undo/Redo + Tümünü Sıfırla
+                  _buildUndoRedoRow(),
                 ],
               ),
             ),
@@ -497,7 +489,10 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
         final isSelected = _state.selectedFilterIndex == index;
 
         return GestureDetector(
-          onTap: () => setState(() => _state.selectedFilterIndex = index),
+          onTap: () {
+            _pushUndo();
+            setState(() => _state.selectedFilterIndex = index);
+          },
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -641,6 +636,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 value: value,
                 min: min,
                 max: max,
+                onChangeStart: (_) => _pushUndo(),
                 onChanged: onChanged,
               ),
             ),
@@ -665,7 +661,10 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             height: 24,
             child: hasChange
                 ? GestureDetector(
-                    onTap: onReset,
+                    onTap: () {
+                      _pushUndo();
+                      onReset();
+                    },
                     child: Icon(
                       Icons.refresh,
                       color: Colors.white.withValues(alpha: 0.5),
@@ -690,33 +689,45 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             _buildTransformButton(
               icon: Icons.rotate_left,
               label: 'Sola',
-              onTap: () => setState(() {
-                _state.rotationAngle = (_state.rotationAngle - 90) % 360;
-              }),
+              onTap: () {
+                _pushUndo();
+                setState(() {
+                  _state.rotationAngle = (_state.rotationAngle - 90) % 360;
+                });
+              },
             ),
             _buildTransformButton(
               icon: Icons.rotate_right,
               label: 'Sağa',
-              onTap: () => setState(() {
-                _state.rotationAngle = (_state.rotationAngle + 90) % 360;
-              }),
+              onTap: () {
+                _pushUndo();
+                setState(() {
+                  _state.rotationAngle = (_state.rotationAngle + 90) % 360;
+                });
+              },
             ),
             _buildTransformButton(
               icon: Icons.flip,
               label: 'Yatay',
               isActive: _state.flipHorizontal,
-              onTap: () => setState(() {
-                _state.flipHorizontal = !_state.flipHorizontal;
-              }),
+              onTap: () {
+                _pushUndo();
+                setState(() {
+                  _state.flipHorizontal = !_state.flipHorizontal;
+                });
+              },
             ),
             _buildTransformButton(
               icon: Icons.flip,
               label: 'Dikey',
               rotateIcon: true,
               isActive: _state.flipVertical,
-              onTap: () => setState(() {
-                _state.flipVertical = !_state.flipVertical;
-              }),
+              onTap: () {
+                _pushUndo();
+                setState(() {
+                  _state.flipVertical = !_state.flipVertical;
+                });
+              },
             ),
           ],
         ),
@@ -886,6 +897,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
 
   void _addNewTextFromController() {
     if (_textController.text.isNotEmpty) {
+      _pushUndo();
       setState(() {
         final newText = TextOverlay(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -924,7 +936,10 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             _primaryColor,
           ].map(
             (color) => GestureDetector(
-              onTap: () => setState(() => text.color = color),
+              onTap: () {
+                _pushUndo();
+                setState(() => text.color = color);
+              },
               child: Container(
                 width: 22,
                 height: 22,
@@ -945,7 +960,10 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           const SizedBox(width: 12),
           // Bold toggle
           GestureDetector(
-            onTap: () => setState(() => text.isBold = !text.isBold),
+            onTap: () {
+              _pushUndo();
+              setState(() => text.isBold = !text.isBold);
+            },
             child: Icon(
               Icons.format_bold,
               color: text.isBold ? _primaryColor : Colors.white54,
@@ -964,6 +982,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   }
 
   void _deleteTextOverlay(String id) {
+    _pushUndo();
     setState(() {
       _state.textOverlays.removeWhere((t) => t.id == id);
       if (_selectedOverlayId == id) _selectedOverlayId = null;
@@ -1004,6 +1023,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       value: _getSelectedStickerOverlay()!.size,
                       min: 24,
                       max: 80,
+                      onChangeStart: (_) => _pushUndo(),
                       onChanged: (v) => setState(() {
                         _getSelectedStickerOverlay()!.size = v;
                       }),
@@ -1061,6 +1081,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   }
 
   void _addSticker(String emoji) {
+    _pushUndo();
     setState(() {
       final newSticker = StickerOverlay(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -1072,6 +1093,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   }
 
   void _deleteStickerOverlay(String id) {
+    _pushUndo();
     setState(() {
       _state.stickerOverlays.removeWhere((s) => s.id == id);
       if (_selectedOverlayId == id) _selectedOverlayId = null;
@@ -1089,7 +1111,10 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
         final isSelected = _state.selectedFrameIndex == index;
 
         return GestureDetector(
-          onTap: () => setState(() => _state.selectedFrameIndex = index),
+          onTap: () {
+            _pushUndo();
+            setState(() => _state.selectedFrameIndex = index);
+          },
           child: Container(
             width: 80,
             margin: const EdgeInsets.symmetric(horizontal: 6),
@@ -1157,11 +1182,115 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   // === ACTIONS ===
 
   void _resetAll() {
+    _undoStack.clear();
+    _redoStack.clear();
     setState(() {
       _state.reset();
       _selectedOverlayId = null;
       _textController.clear();
     });
+  }
+
+  void _pushUndo() {
+    _undoStack.add(_state.clone());
+    _redoStack.clear();
+    if (_undoStack.length > 30) _undoStack.removeAt(0);
+  }
+
+  void _undo() {
+    if (_undoStack.isEmpty) return;
+    HapticFeedback.lightImpact();
+    _redoStack.add(_state.clone());
+    final snapshot = _undoStack.removeLast();
+    setState(() {
+      _state.restoreFrom(snapshot);
+      _selectedOverlayId = null;
+    });
+  }
+
+  void _redo() {
+    if (_redoStack.isEmpty) return;
+    HapticFeedback.lightImpact();
+    _undoStack.add(_state.clone());
+    final snapshot = _redoStack.removeLast();
+    setState(() {
+      _state.restoreFrom(snapshot);
+      _selectedOverlayId = null;
+    });
+  }
+
+  /// Undo/Redo + Tümünü Sıfırla satırı
+  Widget _buildUndoRedoRow() {
+    return Padding(
+      padding: const EdgeInsets.only(right: 20, bottom: 8),
+      child: Row(
+        children: [
+          const SizedBox(width: 20),
+          _buildUndoRedoButton(
+            icon: Icons.undo_rounded,
+            label: 'Geri Al',
+            onTap: _undo,
+            isEnabled: _undoStack.isNotEmpty,
+          ),
+          const SizedBox(width: 12),
+          _buildUndoRedoButton(
+            icon: Icons.redo_rounded,
+            label: 'İleri Al',
+            onTap: _redo,
+            isEnabled: _redoStack.isNotEmpty,
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: _resetAll,
+            child: Text(
+              'Tümünü Sıfırla',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Undo/Redo buton widget'ı
+  Widget _buildUndoRedoButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required bool isEnabled,
+  }) {
+    return GestureDetector(
+      onTap: isEnabled ? onTap : null,
+      child: AnimatedOpacity(
+        opacity: isEnabled ? 1.0 : 0.35,
+        duration: const Duration(milliseconds: 200),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isEnabled ? _primaryColor : Colors.white38,
+              size: 16,
+            ),
+            const SizedBox(width: 3),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                color: isEnabled ? Colors.white70 : Colors.white38,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _saveEditedImage() async {

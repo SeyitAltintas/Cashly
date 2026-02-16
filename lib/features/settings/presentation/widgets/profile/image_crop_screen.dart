@@ -45,7 +45,7 @@ Uint8List? _transformImageIsolate(_ImageTransformParams params) {
       image = img.flipVertical(image);
     }
 
-    return Uint8List.fromList(img.encodePng(image));
+    return Uint8List.fromList(img.encodeJpg(image, quality: 90));
   } catch (e) {
     return null;
   }
@@ -405,7 +405,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
 
       final directory = await getTemporaryDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final croppedPath = '${directory.path}/cropped_$timestamp.png';
+      final croppedPath = '${directory.path}/cropped_$timestamp.jpg';
       final croppedFile = File(croppedPath);
       await croppedFile.writeAsBytes(finalData);
 
@@ -442,7 +442,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
           style: TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.w600,
-            fontSize: 15,
+            fontSize: 17,
           ),
         ),
         leading: IconButton(

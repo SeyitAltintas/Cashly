@@ -196,6 +196,46 @@ class EditorState {
     stickerOverlays.clear();
     selectedFrameIndex = null;
   }
+
+  EditorState clone() {
+    return EditorState(
+      selectedFilterIndex: selectedFilterIndex,
+      brightness: brightness,
+      contrast: contrast,
+      saturation: saturation,
+      temperature: temperature,
+      tint: tint,
+      shadows: shadows,
+      highlights: highlights,
+      sharpness: sharpness,
+      rotationAngle: rotationAngle,
+      flipHorizontal: flipHorizontal,
+      flipVertical: flipVertical,
+      vignette: vignette,
+      textOverlays: textOverlays.map((t) => t.copyWith()).toList(),
+      stickerOverlays: stickerOverlays.map((s) => s.copyWith()).toList(),
+      selectedFrameIndex: selectedFrameIndex,
+    );
+  }
+
+  void restoreFrom(EditorState other) {
+    selectedFilterIndex = other.selectedFilterIndex;
+    brightness = other.brightness;
+    contrast = other.contrast;
+    saturation = other.saturation;
+    temperature = other.temperature;
+    tint = other.tint;
+    shadows = other.shadows;
+    highlights = other.highlights;
+    sharpness = other.sharpness;
+    rotationAngle = other.rotationAngle;
+    flipHorizontal = other.flipHorizontal;
+    flipVertical = other.flipVertical;
+    vignette = other.vignette;
+    textOverlays = other.textOverlays.map((t) => t.copyWith()).toList();
+    stickerOverlays = other.stickerOverlays.map((s) => s.copyWith()).toList();
+    selectedFrameIndex = other.selectedFrameIndex;
+  }
 }
 
 /// Önceden tanımlı filtreler

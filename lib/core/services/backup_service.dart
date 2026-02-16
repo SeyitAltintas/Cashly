@@ -402,7 +402,7 @@ class BackupService {
               final directory = await getApplicationDocumentsDirectory();
               final timestamp = DateTime.now().millisecondsSinceEpoch;
               final imagePath =
-                  '${directory.path}/profile_restored_$timestamp.png';
+                  '${directory.path}/profile_restored_$timestamp.jpg';
               final imageFile = File(imagePath);
               await imageFile.writeAsBytes(bytes);
               restoredProfileImagePath = imagePath;
