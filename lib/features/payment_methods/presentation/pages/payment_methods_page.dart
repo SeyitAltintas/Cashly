@@ -432,101 +432,106 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
               ],
             ),
             padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Üst satır
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        pm.typeDisplayName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
+            child: MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.noScaling),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Üst satır
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
                         ),
-                      ),
-                    ),
-                    Icon(
-                      pm.type == 'nakit'
-                          ? Icons.wallet
-                          : pm.type == 'kredi'
-                          ? Icons.credit_card
-                          : Icons.account_balance,
-                      color: Colors.white.withValues(alpha: 0.7),
-                      size: 24,
-                    ),
-                  ],
-                ),
-                // Kart numarası
-                if (pm.type != 'nakit' && pm.lastFourDigits != null)
-                  Text(
-                    '•••• •••• •••• ${pm.lastFourDigits}',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 14,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                // Alt satır
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          pm.name.toUpperCase(),
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          pm.typeDisplayName,
+                          style: const TextStyle(
+                            color: Colors.white,
                             fontSize: 11,
-                            letterSpacing: 1,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        if (pm.type == 'kredi' && pm.limit != null)
+                      ),
+                      Icon(
+                        pm.type == 'nakit'
+                            ? Icons.wallet
+                            : pm.type == 'kredi'
+                            ? Icons.credit_card
+                            : Icons.account_balance,
+                        color: Colors.white.withValues(alpha: 0.7),
+                        size: 24,
+                      ),
+                    ],
+                  ),
+                  // Kart numarası
+                  if (pm.type != 'nakit' && pm.lastFourDigits != null)
+                    Text(
+                      '•••• •••• •••• ${pm.lastFourDigits}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 14,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  // Alt satır
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            'Limit: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ₺',
+                            pm.name.toUpperCase(),
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.5),
+                              color: Colors.white.withValues(alpha: 0.7),
+                              fontSize: 11,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                          if (pm.type == 'kredi' && pm.limit != null)
+                            Text(
+                              'Limit: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ₺',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.5),
+                                fontSize: 10,
+                              ),
+                            ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            pm.type == 'kredi' ? 'Borç' : 'Bakiye',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
                               fontSize: 10,
                             ),
                           ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          pm.type == 'kredi' ? 'Borç' : 'Bakiye',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.6),
-                            fontSize: 10,
+                          Text(
+                            '${AmountInputFormatter.formatInitialValue(pm.balance)} ₺',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        Text(
-                          '${AmountInputFormatter.formatInitialValue(pm.balance)} ₺',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

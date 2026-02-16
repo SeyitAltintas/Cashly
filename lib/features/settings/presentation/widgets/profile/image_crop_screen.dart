@@ -513,11 +513,15 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                               controller: _cropController,
                               image: _imageData!,
                               aspectRatio: 1,
+                              initialRectBuilder:
+                                  InitialRectBuilder.withSizeAndRatio(
+                                    size: 0.85,
+                                  ),
                               withCircleUi: true,
                               interactive: true,
                               fixCropRect: true,
                               baseColor: _backgroundColor,
-                              maskColor: Colors.black.withValues(alpha: 0.75),
+                              maskColor: Colors.black.withValues(alpha: 0.85),
                               willUpdateScale: _onWillUpdateScale,
                               cornerDotBuilder: (size, edgeAlignment) =>
                                   const SizedBox.shrink(),

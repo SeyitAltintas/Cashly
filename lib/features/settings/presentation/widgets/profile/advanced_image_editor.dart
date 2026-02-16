@@ -237,10 +237,27 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
       height: 320,
     );
 
-    // Filtre uygula
+    // Filtre uygula (yoğunluk desteği ile)
     final filter = kFilterPresets[_state.selectedFilterIndex];
     if (filter.colorFilter != null) {
-      image = ColorFiltered(colorFilter: filter.colorFilter!, child: image);
+      if (_state.filterIntensity >= 100) {
+        image = ColorFiltered(colorFilter: filter.colorFilter!, child: image);
+      } else if (_state.filterIntensity > 0) {
+        final original = image;
+        image = Stack(
+          fit: StackFit.expand,
+          children: [
+            original,
+            Opacity(
+              opacity: _state.filterIntensity / 100,
+              child: ColorFiltered(
+                colorFilter: filter.colorFilter!,
+                child: original,
+              ),
+            ),
+          ],
+        );
+      }
     }
 
     // Ayarlar uygula
@@ -445,22 +462,31 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     final tempR = _state.temperature > 0 ? _state.temperature * 0.3 : 0.0;
     final tempB = _state.temperature < 0 ? -_state.temperature * 0.3 : 0.0;
 
+    // Tint (yeşil ↔ magenta kayması)
+    final tintR = -_state.tint * 0.12;
+    final tintG = _state.tint * 0.25;
+    final tintB = -_state.tint * 0.12;
+
+    // Gölgeler ve Parlamalar
+    final shadowOffset = _state.shadows * 0.4;
+    final highlightOffset = -_state.highlights * 0.4;
+
     final matrix = <double>[
       c * (sr + s),
       c * sg,
       c * sb,
       0,
-      b + cOffset + tempR,
+      b + cOffset + tempR + tintR + shadowOffset + highlightOffset,
       c * sr,
       c * (sg + s),
       c * sb,
       0,
-      b + cOffset,
+      b + cOffset + tintG + shadowOffset + highlightOffset,
       c * sr,
       c * sg,
       c * (sb + s),
       0,
-      b + cOffset + tempB,
+      b + cOffset + tempB + tintB + shadowOffset + highlightOffset,
       0,
       0,
       0,
@@ -473,77 +499,160 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
 
   // === TAB İÇERİKLERİ ===
 
-  /// Filtreler sekmesi - Dikey kaydırılabilir grid
+  /// Filtreler sekmesi - Yoğunluk slider + grid
   Widget _buildFiltersTab() {
-    return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 5,
-        mainAxisSpacing: 0,
-        crossAxisSpacing: 4,
-        childAspectRatio: 0.82,
-      ),
-      itemCount: kFilterPresets.length,
-      itemBuilder: (context, index) {
-        final filter = kFilterPresets[index];
-        final isSelected = _state.selectedFilterIndex == index;
+    return Column(
+      children: [
+        if (_state.selectedFilterIndex > 0) _buildFilterIntensitySlider(),
+        Expanded(
+          child: GridView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 5,
+              mainAxisSpacing: 0,
+              crossAxisSpacing: 4,
+              childAspectRatio: 0.82,
+            ),
+            itemCount: kFilterPresets.length,
+            itemBuilder: (context, index) {
+              final filter = kFilterPresets[index];
+              final isSelected = _state.selectedFilterIndex == index;
 
-        return GestureDetector(
-          onTap: () {
-            _pushUndo();
-            setState(() => _state.selectedFilterIndex = index);
-          },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected
-                        ? _primaryColor
-                        : Colors.white.withValues(alpha: 0.2),
-                    width: isSelected ? 3 : 1,
-                  ),
-                ),
-                child: ClipOval(
-                  child: ColorFiltered(
-                    colorFilter:
-                        filter.colorFilter ??
-                        const ColorFilter.mode(
-                          Colors.transparent,
-                          BlendMode.dst,
-                        ),
-                    child: Image.file(
-                      widget.imageFile,
-                      fit: BoxFit.cover,
+              return GestureDetector(
+                onTap: () {
+                  _pushUndo();
+                  setState(() => _state.selectedFilterIndex = index);
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
                       width: 52,
                       height: 52,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected
+                              ? _primaryColor
+                              : Colors.white.withValues(alpha: 0.2),
+                          width: isSelected ? 3 : 1,
+                        ),
+                      ),
+                      child: ClipOval(
+                        child: ColorFiltered(
+                          colorFilter:
+                              filter.colorFilter ??
+                              const ColorFilter.mode(
+                                Colors.transparent,
+                                BlendMode.dst,
+                              ),
+                          child: Image.file(
+                            widget.imageFile,
+                            fit: BoxFit.cover,
+                            width: 52,
+                            height: 52,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 4),
+                    Text(
+                      filter.name,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        color: isSelected
+                            ? _primaryColor
+                            : Colors.white.withValues(alpha: 0.7),
+                        fontSize: 9,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                filter.name,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  color: isSelected
-                      ? _primaryColor
-                      : Colors.white.withValues(alpha: 0.7),
-                  fontSize: 9,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+              );
+            },
           ),
-        );
-      },
+        ),
+      ],
+    );
+  }
+
+  /// Filtre yoğunluk slider'ı
+  Widget _buildFilterIntensitySlider() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+      child: Row(
+        children: [
+          const Icon(Icons.opacity, color: Colors.white54, size: 16),
+          const SizedBox(width: 6),
+          const SizedBox(
+            width: 72,
+            child: Text(
+              'Yoğunluk',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                color: Colors.white70,
+                fontSize: 11,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            child: SliderTheme(
+              data: SliderThemeData(
+                activeTrackColor: _primaryColor,
+                inactiveTrackColor: Colors.white24,
+                thumbColor: _primaryColor,
+                overlayColor: _primaryColor.withValues(alpha: 0.2),
+                trackHeight: 2,
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
+              ),
+              child: Slider(
+                value: _state.filterIntensity,
+                min: 0,
+                max: 100,
+                onChangeStart: (_) => _pushUndo(),
+                onChanged: (v) => setState(() => _state.filterIntensity = v),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 40,
+            child: Text(
+              '${_state.filterIntensity.toInt()}%',
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                color: Colors.white54,
+                fontSize: 10,
+              ),
+              textAlign: TextAlign.right,
+              maxLines: 1,
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: _state.filterIntensity != 100
+                ? () {
+                    _pushUndo();
+                    setState(() => _state.filterIntensity = 100);
+                  }
+                : null,
+            child: Icon(
+              Icons.restart_alt_rounded,
+              color: _state.filterIntensity != 100
+                  ? _primaryColor
+                  : Colors.white24,
+              size: 16,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -589,6 +698,27 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             () => setState(() => _state.vignette = 0),
             min: 0,
           ),
+          _buildSliderWithReset(
+            'Tint',
+            Icons.gradient,
+            _state.tint,
+            (v) => setState(() => _state.tint = v),
+            () => setState(() => _state.tint = 0),
+          ),
+          _buildSliderWithReset(
+            'Gölgeler',
+            Icons.wb_shade,
+            _state.shadows,
+            (v) => setState(() => _state.shadows = v),
+            () => setState(() => _state.shadows = 0),
+          ),
+          _buildSliderWithReset(
+            'Parlamalar',
+            Icons.wb_sunny,
+            _state.highlights,
+            (v) => setState(() => _state.highlights = v),
+            () => setState(() => _state.highlights = 0),
+          ),
         ],
       ),
     );
@@ -612,7 +742,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           Icon(icon, color: Colors.white54, size: 16),
           const SizedBox(width: 6),
           SizedBox(
-            width: 60,
+            width: 72,
             child: Text(
               label,
               style: const TextStyle(
@@ -620,6 +750,8 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 color: Colors.white70,
                 fontSize: 11,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(

@@ -126,6 +126,7 @@ class EditorState {
   double shadows;
   double highlights;
   double sharpness;
+  double filterIntensity;
 
   // Dönüşüm
   int rotationAngle;
@@ -150,6 +151,7 @@ class EditorState {
     this.shadows = 0,
     this.highlights = 0,
     this.sharpness = 0,
+    this.filterIntensity = 100,
     this.rotationAngle = 0,
     this.flipHorizontal = false,
     this.flipVertical = false,
@@ -170,6 +172,7 @@ class EditorState {
       shadows != 0 ||
       highlights != 0 ||
       sharpness != 0 ||
+      filterIntensity != 100 ||
       rotationAngle != 0 ||
       flipHorizontal ||
       flipVertical ||
@@ -188,6 +191,7 @@ class EditorState {
     shadows = 0;
     highlights = 0;
     sharpness = 0;
+    filterIntensity = 100;
     rotationAngle = 0;
     flipHorizontal = false;
     flipVertical = false;
@@ -208,6 +212,7 @@ class EditorState {
       shadows: shadows,
       highlights: highlights,
       sharpness: sharpness,
+      filterIntensity: filterIntensity,
       rotationAngle: rotationAngle,
       flipHorizontal: flipHorizontal,
       flipVertical: flipVertical,
@@ -228,6 +233,7 @@ class EditorState {
     shadows = other.shadows;
     highlights = other.highlights;
     sharpness = other.sharpness;
+    filterIntensity = other.filterIntensity;
     rotationAngle = other.rotationAngle;
     flipHorizontal = other.flipHorizontal;
     flipVertical = other.flipVertical;
