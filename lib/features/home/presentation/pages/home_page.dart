@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 
-import 'package:cashly/features/settings/presentation/pages/profile_page.dart';
+import 'package:cashly/features/settings/presentation/pages/profile/profile_page.dart';
 import 'package:cashly/core/di/injection_container.dart';
 import 'package:cashly/core/services/asset_price_update_service.dart';
 

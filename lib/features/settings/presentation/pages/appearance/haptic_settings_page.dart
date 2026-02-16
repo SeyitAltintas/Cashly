@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/services/haptic_service.dart';
-import '../state/haptic_settings_state.dart';
+import '../../../../../core/services/haptic_service.dart';
+import 'state/haptic_settings_state.dart';
 
 /// Haptic (titreşim) geri bildirim ayarları sayfası
 /// Kullanıcı tüm titreşim tiplerini ayrı ayrı açıp kapatabilir

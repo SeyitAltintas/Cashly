@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../../../../../payment_methods/data/models/payment_method_model.dart';
 
 /// Tekrarlayan işlemler için ChangeNotifier state yöneticisi
 class RecurringTransactionsState extends ChangeNotifier {

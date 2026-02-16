@@ -3,7 +3,7 @@ import 'package:cashly/core/di/injection_container.dart';
 import 'package:cashly/features/settings/domain/repositories/settings_repository.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/core/services/haptic_service.dart';
-import '../state/transfer_settings_state.dart';
+import 'state/transfer_settings_state.dart';
 
 /// Para Transferleri Ayarları Sayfası
 /// İşlem geçmişinde gösterilecek transfer sayısını ayarlar

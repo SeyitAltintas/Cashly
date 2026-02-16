@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 import 'package:cashly/features/income/presentation/pages/income_settings_page.dart';
-import 'appearance_page.dart';
-import 'voice_assistant_page.dart';
-import 'haptic_settings_page.dart';
-import 'notification_settings_page.dart';
-import 'expense_settings_page.dart';
-import 'transfer_settings_page.dart';
+import 'appearance/appearance_page.dart';
+import 'voice/voice_assistant_page.dart';
+import 'appearance/haptic_settings_page.dart';
+import 'notifications/notification_settings_page.dart';
+import 'finance/expense_settings_page.dart';
+import 'finance/transfer_settings_page.dart';
 import '../state/main_settings_state.dart';
 
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
 
 // Modüler widget'lar
 import '../widgets/settings_tile.dart';
+
 import 'package:cashly/core/services/backup_service.dart';
 import 'package:cashly/core/services/haptic_service.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';

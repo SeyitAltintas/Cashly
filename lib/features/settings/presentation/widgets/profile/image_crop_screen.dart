@@ -110,7 +110,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
   bool _showOriginal = false;
 
   // Resmi yeniden yüklemek için key
-  UniqueKey _cropKey = UniqueKey();
+  final UniqueKey _cropKey = UniqueKey();
 
   // Döndürme animasyonu
   late final AnimationController _rotationAnimController;

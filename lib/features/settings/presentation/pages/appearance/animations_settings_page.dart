@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/theme/theme_manager.dart';
+import '../../../../../core/theme/theme_manager.dart';
 
 class AnimationsSettingsPage extends StatelessWidget {
   const AnimationsSettingsPage({super.key});

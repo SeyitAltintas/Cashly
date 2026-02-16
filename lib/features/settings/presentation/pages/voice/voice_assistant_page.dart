@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/di/injection_container.dart';
-import '../../../settings/domain/repositories/settings_repository.dart';
-import '../../../../core/services/tts_service.dart';
-import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../../../core/di/injection_container.dart';
+import '../../../../settings/domain/repositories/settings_repository.dart';
+import '../../../../../core/services/tts_service.dart';
+import '../../../../auth/presentation/controllers/auth_controller.dart';
 import 'voice_commands_page.dart';
-import '../state/voice_assistant_state.dart';
+import 'state/voice_assistant_state.dart';
 
 /// Sesli Asistan ayarları sayfası
 class VoiceAssistantPage extends StatefulWidget {

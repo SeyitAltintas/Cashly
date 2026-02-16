@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/di/injection_container.dart';
 import '../../../../expenses/domain/repositories/expense_repository.dart';
-import '../../pages/category_budget_page.dart';
+import '../../pages/finance/category_budget_page.dart';
 
 /// Kategori bazlı bütçe limitleri section widget'ı
 /// Tıklandığında CategoryBudgetPage'e yönlendirir

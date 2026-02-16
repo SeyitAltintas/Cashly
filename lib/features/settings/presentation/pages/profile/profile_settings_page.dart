@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/utils/error_handler.dart';
-import '../../../../core/services/biometric_service.dart';
-import '../../../auth/data/repositories/auth_repository_impl.dart';
-import '../../../auth/domain/entities/user_entity.dart';
-import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../../../core/utils/error_handler.dart';
+import '../../../../../core/services/biometric_service.dart';
+import '../../../../auth/data/repositories/auth_repository_impl.dart';
+import '../../../../auth/domain/entities/user_entity.dart';
+import '../../../../auth/presentation/controllers/auth_controller.dart';
 
 // Modüler widget'lar
-import '../widgets/profile/profile_photo_section.dart';
-import '../widgets/profile/profile_info_cards.dart';
-import '../widgets/profile/security_section.dart';
-import '../widgets/profile/danger_zone_section.dart';
-import '../widgets/profile/profile_settings_helper.dart';
-import '../state/profile_settings_state.dart';
+import '../../widgets/profile/profile_photo_section.dart';
+import '../../widgets/profile/profile_info_cards.dart';
+import '../../widgets/profile/security_section.dart';
+import '../../widgets/profile/danger_zone_section.dart';
+import '../../widgets/profile/profile_settings_helper.dart';
+import 'state/profile_settings_state.dart';
 
 /// Profil Ayarları Sayfası
 /// Kullanıcı profili yönetimi için ana sayfa

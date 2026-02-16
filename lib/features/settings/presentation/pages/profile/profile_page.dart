@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'main_settings_page.dart';
+import '../main_settings_page.dart';
 import 'profile_settings_page.dart';
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:cashly/features/auth/presentation/pages/login_page.dart';

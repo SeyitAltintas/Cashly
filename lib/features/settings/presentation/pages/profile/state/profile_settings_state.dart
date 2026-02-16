@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../../../auth/domain/entities/user_entity.dart';
+import '../../../../../auth/domain/entities/user_entity.dart';
 
 /// Profil ayarları için ChangeNotifier state yöneticisi
 class ProfileSettingsState extends ChangeNotifier {

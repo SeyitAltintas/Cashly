@@ -9,13 +9,13 @@ import 'package:cashly/core/utils/validators.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 
-import '../widgets/expense_settings/budget_section.dart';
-import '../widgets/expense_settings/recurring_expense_section.dart';
-import '../widgets/expense_settings/default_payment_section.dart';
-import '../widgets/expense_settings/category_section.dart';
-import '../widgets/expense_settings/category_budget_section.dart';
+import '../../widgets/expense_settings/budget_section.dart';
+import '../../widgets/expense_settings/recurring_expense_section.dart';
+import '../../widgets/expense_settings/default_payment_section.dart';
+import '../../widgets/expense_settings/category_section.dart';
+import '../../widgets/expense_settings/category_budget_section.dart';
 import 'recurring_transactions_page.dart';
-import '../state/expense_settings_state.dart';
+import 'state/expense_settings_state.dart';
 
 /// Harcama Ayarları Sayfası
 /// Bütçe limiti, varsayılan ödeme yöntemi ve kategori yönetimi ayarlarını içerir.
