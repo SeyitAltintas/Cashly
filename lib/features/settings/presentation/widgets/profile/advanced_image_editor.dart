@@ -19,7 +19,7 @@ class AdvancedImageEditor extends StatefulWidget {
 }
 
 class _AdvancedImageEditorState extends State<AdvancedImageEditor>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
   final GlobalKey _imageKey = GlobalKey();
   bool _isSaving = false;
@@ -46,16 +46,39 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   // Karşılaştırma modu (Option E)
   bool _showOriginal = false;
 
+  // Döndürme animasyonu
+  AnimationController? _rotAnimController;
+  Animation<double>? _rotAnimation;
+  double _animatedRotation = 0.0; // radyan cinsinden
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 6, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() => _selectedOverlayId = null);
+      }
+    });
+
+    // Döndürme animasyonu
+    _rotAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+    _rotAnimation = Tween<double>(begin: 0, end: 0).animate(
+      CurvedAnimation(parent: _rotAnimController!, curve: Curves.easeOutCubic),
+    );
+    _rotAnimController!.addListener(() {
+      setState(() => _animatedRotation = _rotAnimation!.value);
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     _textController.dispose();
+    _rotAnimController?.dispose();
     super.dispose();
   }
 
@@ -306,12 +329,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
       image = ColorFiltered(colorFilter: adjustmentMatrix, child: image);
     }
 
-    // Dönüşümleri uygula
-    if (_state.rotationAngle != 0) {
-      image = Transform.rotate(
-        angle: _state.rotationAngle * math.pi / 180,
-        child: image,
-      );
+    // Dönüşümleri uygula (animasyonlu)
+    if (_animatedRotation != 0) {
+      image = Transform.rotate(angle: _animatedRotation, child: image);
     }
 
     if (_state.flipHorizontal || _state.flipVertical) {
@@ -910,9 +930,16 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               label: 'Sola',
               onTap: () {
                 _pushUndo();
-                setState(() {
-                  _state.rotationAngle = (_state.rotationAngle - 90) % 360;
-                });
+                _state.rotationAngle = (_state.rotationAngle - 90) % 360;
+                final from = _animatedRotation;
+                final to = from - math.pi / 2;
+                _rotAnimation = Tween<double>(begin: from, end: to).animate(
+                  CurvedAnimation(
+                    parent: _rotAnimController!,
+                    curve: Curves.easeOutCubic,
+                  ),
+                );
+                _rotAnimController!.forward(from: 0);
               },
             ),
             _buildTransformButton(
@@ -920,9 +947,16 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               label: 'Sağa',
               onTap: () {
                 _pushUndo();
-                setState(() {
-                  _state.rotationAngle = (_state.rotationAngle + 90) % 360;
-                });
+                _state.rotationAngle = (_state.rotationAngle + 90) % 360;
+                final from = _animatedRotation;
+                final to = from + math.pi / 2;
+                _rotAnimation = Tween<double>(begin: from, end: to).animate(
+                  CurvedAnimation(
+                    parent: _rotAnimController!,
+                    curve: Curves.easeOutCubic,
+                  ),
+                );
+                _rotAnimController!.forward(from: 0);
               },
             ),
             _buildTransformButton(
@@ -1065,11 +1099,17 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           // Seçili metin ayarları
           if (_selectedOverlayId != null && _getSelectedTextOverlay() != null)
             _buildTextEditControls(),
-          // Metin listesi
+          // Metin listesi (dikey grid, satırda max 2)
           if (_state.textOverlays.isNotEmpty)
             Expanded(
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
+              child: GridView.builder(
+                padding: const EdgeInsets.only(top: 4),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 6,
+                  crossAxisSpacing: 6,
+                  childAspectRatio: 3.5,
+                ),
                 itemCount: _state.textOverlays.length,
                 itemBuilder: (context, index) {
                   final text = _state.textOverlays[index];
@@ -1078,10 +1118,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     onTap: () => setState(() => _selectedOverlayId = text.id),
                     onLongPress: () => _deleteTextOverlay(text.id),
                     child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
+                        horizontal: 10,
+                        vertical: 4,
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
@@ -1094,14 +1133,18 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                               : Colors.white.withValues(alpha: 0.2),
                         ),
                       ),
-                      child: Text(
-                        text.text.length > 10
-                            ? '${text.text.substring(0, 10)}...'
-                            : text.text,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          color: isSelected ? _primaryColor : Colors.white70,
-                          fontSize: 11,
+                      child: Center(
+                        child: Text(
+                          text.text.length > 12
+                              ? '${text.text.substring(0, 12)}...'
+                              : text.text,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: isSelected ? _primaryColor : Colors.white70,
+                            fontSize: 11,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
@@ -1584,6 +1627,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
       _state.reset();
       _selectedOverlayId = null;
       _textController.clear();
+      _animatedRotation = 0.0;
     });
   }
 
@@ -1601,6 +1645,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     setState(() {
       _state.restoreFrom(snapshot);
       _selectedOverlayId = null;
+      _animatedRotation = _state.rotationAngle * math.pi / 180;
     });
   }
 
@@ -1612,6 +1657,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
     setState(() {
       _state.restoreFrom(snapshot);
       _selectedOverlayId = null;
+      _animatedRotation = _state.rotationAngle * math.pi / 180;
     });
   }
 
