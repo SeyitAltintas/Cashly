@@ -67,6 +67,7 @@ flutter_native_splash:
     # Boş bırakarak app ikonunun görünmesini engelle
 
 flutter:
+  generate: true
   uses-material-design: true
   assets:
     - assets/image/

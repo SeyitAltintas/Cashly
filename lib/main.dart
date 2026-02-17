@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/generated/app_localizations.dart';
 import 'core/services/database_helper.dart';
 import 'core/services/haptic_service.dart';
 import 'core/services/image_cache_service.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/locale_manager.dart';
 import 'features/streak/data/services/streak_service.dart';
 import 'features/auth/data/initialize_default_user.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
@@ -49,8 +51,11 @@ void main() async {
         // Görsel cache servisini başlat
         await ImageCacheService().initialize();
         runApp(
-          ChangeNotifierProvider(
-            create: (_) => ThemeManager(),
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => ThemeManager()),
+              ChangeNotifierProvider(create: (_) => LocaleManager()),
+            ],
             child: const CashlyApp(),
           ),
         );
@@ -189,15 +194,15 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
+    return Consumer2<ThemeManager, LocaleManager>(
+      builder: (context, themeManager, localeManager, child) {
         // Henüz başlatılmadıysa siyah ekran göster (splash ile tutarlı)
         if (!_isInitialized) {
           return const MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
               backgroundColor: Color(0xFF0D0D0D),
-              body: SizedBox.shrink(), // Boş - sadece siyah arka plan
+              body: SizedBox.shrink(),
             ),
           );
         }
@@ -265,12 +270,14 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
         return MaterialApp.router(
           title: 'Cashly',
           debugShowCheckedModeBanner: false,
+          locale: localeManager.locale,
           localizationsDelegates: const [
+            AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: const [Locale('tr', 'TR')],
+          supportedLocales: LocaleManager.supportedLocales,
           theme: themeManager.currentTheme,
           routerConfig: appRouter.router,
         );

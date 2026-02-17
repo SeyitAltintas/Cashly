@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 
 /// Aylık Özet Kartı Widget'ı
 /// Harcama, gelir ve net durumu gösterir
@@ -48,7 +49,7 @@ class MonthlySummaryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Bu Ay Özeti",
+                  context.l10n.monthSummary,
                   style: TextStyle(
                     fontSize: titleFontSize,
                     fontWeight: FontWeight.bold,
@@ -63,7 +64,7 @@ class MonthlySummaryCard extends StatelessWidget {
                         context,
                         icon: Icons.arrow_downward,
                         iconColor: Colors.red.shade400,
-                        label: "Harcama",
+                        label: context.l10n.expense,
                         value: CurrencyFormatter.format(monthlyExpense),
                         valueColor: Colors.red.shade300,
                         labelFontSize: labelFontSize,
@@ -83,7 +84,7 @@ class MonthlySummaryCard extends StatelessWidget {
                         context,
                         icon: Icons.arrow_upward,
                         iconColor: Colors.green.shade400,
-                        label: "Gelir",
+                        label: context.l10n.income,
                         value: CurrencyFormatter.format(monthlyIncome),
                         valueColor: Colors.green.shade300,
                         labelFontSize: labelFontSize,
@@ -107,7 +108,7 @@ class MonthlySummaryCard extends StatelessWidget {
                         iconColor: netDiff >= 0
                             ? Colors.green.shade400
                             : Colors.red.shade400,
-                        label: "Net",
+                        label: context.l10n.net,
                         value: CurrencyFormatter.formatSigned(
                           netDiff,
                           showPlus: true,

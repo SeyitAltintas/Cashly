@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
 /// Toplam Bakiye Kartı Widget'ı
@@ -70,7 +71,7 @@ class BalanceCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Toplam Bakiye",
+                  context.l10n.totalBalance,
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(

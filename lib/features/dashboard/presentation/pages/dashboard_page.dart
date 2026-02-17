@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/network_status_icon.dart';
@@ -194,7 +195,7 @@ class _DashboardPageState extends State<DashboardPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "${controller.greeting},",
+                  "${_getGreeting(context)},",
                   style: TextStyle(
                     fontSize: 16,
                     color: Theme.of(
@@ -226,5 +227,14 @@ class _DashboardPageState extends State<DashboardPage> {
         ],
       ),
     );
+  }
+
+  /// Saate göre locale-aware selamlama mesajı
+  String _getGreeting(BuildContext context) {
+    final hour = DateTime.now().hour;
+    if (hour < 6) return context.l10n.goodNight;
+    if (hour < 12) return context.l10n.goodMorning;
+    if (hour < 18) return context.l10n.goodAfternoon;
+    return context.l10n.goodEvening;
   }
 }

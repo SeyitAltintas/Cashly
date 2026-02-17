@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -27,7 +28,7 @@ class RecentTransactionsCard extends StatelessWidget {
       (p) => p.id == id,
       orElse: () => PaymentMethod(
         id: '',
-        name: 'Bilinmeyen',
+        name: 'Unknown',
         type: 'banka',
         balance: 0,
         createdAt: DateTime.now(),
@@ -47,7 +48,7 @@ class RecentTransactionsCard extends StatelessWidget {
       if (tarih != null) {
         transactions.add({
           'type': 'expense',
-          'name': h['isim'] ?? 'Harcama',
+          'name': h['isim'] ?? 'Expense',
           'amount': (h['tutar'] as num?)?.toDouble() ?? 0,
           'date': tarih,
           'category': h['kategori'] ?? 'Diğer',
@@ -91,14 +92,14 @@ class RecentTransactionsCard extends StatelessWidget {
     return transactions.take(5).toList();
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(BuildContext context, DateTime date) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final dateOnly = DateTime(date.year, date.month, date.day);
     final diff = today.difference(dateOnly).inDays;
 
-    if (diff == 0) return "Bugün";
-    if (diff == 1) return "Dün";
+    if (diff == 0) return context.l10n.today;
+    if (diff == 1) return context.l10n.yesterday;
     return "${date.day}/${date.month}";
   }
 
@@ -124,7 +125,7 @@ class RecentTransactionsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Son İşlemler",
+              context.l10n.recentTransactions,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -157,7 +158,7 @@ class RecentTransactionsCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            "Henüz işlem yok",
+            context.l10n.noRecentTransactions,
             style: TextStyle(
               color: Theme.of(
                 context,
@@ -227,7 +228,7 @@ class RecentTransactionsCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  _formatDate(transaction['date']),
+                  _formatDate(context, transaction['date']),
                   style: TextStyle(
                     color: Theme.of(
                       context,

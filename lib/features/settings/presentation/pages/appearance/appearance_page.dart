@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'animations_settings_page.dart';
 
 class AppearancePage extends StatelessWidget {
@@ -8,7 +9,7 @@ class AppearancePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Görünüm"),
+        title: Text(context.l10n.appearance),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -35,7 +36,7 @@ class AppearancePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Görünüm Ayarları",
+                    context.l10n.appearanceSettings,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 28,
@@ -45,7 +46,7 @@ class AppearancePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Uygulamanın görsel tercihlerini özelleştirin",
+                    context.l10n.appearanceSettingsDescription,
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -83,8 +84,8 @@ class AppearancePage extends StatelessWidget {
                     context: context,
                     icon: Icons.animation,
                     iconColor: Colors.teal,
-                    title: 'Animasyonlar',
-                    subtitle: 'Para animasyonu ve görsel efektler',
+                    title: context.l10n.animations,
+                    subtitle: context.l10n.animationsSubtitle,
                     onTap: () {
                       Navigator.push(
                         context,

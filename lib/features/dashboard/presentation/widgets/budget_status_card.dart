@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 
 /// Bütçe Durumu Kartı Widget'ı
 /// Bütçe limiti, kullanım oranını ve kategori bazlı limitleri gösterir
@@ -49,7 +50,7 @@ class BudgetStatusCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Bütçe Durumu",
+                    context.l10n.budgetStatus,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -85,7 +86,9 @@ class BudgetStatusCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${CurrencyFormatter.formatWithoutSymbol(monthlyExpense)} ₺ harcandı",
+                    context.l10n.spentAmount(
+                      CurrencyFormatter.formatWithoutSymbol(monthlyExpense),
+                    ),
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(
@@ -94,7 +97,9 @@ class BudgetStatusCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "${CurrencyFormatter.formatWithoutSymbol(butceLimiti)} ₺ limit",
+                    context.l10n.limitAmount(
+                      CurrencyFormatter.formatWithoutSymbol(butceLimiti),
+                    ),
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(

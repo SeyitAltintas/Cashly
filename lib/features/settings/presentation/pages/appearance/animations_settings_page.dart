@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/theme/theme_manager.dart';
 
 class AnimationsSettingsPage extends StatelessWidget {
@@ -9,7 +10,7 @@ class AnimationsSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Animasyonlar"),
+        title: Text(context.l10n.animations),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -36,7 +37,7 @@ class AnimationsSettingsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Animasyon Tercihleri",
+                    context.l10n.animationPreferences,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 24,
@@ -46,7 +47,7 @@ class AnimationsSettingsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Uygulama içi animasyonları yönetin",
+                    context.l10n.animationPreferencesDescription,
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -103,7 +104,7 @@ class AnimationsSettingsPage extends StatelessWidget {
                           ),
                         ),
                         title: Text(
-                          "Para Animasyonu",
+                          context.l10n.moneyAnimation,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 16,
@@ -113,7 +114,7 @@ class AnimationsSettingsPage extends StatelessWidget {
                         subtitle: Padding(
                           padding: const EdgeInsets.only(top: 4.0),
                           child: Text(
-                            "Harcama eklerken para yağmuru efekti",
+                            context.l10n.moneyAnimationDescription,
                             style: TextStyle(
                               color: Theme.of(
                                 context,

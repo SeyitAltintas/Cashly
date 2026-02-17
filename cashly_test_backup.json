@@ -1,6 +1,6 @@
 {
     "version": "1.5",
-    "exportDate": "2026-01-31T00:00:00.000Z",
+    "exportDate": "2026-04-30T00:00:00.000Z",
     "userId": "test_user_2026",
     "data": {
         "harcamalar": [
@@ -543,6 +543,627 @@
                 "tarih": "2026-01-12T15:00:00.000Z",
                 "odemeYontemiId": "pm_yapi_kredi",
                 "isDeleted": false
+            },
+            {
+                "id": "exp_01_06",
+                "isim": "Elektrik Faturası",
+                "tutar": 720,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-01-05T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_07",
+                "isim": "Doğalgaz Faturası",
+                "tutar": 1650,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-01-08T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_08",
+                "isim": "Kahvaltı",
+                "tutar": 280,
+                "kategori": "Yemek ve Kafe",
+                "tarih": "2026-01-11T09:30:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_09",
+                "isim": "İnternet Faturası",
+                "tutar": 260,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-01-15T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_10",
+                "isim": "Market",
+                "tutar": 890,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-01-17T12:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_11",
+                "isim": "Su Faturası",
+                "tutar": 125,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-01-18T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_12",
+                "isim": "Kahve",
+                "tutar": 85,
+                "kategori": "Yemek ve Kafe",
+                "tarih": "2026-01-19T08:30:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_13",
+                "isim": "Telefon Faturası",
+                "tutar": 205,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-01-22T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_14",
+                "isim": "Akaryakıt",
+                "tutar": 1150,
+                "kategori": "Araç ve Ulaşım",
+                "tarih": "2026-01-24T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_15",
+                "isim": "Market Haftalık",
+                "tutar": 950,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-01-26T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_16",
+                "isim": "Restoran",
+                "tutar": 420,
+                "kategori": "Yemek ve Kafe",
+                "tarih": "2026-01-28T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_17",
+                "isim": "Otopark",
+                "tutar": 150,
+                "kategori": "Araç ve Ulaşım",
+                "tarih": "2026-01-30T14:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_01",
+                "isim": "Market Alışverişi",
+                "tutar": 1050,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-02-01T10:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_02",
+                "isim": "Akaryakıt",
+                "tutar": 1200,
+                "kategori": "Araç ve Ulaşım",
+                "tarih": "2026-02-03T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_03",
+                "isim": "Elektrik Faturası",
+                "tutar": 690,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-02-05T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_04",
+                "isim": "Sevgililer Günü Hediyesi",
+                "tutar": 1500,
+                "kategori": "Hediye ve Özel",
+                "tarih": "2026-02-14T12:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_05",
+                "isim": "Sevgililer Günü Yemeği",
+                "tutar": 850,
+                "kategori": "Yemek ve Kafe",
+                "tarih": "2026-02-14T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_06",
+                "isim": "Doğalgaz Faturası",
+                "tutar": 1400,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-02-08T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_07",
+                "isim": "Market",
+                "tutar": 780,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-02-10T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_08",
+                "isim": "Kahve",
+                "tutar": 90,
+                "kategori": "Yemek ve Kafe",
+                "tarih": "2026-02-11T08:30:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_09",
+                "isim": "İnternet Faturası",
+                "tutar": 260,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-02-15T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_10",
+                "isim": "Su Faturası",
+                "tutar": 130,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-02-16T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_11",
+                "isim": "Spor Salonu Aidatı",
+                "tutar": 800,
+                "kategori": "Diğer",
+                "tarih": "2026-02-01T18:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_12",
+                "isim": "Telefon Faturası",
+                "tutar": 205,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-02-20T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_13",
+                "isim": "Market Haftalık",
+                "tutar": 920,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-02-22T12:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_14",
+                "isim": "Taksi",
+                "tutar": 130,
+                "kategori": "Araç ve Ulaşım",
+                "tarih": "2026-02-24T22:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_15",
+                "isim": "Akaryakıt",
+                "tutar": 1100,
+                "kategori": "Araç ve Ulaşım",
+                "tarih": "2026-02-26T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_16",
+                "isim": "Kafe",
+                "tutar": 145,
+                "kategori": "Yemek ve Kafe",
+                "tarih": "2026-02-28T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_01",
+                "isim": "Market Alışverişi",
+                "tutar": 1150,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-03-01T10:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_02",
+                "isim": "Akaryakıt",
+                "tutar": 1180,
+                "kategori": "Araç ve Ulaşım",
+                "tarih": "2026-03-03T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_03",
+                "isim": "Elektrik Faturası",
+                "tutar": 620,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-03-05T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_04",
+                "isim": "Doğalgaz Faturası",
+                "tutar": 980,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-03-08T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_05",
+                "isim": "8 Mart Hediyesi",
+                "tutar": 600,
+                "kategori": "Hediye ve Özel",
+                "tarih": "2026-03-08T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_06",
+                "isim": "Restoran",
+                "tutar": 480,
+                "kategori": "Yemek ve Kafe",
+                "tarih": "2026-03-08T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_07",
+                "isim": "Market",
+                "tutar": 850,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-03-10T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_08",
+                "isim": "Kahve",
+                "tutar": 95,
+                "kategori": "Yemek ve Kafe",
+                "tarih": "2026-03-12T08:30:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_09",
+                "isim": "İnternet Faturası",
+                "tutar": 260,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-03-15T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_10",
+                "isim": "Su Faturası",
+                "tutar": 115,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-03-16T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_11",
+                "isim": "Araç Bakımı",
+                "tutar": 2800,
+                "kategori": "Araç ve Ulaşım",
+                "tarih": "2026-03-18T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_12",
+                "isim": "Telefon Faturası",
+                "tutar": 205,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-03-20T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_13",
+                "isim": "Market Haftalık",
+                "tutar": 980,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-03-22T12:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_14",
+                "isim": "Nevruz Yemeği",
+                "tutar": 350,
+                "kategori": "Yemek ve Kafe",
+                "tarih": "2026-03-21T19:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_15",
+                "isim": "Kitap",
+                "tutar": 180,
+                "kategori": "Diğer",
+                "tarih": "2026-03-25T16:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_16",
+                "isim": "Akaryakıt",
+                "tutar": 1200,
+                "kategori": "Araç ve Ulaşım",
+                "tarih": "2026-03-27T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_17",
+                "isim": "Market",
+                "tutar": 720,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-03-29T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_01",
+                "isim": "Market Alışverişi",
+                "tutar": 1100,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-04-01T10:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_02",
+                "isim": "Akaryakıt",
+                "tutar": 1250,
+                "kategori": "Araç ve Ulaşım",
+                "tarih": "2026-04-03T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_03",
+                "isim": "Elektrik Faturası",
+                "tutar": 560,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-04-05T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_04",
+                "isim": "Doğalgaz Faturası",
+                "tutar": 650,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-04-08T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_05",
+                "isim": "Ramazan Bayramı Hediyesi",
+                "tutar": 800,
+                "kategori": "Hediye ve Özel",
+                "tarih": "2026-04-10T12:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_06",
+                "isim": "Bayram Yemeği",
+                "tutar": 650,
+                "kategori": "Yemek ve Kafe",
+                "tarih": "2026-04-10T13:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_07",
+                "isim": "Market",
+                "tutar": 920,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-04-12T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_08",
+                "isim": "Kahve",
+                "tutar": 100,
+                "kategori": "Yemek ve Kafe",
+                "tarih": "2026-04-13T08:30:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_09",
+                "isim": "İnternet Faturası",
+                "tutar": 260,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-04-15T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_10",
+                "isim": "23 Nisan Çocuk Hediyesi",
+                "tutar": 450,
+                "kategori": "Hediye ve Özel",
+                "tarih": "2026-04-23T14:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_11",
+                "isim": "Su Faturası",
+                "tutar": 120,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-04-16T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_12",
+                "isim": "Kıyafet Alışverişi",
+                "tutar": 1350,
+                "kategori": "Diğer",
+                "tarih": "2026-04-18T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_13",
+                "isim": "Telefon Faturası",
+                "tutar": 205,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-04-20T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_14",
+                "isim": "Market Haftalık",
+                "tutar": 1050,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-04-22T12:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_15",
+                "isim": "Restoran",
+                "tutar": 520,
+                "kategori": "Yemek ve Kafe",
+                "tarih": "2026-04-25T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_16",
+                "isim": "Akaryakıt",
+                "tutar": 1200,
+                "kategori": "Araç ve Ulaşım",
+                "tarih": "2026-04-27T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_17",
+                "isim": "Market",
+                "tutar": 780,
+                "kategori": "Market ve Atıştırmalık",
+                "tarih": "2026-04-29T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_18",
+                "isim": "Kira",
+                "tutar": 8500,
+                "kategori": "Sabit Giderler",
+                "tarih": "2025-10-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_19",
+                "isim": "Kira",
+                "tutar": 8500,
+                "kategori": "Sabit Giderler",
+                "tarih": "2025-11-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_21",
+                "isim": "Kira",
+                "tutar": 8500,
+                "kategori": "Sabit Giderler",
+                "tarih": "2025-12-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_18",
+                "isim": "Kira",
+                "tutar": 9000,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-01-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_17",
+                "isim": "Kira",
+                "tutar": 9000,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-02-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_18",
+                "isim": "Kira",
+                "tutar": 9000,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-03-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_18",
+                "isim": "Kira",
+                "tutar": 9000,
+                "kategori": "Sabit Giderler",
+                "tarih": "2026-04-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
             }
         ],
         "gelirler": [
@@ -644,6 +1265,114 @@
                 "date": "2026-01-15T12:00:00.000Z",
                 "paymentMethodId": "pm_ziraat",
                 "isDeleted": false
+            },
+            {
+                "id": "inc_01_03",
+                "name": "Kira Geliri",
+                "amount": 10000,
+                "category": "Kira Geliri",
+                "date": "2026-01-05T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_02_01",
+                "name": "Maaş",
+                "amount": 45000,
+                "category": "Maaş",
+                "date": "2026-02-01T09:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_02_02",
+                "name": "Freelance Web Projesi",
+                "amount": 8500,
+                "category": "Freelance",
+                "date": "2026-02-12T12:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_02_03",
+                "name": "Kira Geliri",
+                "amount": 10000,
+                "category": "Kira Geliri",
+                "date": "2026-02-05T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_03_01",
+                "name": "Maaş",
+                "amount": 45000,
+                "category": "Maaş",
+                "date": "2026-03-01T09:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_03_02",
+                "name": "Freelance Mobil Proje",
+                "amount": 12000,
+                "category": "Freelance",
+                "date": "2026-03-18T12:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_03_03",
+                "name": "Kira Geliri",
+                "amount": 10000,
+                "category": "Kira Geliri",
+                "date": "2026-03-05T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_03_04",
+                "name": "Prim",
+                "amount": 7500,
+                "category": "Diğer",
+                "date": "2026-03-25T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_04_01",
+                "name": "Maaş",
+                "amount": 45000,
+                "category": "Maaş",
+                "date": "2026-04-01T09:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_04_02",
+                "name": "Freelance Proje",
+                "amount": 5000,
+                "category": "Freelance",
+                "date": "2026-04-15T12:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_04_03",
+                "name": "Kira Geliri",
+                "amount": 10000,
+                "category": "Kira Geliri",
+                "date": "2026-04-05T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_04_04",
+                "name": "Bayram İkramiyesi",
+                "amount": 10000,
+                "category": "Diğer",
+                "date": "2026-04-09T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
             }
         ],
         "varliklar": [
@@ -726,7 +1455,7 @@
                 "name": "Ziraat Bankası",
                 "type": "banka",
                 "lastFourDigits": "4521",
-                "balance": 183060,
+                "balance": 85860,
                 "limit": null,
                 "colorIndex": 0,
                 "createdAt": "2025-01-01T10:00:00.000Z",
@@ -737,7 +1466,7 @@
                 "name": "Yapı Kredi",
                 "type": "kredi",
                 "lastFourDigits": "8832",
-                "balance": 345,
+                "balance": 3410,
                 "limit": 35000,
                 "colorIndex": 2,
                 "createdAt": "2025-01-15T10:00:00.000Z",
@@ -748,7 +1477,7 @@
                 "name": "Nakit",
                 "type": "nakit",
                 "lastFourDigits": null,
-                "balance": 13805,
+                "balance": 19385,
                 "limit": null,
                 "colorIndex": 1,
                 "createdAt": "2025-01-01T10:00:00.000Z",
@@ -841,7 +1570,73 @@
                 "date": "2026-02-01T10:00:00.000Z",
                 "description": "Planlı nakit çekimi",
                 "isScheduled": true,
-                "isExecuted": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_02_01",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_nakit",
+                "amount": 6000,
+                "date": "2026-02-05T10:00:00.000Z",
+                "description": "Nakit çekim",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_02_02",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_yapi_kredi",
+                "amount": 4000,
+                "date": "2026-02-25T10:00:00.000Z",
+                "description": "Kredi kartı borç ödemesi",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_03_01",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_nakit",
+                "amount": 7000,
+                "date": "2026-03-05T10:00:00.000Z",
+                "description": "Nakit çekim",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_03_02",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_yapi_kredi",
+                "amount": 3500,
+                "date": "2026-03-28T10:00:00.000Z",
+                "description": "Kredi kartı borç ödemesi",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_04_01",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_nakit",
+                "amount": 6000,
+                "date": "2026-04-05T10:00:00.000Z",
+                "description": "Nakit çekim",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_04_02",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_yapi_kredi",
+                "amount": 5000,
+                "date": "2026-04-26T10:00:00.000Z",
+                "description": "Kredi kartı borç ödemesi",
+                "isScheduled": false,
+                "isExecuted": true,
                 "isFailed": false
             }
         ],
@@ -908,19 +1703,20 @@
             }
         ],
         "streak": {
-            "currentStreak": 21,
-            "longestStreak": 32,
-            "lastLoginDate": "2026-01-03",
-            "totalLoginDays": 98,
+            "currentStreak": 45,
+            "longestStreak": 52,
+            "lastLoginDate": "2026-04-30",
+            "totalLoginDays": 195,
             "earnedBadges": [
                 "first_login",
                 "week_streak",
-                "two_week_streak"
+                "two_week_streak",
+                "month_streak"
             ],
             "startDate": "2025-10-01T00:00:00.000",
-            "freezeCount": 2,
+            "freezeCount": 3,
             "usedFreezeToday": false,
-            "totalFreezesUsed": 1
+            "totalFreezesUsed": 2
         }
     },
     "settings": {

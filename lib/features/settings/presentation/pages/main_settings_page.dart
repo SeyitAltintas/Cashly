@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/features/income/presentation/pages/income_settings_page.dart';
 import 'appearance/appearance_page.dart';
+import 'appearance/language_settings_page.dart';
 import 'voice/voice_assistant_page.dart';
 import 'appearance/haptic_settings_page.dart';
 import 'notifications/notification_settings_page.dart';
@@ -70,7 +72,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Ayarlar"),
+          title: Text(context.l10n.settings),
           backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),
@@ -85,7 +87,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Uygulama Ayarları',
+                context.l10n.appSettings,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.secondary,
                   fontSize: 13,
@@ -125,8 +127,8 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           SettingsTile(
             icon: Icons.palette_outlined,
             iconColor: Colors.purple,
-            title: 'Görünüm',
-            subtitle: 'Tema, animasyon ve görsel efektler',
+            title: context.l10n.appearance,
+            subtitle: context.l10n.appearanceSubtitle,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const AppearancePage()),
@@ -134,10 +136,23 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           ),
           const SettingsDivider(),
           SettingsTile(
+            icon: Icons.language,
+            iconColor: Colors.indigo,
+            title: context.l10n.language,
+            subtitle: context.l10n.languageSubtitle,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LanguageSettingsPage(),
+              ),
+            ),
+          ),
+          const SettingsDivider(),
+          SettingsTile(
             icon: Icons.vibration,
             iconColor: Colors.cyan,
-            title: 'Titreşim Geri Bildirimi',
-            subtitle: 'Tıklama, işlem ve uyarı titreşimleri',
+            title: context.l10n.hapticFeedback,
+            subtitle: context.l10n.hapticFeedbackSubtitle,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -149,8 +164,8 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           SettingsTile(
             icon: Icons.notifications_outlined,
             iconColor: Colors.amber,
-            title: 'Bildirimler',
-            subtitle: 'Hatırlatıcılar ve uyarı bildirimleri',
+            title: context.l10n.notifications,
+            subtitle: context.l10n.notificationsSubtitle,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -162,8 +177,8 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           SettingsTile(
             icon: Icons.mic_outlined,
             iconColor: Colors.orange,
-            title: 'Sesli Asistan',
-            subtitle: 'Sesli geri bildirim ve komut listesi',
+            title: context.l10n.voiceAssistant,
+            subtitle: context.l10n.voiceAssistantSubtitle,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -176,8 +191,8 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           SettingsTile(
             icon: Icons.account_balance_wallet_outlined,
             iconColor: Colors.green,
-            title: 'Harcamalar',
-            subtitle: 'Bütçe, kategori ve ödeme yöntemleri',
+            title: context.l10n.expenses,
+            subtitle: context.l10n.expensesSubtitle,
             onTap: () async {
               final result = await Navigator.push(
                 context,
@@ -194,8 +209,8 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           SettingsTile(
             icon: Icons.trending_up,
             iconColor: Colors.teal,
-            title: 'Gelirler',
-            subtitle: 'Gelir kategorileri ve düzenli gelirler',
+            title: context.l10n.incomes,
+            subtitle: context.l10n.incomesSubtitle,
             onTap: () async {
               final result = await Navigator.push(
                 context,
@@ -212,8 +227,8 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           SettingsTile(
             icon: Icons.swap_horiz_rounded,
             iconColor: Colors.cyan,
-            title: 'Para Transferleri',
-            subtitle: 'İşlem geçmişi görüntüleme ayarları',
+            title: context.l10n.moneyTransfers,
+            subtitle: context.l10n.moneyTransfersSubtitle,
             onTap: () async {
               final result = await Navigator.push(
                 context,
@@ -230,8 +245,8 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           SettingsTile(
             icon: Icons.storage_outlined,
             iconColor: Colors.blue,
-            title: 'Veri İşlemleri',
-            subtitle: 'Yedekleme, geri yükleme ve sıfırlama',
+            title: context.l10n.dataOperations,
+            subtitle: context.l10n.dataOperationsSubtitle,
             isLast: true,
             onTap: () => _showBackupDialog(context),
           ),
@@ -265,7 +280,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Veri İşlemleri',
+              context.l10n.dataOperations,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -283,9 +298,9 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 ),
                 child: const Icon(Icons.cloud_upload, color: Colors.green),
               ),
-              title: const Text('Verileri Yedekle'),
+              title: Text(context.l10n.backupData),
               subtitle: Text(
-                'Tüm verilerinizi JSON olarak dışa aktarın',
+                context.l10n.backupDataSubtitle,
                 style: TextStyle(
                   color: Theme.of(
                     sheetContext,
@@ -306,9 +321,9 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 ),
                 child: const Icon(Icons.cloud_download, color: Colors.blue),
               ),
-              title: const Text('Verileri Geri Yükle'),
+              title: Text(context.l10n.restoreData),
               subtitle: Text(
-                'Yedek dosyasından verileri içe aktarın',
+                context.l10n.restoreDataSubtitle,
                 style: TextStyle(
                   color: Theme.of(
                     sheetContext,
@@ -337,15 +352,15 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 ),
                 child: const Icon(Icons.delete_forever, color: Colors.red),
               ),
-              title: const Text(
-                'Tüm Verilerimi Sil',
+              title: Text(
+                context.l10n.deleteAllData,
                 style: TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               subtitle: Text(
-                'Dikkat! Bu işlem geri alınamaz',
+                context.l10n.deleteAllDataWarning,
                 style: TextStyle(
                   color: Colors.red.withValues(alpha: 0.7),
                   fontSize: 12,
@@ -373,10 +388,10 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
       if (mounted) {
         if (shareResult.status == ShareResultStatus.success) {
           // Kullanıcı dosyayı gerçekten kaydetti
-          AppSnackBar.success(context, 'Yedek dosyası başarıyla kaydedildi ✅');
+          AppSnackBar.success(context, context.l10n.backupSuccess);
         } else if (shareResult.status == ShareResultStatus.dismissed) {
           // Kullanıcı iptal etti
-          AppSnackBar.warning(context, 'Yedekleme iptal edildi');
+          AppSnackBar.warning(context, context.l10n.backupCancelled);
         }
       }
     }
@@ -399,10 +414,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
         userId,
         onFileSelected: () {
           // Dosya seçildikten sonra loading overlay'i göster
-          AppLoadingOverlay.show(
-            context,
-            message: 'Veriler geri yükleniyor...',
-          );
+          AppLoadingOverlay.show(context, message: context.l10n.restoreLoading);
           isLoadingShown = true;
         },
       );
@@ -419,7 +431,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           // Başarı animasyonunu göster
           await AppLoadingOverlay.showSuccess(
             context,
-            message: 'Geri yükleme başarı ile tamamlandı',
+            message: context.l10n.restoreSuccess,
           );
           await HapticService.success();
           // Profil bilgilerini yenile (profil resmi dahil)
@@ -447,7 +459,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
       }
       // Beklenmeyen hata durumunda
       if (mounted) {
-        _showErrorSnackBar('Beklenmeyen hata: $e');
+        _showErrorSnackBar(context.l10n.unexpectedError(e.toString()));
       }
     }
   }
@@ -503,13 +515,13 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(Icons.lightbulb_outline, color: Colors.amber, size: 20),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Silmeden önce verilerinizi yedeklemenizi öneririz!',
+                      context.l10n.backupSuggestion,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -520,20 +532,20 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Tüm verileriniz kalıcı olarak silinecek:',
+            Text(
+              context.l10n.permanentDeleteWarning,
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            const Text('• Tüm harcamalar'),
-            const Text('• Tüm gelirler'),
-            const Text('• Tüm varlıklar'),
-            const Text('• Ödeme yöntemleri'),
-            const Text('• Transferler'),
-            const Text('• Seri kayıtları'),
+            Text('• ${context.l10n.allExpenses}'),
+            Text('• ${context.l10n.allIncomes}'),
+            Text('• ${context.l10n.allAssets}'),
+            Text('• ${context.l10n.paymentMethods}'),
+            Text('• ${context.l10n.transfers}'),
+            Text('• ${context.l10n.streakRecords}'),
             const SizedBox(height: 16),
-            const Text(
-              'Bu işlem geri alınamaz!',
+            Text(
+              context.l10n.irreversibleAction,
               style: TextStyle(
                 color: Color(0xFF8B0000),
                 fontWeight: FontWeight.bold,
@@ -544,7 +556,10 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('İptal', style: TextStyle(color: Colors.white)),
+            child: Text(
+              context.l10n.cancel,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -552,7 +567,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
               backgroundColor: const Color(0xFF8B0000),
               foregroundColor: Colors.white,
             ),
-            child: const Text('Devam Et'),
+            child: Text(context.l10n.continueAction),
           ),
         ],
       ),
@@ -597,11 +612,11 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: const Text('Güvenlik Doğrulaması'),
+          title: Text(context.l10n.securityVerification),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Silme işlemini onaylamak için sonucu yazın:'),
+              Text(context.l10n.deleteConfirmInstruction),
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -654,7 +669,10 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, null),
-              child: const Text('İptal', style: TextStyle(color: Colors.white)),
+              child: Text(
+                context.l10n.cancel,
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -665,7 +683,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 backgroundColor: const Color(0xFF8B0000),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Sil'),
+              child: Text(context.l10n.delete),
             ),
           ],
         );
@@ -674,10 +692,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
 
     if (confirmSum != expectedResult || !mounted) {
       if (confirmSum != null && mounted) {
-        AppSnackBar.warning(
-          context,
-          'Hatalı işlem sonucu. Silme iptal edildi.',
-        );
+        AppSnackBar.warning(context, context.l10n.wrongCalculation);
       }
       return;
     }
@@ -688,7 +703,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
 
     if (mounted) {
       if (success) {
-        AppSnackBar.success(context, 'Tüm veriler silindi ✅');
+        AppSnackBar.success(context, context.l10n.allDataDeleted);
         // Ana sayfaya yönlendir
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
@@ -697,7 +712,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           (route) => false,
         );
       } else {
-        _showErrorSnackBar('Veriler silinirken bir hata oluştu');
+        _showErrorSnackBar(context.l10n.deleteErrorMessage);
       }
     }
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../assets/data/models/asset_model.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 
 /// Varlık Özeti Kartı Widget'ı
 /// Toplam varlık değerini gösterir
@@ -48,7 +49,7 @@ class AssetSummaryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Toplam Varlık",
+                  context.l10n.totalAsset,
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(

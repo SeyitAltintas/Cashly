@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 
 /// Kredi Kartı Borç Kartı Widget'ı
 /// Dashboard'da toplam kredi kartı borcunu gösterir
@@ -55,7 +56,7 @@ class CreditDebtCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Kredi Kartı Borcu",
+                    context.l10n.creditCardDebt,
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(

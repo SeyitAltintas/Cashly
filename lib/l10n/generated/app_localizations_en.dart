@@ -1,0 +1,899 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'Cashly';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get appSettings => 'App Settings';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get appearanceSubtitle => 'Theme, animations and visual effects';
+
+  @override
+  String get appearanceSettings => 'Appearance Settings';
+
+  @override
+  String get appearanceSettingsDescription =>
+      'Customize the app\'s visual preferences';
+
+  @override
+  String get animations => 'Animations';
+
+  @override
+  String get animationsSubtitle => 'Money animations and visual effects';
+
+  @override
+  String get hapticFeedback => 'Haptic Feedback';
+
+  @override
+  String get hapticFeedbackSubtitle => 'Tap, action and warning vibrations';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get notificationsSubtitle => 'Reminders and alert notifications';
+
+  @override
+  String get voiceAssistant => 'Voice Assistant';
+
+  @override
+  String get voiceAssistantSubtitle => 'Voice feedback and command list';
+
+  @override
+  String get expenses => 'Expenses';
+
+  @override
+  String get expensesSubtitle => 'Budget, categories and payment methods';
+
+  @override
+  String get incomes => 'Incomes';
+
+  @override
+  String get incomesSubtitle => 'Income categories and recurring incomes';
+
+  @override
+  String get moneyTransfers => 'Money Transfers';
+
+  @override
+  String get moneyTransfersSubtitle => 'Transaction history display settings';
+
+  @override
+  String get dataOperations => 'Data Operations';
+
+  @override
+  String get dataOperationsSubtitle => 'Backup, restore and reset';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get languageSubtitle => 'Change the app language';
+
+  @override
+  String get languageSettings => 'Language Settings';
+
+  @override
+  String get languageSettingsDescription =>
+      'Select the app\'s display language';
+
+  @override
+  String get selectLanguage => 'Select Language';
+
+  @override
+  String get currentLanguage => 'Current Language';
+
+  @override
+  String get languageChangeRestart => 'Language change applied';
+
+  @override
+  String get backupData => 'Backup Data';
+
+  @override
+  String get backupDataSubtitle => 'Export all your data as JSON';
+
+  @override
+  String get restoreData => 'Restore Data';
+
+  @override
+  String get restoreDataSubtitle => 'Import data from a backup file';
+
+  @override
+  String get deleteAllData => 'Delete All My Data';
+
+  @override
+  String get deleteAllDataWarning => 'Warning! This action cannot be undone';
+
+  @override
+  String get backupSuccess => 'Backup file saved successfully ✅';
+
+  @override
+  String get backupCancelled => 'Backup cancelled';
+
+  @override
+  String get restoreLoading => 'Restoring data...';
+
+  @override
+  String get restoreSuccess => 'Restore completed successfully';
+
+  @override
+  String unexpectedError(String error) {
+    return 'Unexpected error: $error';
+  }
+
+  @override
+  String get deleteErrorMessage => 'An error occurred while deleting data';
+
+  @override
+  String get warning => 'Warning!';
+
+  @override
+  String get backupSuggestion =>
+      'We recommend backing up your data before deleting!';
+
+  @override
+  String get permanentDeleteWarning =>
+      'All your data will be permanently deleted:';
+
+  @override
+  String get allExpenses => 'All expenses';
+
+  @override
+  String get allIncomes => 'All incomes';
+
+  @override
+  String get allAssets => 'All assets';
+
+  @override
+  String get paymentMethods => 'Payment methods';
+
+  @override
+  String get transfers => 'Transfers';
+
+  @override
+  String get streakRecords => 'Streak records';
+
+  @override
+  String get irreversibleAction => 'This action cannot be undone!';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get continueAction => 'Continue';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get loading => 'Loading...';
+
+  @override
+  String get noData => 'No data found';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get success => 'Success';
+
+  @override
+  String get securityVerification => 'Security Verification';
+
+  @override
+  String get deleteConfirmInstruction =>
+      'Enter the result to confirm deletion:';
+
+  @override
+  String get wrongCalculation => 'Wrong calculation. Deletion cancelled.';
+
+  @override
+  String get allDataDeleted => 'All data deleted ✅';
+
+  @override
+  String get appInitFailed => 'App failed to start';
+
+  @override
+  String get totalBalance => 'Total Balance';
+
+  @override
+  String get monthSummary => 'This Month Summary';
+
+  @override
+  String get expense => 'Expense';
+
+  @override
+  String get income => 'Income';
+
+  @override
+  String get net => 'Net';
+
+  @override
+  String get budgetStatus => 'Budget Status';
+
+  @override
+  String get budgetUsed => 'Used';
+
+  @override
+  String get budgetRemaining => 'Remaining';
+
+  @override
+  String get noBudgetSet => 'No budget set';
+
+  @override
+  String get setBudget => 'Set Budget';
+
+  @override
+  String get budgetExceeded => 'Budget Exceeded!';
+
+  @override
+  String get assetSummary => 'Asset Summary';
+
+  @override
+  String get totalAssets => 'Total Assets';
+
+  @override
+  String get recentTransactions => 'Recent Transactions';
+
+  @override
+  String get noRecentTransactions => 'No transactions yet';
+
+  @override
+  String get creditCardDebt => 'Credit Card Debt';
+
+  @override
+  String get goodMorning => 'Good morning';
+
+  @override
+  String get goodAfternoon => 'Good afternoon';
+
+  @override
+  String get goodEvening => 'Good evening';
+
+  @override
+  String get goodNight => 'Good night';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get profileSettings => 'Profile Settings';
+
+  @override
+  String get accountInfo => 'Account Info';
+
+  @override
+  String get logout => 'Log Out';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get aboutAndSupport => 'About & Support';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get login => 'Log In';
+
+  @override
+  String get signup => 'Sign Up';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get passwordConfirm => 'Confirm Password';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get forgotPassword => 'Forgot Password';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account?';
+
+  @override
+  String get dontHaveAccount => 'Don\'t have an account?';
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get welcomeBack => 'Welcome Back!';
+
+  @override
+  String get createNewAccount => 'Create New Account';
+
+  @override
+  String get loginSubtitle => 'Log in to continue';
+
+  @override
+  String get signupSubtitle => 'Start your financial journey';
+
+  @override
+  String get nameHint => 'Enter your name';
+
+  @override
+  String get emailHint => 'Enter your email';
+
+  @override
+  String get passwordHint => 'Enter your password';
+
+  @override
+  String get passwordConfirmHint => 'Enter your password again';
+
+  @override
+  String get addExpense => 'Add Expense';
+
+  @override
+  String get editExpense => 'Edit Expense';
+
+  @override
+  String get expenseAmount => 'Amount';
+
+  @override
+  String get expenseCategory => 'Category';
+
+  @override
+  String get expenseDate => 'Date';
+
+  @override
+  String get expenseNote => 'Note';
+
+  @override
+  String get expensePaymentMethod => 'Payment Method';
+
+  @override
+  String get noExpenses => 'No expenses yet';
+
+  @override
+  String get monthlyExpense => 'Monthly Expense';
+
+  @override
+  String get dailyAverage => 'Daily Average';
+
+  @override
+  String get totalExpense => 'Total Expense';
+
+  @override
+  String get addIncome => 'Add Income';
+
+  @override
+  String get editIncome => 'Edit Income';
+
+  @override
+  String get incomeAmount => 'Amount';
+
+  @override
+  String get incomeCategory => 'Category';
+
+  @override
+  String get incomeDate => 'Date';
+
+  @override
+  String get incomeNote => 'Note';
+
+  @override
+  String get incomePaymentMethod => 'Account';
+
+  @override
+  String get noIncomes => 'No incomes yet';
+
+  @override
+  String get monthlyIncome => 'Monthly Income';
+
+  @override
+  String get totalIncome => 'Total Income';
+
+  @override
+  String get recurringIncomes => 'Recurring Incomes';
+
+  @override
+  String get addAsset => 'Add Asset';
+
+  @override
+  String get editAsset => 'Edit Asset';
+
+  @override
+  String get assetName => 'Asset Name';
+
+  @override
+  String get assetAmount => 'Amount';
+
+  @override
+  String get assetType => 'Type';
+
+  @override
+  String get assetCurrentPrice => 'Current Price';
+
+  @override
+  String get assetPurchasePrice => 'Purchase Price';
+
+  @override
+  String get assetPurchaseDate => 'Purchase Date';
+
+  @override
+  String get noAssets => 'No assets yet';
+
+  @override
+  String get gold => 'Gold';
+
+  @override
+  String get silver => 'Silver';
+
+  @override
+  String get currency => 'Currency';
+
+  @override
+  String get stock => 'Stock';
+
+  @override
+  String get crypto => 'Crypto';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String get addPaymentMethod => 'Add Payment Method';
+
+  @override
+  String get editPaymentMethod => 'Edit Payment Method';
+
+  @override
+  String get paymentMethodName => 'Name';
+
+  @override
+  String get paymentMethodBalance => 'Balance';
+
+  @override
+  String get paymentMethodType => 'Type';
+
+  @override
+  String get noPaymentMethods => 'No payment methods yet';
+
+  @override
+  String get cash => 'Cash';
+
+  @override
+  String get bankAccount => 'Bank Account';
+
+  @override
+  String get creditCard => 'Credit Card';
+
+  @override
+  String get balance => 'Balance';
+
+  @override
+  String get creditLimit => 'Credit Limit';
+
+  @override
+  String get availableLimit => 'Available Limit';
+
+  @override
+  String get currentDebt => 'Current Debt';
+
+  @override
+  String get transfer => 'Transfer';
+
+  @override
+  String get transferFrom => 'From';
+
+  @override
+  String get transferTo => 'To';
+
+  @override
+  String get transferAmount => 'Amount';
+
+  @override
+  String get transferDate => 'Date';
+
+  @override
+  String get transferNote => 'Note';
+
+  @override
+  String get noTransfers => 'No transfers yet';
+
+  @override
+  String get category => 'Category';
+
+  @override
+  String get categories => 'Categories';
+
+  @override
+  String get categoryManagement => 'Category Management';
+
+  @override
+  String get addCategory => 'Add Category';
+
+  @override
+  String get editCategory => 'Edit Category';
+
+  @override
+  String get categoryName => 'Category Name';
+
+  @override
+  String get noCategorySelected => 'No category selected';
+
+  @override
+  String get recycleBin => 'Recycle Bin';
+
+  @override
+  String get restore => 'Restore';
+
+  @override
+  String get permanentDelete => 'Permanently Delete';
+
+  @override
+  String get emptyRecycleBin => 'Recycle bin is empty';
+
+  @override
+  String get restoreItem => 'Restore item';
+
+  @override
+  String get permanentDeleteItem => 'Permanently delete';
+
+  @override
+  String get deletedItems => 'Deleted Items';
+
+  @override
+  String get budgetLimit => 'Budget Limit';
+
+  @override
+  String get monthlyBudget => 'Monthly Budget';
+
+  @override
+  String get categoryBudgets => 'Category Budgets';
+
+  @override
+  String get remainingBudget => 'Remaining Budget';
+
+  @override
+  String get overBudget => 'Over Budget';
+
+  @override
+  String get recurringExpenses => 'Recurring Expenses';
+
+  @override
+  String get addRecurringExpense => 'Add Recurring Expense';
+
+  @override
+  String get editRecurringExpense => 'Edit Recurring Expense';
+
+  @override
+  String get frequency => 'Frequency';
+
+  @override
+  String get daily => 'Daily';
+
+  @override
+  String get weekly => 'Weekly';
+
+  @override
+  String get monthly => 'Monthly';
+
+  @override
+  String get yearly => 'Yearly';
+
+  @override
+  String get startDate => 'Start Date';
+
+  @override
+  String get endDate => 'End Date';
+
+  @override
+  String get analysis => 'Analysis';
+
+  @override
+  String get analytics => 'Analytics';
+
+  @override
+  String get spendingByCategory => 'Spending by Category';
+
+  @override
+  String get incomeByCategory => 'Income by Category';
+
+  @override
+  String get monthlyTrend => 'Monthly Trend';
+
+  @override
+  String get expenseDistribution => 'Expense Distribution';
+
+  @override
+  String get incomeDistribution => 'Income Distribution';
+
+  @override
+  String get financialReport => 'Financial Report';
+
+  @override
+  String get exportPdf => 'Export as PDF';
+
+  @override
+  String get exportCsv => 'Export as CSV';
+
+  @override
+  String get streak => 'Streak';
+
+  @override
+  String get currentStreak => 'Current Streak';
+
+  @override
+  String get longestStreak => 'Longest Streak';
+
+  @override
+  String get streakGoal => 'Streak Goal';
+
+  @override
+  String get freezeAvailable => 'Freeze Available';
+
+  @override
+  String get useFreeze => 'Use Freeze';
+
+  @override
+  String get streakBroken => 'Streak broken!';
+
+  @override
+  String get streakContinued => 'Streak continued!';
+
+  @override
+  String get days => 'days';
+
+  @override
+  String get tools => 'Tools';
+
+  @override
+  String get calculator => 'Calculator';
+
+  @override
+  String get currencyConverter => 'Currency Converter';
+
+  @override
+  String get tipCalculator => 'Tip Calculator';
+
+  @override
+  String get notificationSettings => 'Notification Settings';
+
+  @override
+  String get dailyReminder => 'Daily Reminder';
+
+  @override
+  String get budgetAlert => 'Budget Alert';
+
+  @override
+  String get streakReminder => 'Streak Reminder';
+
+  @override
+  String get voiceCommands => 'Voice Commands';
+
+  @override
+  String get voiceFeedback => 'Voice Feedback';
+
+  @override
+  String get hapticTap => 'Tap Vibration';
+
+  @override
+  String get hapticSuccess => 'Success Vibration';
+
+  @override
+  String get hapticWarning => 'Warning Vibration';
+
+  @override
+  String get hapticError => 'Error Vibration';
+
+  @override
+  String get moneyAnimation => 'Money Animation';
+
+  @override
+  String get moneyAnimationDescription =>
+      'Money rain effect when adding expenses';
+
+  @override
+  String get animationPreferences => 'Animation Preferences';
+
+  @override
+  String get animationPreferencesDescription => 'Manage in-app animations';
+
+  @override
+  String get showMoneyRain => 'Show Money Rain';
+
+  @override
+  String get fileNotSelected => 'No file selected';
+
+  @override
+  String get january => 'January';
+
+  @override
+  String get february => 'February';
+
+  @override
+  String get march => 'March';
+
+  @override
+  String get april => 'April';
+
+  @override
+  String get may => 'May';
+
+  @override
+  String get june => 'June';
+
+  @override
+  String get july => 'July';
+
+  @override
+  String get august => 'August';
+
+  @override
+  String get september => 'September';
+
+  @override
+  String get october => 'October';
+
+  @override
+  String get november => 'November';
+
+  @override
+  String get december => 'December';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String get thisWeek => 'This Week';
+
+  @override
+  String get thisMonth => 'This Month';
+
+  @override
+  String get lastMonth => 'Last Month';
+
+  @override
+  String get thisYear => 'This Year';
+
+  @override
+  String get customRange => 'Custom Range';
+
+  @override
+  String get selectDate => 'Select Date';
+
+  @override
+  String get selectMonth => 'Select Month';
+
+  @override
+  String get selectYear => 'Select Year';
+
+  @override
+  String get insufficientBalance => 'Insufficient balance';
+
+  @override
+  String get accountNotFound => 'Account not found';
+
+  @override
+  String get scheduledTransferApplied => 'Scheduled transfer applied';
+
+  @override
+  String get scheduledTransferFailed => 'Scheduled transfer failed';
+
+  @override
+  String get amount => 'Amount';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get note => 'Note';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get type => 'Type';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get average => 'Average';
+
+  @override
+  String get minimum => 'Minimum';
+
+  @override
+  String get maximum => 'Maximum';
+
+  @override
+  String get count => 'Count';
+
+  @override
+  String get percentage => 'Percentage';
+
+  @override
+  String get spent => 'spent';
+
+  @override
+  String get limit => 'limit';
+
+  @override
+  String get unknown => 'Unknown';
+
+  @override
+  String get totalAsset => 'Total Assets';
+
+  @override
+  String get widgetError => 'An error occurred while building the widget.';
+
+  @override
+  String appCouldNotStart(String error) {
+    return 'App could not start:\n$error';
+  }
+
+  @override
+  String spentAmount(String amount) {
+    return '$amount spent';
+  }
+
+  @override
+  String limitAmount(String amount) {
+    return '$amount limit';
+  }
+
+  @override
+  String nDays(int count) {
+    return '$count days';
+  }
+}
