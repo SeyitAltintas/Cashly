@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../main_settings_page.dart';
+import '../support/about_support_page.dart';
 import 'profile_settings_page.dart';
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:cashly/features/auth/presentation/pages/login_page.dart';
@@ -209,6 +210,55 @@ class ProfilSayfasi extends StatelessWidget {
                   isLast: true,
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Destek başlığı
+          Text(
+            'Destek',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.secondary,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Destek kartı
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.08),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: _buildProfileTile(
+              context: context,
+              icon: Icons.info_outline,
+              iconColor: Colors.cyan,
+              title: 'Hakkında & Destek',
+              subtitle: 'Versiyon, SSS ve yasal bilgiler',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AboutSupportPage(),
+                  ),
+                );
+              },
+              isLast: true,
             ),
           ),
           const SizedBox(height: 24),

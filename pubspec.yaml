@@ -39,6 +39,7 @@ dependencies:
   crop_your_image: ^2.0.0
   image: ^4.3.0
   emoji_picker_flutter: ^4.3.0
+  package_info_plus: ^9.0.0
 
 dev_dependencies:
   flutter_test:

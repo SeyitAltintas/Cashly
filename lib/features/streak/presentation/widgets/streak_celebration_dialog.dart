@@ -18,14 +18,19 @@ class StreakCelebrationDialog extends StatefulWidget {
   static Future<void> show(BuildContext context, int streakCount) {
     return showGeneralDialog(
       context: context,
+      useRootNavigator: true,
       barrierDismissible: true,
       barrierLabel: 'Seri Kutlama',
       barrierColor: Colors.black.withValues(alpha: 0.8),
       transitionDuration: const Duration(milliseconds: 400),
-      pageBuilder: (context, animation, secondaryAnimation) {
+      pageBuilder: (dialogContext, animation, secondaryAnimation) {
         return StreakCelebrationDialog(
           streakCount: streakCount,
-          onDismiss: () => Navigator.of(context).pop(),
+          onDismiss: () {
+            if (dialogContext.mounted) {
+              Navigator.of(dialogContext, rootNavigator: true).pop();
+            }
+          },
         );
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {

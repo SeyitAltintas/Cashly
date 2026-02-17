@@ -128,7 +128,9 @@ class _AddAssetPageState extends State<AddAssetPage> {
 
     if (widget.asset != null) {
       _nameController.text = widget.asset!.name;
-      _amountController.text = widget.asset!.amount.toString();
+      _amountController.text = AmountInputFormatter.formatInitialValue(
+        widget.asset!.amount,
+      );
       _quantityController.text = widget.asset!.quantity.toString();
 
       final editCategory = widget.asset!.category;
@@ -162,7 +164,9 @@ class _AddAssetPageState extends State<AddAssetPage> {
       if (editCategory == 'Diğer') {
         _customCategoryNameController.text = widget.asset!.name;
       }
-      _purchasePriceController.text = widget.asset!.purchasePrice.toString();
+      _purchasePriceController.text = AmountInputFormatter.formatInitialValue(
+        widget.asset!.purchasePrice,
+      );
     } else {
       _quantityController.text = "1";
       if (_controller != null) {
@@ -261,7 +265,9 @@ class _AddAssetPageState extends State<AddAssetPage> {
           if (unitPrice != null) {
             double quantity = double.tryParse(_quantityController.text) ?? 1.0;
             double totalAmount = unitPrice * quantity;
-            _amountController.text = totalAmount.toStringAsFixed(2);
+            _amountController.text = AmountInputFormatter.formatInitialValue(
+              totalAmount,
+            );
             _controller!.clearFormError();
           } else {
             _controller!.setFormError(
@@ -273,7 +279,9 @@ class _AddAssetPageState extends State<AddAssetPage> {
           if (unitPrice != null) {
             double quantity = double.tryParse(_quantityController.text) ?? 1.0;
             double totalAmount = unitPrice * quantity;
-            _amountController.text = totalAmount.toStringAsFixed(2);
+            _amountController.text = AmountInputFormatter.formatInitialValue(
+              totalAmount,
+            );
             _localErrorMessage = null;
           } else {
             _localErrorMessage = 'Fiyat çekilemedi, lütfen manuel giriniz.';
@@ -908,7 +916,11 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 Icons.shopping_cart,
                 color: Colors.amber.shade600,
               ),
-              suffixIcon: const Icon(Icons.edit, color: Colors.white38, size: 18),
+              suffixIcon: const Icon(
+                Icons.edit,
+                color: Colors.white38,
+                size: 18,
+              ),
             ),
           ),
         ],
