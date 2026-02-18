@@ -896,4 +896,433 @@ class AppLocalizationsEn extends AppLocalizations {
   String nDays(int count) {
     return '$count days';
   }
+
+  @override
+  String get hapticSettingsTitle => 'Haptic Feedback';
+
+  @override
+  String get hapticSettingsDescription =>
+      'Get vibration feedback on important actions';
+
+  @override
+  String get hapticInfoText =>
+      'For haptic feedback to work, make sure \"Touch feedback\" or \"Vibration\" is enabled in your device settings.';
+
+  @override
+  String get hapticNoVibrator =>
+      'Vibration feature not detected on this device.';
+
+  @override
+  String get hapticEnable => 'Enable Vibration';
+
+  @override
+  String get hapticAllOn => 'All vibrations are on';
+
+  @override
+  String get hapticAllOff => 'All vibrations are off';
+
+  @override
+  String get hapticButtonTaps => 'Button Taps';
+
+  @override
+  String get hapticButtonTapsDesc => 'When you tap buttons';
+
+  @override
+  String get hapticNavigation => 'Navigation';
+
+  @override
+  String get hapticNavigationDesc => 'Page transitions and picker scrolls';
+
+  @override
+  String get hapticDelete => 'Delete Actions';
+
+  @override
+  String get hapticDeleteDesc => 'When you delete items';
+
+  @override
+  String get hapticSuccessNotif => 'Success Notification';
+
+  @override
+  String get hapticSuccessNotifDesc => 'When an action succeeds';
+
+  @override
+  String get hapticErrorNotif => 'Error Notification';
+
+  @override
+  String get hapticErrorNotifDesc => 'When an error occurs';
+
+  @override
+  String get hapticCelebration => 'Streak Celebration';
+
+  @override
+  String get hapticCelebrationDesc =>
+      'Celebration vibration when streak increases';
+
+  @override
+  String get notificationSettingsTitle => 'Notification Settings';
+
+  @override
+  String get notificationSettingsDesc =>
+      'Manage financial reminders and alerts';
+
+  @override
+  String get notificationsEnabled => 'Notifications enabled';
+
+  @override
+  String get notificationPermDenied => 'Notification permission denied';
+
+  @override
+  String get openSettings => 'Open Settings';
+
+  @override
+  String get notificationScenarios => 'Notification Scenarios';
+
+  @override
+  String get scheduleSettings => 'Schedule Settings';
+
+  @override
+  String get turnOffAll => 'Turn Off All';
+
+  @override
+  String get turnOnAll => 'Turn On All';
+
+  @override
+  String get recurringReminder => 'Recurring Transaction Reminder';
+
+  @override
+  String get recurringReminderDesc => '1 day before payment/bill due date';
+
+  @override
+  String get streakReminderTitle => 'Streak Reminder';
+
+  @override
+  String get streakReminderDesc => 'Daily transaction entry reminder';
+
+  @override
+  String get lastChanceWarning => 'Last Chance Warning';
+
+  @override
+  String get lastChanceWarningDesc => 'Every day at 22:00 - streak break risk';
+
+  @override
+  String get monthlySummary => 'Monthly Summary';
+
+  @override
+  String get monthlySummaryDesc => 'Financial summary on the last day of month';
+
+  @override
+  String get weeklyReport => 'Weekly Report';
+
+  @override
+  String get weeklyReportDesc => 'Every Sunday 18:00 - top spending category';
+
+  @override
+  String get streakReminderTime => 'Streak Reminder Time';
+
+  @override
+  String get monthlySummaryTime => 'Monthly Summary Time';
+
+  @override
+  String get lastDayOfMonth => 'Last day of each month';
+
+  @override
+  String get voiceAssistantTitle => 'Voice Assistant';
+
+  @override
+  String get voiceAssistantDesc => 'Manage voice command and feedback settings';
+
+  @override
+  String get voiceFeedbackLabel => 'Voice Feedback';
+
+  @override
+  String get on => 'On';
+
+  @override
+  String get off => 'Off';
+
+  @override
+  String get viewAllVoiceCommands => 'View All Voice Commands';
+
+  @override
+  String get voiceCommandsTitle => 'Voice Commands';
+
+  @override
+  String get voiceCommandsInfo =>
+      'You can use the following commands with the voice assistant.';
+
+  @override
+  String get voiceCommandsTip =>
+      'Tip: Speak commands naturally. The voice assistant can understand different phrasings.';
+
+  @override
+  String get profileSettingsTitle => 'Profile Settings';
+
+  @override
+  String get userNotFound => 'User not found';
+
+  @override
+  String get userLoadError => 'Could not load user information';
+
+  @override
+  String get biometricEnabled => 'Biometric login enabled';
+
+  @override
+  String get biometricDisabled => 'Biometric login disabled';
+
+  @override
+  String get unknownDate => 'Unknown';
+
+  @override
+  String get aboutSupportTitle => 'About & Support';
+
+  @override
+  String get aboutSupportDesc => 'App information, support and contact';
+
+  @override
+  String get appVersion => 'App Version';
+
+  @override
+  String get developer => 'Developer';
+
+  @override
+  String get contactUs => 'Contact Us';
+
+  @override
+  String get rateApp => 'Rate App';
+
+  @override
+  String get shareApp => 'Share App';
+
+  @override
+  String get licenses => 'Licenses';
+
+  @override
+  String get termsOfService => 'Terms of Service';
+
+  @override
+  String get legal => 'Legal';
+
+  @override
+  String get support => 'Support';
+
+  @override
+  String get faq => 'Frequently Asked Questions';
+
+  @override
+  String get privacyPolicyDesc => 'Learn how we protect your data';
+
+  @override
+  String get termsOfServiceDesc => 'Application terms and conditions';
+
+  @override
+  String get openSourceLicenses => 'Open Source Licenses';
+
+  @override
+  String get openSourceLicensesDesc => 'Libraries and their licenses';
+
+  @override
+  String get shareAppDesc => 'Share Cashly with your friends';
+
+  @override
+  String get appSlogan => 'Your Smart Budget Tracking Assistant';
+
+  @override
+  String get footerMessage => 'Take control of your budget with Cashly 💰';
+
+  @override
+  String get copyright => '© 2026 Cashly. All rights reserved.';
+
+  @override
+  String get lastUpdated => 'Last updated: February 17, 2026';
+
+  @override
+  String get shareText =>
+      'Track your budget easily with Cashly! 💰\nManage your expenses, income and assets in one place.\n\n📲 Try it now!';
+
+  @override
+  String get expenseSettingsTitle => 'Expense Settings';
+
+  @override
+  String get expenseSettingsDesc =>
+      'Manage your budget and spending preferences';
+
+  @override
+  String budgetUpdated(String amount) {
+    return 'Your Budget Limit has been updated to $amount TL.';
+  }
+
+  @override
+  String get defaultPaymentUpdated => 'Default payment method updated ✅';
+
+  @override
+  String get transferSettingsTitle => 'Transfer Settings';
+
+  @override
+  String get transferSettingsPageTitle => 'Money Transfers';
+
+  @override
+  String get transferSettingsDesc =>
+      'Manage transfer settings and display preferences';
+
+  @override
+  String get transactionHistoryLimit => 'Transaction History Limit';
+
+  @override
+  String get transactionHistoryLimitDesc =>
+      'Number of transactions to show on the transfer page';
+
+  @override
+  String historyLimitSaved(int limit) {
+    return 'Transaction history limit saved as $limit ✅';
+  }
+
+  @override
+  String get select => 'Select';
+
+  @override
+  String get useFirstPaymentMethod => 'Use first payment method';
+
+  @override
+  String get manageRecurringExpenses => 'Manage Recurring Expenses';
+
+  @override
+  String get autoPayBillsSubscriptions =>
+      'Automatically paid bills and subscriptions';
+
+  @override
+  String get customizeExpenseCategories => 'Customize expense categories';
+
+  @override
+  String get addEditDeleteCategories => 'Add, edit or delete categories';
+
+  @override
+  String get setCategoryLimits => 'Set category-specific limits';
+
+  @override
+  String get noLimitSet => 'No limit set yet';
+
+  @override
+  String get enterAmount => 'Enter amount';
+
+  @override
+  String get profilePhoto => 'Profile Photo';
+
+  @override
+  String get editPhoto => 'Edit';
+
+  @override
+  String get pin => 'PIN';
+
+  @override
+  String get memberSince => 'Member Since';
+
+  @override
+  String get lastLogin => 'Last Login';
+
+  @override
+  String get biometricLogin => 'Biometric Login';
+
+  @override
+  String get biometricDesc => 'Sign in with fingerprint or face recognition';
+
+  @override
+  String get dangerZone => 'Danger Zone';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountDesc => 'All your data will be permanently deleted';
+
+  @override
+  String get deleteAccountConfirmTitle =>
+      'Are You Sure You Want to Delete Your Account?';
+
+  @override
+  String get deleteAccountWarning =>
+      'This action cannot be undone. All your data will be permanently deleted.';
+
+  @override
+  String get defaultPaymentMethod => 'Default Payment Method';
+
+  @override
+  String get noPaymentMethodAdded =>
+      'No payment method added yet. You can add from the Tools page.';
+
+  @override
+  String categoryBudgetActive(int count) {
+    return 'Limits set for $count categories';
+  }
+
+  @override
+  String get monthlyIncomeBudgetLimit => 'Monthly Income (Budget Limit)';
+
+  @override
+  String get myExpenses => 'My Expenses';
+
+  @override
+  String get myIncomes => 'My Incomes';
+
+  @override
+  String get searchExpense => 'Search expense...';
+
+  @override
+  String get searchIncome => 'Search income...';
+
+  @override
+  String get goToToday => 'Go to today';
+
+  @override
+  String get recycleBinTooltip => 'Recycle Bin';
+
+  @override
+  String get voiceInputTooltip => 'Voice Input';
+
+  @override
+  String get homePage => 'Home';
+
+  @override
+  String get selectPeriod => 'Select Period';
+
+  @override
+  String get year => 'Year';
+
+  @override
+  String get month => 'Month';
+
+  @override
+  String get allDataUpToDate => 'All data is up to date';
+
+  @override
+  String get user => 'User';
+
+  @override
+  String get account => 'Account';
+
+  @override
+  String get userInfo => 'User Info';
+
+  @override
+  String get userInfoSubtitle => 'Name, email and profile picture';
+
+  @override
+  String get settingsSubtitle => 'Appearance, voice assistant and expenses';
+
+  @override
+  String get aboutAndSupportSubtitle => 'Version, FAQ and legal information';
+
+  @override
+  String get session => 'Session';
+
+  @override
+  String get logoutSubtitle => 'Safely log out of your account';
+
+  @override
+  String get assets => 'Assets';
+
+  @override
+  String get transactions => 'Transactions';
+
+  @override
+  String get allTransactions => 'All Transactions';
 }

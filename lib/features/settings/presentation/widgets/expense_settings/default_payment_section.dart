@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../payment_methods/data/models/payment_method_model.dart';
 
 /// Varsayılan ödeme yöntemi seçimi widget'ı
@@ -57,7 +58,7 @@ class DefaultPaymentSection extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  "Varsayılan Ödeme Yöntemi",
+                  context.l10n.defaultPaymentMethod,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
@@ -89,7 +90,7 @@ class DefaultPaymentSection extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: Text(
-            "Henüz ödeme yöntemi eklemediniz. Araçlar sayfasından ekleyebilirsiniz.",
+            context.l10n.noPaymentMethodAdded,
             style: TextStyle(
               color: Theme.of(
                 context,
@@ -115,7 +116,7 @@ class DefaultPaymentSection extends StatelessWidget {
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               isExpanded: true,
               hint: Text(
-                'Seçiniz',
+                context.l10n.select,
                 style: TextStyle(
                   color: Theme.of(
                     context,
@@ -126,7 +127,7 @@ class DefaultPaymentSection extends StatelessWidget {
                 DropdownMenuItem<String?>(
                   value: null,
                   child: Text(
-                    'İlk ödeme yöntemini kullan',
+                    context.l10n.useFirstPaymentMethod,
                     style: TextStyle(
                       color: Theme.of(
                         context,

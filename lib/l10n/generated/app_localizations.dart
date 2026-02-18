@@ -1843,6 +1843,822 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'{count} gün'**
   String nDays(int count);
+
+  /// No description provided for @hapticSettingsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Dokunsal Geri Bildirim'**
+  String get hapticSettingsTitle;
+
+  /// No description provided for @hapticSettingsDescription.
+  ///
+  /// In tr, this message translates to:
+  /// **'Önemli işlemlerde titreşim geri bildirimi alın'**
+  String get hapticSettingsDescription;
+
+  /// No description provided for @hapticInfoText.
+  ///
+  /// In tr, this message translates to:
+  /// **'Titreşim geri bildiriminin çalışabilmesi için cihazınızın ayarlarından \"Dokunma geri bildirimi\" veya \"Titreşim\" özelliğinin açık olması gerekmektedir.'**
+  String get hapticInfoText;
+
+  /// No description provided for @hapticNoVibrator.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu cihazda titreşim özelliği algılanamadı.'**
+  String get hapticNoVibrator;
+
+  /// No description provided for @hapticEnable.
+  ///
+  /// In tr, this message translates to:
+  /// **'Titreşimi Etkinleştir'**
+  String get hapticEnable;
+
+  /// No description provided for @hapticAllOn.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm titreşimler açık'**
+  String get hapticAllOn;
+
+  /// No description provided for @hapticAllOff.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm titreşimler kapalı'**
+  String get hapticAllOff;
+
+  /// No description provided for @hapticButtonTaps.
+  ///
+  /// In tr, this message translates to:
+  /// **'Buton Tıklamaları'**
+  String get hapticButtonTaps;
+
+  /// No description provided for @hapticButtonTapsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Butonlara dokunduğunuzda'**
+  String get hapticButtonTapsDesc;
+
+  /// No description provided for @hapticNavigation.
+  ///
+  /// In tr, this message translates to:
+  /// **'Navigasyon'**
+  String get hapticNavigation;
+
+  /// No description provided for @hapticNavigationDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sayfa geçişleri ve seçici kaydırmaları'**
+  String get hapticNavigationDesc;
+
+  /// No description provided for @hapticDelete.
+  ///
+  /// In tr, this message translates to:
+  /// **'Silme İşlemleri'**
+  String get hapticDelete;
+
+  /// No description provided for @hapticDeleteDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Öğe sildiğinizde'**
+  String get hapticDeleteDesc;
+
+  /// No description provided for @hapticSuccessNotif.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başarı Bildirimi'**
+  String get hapticSuccessNotif;
+
+  /// No description provided for @hapticSuccessNotifDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlem başarılı olduğunda'**
+  String get hapticSuccessNotifDesc;
+
+  /// No description provided for @hapticErrorNotif.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hata Bildirimi'**
+  String get hapticErrorNotif;
+
+  /// No description provided for @hapticErrorNotifDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hata oluştuğunda'**
+  String get hapticErrorNotifDesc;
+
+  /// No description provided for @hapticCelebration.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri Kutlama'**
+  String get hapticCelebration;
+
+  /// No description provided for @hapticCelebrationDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri arttığında kutlama titreşimi'**
+  String get hapticCelebrationDesc;
+
+  /// No description provided for @notificationSettingsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bildirim Ayarları'**
+  String get notificationSettingsTitle;
+
+  /// No description provided for @notificationSettingsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Finansal hatırlatmalar ve uyarıları yönetin'**
+  String get notificationSettingsDesc;
+
+  /// No description provided for @notificationsEnabled.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bildirimler etkinleştirildi'**
+  String get notificationsEnabled;
+
+  /// No description provided for @notificationPermDenied.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bildirim izni verilmedi'**
+  String get notificationPermDenied;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ayarları Aç'**
+  String get openSettings;
+
+  /// No description provided for @notificationScenarios.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bildirim Senaryoları'**
+  String get notificationScenarios;
+
+  /// No description provided for @scheduleSettings.
+  ///
+  /// In tr, this message translates to:
+  /// **'Zamanlama Ayarları'**
+  String get scheduleSettings;
+
+  /// No description provided for @turnOffAll.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tümünü Kapat'**
+  String get turnOffAll;
+
+  /// No description provided for @turnOnAll.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tümünü Aç'**
+  String get turnOnAll;
+
+  /// No description provided for @recurringReminder.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrarlayan İşlem Hatırlatıcı'**
+  String get recurringReminder;
+
+  /// No description provided for @recurringReminderDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ödeme/fatura gününden 1 gün önce'**
+  String get recurringReminderDesc;
+
+  /// No description provided for @streakReminderTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri Hatırlatıcı'**
+  String get streakReminderTitle;
+
+  /// No description provided for @streakReminderDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günlük işlem girişi hatırlatması'**
+  String get streakReminderDesc;
+
+  /// No description provided for @lastChanceWarning.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son Şans Uyarısı'**
+  String get lastChanceWarning;
+
+  /// No description provided for @lastChanceWarningDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Her gün 22:00 - seri kırılma riski'**
+  String get lastChanceWarningDesc;
+
+  /// No description provided for @monthlySummary.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık Özet'**
+  String get monthlySummary;
+
+  /// No description provided for @monthlySummaryDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Her ayın son günü finansal özet'**
+  String get monthlySummaryDesc;
+
+  /// No description provided for @weeklyReport.
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftalık Rapor'**
+  String get weeklyReport;
+
+  /// No description provided for @weeklyReportDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Her Pazar 18:00 - en çok harcama kategorisi'**
+  String get weeklyReportDesc;
+
+  /// No description provided for @streakReminderTime.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri Hatırlatıcı Saati'**
+  String get streakReminderTime;
+
+  /// No description provided for @monthlySummaryTime.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık Özet Saati'**
+  String get monthlySummaryTime;
+
+  /// No description provided for @lastDayOfMonth.
+  ///
+  /// In tr, this message translates to:
+  /// **'Her ayın son günü'**
+  String get lastDayOfMonth;
+
+  /// No description provided for @voiceAssistantTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sesli Asistan'**
+  String get voiceAssistantTitle;
+
+  /// No description provided for @voiceAssistantDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sesli komut ve geri bildirim ayarlarını yönetin'**
+  String get voiceAssistantDesc;
+
+  /// No description provided for @voiceFeedbackLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sesli Geri Bildirim'**
+  String get voiceFeedbackLabel;
+
+  /// No description provided for @on.
+  ///
+  /// In tr, this message translates to:
+  /// **'Açık'**
+  String get on;
+
+  /// No description provided for @off.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapalı'**
+  String get off;
+
+  /// No description provided for @viewAllVoiceCommands.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm Sesli Komutları Görüntüle'**
+  String get viewAllVoiceCommands;
+
+  /// No description provided for @voiceCommandsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sesli Komutlar'**
+  String get voiceCommandsTitle;
+
+  /// No description provided for @voiceCommandsInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aşağıdaki komutları sesli asistanla kullanabilirsiniz.'**
+  String get voiceCommandsInfo;
+
+  /// No description provided for @voiceCommandsTip.
+  ///
+  /// In tr, this message translates to:
+  /// **'İpucu: Komutları doğal bir şekilde söyleyin. Sesli asistan farklı söyleyişleri de anlayabilir.'**
+  String get voiceCommandsTip;
+
+  /// No description provided for @profileSettingsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil Ayarları'**
+  String get profileSettingsTitle;
+
+  /// No description provided for @userNotFound.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kullanıcı bulunamadı'**
+  String get userNotFound;
+
+  /// No description provided for @userLoadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kullanıcı bilgileri yüklenemedi'**
+  String get userLoadError;
+
+  /// No description provided for @biometricEnabled.
+  ///
+  /// In tr, this message translates to:
+  /// **'Biyometrik giriş aktifleştirildi'**
+  String get biometricEnabled;
+
+  /// No description provided for @biometricDisabled.
+  ///
+  /// In tr, this message translates to:
+  /// **'Biyometrik giriş kapatıldı'**
+  String get biometricDisabled;
+
+  /// No description provided for @unknownDate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bilinmiyor'**
+  String get unknownDate;
+
+  /// No description provided for @aboutSupportTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hakkında & Destek'**
+  String get aboutSupportTitle;
+
+  /// No description provided for @aboutSupportDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygulama bilgileri, destek ve iletişim'**
+  String get aboutSupportDesc;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygulama Versiyonu'**
+  String get appVersion;
+
+  /// No description provided for @developer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geliştirici'**
+  String get developer;
+
+  /// No description provided for @contactUs.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bize Ulaşın'**
+  String get contactUs;
+
+  /// No description provided for @rateApp.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygulamayı Değerlendir'**
+  String get rateApp;
+
+  /// No description provided for @shareApp.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygulamayı Paylaş'**
+  String get shareApp;
+
+  /// No description provided for @licenses.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lisanslar'**
+  String get licenses;
+
+  /// No description provided for @termsOfService.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kullanım Koşulları'**
+  String get termsOfService;
+
+  /// No description provided for @legal.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yasal'**
+  String get legal;
+
+  /// No description provided for @support.
+  ///
+  /// In tr, this message translates to:
+  /// **'Destek'**
+  String get support;
+
+  /// No description provided for @faq.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sıkça Sorulan Sorular'**
+  String get faq;
+
+  /// No description provided for @privacyPolicyDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Verilerinizi nasıl koruduğumuzu öğrenin'**
+  String get privacyPolicyDesc;
+
+  /// No description provided for @termsOfServiceDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygulama kullanım şartları ve kurallar'**
+  String get termsOfServiceDesc;
+
+  /// No description provided for @openSourceLicenses.
+  ///
+  /// In tr, this message translates to:
+  /// **'Açık Kaynak Lisansları'**
+  String get openSourceLicenses;
+
+  /// No description provided for @openSourceLicensesDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kullanılan kütüphaneler ve lisansları'**
+  String get openSourceLicensesDesc;
+
+  /// No description provided for @shareAppDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Cashly\'i arkadaşlarınla paylaş'**
+  String get shareAppDesc;
+
+  /// No description provided for @appSlogan.
+  ///
+  /// In tr, this message translates to:
+  /// **'Akıllı Bütçe Takip Asistanın'**
+  String get appSlogan;
+
+  /// No description provided for @footerMessage.
+  ///
+  /// In tr, this message translates to:
+  /// **'Cashly ile bütçeni kontrol altına al 💰'**
+  String get footerMessage;
+
+  /// No description provided for @copyright.
+  ///
+  /// In tr, this message translates to:
+  /// **'© 2026 Cashly. Tüm hakları saklıdır.'**
+  String get copyright;
+
+  /// No description provided for @lastUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son güncelleme: 17 Şubat 2026'**
+  String get lastUpdated;
+
+  /// No description provided for @shareText.
+  ///
+  /// In tr, this message translates to:
+  /// **'Cashly ile bütçeni kolayca takip et! 💰\nHarcamalarını, gelirlerini ve varlıklarını tek bir yerden yönet.\n\n📲 Hemen dene!'**
+  String get shareText;
+
+  /// No description provided for @expenseSettingsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gider Ayarları'**
+  String get expenseSettingsTitle;
+
+  /// No description provided for @expenseSettingsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bütçenizi ve harcama tercihlerinizi yönetin'**
+  String get expenseSettingsDesc;
+
+  /// No description provided for @budgetUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bütçe Limitiniz {amount} TL olarak güncellendi.'**
+  String budgetUpdated(String amount);
+
+  /// No description provided for @defaultPaymentUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varsayılan ödeme yöntemi güncellendi ✅'**
+  String get defaultPaymentUpdated;
+
+  /// No description provided for @transferSettingsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Transfer Ayarları'**
+  String get transferSettingsTitle;
+
+  /// No description provided for @transferSettingsPageTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Para Transferleri'**
+  String get transferSettingsPageTitle;
+
+  /// No description provided for @transferSettingsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Transfer ayarlarını ve görüntüleme tercihlerinizi yönetin'**
+  String get transferSettingsDesc;
+
+  /// No description provided for @transactionHistoryLimit.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlem Geçmişi Limiti'**
+  String get transactionHistoryLimit;
+
+  /// No description provided for @transactionHistoryLimitDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Transfer sayfasında gösterilecek işlem geçmişi sayısı'**
+  String get transactionHistoryLimitDesc;
+
+  /// No description provided for @historyLimitSaved.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlem geçmişi limiti {limit} olarak kaydedildi ✅'**
+  String historyLimitSaved(int limit);
+
+  /// No description provided for @select.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seçiniz'**
+  String get select;
+
+  /// No description provided for @useFirstPaymentMethod.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk ödeme yöntemini kullan'**
+  String get useFirstPaymentMethod;
+
+  /// No description provided for @manageRecurringExpenses.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrarlayan Giderleri Yönet'**
+  String get manageRecurringExpenses;
+
+  /// No description provided for @autoPayBillsSubscriptions.
+  ///
+  /// In tr, this message translates to:
+  /// **'Otomatik ödenen fatura ve abonelikler'**
+  String get autoPayBillsSubscriptions;
+
+  /// No description provided for @customizeExpenseCategories.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama kategorilerini özelleştirin'**
+  String get customizeExpenseCategories;
+
+  /// No description provided for @addEditDeleteCategories.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategorileri ekleyin, düzenleyin veya silin'**
+  String get addEditDeleteCategories;
+
+  /// No description provided for @setCategoryLimits.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategorilere özel limit belirleyin'**
+  String get setCategoryLimits;
+
+  /// No description provided for @noLimitSet.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz limit belirlenmemiş'**
+  String get noLimitSet;
+
+  /// No description provided for @enterAmount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tutar girin'**
+  String get enterAmount;
+
+  /// No description provided for @profilePhoto.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil Fotoğrafı'**
+  String get profilePhoto;
+
+  /// No description provided for @editPhoto.
+  ///
+  /// In tr, this message translates to:
+  /// **'Düzenle'**
+  String get editPhoto;
+
+  /// No description provided for @pin.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN'**
+  String get pin;
+
+  /// No description provided for @memberSince.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üyelik Tarihi'**
+  String get memberSince;
+
+  /// No description provided for @lastLogin.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son Giriş'**
+  String get lastLogin;
+
+  /// No description provided for @biometricLogin.
+  ///
+  /// In tr, this message translates to:
+  /// **'Biyometrik Giriş'**
+  String get biometricLogin;
+
+  /// No description provided for @biometricDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Parmak izi veya yüz tanıma ile giriş yapın'**
+  String get biometricDesc;
+
+  /// No description provided for @dangerZone.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tehlikeli Bölge'**
+  String get dangerZone;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabı Sil'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm verileriniz kalıcı olarak silinir'**
+  String get deleteAccountDesc;
+
+  /// No description provided for @deleteAccountConfirmTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabı Silmek İstediğinize Emin Misiniz?'**
+  String get deleteAccountConfirmTitle;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinecektir.'**
+  String get deleteAccountWarning;
+
+  /// No description provided for @defaultPaymentMethod.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varsayılan Ödeme Yöntemi'**
+  String get defaultPaymentMethod;
+
+  /// No description provided for @noPaymentMethodAdded.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz ödeme yöntemi eklemediniz. Araçlar sayfasından ekleyebilirsiniz.'**
+  String get noPaymentMethodAdded;
+
+  /// No description provided for @categoryBudgetActive.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} kategori için limit belirlenmiş'**
+  String categoryBudgetActive(int count);
+
+  /// No description provided for @monthlyIncomeBudgetLimit.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık Gelir (Bütçe Limiti)'**
+  String get monthlyIncomeBudgetLimit;
+
+  /// No description provided for @myExpenses.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcamalarım'**
+  String get myExpenses;
+
+  /// No description provided for @myIncomes.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelirlerim'**
+  String get myIncomes;
+
+  /// No description provided for @searchExpense.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama ara...'**
+  String get searchExpense;
+
+  /// No description provided for @searchIncome.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir ara...'**
+  String get searchIncome;
+
+  /// No description provided for @goToToday.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bugüne git'**
+  String get goToToday;
+
+  /// No description provided for @recycleBinTooltip.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çöp Kutusu'**
+  String get recycleBinTooltip;
+
+  /// No description provided for @voiceInputTooltip.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sesli Giriş'**
+  String get voiceInputTooltip;
+
+  /// No description provided for @homePage.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ana Sayfa'**
+  String get homePage;
+
+  /// No description provided for @selectPeriod.
+  ///
+  /// In tr, this message translates to:
+  /// **'Dönem Seç'**
+  String get selectPeriod;
+
+  /// No description provided for @year.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yıl'**
+  String get year;
+
+  /// No description provided for @month.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ay'**
+  String get month;
+
+  /// No description provided for @allDataUpToDate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm veriler güncel'**
+  String get allDataUpToDate;
+
+  /// No description provided for @user.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kullanıcı'**
+  String get user;
+
+  /// No description provided for @account.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesap'**
+  String get account;
+
+  /// No description provided for @userInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kullanıcı Bilgileri'**
+  String get userInfo;
+
+  /// No description provided for @userInfoSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ad, e-posta ve profil resmi'**
+  String get userInfoSubtitle;
+
+  /// No description provided for @settingsSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Görünüm, sesli asistan ve harcamalar'**
+  String get settingsSubtitle;
+
+  /// No description provided for @aboutAndSupportSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Versiyon, SSS ve yasal bilgiler'**
+  String get aboutAndSupportSubtitle;
+
+  /// No description provided for @session.
+  ///
+  /// In tr, this message translates to:
+  /// **'Oturum'**
+  String get session;
+
+  /// No description provided for @logoutSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabından güvenli çıkış yap'**
+  String get logoutSubtitle;
+
+  /// No description provided for @assets.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlıklar'**
+  String get assets;
+
+  /// No description provided for @transactions.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlemler'**
+  String get transactions;
+
+  /// No description provided for @allTransactions.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm İşlemler'**
+  String get allTransactions;
 }
 
 class _AppLocalizationsDelegate

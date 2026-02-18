@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/theme/app_theme.dart';
 
 /// Tüm sesli komutları detaylı listeleyen sayfa
@@ -9,7 +10,7 @@ class VoiceCommandsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sesli Komutlar'),
+        title: Text(context.l10n.voiceCommandsTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -43,7 +44,7 @@ class VoiceCommandsPage extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Aşağıdaki komutları sesli asistanla kullanabilirsiniz.',
+                      context.l10n.voiceCommandsInfo,
                       style: TextStyle(
                         color: Theme.of(
                           context,
@@ -275,7 +276,7 @@ class VoiceCommandsPage extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'İpucu: Komutları doğal bir şekilde söyleyin. Sesli asistan farklı söyleyişleri de anlayabilir.',
+                      context.l10n.voiceCommandsTip,
                       style: TextStyle(
                         color: Theme.of(
                           context,

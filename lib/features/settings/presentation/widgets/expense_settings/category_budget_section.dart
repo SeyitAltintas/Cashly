@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/di/injection_container.dart';
 import '../../../../expenses/domain/repositories/expense_repository.dart';
 import '../../pages/finance/category_budget_page.dart';
@@ -98,7 +99,7 @@ class _CategoryBudgetSectionState extends State<CategoryBudgetSection> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  "Kategori Bütçeleri",
+                  context.l10n.categoryBudgets,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
@@ -124,7 +125,7 @@ class _CategoryBudgetSectionState extends State<CategoryBudgetSection> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Kategorilere özel limit belirleyin',
+                          context.l10n.setCategoryLimits,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 14,
@@ -134,8 +135,10 @@ class _CategoryBudgetSectionState extends State<CategoryBudgetSection> {
                         const SizedBox(height: 4),
                         Text(
                           _activeBudgets > 0
-                              ? '$_activeBudgets kategori için limit belirlenmiş'
-                              : 'Henüz limit belirlenmemiş',
+                              ? context.l10n.categoryBudgetActive(
+                                  _activeBudgets,
+                                )
+                              : context.l10n.noLimitSet,
                           style: TextStyle(
                             color: Theme.of(
                               context,

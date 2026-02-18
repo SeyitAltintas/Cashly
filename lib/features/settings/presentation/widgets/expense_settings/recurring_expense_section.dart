@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Tekrarlayan giderler bölümü widget'ı
 class RecurringExpenseSection extends StatelessWidget {
@@ -49,7 +50,7 @@ class RecurringExpenseSection extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  "Tekrarlayan Giderler",
+                  context.l10n.recurringExpenses,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
@@ -75,7 +76,7 @@ class RecurringExpenseSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Tekrarlayan Giderleri Yönet',
+                          context.l10n.manageRecurringExpenses,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 14,
@@ -84,7 +85,7 @@ class RecurringExpenseSection extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Otomatik ödenen fatura ve abonelikler',
+                          context.l10n.autoPayBillsSubscriptions,
                           style: TextStyle(
                             color: Theme.of(
                               context,

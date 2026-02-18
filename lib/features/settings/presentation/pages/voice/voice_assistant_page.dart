@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/di/injection_container.dart';
 import '../../../../settings/domain/repositories/settings_repository.dart';
 import '../../../../../core/services/tts_service.dart';
@@ -73,7 +74,7 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sesli Asistan'),
+        title: Text(context.l10n.voiceAssistant),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -102,7 +103,7 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Sesli Asistan",
+                          context.l10n.voiceAssistantTitle,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 24,
@@ -112,7 +113,7 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Sesli komut ve geri bildirim ayarlarını yönetin",
+                          context.l10n.voiceAssistantDesc,
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -155,7 +156,7 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Sesli Geri Bildirim',
+                                context.l10n.voiceFeedbackLabel,
                                 style: TextStyle(
                                   color: Theme.of(
                                     context,
@@ -165,7 +166,9 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                                 ),
                               ),
                               Text(
-                                _sesliGeriBildirimAktif ? 'Açık' : 'Kapalı',
+                                _sesliGeriBildirimAktif
+                                    ? context.l10n.on
+                                    : context.l10n.off,
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.onSurface
                                       .withValues(alpha: 0.6),
@@ -202,9 +205,9 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                         );
                       },
                       icon: const Icon(Icons.list_alt, color: Colors.black),
-                      label: const Text(
-                        'Tüm Sesli Komutları Görüntüle',
-                        style: TextStyle(
+                      label: Text(
+                        context.l10n.viewAllVoiceCommands,
+                        style: const TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w500,
                         ),

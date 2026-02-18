@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/di/injection_container.dart';
 import 'package:cashly/features/settings/domain/repositories/settings_repository.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
@@ -79,7 +80,7 @@ class _TransferSettingsPageState extends State<TransferSettingsPage> {
     if (mounted) {
       AppSnackBar.success(
         context,
-        'İşlem geçmişi limiti $_tempLimit olarak kaydedildi ✅',
+        context.l10n.historyLimitSaved(_tempLimit),
         duration: const Duration(seconds: 2),
       );
     }
@@ -106,7 +107,7 @@ class _TransferSettingsPageState extends State<TransferSettingsPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Transfer Ayarları"),
+          title: Text(context.l10n.transferSettingsTitle),
           backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),
@@ -148,7 +149,7 @@ class _TransferSettingsPageState extends State<TransferSettingsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Para Transferleri",
+            context.l10n.transferSettingsPageTitle,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 24,
@@ -158,7 +159,7 @@ class _TransferSettingsPageState extends State<TransferSettingsPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            "Transfer ayarlarını ve görüntüleme tercihlerinizi yönetin",
+            context.l10n.transferSettingsDesc,
             style: TextStyle(
               color: Theme.of(
                 context,
@@ -214,7 +215,7 @@ class _TransferSettingsPageState extends State<TransferSettingsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'İşlem Geçmişi Limiti',
+                      context.l10n.transactionHistoryLimit,
                       style: TextStyle(
                         color: textColor,
                         fontSize: 16,
@@ -223,7 +224,7 @@ class _TransferSettingsPageState extends State<TransferSettingsPage> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Transfer sayfasında gösterilecek işlem geçmişi sayısı',
+                      context.l10n.transactionHistoryLimitDesc,
                       style: TextStyle(
                         color: textColor.withValues(alpha: 0.6),
                         fontSize: 12,
@@ -247,9 +248,9 @@ class _TransferSettingsPageState extends State<TransferSettingsPage> {
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
                   onTap: _saveCurrentLimit,
-                  child: const Text(
-                    'Kaydet',
-                    style: TextStyle(
+                  child: Text(
+                    context.l10n.save,
+                    style: const TextStyle(
                       color: Colors.teal,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

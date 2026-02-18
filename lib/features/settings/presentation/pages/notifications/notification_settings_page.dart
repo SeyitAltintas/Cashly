@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:app_settings/app_settings.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/di/injection_container.dart';
 import '../../../../../core/domain/notification_types.dart';
 import '../../../../../core/repositories/notification_settings_repository.dart';
@@ -56,7 +57,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
       if (hasPermission) {
         // İzin verildiyse bildirimleri planla
         await _scheduler.rescheduleAll();
-        _showSnackBar('Bildirimler etkinleştirildi', Colors.green);
+        _showSnackBar(context.l10n.notificationsEnabled, Colors.green);
       }
     }
   }
@@ -101,7 +102,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Bildirimler"),
+        title: Text(context.l10n.notifications),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -120,7 +121,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           // Bildirim senaryoları
           _buildSectionTitleWithToggle(
             context,
-            'Bildirim Senaryoları',
+            context.l10n.notificationScenarios,
             _areAllNotificationsEnabled(),
             _toggleAllNotifications,
           ),
@@ -129,7 +130,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           const SizedBox(height: 24),
 
           // Zamanlama ayarları
-          _buildSectionTitle(context, 'Zamanlama Ayarları'),
+          _buildSectionTitle(context, context.l10n.scheduleSettings),
           const SizedBox(height: 12),
           _buildScheduleSettings(context),
         ],
@@ -154,7 +155,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Bildirim Ayarları",
+            context.l10n.notificationSettingsTitle,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 24,
@@ -163,7 +164,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           ),
           const SizedBox(height: 6),
           Text(
-            "Finansal hatırlatmalar ve uyarıları yönetin",
+            context.l10n.notificationSettingsDesc,
             style: TextStyle(
               color: Theme.of(
                 context,
@@ -197,7 +198,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                "Bildirim izni verilmedi",
+                context.l10n.notificationPermDenied,
                 style: TextStyle(
                   color: Colors.orange.shade600,
                   fontSize: 13,
@@ -206,7 +207,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
               ),
             ),
             Text(
-              "Ayarları Aç",
+              context.l10n.openSettings,
               style: TextStyle(
                 color: Colors.orange.shade700,
                 fontSize: 12,
@@ -282,7 +283,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
         GestureDetector(
           onTap: _hasPermission ? () => onToggle(!allEnabled) : null,
           child: Text(
-            allEnabled ? 'Tümünü Kapat' : 'Tümünü Aç',
+            allEnabled ? context.l10n.turnOffAll : context.l10n.turnOnAll,
             style: TextStyle(
               color: _hasPermission
                   ? (allEnabled ? Colors.red.shade400 : Colors.green.shade400)
@@ -313,8 +314,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             context,
             icon: Icons.event_repeat_rounded,
             iconColor: Colors.blue,
-            title: "Tekrarlayan İşlem Hatırlatıcı",
-            subtitle: "Ödeme/fatura gününden 1 gün önce",
+            title: context.l10n.recurringReminder,
+            subtitle: context.l10n.recurringReminderDesc,
             value: _settings.recurringReminderEnabled,
             onChanged: (v) => _updateSettings(
               _settings.copyWith(recurringReminderEnabled: v),
@@ -325,8 +326,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             context,
             icon: Icons.local_fire_department_rounded,
             iconColor: Colors.orange,
-            title: "Seri Hatırlatıcı",
-            subtitle: "Günlük işlem girişi hatırlatması",
+            title: context.l10n.streakReminderTitle,
+            subtitle: context.l10n.streakReminderDesc,
             value: _settings.streakReminderEnabled,
             onChanged: (v) =>
                 _updateSettings(_settings.copyWith(streakReminderEnabled: v)),
@@ -336,8 +337,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             context,
             icon: Icons.crisis_alert_rounded,
             iconColor: Colors.red,
-            title: "Son Şans Uyarısı",
-            subtitle: "Her gün 22:00 - seri kırılma riski",
+            title: context.l10n.lastChanceWarning,
+            subtitle: context.l10n.lastChanceWarningDesc,
             value: _settings.streakBreakWarningEnabled,
             onChanged: (v) => _updateSettings(
               _settings.copyWith(streakBreakWarningEnabled: v),
@@ -348,8 +349,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             context,
             icon: Icons.bar_chart_rounded,
             iconColor: Colors.purple,
-            title: "Aylık Özet",
-            subtitle: "Her ayın son günü finansal özet",
+            title: context.l10n.monthlySummary,
+            subtitle: context.l10n.monthlySummaryDesc,
             value: _settings.monthlySummaryEnabled,
             onChanged: (v) =>
                 _updateSettings(_settings.copyWith(monthlySummaryEnabled: v)),
@@ -359,8 +360,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             context,
             icon: Icons.date_range_rounded,
             iconColor: Colors.teal,
-            title: "Haftalık Rapor",
-            subtitle: "Her Pazar 18:00 - en çok harcama kategorisi",
+            title: context.l10n.weeklyReport,
+            subtitle: context.l10n.weeklyReportDesc,
             value: _settings.weeklyMiniSummaryEnabled,
             onChanged: (v) => _updateSettings(
               _settings.copyWith(weeklyMiniSummaryEnabled: v),
@@ -389,7 +390,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             context,
             icon: Icons.access_time_rounded,
             iconColor: Colors.orange,
-            title: "Seri Hatırlatıcı Saati",
+            title: context.l10n.streakReminderTime,
             time: TimeOfDay(
               hour: _settings.streakReminderHour,
               minute: _settings.streakReminderMinute,
@@ -403,7 +404,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             context,
             icon: Icons.calendar_today_rounded,
             iconColor: Colors.purple,
-            title: "Aylık Özet Saati",
+            title: context.l10n.monthlySummaryTime,
             hour: _settings.monthlySummaryHour,
             minute: _settings.monthlySummaryMinute,
             enabled: _settings.monthlySummaryEnabled,
@@ -544,7 +545,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
         ),
       ),
       subtitle: Text(
-        'Her ayın son günü',
+        context.l10n.lastDayOfMonth,
         style: TextStyle(
           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
           fontSize: 12,

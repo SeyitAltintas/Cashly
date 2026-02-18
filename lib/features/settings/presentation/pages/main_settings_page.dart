@@ -354,7 +354,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
               ),
               title: Text(
                 context.l10n.deleteAllData,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.w600,
                 ),
@@ -497,9 +497,9 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
               ),
             ),
             const SizedBox(width: 12),
-            const Text(
-              'Dikkat!',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Text(
+              context.l10n.warning,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -517,12 +517,16 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.lightbulb_outline, color: Colors.amber, size: 20),
-                  SizedBox(width: 8),
+                  const Icon(
+                    Icons.lightbulb_outline,
+                    color: Colors.amber,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       context.l10n.backupSuggestion,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -534,7 +538,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             const SizedBox(height: 16),
             Text(
               context.l10n.permanentDeleteWarning,
-              style: TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             Text('• ${context.l10n.allExpenses}'),
@@ -546,7 +550,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
             const SizedBox(height: 16),
             Text(
               context.l10n.irreversibleAction,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Color(0xFF8B0000),
                 fontWeight: FontWeight.bold,
               ),

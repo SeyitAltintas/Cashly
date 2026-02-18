@@ -896,4 +896,434 @@ class AppLocalizationsTr extends AppLocalizations {
   String nDays(int count) {
     return '$count gün';
   }
+
+  @override
+  String get hapticSettingsTitle => 'Dokunsal Geri Bildirim';
+
+  @override
+  String get hapticSettingsDescription =>
+      'Önemli işlemlerde titreşim geri bildirimi alın';
+
+  @override
+  String get hapticInfoText =>
+      'Titreşim geri bildiriminin çalışabilmesi için cihazınızın ayarlarından \"Dokunma geri bildirimi\" veya \"Titreşim\" özelliğinin açık olması gerekmektedir.';
+
+  @override
+  String get hapticNoVibrator => 'Bu cihazda titreşim özelliği algılanamadı.';
+
+  @override
+  String get hapticEnable => 'Titreşimi Etkinleştir';
+
+  @override
+  String get hapticAllOn => 'Tüm titreşimler açık';
+
+  @override
+  String get hapticAllOff => 'Tüm titreşimler kapalı';
+
+  @override
+  String get hapticButtonTaps => 'Buton Tıklamaları';
+
+  @override
+  String get hapticButtonTapsDesc => 'Butonlara dokunduğunuzda';
+
+  @override
+  String get hapticNavigation => 'Navigasyon';
+
+  @override
+  String get hapticNavigationDesc => 'Sayfa geçişleri ve seçici kaydırmaları';
+
+  @override
+  String get hapticDelete => 'Silme İşlemleri';
+
+  @override
+  String get hapticDeleteDesc => 'Öğe sildiğinizde';
+
+  @override
+  String get hapticSuccessNotif => 'Başarı Bildirimi';
+
+  @override
+  String get hapticSuccessNotifDesc => 'İşlem başarılı olduğunda';
+
+  @override
+  String get hapticErrorNotif => 'Hata Bildirimi';
+
+  @override
+  String get hapticErrorNotifDesc => 'Hata oluştuğunda';
+
+  @override
+  String get hapticCelebration => 'Seri Kutlama';
+
+  @override
+  String get hapticCelebrationDesc => 'Seri arttığında kutlama titreşimi';
+
+  @override
+  String get notificationSettingsTitle => 'Bildirim Ayarları';
+
+  @override
+  String get notificationSettingsDesc =>
+      'Finansal hatırlatmalar ve uyarıları yönetin';
+
+  @override
+  String get notificationsEnabled => 'Bildirimler etkinleştirildi';
+
+  @override
+  String get notificationPermDenied => 'Bildirim izni verilmedi';
+
+  @override
+  String get openSettings => 'Ayarları Aç';
+
+  @override
+  String get notificationScenarios => 'Bildirim Senaryoları';
+
+  @override
+  String get scheduleSettings => 'Zamanlama Ayarları';
+
+  @override
+  String get turnOffAll => 'Tümünü Kapat';
+
+  @override
+  String get turnOnAll => 'Tümünü Aç';
+
+  @override
+  String get recurringReminder => 'Tekrarlayan İşlem Hatırlatıcı';
+
+  @override
+  String get recurringReminderDesc => 'Ödeme/fatura gününden 1 gün önce';
+
+  @override
+  String get streakReminderTitle => 'Seri Hatırlatıcı';
+
+  @override
+  String get streakReminderDesc => 'Günlük işlem girişi hatırlatması';
+
+  @override
+  String get lastChanceWarning => 'Son Şans Uyarısı';
+
+  @override
+  String get lastChanceWarningDesc => 'Her gün 22:00 - seri kırılma riski';
+
+  @override
+  String get monthlySummary => 'Aylık Özet';
+
+  @override
+  String get monthlySummaryDesc => 'Her ayın son günü finansal özet';
+
+  @override
+  String get weeklyReport => 'Haftalık Rapor';
+
+  @override
+  String get weeklyReportDesc => 'Her Pazar 18:00 - en çok harcama kategorisi';
+
+  @override
+  String get streakReminderTime => 'Seri Hatırlatıcı Saati';
+
+  @override
+  String get monthlySummaryTime => 'Aylık Özet Saati';
+
+  @override
+  String get lastDayOfMonth => 'Her ayın son günü';
+
+  @override
+  String get voiceAssistantTitle => 'Sesli Asistan';
+
+  @override
+  String get voiceAssistantDesc =>
+      'Sesli komut ve geri bildirim ayarlarını yönetin';
+
+  @override
+  String get voiceFeedbackLabel => 'Sesli Geri Bildirim';
+
+  @override
+  String get on => 'Açık';
+
+  @override
+  String get off => 'Kapalı';
+
+  @override
+  String get viewAllVoiceCommands => 'Tüm Sesli Komutları Görüntüle';
+
+  @override
+  String get voiceCommandsTitle => 'Sesli Komutlar';
+
+  @override
+  String get voiceCommandsInfo =>
+      'Aşağıdaki komutları sesli asistanla kullanabilirsiniz.';
+
+  @override
+  String get voiceCommandsTip =>
+      'İpucu: Komutları doğal bir şekilde söyleyin. Sesli asistan farklı söyleyişleri de anlayabilir.';
+
+  @override
+  String get profileSettingsTitle => 'Profil Ayarları';
+
+  @override
+  String get userNotFound => 'Kullanıcı bulunamadı';
+
+  @override
+  String get userLoadError => 'Kullanıcı bilgileri yüklenemedi';
+
+  @override
+  String get biometricEnabled => 'Biyometrik giriş aktifleştirildi';
+
+  @override
+  String get biometricDisabled => 'Biyometrik giriş kapatıldı';
+
+  @override
+  String get unknownDate => 'Bilinmiyor';
+
+  @override
+  String get aboutSupportTitle => 'Hakkında & Destek';
+
+  @override
+  String get aboutSupportDesc => 'Uygulama bilgileri, destek ve iletişim';
+
+  @override
+  String get appVersion => 'Uygulama Versiyonu';
+
+  @override
+  String get developer => 'Geliştirici';
+
+  @override
+  String get contactUs => 'Bize Ulaşın';
+
+  @override
+  String get rateApp => 'Uygulamayı Değerlendir';
+
+  @override
+  String get shareApp => 'Uygulamayı Paylaş';
+
+  @override
+  String get licenses => 'Lisanslar';
+
+  @override
+  String get termsOfService => 'Kullanım Koşulları';
+
+  @override
+  String get legal => 'Yasal';
+
+  @override
+  String get support => 'Destek';
+
+  @override
+  String get faq => 'Sıkça Sorulan Sorular';
+
+  @override
+  String get privacyPolicyDesc => 'Verilerinizi nasıl koruduğumuzu öğrenin';
+
+  @override
+  String get termsOfServiceDesc => 'Uygulama kullanım şartları ve kurallar';
+
+  @override
+  String get openSourceLicenses => 'Açık Kaynak Lisansları';
+
+  @override
+  String get openSourceLicensesDesc => 'Kullanılan kütüphaneler ve lisansları';
+
+  @override
+  String get shareAppDesc => 'Cashly\'i arkadaşlarınla paylaş';
+
+  @override
+  String get appSlogan => 'Akıllı Bütçe Takip Asistanın';
+
+  @override
+  String get footerMessage => 'Cashly ile bütçeni kontrol altına al 💰';
+
+  @override
+  String get copyright => '© 2026 Cashly. Tüm hakları saklıdır.';
+
+  @override
+  String get lastUpdated => 'Son güncelleme: 17 Şubat 2026';
+
+  @override
+  String get shareText =>
+      'Cashly ile bütçeni kolayca takip et! 💰\nHarcamalarını, gelirlerini ve varlıklarını tek bir yerden yönet.\n\n📲 Hemen dene!';
+
+  @override
+  String get expenseSettingsTitle => 'Gider Ayarları';
+
+  @override
+  String get expenseSettingsDesc =>
+      'Bütçenizi ve harcama tercihlerinizi yönetin';
+
+  @override
+  String budgetUpdated(String amount) {
+    return 'Bütçe Limitiniz $amount TL olarak güncellendi.';
+  }
+
+  @override
+  String get defaultPaymentUpdated => 'Varsayılan ödeme yöntemi güncellendi ✅';
+
+  @override
+  String get transferSettingsTitle => 'Transfer Ayarları';
+
+  @override
+  String get transferSettingsPageTitle => 'Para Transferleri';
+
+  @override
+  String get transferSettingsDesc =>
+      'Transfer ayarlarını ve görüntüleme tercihlerinizi yönetin';
+
+  @override
+  String get transactionHistoryLimit => 'İşlem Geçmişi Limiti';
+
+  @override
+  String get transactionHistoryLimitDesc =>
+      'Transfer sayfasında gösterilecek işlem geçmişi sayısı';
+
+  @override
+  String historyLimitSaved(int limit) {
+    return 'İşlem geçmişi limiti $limit olarak kaydedildi ✅';
+  }
+
+  @override
+  String get select => 'Seçiniz';
+
+  @override
+  String get useFirstPaymentMethod => 'İlk ödeme yöntemini kullan';
+
+  @override
+  String get manageRecurringExpenses => 'Tekrarlayan Giderleri Yönet';
+
+  @override
+  String get autoPayBillsSubscriptions =>
+      'Otomatik ödenen fatura ve abonelikler';
+
+  @override
+  String get customizeExpenseCategories =>
+      'Harcama kategorilerini özelleştirin';
+
+  @override
+  String get addEditDeleteCategories =>
+      'Kategorileri ekleyin, düzenleyin veya silin';
+
+  @override
+  String get setCategoryLimits => 'Kategorilere özel limit belirleyin';
+
+  @override
+  String get noLimitSet => 'Henüz limit belirlenmemiş';
+
+  @override
+  String get enterAmount => 'Tutar girin';
+
+  @override
+  String get profilePhoto => 'Profil Fotoğrafı';
+
+  @override
+  String get editPhoto => 'Düzenle';
+
+  @override
+  String get pin => 'PIN';
+
+  @override
+  String get memberSince => 'Üyelik Tarihi';
+
+  @override
+  String get lastLogin => 'Son Giriş';
+
+  @override
+  String get biometricLogin => 'Biyometrik Giriş';
+
+  @override
+  String get biometricDesc => 'Parmak izi veya yüz tanıma ile giriş yapın';
+
+  @override
+  String get dangerZone => 'Tehlikeli Bölge';
+
+  @override
+  String get deleteAccount => 'Hesabı Sil';
+
+  @override
+  String get deleteAccountDesc => 'Tüm verileriniz kalıcı olarak silinir';
+
+  @override
+  String get deleteAccountConfirmTitle =>
+      'Hesabı Silmek İstediğinize Emin Misiniz?';
+
+  @override
+  String get deleteAccountWarning =>
+      'Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinecektir.';
+
+  @override
+  String get defaultPaymentMethod => 'Varsayılan Ödeme Yöntemi';
+
+  @override
+  String get noPaymentMethodAdded =>
+      'Henüz ödeme yöntemi eklemediniz. Araçlar sayfasından ekleyebilirsiniz.';
+
+  @override
+  String categoryBudgetActive(int count) {
+    return '$count kategori için limit belirlenmiş';
+  }
+
+  @override
+  String get monthlyIncomeBudgetLimit => 'Aylık Gelir (Bütçe Limiti)';
+
+  @override
+  String get myExpenses => 'Harcamalarım';
+
+  @override
+  String get myIncomes => 'Gelirlerim';
+
+  @override
+  String get searchExpense => 'Harcama ara...';
+
+  @override
+  String get searchIncome => 'Gelir ara...';
+
+  @override
+  String get goToToday => 'Bugüne git';
+
+  @override
+  String get recycleBinTooltip => 'Çöp Kutusu';
+
+  @override
+  String get voiceInputTooltip => 'Sesli Giriş';
+
+  @override
+  String get homePage => 'Ana Sayfa';
+
+  @override
+  String get selectPeriod => 'Dönem Seç';
+
+  @override
+  String get year => 'Yıl';
+
+  @override
+  String get month => 'Ay';
+
+  @override
+  String get allDataUpToDate => 'Tüm veriler güncel';
+
+  @override
+  String get user => 'Kullanıcı';
+
+  @override
+  String get account => 'Hesap';
+
+  @override
+  String get userInfo => 'Kullanıcı Bilgileri';
+
+  @override
+  String get userInfoSubtitle => 'Ad, e-posta ve profil resmi';
+
+  @override
+  String get settingsSubtitle => 'Görünüm, sesli asistan ve harcamalar';
+
+  @override
+  String get aboutAndSupportSubtitle => 'Versiyon, SSS ve yasal bilgiler';
+
+  @override
+  String get session => 'Oturum';
+
+  @override
+  String get logoutSubtitle => 'Hesabından güvenli çıkış yap';
+
+  @override
+  String get assets => 'Varlıklar';
+
+  @override
+  String get transactions => 'İşlemler';
+
+  @override
+  String get allTransactions => 'Tüm İşlemler';
 }

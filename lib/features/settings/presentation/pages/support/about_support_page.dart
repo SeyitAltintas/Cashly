@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/services/haptic_service.dart';
 
 /// Hakkında & Destek Sayfası
@@ -59,7 +60,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hakkında & Destek'),
+        title: Text(context.l10n.aboutAndSupport),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -76,19 +77,19 @@ class _AboutSupportPageState extends State<AboutSupportPage>
               const SizedBox(height: 28),
 
               // Yasal bölümü
-              _buildSectionLabel(theme, 'Yasal'),
+              _buildSectionLabel(theme, context.l10n.legal),
               const SizedBox(height: 12),
               _buildLegalSection(theme),
               const SizedBox(height: 28),
 
               // Destek bölümü
-              _buildSectionLabel(theme, 'Destek'),
+              _buildSectionLabel(theme, context.l10n.support),
               const SizedBox(height: 12),
               _buildSupportSection(theme),
               const SizedBox(height: 28),
 
               // SSS bölümü
-              _buildSectionLabel(theme, 'Sıkça Sorulan Sorular'),
+              _buildSectionLabel(theme, context.l10n.faq),
               const SizedBox(height: 12),
               _buildFaqSection(theme),
               const SizedBox(height: 32),
@@ -144,7 +145,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
           const SizedBox(height: 40),
           // Slogan
           Text(
-            'Akıllı Bütçe Takip Asistanın',
+            context.l10n.appSlogan,
             style: TextStyle(
               fontSize: 14,
               color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
@@ -187,11 +188,11 @@ class _AboutSupportPageState extends State<AboutSupportPage>
           theme,
           icon: Icons.privacy_tip_outlined,
           iconColor: Colors.teal,
-          title: 'Gizlilik Politikası',
-          subtitle: 'Verilerinizi nasıl koruduğumuzu öğrenin',
+          title: context.l10n.privacyPolicy,
+          subtitle: context.l10n.privacyPolicyDesc,
           onTap: () => _showLegalSheet(
             context,
-            title: 'Gizlilik Politikası',
+            title: context.l10n.privacyPolicy,
             content: _privacyPolicyText,
           ),
         ),
@@ -200,11 +201,11 @@ class _AboutSupportPageState extends State<AboutSupportPage>
           theme,
           icon: Icons.description_outlined,
           iconColor: Colors.blue,
-          title: 'Kullanım Koşulları',
-          subtitle: 'Uygulama kullanım şartları ve kurallar',
+          title: context.l10n.termsOfService,
+          subtitle: context.l10n.termsOfServiceDesc,
           onTap: () => _showLegalSheet(
             context,
-            title: 'Kullanım Koşulları',
+            title: context.l10n.termsOfService,
             content: _termsOfServiceText,
           ),
         ),
@@ -213,8 +214,8 @@ class _AboutSupportPageState extends State<AboutSupportPage>
           theme,
           icon: Icons.source_outlined,
           iconColor: Colors.orange,
-          title: 'Açık Kaynak Lisansları',
-          subtitle: 'Kullanılan kütüphaneler ve lisansları',
+          title: context.l10n.openSourceLicenses,
+          subtitle: context.l10n.openSourceLicensesDesc,
           isLast: true,
           onTap: () => showLicensePage(
             context: context,
@@ -255,7 +256,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                   ),
                   const SizedBox(height: 40),
                   Text(
-                    'Akıllı Bütçe Takip Asistanın',
+                    context.l10n.appSlogan,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withValues(alpha: 0.45),
@@ -287,7 +288,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    '© 2026 Cashly. Tüm hakları saklıdır.',
+                    context.l10n.copyright,
                     style: TextStyle(
                       fontSize: 11,
                       color: Colors.white.withValues(alpha: 0.3),
@@ -314,8 +315,8 @@ class _AboutSupportPageState extends State<AboutSupportPage>
           theme,
           icon: Icons.share_outlined,
           iconColor: Colors.green,
-          title: 'Uygulamayı Paylaş',
-          subtitle: 'Cashly\'i arkadaşlarınla paylaş',
+          title: context.l10n.shareApp,
+          subtitle: context.l10n.shareAppDesc,
           isLast: true,
           onTap: _shareApp,
         ),
@@ -452,7 +453,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
       child: Column(
         children: [
           Text(
-            'Cashly ile bütçeni kontrol altına al 💰',
+            context.l10n.footerMessage,
             style: TextStyle(
               fontSize: 13,
               color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
@@ -460,7 +461,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
           ),
           const SizedBox(height: 4),
           Text(
-            '© 2026 Cashly. Tüm hakları saklıdır.',
+            context.l10n.copyright,
             style: TextStyle(
               fontSize: 11,
               color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
@@ -595,14 +596,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
   // ============================================================================
 
   void _shareApp() {
-    SharePlus.instance.share(
-      ShareParams(
-        text:
-            'Cashly ile bütçeni kolayca takip et! 💰\n'
-            'Harcamalarını, gelirlerini ve varlıklarını tek bir yerden yönet.\n\n'
-            '📲 Hemen dene!',
-      ),
-    );
+    SharePlus.instance.share(ShareParams(text: context.l10n.shareText));
   }
 
   void _showLegalSheet(
@@ -650,7 +644,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
               ),
               const SizedBox(height: 8),
               Text(
-                'Son güncelleme: 17 Şubat 2026',
+                context.l10n.lastUpdated,
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(

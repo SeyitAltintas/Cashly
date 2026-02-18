@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 
 import 'package:cashly/features/settings/presentation/pages/profile/profile_page.dart';
@@ -353,7 +354,8 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final userName = widget.authController.currentUser?.name ?? 'Kullanıcı';
+    final userName =
+        widget.authController.currentUser?.name ?? context.l10n.user;
 
     return Scaffold(
       // ValueListenableBuilder ile sadece AppBar değişikliklerinde rebuild
@@ -420,7 +422,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
     // Kullanıcıya verilerin güncellendiğini bildir
     if (mounted) {
-      AppSnackBar.info(context, 'Tüm veriler güncel');
+      AppSnackBar.info(context, context.l10n.allDataUpToDate);
     }
   }
 
@@ -456,7 +458,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       context,
       MaterialPageRoute(
         builder: (context) => PageErrorBoundary(
-          pageName: 'Varlıklar',
+          pageName: context.l10n.assets,
           child: AssetsPage(
             assets: varliklar.where((a) => !a.isDeleted).toList(),
             deletedAssets: varliklar.where((a) => a.isDeleted).toList(),
@@ -515,14 +517,15 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       context,
       MaterialPageRoute(
         builder: (context) => PageErrorBoundary(
-          pageName: 'Analiz',
+          pageName: context.l10n.analysis,
           child: AnalysisPage(
             expenses: tumHarcamalar,
             assets: varliklar,
             incomes: tumGelirler,
             selectedDate: secilenAy,
             userId: widget.authController.currentUser?.id ?? '',
-            userName: widget.authController.currentUser?.name ?? 'Kullanici',
+            userName:
+                widget.authController.currentUser?.name ?? context.l10n.user,
             paymentMethods: tumOdemeYontemleri,
             categoryBudgets: categoryBudgets,
           ),
@@ -536,7 +539,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       context,
       MaterialPageRoute(
         builder: (context) => PageErrorBoundary(
-          pageName: 'Ödeme Yöntemleri',
+          pageName: context.l10n.paymentMethods,
           child: PaymentMethodsPage(
             paymentMethods: tumOdemeYontemleri
                 .where((p) => !p.isDeleted)

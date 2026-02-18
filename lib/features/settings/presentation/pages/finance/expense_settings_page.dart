@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 import 'package:cashly/core/di/injection_container.dart';
 import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
@@ -108,8 +109,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
         _expState.categoryChanged = true;
         _expState.isSaved = true;
         _expState.savedAmount = formattedAmount;
-        _expState.savedMessage =
-            "Bütçe Limitiniz $formattedAmount TL olarak güncellendi.";
+        _expState.savedMessage = context.l10n.budgetUpdated(formattedAmount);
 
         Future.delayed(const Duration(seconds: 4), () {
           if (mounted) {
@@ -133,7 +133,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
     );
     AppSnackBar.success(
       context,
-      'Varsayılan ödeme yöntemi güncellendi ✅',
+      context.l10n.defaultPaymentUpdated,
       duration: const Duration(seconds: 1),
     );
   }
@@ -148,7 +148,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Gider Ayarları"),
+          title: Text(context.l10n.expenseSettingsTitle),
           backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),
@@ -234,7 +234,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Gider Ayarları",
+            context.l10n.expenseSettingsTitle,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 24,
@@ -244,7 +244,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
           ),
           const SizedBox(height: 8),
           Text(
-            "Bütçenizi ve harcama tercihlerinizi yönetin",
+            context.l10n.expenseSettingsDesc,
             style: TextStyle(
               color: Theme.of(
                 context,

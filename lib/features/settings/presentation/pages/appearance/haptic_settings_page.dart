@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/services/haptic_service.dart';
 import 'state/haptic_settings_state.dart';
 
@@ -60,7 +61,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Titreşim Geri Bildirimi"),
+        title: Text(context.l10n.hapticFeedback),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -112,7 +113,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    "Titreşim geri bildiriminin çalışabilmesi için cihazınızın ayarlarından \"Dokunma geri bildirimi\" veya \"Titreşim\" özelliğinin açık olması gerekmektedir.",
+                    context.l10n.hapticInfoText,
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -147,7 +148,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Dokunsal Geri Bildirim",
+            context.l10n.hapticSettingsTitle,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 24,
@@ -156,7 +157,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
           ),
           const SizedBox(height: 6),
           Text(
-            "Önemli işlemlerde titreşim geri bildirimi alın",
+            context.l10n.hapticSettingsDescription,
             style: TextStyle(
               color: Theme.of(
                 context,
@@ -183,7 +184,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              "Bu cihazda titreşim özelliği algılanamadı.",
+              context.l10n.hapticNoVibrator,
               style: TextStyle(color: Colors.orange.shade700, fontSize: 13),
             ),
           ),
@@ -221,7 +222,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
           ),
         ),
         title: Text(
-          "Titreşimi Etkinleştir",
+          context.l10n.hapticEnable,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
             fontSize: 16,
@@ -229,7 +230,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
           ),
         ),
         subtitle: Text(
-          value ? "Tüm titreşimler açık" : "Tüm titreşimler kapalı",
+          value ? context.l10n.hapticAllOn : context.l10n.hapticAllOff,
           style: TextStyle(
             color: Theme.of(
               context,
@@ -260,8 +261,8 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
             context,
             icon: Icons.touch_app_outlined,
             iconColor: Colors.blue,
-            title: "Buton Tıklamaları",
-            subtitle: "Butonlara dokunduğunuzda",
+            title: context.l10n.hapticButtonTaps,
+            subtitle: context.l10n.hapticButtonTapsDesc,
             settingKey: HapticService.keyButtonTaps,
           ),
           _buildDivider(context),
@@ -269,8 +270,8 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
             context,
             icon: Icons.swipe_rounded,
             iconColor: Colors.purple,
-            title: "Navigasyon",
-            subtitle: "Sayfa geçişleri ve seçici kaydırmaları",
+            title: context.l10n.hapticNavigation,
+            subtitle: context.l10n.hapticNavigationDesc,
             settingKey: HapticService.keyNavigation,
           ),
           _buildDivider(context),
@@ -278,8 +279,8 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
             context,
             icon: Icons.delete_outline_rounded,
             iconColor: Colors.red,
-            title: "Silme İşlemleri",
-            subtitle: "Öğe sildiğinizde",
+            title: context.l10n.hapticDelete,
+            subtitle: context.l10n.hapticDeleteDesc,
             settingKey: HapticService.keyDelete,
           ),
           _buildDivider(context),
@@ -287,8 +288,8 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
             context,
             icon: Icons.check_circle_outline_rounded,
             iconColor: Colors.green,
-            title: "Başarı Bildirimi",
-            subtitle: "İşlem başarılı olduğunda",
+            title: context.l10n.hapticSuccessNotif,
+            subtitle: context.l10n.hapticSuccessNotifDesc,
             settingKey: HapticService.keySuccess,
           ),
           _buildDivider(context),
@@ -296,8 +297,8 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
             context,
             icon: Icons.error_outline_rounded,
             iconColor: Colors.orange,
-            title: "Hata Bildirimi",
-            subtitle: "Hata oluştuğunda",
+            title: context.l10n.hapticErrorNotif,
+            subtitle: context.l10n.hapticErrorNotifDesc,
             settingKey: HapticService.keyError,
           ),
           _buildDivider(context),
@@ -305,8 +306,8 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
             context,
             icon: Icons.celebration_outlined,
             iconColor: Colors.amber,
-            title: "Seri Kutlama",
-            subtitle: "Seri arttığında kutlama titreşimi",
+            title: context.l10n.hapticCelebration,
+            subtitle: context.l10n.hapticCelebrationDesc,
             settingKey: HapticService.keyCelebration,
           ),
         ],

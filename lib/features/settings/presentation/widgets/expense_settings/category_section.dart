@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Kategori yönetimi bölümü widget'ı
 class CategorySection extends StatelessWidget {
@@ -49,7 +50,7 @@ class CategorySection extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  "Kategori Yönetimi",
+                  context.l10n.categoryManagement,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
@@ -75,7 +76,7 @@ class CategorySection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Harcama kategorilerini özelleştirin',
+                          context.l10n.customizeExpenseCategories,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 14,
@@ -84,7 +85,7 @@ class CategorySection extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Kategorileri ekleyin, düzenleyin veya silin',
+                          context.l10n.addEditDeleteCategories,
                           style: TextStyle(
                             color: Theme.of(
                               context,

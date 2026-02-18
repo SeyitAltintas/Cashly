@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Harcamalar sayfası için AppBar widget'ı.
 /// Arama modu, çöp kutusu, sesli giriş ve arama butonlarını içerir.
@@ -37,7 +38,7 @@ class ExpensesAppBar extends StatelessWidget implements PreferredSizeWidget {
               autofocus: true,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                hintText: "Harcama ara...",
+                hintText: context.l10n.searchExpense,
                 border: InputBorder.none,
                 hintStyle: TextStyle(
                   color: Theme.of(
@@ -47,7 +48,7 @@ class ExpensesAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               onChanged: (val) => onFiltrele(),
             )
-          : const Text("Harcamalarım"),
+          : Text(context.l10n.myExpenses),
       centerTitle: false,
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -56,7 +57,7 @@ class ExpensesAppBar extends StatelessWidget implements PreferredSizeWidget {
           TextButton(
             onPressed: onBuganeGit,
             child: Text(
-              "Bugüne git",
+              context.l10n.goToToday,
               style: TextStyle(
                 color: Theme.of(
                   context,
@@ -68,12 +69,12 @@ class ExpensesAppBar extends StatelessWidget implements PreferredSizeWidget {
         if (!aramaModu) ...[
           IconButton(
             icon: const Icon(Icons.delete_outline, color: Colors.white),
-            tooltip: "Çöp Kutusu",
+            tooltip: context.l10n.recycleBinTooltip,
             onPressed: onCopKutusuAc,
           ),
           IconButton(
             icon: const Icon(Icons.mic, color: Colors.white),
-            tooltip: "Sesli Giriş",
+            tooltip: context.l10n.voiceInputTooltip,
             onPressed: onSesliGirisAc,
           ),
         ],
@@ -120,7 +121,7 @@ class IncomesAppBar extends StatelessWidget implements PreferredSizeWidget {
               autofocus: true,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                hintText: "Gelir ara...",
+                hintText: context.l10n.searchIncome,
                 hintStyle: TextStyle(
                   color: Theme.of(
                     context,
@@ -130,14 +131,14 @@ class IncomesAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               onChanged: (value) => onAramaMetniDegisti(),
             )
-          : const Text("Gelirlerim"),
+          : Text(context.l10n.myIncomes),
       backgroundColor: Colors.transparent,
       elevation: 0,
       centerTitle: false,
       actions: [
         IconButton(
           icon: const Icon(Icons.delete_outline, color: Colors.white),
-          tooltip: "Çöp Kutusu",
+          tooltip: context.l10n.recycleBinTooltip,
           onPressed: onCopKutusuAc,
         ),
         IconButton(

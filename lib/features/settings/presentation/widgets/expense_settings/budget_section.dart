@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Bütçe limiti ayarları bölümü widget'ı
 class BudgetSection extends StatelessWidget {
@@ -59,7 +60,7 @@ class BudgetSection extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  "Aylık Gelir (Bütçe Limiti)",
+                  context.l10n.monthlyIncomeBudgetLimit,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
@@ -125,7 +126,7 @@ class BudgetSection extends StatelessWidget {
                               width: 1,
                             ),
                           ),
-                          hintText: 'Tutar girin',
+                          hintText: context.l10n.enterAmount,
                           hintStyle: TextStyle(
                             color: Theme.of(
                               context,
@@ -174,8 +175,8 @@ class BudgetSection extends StatelessWidget {
                                   color: Colors.white,
                                   size: 22,
                                 )
-                              : const Text(
-                                  'Kaydet',
+                              : Text(
+                                  context.l10n.save,
                                   key: ValueKey('save'),
                                   style: TextStyle(fontWeight: FontWeight.w600),
                                 ),

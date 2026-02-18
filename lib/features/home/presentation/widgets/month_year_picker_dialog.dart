@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Ay ve yıl seçici dialog widget'ı.
 /// Kullanıcının dönem seçmesini sağlar.
@@ -56,9 +57,9 @@ class _MonthYearPickerDialogState extends State<MonthYearPickerDialog> {
           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
         ),
       ),
-      title: const Center(
+      title: Center(
         child: Text(
-          "Dönem Seç",
+          context.l10n.selectPeriod,
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
@@ -72,7 +73,7 @@ class _MonthYearPickerDialogState extends State<MonthYearPickerDialog> {
               child: Column(
                 children: [
                   Text(
-                    "Yıl",
+                    context.l10n.year,
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -117,7 +118,7 @@ class _MonthYearPickerDialogState extends State<MonthYearPickerDialog> {
               child: Column(
                 children: [
                   Text(
-                    "Ay",
+                    context.l10n.month,
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -163,7 +164,7 @@ class _MonthYearPickerDialogState extends State<MonthYearPickerDialog> {
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: Text(
-            "İptal",
+            context.l10n.cancel,
             style: TextStyle(
               color: Theme.of(
                 context,
@@ -183,7 +184,7 @@ class _MonthYearPickerDialogState extends State<MonthYearPickerDialog> {
             widget.onSecildi(geciciYil, geciciAyIndex);
             Navigator.pop(context);
           },
-          child: const Text("Tamam"),
+          child: Text(context.l10n.ok),
         ),
       ],
     );

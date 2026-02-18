@@ -6,6 +6,7 @@ import 'profile_settings_page.dart';
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:cashly/features/auth/presentation/pages/login_page.dart';
 import 'package:cashly/core/constants/color_constants.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/services/haptic_service.dart';
 
 class ProfilSayfasi extends StatelessWidget {
@@ -107,7 +108,7 @@ class ProfilSayfasi extends StatelessWidget {
                     children: [
                       // Kullanıcı Adı
                       Text(
-                        authController.currentUser?.name ?? "Kullanıcı",
+                        authController.currentUser?.name ?? context.l10n.user,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -135,7 +136,7 @@ class ProfilSayfasi extends StatelessWidget {
 
           // Hesap başlığı
           Text(
-            'Hesap',
+            context.l10n.account,
             style: TextStyle(
               color: Theme.of(context).colorScheme.secondary,
               fontSize: 13,
@@ -170,8 +171,8 @@ class ProfilSayfasi extends StatelessWidget {
                   context: context,
                   icon: Icons.person_outline,
                   iconColor: Colors.blue,
-                  title: 'Kullanıcı Bilgileri',
-                  subtitle: 'Ad, e-posta ve profil resmi',
+                  title: context.l10n.userInfo,
+                  subtitle: context.l10n.userInfoSubtitle,
                   onTap: () {
                     Navigator.push(
                       context,
@@ -189,8 +190,8 @@ class ProfilSayfasi extends StatelessWidget {
                   context: context,
                   icon: Icons.settings_outlined,
                   iconColor: Colors.grey,
-                  title: 'Ayarlar',
-                  subtitle: 'Görünüm, sesli asistan ve harcamalar',
+                  title: context.l10n.settings,
+                  subtitle: context.l10n.settingsSubtitle,
                   onTap: () async {
                     final result = await Navigator.push(
                       context,
@@ -216,7 +217,7 @@ class ProfilSayfasi extends StatelessWidget {
 
           // Destek başlığı
           Text(
-            'Destek',
+            context.l10n.support,
             style: TextStyle(
               color: Theme.of(context).colorScheme.secondary,
               fontSize: 13,
@@ -248,8 +249,8 @@ class ProfilSayfasi extends StatelessWidget {
               context: context,
               icon: Icons.info_outline,
               iconColor: Colors.cyan,
-              title: 'Hakkında & Destek',
-              subtitle: 'Versiyon, SSS ve yasal bilgiler',
+              title: context.l10n.aboutAndSupport,
+              subtitle: context.l10n.aboutAndSupportSubtitle,
               onTap: () {
                 Navigator.push(
                   context,
@@ -265,7 +266,7 @@ class ProfilSayfasi extends StatelessWidget {
 
           // Oturum başlığı
           Text(
-            'Oturum',
+            context.l10n.session,
             style: TextStyle(
               color: Theme.of(context).colorScheme.secondary,
               fontSize: 13,
@@ -297,8 +298,8 @@ class ProfilSayfasi extends StatelessWidget {
               context: context,
               icon: Icons.logout,
               iconColor: ColorConstants.kirmiziVurgu,
-              title: 'Çıkış Yap',
-              subtitle: 'Hesabından güvenli çıkış yap',
+              title: context.l10n.logout,
+              subtitle: context.l10n.logoutSubtitle,
               titleColor: ColorConstants.kirmiziVurgu,
               onTap: () async {
                 await authController.logout();

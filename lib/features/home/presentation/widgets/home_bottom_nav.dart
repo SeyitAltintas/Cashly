@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../core/services/haptic_service.dart';
 
 /// Modern floating bottom navigation bar
@@ -42,7 +43,7 @@ class HomeBottomNav extends StatelessWidget {
           children: [
             _ModernNavItem(
               icon: Icons.grid_view_rounded,
-              label: "İşlemler",
+              label: context.l10n.transactions,
               isSelected: selectedIndex == 0,
               primaryColor: primaryColor,
               onTap: () {
@@ -52,7 +53,7 @@ class HomeBottomNav extends StatelessWidget {
             ),
             _ModernNavItem(
               icon: Icons.home_rounded,
-              label: "Ana Sayfa",
+              label: context.l10n.homePage,
               isSelected: selectedIndex == 1,
               primaryColor: primaryColor,
               isCenter: true,
@@ -63,7 +64,7 @@ class HomeBottomNav extends StatelessWidget {
             ),
             _ModernNavItem(
               icon: Icons.person_outline_rounded,
-              label: "Profil",
+              label: context.l10n.profile,
               isSelected: selectedIndex == 2,
               primaryColor: primaryColor,
               onTap: () {

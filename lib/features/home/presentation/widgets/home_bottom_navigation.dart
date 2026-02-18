@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Alt navigasyon çubuğu widget'ı.
 /// Harcamalar, Gelirler, Tüm İşlemler ve Profil sayfaları arasında geçiş sağlar.
@@ -33,7 +34,7 @@ class HomeBottomNavigation extends StatelessWidget {
                 size: 28,
               ),
               onPressed: () => pageController.jumpToPage(0),
-              tooltip: "Harcamalarım",
+              tooltip: context.l10n.myExpenses,
             ),
             // Gelirlerim
             IconButton(
@@ -45,7 +46,7 @@ class HomeBottomNavigation extends StatelessWidget {
                 size: 28,
               ),
               onPressed: () => pageController.jumpToPage(1),
-              tooltip: "Gelirlerim",
+              tooltip: context.l10n.myIncomes,
             ),
             // Ortadaki FAB boşluğu
             const SizedBox(width: 48),
@@ -59,7 +60,7 @@ class HomeBottomNavigation extends StatelessWidget {
                 size: 28,
               ),
               onPressed: () => pageController.jumpToPage(2),
-              tooltip: "Tüm İşlemler",
+              tooltip: context.l10n.allTransactions,
             ),
             // Profil
             IconButton(
@@ -71,7 +72,7 @@ class HomeBottomNavigation extends StatelessWidget {
                 size: 28,
               ),
               onPressed: () => pageController.jumpToPage(3),
-              tooltip: "Profil",
+              tooltip: context.l10n.profile,
             ),
           ],
         ),

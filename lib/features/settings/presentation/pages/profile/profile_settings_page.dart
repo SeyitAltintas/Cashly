@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/utils/error_handler.dart';
 import '../../../../../core/services/biometric_service.dart';
 import '../../../../auth/data/repositories/auth_repository_impl.dart';
@@ -60,10 +61,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       _profileState.currentUser = widget.authController.currentUser;
     } catch (e) {
       if (mounted) {
-        ErrorHandler.showErrorSnackBar(
-          context,
-          "Kullanıcı bilgileri yüklenemedi",
-        );
+        ErrorHandler.showErrorSnackBar(context, context.l10n.userLoadError);
       }
     } finally {
       _profileState.isLoading = false;
@@ -104,7 +102,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         if (mounted) {
           ErrorHandler.showSuccessSnackBar(
             context,
-            "Biyometrik giriş aktifleştirildi",
+            context.l10n.biometricEnabled,
           );
         }
       });
@@ -112,7 +110,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       await widget.authController.setBiometricEnabled(_currentUser!.id, false);
       _profileState.currentUser = widget.authController.currentUser;
       if (mounted) {
-        ErrorHandler.showSuccessSnackBar(context, "Biyometrik giriş kapatıldı");
+        ErrorHandler.showSuccessSnackBar(
+          context,
+          context.l10n.biometricDisabled,
+        );
       }
     }
   }
@@ -123,7 +124,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text("Profil Ayarları"),
+          title: Text(context.l10n.profileSettingsTitle),
           backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),
@@ -138,14 +139,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     if (_currentUser == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text("Profil Ayarları"),
+          title: Text(context.l10n.profileSettingsTitle),
           backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),
         ),
-        body: const Center(
+        body: Center(
           child: Text(
-            "Kullanıcı bulunamadı",
+            context.l10n.userNotFound,
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -156,7 +157,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Profil Ayarları"),
+        title: Text(context.l10n.profileSettingsTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -179,7 +180,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               createdAt: _formatDate(_currentUser!.createdAt),
               lastLoginAt: _currentUser!.lastLoginAt != null
                   ? _formatDate(_currentUser!.lastLoginAt!)
-                  : "Bilinmiyor",
+                  : context.l10n.unknownDate,
               onNameTap: helper.showNameChangeSheet,
               onPinTap: helper.showPinChangeSheet,
             ),
@@ -191,7 +192,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               createdAt: _formatDate(_currentUser!.createdAt),
               lastLoginAt: _currentUser!.lastLoginAt != null
                   ? _formatDate(_currentUser!.lastLoginAt!)
-                  : "Bilinmiyor",
+                  : context.l10n.unknownDate,
               onBiometricToggle: _handleBiometricToggle,
             ),
 
