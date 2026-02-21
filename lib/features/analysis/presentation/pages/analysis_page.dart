@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/di/injection_container.dart';
@@ -134,7 +135,7 @@ class _AnalysisPageState extends State<AnalysisPage>
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text("Analiz ve Raporlar"),
+      title: Text(context.l10n.analysisAndReports),
       actions: [
         IconButton(
           icon: const Icon(Icons.file_download_outlined, color: Colors.white),
@@ -191,14 +192,14 @@ class _AnalysisPageState extends State<AnalysisPage>
                   fontWeight: FontWeight.normal,
                   fontSize: 13,
                 ),
-                tabs: const [
+                tabs: [
                   Tab(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.shopping_cart_outlined, size: 18),
-                        SizedBox(width: 6),
-                        Text("Harcama"),
+                        const Icon(Icons.shopping_cart_outlined, size: 18),
+                        const SizedBox(width: 6),
+                        Text(context.l10n.expenseTab),
                       ],
                     ),
                   ),
@@ -206,9 +207,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.trending_up, size: 18),
-                        SizedBox(width: 6),
-                        Text("Gelir"),
+                        const Icon(Icons.trending_up, size: 18),
+                        const SizedBox(width: 6),
+                        Text(context.l10n.incomeTab),
                       ],
                     ),
                   ),
@@ -216,9 +217,12 @@ class _AnalysisPageState extends State<AnalysisPage>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.account_balance_wallet_outlined, size: 18),
-                        SizedBox(width: 6),
-                        Text("Varlık"),
+                        const Icon(
+                          Icons.account_balance_wallet_outlined,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(context.l10n.assetTab),
                       ],
                     ),
                   ),

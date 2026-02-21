@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:flutter/services.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../../../core/utils/amount_input_formatter.dart';
@@ -805,7 +806,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           borderRadius: BorderRadius.circular(16),
           child: Center(
             child: Text(
-              isEditing ? 'Güncelle' : 'Kaydet',
+              isEditing ? context.l10n.update : context.l10n.save,
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 17,

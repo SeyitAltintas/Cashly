@@ -44,7 +44,7 @@ class VoiceCommandsPage extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      context.l10n.voiceCommandsInfo,
+                      context.l10n.voiceCommandsTip,
                       style: TextStyle(
                         color: Theme.of(
                           context,
@@ -63,16 +63,9 @@ class VoiceCommandsPage extends StatelessWidget {
             _buildCommandSection(
               context,
               icon: Icons.add_circle_outline,
-              title: 'Harcama Ekleme',
-              description:
-                  'Tutarı, kategoriyi ve opsiyonel olarak tarihi söyleyerek harcama ekleyin.',
-              examples: [
-                '100 lira market',
-                '50 TL kahve',
-                'Dün 80 lira market',
-                'Geçen pazartesi 200 TL benzin',
-                'Önceki gün 150 lira yemek',
-              ],
+              title: context.l10n.voiceCmdAddExpenseTitle,
+              description: context.l10n.voiceCmdAddExpenseDesc,
+              examples: context.l10n.voiceCmdAddExpenseExamples.split('|'),
             ),
 
             const SizedBox(height: 16),
@@ -81,14 +74,9 @@ class VoiceCommandsPage extends StatelessWidget {
             _buildCommandSection(
               context,
               icon: Icons.delete_outline,
-              title: 'Harcama Silme',
-              description: 'Son eklediğiniz harcamayı silin.',
-              examples: [
-                'Son harcamayı sil',
-                'Sonuncuyu sil',
-                'Son eklediğimi sil',
-                'Son kaydı sil',
-              ],
+              title: context.l10n.voiceCmdDeleteExpenseTitle,
+              description: context.l10n.voiceCmdDeleteExpenseDesc,
+              examples: context.l10n.voiceCmdDeleteExpenseExamples.split('|'),
             ),
 
             const SizedBox(height: 16),
@@ -97,14 +85,9 @@ class VoiceCommandsPage extends StatelessWidget {
             _buildCommandSection(
               context,
               icon: Icons.edit,
-              title: 'Harcama Düzenleme',
-              description: 'Son harcamanızın tutarını değiştirin.',
-              examples: [
-                'Son harcamayı 100 lira yap',
-                'Sonuncuyu 50 TL yap',
-                'Son harcamayı 200 lira güncelle',
-                'Son kaydı 75 lira değiştir',
-              ],
+              title: context.l10n.voiceCmdEditExpenseTitle,
+              description: context.l10n.voiceCmdEditExpenseDesc,
+              examples: context.l10n.voiceCmdEditExpenseExamples.split('|'),
             ),
 
             const SizedBox(height: 16),
@@ -113,17 +96,9 @@ class VoiceCommandsPage extends StatelessWidget {
             _buildCommandSection(
               context,
               icon: Icons.account_balance_wallet,
-              title: 'Toplam Harcama Sorgulama',
-              description:
-                  'Aylık, haftalık veya günlük toplam harcamanızı öğrenin.',
-              examples: [
-                'Bu ay ne kadar harcadım?',
-                'Bu hafta ne kadar harcadım?',
-                'Bugün ne kadar harcadım?',
-                'Toplam harcamam ne kadar?',
-                'Haftalık harcamam',
-                'Bugünkü harcamam',
-              ],
+              title: context.l10n.voiceCmdTotalQueryTitle,
+              description: context.l10n.voiceCmdTotalQueryDesc,
+              examples: context.l10n.voiceCmdTotalQueryExamples.split('|'),
             ),
 
             const SizedBox(height: 16),
@@ -132,13 +107,11 @@ class VoiceCommandsPage extends StatelessWidget {
             _buildCommandSection(
               context,
               icon: Icons.pie_chart,
-              title: 'Kategori Analizi',
-              description: 'En çok harcama yaptığınız kategoriyi öğrenin.',
-              examples: [
-                'En çok hangi kategoride harcamışım?',
-                'En çok nereye harcadım?',
-                'En fazla harcama nerede?',
-              ],
+              title: context.l10n.voiceCmdCategoryAnalysisTitle,
+              description: context.l10n.voiceCmdCategoryAnalysisDesc,
+              examples: context.l10n.voiceCmdCategoryAnalysisExamples.split(
+                '|',
+              ),
             ),
 
             const SizedBox(height: 16),
@@ -147,15 +120,9 @@ class VoiceCommandsPage extends StatelessWidget {
             _buildCommandSection(
               context,
               icon: Icons.category,
-              title: 'Kategoriye Göre Harcama',
-              description:
-                  'Belirli bir kategorideki toplam harcamanızı öğrenin.',
-              examples: [
-                'Markete ne kadar harcadım?',
-                'Yemek kategorisinde ne kadar?',
-                'Ulaşıma ne kadar harcamışım?',
-                'Spor kategorisinde kaç lira?',
-              ],
+              title: context.l10n.voiceCmdCategoryQueryTitle,
+              description: context.l10n.voiceCmdCategoryQueryDesc,
+              examples: context.l10n.voiceCmdCategoryQueryExamples.split('|'),
             ),
 
             const SizedBox(height: 16),
@@ -164,14 +131,9 @@ class VoiceCommandsPage extends StatelessWidget {
             _buildCommandSection(
               context,
               icon: Icons.list_alt,
-              title: 'Son Harcamaları Listeleme',
-              description: 'Son yaptığınız harcamaları listeleyin.',
-              examples: [
-                'Son harcamalarım neler?',
-                'Son harcamalarımı söyle',
-                'Son 5 harcamam',
-                'Son harcamalarımı listele',
-              ],
+              title: context.l10n.voiceCmdLastExpensesTitle,
+              description: context.l10n.voiceCmdLastExpensesDesc,
+              examples: context.l10n.voiceCmdLastExpensesExamples.split('|'),
             ),
 
             const SizedBox(height: 16),
@@ -180,14 +142,9 @@ class VoiceCommandsPage extends StatelessWidget {
             _buildCommandSection(
               context,
               icon: Icons.warning_amber,
-              title: 'Bütçe Durumu',
-              description: 'Bütçenizin durumunu kontrol edin.',
-              examples: [
-                'Bütçemi aştım mı?',
-                'Limit durumum ne?',
-                'Limiti geçtim mi?',
-                'Bütçe durumu',
-              ],
+              title: context.l10n.voiceCmdBudgetStatusTitle,
+              description: context.l10n.voiceCmdBudgetStatusDesc,
+              examples: context.l10n.voiceCmdBudgetStatusExamples.split('|'),
             ),
 
             const SizedBox(height: 16),
@@ -196,14 +153,9 @@ class VoiceCommandsPage extends StatelessWidget {
             _buildCommandSection(
               context,
               icon: Icons.account_balance_wallet,
-              title: 'Kalan Bütçe Sorgulama',
-              description: 'Bütçenizden ne kadar kaldığını öğrenin.',
-              examples: [
-                'Kalan bütçem ne kadar?',
-                'Ne kadar harcayabilirim?',
-                'Kalan limitim',
-                'Bütçemden ne kadar kaldı?',
-              ],
+              title: context.l10n.voiceCmdRemainingBudgetTitle,
+              description: context.l10n.voiceCmdRemainingBudgetDesc,
+              examples: context.l10n.voiceCmdRemainingBudgetExamples.split('|'),
             ),
 
             const SizedBox(height: 16),
@@ -212,14 +164,9 @@ class VoiceCommandsPage extends StatelessWidget {
             _buildCommandSection(
               context,
               icon: Icons.edit_note,
-              title: 'Bütçe Limiti Belirleme',
-              description: 'Sesli olarak aylık bütçenizi güncelleyin.',
-              examples: [
-                'Aylık limitimi 10000 lira yap',
-                'Bütçemi 5000 lira olarak ayarla',
-                'Limitimi 8000 lira güncelle',
-                'Aylık bütçe 15000 lira olsun',
-              ],
+              title: context.l10n.voiceCmdSetLimitTitle,
+              description: context.l10n.voiceCmdSetLimitDesc,
+              examples: context.l10n.voiceCmdSetLimitExamples.split('|'),
             ),
 
             const SizedBox(height: 16),
@@ -228,14 +175,9 @@ class VoiceCommandsPage extends StatelessWidget {
             _buildCommandSection(
               context,
               icon: Icons.savings,
-              title: 'Tasarruf Hesaplama',
-              description: 'Bu ay ne kadar tasarruf ettiğinizi öğrenin.',
-              examples: [
-                'Bu ay ne kadar tasarruf ettim?',
-                'Tasarrufum ne kadar?',
-                'Ne kadar biriktirdim?',
-                'Artıda mıyım?',
-              ],
+              title: context.l10n.voiceCmdSavingsTitle,
+              description: context.l10n.voiceCmdSavingsDesc,
+              examples: context.l10n.voiceCmdSavingsExamples.split('|'),
             ),
 
             const SizedBox(height: 16),
@@ -244,15 +186,9 @@ class VoiceCommandsPage extends StatelessWidget {
             _buildCommandSection(
               context,
               icon: Icons.repeat,
-              title: 'Sabit Giderleri Ekle',
-              description:
-                  'Ayarlardan tanımladığınız sabit giderleri bu aya ekleyin.',
-              examples: [
-                'Sabit giderleri ekle',
-                'Sabit giderleri bu aya ekle',
-                'Faturaları ekle',
-                'Düzenli giderleri ekle',
-              ],
+              title: context.l10n.voiceCmdAddFixedTitle,
+              description: context.l10n.voiceCmdAddFixedDesc,
+              examples: context.l10n.voiceCmdAddFixedExamples.split('|'),
             ),
 
             const SizedBox(height: 32),

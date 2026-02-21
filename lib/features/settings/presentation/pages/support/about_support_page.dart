@@ -193,7 +193,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
           onTap: () => _showLegalSheet(
             context,
             title: context.l10n.privacyPolicy,
-            content: _privacyPolicyText,
+            content: context.l10n.privacyPolicyContent,
           ),
         ),
         _buildDivider(theme),
@@ -206,7 +206,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
           onTap: () => _showLegalSheet(
             context,
             title: context.l10n.termsOfService,
-            content: _termsOfServiceText,
+            content: context.l10n.termsOfServiceContent,
           ),
         ),
         _buildDivider(theme),
@@ -345,10 +345,10 @@ class _AboutSupportPageState extends State<AboutSupportPage>
         ],
       ),
       child: Column(
-        children: List.generate(_faqItems.length, (index) {
-          final faq = _faqItems[index];
+        children: List.generate(_getFaqItems(context).length, (index) {
+          final faq = _getFaqItems(context)[index];
           final isExpanded = _expandedFaq[index] ?? false;
-          final isLast = index == _faqItems.length - 1;
+          final isLast = index == _getFaqItems(context).length - 1;
 
           return Column(
             children: [
@@ -680,349 +680,40 @@ class _AboutSupportPageState extends State<AboutSupportPage>
   // SABİT METİNLER
   // ============================================================================
 
-  static const String _privacyPolicyText = '''
-1. Giriş
-
-Bu Gizlilik Politikası, Cashly uygulamasının ("Uygulama") kullanıcılarının kişisel verilerinin nasıl toplandığını, saklandığını ve korunduğunu açıklamaktadır. Uygulamayı kullanarak bu politikayı kabul etmiş sayılırsınız.
-
-Son güncelleme: 17 Şubat 2026
-
-2. Veri Toplama ve Kullanım
-
-Cashly, tüm verilerinizi yalnızca cihazınızda (yerel olarak) saklar. Sunucularımıza herhangi bir kişisel veri gönderilmez, aktarılmaz veya iletilmez.
-
-Toplanan ve cihazda saklanan veriler:
-• Kullanıcı bilgileri (isim ve e-posta adresi)
-• Harcama ve gelir kayıtları (tutar, kategori, tarih, açıklama)
-• Varlık bilgileri (tür, miktar, değer)
-• Ödeme yöntemleri ve bakiye bilgileri
-• Transfer kayıtları
-• Bütçe limitleri ve kategori bütçeleri
-• Profil fotoğrafı (isteğe bağlı)
-• Uygulama tercihleri ve ayarları
-• Seri (streak) kayıtları
-
-Bu veriler yalnızca uygulamanın temel işlevlerini sağlamak amacıyla kullanılır.
-
-3. Veri Güvenliği
-
-Verilerinizin güvenliği bizim için en önemli önceliktir:
-
-• Tüm veriler cihazınızda yerel veritabanında saklanır.
-• 4 haneli PIN kodu ile uygulamaya erişim korunur.
-• Biyometrik doğrulama (parmak izi / yüz tanıma) desteği mevcuttur.
-• Güvenlik sorusu ile ek koruma katmanı sağlanır.
-• Uygulama arka plana alındığında otomatik kilit devreye girer.
-• Uygulama dışarıya herhangi bir ağ bağlantısı kurmaz.
-
-4. Üçüncü Taraf Paylaşımı
-
-Cashly, topladığı hiçbir veriyi üçüncü taraflarla paylaşmaz, satmaz veya kiralamaz. Verileriniz tamamen size aittir. Uygulama içinde üçüncü taraf analitik veya reklam araçları kullanılmamaktadır.
-
-5. Veri Yedekleme ve Aktarım
-
-• Yedekleme işlemi tamamen kullanıcı kontrolündedir ve isteğe bağlıdır.
-• Yedek dosyaları JSON formatında cihazınıza dışa aktarılır.
-• Yedek dosyasının güvenliği ve saklanması kullanıcının sorumluluğundadır.
-• Yedek dosyası; harcamalar, gelirler, varlıklar, ödeme yöntemleri, transferler ve profil bilgilerini içerir.
-• Geri yükleme işlemi mevcut verilerin üzerine yazar.
-
-6. Veri Saklama Süresi
-
-Verileriniz, hesabınızı silene kadar cihazınızda saklanır. Uygulamayı kaldırmanız durumunda tüm veriler otomatik olarak silinir.
-
-7. Veri Silme Hakkı
-
-Hesabınızı ve tüm verilerinizi istediğiniz zaman kalıcı olarak silebilirsiniz:
-• Profil > Kullanıcı Bilgileri > Hesabı Sil seçeneğini kullanın.
-• Silme işlemi güvenlik doğrulaması gerektirir.
-• Silinen veriler geri getirilemez.
-• Silme öncesi yedek almanız önerilir.
-
-8. Çocukların Gizliliği
-
-Cashly, 13 yaşın altındaki çocuklara yönelik değildir. 13 yaşın altındaki kullanıcılardan bilerek veri toplamıyoruz.
-
-9. Politika Değişiklikleri
-
-Bu gizlilik politikası zaman zaman güncellenebilir. Önemli değişiklikler uygulama içinden bildirilecektir.
-
-10. İletişim
-
-Gizlilik politikamız hakkında sorularınız veya talepleriniz için uygulama içinden bizimle iletişime geçebilirsiniz.''';
-
-  static const String _termsOfServiceText = '''
-1. Kabul ve Kapsam
-
-Cashly uygulamasını ("Uygulama") indirerek, kurarak veya kullanarak bu Kullanım Koşullarını kabul etmiş olursunuz. Bu koşulları kabul etmiyorsanız, lütfen uygulamayı kullanmayınız.
-
-Son güncelleme: 17 Şubat 2026
-
-2. Hizmet Tanımı
-
-Cashly, kişisel bütçe takibi ve finansal yönetim aracıdır. Uygulama aşağıdaki hizmetleri sunar:
-
-• Harcama ve gelir takibi (manuel ve sesli giriş)
-• Varlık yönetimi (altın, döviz, kripto, banka hesabı)
-• Bütçe planlama ve kategori bazlı limit belirleme
-• Ödeme yöntemi yönetimi ve bakiye takibi
-• Hesaplar arası transfer kayıtları
-• Düzenli gelir/gider tanımlama
-• Sesli asistan ile doğal dil komutları
-• Veri yedekleme ve geri yükleme
-• İstatistik ve grafik raporları
-
-3. Hesap ve Güvenlik
-
-• Hesabınızı oluştururken doğru bilgiler girmeniz gerekmektedir.
-• PIN kodunuz hesabınızın güvenlik anahtarıdır; kimseyle paylaşmayınız.
-• Biyometrik giriş ve güvenlik sorusu ek koruma katmanlarıdır.
-• Hesabınıza yetkisiz erişimden siz sorumlusunuz.
-• Şüpheli bir durum fark ederseniz PIN kodunuzu değiştirmeniz önerilir.
-
-4. Kullanıcı Sorumlulukları
-
-• Girdiğiniz finansal veriler tamamen size aittir ve doğruluğundan siz sorumlusunuz.
-• Uygulamayı yasa dışı amaçlarla kullanamazsınız.
-• Düzenli veri yedeklemesi yapmanız önerilir.
-• Yedek dosyalarınızın güvenliğinden siz sorumlusunuz.
-• Uygulamayı tersine mühendislik, kaynak kod çıkarma veya değiştirme girişiminde bulunamazsınız.
-
-5. Sorumluluk Reddi
-
-ÖNEMLİ - Lütfen dikkatlice okuyunuz:
-
-• Cashly bir finansal danışmanlık, yatırım tavsiyesi veya muhasebe aracı değildir.
-• Uygulama, herhangi bir yatırım, tasarruf veya harcama tavsiyesi vermez.
-• Finansal kararlarınızdan Cashly sorumlu tutulamaz.
-• Uygulama "olduğu gibi" sunulmaktadır; kesintisiz veya hatasız çalışacağı garanti edilmez.
-• Cihaz arızası, yazılım hatası veya kullanıcı kaynaklı veri kaybından dolayı sorumluluk kabul edilmez.
-• Güncel döviz kurları ve varlık fiyatları bilgi amaçlıdır; gerçek piyasa değerlerinden farklılık gösterebilir.
-
-6. Veri ve İçerik
-
-• Uygulamaya girdiğiniz tüm veriler cihazınızda saklanır.
-• Verilerin doğruluğu, bütünlüğü ve güncelliğinden siz sorumlusunuz.
-• Hesap silme işlemi geri alınamaz; tüm verileriniz kalıcı olarak kaldırılır.
-
-7. Fikri Mülkiyet
-
-• Cashly uygulaması, tasarımı, logoları ve tüm içeriği telif hakkı ile korunmaktadır.
-• Uygulama kodunun, görsellerinin ve tasarımının izinsiz kopyalanması, dağıtılması veya türev çalışma oluşturulması yasaktır.
-• "Cashly" ismi ve logosu tescilli markadır.
-
-8. Hizmet Değişiklikleri
-
-• Uygulama özellikleri önceden haber verilmeksizin eklenebilir, değiştirilebilir veya kaldırılabilir.
-• Güncellemeler, hata düzeltmeleri ve iyileştirmeler düzenli olarak yapılabilir.
-
-9. Koşul Değişiklikleri
-
-Bu kullanım koşulları zaman zaman güncellenebilir. Önemli değişiklikler uygulama içinden bildirilecektir. Güncellemelerden sonra uygulamayı kullanmaya devam etmeniz, yeni koşulları kabul ettiğiniz anlamına gelir.
-
-10. Geçerli Hukuk
-
-Bu koşullar Türkiye Cumhuriyeti yasalarına tabidir. Uyuşmazlıklarda Türkiye mahkemeleri yetkilidir.
-
-11. İletişim
-
-Kullanım koşullarımız hakkında sorularınız için uygulama içinden bizimle iletişime geçebilirsiniz.''';
-
-  // SSS Öğeleri
-  static const List<Map<String, String>> _faqItems = [
-    {
-      'q': 'Verilerim güvende mi?',
-      'a':
-          'Kesinlikle! Cashly, gizliliğinizi en üst düzeyde korur:\n\n'
-          '• Tüm verileriniz yalnızca cihazınızda saklanır, hiçbir sunucuya gönderilmez.\n'
-          '• 4 haneli PIN kodu ile uygulamaya erişim korunur.\n'
-          '• Biyometrik giriş (parmak izi / yüz tanıma) desteği mevcuttur.\n'
-          '• Güvenlik sorusu ile ek koruma katmanı ekleyebilirsiniz.\n\n'
-          'Verileriniz tamamen size aittir ve hiçbir üçüncü tarafla paylaşılmaz.',
-    },
-    {
-      'q': 'İnternet bağlantısı gerekli mi?',
-      'a':
-          'Hayır! Cashly tamamen çevrimdışı çalışacak şekilde tasarlanmıştır.\n\n'
-          '• Harcama ve gelir ekleme, düzenleme, silme\n'
-          '• Varlık yönetimi ve takibi\n'
-          '• Bütçe planlama ve kategori yönetimi\n'
-          '• Sesli asistan ile komut verme\n'
-          '• Veri yedekleme ve geri yükleme\n\n'
-          'Tüm bu özellikler internet olmadan sorunsuz çalışır. '
-          'Yalnızca güncel döviz/altın kurları için internet bağlantısı gerekebilir.',
-    },
-    {
-      'q': 'Verilerimi nasıl yedekleyebilirim?',
-      'a':
-          'Verilerinizi güvence altına almak için düzenli yedekleme yapmanızı öneririz:\n\n'
-          '1. Profil > Ayarlar > Veri İşlemleri bölümüne gidin.\n'
-          '2. "Verileri Yedekle" seçeneğine dokunun.\n'
-          '3. Tüm verileriniz JSON formatında bir dosyaya aktarılır.\n'
-          '4. Dosyayı Google Drive, e-posta veya istediğiniz bir yere kaydedin.\n\n'
-          'Yedek dosyası; harcamalarınızı, gelirlerinizi, varlıklarınızı, '
-          'ödeme yöntemlerinizi, transferlerinizi ve profil bilgilerinizi içerir.',
-    },
-    {
-      'q': 'Yedeğimi nasıl geri yüklerim?',
-      'a':
-          'Daha önce aldığınız yedeği geri yüklemek için:\n\n'
-          '1. Profil > Ayarlar > Veri İşlemleri bölümüne gidin.\n'
-          '2. "Verileri Geri Yükle" seçeneğine dokunun.\n'
-          '3. Daha önce kaydettiğiniz JSON yedek dosyasını seçin.\n'
-          '4. İşlem tamamlandığında uygulama otomatik olarak yenilenir.\n\n'
-          'Dikkat: Geri yükleme işlemi mevcut verilerinizi yedekteki verilerle değiştirir. '
-          'Mevcut verilerinizi kaybetmemek için önce yeni bir yedek almanızı öneririz.',
-    },
-    {
-      'q': 'Sesli asistan nasıl çalışır?',
-      'a':
-          'Cashly\'nin sesli asistanı, doğal dil ile harcama ve gelir eklemenizi sağlar:\n\n'
-          '• Ana ekrandaki mikrofon ikonuna dokunun.\n'
-          '• Doğal bir şekilde komut verin, örneğin:\n'
-          '  - "50 lira market harcaması ekle"\n'
-          '  - "1500 lira maaş geliri ekle"\n'
-          '  - "200 lira yemek harcaması ekle nakit ile"\n\n'
-          'Asistan, tutarı, kategoriyi ve ödeme yöntemini otomatik olarak algılar. '
-          'Sesli geri bildirim ile işlemin başarılı olduğunu onaylar. '
-          'Komut listesinin tamamını Ayarlar > Sesli Asistan bölümünden görebilirsiniz.',
-    },
-    {
-      'q': 'Bütçe limitimi nasıl belirlerim?',
-      'a':
-          'Aylık harcama bütçenizi kontrol altında tutmak için:\n\n'
-          '1. Profil > Ayarlar > Harcamalar bölümüne gidin.\n'
-          '2. "Aylık Bütçe Limiti" alanına toplam aylık bütçenizi girin.\n'
-          '3. Kaydet butonuna dokunun.\n\n'
-          'Bütçe limitinizi belirledikten sonra:\n'
-          '• Ana ekranda bütçe doluluk oranınızı görebilirsiniz.\n'
-          '• Limiti aşmaya yaklaştığınızda görsel uyarı alırsınız.\n'
-          '• Renk kodları ile durumunuzu anlık takip edebilirsiniz '
-          '(yeşil: güvenli, sarı: dikkat, kırmızı: limit aşıldı).',
-    },
-    {
-      'q': 'Kategori bazında bütçe limiti nedir?',
-      'a':
-          'Genel bütçe limitinin yanı sıra her kategori için ayrı limit belirleyebilirsiniz:\n\n'
-          '1. Profil > Ayarlar > Harcamalar > Kategori Bütçeleri bölümüne gidin.\n'
-          '2. İstediğiniz kategoriye dokunun (örn. Yemek & Kafe).\n'
-          '3. O kategori için aylık limit belirleyin.\n\n'
-          'Örnek kullanım:\n'
-          '• Yemek & Kafe: 2.000₺\n'
-          '• Ulaşım: 500₺\n'
-          '• Eğlence: 1.000₺\n\n'
-          'Bu sayede harcamalarınızı kategori bazında detaylı kontrol edebilir '
-          've hangi alanda tasarruf yapabileceğinizi görebilirsiniz.',
-    },
-    {
-      'q': 'Düzenli gelir/gider nedir?',
-      'a':
-          'Her ay düzenli olarak tekrarlayan gelir veya giderlerinizi tanımlayabilirsiniz:\n\n'
-          'Düzenli gelir örnekleri: Maaş, kira geliri, yan gelir\n'
-          'Düzenli gider örnekleri: Kira, internet, telefon faturası, abonelikler\n\n'
-          'Nasıl eklenir:\n'
-          '1. Ayarlar > Harcamalar veya Gelirler bölümüne gidin.\n'
-          '2. "Düzenli İşlemler" seçeneğine dokunun.\n'
-          '3. Tutar, kategori ve tekrar sıklığını belirleyin.\n\n'
-          'Düzenli işlemler her ay otomatik olarak kaydedilir, '
-          'böylece her seferinde manuel ekleme yapmanıza gerek kalmaz.',
-    },
-    {
-      'q': 'Varlık takibi nasıl yapılır?',
-      'a':
-          'Cashly ile finansal varlıklarınızı tek bir yerden takip edebilirsiniz:\n\n'
-          'Desteklenen varlık türleri:\n'
-          '• Altın (gram, çeyrek, yarım, tam)\n'
-          '• Döviz (USD, EUR vb.)\n'
-          '• Kripto para\n'
-          '• Banka hesapları\n'
-          '• Gümüş\n\n'
-          'Varlıklarınızı ekleyin, miktarını ve alış fiyatını girin. '
-          'Toplam portföy değerinizi, kazanç/kayıp durumunuzu '
-          've varlık dağılımınızı grafiklerle takip edin.',
-    },
-    {
-      'q': 'Ödeme yöntemlerimi nasıl yönetirim?',
-      'a':
-          'Farklı ödeme yöntemlerinizi tanımlayarak harcamalarınızı detaylı takip edin:\n\n'
-          '• Nakit\n'
-          '• Banka/kredi kartları\n'
-          '• Dijital cüzdanlar\n\n'
-          'Her ödeme yöntemine bakiye tanımlayabilir ve harcama yaptıkça '
-          'bakiyenin otomatik güncellenmesini sağlayabilirsiniz. '
-          'Bu sayede hangi karttan ne kadar harcadığınızı veya '
-          'kasanızda ne kadar nakit kaldığını anlık görebilirsiniz.',
-    },
-    {
-      'q': 'Hesaplar arası transfer nasıl yapılır?',
-      'a':
-          'Ödeme yöntemleriniz arasında para transferi kaydedebilirsiniz:\n\n'
-          'Örnek senaryolar:\n'
-          '• Bankadan nakit çekme\n'
-          '• Kredi kartı borcunu ödeme\n'
-          '• Bir hesaptan diğerine aktarım\n\n'
-          'Transfer işlemi, kaynak hesaptan tutarı düşer ve hedef hesaba ekler. '
-          'Böylece tüm hesaplarınızın bakiyesi her zaman güncel kalır. '
-          'Transfer geçmişinizi Ayarlar > Para Transferleri bölümünden görüntüleyebilirsiniz.',
-    },
-    {
-      'q': 'Bildirimler ne işe yarar?',
-      'a':
-          'Cashly, finansal hedeflerinizi takip etmeniz için çeşitli bildirimler sunar:\n\n'
-          '• Günlük hatırlatıcı: Harcamalarınızı girmeyi unutmayın.\n'
-          '• Bütçe uyarısı: Aylık limitinize yaklaştığınızda uyarı alın.\n'
-          '• Düzenli işlem bildirimi: Tekrarlayan gelir/giderler kaydedildiğinde bilgilenin.\n\n'
-          'Tüm bildirim ayarlarını Profil > Ayarlar > Bildirimler bölümünden '
-          'istediğiniz gibi açıp kapatabilir ve saatlerini özelleştirebilirsiniz.',
-    },
-    {
-      'q': 'Seri sistemi nedir?',
-      'a':
-          'Seri sistemi, düzenli kullanım alışkanlığı oluşturmanıza yardımcı olan '
-          'bir motivasyon aracıdır:\n\n'
-          '• Her gün uygulamayı kullanarak serinizi sürdürün.\n'
-          '• Ardışık gün sayınız arttıkça seri seviyeniz yükselir.\n'
-          '• Belirli seviyelere ulaştığınızda kutlama animasyonu görürsünüz.\n'
-          '• Bir gün kaçırırsanız seriniz sıfırlanır.\n\n'
-          'Seri sistemi, harcamalarınızı düzenli takip etme alışkanlığı kazanmanıza '
-          'yardımcı olur. En yüksek serinizi kırmaya çalışın!',
-    },
-    {
-      'q': 'Profil fotoğrafımı nasıl değiştiririm?',
-      'a':
-          'Profil fotoğrafınızı değiştirmek için:\n\n'
-          '1. Profil > Kullanıcı Bilgileri sayfasına gidin.\n'
-          '2. Profil fotoğrafınızın üzerindeki düzenleme ikonuna dokunun.\n'
-          '3. Galeriden fotoğraf seçin veya hazır avatarlardan birini kullanın.\n'
-          '4. Seçtiğiniz fotoğrafı kırpın, döndürün ve filtre uygulayın.\n\n'
-          'Fotoğraf düzenleyici ile fotoğrafınızı tam istediğiniz gibi ayarlayabilirsiniz.',
-    },
-    {
-      'q': 'PIN kodumu unutursam ne yapmalıyım?',
-      'a':
-          'PIN kodunuzu unuttuysanız, giriş ekranında güvenlik sorunuzu '
-          'kullanarak sıfırlama yapabilirsiniz. Bunun için önceden '
-          'bir güvenlik sorusu ve cevabı belirlemiş olmanız gerekir.\n\n'
-          'Güvenlik sorunuzu ayarlamak için:\n'
-          'Profil > Kullanıcı Bilgileri > Güvenlik bölümünü kullanabilirsiniz.\n\n'
-          'Güvenlik sorusu belirlememişseniz ve PIN\'inizi unuttuysanız, '
-          'uygulamayı yeniden kurmanız gerekebilir. Bu durumda yedeğiniz varsa '
-          'verilerinizi geri yükleyebilirsiniz.',
-    },
-    {
-      'q': 'Hesabımı silersem ne olur?',
-      'a':
-          'Hesap silme işlemi kalıcıdır ve geri alınamaz. Silinen veriler:\n\n'
-          '• Tüm harcama kayıtları\n'
-          '• Tüm gelir kayıtları\n'
-          '• Varlıklarınız\n'
-          '• Ödeme yöntemleri ve bakiyeleri\n'
-          '• Transfer geçmişi\n'
-          '• Seri kayıtları\n'
-          '• Profil bilgileri ve fotoğrafınız\n\n'
-          'Silmeden önce mutlaka verilerinizi yedeklemenizi öneririz. '
-          'Hesap silme işlemi güvenlik doğrulaması (matematik sorusu) '
-          'gerektirir ve iki aşamalı onay ile gerçekleştirilir.',
-    },
-  ];
+  // SSS Öğeleri - Localized getter
+  List<Map<String, String>> _getFaqItems(BuildContext context) {
+    return [
+      {'q': context.l10n.faqSafetyQ, 'a': context.l10n.faqSafetyA},
+      {'q': context.l10n.faqOfflineQ, 'a': context.l10n.faqOfflineA},
+      {'q': context.l10n.faqBackupQ, 'a': context.l10n.faqBackupA},
+      {'q': context.l10n.faqRestoreQ, 'a': context.l10n.faqRestoreA},
+      {'q': context.l10n.faqVoiceAssisQ, 'a': context.l10n.faqVoiceAssisA},
+      {'q': context.l10n.faqBudgetLimitQ, 'a': context.l10n.faqBudgetLimitA},
+      {
+        'q': context.l10n.faqCategoryBudgetQ,
+        'a': context.l10n.faqCategoryBudgetA,
+      },
+      {'q': context.l10n.faqRecurringQ, 'a': context.l10n.faqRecurringA},
+      {
+        'q': context.l10n.faqAssetTrackingQ,
+        'a': context.l10n.faqAssetTrackingA,
+      },
+      {
+        'q': context.l10n.faqPaymentMethodsQ,
+        'a': context.l10n.faqPaymentMethodsA,
+      },
+      {'q': context.l10n.faqTransferQ, 'a': context.l10n.faqTransferA},
+      {
+        'q': context.l10n.faqNotificationsQ,
+        'a': context.l10n.faqNotificationsA,
+      },
+      {'q': context.l10n.faqStreakQ, 'a': context.l10n.faqStreakA},
+      {'q': context.l10n.faqProfilePhotoQ, 'a': context.l10n.faqProfilePhotoA},
+      {'q': context.l10n.faqForgotPinQ, 'a': context.l10n.faqForgotPinA},
+      {
+        'q': context.l10n.faqDeleteAccountQ,
+        'a': context.l10n.faqDeleteAccountA,
+      },
+    ];
+  }
 }

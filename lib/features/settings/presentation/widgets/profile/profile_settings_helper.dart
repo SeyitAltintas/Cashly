@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../auth/domain/entities/user_entity.dart';
 import '../../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../../auth/data/repositories/auth_repository_impl.dart';
@@ -648,7 +649,7 @@ class ProfileSettingsHelper {
                       backgroundColor: Colors.red.shade800,
                       foregroundColor: Colors.white,
                     ),
-                    child: const Text("Evet, Sil"),
+                    child: Text(context.l10n.yesDelete),
                   ),
                 ],
               ),

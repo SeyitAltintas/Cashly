@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../data/models/asset_model.dart';
@@ -27,7 +28,7 @@ class AssetDetailPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Varlık Detayı'),
+        title: Text(context.l10n.assetDetail),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -386,7 +387,7 @@ class AssetDetailPage extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.edit),
-            label: const Text('Düzenle'),
+            label: Text(context.l10n.edit),
           ),
         ),
         const SizedBox(width: 12),
@@ -406,7 +407,7 @@ class AssetDetailPage extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.delete_outline),
-            label: const Text('Sil'),
+            label: Text(context.l10n.delete),
           ),
         ),
       ],
@@ -418,7 +419,7 @@ class AssetDetailPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Varlığı Sil'),
+        title: Text(context.l10n.deleteAsset),
         content: Text(
           '"${asset.name}" varlığını silmek istediğinize emin misiniz?',
         ),
@@ -426,7 +427,7 @@ class AssetDetailPage extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             style: TextButton.styleFrom(foregroundColor: Colors.white),
-            child: const Text('İptal'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -435,7 +436,7 @@ class AssetDetailPage extends StatelessWidget {
               Navigator.pop(context); // Detay sayfasını kapat
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Sil'),
+            child: Text(context.l10n.delete),
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/di/injection_container.dart';
+import '../../../../../core/extensions/l10n_extensions.dart';
 import '../../../../../core/utils/error_handler.dart';
 import '../../../../../core/exceptions/app_exceptions.dart';
 import '../../../../expenses/domain/repositories/expense_repository.dart';
@@ -70,10 +71,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
       if (e is AppException) {
         ErrorHandler.handleAppException(context, e);
       } else {
-        ErrorHandler.showErrorSnackBar(
-          context,
-          'Kaydetme sırasında bir hata oluştu',
-        );
+        ErrorHandler.showErrorSnackBar(context, context.l10n.errorWhileSaving);
       }
     }
   }
@@ -134,7 +132,9 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    islem == null ? 'Yeni Tekrarlayan Gider' : 'İşlemi Düzenle',
+                    islem == null
+                        ? context.l10n.newRecurringExpense
+                        : context.l10n.editTransaction,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 20,
@@ -150,7 +150,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                     decoration: InputDecoration(
-                      labelText: 'İşlem Adı',
+                      labelText: context.l10n.transactionName,
                       labelStyle: TextStyle(
                         color: Theme.of(
                           context,
@@ -181,7 +181,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'İşlem adı gerekli';
+                        return context.l10n.transactionNameRequired;
                       }
                       return null;
                     },
@@ -198,7 +198,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                     decoration: InputDecoration(
-                      labelText: 'Tutar (₺)',
+                      labelText: context.l10n.amountWithCurrency,
                       labelStyle: TextStyle(
                         color: Theme.of(
                           context,
@@ -229,11 +229,11 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Tutar gerekli';
+                        return context.l10n.amountRequired;
                       }
                       final tutar = double.tryParse(value.replaceAll(',', '.'));
                       if (tutar == null || tutar <= 0) {
-                        return 'Geçerli bir tutar girin';
+                        return context.l10n.enterValidAmount;
                       }
                       return null;
                     },
@@ -245,7 +245,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Her ayın:',
+                          context.l10n.everyMonthOn,
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -275,7 +275,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                                   (gun) => DropdownMenuItem(
                                     value: gun,
                                     child: Text(
-                                      '$gun. günü',
+                                      context.l10n.dayOfMonth(gun),
                                       style: TextStyle(
                                         color: Theme.of(
                                           context,
@@ -304,7 +304,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                     initialValue: secilenOdemeYontemiId,
                     dropdownColor: Theme.of(context).colorScheme.surface,
                     decoration: InputDecoration(
-                      labelText: 'Ödeme Yöntemi',
+                      labelText: context.l10n.paymentMethod,
                       labelStyle: TextStyle(
                         color: Theme.of(
                           context,
@@ -355,7 +355,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                     },
                     validator: (value) {
                       if (value == null) {
-                        return 'Ödeme yöntemi seçin';
+                        return context.l10n.selectPaymentMethod;
                       }
                       return null;
                     },
@@ -403,8 +403,8 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                             SnackBar(
                               content: Text(
                                 index != null
-                                    ? 'İşlem güncellendi'
-                                    : 'İşlem eklendi',
+                                    ? context.l10n.transactionUpdated
+                                    : context.l10n.transactionAdded,
                               ),
                               backgroundColor: Colors.green.shade700,
                               behavior: SnackBarBehavior.floating,
@@ -417,7 +417,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                         }
                       },
                       child: Text(
-                        islem == null ? 'Ekle' : 'Güncelle',
+                        islem == null ? context.l10n.add : context.l10n.update,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -436,12 +436,12 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
   }
 
   String _getOdemeYontemiAdi(String? id) {
-    if (id == null) return 'Belirtilmemiş';
+    if (id == null) return context.l10n.notSpecified;
     final pm = _odemeYontemleri.firstWhere(
       (p) => p.id == id,
       orElse: () => PaymentMethod(
         id: '',
-        name: 'Bilinmeyen',
+        name: context.l10n.unknown,
         type: 'banka',
         balance: 0,
         createdAt: DateTime.now(),
@@ -457,7 +457,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Tekrarlayan Giderler'),
+        title: Text(context.l10n.recurringExpenses),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -493,7 +493,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Tanımladığınız işlemler her ayın belirlediğiniz gününde otomatik olarak harcamalarınıza eklenir.',
+                    context.l10n.recurringTransactionsInfo,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 13,
@@ -520,7 +520,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Henüz tekrarlayan işlem yok',
+                          context.l10n.noRecurringTransactions,
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -530,7 +530,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Eklemek için + butonuna tıklayın',
+                          context.l10n.tapPlusToAdd,
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -579,11 +579,11 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
           builder: (context) => AlertDialog(
             backgroundColor: Theme.of(context).colorScheme.surface,
             title: Text(
-              'İşlemi Sil',
+              context.l10n.deleteTransaction,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
             content: Text(
-              '${islem['isim']} işlemini silmek istiyor musunuz?',
+              context.l10n.deleteTransactionConfirm(islem['isim'] ?? ''),
               style: TextStyle(
                 color: Theme.of(
                   context,
@@ -593,11 +593,14 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('İptal'),
+                child: Text(context.l10n.cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text('Sil', style: TextStyle(color: Colors.red)),
+                child: Text(
+                  context.l10n.delete,
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
             ],
           ),
@@ -645,7 +648,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      islem['isim'] ?? 'İsimsiz',
+                      islem['isim'] ?? context.l10n.unnamed,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 16,
@@ -654,7 +657,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Her ayın $gun. günü • $odemeYontemi',
+                      context.l10n.everyMonthDayOf(gun, odemeYontemi),
                       style: TextStyle(
                         color: Theme.of(
                           context,

@@ -11,18 +11,8 @@ class ThemeManager extends ChangeNotifier {
   late Box _box;
 
   ThemeManager() {
-    _init();
-  }
-
-  Future<void> _init() async {
-    // Zaten açıksa mevcut box'ı al, değilse yeni aç
-    if (Hive.isBoxOpen(_boxName)) {
-      _box = Hive.box(_boxName);
-    } else {
-      _box = await Hive.openBox(_boxName);
-    }
+    _box = Hive.box(_boxName);
     _isMoneyAnimationEnabled = _box.get(_keyMoneyAnimation, defaultValue: true);
-    notifyListeners();
   }
 
   /// Mevcut tema (her zaman varsayılan tema)

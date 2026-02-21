@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../income/presentation/pages/add_income_page.dart';
@@ -345,7 +346,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                 ),
                 onChanged: (val) => _searchDebouncer.run(() => setState(() {})),
               )
-            : const Text("Gelirlerim"),
+            : Text(context.l10n.myIncomesTitle),
         actions: [
           if (!gelirAramaModu && !buAyMi)
             TextButton(

@@ -884,7 +884,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String spentAmount(String amount) {
-    return '$amount ₺ harcandı';
+    return 'Harcanan: $amount';
   }
 
   @override
@@ -1051,7 +1051,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get voiceCommandsTip =>
-      'İpucu: Komutları doğal bir şekilde söyleyin. Sesli asistan farklı söyleyişleri de anlayabilir.';
+      'İpucu: Komutları denerken doğal konuşmaya çalışın. Uygulama farklı varyasyonları anlayabilir.';
 
   @override
   String get profileSettingsTitle => 'Profil Ayarları';
@@ -1197,10 +1197,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Kategorileri ekleyin, düzenleyin veya silin';
 
   @override
-  String get setCategoryLimits => 'Kategorilere özel limit belirleyin';
+  String get setCategoryLimits => 'Kategori Limitleri Belirle';
 
   @override
-  String get noLimitSet => 'Henüz limit belirlenmemiş';
+  String get noLimitSet => 'Limit belirlenmemiş';
 
   @override
   String get enterAmount => 'Tutar girin';
@@ -1252,7 +1252,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String categoryBudgetActive(int count) {
-    return '$count kategori için limit belirlenmiş';
+    return '$count aktif limit';
   }
 
   @override
@@ -1326,4 +1326,1152 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get allTransactions => 'Tüm İşlemler';
+
+  @override
+  String get newRecurringExpense => 'Yeni Tekrarlayan Gider';
+
+  @override
+  String get editTransaction => 'İşlemi Düzenle';
+
+  @override
+  String get transactionName => 'İşlem Adı';
+
+  @override
+  String get transactionNameRequired => 'İşlem adı gerekli';
+
+  @override
+  String get amountWithCurrency => 'Tutar (₺)';
+
+  @override
+  String get amountRequired => 'Tutar gerekli';
+
+  @override
+  String get enterValidAmount => 'Geçerli bir tutar girin';
+
+  @override
+  String get everyMonthOn => 'Her ayın:';
+
+  @override
+  String dayOfMonth(int day) {
+    return '$day. günü';
+  }
+
+  @override
+  String get paymentMethod => 'Ödeme Yöntemi';
+
+  @override
+  String get selectPaymentMethod => 'Ödeme yöntemi seçin';
+
+  @override
+  String get update => 'Güncelle';
+
+  @override
+  String get transactionUpdated => 'İşlem güncellendi';
+
+  @override
+  String get transactionAdded => 'İşlem eklendi';
+
+  @override
+  String get errorWhileSaving => 'Kaydetme sırasında bir hata oluştu';
+
+  @override
+  String get notSpecified => 'Belirtilmemiş';
+
+  @override
+  String get recurringTransactionsInfo =>
+      'Tanımladığınız işlemler her ayın belirlediğiniz gününde otomatik olarak harcamalarınıza eklenir.';
+
+  @override
+  String get noRecurringTransactions => 'Henüz tekrarlayan işlem yok';
+
+  @override
+  String get tapPlusToAdd => 'Eklemek için + butonuna tıklayın';
+
+  @override
+  String get deleteTransaction => 'İşlemi Sil';
+
+  @override
+  String deleteTransactionConfirm(String name) {
+    return '$name işlemini silmek istiyor musunuz?';
+  }
+
+  @override
+  String get unnamed => 'İsimsiz';
+
+  @override
+  String everyMonthDayOf(int day, String method) {
+    return 'Her ayın $day. günü • $method';
+  }
+
+  @override
+  String get categoryBasedUsage => 'Kategori Bazlı Kullanım';
+
+  @override
+  String get unlimitedCategories => 'Limitsiz Kategoriler';
+
+  @override
+  String get totalBudget => 'Toplam Bütçe';
+
+  @override
+  String exceeded(String amount) {
+    return 'Aşım: $amount';
+  }
+
+  @override
+  String remaining(String amount) {
+    return 'Kalan: $amount';
+  }
+
+  @override
+  String exceededPercent(String percent) {
+    return 'Aşıldı! $percent%';
+  }
+
+  @override
+  String get categoryBudgetInfo =>
+      'Her kategori için aylık harcama limiti belirleyin. Limit yaklaştığında veya aşıldığında ana sayfada uyarı göreceksiniz.';
+
+  @override
+  String get categoryBudgetDialogInfo =>
+      'Bu kategori için aylık harcama limiti belirleyin. Limit aşıldığında ana sayfada uyarı görürsünüz.';
+
+  @override
+  String get monthlyLimit => 'Aylık Limit';
+
+  @override
+  String get noLimit => 'Limitsiz';
+
+  @override
+  String get zeroNoLimit => '0 = Limitsiz';
+
+  @override
+  String get limitNotSet => 'Limit belirlenmemiş';
+
+  @override
+  String monthlyLimitAmount(String amount) {
+    return '$amount₺ aylık limit';
+  }
+
+  @override
+  String get removeLimit => 'Limiti Kaldır';
+
+  @override
+  String limitRemoved(String category) {
+    return '$category limiti kaldırıldı';
+  }
+
+  @override
+  String get maxLimitWarning => 'Maximum 10 milyar ₺ limit belirleyebilirsiniz';
+
+  @override
+  String limitSet(String category, String amount) {
+    return '$category limiti $amount₺ olarak ayarlandı';
+  }
+
+  @override
+  String activeBudgets(int count) {
+    return '$count aktif';
+  }
+
+  @override
+  String get expenseDetail => 'Harcama Detayı';
+
+  @override
+  String get expenseInfo => 'Harcama Bilgileri';
+
+  @override
+  String get spentAmountLabel => 'Harcanan Tutar';
+
+  @override
+  String get deleteExpense => 'Harcamayı Sil';
+
+  @override
+  String deleteExpenseConfirm(String name) {
+    return '\"$name\" harcamasını silmek istediğinize emin misiniz?';
+  }
+
+  @override
+  String get expenseCategories => 'Harcama Kategorileri';
+
+  @override
+  String get editPhotoTitle => 'Fotoğraf Düzenle';
+
+  @override
+  String get resetAllEffects => 'Tüm Efektleri Sıfırla';
+
+  @override
+  String get confirm => 'Onayla';
+
+  @override
+  String get tryAgainShort => 'Yeniden';
+
+  @override
+  String scheduledTransfersFailed(String errors) {
+    return 'Bazı zamanlanmış transferler başarısız: $errors';
+  }
+
+  @override
+  String get senderAccountNotFound => 'Gönderen hesap bulunamadı';
+
+  @override
+  String get receiverAccountNotFound => 'Alıcı hesap bulunamadı';
+
+  @override
+  String accountDeleted(String account) {
+    return '$account silinmiş';
+  }
+
+  @override
+  String insufficientBalanceAccount(String account) {
+    return '$account: yetersiz bakiye';
+  }
+
+  @override
+  String noDebtToPay(String account) {
+    return '$account: borç yok';
+  }
+
+  @override
+  String get voiceCmdAddExpenseTitle => 'Harcama Ekleme';
+
+  @override
+  String get voiceCmdAddExpenseDesc =>
+      'Tutarı, kategoriyi ve opsiyonel olarak tarihi söyleyerek harcama ekleyin.';
+
+  @override
+  String get voiceCmdAddExpenseExamples =>
+      '100 lira market|50 TL kahve|Dün 80 lira market|Geçen pazartesi 200 TL benzin|Önceki gün 150 lira yemek';
+
+  @override
+  String get voiceCmdDeleteExpenseTitle => 'Harcama Silme';
+
+  @override
+  String get voiceCmdDeleteExpenseDesc => 'Son eklediğiniz harcamayı silin.';
+
+  @override
+  String get voiceCmdDeleteExpenseExamples =>
+      'Son harcamayı sil|Sonuncuyu sil|Son eklediğimi sil|Son kaydı sil';
+
+  @override
+  String get voiceCmdEditExpenseTitle => 'Harcama Düzenleme';
+
+  @override
+  String get voiceCmdEditExpenseDesc => 'Son harcamanızın tutarını değiştirin.';
+
+  @override
+  String get voiceCmdEditExpenseExamples =>
+      'Son harcamayı 100 lira yap|Sonuncuyu 50 TL yap|Son harcamayı 200 lira güncelle|Son kaydı 75 lira değiştir';
+
+  @override
+  String get voiceCmdTotalQueryTitle => 'Toplam Harcama Sorgulama';
+
+  @override
+  String get voiceCmdTotalQueryDesc =>
+      'Aylık, haftalık veya günlük toplam harcamanızı öğrenin.';
+
+  @override
+  String get voiceCmdTotalQueryExamples =>
+      'Bu ay ne kadar harcadım?|Bu hafta ne kadar harcadım?|Bugün ne kadar harcadım?|Toplam harcamam ne kadar?|Haftalık harcamam|Bugünkü harcamam';
+
+  @override
+  String get voiceCmdCategoryAnalysisTitle => 'Kategori Analizi';
+
+  @override
+  String get voiceCmdCategoryAnalysisDesc =>
+      'En çok harcama yaptığınız kategoriyi öğrenin.';
+
+  @override
+  String get voiceCmdCategoryAnalysisExamples =>
+      'En çok hangi kategoride harcamışım?|En çok nereye harcadım?|En fazla harcama nerede?';
+
+  @override
+  String get voiceCmdCategoryQueryTitle => 'Kategoriye Göre Harcama';
+
+  @override
+  String get voiceCmdCategoryQueryDesc =>
+      'Belirli bir kategorideki toplam harcamanızı öğrenin.';
+
+  @override
+  String get voiceCmdCategoryQueryExamples =>
+      'Markete ne kadar harcadım?|Yemek kategorisinde ne kadar?|Ulaşıma ne kadar harcamışım?|Spor kategorisinde kaç lira?';
+
+  @override
+  String get voiceCmdLastExpensesTitle => 'Son Harcamaları Listeleme';
+
+  @override
+  String get voiceCmdLastExpensesDesc =>
+      'Son yaptığınız harcamaları listeleyin.';
+
+  @override
+  String get voiceCmdLastExpensesExamples =>
+      'Son harcamalarım neler?|Son harcamalarımı söyle|Son 5 harcamam|Son harcamalarımı listele';
+
+  @override
+  String get voiceCmdBudgetStatusTitle => 'Bütçe Durumu';
+
+  @override
+  String get voiceCmdBudgetStatusDesc => 'Bütçenizin durumunu kontrol edin.';
+
+  @override
+  String get voiceCmdBudgetStatusExamples =>
+      'Bütçemi aştım mı?|Limit durumum ne?|Limiti geçtim mi?|Bütçe durumu';
+
+  @override
+  String get voiceCmdRemainingBudgetTitle => 'Kalan Bütçe Sorgulama';
+
+  @override
+  String get voiceCmdRemainingBudgetDesc =>
+      'Bütçenizden ne kadar kaldığını öğrenin.';
+
+  @override
+  String get voiceCmdRemainingBudgetExamples =>
+      'Kalan bütçem ne kadar?|Ne kadar harcayabilirim?|Kalan limitim|Bütçemden ne kadar kaldı?';
+
+  @override
+  String get voiceCmdSetLimitTitle => 'Bütçe Limiti Belirleme';
+
+  @override
+  String get voiceCmdSetLimitDesc =>
+      'Sesli olarak aylık bütçenizi güncelleyin.';
+
+  @override
+  String get voiceCmdSetLimitExamples =>
+      'Aylık limitimi 10000 lira yap|Bütçemi 5000 lira olarak ayarla|Limitimi 8000 lira güncelle|Aylık bütçe 15000 lira olsun';
+
+  @override
+  String get voiceCmdSavingsTitle => 'Tasarruf Hesaplama';
+
+  @override
+  String get voiceCmdSavingsDesc =>
+      'Bu ay ne kadar tasarruf ettiğinizi öğrenin.';
+
+  @override
+  String get voiceCmdSavingsExamples =>
+      'Bu ay ne kadar tasarruf ettim?|Tasarrufum ne kadar?|Ne kadar biriktirdim?|Artıda mıyım?';
+
+  @override
+  String get voiceCmdAddFixedTitle => 'Sabit Giderleri Ekle';
+
+  @override
+  String get voiceCmdAddFixedDesc =>
+      'Ayarlardan tanımladığınız sabit giderleri bu aya ekleyin.';
+
+  @override
+  String get voiceCmdAddFixedExamples =>
+      'Sabit giderleri ekle|Sabit giderleri bu aya ekle|Faturaları ekle|Düzenli giderleri ekle';
+
+  @override
+  String get privacyPolicyContent =>
+      '1. Giriş\n\nBu Gizlilik Politikası, Cashly uygulamasının (\"Uygulama\") kullanıcılarının kişisel verilerinin nasıl toplandığını, saklandığını ve korunduğunu açıklamaktadır. Uygulamayı kullanarak bu politikayı kabul etmiş sayılırsınız.\n\nSon güncelleme: 17 Şubat 2026\n\n2. Veri Toplama ve Kullanım\n\nCashly, tüm verilerinizi yalnızca cihazınızda (yerel olarak) saklar. Sunucularımıza herhangi bir kişisel veri gönderilmez, aktarılmaz veya iletilmez.\n\nToplanan ve cihazda saklanan veriler:\n• Kullanıcı bilgileri (isim ve e-posta adresi)\n• Harcama ve gelir kayıtları (tutar, kategori, tarih, açıklama)\n• Varlık bilgileri (tür, miktar, değer)\n• Ödeme yöntemleri ve bakiye bilgileri\n• Transfer kayıtları\n• Bütçe limitleri ve kategori bütçeleri\n• Profil fotoğrafı (isteğe bağlı)\n• Uygulama tercihleri ve ayarları\n• Seri (streak) kayıtları\n\nBu veriler yalnızca uygulamanın temel işlevlerini sağlamak amacıyla kullanılır.\n\n3. Veri Güvenliği\n\nVerilerinizin güvenliği bizim için en önemli önceliktir:\n\n• Tüm veriler cihazınızda yerel veritabanında saklanır.\n• 4 haneli PIN kodu ile uygulamaya erişim korunur.\n• Biyometrik doğrulama (parmak izi / yüz tanıma) desteği mevcuttur.\n• Güvenlik sorusu ile ek koruma katmanı sağlanır.\n• Uygulama arka plana alındığında otomatik kilit devreye girer.\n• Uygulama dışarıya herhangi bir ağ bağlantısı kurmaz.\n\n4. Üçüncü Taraf Paylaşımı\n\nCashly, topladığı hiçbir veriyi üçüncü taraflarla paylaşmaz, satmaz veya kiralamaz. Verileriniz tamamen size aittir. Uygulama içinde üçüncü taraf analitik veya reklam araçları kullanılmamaktadır.\n\n5. Veri Yedekleme ve Aktarım\n\n• Yedekleme işlemi tamamen kullanıcı kontrolündedir ve isteğe bağlıdır.\n• Yedek dosyaları JSON formatında cihazınıza dışa aktarılır.\n• Yedek dosyasının güvenliği ve saklanması kullanıcının sorumluluğundadır.\n• Yedek dosyası; harcamalar, gelirler, varlıklar, ödeme yöntemleri, transferler ve profil bilgilerini içerir.\n• Geri yükleme işlemi mevcut verilerin üzerine yazar.\n\n6. Veri Saklama Süresi\n\nVerileriniz, hesabınızı silene kadar cihazınızda saklanır. Uygulamayı kaldırmanız durumunda tüm veriler otomatik olarak silinir.\n\n7. Veri Silme Hakkı\n\nHesabınızı ve tüm verilerinizi istediğiniz zaman kalıcı olarak silebilirsiniz:\n• Profil > Kullanıcı Bilgileri > Hesabı Sil seçeneğini kullanın.\n• Silme işlemi güvenlik doğrulaması gerektirir.\n• Silinen veriler geri getirilemez.\n• Silme öncesi yedek almanız önerilir.\n\n8. Çocukların Gizliliği\n\nCashly, 13 yaşın altındaki çocuklara yönelik değildir. 13 yaşın altındaki kullanıcılardan bilerek veri toplamıyoruz.\n\n9. Politika Değişiklikleri\n\nBu gizlilik politikası zaman zaman güncellenebilir. Önemli değişiklikler uygulama içinden bildirilecektir.\n\n10. İletişim\n\nGizlilik politikamız hakkında sorularınız veya talepleriniz için uygulama içinden bizimle iletişime geçebilirsiniz.';
+
+  @override
+  String get termsOfServiceContent =>
+      '1. Kabul ve Kapsam\n\nCashly uygulamasını (\"Uygulama\") indirerek, kurarak veya kullanarak bu Kullanım Koşullarını kabul etmiş olursunuz. Bu koşulları kabul etmiyorsanız, lütfen uygulamayı kullanmayınız.\n\nSon güncelleme: 17 Şubat 2026\n\n2. Hizmet Tanımı\n\nCashly, kişisel bütçe takibi ve finansal yönetim aracıdır. Uygulama aşağıdaki hizmetleri sunar:\n\n• Harcama ve gelir takibi (manuel ve sesli giriş)\n• Varlık yönetimi (altın, döviz, kripto, banka hesabı)\n• Bütçe planlama ve kategori bazlı limit belirleme\n• Ödeme yöntemi yönetimi ve bakiye takibi\n• Hesaplar arası transfer kayıtları\n• Düzenli gelir/gider tanımlama\n• Sesli asistan ile doğal dil komutları\n• Veri yedekleme ve geri yükleme\n• İstatistik ve grafik raporları\n\n3. Hesap ve Güvenlik\n\n• Hesabınızı oluştururken doğru bilgiler girmeniz gerekmektedir.\n• PIN kodunuz hesabınızın güvenlik anahtarıdır; kimseyle paylaşmayınız.\n• Biyometrik giriş ve güvenlik sorusu ek koruma katmanlarıdır.\n• Hesabınıza yetkisiz erişimden siz sorumlusunuz.\n• Şüpheli bir durum fark ederseniz PIN kodunuzu değiştirmeniz önerilir.\n\n4. Kullanıcı Sorumlulukları\n\n• Girdiğiniz finansal veriler tamamen size aittir ve doğruluğundan siz sorumlusunuz.\n• Uygulamayı yasa dışı amaçlarla kullanamazsınız.\n• Düzenli veri yedeklemesi yapmanız önerilir.\n• Yedek dosyalarınızın güvenliğinden siz sorumlusunuz.\n• Uygulamayı tersine mühendislik, kaynak kod çıkarma veya değiştirme girişiminde bulunamazsınız.\n\n5. Sorumluluk Reddi\n\nÖNEMLİ - Lütfen dikkatlice okuyunuz:\n\n• Cashly bir finansal danışmanlık, yatırım tavsiyesi veya muhasebe aracı değildir.\n• Uygulama, herhangi bir yatırım, tasarruf veya harcama tavsiyesi vermez.\n• Finansal kararlarınızdan Cashly sorumlu tutulamaz.\n• Uygulama \"olduğu gibi\" sunulmaktadır; kesintisiz veya hatasız çalışacağı garanti edilmez.\n• Cihaz arızası, yazılım hatası veya kullanıcı kaynaklı veri kaybından dolayı sorumluluk kabul edilmez.\n• Güncel döviz kurları ve varlık fiyatları bilgi amaçlıdır; gerçek piyasa değerlerinden farklılık gösterebilir.\n\n6. Veri ve İçerik\n\n• Uygulamaya girdiğiniz tüm veriler cihazınızda saklanır.\n• Verilerin doğruluğu, bütünlüğü ve güncelliğinden siz sorumlusunuz.\n• Hesap silme işlemi geri alınamaz; tüm verileriniz kalıcı olarak kaldırılır.\n\n7. Fikri Mülkiyet\n\n• Cashly uygulaması, tasarımı, logoları ve tüm içeriği telif hakkı ile korunmaktadır.\n• Uygulama kodunun, görsellerinin ve tasarımının izinsiz kopyalanması, dağıtılması veya türev çalışma oluşturulması yasaktır.\n• \"Cashly\" ismi ve logosu tescilli markadır.\n\n8. Hizmet Değişiklikleri\n\n• Uygulama özellikleri önceden haber verilmeksizin eklenebilir, değiştirilebilir veya kaldırılabilir.\n• Güncellemeler, hata düzeltmeleri ve iyileştirmeler düzenli olarak yapılabilir.\n\n9. Koşul Değişiklikleri\n\nBu kullanım koşulları zaman zaman güncellenebilir. Önemli değişiklikler uygulama içinden bildirilecektir. Güncellemelerden sonra uygulamayı kullanmaya devam etmeniz, yeni koşulları kabul ettiğiniz anlamına gelir.\n\n10. Geçerli Hukuk\n\nBu koşullar Türkiye Cumhuriyeti yasalarına tabidir. Uyuşmazlıklarda Türkiye mahkemeleri yetkilidir.\n\n11. İletişim\n\nKullanım koşullarımız hakkında sorularınız için uygulama içinden bizimle iletişime geçebilirsiniz.';
+
+  @override
+  String get faqSafetyQ => 'Verilerim güvende mi?';
+
+  @override
+  String get faqSafetyA =>
+      'Kesinlikle! Cashly, gizliliğinizi en üst düzeyde korur:\n\n• Tüm verileriniz yalnızca cihazınızda saklanır, hiçbir sunucuya gönderilmez.\n• 4 haneli PIN kodu ile uygulamaya erişim korunur.\n• Biyometrik giriş (parmak izi / yüz tanıma) desteği mevcuttur.\n• Güvenlik sorusu ile ek koruma katmanı ekleyebilirsiniz.\n\nVerileriniz tamamen size aittir ve hiçbir üçüncü tarafla paylaşılmaz.';
+
+  @override
+  String get faqOfflineQ => 'İnternet bağlantısı gerekli mi?';
+
+  @override
+  String get faqOfflineA =>
+      'Hayır! Cashly tamamen çevrimdışı çalışacak şekilde tasarlanmıştır.\n\n• Harcama ve gelir ekleme, düzenleme, silme\n• Varlık yönetimi ve takibi\n• Bütçe planlama ve kategori yönetimi\n• Sesli asistan ile komut verme\n• Veri yedekleme ve geri yükleme\n\nTüm bu özellikler internet olmadan sorunsuz çalışır. Yalnızca güncel döviz/altın kurları için internet bağlantısı gerekebilir.';
+
+  @override
+  String get faqBackupQ => 'Verilerimi nasıl yedekleyebilirim?';
+
+  @override
+  String get faqBackupA =>
+      'Verilerinizi güvence altına almak için düzenli yedekleme yapmanızı öneririz:\n\n1. Profil > Ayarlar > Veri İşlemleri bölümüne gidin.\n2. \"Verileri Yedekle\" seçeneğine dokunun.\n3. Tüm verileriniz JSON formatında bir dosyaya aktarılır.\n4. Dosyayı Google Drive, e-posta veya istediğiniz bir yere kaydedin.\n\nYedek dosyası; harcamalarınızı, gelirlerinizi, varlıklarınızı, ödeme yöntemlerinizi, transferlerinizi ve profil bilgilerinizi içerir.';
+
+  @override
+  String get faqRestoreQ => 'Yedeğimi nasıl geri yüklerim?';
+
+  @override
+  String get faqRestoreA =>
+      'Daha önce aldığınız yedeği geri yüklemek için:\n\n1. Profil > Ayarlar > Veri İşlemleri bölümüne gidin.\n2. \"Verileri Geri Yükle\" seçeneğine dokunun.\n3. Daha önce kaydettiğiniz JSON yedek dosyasını seçin.\n4. İşlem tamamlandığında uygulama otomatik olarak yenilenir.\n\nDikkat: Geri yükleme işlemi mevcut verilerinizi yedekteki verilerle değiştirir. Mevcut verilerinizi kaybetmemek için önce yeni bir yedek almanızı öneririz.';
+
+  @override
+  String get faqVoiceAssisQ => 'Sesli asistan nasıl çalışır?';
+
+  @override
+  String get faqVoiceAssisA =>
+      'Cashly\'nin sesli asistanı, doğal dil ile harcama ve gelir eklemenizi sağlar:\n\n• Ana ekrandaki mikrofon ikonuna dokunun.\n• Doğal bir şekilde komut verin, örneğin:\n  - \"50 lira market harcaması ekle\"\n  - \"1500 lira maaş geliri ekle\"\n  - \"200 lira yemek harcaması ekle nakit ile\"\n\nAsistan, tutarı, kategoriyi ve ödeme yöntemini otomatik olarak algılar. Sesli geri bildirim ile işlemin başarılı olduğunu onaylar. Komut listesinin tamamını Ayarlar > Sesli Asistan bölümünden görebilirsiniz.';
+
+  @override
+  String get faqBudgetLimitQ => 'Bütçe limitimi nasıl belirlerim?';
+
+  @override
+  String get faqBudgetLimitA =>
+      'Aylık harcama bütçenizi kontrol altında tutmak için:\n\n1. Profil > Ayarlar > Harcamalar bölümüne gidin.\n2. \"Aylık Bütçe Limiti\" alanına toplam aylık bütçenizi girin.\n3. Kaydet butonuna dokunun.\n\nBütçe limitinizi belirledikten sonra:\n• Ana ekranda bütçe doluluk oranınızı görebilirsiniz.\n• Limiti aşmaya yaklaştığınızda görsel uyarı alırsınız.\n• Renk kodları ile durumunuzu anlık takip edebilirsiniz (yeşil: güvenli, sarı: dikkat, kırmızı: limit aşıldı).';
+
+  @override
+  String get faqCategoryBudgetQ => 'Kategori bazında bütçe limiti nedir?';
+
+  @override
+  String get faqCategoryBudgetA =>
+      'Genel bütçe limitinin yanı sıra her kategori için ayrı limit belirleyebilirsiniz:\n\n1. Profil > Ayarlar > Harcamalar > Kategori Bütçeleri bölümüne gidin.\n2. İstediğiniz kategoriye dokunun (örn. Yemek & Kafe).\n3. O kategori için aylık limit belirleyin.\n\nÖrnek kullanım:\n• Yemek & Kafe: 2.000₺\n• Ulaşım: 500₺\n• Eğlence: 1.000₺\n\nBu sayede harcamalarınızı kategori bazında detaylı kontrol edebilir ve hangi alanda tasarruf yapabileceğinizi görebilirsiniz.';
+
+  @override
+  String get faqRecurringQ => 'Düzenli gelir/gider nedir?';
+
+  @override
+  String get faqRecurringA =>
+      'Her ay düzenli olarak tekrarlayan gelir veya giderlerinizi tanımlayabilirsiniz:\n\nDüzenli gelir örnekleri: Maaş, kira geliri, yan gelir\nDüzenli gider örnekleri: Kira, internet, telefon faturası, abonelikler\n\nNasıl eklenir:\n1. Ayarlar > Harcamalar veya Gelirler bölümüne gidin.\n2. \"Düzenli İşlemler\" seçeneğine dokunun.\n3. Tutar, kategori ve tekrar sıklığını belirleyin.\n\nDüzenli işlemler her ay otomatik olarak kaydedilir, böylece her seferinde manuel ekleme yapmanıza gerek kalmaz.';
+
+  @override
+  String get faqAssetTrackingQ => 'Varlık takibi nasıl yapılır?';
+
+  @override
+  String get faqAssetTrackingA =>
+      'Cashly ile finansal varlıklarınızı tek bir yerden takip edebilirsiniz:\n\nDesteklenen varlık türleri:\n• Altın (gram, çeyrek, yarım, tam)\n• Döviz (USD, EUR vb.)\n• Kripto para\n• Banka hesapları\n• Gümüş\n\nVarlıklarınızı ekleyin, miktarını ve alış fiyatını girin. Toplam portföy değerinizi, kazanç/kayıp durumunuzu ve varlık dağılımınızı grafiklerle takip edin.';
+
+  @override
+  String get faqPaymentMethodsQ => 'Ödeme yöntemlerimi nasıl yönetirim?';
+
+  @override
+  String get faqPaymentMethodsA =>
+      'Farklı ödeme yöntemlerinizi tanımlayarak harcamalarınızı detaylı takip edin:\n\n• Nakit\n• Banka/kredi kartları\n• Dijital cüzdanlar\n\nHer ödeme yöntemine bakiye tanımlayabilir ve harcama yaptıkça bakiyenin otomatik güncellenmesini sağlayabilirsiniz. Bu sayede hangi karttan ne kadar harcadığınızı veya kasanızda ne kadar nakit kaldığını anlık görebilirsiniz.';
+
+  @override
+  String get faqTransferQ => 'Hesaplar arası transfer nasıl yapılır?';
+
+  @override
+  String get faqTransferA =>
+      'Ödeme yöntemleriniz arasında para transferi kaydedebilirsiniz:\n\nÖrnek senaryolar:\n• Bankadan nakit çekme\n• Kredi kartı borcunu ödeme\n• Bir hesaptan diğerine aktarım\n\nTransfer işlemi, kaynak hesaptan tutarı düşer ve hedef hesaba ekler. Böylece tüm hesaplarınızın bakiyesi her zaman güncel kalır. Transfer geçmişinizi Ayarlar > Para Transferleri bölümünden görüntüleyebilirsiniz.';
+
+  @override
+  String get faqNotificationsQ => 'Bildirimler ne işe yarar?';
+
+  @override
+  String get faqNotificationsA =>
+      'Cashly, finansal hedeflerinizi takip etmeniz için çeşitli bildirimler sunar:\n\n• Günlük hatırlatıcı: Harcamalarınızı girmeyi unutmayın.\n• Bütçe uyarısı: Aylık limitinize yaklaştığınızda uyarı alın.\n• Düzenli işlem bildirimi: Tekrarlayan gelir/giderler kaydedildiğinde bilgilenin.\n\nTüm bildirim ayarlarını Profil > Ayarlar > Bildirimler bölümünden istediğiniz gibi açıp kapatabilir ve saatlerini özelleştirebilirsiniz.';
+
+  @override
+  String get faqStreakQ => 'Seri sistemi nedir?';
+
+  @override
+  String get faqStreakA =>
+      'Seri sistemi, düzenli kullanım alışkanlığı oluşturmanıza yardımcı olan bir motivasyon aracıdır:\n\n• Her gün uygulamayı kullanarak serinizi sürdürün.\n• Ardışık gün sayınız arttıkça seri seviyeniz yükselir.\n• Belirli seviyelere ulaştığınızda kutlama animasyonu görürsünüz.\n• Bir gün kaçırırsanız seriniz sıfırlanır.\n\nSeri sistemi, harcamalarınızı düzenli takip etme alışkanlığı kazanmanıza yardımcı olur. En yüksek serinizi kırmaya çalışın!';
+
+  @override
+  String get faqProfilePhotoQ => 'Profil fotoğrafımı nasıl değiştiririm?';
+
+  @override
+  String get faqProfilePhotoA =>
+      'Profil fotoğrafınızı değiştirmek için:\n\n1. Profil > Kullanıcı Bilgileri sayfasına gidin.\n2. Profil fotoğrafınızın üzerindeki düzenleme ikonuna dokunun.\n3. Galeriden fotoğraf seçin veya hazır avatarlardan birini kullanın.\n4. Seçtiğiniz fotoğrafı kırpın, döndürün ve filtre uygulayın.\n\nFotoğraf düzenleyici ile fotoğrafınızı tam istediğiniz gibi ayarlayabilirsiniz.';
+
+  @override
+  String get faqForgotPinQ => 'PIN kodumu unutursam ne yapmalıyım?';
+
+  @override
+  String get faqForgotPinA =>
+      'PIN kodunuzu unuttuysanız, giriş ekranında güvenlik sorunuzu kullanarak sıfırlama yapabilirsiniz. Bunun için önceden bir güvenlik sorusu ve cevabı belirlemiş olmanız gerekir.\n\nGüvenlik sorunuzu ayarlamak için:\nProfil > Kullanıcı Bilgileri > Güvenlik bölümünü kullanabilirsiniz.\n\nGüvenlik sorusu belirlememişseniz ve PIN\'inizi unuttuysanız, uygulamayı yeniden kurmanız gerekebilir. Bu durumda yedeğiniz varsa verilerinizi geri yükleyebilirsiniz.';
+
+  @override
+  String get faqDeleteAccountQ => 'Hesabımı silersem ne olur?';
+
+  @override
+  String get faqDeleteAccountA =>
+      'Hesap silme işlemi kalıcıdır ve geri alınamaz. Silinen veriler:\n\n• Tüm harcama kayıtları\n• Tüm gelir kayıtları\n• Varlıklarınız\n• Ödeme yöntemleri ve bakiyeleri\n• Transfer geçmişi\n• Seri kayıtları\n• Profil bilgileri ve fotoğrafınız\n\nSilmeden önce mutlaka verilerinizi yedeklemenizi öneririz. Hesap silme işlemi güvenlik doğrulaması (matematik sorusu) gerektirir ve iki aşamalı onay ile gerçekleştirilir.';
+
+  @override
+  String get done => 'Bitti';
+
+  @override
+  String get selectTime => 'Saat Seç';
+
+  @override
+  String get selectMonthAndYear => 'Ay ve Yıl Seç';
+
+  @override
+  String get selectDateAndTime => 'Tarih ve Saat Seç';
+
+  @override
+  String get errorOccurred => 'Bir Hata Oluştu';
+
+  @override
+  String get unexpectedErrorRestart =>
+      'Beklenmedik bir hata meydana geldi.\nLütfen uygulamayı yeniden başlatın.';
+
+  @override
+  String get technicalDetails => 'Teknik Detaylar';
+
+  @override
+  String get anErrorOccurred => 'Bir hata oluştu';
+
+  @override
+  String get componentLoadError => 'Bu bileşen yüklenirken bir sorun oluştu.';
+
+  @override
+  String pageLoadError(String pageName) {
+    return '$pageName sayfası yüklenirken bir hata oluştu.';
+  }
+
+  @override
+  String get operationSuccessful => 'İşlem başarılı!';
+
+  @override
+  String get limitWarning => 'Limit Uyarısı';
+
+  @override
+  String get balanceWarning => 'Bakiye Uyarısı';
+
+  @override
+  String get continueAnyway => 'Yine de devam etmek istiyor musunuz?';
+
+  @override
+  String get remainingLimitLabel => 'Kalan Limit';
+
+  @override
+  String get currentBalanceLabel => 'Mevcut Bakiye';
+
+  @override
+  String get expenseAmountLabel => 'Harcama Tutarı';
+
+  @override
+  String get offlineMode => 'Çevrimdışı Mod';
+
+  @override
+  String get noInternetConnection => 'İnternet bağlantısı yok';
+
+  @override
+  String get unavailableFeatures => 'Çalışmayan Özellikler';
+
+  @override
+  String get assetPriceUpdates => 'Varlık fiyat güncellemeleri';
+
+  @override
+  String get realTimeExchangeRates => 'Gerçek zamanlı döviz kurları';
+
+  @override
+  String get limitedFeatures => 'Kısıtlı Özellikler';
+
+  @override
+  String get assetValuesLastKnown =>
+      'Varlık değerleri son bilinen fiyatlarla gösterilir';
+
+  @override
+  String get fullyWorkingFeatures => 'Tam Çalışan Özellikler';
+
+  @override
+  String get addEditIncomeExpense => 'Gelir/gider ekleme ve düzenleme';
+
+  @override
+  String get backupAndRestore => 'Yedekleme ve geri yükleme';
+
+  @override
+  String get chartsAndReports => 'Grafikler ve raporlar';
+
+  @override
+  String get allLocalData => 'Tüm yerel veriler';
+
+  @override
+  String get understood => 'Anladım';
+
+  @override
+  String get pleaseEnterEmail => 'Lütfen e-posta adresinizi girin';
+
+  @override
+  String get enterValidEmail => 'Geçerli bir e-posta adresi girin';
+
+  @override
+  String get pleaseSetPin => 'Lütfen bir PIN belirleyin';
+
+  @override
+  String get pinLengthError => 'PIN 4 ile 6 rakam arasında olmalıdır';
+
+  @override
+  String get pinDigitsOnly => 'PIN sadece rakamlardan oluşmalıdır';
+
+  @override
+  String get pleaseEnterName => 'Lütfen isminizi girin';
+
+  @override
+  String get nameMinLength => 'İsminiz en az 2 karakter olmalıdır';
+
+  @override
+  String get nameMaxLength => 'İsminiz en fazla 50 karakter olabilir';
+
+  @override
+  String get pleaseEnterAmount => 'Lütfen tutar girin';
+
+  @override
+  String get enterValidNumber => 'Geçerli bir sayı girin';
+
+  @override
+  String get amountMustBePositive => 'Tutar pozitif bir sayı olmalıdır';
+
+  @override
+  String get pleaseEnterQuantity => 'Lütfen miktar girin';
+
+  @override
+  String get enterValidNumberFormat => 'Geçerli bir sayı formatı girin';
+
+  @override
+  String get quantityCannotBeNegative => 'Miktar negatif olamaz';
+
+  @override
+  String get quantityMustBeGreaterThanZero => 'Miktar 0\'dan büyük olmalıdır';
+
+  @override
+  String get pleaseEnterCardName => 'Lütfen kart adını girin';
+
+  @override
+  String get cardNameMinLength => 'Kart adı en az 2 karakter olmalıdır';
+
+  @override
+  String get cardNameMaxLength => 'Kart adı en fazla 30 karakter olabilir';
+
+  @override
+  String get pleaseEnterLastFourDigits => 'Lütfen son 4 haneyi girin';
+
+  @override
+  String get lastFourDigitsLength => 'Son 4 hane tam 4 rakam olmalıdır';
+
+  @override
+  String get lastFourDigitsOnly => 'Son 4 hane sadece rakamlardan oluşmalıdır';
+
+  @override
+  String get pleaseEnterDebtAmount => 'Lütfen borç tutarını girin';
+
+  @override
+  String get pleaseEnterBalanceAmount => 'Lütfen bakiye girin';
+
+  @override
+  String get invalidAmountFormat => 'Geçersiz tutar formatı';
+
+  @override
+  String get amountCannotBeNegative => 'Tutar negatif olamaz';
+
+  @override
+  String get limitMustBeGreaterThanZero => 'Limit 0\'dan büyük olmalı';
+
+  @override
+  String get limitLessThanDebt => 'Limit mevcut borçtan küçük olamaz';
+
+  @override
+  String get genericError => 'Bir hata oluştu. Lütfen tekrar deneyin.';
+
+  @override
+  String get dataNotFoundError => 'Veri bulunamadı';
+
+  @override
+  String get connectionError =>
+      'Bağlantı hatası. İnternet bağlantınızı kontrol edin.';
+
+  @override
+  String get timeoutError =>
+      'İşlem zaman aşımına uğradı. Lütfen tekrar deneyin.';
+
+  @override
+  String get permissionError => 'Erişim izni hatası';
+
+  @override
+  String get priceFetchFailed => 'Fiyat çekilemedi, lütfen manuel giriniz.';
+
+  @override
+  String get priceFetchError =>
+      'Fiyat alınırken hata oluştu. Lütfen manuel giriniz.';
+
+  @override
+  String get pleaseFillRequiredFields => 'Lütfen tüm gerekli alanları doldurun';
+
+  @override
+  String get currentPriceButton => 'Güncel';
+
+  @override
+  String get amountTL => 'Miktar (TL)';
+
+  @override
+  String get purchaseInfo => 'Alış Bilgileri';
+
+  @override
+  String get purchasePriceTL => 'Alış Fiyatı (TL)';
+
+  @override
+  String get enterValidPrice => 'Geçerli bir fiyat giriniz';
+
+  @override
+  String get purchasePriceNegative => 'Alış fiyatı negatif olamaz';
+
+  @override
+  String get purchasePriceMustBePositive => 'Alış fiyatı 0\'dan büyük olmalı';
+
+  @override
+  String get minPurchasePrice => 'Minimum alış fiyatı 0,01 ₺ olmalı';
+
+  @override
+  String get maxPurchasePrice => 'Maksimum alış fiyatı 100 milyon ₺ olabilir';
+
+  @override
+  String get quantityLabel => 'Adet';
+
+  @override
+  String get stockNameLabel => 'Hisse Adı';
+
+  @override
+  String get currencyNameLabel => 'Döviz İsmi';
+
+  @override
+  String get cryptoNameLabel => 'Kripto İsmi';
+
+  @override
+  String get bankNameLabel => 'Banka Adı';
+
+  @override
+  String get assetNameField => 'Varlık İsmi';
+
+  @override
+  String get profileUpdated => 'Profil güncellendi';
+
+  @override
+  String updateFailed(String error) {
+    return 'Güncelleme başarısız: $error';
+  }
+
+  @override
+  String get profileImageUpdated => 'Profil resmi güncellendi';
+
+  @override
+  String get selectProfileImage => 'Profil Resmi Seç';
+
+  @override
+  String get galleryOrCameraDesc =>
+      'Galerinizden bir fotoğraf seçerek ya da kameradan fotoğraf çekerek profil resminizi değiştirebilirsiniz.';
+
+  @override
+  String get cameraLabel => 'Kamera';
+
+  @override
+  String get takePhotoLabel => 'Fotoğraf Çek';
+
+  @override
+  String get galleryLabel => 'Galeri';
+
+  @override
+  String get selectPhotoLabel => 'Fotoğraf Seç';
+
+  @override
+  String get changeName => 'İsim Değiştir';
+
+  @override
+  String get newNameLabel => 'Yeni İsim';
+
+  @override
+  String get nameCannotBeEmpty => 'İsim boş olamaz';
+
+  @override
+  String get nameUpdated => 'İsim Soyisim Güncellendi';
+
+  @override
+  String get currentPinLabel => 'Mevcut PIN';
+
+  @override
+  String get newPinLabel => 'Yeni PIN';
+
+  @override
+  String get newPinRepeatLabel => 'Yeni PIN (Tekrar)';
+
+  @override
+  String get enterPinDigits => '4-6 haneli PIN giriniz';
+
+  @override
+  String get pinIncorrect => 'PIN hatalı';
+
+  @override
+  String get pinsDoNotMatch => 'PIN\'ler eşleşmiyor';
+
+  @override
+  String get pinUpdated => 'PIN Güncellendi';
+
+  @override
+  String get pinVerification => 'PIN Doğrulama';
+
+  @override
+  String get biometricPinVerificationDesc =>
+      'Biyometrik girişi aktifleştirmek için PIN\'inizi doğrulayın';
+
+  @override
+  String get activateBiometric => 'Biyometriği Aktifleştir';
+
+  @override
+  String get finalConfirmation => 'Son Onay';
+
+  @override
+  String get permanentDeleteAccountConfirm =>
+      'Hesabınızı kalıcı olarak silmek istediğinizden emin misiniz?';
+
+  @override
+  String get yesDelete => 'Evet, Sil';
+
+  @override
+  String get accountDeletedSuccess => 'Hesabınız başarıyla silindi';
+
+  @override
+  String accountDeleteError(String error) {
+    return 'Hesap silinirken hata oluştu: $error';
+  }
+
+  @override
+  String get deletePermanently => 'Hesabı Kalıcı Olarak Sil';
+
+  @override
+  String get pinVerificationTitle => 'PIN Doğrulaması';
+
+  @override
+  String get forwardButton => 'İleri';
+
+  @override
+  String get thisActionIrreversibleWarning =>
+      'Bu işlem geri alınamaz! Tüm verileriniz kalıcı olarak silinecektir.';
+
+  @override
+  String get expenseMovedToTrash => 'Harcama çöp kutusuna taşındı 🗑️';
+
+  @override
+  String get expenseRestored => 'Harcama geri yüklendi ✅';
+
+  @override
+  String get noSearchResults => 'Sonuç bulunamadı';
+
+  @override
+  String get tryDifferentSearch => 'Farklı bir arama terimi deneyin';
+
+  @override
+  String get emptyTrashTitle => 'Çöpü Boşalt';
+
+  @override
+  String get emptyTrashConfirm =>
+      'Tüm silinen harcamalar kalıcı olarak yok edilecek. Emin misin?';
+
+  @override
+  String get trashEmptied => 'Çöp kutusu temizlendi.';
+
+  @override
+  String get restoreAllTitle => 'Tümünü Geri Yükle';
+
+  @override
+  String restoreAllConfirm(int count) {
+    return '$count harcama geri yüklenecek. Onaylıyor musun?';
+  }
+
+  @override
+  String get yesRestore => 'Evet, Geri Yükle';
+
+  @override
+  String get allExpensesRestored => 'Tüm harcamalar geri yüklendi ♻️';
+
+  @override
+  String get noDeletedExpenses => 'Silinen harcama yok.';
+
+  @override
+  String get expensePermanentlyDeleted => 'Harcama kalıcı olarak silindi 🗑️';
+
+  @override
+  String get expenseRestoredRecycled => 'Harcama geri yüklendi ♻️';
+
+  @override
+  String get deleteCategory => 'Kategoriyi Sil';
+
+  @override
+  String deleteCategoryConfirm(String name) {
+    return '\"$name\" kategorisini silmek istediğinizden emin misiniz?';
+  }
+
+  @override
+  String get categoryDeleted => 'Kategori silindi';
+
+  @override
+  String get categoryAdded => 'Kategori eklendi ✅';
+
+  @override
+  String systemCategoryCannotDelete(String name) {
+    return '\"$name\" sistem kategorisidir ve silinemez';
+  }
+
+  @override
+  String get resetToDefault => 'Varsayılana Dön';
+
+  @override
+  String get resetCategoriesConfirm =>
+      'Tüm özel kategorileriniz silinecek ve varsayılan kategoriler yüklenecek. Emin misiniz?';
+
+  @override
+  String get yesReset => 'Evet, Sıfırla';
+
+  @override
+  String get defaultCategoriesLoaded => 'Varsayılan kategoriler yüklendi';
+
+  @override
+  String get addNewCategory => 'Yeni Kategori Ekle';
+
+  @override
+  String get myCategories => 'KATEGORİLERİM';
+
+  @override
+  String get addNew => 'Yeni Ekle';
+
+  @override
+  String get selectIconLabel => 'İkon Seç:';
+
+  @override
+  String get categoryOrderUpdated => 'Kategori sırası güncellendi';
+
+  @override
+  String get micPermissionDenied =>
+      'Mikrofon izni verilemedi veya cihaz desteklemiyor.';
+
+  @override
+  String get expenseDeletion => 'Harcama Silme';
+
+  @override
+  String get deleteLastExpenseConfirm =>
+      'Son eklenen harcamayı silmek istediğinizden emin misiniz?';
+
+  @override
+  String get commandNotSupported => 'Bu komut henüz desteklenmiyor';
+
+  @override
+  String get noExpenseFoundYet => 'Henüz harcama bulunmuyor';
+
+  @override
+  String get categoryNotUnderstood => 'Kategori anlaşılamadı';
+
+  @override
+  String get addRecurringToMonthConfirm =>
+      'Tanımlı tekrarlayan işlemleri bu aya eklemek istiyor musunuz?';
+
+  @override
+  String get expenseEditingTitle => 'Harcama Düzenleme';
+
+  @override
+  String get newAmountNotUnderstood =>
+      'Yeni tutarı anlayamadım. Örneğin \"Son harcamayı 100 lira yap\" diyebilirsiniz.';
+
+  @override
+  String get budgetLimitUpdateTitle => 'Bütçe Limiti Güncelleme';
+
+  @override
+  String get limitUpdateError => 'Limit güncellenirken bir hata oluştu';
+
+  @override
+  String get commandProcessing => 'Komut işleniyor...';
+
+  @override
+  String get heardLabel => 'Duyulan:';
+
+  @override
+  String get howToUse => 'Nasıl kullanılır?';
+
+  @override
+  String get voiceAssistantCapabilities =>
+      'Sesli asistan ile şunları yapabilirsiniz:';
+
+  @override
+  String get addingExpenseLabel => 'Harcama ekleme';
+
+  @override
+  String get deletingExpenseLabel => 'Harcama silme';
+
+  @override
+  String get queryExpenseLabel => 'Harcama sorgulama';
+
+  @override
+  String get categoryAnalysisLabel => 'Kategori analizi';
+
+  @override
+  String get budgetControlLabel => 'Bütçe kontrolü';
+
+  @override
+  String get detailedCommandListInfo =>
+      'Detaylı komut listesi için:\nAyarlar → Sesli Asistan → Tüm Komutlar';
+
+  @override
+  String get expenseNameLabel => 'Harcama Adı';
+
+  @override
+  String get whatDidYouBuy => 'Ne aldın? (Örn: Kahve)';
+
+  @override
+  String get expenseDateLabel => 'Harcama Tarihi';
+
+  @override
+  String get selectPaymentMethodHint => 'Ödeme Yöntemi Seçin';
+
+  @override
+  String get enterValidAmountError => 'Geçerli bir tutar girin';
+
+  @override
+  String get recurringTransactionsLabel => 'Tekrarlayan İşlemler';
+
+  @override
+  String recurringItemsAdded(int count) {
+    return '$count adet tekrarlayan işlem eklendi!';
+  }
+
+  @override
+  String expenseAddedVoice(String name, String amount) {
+    return 'Harcama eklendi: $name - $amount ₺';
+  }
+
+  @override
+  String monthlyBudgetUpdated(String amount) {
+    return 'Aylık bütçe $amount ₺ olarak güncellendi';
+  }
+
+  @override
+  String get limitNotUnderstood =>
+      'Limit tutarını anlayamadım. Örneğin \"Aylık limitimi 10000 lira yap\" diyebilirsiniz.';
+
+  @override
+  String updateExpenseConfirm(String amount) {
+    return 'Son harcamayı $amount ₺ olarak güncellemek istiyor musunuz?';
+  }
+
+  @override
+  String expenseUpdatedVoice(String name, String amount) {
+    return '$name güncellendi: $amount ₺';
+  }
+
+  @override
+  String monthlyBudgetUpdateConfirm(String amount) {
+    return 'Aylık bütçeniz $amount ₺ olarak güncellensin mi?';
+  }
+
+  @override
+  String maxAmountError(String amount) {
+    return 'Maksimum tutar $amount ₺ olabilir';
+  }
+
+  @override
+  String descriptionMaxLength(int maxLength) {
+    return 'Açıklama en fazla $maxLength karakter olabilir';
+  }
+
+  @override
+  String itemNameRequired(String itemType) {
+    return '$itemType adı gereklidir';
+  }
+
+  @override
+  String fieldRequired(String fieldName) {
+    return '$fieldName gereklidir';
+  }
+
+  @override
+  String quantityTooSmall(String min) {
+    return 'Miktar çok küçük (min: $min)';
+  }
+
+  @override
+  String quantityTooLarge(String max) {
+    return 'Miktar çok büyük (max: $max)';
+  }
+
+  @override
+  String maxDecimalPlaces(int count) {
+    return 'En fazla $count ondalık basamak girebilirsiniz';
+  }
+
+  @override
+  String maxBalanceError(String amount) {
+    return 'Maksimum tutar $amount olabilir';
+  }
+
+  @override
+  String minLimitError(String amount) {
+    return 'Minimum limit $amount ₺ olmalı';
+  }
+
+  @override
+  String maxLimitError(String amount) {
+    return 'Maksimum limit $amount olabilir';
+  }
+
+  @override
+  String get streakInfo => 'Seri Bilgileri';
+
+  @override
+  String get howStreakWorks => 'Seri Nasıl Çalışır?';
+
+  @override
+  String get editPhotoBtn => 'Fotoğraf Düzenle';
+
+  @override
+  String cropError(String error) {
+    return 'Kırpma hatası: $error';
+  }
+
+  @override
+  String saveError(String error) {
+    return 'Kaydetme hatası: $error';
+  }
+
+  @override
+  String get myPaymentMethods => 'Ödeme Yöntemlerim';
+
+  @override
+  String get myIncomesTitle => 'Gelirlerim';
+
+  @override
+  String get enterValidAmountAndName => 'Lütfen geçerli tutar ve isim girin';
+
+  @override
+  String get tryAgainAction => 'Tekrar Dene';
+
+  @override
+  String get incomeRecycleBin => 'Gelir Çöp Kutusu';
+
+  @override
+  String get incomeCategories => 'Gelir Kategorileri';
+
+  @override
+  String get incomeSettingsTitle => 'Gelir Ayarları';
+
+  @override
+  String get recurringIncomesTitle => 'Tekrarlayan Gelirler';
+
+  @override
+  String get expenseCategoriesTitle => 'Harcama Kategorileri';
+
+  @override
+  String get myExpensesTitle => 'Harcamalarım';
+
+  @override
+  String get assetRecycleBin => 'Varlık Çöp Kutusu';
+
+  @override
+  String get assetDetail => 'Varlık Detayı';
+
+  @override
+  String get deleteAsset => 'Varlığı Sil';
+
+  @override
+  String get myAssets => 'Varlıklarım';
+
+  @override
+  String get analysisAndReports => 'Analiz ve Raporlar';
+
+  @override
+  String get expenseTab => 'Harcama';
+
+  @override
+  String get incomeTab => 'Gelir';
+
+  @override
+  String get assetTab => 'Varlık';
+
+  @override
+  String get widgetCreationError => 'Widget oluşturulurken bir hata oluştu.';
+
+  @override
+  String appInitializationFailedMsg(String error) {
+    return 'Uygulama başlatılamadı\\n$error';
+  }
 }

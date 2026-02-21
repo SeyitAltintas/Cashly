@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/di/injection_container.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../data/models/streak_model.dart';
 import '../../data/constants/streak_badges.dart';
 import 'streak_help_page.dart';
@@ -48,7 +49,7 @@ class _StreakPageState extends State<StreakPage> {
         builder: (context, controller, child) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Seri Bilgileri'),
+              title: Text(context.l10n.streakInfo),
               backgroundColor: Colors.transparent,
               elevation: 0,
               actions: [

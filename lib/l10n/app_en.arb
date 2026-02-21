@@ -302,7 +302,7 @@
       }
     }
   },
-  "spentAmount": "{amount} spent",
+  "spentAmount": "Spent: {amount}",
   "@spentAmount": {
     "placeholders": {
       "amount": {
@@ -375,7 +375,7 @@
   "viewAllVoiceCommands": "View All Voice Commands",
   "voiceCommandsTitle": "Voice Commands",
   "voiceCommandsInfo": "You can use the following commands with the voice assistant.",
-  "voiceCommandsTip": "Tip: Speak commands naturally. The voice assistant can understand different phrasings.",
+  "voiceCommandsTip": "Tip: Try to speak naturally when using commands. The app understands different variations.",
   "profileSettingsTitle": "Profile Settings",
   "userNotFound": "User not found",
   "userLoadError": "Could not load user information",
@@ -434,8 +434,8 @@
   "autoPayBillsSubscriptions": "Automatically paid bills and subscriptions",
   "customizeExpenseCategories": "Customize expense categories",
   "addEditDeleteCategories": "Add, edit or delete categories",
-  "setCategoryLimits": "Set category-specific limits",
-  "noLimitSet": "No limit set yet",
+  "setCategoryLimits": "Set Category Limits",
+  "noLimitSet": "No limit set",
   "enterAmount": "Enter amount",
   "profilePhoto": "Profile Photo",
   "editPhoto": "Edit",
@@ -451,7 +451,7 @@
   "deleteAccountWarning": "This action cannot be undone. All your data will be permanently deleted.",
   "defaultPaymentMethod": "Default Payment Method",
   "noPaymentMethodAdded": "No payment method added yet. You can add from the Tools page.",
-  "categoryBudgetActive": "Limits set for {count} categories",
+  "categoryBudgetActive": "{count} active limit(s)",
   "@categoryBudgetActive": {
     "placeholders": {
       "count": {
@@ -482,5 +482,633 @@
   "logoutSubtitle": "Safely log out of your account",
   "assets": "Assets",
   "transactions": "Transactions",
-  "allTransactions": "All Transactions"
+  "allTransactions": "All Transactions",
+  "newRecurringExpense": "New Recurring Expense",
+  "editTransaction": "Edit Transaction",
+  "transactionName": "Transaction Name",
+  "transactionNameRequired": "Transaction name is required",
+  "amountWithCurrency": "Amount (₺)",
+  "amountRequired": "Amount is required",
+  "enterValidAmount": "Enter a valid amount",
+  "everyMonthOn": "Every month on:",
+  "dayOfMonth": "Day {day}",
+  "@dayOfMonth": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "paymentMethod": "Payment Method",
+  "selectPaymentMethod": "Select a payment method",
+  "update": "Update",
+  "transactionUpdated": "Transaction updated",
+  "transactionAdded": "Transaction added",
+  "errorWhileSaving": "An error occurred while saving",
+  "notSpecified": "Not specified",
+  "recurringTransactionsInfo": "The transactions you define will be automatically added to your expenses on the day you set each month.",
+  "noRecurringTransactions": "No recurring transactions yet",
+  "tapPlusToAdd": "Tap + button to add",
+  "deleteTransaction": "Delete Transaction",
+  "deleteTransactionConfirm": "Do you want to delete the {name} transaction?",
+  "@deleteTransactionConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "unnamed": "Unnamed",
+  "everyMonthDayOf": "Day {day} of every month • {method}",
+  "@everyMonthDayOf": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryBasedUsage": "Category Based Usage",
+  "unlimitedCategories": "Unlimited Categories",
+  "totalBudget": "Total Budget",
+  "exceeded": "Exceeded: {amount}",
+  "@exceeded": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "remaining": "Remaining: {amount}",
+  "@remaining": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "exceededPercent": "Exceeded! {percent}%",
+  "@exceededPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryBudgetInfo": "Set monthly spending limits for each category. You will see warnings on the dashboard when limits are approached or exceeded.",
+  "categoryBudgetDialogInfo": "Set a monthly spending limit for this category. You will see a warning on the dashboard when the limit is exceeded.",
+  "monthlyLimit": "Monthly Limit",
+  "noLimit": "Unlimited",
+  "zeroNoLimit": "0 = Unlimited",
+  "limitNotSet": "No limit set",
+  "monthlyLimitAmount": "{amount}₺ monthly limit",
+  "@monthlyLimitAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "removeLimit": "Remove Limit",
+  "limitRemoved": "{category} limit removed",
+  "@limitRemoved": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "maxLimitWarning": "Maximum limit is 10 billion ₺",
+  "limitSet": "{category} limit set to {amount}₺",
+  "@limitSet": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "activeBudgets": "{count} active",
+  "@activeBudgets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseDetail": "Expense Detail",
+  "expenseInfo": "Expense Information",
+  "spentAmountLabel": "Amount Spent",
+  "deleteExpense": "Delete Expense",
+  "deleteExpenseConfirm": "Are you sure you want to delete \"{name}\"?",
+  "@deleteExpenseConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "expenseCategories": "Expense Categories",
+  "editPhotoTitle": "Edit Photo",
+  "resetAllEffects": "Reset All Effects",
+  "confirm": "Confirm",
+  "tryAgainShort": "Again",
+  "scheduledTransfersFailed": "Some scheduled transfers failed: {errors}",
+  "@scheduledTransfersFailed": {
+    "placeholders": {
+      "errors": {
+        "type": "String"
+      }
+    }
+  },
+  "senderAccountNotFound": "Sender account not found",
+  "receiverAccountNotFound": "Receiver account not found",
+  "accountDeleted": "{account} deleted",
+  "@accountDeleted": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "insufficientBalanceAccount": "{account}: insufficient balance",
+  "@insufficientBalanceAccount": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "noDebtToPay": "{account}: no debt to pay",
+  "@noDebtToPay": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceCmdAddExpenseTitle": "Adding Expense",
+  "voiceCmdAddExpenseDesc": "Add expense by saying amount, category and optionally date.",
+  "voiceCmdAddExpenseExamples": "100 dollars market|50 dollars coffee|Yesterday 80 dollars market|Last monday 200 dollars gas|Day before yesterday 150 dollars food",
+  "voiceCmdDeleteExpenseTitle": "Deleting Expense",
+  "voiceCmdDeleteExpenseDesc": "Delete the last added expense.",
+  "voiceCmdDeleteExpenseExamples": "Delete last expense|Delete the last one|Remove last record",
+  "voiceCmdEditExpenseTitle": "Editing Expense",
+  "voiceCmdEditExpenseDesc": "Edit the amount of your last expense.",
+  "voiceCmdEditExpenseExamples": "Make last expense 100 dollars|Update last one to 50 dollars|Change last record to 75 dollars",
+  "voiceCmdTotalQueryTitle": "Total Expense Query",
+  "voiceCmdTotalQueryDesc": "Learn your monthly, weekly or daily total expenses.",
+  "voiceCmdTotalQueryExamples": "How much did I spend this month?|How much this week?|Spent today?|What is my total expense?|Weekly spending",
+  "voiceCmdCategoryAnalysisTitle": "Category Analysis",
+  "voiceCmdCategoryAnalysisDesc": "Learn which category you spent the most.",
+  "voiceCmdCategoryAnalysisExamples": "Which category did I spend most?|Where did I spend most?",
+  "voiceCmdCategoryQueryTitle": "Expense by Category",
+  "voiceCmdCategoryQueryDesc": "Learn your total expense in a specific category.",
+  "voiceCmdCategoryQueryExamples": "How much did I spend on market?|How much on food?|Spent on transport?",
+  "voiceCmdLastExpensesTitle": "Listing Last Expenses",
+  "voiceCmdLastExpensesDesc": "List your recent expenses.",
+  "voiceCmdLastExpensesExamples": "What are my last expenses?|Tell me last expenses|Last 5 records",
+  "voiceCmdBudgetStatusTitle": "Budget Status",
+  "voiceCmdBudgetStatusDesc": "Check your budget status.",
+  "voiceCmdBudgetStatusExamples": "Did I exceed my budget?|What is my limit status?|Budget status",
+  "voiceCmdRemainingBudgetTitle": "Remaining Budget Query",
+  "voiceCmdRemainingBudgetDesc": "Learn how much is left from your budget.",
+  "voiceCmdRemainingBudgetExamples": "How much budget left?|How much can I spend?|Remaining limit",
+  "voiceCmdSetLimitTitle": "Setting Budget Limit",
+  "voiceCmdSetLimitDesc": "Update your monthly budget by voice.",
+  "voiceCmdSetLimitExamples": "Set monthly limit to 10000 dollars|Update budget to 5000 dollars|Make budget 15000 dollars",
+  "voiceCmdSavingsTitle": "Savings Calculation",
+  "voiceCmdSavingsDesc": "Learn how much you saved this month.",
+  "voiceCmdSavingsExamples": "How much did I save this month?|My savings?|Am I in plus?",
+  "voiceCmdAddFixedTitle": "Add Fixed Expenses",
+  "voiceCmdAddFixedDesc": "Add fixed expenses defined in settings to this month.",
+  "voiceCmdAddFixedExamples": "Add fixed expenses|Add bills|Add regular expenses",
+  "privacyPolicyContent": "1. Introduction\n\nThis Privacy Policy explains how the personal data of users of the Cashly application (\"App\") is collected, stored, and protected. By using the app, you agree to this policy.\n\nLast updated: February 17, 2026\n\n2. Data Collection and Usage\n\nCashly stores all your data locally on your device only. No personal data is sent, transferred, or transmitted to our servers.\n\nData collected and stored on the device:\n• User information (name and email address)\n• Expenses and income records (amount, category, date, description)\n• Asset information (type, quantity, value)\n• Payment methods and balance information\n• Transfer records\n• Budget limits and category budgets\n• Profile photo (optional)\n• App preferences and settings\n• Streak records\n\nThis data is used solely to provide the basic functions of the app.\n\n3. Data Security\n\nThe security of your data is our top priority:\n\n• All data is stored in a local database on your device.\n• Access to the app is protected by a 4-digit PIN code.\n• Biometric authentication (fingerprint / face recognition) support is available.\n• A security question provides an additional layer of protection.\n• Automatic lock engages when the app is backgrounded.\n• The app does not establish any external network connections.\n\n4. Third-Party Sharing\n\nCashly does not share, sell, or rent any collected data to third parties. Your data belongs entirely to you. No third-party analytics or advertising tools are used within the app.\n\n5. Data Backup and Transfer\n\n• The backup process is completely under user control and is optional.\n• Backup files are exported to your device in JSON format.\n• The security and storage of the backup file are the user's responsibility.\n• The backup file includes expenses, incomes, assets, payment methods, transfers, and profile information.\n• The restore process overwrites existing data.\n\n6. Data Retention Period\n\nYour data is stored on your device until you delete your account. If you uninstall the app, all data is automatically deleted.\n\n7. Right to Delete Data\n\nYou can permanently delete your account and all your data at any time:\n• Use the Profile > User Information > Delete Account option.\n• Deletion requires security verification.\n• Deleted data cannot be recovered.\n• It is recommended to take a backup before deletion.\n\n8. Children's Privacy\n\nCashly is not intended for children under 13. We do not knowingly collect data from users under 13.\n\n9. Policy Changes\n\nThis privacy policy may be updated from time to time. Significant changes will be notified within the app.\n\n10. Contact\n\nFor questions or requests regarding our privacy policy, you can contact us within the app.",
+  "termsOfServiceContent": "1. Acceptance and Scope\n\nBy downloading, installing, or using the Cashly application (\"App\"), you agree to these Terms of Use. If you do not agree to these terms, please do not use the app.\n\nLast updated: February 17, 2026\n\n2. Service Description\n\nCashly is a personal budget tracking and financial management tool. The app offers the following services:\n\n• Expense and income tracking (manual and voice entry)\n• Asset management (gold, currency, crypto, bank account)\n• Budget planning and category-based limit setting\n• Payment method management and balance tracking\n• Transfer records between accounts\n• defining regular income/expenses\n• Natural language commands with voice assistant\n• Data backup and restore\n• Statistics and graph reports\n\n3. Account and Security\n\n• You must enter accurate information when creating your account.\n• Your PIN code is the security key of your account; do not share it with anyone.\n• Biometric login and security question are additional protection layers.\n• You are responsible for unauthorized access to your account.\n• If you notice suspicious activity, it is recommended to change your PIN code.\n\n4. User Responsibilities\n\n• The financial data you enter belongs entirely to you, and you are responsible for its accuracy.\n• You cannot use the app for illegal purposes.\n• It is recommended to perform regular data backups.\n• You are responsible for the security of your backup files.\n• You cannot attempt to reverse engineer, extract source code, or modify the app.\n\n5. Disclaimer\n\nIMPORTANT - Please read carefully:\n\n• Cashly is not a financial advisory, investment advice, or accounting tool.\n• The app does not provide any investment, savings, or spending advice.\n• Cashly cannot be held responsible for your financial decisions.\n• The app is provided \"as is\"; uninterrupted or error-free operation is not guaranteed.\n• No responsibility is accepted for device failure, software error, or user-caused data loss.\n• Up-to-date exchange rates and asset prices are for informational purposes; may differ from actual market values.\n\n6. Data and Content\n\n• All data you enter into the app is stored on your device.\n• You are responsible for the accuracy, integrity, and currency of the data.\n• Account deletion cannot be undone; all your data is permanently removed.\n\n7. Intellectual Property\n\n• The Cashly app, its design, logos, and all content are protected by copyright.\n• Unauthorized copying, distribution, or creation of derivative works of the app code, visuals, and design is prohibited.\n• The \"Cashly\" name and logo are registered trademarks.\n\n8. Service Changes\n\n• App features may be added, changed, or removed without prior notice.\n• Updates, bug fixes, and improvements may be made regularly.\n\n9. Term Changes\n\nThese terms of use may be updated from time to time. Significant changes will be notified within the app. Continuing to use the app after updates means you accept the new terms.\n\n10. Applicable Law\n\nThese terms are subject to the laws of the Republic of Turkey. Turkish courts are authorized for disputes.\n\n11. Contact\n\nFor questions about our terms of use, you can contact us within the app.",
+  "faqSafetyQ": "Is my data safe?",
+  "faqSafetyA": "Absolutely! Cashly protects your privacy at the highest level:\n\n• All your data resides only on your device, never sent to any server.\n• Access to the app is protected by a 4-digit PIN code.\n• Biometric login (fingerprint / face recognition) support is available.\n• You can add an extra protection layer with a security question.\n\nYour data belongs entirely to you and is not shared with any third party.",
+  "faqOfflineQ": "Is internet connection required?",
+  "faqOfflineA": "No! Cashly is designed to work completely offline.\n\n• Adding, editing, deleting expenses and incomes\n• Asset management and tracking\n• Budget planning and category management\n• Voice assistant commands\n• Data backup and restore\n\nAll these features work seamlessly without internet. Internet connection may only be required for up-to-date currency/gold rates.",
+  "faqBackupQ": "How can I backup my data?",
+  "faqBackupA": "We recommend regular backups to secure your data:\n\n1. Go to Profile > Settings > Data Operations.\n2. Tap on \"Backup Data\".\n3. All your data is exported to a file in JSON format.\n4. Save the file to Google Drive, email, or any location you prefer.\n\nThe backup file includes your expenses, incomes, assets, payment methods, transfers, and profile information.",
+  "faqRestoreQ": "How do I restore my backup?",
+  "faqRestoreA": "To restore a backup you took earlier:\n\n1. Go to Profile > Settings > Data Operations.\n2. Tap on \"Restore Data\".\n3. Select the JSON backup file you saved earlier.\n4. The app refreshes automatically when the process is complete.\n\nWarning: The restore process replaces your current data with the data in the backup. We recommend taking a new backup to avoid losing your current data.",
+  "faqVoiceAssisQ": "How does the voice assistant work?",
+  "faqVoiceAssisA": "Cashly's voice assistant allows you to add expenses and incomes using natural language:\n\n• Tap the microphone icon on the home screen.\n• Give a command naturally, for example:\n  - \"Add 50 dollars market expense\"\n  - \"Add 1500 dollars salary income\"\n  - \"Add 200 dollars food expense with cash\"\n\nThe assistant automatically detects the amount, category, and payment method. Voice feedback confirms the transaction is successful. You can see the full list of commands in Settings > Voice Assistant.",
+  "faqBudgetLimitQ": "How do I set my budget limit?",
+  "faqBudgetLimitA": "To keep your monthly spending budget under control:\n\n1. Go to Profile > Settings > Expenses.\n2. Enter your total monthly budget in the \"Monthly Budget Limit\" field.\n3. Tap the Save button.\n\nAfter setting your budget limit:\n• You can see your budget utilization rate on the home screen.\n• You receive a visual warning when you approach or exceed the limit.\n• You can instantly track your status with color codes (green: safe, yellow: caution, red: limit exceeded).",
+  "faqCategoryBudgetQ": "What is category-based budget limit?",
+  "faqCategoryBudgetA": "Besides the general budget limit, you can set separate limits for each category:\n\n1. Go to Profile > Settings > Expenses > Category Budgets.\n2. Tap on the category you want (e.g. Food & Cafe).\n3. Set a monthly limit for that category.\n\nExample usage:\n• Food & Cafe: 2,000₺\n• Transport: 500₺\n• Entertainment: 1,000₺\n\nThis way, you can control your expenses in detail on a category basis and see where you can save.",
+  "faqRecurringQ": "What is regular income/expense?",
+  "faqRecurringA": "You can define incomes or expenses that repeat regularly every month:\n\nRegular income examples: Salary, rental income, side income\nRegular expense examples: Rent, internet, phone bill, subscriptions\n\nHow to add:\n1. Go to Settings > Expenses or Incomes.\n2. Tap on \"Recurring Transactions\".\n3. Set the amount, category, and repetition frequency.\n\nRecurring transactions are automatically recorded every month, so you don't have to add them manually each time.",
+  "faqAssetTrackingQ": "How is asset tracking done?",
+  "faqAssetTrackingA": "You can track your financial assets from a single place with Cashly:\n\nSupported asset types:\n• Gold (gram, quarter, half, full)\n• Currency (USD, EUR, etc.)\n• Crypto currency\n• Bank accounts\n• Silver\n\nAdd your assets, enter the quantity and purchase price. Track your total portfolio value, profit/loss status, and asset distribution with charts.",
+  "faqPaymentMethodsQ": "How do I manage my payment methods?",
+  "faqPaymentMethodsA": "Track your expenses in detail by defining different payment methods:\n\n• Cash\n• Debit/Credit cards\n• Digital wallets\n\nYou can define a balance for each payment method and ensure the balance is automatically updated as you spend. This way, you can instantly see how much you spent from which card or how much cash is left in your safe.",
+  "faqTransferQ": "How to make transfers between accounts?",
+  "faqTransferA": "You can record money transfers between your payment methods:\n\nExample scenarios:\n• Withdrawing cash from bank\n• Paying credit card debt\n• Transfer from one account to another\n\nThe transfer transaction deducts the amount from the source account and adds it to the destination account. Thus, the balance of all your accounts remains up-to-date at all times. You can view your transfer history in Settings > Money Transfers.",
+  "faqNotificationsQ": "What are notifications for?",
+  "faqNotificationsA": "Cashly offers various notifications to keep you on track with your financial goals:\n\n• Daily reminder: Don't forget to enter your expenses.\n• Budget alert: Get notified when you approach your monthly limit.\n• Recurring transaction notification: Get informed when recurring income/expenses are recorded.\n\nYou can turn all notification settings on or off and customize their times as you wish from Profile > Settings > Notifications.",
+  "faqStreakQ": "What is the streak system?",
+  "faqStreakA": "The streak system is a motivation tool that helps you create a regular usage habit:\n\n• Keep your streak going by using the app every day.\n• Your streak level increases as your consecutive day count grows.\n• You see a celebration animation when you reach certain levels.\n• If you miss a day, your streak resets.\n\nThe streak system helps you gain the habit of tracking your expenses regularly. Try to break your highest streak!",
+  "faqProfilePhotoQ": "How do I change my profile photo?",
+  "faqProfilePhotoA": "To change your profile photo:\n\n1. Go to Profile > User Information page.\n2. Tap the edit icon on your profile photo.\n3. Select a photo from the gallery or use one of the ready avatars.\n4. Crop, rotate and apply filters to the selected photo.\n\nYou can adjust your photo exactly as you want with the photo editor.",
+  "faqForgotPinQ": "What should I do if I forget my PIN?",
+  "faqForgotPinA": "If you forgot your PIN code, you can reset it using your security question on the login screen. You must have set a security question and answer beforehand for this.\n\nTo set your security question:\nYou can use the Profile > User Information > Security section.\n\nIf you haven't set a security question and forgot your PIN, you may need to reinstall the app. In this case, if you have a backup, you can restore your data.",
+  "faqDeleteAccountQ": "What happens if I delete my account?",
+  "faqDeleteAccountA": "Account deletion is permanent and cannot be undone. Deleted data:\n\n• All expense records\n• All income records\n• Your assets\n• Payment methods and balances\n• Transfer history\n• Streak records\n• Profile information and photo\n\nWe strongly recommend backing up your data before deleting. Account deletion requires security verification (math question) and is performed with two-step confirmation.",
+  "done": "Done",
+  "selectTime": "Select Time",
+  "selectMonthAndYear": "Select Month and Year",
+  "selectDateAndTime": "Select Date and Time",
+  "errorOccurred": "An Error Occurred",
+  "unexpectedErrorRestart": "An unexpected error occurred.\nPlease restart the app.",
+  "technicalDetails": "Technical Details",
+  "anErrorOccurred": "An error occurred",
+  "componentLoadError": "A problem occurred while loading this component.",
+  "pageLoadError": "An error occurred while loading {pageName} page.",
+  "@pageLoadError": {
+    "placeholders": {
+      "pageName": {
+        "type": "String"
+      }
+    }
+  },
+  "operationSuccessful": "Operation successful!",
+  "limitWarning": "Limit Warning",
+  "balanceWarning": "Balance Warning",
+  "continueAnyway": "Do you still want to continue?",
+  "remainingLimitLabel": "Remaining Limit",
+  "currentBalanceLabel": "Current Balance",
+  "expenseAmountLabel": "Expense Amount",
+  "offlineMode": "Offline Mode",
+  "noInternetConnection": "No internet connection",
+  "unavailableFeatures": "Unavailable Features",
+  "assetPriceUpdates": "Asset price updates",
+  "realTimeExchangeRates": "Real-time exchange rates",
+  "limitedFeatures": "Limited Features",
+  "assetValuesLastKnown": "Asset values are shown with last known prices",
+  "fullyWorkingFeatures": "Fully Working Features",
+  "addEditIncomeExpense": "Adding and editing income/expenses",
+  "backupAndRestore": "Backup and restore",
+  "chartsAndReports": "Charts and reports",
+  "allLocalData": "All local data",
+  "understood": "Understood",
+  "pleaseEnterEmail": "Please enter your email address",
+  "enterValidEmail": "Enter a valid email address",
+  "pleaseSetPin": "Please set a PIN",
+  "pinLengthError": "PIN must be between 4 and 6 digits",
+  "pinDigitsOnly": "PIN must contain only digits",
+  "pleaseEnterName": "Please enter your name",
+  "nameMinLength": "Name must be at least 2 characters",
+  "nameMaxLength": "Name can be at most 50 characters",
+  "pleaseEnterAmount": "Please enter an amount",
+  "enterValidNumber": "Enter a valid number",
+  "amountMustBePositive": "Amount must be a positive number",
+  "pleaseEnterQuantity": "Please enter a quantity",
+  "enterValidNumberFormat": "Enter a valid number format",
+  "quantityCannotBeNegative": "Quantity cannot be negative",
+  "quantityMustBeGreaterThanZero": "Quantity must be greater than 0",
+  "pleaseEnterCardName": "Please enter card name",
+  "cardNameMinLength": "Card name must be at least 2 characters",
+  "cardNameMaxLength": "Card name can be at most 30 characters",
+  "pleaseEnterLastFourDigits": "Please enter the last 4 digits",
+  "lastFourDigitsLength": "Last 4 digits must be exactly 4 digits",
+  "lastFourDigitsOnly": "Last 4 digits must contain only numbers",
+  "pleaseEnterDebtAmount": "Please enter debt amount",
+  "pleaseEnterBalanceAmount": "Please enter balance",
+  "invalidAmountFormat": "Invalid amount format",
+  "amountCannotBeNegative": "Amount cannot be negative",
+  "limitMustBeGreaterThanZero": "Limit must be greater than 0",
+  "limitLessThanDebt": "Limit cannot be less than current debt",
+  "genericError": "An error occurred. Please try again.",
+  "dataNotFoundError": "Data not found",
+  "connectionError": "Connection error. Check your internet connection.",
+  "timeoutError": "Operation timed out. Please try again.",
+  "permissionError": "Permission error",
+  "priceFetchFailed": "Failed to fetch price, please enter manually.",
+  "priceFetchError": "Error fetching price. Please enter manually.",
+  "pleaseFillRequiredFields": "Please fill in all required fields",
+  "currentPriceButton": "Current",
+  "amountTL": "Amount (TL)",
+  "purchaseInfo": "Purchase Information",
+  "purchasePriceTL": "Purchase Price (TL)",
+  "enterValidPrice": "Enter a valid price",
+  "purchasePriceNegative": "Purchase price cannot be negative",
+  "purchasePriceMustBePositive": "Purchase price must be greater than 0",
+  "minPurchasePrice": "Minimum purchase price must be 0.01 TL",
+  "maxPurchasePrice": "Maximum purchase price can be 100 million TL",
+  "quantityLabel": "Quantity",
+  "stockNameLabel": "Stock Name",
+  "currencyNameLabel": "Currency Name",
+  "cryptoNameLabel": "Crypto Name",
+  "bankNameLabel": "Bank Name",
+  "assetNameField": "Asset Name",
+  "profileUpdated": "Profile updated",
+  "updateFailed": "Update failed: {error}",
+  "@updateFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profileImageUpdated": "Profile image updated",
+  "selectProfileImage": "Select Profile Image",
+  "galleryOrCameraDesc": "You can change your profile picture by selecting a photo from your gallery or taking a photo with the camera.",
+  "cameraLabel": "Camera",
+  "takePhotoLabel": "Take Photo",
+  "galleryLabel": "Gallery",
+  "selectPhotoLabel": "Select Photo",
+  "changeName": "Change Name",
+  "newNameLabel": "New Name",
+  "nameCannotBeEmpty": "Name cannot be empty",
+  "nameUpdated": "Name Updated",
+  "currentPinLabel": "Current PIN",
+  "newPinLabel": "New PIN",
+  "newPinRepeatLabel": "New PIN (Repeat)",
+  "enterPinDigits": "Enter 4-6 digit PIN",
+  "pinIncorrect": "PIN is incorrect",
+  "pinsDoNotMatch": "PINs do not match",
+  "pinUpdated": "PIN Updated",
+  "pinVerification": "PIN Verification",
+  "biometricPinVerificationDesc": "Verify your PIN to activate biometric login",
+  "activateBiometric": "Activate Biometric",
+  "finalConfirmation": "Final Confirmation",
+  "permanentDeleteAccountConfirm": "Are you sure you want to permanently delete your account?",
+  "yesDelete": "Yes, Delete",
+  "accountDeletedSuccess": "Your account has been successfully deleted",
+  "accountDeleteError": "Error deleting account: {error}",
+  "@accountDeleteError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePermanently": "Delete Account Permanently",
+  "pinVerificationTitle": "PIN Verification",
+  "forwardButton": "Next",
+  "thisActionIrreversibleWarning": "This action cannot be undone! All your data will be permanently deleted.",
+  "expenseMovedToTrash": "Expense moved to trash",
+  "expenseRestored": "Expense restored",
+  "noSearchResults": "No results found",
+  "tryDifferentSearch": "Try a different search term",
+  "emptyTrashTitle": "Empty Trash",
+  "emptyTrashConfirm": "All deleted expenses will be permanently destroyed. Are you sure?",
+  "trashEmptied": "Trash emptied.",
+  "restoreAllTitle": "Restore All",
+  "restoreAllConfirm": "{count} expenses will be restored. Do you confirm?",
+  "@restoreAllConfirm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yesRestore": "Yes, Restore",
+  "allExpensesRestored": "All expenses restored",
+  "noDeletedExpenses": "No deleted expenses.",
+  "expensePermanentlyDeleted": "Expense permanently deleted",
+  "expenseRestoredRecycled": "Expense restored",
+  "deleteCategory": "Delete Category",
+  "deleteCategoryConfirm": "Are you sure you want to delete the \"{name}\" category?",
+  "@deleteCategoryConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryDeleted": "Category deleted",
+  "categoryAdded": "Category added",
+  "systemCategoryCannotDelete": "\"{name}\" is a system category and cannot be deleted",
+  "@systemCategoryCannotDelete": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resetToDefault": "Reset to Default",
+  "resetCategoriesConfirm": "All custom categories will be deleted and default categories will be loaded. Are you sure?",
+  "yesReset": "Yes, Reset",
+  "defaultCategoriesLoaded": "Default categories loaded",
+  "addNewCategory": "Add New Category",
+  "myCategories": "MY CATEGORIES",
+  "addNew": "Add New",
+  "selectIconLabel": "Select Icon:",
+  "categoryOrderUpdated": "Category order updated",
+  "micPermissionDenied": "Microphone permission denied or device not supported.",
+  "expenseDeletion": "Expense Deletion",
+  "deleteLastExpenseConfirm": "Are you sure you want to delete the last added expense?",
+  "commandNotSupported": "This command is not yet supported",
+  "noExpenseFoundYet": "No expenses found yet",
+  "categoryNotUnderstood": "Category not understood",
+  "addRecurringToMonthConfirm": "Would you like to add defined recurring transactions to this month?",
+  "expenseEditingTitle": "Expense Editing",
+  "newAmountNotUnderstood": "Could not understand the new amount. For example, you can say \"Make last expense 100 dollars\".",
+  "budgetLimitUpdateTitle": "Budget Limit Update",
+  "limitUpdateError": "An error occurred while updating the limit",
+  "commandProcessing": "Processing command...",
+  "heardLabel": "Heard:",
+  "howToUse": "How to use?",
+  "voiceAssistantCapabilities": "With the voice assistant you can:",
+  "addingExpenseLabel": "Add expenses",
+  "deletingExpenseLabel": "Delete expenses",
+  "queryExpenseLabel": "Query expenses",
+  "categoryAnalysisLabel": "Category analysis",
+  "budgetControlLabel": "Budget control",
+  "detailedCommandListInfo": "For detailed command list:\nSettings -> Voice Assistant -> All Commands",
+  "expenseNameLabel": "Expense Name",
+  "whatDidYouBuy": "What did you buy? (e.g. Coffee)",
+  "expenseDateLabel": "Expense Date",
+  "selectPaymentMethodHint": "Select Payment Method",
+  "enterValidAmountError": "Enter a valid amount",
+  "recurringTransactionsLabel": "Recurring Transactions",
+  "recurringItemsAdded": "{count} recurring transactions added!",
+  "@recurringItemsAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseAddedVoice": "Expense added: {name} - {amount} TL",
+  "@expenseAddedVoice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "monthlyBudgetUpdated": "Monthly budget updated to {amount} TL",
+  "@monthlyBudgetUpdated": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "limitNotUnderstood": "Could not understand the limit amount. For example, you can say \"Set my monthly limit to 10000 dollars\".",
+  "updateExpenseConfirm": "Do you want to update the last expense to {amount} TL?",
+  "@updateExpenseConfirm": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expenseUpdatedVoice": "{name} updated: {amount} TL",
+  "@expenseUpdatedVoice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "monthlyBudgetUpdateConfirm": "Update your monthly budget to {amount} TL?",
+  "@monthlyBudgetUpdateConfirm": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "maxAmountError": "Maximum amount can be {amount} TL",
+  "@maxAmountError": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "descriptionMaxLength": "Description can be at most {maxLength} characters",
+  "@descriptionMaxLength": {
+    "placeholders": {
+      "maxLength": {
+        "type": "int"
+      }
+    }
+  },
+  "itemNameRequired": "{itemType} name is required",
+  "@itemNameRequired": {
+    "placeholders": {
+      "itemType": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldRequired": "{fieldName} is required",
+  "@fieldRequired": {
+    "placeholders": {
+      "fieldName": {
+        "type": "String"
+      }
+    }
+  },
+  "quantityTooSmall": "Quantity is too small (min: {min})",
+  "@quantityTooSmall": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "quantityTooLarge": "Quantity is too large (max: {max})",
+  "@quantityTooLarge": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "maxDecimalPlaces": "You can enter at most {count} decimal places",
+  "@maxDecimalPlaces": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maxBalanceError": "Maximum amount can be {amount}",
+  "@maxBalanceError": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "minLimitError": "Minimum limit must be {amount} TL",
+  "@minLimitError": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "maxLimitError": "Maximum limit can be {amount}",
+  "@maxLimitError": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "streakInfo": "Streak Information",
+  "howStreakWorks": "How Streak Works?",
+  "editPhotoBtn": "Edit Photo",
+  "cropError": "Crop error: {error}",
+  "@cropError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "saveError": "Save error: {error}",
+  "@saveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "myPaymentMethods": "My Payment Methods",
+  "myIncomesTitle": "My Incomes",
+  "enterValidAmountAndName": "Please enter a valid amount and name",
+  "tryAgainAction": "Try Again",
+  "incomeRecycleBin": "Income Recycle Bin",
+  "incomeCategories": "Income Categories",
+  "incomeSettingsTitle": "Income Settings",
+  "recurringIncomesTitle": "Recurring Incomes",
+  "expenseCategoriesTitle": "Expense Categories",
+  "myExpensesTitle": "My Expenses",
+  "assetRecycleBin": "Asset Recycle Bin",
+  "assetDetail": "Asset Detail",
+  "deleteAsset": "Delete Asset",
+  "myAssets": "My Assets",
+  "analysisAndReports": "Analysis and Reports",
+  "expenseTab": "Expense",
+  "incomeTab": "Income",
+  "assetTab": "Asset",
+  "widgetCreationError": "An error occurred while creating the widget.",
+  "appInitializationFailedMsg": "Failed to start the application\\n{error}",
+  "@appInitializationFailedMsg": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

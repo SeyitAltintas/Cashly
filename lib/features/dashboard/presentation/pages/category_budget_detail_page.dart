@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/utils/currency_formatter.dart';
 
 /// Kategori Bazlı Bütçe Detay Sayfası
@@ -25,7 +26,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kategori Bütçeleri'),
+        title: Text(context.l10n.categoryBudgets),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -40,7 +41,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
 
             // Kategori Listesi Başlığı
             Text(
-              'Kategori Bazlı Kullanım',
+              context.l10n.categoryBasedUsage,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -56,7 +57,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
             if (_getUnlimitedCategories().isNotEmpty) ...[
               const SizedBox(height: 24),
               Text(
-                'Limitsiz Kategoriler',
+                context.l10n.unlimitedCategories,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -115,7 +116,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Toplam Bütçe',
+                    context.l10n.totalBudget,
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(
@@ -170,7 +171,9 @@ class CategoryBudgetDetailPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Harcanan: ${CurrencyFormatter.format(totalExpense)}',
+                context.l10n.spentAmount(
+                  CurrencyFormatter.format(totalExpense),
+                ),
                 style: TextStyle(
                   fontSize: 13,
                   color: Theme.of(
@@ -237,7 +240,9 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                 ),
                 child: Text(
                   isOverBudget
-                      ? 'Aşıldı! ${(data.usage * 100).toStringAsFixed(0)}%'
+                      ? context.l10n.exceededPercent(
+                          (data.usage * 100).toStringAsFixed(0),
+                        )
                       : '${(data.usage * 100).toStringAsFixed(0)}%',
                   style: TextStyle(
                     fontSize: 12,
@@ -277,8 +282,12 @@ class CategoryBudgetDetailPage extends StatelessWidget {
               ),
               Text(
                 isOverBudget
-                    ? 'Aşım: ${CurrencyFormatter.format(-remaining)}'
-                    : 'Kalan: ${CurrencyFormatter.format(remaining)}',
+                    ? context.l10n.exceeded(
+                        CurrencyFormatter.format(-remaining),
+                      )
+                    : context.l10n.remaining(
+                        CurrencyFormatter.format(remaining),
+                      ),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,

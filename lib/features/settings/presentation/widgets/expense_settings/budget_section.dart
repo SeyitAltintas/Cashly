@@ -177,8 +177,10 @@ class BudgetSection extends StatelessWidget {
                                 )
                               : Text(
                                   context.l10n.save,
-                                  key: ValueKey('save'),
-                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                  key: const ValueKey('save'),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                         ),
                       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/theme/app_theme.dart';
 import '../../../../core/di/injection_container.dart';
@@ -631,7 +632,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Harcama Kategorileri'),
+        title: Text(context.l10n.expenseCategoriesTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/constants/card_color_constants.dart';
 import 'package:cashly/core/mixins/lazy_loading_mixin.dart';
@@ -166,7 +167,7 @@ class _PaymentMethodRecycleBinPageState
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Çöp Kutusu'),
+        title: Text(context.l10n.recycleBin),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(

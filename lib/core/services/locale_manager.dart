@@ -17,19 +17,9 @@ class LocaleManager extends ChangeNotifier {
   late Box _box;
 
   LocaleManager() {
-    _init();
-  }
-
-  Future<void> _init() async {
-    if (Hive.isBoxOpen(_boxName)) {
-      _box = Hive.box(_boxName);
-    } else {
-      _box = await Hive.openBox(_boxName);
-    }
-
+    _box = Hive.box(_boxName);
     final savedLang = _box.get(_keyLocale, defaultValue: 'tr');
     _locale = _localeFromCode(savedLang);
-    notifyListeners();
   }
 
   Locale get locale => _locale;

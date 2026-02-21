@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 import '../../data/models/asset_model.dart';
 import 'add_asset_page.dart';
@@ -144,7 +145,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                   ),
                 ),
               )
-            : const Text("Varlıklarım"),
+            : Text(context.l10n.myAssets),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,

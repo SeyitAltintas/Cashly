@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/constants/card_color_constants.dart';
 import 'package:cashly/core/widgets/skeleton_widget.dart';
@@ -142,7 +143,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                   ),
                 ),
               )
-            : const Text("Ödeme Yöntemlerim"),
+            : Text(context.l10n.myPaymentMethods),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,

@@ -60,7 +60,10 @@ class _MonthYearPickerDialogState extends State<MonthYearPickerDialog> {
       title: Center(
         child: Text(
           context.l10n.selectPeriod,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       content: SizedBox(

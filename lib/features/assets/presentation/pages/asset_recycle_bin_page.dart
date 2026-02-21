@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../data/models/asset_model.dart';
 import '../../../settings/presentation/state/recycle_bin_states.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
@@ -112,7 +113,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Varlık Çöp Kutusu"),
+        title: Text(context.l10n.assetRecycleBin),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Theme.of(context).colorScheme.onSurface,

@@ -184,9 +184,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         if (fromIndex == -1) {
           tumTransferler[i] = transfer.copyWith(
             isFailed: true,
-            failureReason: 'Gönderen hesap silinmiş veya bulunamadı',
+            failureReason: context.l10n.senderAccountNotFound,
           );
-          basarisizTransferler.add('Gönderen hesap bulunamadı');
+          basarisizTransferler.add(context.l10n.senderAccountNotFound);
           transferDegisti = true;
           continue;
         }
@@ -195,9 +195,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         if (toIndex == -1) {
           tumTransferler[i] = transfer.copyWith(
             isFailed: true,
-            failureReason: 'Alıcı hesap silinmiş veya bulunamadı',
+            failureReason: context.l10n.receiverAccountNotFound,
           );
-          basarisizTransferler.add('Alıcı hesap bulunamadı');
+          basarisizTransferler.add(context.l10n.receiverAccountNotFound);
           transferDegisti = true;
           continue;
         }
@@ -209,9 +209,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         if (fromPm.isDeleted) {
           tumTransferler[i] = transfer.copyWith(
             isFailed: true,
-            failureReason: 'Gönderen hesap (${fromPm.name}) silinmiş',
+            failureReason: context.l10n.accountDeleted(fromPm.name),
           );
-          basarisizTransferler.add('${fromPm.name} silinmiş');
+          basarisizTransferler.add(context.l10n.accountDeleted(fromPm.name));
           transferDegisti = true;
           continue;
         }
@@ -220,9 +220,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         if (toPm.isDeleted) {
           tumTransferler[i] = transfer.copyWith(
             isFailed: true,
-            failureReason: 'Alıcı hesap (${toPm.name}) silinmiş',
+            failureReason: context.l10n.accountDeleted(toPm.name),
           );
-          basarisizTransferler.add('${toPm.name} silinmiş');
+          basarisizTransferler.add(context.l10n.accountDeleted(toPm.name));
           transferDegisti = true;
           continue;
         }
@@ -231,9 +231,11 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         if (fromPm.type != 'kredi' && fromPm.balance < transfer.amount) {
           tumTransferler[i] = transfer.copyWith(
             isFailed: true,
-            failureReason: '${fromPm.name} hesabında yetersiz bakiye',
+            failureReason: context.l10n.insufficientBalanceAccount(fromPm.name),
           );
-          basarisizTransferler.add('${fromPm.name}: yetersiz bakiye');
+          basarisizTransferler.add(
+            context.l10n.insufficientBalanceAccount(fromPm.name),
+          );
           transferDegisti = true;
           continue;
         }
@@ -242,9 +244,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         if (toPm.type == 'kredi' && toPm.balance <= 0) {
           tumTransferler[i] = transfer.copyWith(
             isFailed: true,
-            failureReason: '${toPm.name} kredi kartında ödenecek borç yok',
+            failureReason: context.l10n.noDebtToPay(toPm.name),
           );
-          basarisizTransferler.add('${toPm.name}: borç yok');
+          basarisizTransferler.add(context.l10n.noDebtToPay(toPm.name));
           transferDegisti = true;
           continue;
         }
@@ -280,7 +282,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       if (basarisizTransferler.isNotEmpty && mounted) {
         AppSnackBar.warning(
           context,
-          'Bazı zamanlanmış transferler başarısız: ${basarisizTransferler.join(", ")}',
+          context.l10n.scheduledTransfersFailed(
+            basarisizTransferler.join(", "),
+          ),
         );
       }
     }
@@ -693,7 +697,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       context,
       MaterialPageRoute(
         builder: (context) => PageErrorBoundary(
-          pageName: 'Harcamalar',
+          pageName: context.l10n.expenses,
           child: ExpensesPage(
             tumHarcamalar: tumHarcamalar,
             tumOdemeYontemleri: tumOdemeYontemleri,
@@ -724,7 +728,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       context,
       MaterialPageRoute(
         builder: (context) => PageErrorBoundary(
-          pageName: 'Gelirler',
+          pageName: context.l10n.incomes,
           child: IncomesPage(
             tumGelirler: tumGelirler,
             tumOdemeYontemleri: tumOdemeYontemleri,

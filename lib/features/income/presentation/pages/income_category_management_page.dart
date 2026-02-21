@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/di/injection_container.dart';
 import '../../../income/domain/repositories/income_repository.dart';
 import 'package:cashly/core/utils/error_handler.dart';
@@ -347,7 +348,7 @@ class _GelirKategoriYonetimiSayfasiState
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Gelir Kategorileri"),
+          title: Text(context.l10n.incomeCategories),
           backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),

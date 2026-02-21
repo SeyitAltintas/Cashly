@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/di/injection_container.dart';
 import '../../../income/domain/repositories/income_repository.dart';
@@ -246,7 +247,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Gelir Çöp Kutusu"),
+        title: Text(context.l10n.incomeRecycleBin),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Seri özelliği hakkında bilgi sayfası
 /// Accordion menü ile tüm özellikleri açıklar
@@ -9,7 +10,7 @@ class StreakHelpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Seri Nasıl Çalışır?'),
+        title: Text(context.l10n.howStreakWorks),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),

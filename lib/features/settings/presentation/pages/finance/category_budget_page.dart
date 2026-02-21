@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../../core/di/injection_container.dart';
+import '../../../../../core/extensions/l10n_extensions.dart';
 import '../../../../expenses/domain/repositories/expense_repository.dart';
 import '../../../../../core/widgets/app_snackbar.dart';
 
@@ -90,7 +91,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bu kategori için aylık harcama limiti belirleyin. Limit aşıldığında ana sayfada uyarı görürsünüz.',
+              context.l10n.categoryBudgetDialogInfo,
               style: TextStyle(
                 color: Theme.of(
                   dialogContext,
@@ -115,14 +116,14 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                 fontFamily: 'Inter',
               ),
               decoration: InputDecoration(
-                labelText: 'Aylık Limit',
+                labelText: context.l10n.monthlyLimit,
                 labelStyle: TextStyle(
                   color: Theme.of(
                     dialogContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.8),
                   fontFamily: 'Inter',
                 ),
-                hintText: '0 = Limitsiz',
+                hintText: context.l10n.zeroNoLimit,
                 hintStyle: TextStyle(
                   fontSize: 14,
                   color: Theme.of(
@@ -184,10 +185,13 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                 await _saveBudget(kategori, 0);
                 if (!mounted) return;
                 navigator.pop();
-                AppSnackBar.success(context, '$kategori limiti kaldırıldı');
+                AppSnackBar.success(
+                  context,
+                  context.l10n.limitRemoved(kategori),
+                );
               },
               icon: const Icon(Icons.delete_outline, size: 18),
-              label: const Text('Limiti Kaldır'),
+              label: Text(context.l10n.removeLimit),
               style: TextButton.styleFrom(foregroundColor: Colors.orange),
             ),
           const SizedBox(width: 8),
@@ -200,10 +204,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
 
               // Edge case: Maximum limit control
               if (value > 10000000000) {
-                AppSnackBar.warning(
-                  context,
-                  'Maximum 10 milyar ₺ limit belirleyebilirsiniz',
-                );
+                AppSnackBar.warning(context, context.l10n.maxLimitWarning);
                 return;
               }
 
@@ -213,12 +214,15 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
               if (value > 0) {
                 AppSnackBar.success(
                   context,
-                  '$kategori limiti ${_formatWithThousandSeparator(value.toStringAsFixed(0))}₺ olarak ayarlandı',
+                  context.l10n.limitSet(
+                    kategori,
+                    _formatWithThousandSeparator(value.toStringAsFixed(0)),
+                  ),
                 );
               }
             },
             icon: const Icon(Icons.check, size: 18),
-            label: const Text('Kaydet'),
+            label: Text(context.l10n.save),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2E7D32),
               foregroundColor: Colors.white,
@@ -251,7 +255,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Kategori Bütçeleri'),
+          title: Text(context.l10n.categoryBudgets),
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
@@ -284,7 +288,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '$activeBudgets aktif',
+                      context.l10n.activeBudgets(activeBudgets),
                       style: const TextStyle(
                         color: Color(0xFF2E7D32),
                         fontWeight: FontWeight.w600,
@@ -335,7 +339,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Her kategori için aylık harcama limiti belirleyin. Limit yaklaştığında veya aşıldığında ana sayfada uyarı göreceksiniz.',
+                      context.l10n.categoryBudgetInfo,
                       style: TextStyle(
                         fontSize: 13,
                         color: Theme.of(
@@ -412,8 +416,10 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                                     const SizedBox(height: 4),
                                     Text(
                                       hasLimit
-                                          ? '${limit.toStringAsFixed(0)}₺ aylık limit'
-                                          : 'Limit belirlenmemiş',
+                                          ? context.l10n.monthlyLimitAmount(
+                                              limit.toStringAsFixed(0),
+                                            )
+                                          : context.l10n.limitNotSet,
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Theme.of(context)

@@ -147,7 +147,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         body: Center(
           child: Text(
             context.l10n.userNotFound,
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
         ),
       );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
@@ -476,7 +477,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Tekrarlayan Gelirler'),
+        title: Text(context.l10n.recurringIncomesTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -603,7 +604,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('İptal'),
+                child: Text(context.l10n.cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),

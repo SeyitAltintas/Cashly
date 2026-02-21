@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/theme_manager.dart';
 import '../../../../core/constants/color_constants.dart';
@@ -344,7 +345,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                 ),
                 onChanged: (val) => filtreleVeGoster(),
               )
-            : const Text("Harcamalarım"),
+            : Text(context.l10n.myExpensesTitle),
         actions: [
           if (!aramaModu && !buAyMi)
             TextButton(

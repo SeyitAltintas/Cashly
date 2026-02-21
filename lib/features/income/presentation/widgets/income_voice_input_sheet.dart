@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/services/speech/speech_service.dart';
 import '../controllers/incomes_controller.dart';
@@ -198,7 +199,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
 
     if (tutar <= 0 || isim.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen geçerli tutar ve isim girin')),
+        SnackBar(content: Text(context.l10n.enterValidAmountAndName)),
       );
       return;
     }
@@ -301,7 +302,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
         ElevatedButton.icon(
           onPressed: () => _initSpeech(),
           icon: const Icon(Icons.refresh),
-          label: const Text('Tekrar Dene'),
+          label: Text(context.l10n.tryAgainAction),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green.shade600,
             foregroundColor: Colors.white,
@@ -630,7 +631,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
                   _startListening();
                 },
                 icon: const Icon(Icons.refresh),
-                label: const Text('Yeniden'),
+                label: Text(context.l10n.retry),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.green.shade400,
                   side: BorderSide(color: Colors.green.shade400),
@@ -646,7 +647,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
               child: ElevatedButton.icon(
                 onPressed: _confirmResult,
                 icon: const Icon(Icons.check),
-                label: const Text('Ekle'),
+                label: Text(context.l10n.add),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade600,
                   foregroundColor: Colors.white,

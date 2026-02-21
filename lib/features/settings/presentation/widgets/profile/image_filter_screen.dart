@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:math' as math;
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -216,7 +217,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
       backgroundColor: const Color(0xFF0D0D0D),
       appBar: AppBar(
         backgroundColor: const Color(0xFF0D0D0D),
-        title: const Text('Fotoğraf Düzenle'),
+        title: Text(context.l10n.editPhotoBtn),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
@@ -701,7 +702,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
           TextButton.icon(
             onPressed: _resetAllEffects,
             icon: const Icon(Icons.refresh, size: 16),
-            label: const Text('Tüm Efektleri Sıfırla'),
+            label: Text(context.l10n.resetAllEffects),
             style: TextButton.styleFrom(foregroundColor: Colors.white54),
           ),
         ],

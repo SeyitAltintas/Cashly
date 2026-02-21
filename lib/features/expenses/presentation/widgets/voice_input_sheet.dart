@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/services/speech/speech_service.dart';
 import '../../../../core/services/tts_service.dart';
@@ -1344,7 +1345,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: const Text('Onayla'),
+                          child: Text(context.l10n.confirm),
                         ),
                       ),
                     ],
@@ -1534,7 +1535,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.category, color: ColorConstants.kirmiziVurgu),
+                    const Icon(
+                      Icons.category,
+                      color: ColorConstants.kirmiziVurgu,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButton<String>(
@@ -1594,10 +1598,12 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                         _startListening();
                       },
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Yeniden'),
+                      label: Text(context.l10n.retry),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: ColorConstants.kirmiziVurgu,
-                        side: const BorderSide(color: ColorConstants.kirmiziVurgu),
+                        side: const BorderSide(
+                          color: ColorConstants.kirmiziVurgu,
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -1610,7 +1616,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                     child: ElevatedButton.icon(
                       onPressed: canConfirm ? _confirm : null,
                       icon: const Icon(Icons.check),
-                      label: const Text('Ekle'),
+                      label: Text(context.l10n.add),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: ColorConstants.kirmiziVurgu,
                         foregroundColor: Colors.white,
@@ -1683,7 +1689,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         TextButton.icon(
           onPressed: _initSpeech,
           icon: const Icon(Icons.refresh),
-          label: const Text('Tekrar Dene'),
+          label: Text(context.l10n.tryAgainAction),
         ),
       ],
     );

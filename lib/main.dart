@@ -46,6 +46,8 @@ void main() async {
 
       try {
         await Hive.initFlutter();
+        // Ayarlar için kullanılan Hive kutusunu önceden açarak asenkron problemleri çöz (flicker önler)
+        await Hive.openBox('settings');
         // DI container'ı başlat
         await initializeDependencies();
         // Görsel cache servisini başlat

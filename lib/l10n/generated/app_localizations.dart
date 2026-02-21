@@ -1829,7 +1829,7 @@ abstract class AppLocalizations {
   /// No description provided for @spentAmount.
   ///
   /// In tr, this message translates to:
-  /// **'{amount} ₺ harcandı'**
+  /// **'Harcanan: {amount}'**
   String spentAmount(String amount);
 
   /// No description provided for @limitAmount.
@@ -2141,7 +2141,7 @@ abstract class AppLocalizations {
   /// No description provided for @voiceCommandsTip.
   ///
   /// In tr, this message translates to:
-  /// **'İpucu: Komutları doğal bir şekilde söyleyin. Sesli asistan farklı söyleyişleri de anlayabilir.'**
+  /// **'İpucu: Komutları denerken doğal konuşmaya çalışın. Uygulama farklı varyasyonları anlayabilir.'**
   String get voiceCommandsTip;
 
   /// No description provided for @profileSettingsTitle.
@@ -2411,13 +2411,13 @@ abstract class AppLocalizations {
   /// No description provided for @setCategoryLimits.
   ///
   /// In tr, this message translates to:
-  /// **'Kategorilere özel limit belirleyin'**
+  /// **'Kategori Limitleri Belirle'**
   String get setCategoryLimits;
 
   /// No description provided for @noLimitSet.
   ///
   /// In tr, this message translates to:
-  /// **'Henüz limit belirlenmemiş'**
+  /// **'Limit belirlenmemiş'**
   String get noLimitSet;
 
   /// No description provided for @enterAmount.
@@ -2513,7 +2513,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryBudgetActive.
   ///
   /// In tr, this message translates to:
-  /// **'{count} kategori için limit belirlenmiş'**
+  /// **'{count} aktif limit'**
   String categoryBudgetActive(int count);
 
   /// No description provided for @monthlyIncomeBudgetLimit.
@@ -2659,6 +2659,2022 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Tüm İşlemler'**
   String get allTransactions;
+
+  /// No description provided for @newRecurringExpense.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni Tekrarlayan Gider'**
+  String get newRecurringExpense;
+
+  /// No description provided for @editTransaction.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlemi Düzenle'**
+  String get editTransaction;
+
+  /// No description provided for @transactionName.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlem Adı'**
+  String get transactionName;
+
+  /// No description provided for @transactionNameRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlem adı gerekli'**
+  String get transactionNameRequired;
+
+  /// No description provided for @amountWithCurrency.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tutar (₺)'**
+  String get amountWithCurrency;
+
+  /// No description provided for @amountRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tutar gerekli'**
+  String get amountRequired;
+
+  /// No description provided for @enterValidAmount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçerli bir tutar girin'**
+  String get enterValidAmount;
+
+  /// No description provided for @everyMonthOn.
+  ///
+  /// In tr, this message translates to:
+  /// **'Her ayın:'**
+  String get everyMonthOn;
+
+  /// No description provided for @dayOfMonth.
+  ///
+  /// In tr, this message translates to:
+  /// **'{day}. günü'**
+  String dayOfMonth(int day);
+
+  /// No description provided for @paymentMethod.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ödeme Yöntemi'**
+  String get paymentMethod;
+
+  /// No description provided for @selectPaymentMethod.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ödeme yöntemi seçin'**
+  String get selectPaymentMethod;
+
+  /// No description provided for @update.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güncelle'**
+  String get update;
+
+  /// No description provided for @transactionUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlem güncellendi'**
+  String get transactionUpdated;
+
+  /// No description provided for @transactionAdded.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlem eklendi'**
+  String get transactionAdded;
+
+  /// No description provided for @errorWhileSaving.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydetme sırasında bir hata oluştu'**
+  String get errorWhileSaving;
+
+  /// No description provided for @notSpecified.
+  ///
+  /// In tr, this message translates to:
+  /// **'Belirtilmemiş'**
+  String get notSpecified;
+
+  /// No description provided for @recurringTransactionsInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tanımladığınız işlemler her ayın belirlediğiniz gününde otomatik olarak harcamalarınıza eklenir.'**
+  String get recurringTransactionsInfo;
+
+  /// No description provided for @noRecurringTransactions.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz tekrarlayan işlem yok'**
+  String get noRecurringTransactions;
+
+  /// No description provided for @tapPlusToAdd.
+  ///
+  /// In tr, this message translates to:
+  /// **'Eklemek için + butonuna tıklayın'**
+  String get tapPlusToAdd;
+
+  /// No description provided for @deleteTransaction.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlemi Sil'**
+  String get deleteTransaction;
+
+  /// No description provided for @deleteTransactionConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} işlemini silmek istiyor musunuz?'**
+  String deleteTransactionConfirm(String name);
+
+  /// No description provided for @unnamed.
+  ///
+  /// In tr, this message translates to:
+  /// **'İsimsiz'**
+  String get unnamed;
+
+  /// No description provided for @everyMonthDayOf.
+  ///
+  /// In tr, this message translates to:
+  /// **'Her ayın {day}. günü • {method}'**
+  String everyMonthDayOf(int day, String method);
+
+  /// No description provided for @categoryBasedUsage.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori Bazlı Kullanım'**
+  String get categoryBasedUsage;
+
+  /// No description provided for @unlimitedCategories.
+  ///
+  /// In tr, this message translates to:
+  /// **'Limitsiz Kategoriler'**
+  String get unlimitedCategories;
+
+  /// No description provided for @totalBudget.
+  ///
+  /// In tr, this message translates to:
+  /// **'Toplam Bütçe'**
+  String get totalBudget;
+
+  /// No description provided for @exceeded.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aşım: {amount}'**
+  String exceeded(String amount);
+
+  /// No description provided for @remaining.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kalan: {amount}'**
+  String remaining(String amount);
+
+  /// No description provided for @exceededPercent.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aşıldı! {percent}%'**
+  String exceededPercent(String percent);
+
+  /// No description provided for @categoryBudgetInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Her kategori için aylık harcama limiti belirleyin. Limit yaklaştığında veya aşıldığında ana sayfada uyarı göreceksiniz.'**
+  String get categoryBudgetInfo;
+
+  /// No description provided for @categoryBudgetDialogInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu kategori için aylık harcama limiti belirleyin. Limit aşıldığında ana sayfada uyarı görürsünüz.'**
+  String get categoryBudgetDialogInfo;
+
+  /// No description provided for @monthlyLimit.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık Limit'**
+  String get monthlyLimit;
+
+  /// No description provided for @noLimit.
+  ///
+  /// In tr, this message translates to:
+  /// **'Limitsiz'**
+  String get noLimit;
+
+  /// No description provided for @zeroNoLimit.
+  ///
+  /// In tr, this message translates to:
+  /// **'0 = Limitsiz'**
+  String get zeroNoLimit;
+
+  /// No description provided for @limitNotSet.
+  ///
+  /// In tr, this message translates to:
+  /// **'Limit belirlenmemiş'**
+  String get limitNotSet;
+
+  /// No description provided for @monthlyLimitAmount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{amount}₺ aylık limit'**
+  String monthlyLimitAmount(String amount);
+
+  /// No description provided for @removeLimit.
+  ///
+  /// In tr, this message translates to:
+  /// **'Limiti Kaldır'**
+  String get removeLimit;
+
+  /// No description provided for @limitRemoved.
+  ///
+  /// In tr, this message translates to:
+  /// **'{category} limiti kaldırıldı'**
+  String limitRemoved(String category);
+
+  /// No description provided for @maxLimitWarning.
+  ///
+  /// In tr, this message translates to:
+  /// **'Maximum 10 milyar ₺ limit belirleyebilirsiniz'**
+  String get maxLimitWarning;
+
+  /// No description provided for @limitSet.
+  ///
+  /// In tr, this message translates to:
+  /// **'{category} limiti {amount}₺ olarak ayarlandı'**
+  String limitSet(String category, String amount);
+
+  /// No description provided for @activeBudgets.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} aktif'**
+  String activeBudgets(int count);
+
+  /// No description provided for @expenseDetail.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama Detayı'**
+  String get expenseDetail;
+
+  /// No description provided for @expenseInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama Bilgileri'**
+  String get expenseInfo;
+
+  /// No description provided for @spentAmountLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcanan Tutar'**
+  String get spentAmountLabel;
+
+  /// No description provided for @deleteExpense.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcamayı Sil'**
+  String get deleteExpense;
+
+  /// No description provided for @deleteExpenseConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{name}\" harcamasını silmek istediğinize emin misiniz?'**
+  String deleteExpenseConfirm(String name);
+
+  /// No description provided for @expenseCategories.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama Kategorileri'**
+  String get expenseCategories;
+
+  /// No description provided for @editPhotoTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fotoğraf Düzenle'**
+  String get editPhotoTitle;
+
+  /// No description provided for @resetAllEffects.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm Efektleri Sıfırla'**
+  String get resetAllEffects;
+
+  /// No description provided for @confirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Onayla'**
+  String get confirm;
+
+  /// No description provided for @tryAgainShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeniden'**
+  String get tryAgainShort;
+
+  /// No description provided for @scheduledTransfersFailed.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bazı zamanlanmış transferler başarısız: {errors}'**
+  String scheduledTransfersFailed(String errors);
+
+  /// No description provided for @senderAccountNotFound.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gönderen hesap bulunamadı'**
+  String get senderAccountNotFound;
+
+  /// No description provided for @receiverAccountNotFound.
+  ///
+  /// In tr, this message translates to:
+  /// **'Alıcı hesap bulunamadı'**
+  String get receiverAccountNotFound;
+
+  /// No description provided for @accountDeleted.
+  ///
+  /// In tr, this message translates to:
+  /// **'{account} silinmiş'**
+  String accountDeleted(String account);
+
+  /// No description provided for @insufficientBalanceAccount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{account}: yetersiz bakiye'**
+  String insufficientBalanceAccount(String account);
+
+  /// No description provided for @noDebtToPay.
+  ///
+  /// In tr, this message translates to:
+  /// **'{account}: borç yok'**
+  String noDebtToPay(String account);
+
+  /// No description provided for @voiceCmdAddExpenseTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama Ekleme'**
+  String get voiceCmdAddExpenseTitle;
+
+  /// No description provided for @voiceCmdAddExpenseDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tutarı, kategoriyi ve opsiyonel olarak tarihi söyleyerek harcama ekleyin.'**
+  String get voiceCmdAddExpenseDesc;
+
+  /// No description provided for @voiceCmdAddExpenseExamples.
+  ///
+  /// In tr, this message translates to:
+  /// **'100 lira market|50 TL kahve|Dün 80 lira market|Geçen pazartesi 200 TL benzin|Önceki gün 150 lira yemek'**
+  String get voiceCmdAddExpenseExamples;
+
+  /// No description provided for @voiceCmdDeleteExpenseTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama Silme'**
+  String get voiceCmdDeleteExpenseTitle;
+
+  /// No description provided for @voiceCmdDeleteExpenseDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son eklediğiniz harcamayı silin.'**
+  String get voiceCmdDeleteExpenseDesc;
+
+  /// No description provided for @voiceCmdDeleteExpenseExamples.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son harcamayı sil|Sonuncuyu sil|Son eklediğimi sil|Son kaydı sil'**
+  String get voiceCmdDeleteExpenseExamples;
+
+  /// No description provided for @voiceCmdEditExpenseTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama Düzenleme'**
+  String get voiceCmdEditExpenseTitle;
+
+  /// No description provided for @voiceCmdEditExpenseDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son harcamanızın tutarını değiştirin.'**
+  String get voiceCmdEditExpenseDesc;
+
+  /// No description provided for @voiceCmdEditExpenseExamples.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son harcamayı 100 lira yap|Sonuncuyu 50 TL yap|Son harcamayı 200 lira güncelle|Son kaydı 75 lira değiştir'**
+  String get voiceCmdEditExpenseExamples;
+
+  /// No description provided for @voiceCmdTotalQueryTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Toplam Harcama Sorgulama'**
+  String get voiceCmdTotalQueryTitle;
+
+  /// No description provided for @voiceCmdTotalQueryDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık, haftalık veya günlük toplam harcamanızı öğrenin.'**
+  String get voiceCmdTotalQueryDesc;
+
+  /// No description provided for @voiceCmdTotalQueryExamples.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu ay ne kadar harcadım?|Bu hafta ne kadar harcadım?|Bugün ne kadar harcadım?|Toplam harcamam ne kadar?|Haftalık harcamam|Bugünkü harcamam'**
+  String get voiceCmdTotalQueryExamples;
+
+  /// No description provided for @voiceCmdCategoryAnalysisTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori Analizi'**
+  String get voiceCmdCategoryAnalysisTitle;
+
+  /// No description provided for @voiceCmdCategoryAnalysisDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'En çok harcama yaptığınız kategoriyi öğrenin.'**
+  String get voiceCmdCategoryAnalysisDesc;
+
+  /// No description provided for @voiceCmdCategoryAnalysisExamples.
+  ///
+  /// In tr, this message translates to:
+  /// **'En çok hangi kategoride harcamışım?|En çok nereye harcadım?|En fazla harcama nerede?'**
+  String get voiceCmdCategoryAnalysisExamples;
+
+  /// No description provided for @voiceCmdCategoryQueryTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategoriye Göre Harcama'**
+  String get voiceCmdCategoryQueryTitle;
+
+  /// No description provided for @voiceCmdCategoryQueryDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Belirli bir kategorideki toplam harcamanızı öğrenin.'**
+  String get voiceCmdCategoryQueryDesc;
+
+  /// No description provided for @voiceCmdCategoryQueryExamples.
+  ///
+  /// In tr, this message translates to:
+  /// **'Markete ne kadar harcadım?|Yemek kategorisinde ne kadar?|Ulaşıma ne kadar harcamışım?|Spor kategorisinde kaç lira?'**
+  String get voiceCmdCategoryQueryExamples;
+
+  /// No description provided for @voiceCmdLastExpensesTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son Harcamaları Listeleme'**
+  String get voiceCmdLastExpensesTitle;
+
+  /// No description provided for @voiceCmdLastExpensesDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son yaptığınız harcamaları listeleyin.'**
+  String get voiceCmdLastExpensesDesc;
+
+  /// No description provided for @voiceCmdLastExpensesExamples.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son harcamalarım neler?|Son harcamalarımı söyle|Son 5 harcamam|Son harcamalarımı listele'**
+  String get voiceCmdLastExpensesExamples;
+
+  /// No description provided for @voiceCmdBudgetStatusTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bütçe Durumu'**
+  String get voiceCmdBudgetStatusTitle;
+
+  /// No description provided for @voiceCmdBudgetStatusDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bütçenizin durumunu kontrol edin.'**
+  String get voiceCmdBudgetStatusDesc;
+
+  /// No description provided for @voiceCmdBudgetStatusExamples.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bütçemi aştım mı?|Limit durumum ne?|Limiti geçtim mi?|Bütçe durumu'**
+  String get voiceCmdBudgetStatusExamples;
+
+  /// No description provided for @voiceCmdRemainingBudgetTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kalan Bütçe Sorgulama'**
+  String get voiceCmdRemainingBudgetTitle;
+
+  /// No description provided for @voiceCmdRemainingBudgetDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bütçenizden ne kadar kaldığını öğrenin.'**
+  String get voiceCmdRemainingBudgetDesc;
+
+  /// No description provided for @voiceCmdRemainingBudgetExamples.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kalan bütçem ne kadar?|Ne kadar harcayabilirim?|Kalan limitim|Bütçemden ne kadar kaldı?'**
+  String get voiceCmdRemainingBudgetExamples;
+
+  /// No description provided for @voiceCmdSetLimitTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bütçe Limiti Belirleme'**
+  String get voiceCmdSetLimitTitle;
+
+  /// No description provided for @voiceCmdSetLimitDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sesli olarak aylık bütçenizi güncelleyin.'**
+  String get voiceCmdSetLimitDesc;
+
+  /// No description provided for @voiceCmdSetLimitExamples.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık limitimi 10000 lira yap|Bütçemi 5000 lira olarak ayarla|Limitimi 8000 lira güncelle|Aylık bütçe 15000 lira olsun'**
+  String get voiceCmdSetLimitExamples;
+
+  /// No description provided for @voiceCmdSavingsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tasarruf Hesaplama'**
+  String get voiceCmdSavingsTitle;
+
+  /// No description provided for @voiceCmdSavingsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu ay ne kadar tasarruf ettiğinizi öğrenin.'**
+  String get voiceCmdSavingsDesc;
+
+  /// No description provided for @voiceCmdSavingsExamples.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu ay ne kadar tasarruf ettim?|Tasarrufum ne kadar?|Ne kadar biriktirdim?|Artıda mıyım?'**
+  String get voiceCmdSavingsExamples;
+
+  /// No description provided for @voiceCmdAddFixedTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sabit Giderleri Ekle'**
+  String get voiceCmdAddFixedTitle;
+
+  /// No description provided for @voiceCmdAddFixedDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ayarlardan tanımladığınız sabit giderleri bu aya ekleyin.'**
+  String get voiceCmdAddFixedDesc;
+
+  /// No description provided for @voiceCmdAddFixedExamples.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sabit giderleri ekle|Sabit giderleri bu aya ekle|Faturaları ekle|Düzenli giderleri ekle'**
+  String get voiceCmdAddFixedExamples;
+
+  /// No description provided for @privacyPolicyContent.
+  ///
+  /// In tr, this message translates to:
+  /// **'1. Giriş\n\nBu Gizlilik Politikası, Cashly uygulamasının (\"Uygulama\") kullanıcılarının kişisel verilerinin nasıl toplandığını, saklandığını ve korunduğunu açıklamaktadır. Uygulamayı kullanarak bu politikayı kabul etmiş sayılırsınız.\n\nSon güncelleme: 17 Şubat 2026\n\n2. Veri Toplama ve Kullanım\n\nCashly, tüm verilerinizi yalnızca cihazınızda (yerel olarak) saklar. Sunucularımıza herhangi bir kişisel veri gönderilmez, aktarılmaz veya iletilmez.\n\nToplanan ve cihazda saklanan veriler:\n• Kullanıcı bilgileri (isim ve e-posta adresi)\n• Harcama ve gelir kayıtları (tutar, kategori, tarih, açıklama)\n• Varlık bilgileri (tür, miktar, değer)\n• Ödeme yöntemleri ve bakiye bilgileri\n• Transfer kayıtları\n• Bütçe limitleri ve kategori bütçeleri\n• Profil fotoğrafı (isteğe bağlı)\n• Uygulama tercihleri ve ayarları\n• Seri (streak) kayıtları\n\nBu veriler yalnızca uygulamanın temel işlevlerini sağlamak amacıyla kullanılır.\n\n3. Veri Güvenliği\n\nVerilerinizin güvenliği bizim için en önemli önceliktir:\n\n• Tüm veriler cihazınızda yerel veritabanında saklanır.\n• 4 haneli PIN kodu ile uygulamaya erişim korunur.\n• Biyometrik doğrulama (parmak izi / yüz tanıma) desteği mevcuttur.\n• Güvenlik sorusu ile ek koruma katmanı sağlanır.\n• Uygulama arka plana alındığında otomatik kilit devreye girer.\n• Uygulama dışarıya herhangi bir ağ bağlantısı kurmaz.\n\n4. Üçüncü Taraf Paylaşımı\n\nCashly, topladığı hiçbir veriyi üçüncü taraflarla paylaşmaz, satmaz veya kiralamaz. Verileriniz tamamen size aittir. Uygulama içinde üçüncü taraf analitik veya reklam araçları kullanılmamaktadır.\n\n5. Veri Yedekleme ve Aktarım\n\n• Yedekleme işlemi tamamen kullanıcı kontrolündedir ve isteğe bağlıdır.\n• Yedek dosyaları JSON formatında cihazınıza dışa aktarılır.\n• Yedek dosyasının güvenliği ve saklanması kullanıcının sorumluluğundadır.\n• Yedek dosyası; harcamalar, gelirler, varlıklar, ödeme yöntemleri, transferler ve profil bilgilerini içerir.\n• Geri yükleme işlemi mevcut verilerin üzerine yazar.\n\n6. Veri Saklama Süresi\n\nVerileriniz, hesabınızı silene kadar cihazınızda saklanır. Uygulamayı kaldırmanız durumunda tüm veriler otomatik olarak silinir.\n\n7. Veri Silme Hakkı\n\nHesabınızı ve tüm verilerinizi istediğiniz zaman kalıcı olarak silebilirsiniz:\n• Profil > Kullanıcı Bilgileri > Hesabı Sil seçeneğini kullanın.\n• Silme işlemi güvenlik doğrulaması gerektirir.\n• Silinen veriler geri getirilemez.\n• Silme öncesi yedek almanız önerilir.\n\n8. Çocukların Gizliliği\n\nCashly, 13 yaşın altındaki çocuklara yönelik değildir. 13 yaşın altındaki kullanıcılardan bilerek veri toplamıyoruz.\n\n9. Politika Değişiklikleri\n\nBu gizlilik politikası zaman zaman güncellenebilir. Önemli değişiklikler uygulama içinden bildirilecektir.\n\n10. İletişim\n\nGizlilik politikamız hakkında sorularınız veya talepleriniz için uygulama içinden bizimle iletişime geçebilirsiniz.'**
+  String get privacyPolicyContent;
+
+  /// No description provided for @termsOfServiceContent.
+  ///
+  /// In tr, this message translates to:
+  /// **'1. Kabul ve Kapsam\n\nCashly uygulamasını (\"Uygulama\") indirerek, kurarak veya kullanarak bu Kullanım Koşullarını kabul etmiş olursunuz. Bu koşulları kabul etmiyorsanız, lütfen uygulamayı kullanmayınız.\n\nSon güncelleme: 17 Şubat 2026\n\n2. Hizmet Tanımı\n\nCashly, kişisel bütçe takibi ve finansal yönetim aracıdır. Uygulama aşağıdaki hizmetleri sunar:\n\n• Harcama ve gelir takibi (manuel ve sesli giriş)\n• Varlık yönetimi (altın, döviz, kripto, banka hesabı)\n• Bütçe planlama ve kategori bazlı limit belirleme\n• Ödeme yöntemi yönetimi ve bakiye takibi\n• Hesaplar arası transfer kayıtları\n• Düzenli gelir/gider tanımlama\n• Sesli asistan ile doğal dil komutları\n• Veri yedekleme ve geri yükleme\n• İstatistik ve grafik raporları\n\n3. Hesap ve Güvenlik\n\n• Hesabınızı oluştururken doğru bilgiler girmeniz gerekmektedir.\n• PIN kodunuz hesabınızın güvenlik anahtarıdır; kimseyle paylaşmayınız.\n• Biyometrik giriş ve güvenlik sorusu ek koruma katmanlarıdır.\n• Hesabınıza yetkisiz erişimden siz sorumlusunuz.\n• Şüpheli bir durum fark ederseniz PIN kodunuzu değiştirmeniz önerilir.\n\n4. Kullanıcı Sorumlulukları\n\n• Girdiğiniz finansal veriler tamamen size aittir ve doğruluğundan siz sorumlusunuz.\n• Uygulamayı yasa dışı amaçlarla kullanamazsınız.\n• Düzenli veri yedeklemesi yapmanız önerilir.\n• Yedek dosyalarınızın güvenliğinden siz sorumlusunuz.\n• Uygulamayı tersine mühendislik, kaynak kod çıkarma veya değiştirme girişiminde bulunamazsınız.\n\n5. Sorumluluk Reddi\n\nÖNEMLİ - Lütfen dikkatlice okuyunuz:\n\n• Cashly bir finansal danışmanlık, yatırım tavsiyesi veya muhasebe aracı değildir.\n• Uygulama, herhangi bir yatırım, tasarruf veya harcama tavsiyesi vermez.\n• Finansal kararlarınızdan Cashly sorumlu tutulamaz.\n• Uygulama \"olduğu gibi\" sunulmaktadır; kesintisiz veya hatasız çalışacağı garanti edilmez.\n• Cihaz arızası, yazılım hatası veya kullanıcı kaynaklı veri kaybından dolayı sorumluluk kabul edilmez.\n• Güncel döviz kurları ve varlık fiyatları bilgi amaçlıdır; gerçek piyasa değerlerinden farklılık gösterebilir.\n\n6. Veri ve İçerik\n\n• Uygulamaya girdiğiniz tüm veriler cihazınızda saklanır.\n• Verilerin doğruluğu, bütünlüğü ve güncelliğinden siz sorumlusunuz.\n• Hesap silme işlemi geri alınamaz; tüm verileriniz kalıcı olarak kaldırılır.\n\n7. Fikri Mülkiyet\n\n• Cashly uygulaması, tasarımı, logoları ve tüm içeriği telif hakkı ile korunmaktadır.\n• Uygulama kodunun, görsellerinin ve tasarımının izinsiz kopyalanması, dağıtılması veya türev çalışma oluşturulması yasaktır.\n• \"Cashly\" ismi ve logosu tescilli markadır.\n\n8. Hizmet Değişiklikleri\n\n• Uygulama özellikleri önceden haber verilmeksizin eklenebilir, değiştirilebilir veya kaldırılabilir.\n• Güncellemeler, hata düzeltmeleri ve iyileştirmeler düzenli olarak yapılabilir.\n\n9. Koşul Değişiklikleri\n\nBu kullanım koşulları zaman zaman güncellenebilir. Önemli değişiklikler uygulama içinden bildirilecektir. Güncellemelerden sonra uygulamayı kullanmaya devam etmeniz, yeni koşulları kabul ettiğiniz anlamına gelir.\n\n10. Geçerli Hukuk\n\nBu koşullar Türkiye Cumhuriyeti yasalarına tabidir. Uyuşmazlıklarda Türkiye mahkemeleri yetkilidir.\n\n11. İletişim\n\nKullanım koşullarımız hakkında sorularınız için uygulama içinden bizimle iletişime geçebilirsiniz.'**
+  String get termsOfServiceContent;
+
+  /// No description provided for @faqSafetyQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Verilerim güvende mi?'**
+  String get faqSafetyQ;
+
+  /// No description provided for @faqSafetyA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kesinlikle! Cashly, gizliliğinizi en üst düzeyde korur:\n\n• Tüm verileriniz yalnızca cihazınızda saklanır, hiçbir sunucuya gönderilmez.\n• 4 haneli PIN kodu ile uygulamaya erişim korunur.\n• Biyometrik giriş (parmak izi / yüz tanıma) desteği mevcuttur.\n• Güvenlik sorusu ile ek koruma katmanı ekleyebilirsiniz.\n\nVerileriniz tamamen size aittir ve hiçbir üçüncü tarafla paylaşılmaz.'**
+  String get faqSafetyA;
+
+  /// No description provided for @faqOfflineQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'İnternet bağlantısı gerekli mi?'**
+  String get faqOfflineQ;
+
+  /// No description provided for @faqOfflineA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hayır! Cashly tamamen çevrimdışı çalışacak şekilde tasarlanmıştır.\n\n• Harcama ve gelir ekleme, düzenleme, silme\n• Varlık yönetimi ve takibi\n• Bütçe planlama ve kategori yönetimi\n• Sesli asistan ile komut verme\n• Veri yedekleme ve geri yükleme\n\nTüm bu özellikler internet olmadan sorunsuz çalışır. Yalnızca güncel döviz/altın kurları için internet bağlantısı gerekebilir.'**
+  String get faqOfflineA;
+
+  /// No description provided for @faqBackupQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Verilerimi nasıl yedekleyebilirim?'**
+  String get faqBackupQ;
+
+  /// No description provided for @faqBackupA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Verilerinizi güvence altına almak için düzenli yedekleme yapmanızı öneririz:\n\n1. Profil > Ayarlar > Veri İşlemleri bölümüne gidin.\n2. \"Verileri Yedekle\" seçeneğine dokunun.\n3. Tüm verileriniz JSON formatında bir dosyaya aktarılır.\n4. Dosyayı Google Drive, e-posta veya istediğiniz bir yere kaydedin.\n\nYedek dosyası; harcamalarınızı, gelirlerinizi, varlıklarınızı, ödeme yöntemlerinizi, transferlerinizi ve profil bilgilerinizi içerir.'**
+  String get faqBackupA;
+
+  /// No description provided for @faqRestoreQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yedeğimi nasıl geri yüklerim?'**
+  String get faqRestoreQ;
+
+  /// No description provided for @faqRestoreA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Daha önce aldığınız yedeği geri yüklemek için:\n\n1. Profil > Ayarlar > Veri İşlemleri bölümüne gidin.\n2. \"Verileri Geri Yükle\" seçeneğine dokunun.\n3. Daha önce kaydettiğiniz JSON yedek dosyasını seçin.\n4. İşlem tamamlandığında uygulama otomatik olarak yenilenir.\n\nDikkat: Geri yükleme işlemi mevcut verilerinizi yedekteki verilerle değiştirir. Mevcut verilerinizi kaybetmemek için önce yeni bir yedek almanızı öneririz.'**
+  String get faqRestoreA;
+
+  /// No description provided for @faqVoiceAssisQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sesli asistan nasıl çalışır?'**
+  String get faqVoiceAssisQ;
+
+  /// No description provided for @faqVoiceAssisA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Cashly\'nin sesli asistanı, doğal dil ile harcama ve gelir eklemenizi sağlar:\n\n• Ana ekrandaki mikrofon ikonuna dokunun.\n• Doğal bir şekilde komut verin, örneğin:\n  - \"50 lira market harcaması ekle\"\n  - \"1500 lira maaş geliri ekle\"\n  - \"200 lira yemek harcaması ekle nakit ile\"\n\nAsistan, tutarı, kategoriyi ve ödeme yöntemini otomatik olarak algılar. Sesli geri bildirim ile işlemin başarılı olduğunu onaylar. Komut listesinin tamamını Ayarlar > Sesli Asistan bölümünden görebilirsiniz.'**
+  String get faqVoiceAssisA;
+
+  /// No description provided for @faqBudgetLimitQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bütçe limitimi nasıl belirlerim?'**
+  String get faqBudgetLimitQ;
+
+  /// No description provided for @faqBudgetLimitA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık harcama bütçenizi kontrol altında tutmak için:\n\n1. Profil > Ayarlar > Harcamalar bölümüne gidin.\n2. \"Aylık Bütçe Limiti\" alanına toplam aylık bütçenizi girin.\n3. Kaydet butonuna dokunun.\n\nBütçe limitinizi belirledikten sonra:\n• Ana ekranda bütçe doluluk oranınızı görebilirsiniz.\n• Limiti aşmaya yaklaştığınızda görsel uyarı alırsınız.\n• Renk kodları ile durumunuzu anlık takip edebilirsiniz (yeşil: güvenli, sarı: dikkat, kırmızı: limit aşıldı).'**
+  String get faqBudgetLimitA;
+
+  /// No description provided for @faqCategoryBudgetQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori bazında bütçe limiti nedir?'**
+  String get faqCategoryBudgetQ;
+
+  /// No description provided for @faqCategoryBudgetA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Genel bütçe limitinin yanı sıra her kategori için ayrı limit belirleyebilirsiniz:\n\n1. Profil > Ayarlar > Harcamalar > Kategori Bütçeleri bölümüne gidin.\n2. İstediğiniz kategoriye dokunun (örn. Yemek & Kafe).\n3. O kategori için aylık limit belirleyin.\n\nÖrnek kullanım:\n• Yemek & Kafe: 2.000₺\n• Ulaşım: 500₺\n• Eğlence: 1.000₺\n\nBu sayede harcamalarınızı kategori bazında detaylı kontrol edebilir ve hangi alanda tasarruf yapabileceğinizi görebilirsiniz.'**
+  String get faqCategoryBudgetA;
+
+  /// No description provided for @faqRecurringQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Düzenli gelir/gider nedir?'**
+  String get faqRecurringQ;
+
+  /// No description provided for @faqRecurringA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Her ay düzenli olarak tekrarlayan gelir veya giderlerinizi tanımlayabilirsiniz:\n\nDüzenli gelir örnekleri: Maaş, kira geliri, yan gelir\nDüzenli gider örnekleri: Kira, internet, telefon faturası, abonelikler\n\nNasıl eklenir:\n1. Ayarlar > Harcamalar veya Gelirler bölümüne gidin.\n2. \"Düzenli İşlemler\" seçeneğine dokunun.\n3. Tutar, kategori ve tekrar sıklığını belirleyin.\n\nDüzenli işlemler her ay otomatik olarak kaydedilir, böylece her seferinde manuel ekleme yapmanıza gerek kalmaz.'**
+  String get faqRecurringA;
+
+  /// No description provided for @faqAssetTrackingQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlık takibi nasıl yapılır?'**
+  String get faqAssetTrackingQ;
+
+  /// No description provided for @faqAssetTrackingA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Cashly ile finansal varlıklarınızı tek bir yerden takip edebilirsiniz:\n\nDesteklenen varlık türleri:\n• Altın (gram, çeyrek, yarım, tam)\n• Döviz (USD, EUR vb.)\n• Kripto para\n• Banka hesapları\n• Gümüş\n\nVarlıklarınızı ekleyin, miktarını ve alış fiyatını girin. Toplam portföy değerinizi, kazanç/kayıp durumunuzu ve varlık dağılımınızı grafiklerle takip edin.'**
+  String get faqAssetTrackingA;
+
+  /// No description provided for @faqPaymentMethodsQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ödeme yöntemlerimi nasıl yönetirim?'**
+  String get faqPaymentMethodsQ;
+
+  /// No description provided for @faqPaymentMethodsA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Farklı ödeme yöntemlerinizi tanımlayarak harcamalarınızı detaylı takip edin:\n\n• Nakit\n• Banka/kredi kartları\n• Dijital cüzdanlar\n\nHer ödeme yöntemine bakiye tanımlayabilir ve harcama yaptıkça bakiyenin otomatik güncellenmesini sağlayabilirsiniz. Bu sayede hangi karttan ne kadar harcadığınızı veya kasanızda ne kadar nakit kaldığını anlık görebilirsiniz.'**
+  String get faqPaymentMethodsA;
+
+  /// No description provided for @faqTransferQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesaplar arası transfer nasıl yapılır?'**
+  String get faqTransferQ;
+
+  /// No description provided for @faqTransferA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ödeme yöntemleriniz arasında para transferi kaydedebilirsiniz:\n\nÖrnek senaryolar:\n• Bankadan nakit çekme\n• Kredi kartı borcunu ödeme\n• Bir hesaptan diğerine aktarım\n\nTransfer işlemi, kaynak hesaptan tutarı düşer ve hedef hesaba ekler. Böylece tüm hesaplarınızın bakiyesi her zaman güncel kalır. Transfer geçmişinizi Ayarlar > Para Transferleri bölümünden görüntüleyebilirsiniz.'**
+  String get faqTransferA;
+
+  /// No description provided for @faqNotificationsQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bildirimler ne işe yarar?'**
+  String get faqNotificationsQ;
+
+  /// No description provided for @faqNotificationsA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Cashly, finansal hedeflerinizi takip etmeniz için çeşitli bildirimler sunar:\n\n• Günlük hatırlatıcı: Harcamalarınızı girmeyi unutmayın.\n• Bütçe uyarısı: Aylık limitinize yaklaştığınızda uyarı alın.\n• Düzenli işlem bildirimi: Tekrarlayan gelir/giderler kaydedildiğinde bilgilenin.\n\nTüm bildirim ayarlarını Profil > Ayarlar > Bildirimler bölümünden istediğiniz gibi açıp kapatabilir ve saatlerini özelleştirebilirsiniz.'**
+  String get faqNotificationsA;
+
+  /// No description provided for @faqStreakQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri sistemi nedir?'**
+  String get faqStreakQ;
+
+  /// No description provided for @faqStreakA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri sistemi, düzenli kullanım alışkanlığı oluşturmanıza yardımcı olan bir motivasyon aracıdır:\n\n• Her gün uygulamayı kullanarak serinizi sürdürün.\n• Ardışık gün sayınız arttıkça seri seviyeniz yükselir.\n• Belirli seviyelere ulaştığınızda kutlama animasyonu görürsünüz.\n• Bir gün kaçırırsanız seriniz sıfırlanır.\n\nSeri sistemi, harcamalarınızı düzenli takip etme alışkanlığı kazanmanıza yardımcı olur. En yüksek serinizi kırmaya çalışın!'**
+  String get faqStreakA;
+
+  /// No description provided for @faqProfilePhotoQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil fotoğrafımı nasıl değiştiririm?'**
+  String get faqProfilePhotoQ;
+
+  /// No description provided for @faqProfilePhotoA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil fotoğrafınızı değiştirmek için:\n\n1. Profil > Kullanıcı Bilgileri sayfasına gidin.\n2. Profil fotoğrafınızın üzerindeki düzenleme ikonuna dokunun.\n3. Galeriden fotoğraf seçin veya hazır avatarlardan birini kullanın.\n4. Seçtiğiniz fotoğrafı kırpın, döndürün ve filtre uygulayın.\n\nFotoğraf düzenleyici ile fotoğrafınızı tam istediğiniz gibi ayarlayabilirsiniz.'**
+  String get faqProfilePhotoA;
+
+  /// No description provided for @faqForgotPinQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN kodumu unutursam ne yapmalıyım?'**
+  String get faqForgotPinQ;
+
+  /// No description provided for @faqForgotPinA.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN kodunuzu unuttuysanız, giriş ekranında güvenlik sorunuzu kullanarak sıfırlama yapabilirsiniz. Bunun için önceden bir güvenlik sorusu ve cevabı belirlemiş olmanız gerekir.\n\nGüvenlik sorunuzu ayarlamak için:\nProfil > Kullanıcı Bilgileri > Güvenlik bölümünü kullanabilirsiniz.\n\nGüvenlik sorusu belirlememişseniz ve PIN\'inizi unuttuysanız, uygulamayı yeniden kurmanız gerekebilir. Bu durumda yedeğiniz varsa verilerinizi geri yükleyebilirsiniz.'**
+  String get faqForgotPinA;
+
+  /// No description provided for @faqDeleteAccountQ.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabımı silersem ne olur?'**
+  String get faqDeleteAccountQ;
+
+  /// No description provided for @faqDeleteAccountA.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesap silme işlemi kalıcıdır ve geri alınamaz. Silinen veriler:\n\n• Tüm harcama kayıtları\n• Tüm gelir kayıtları\n• Varlıklarınız\n• Ödeme yöntemleri ve bakiyeleri\n• Transfer geçmişi\n• Seri kayıtları\n• Profil bilgileri ve fotoğrafınız\n\nSilmeden önce mutlaka verilerinizi yedeklemenizi öneririz. Hesap silme işlemi güvenlik doğrulaması (matematik sorusu) gerektirir ve iki aşamalı onay ile gerçekleştirilir.'**
+  String get faqDeleteAccountA;
+
+  /// No description provided for @done.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bitti'**
+  String get done;
+
+  /// No description provided for @selectTime.
+  ///
+  /// In tr, this message translates to:
+  /// **'Saat Seç'**
+  String get selectTime;
+
+  /// No description provided for @selectMonthAndYear.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ay ve Yıl Seç'**
+  String get selectMonthAndYear;
+
+  /// No description provided for @selectDateAndTime.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tarih ve Saat Seç'**
+  String get selectDateAndTime;
+
+  /// No description provided for @errorOccurred.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir Hata Oluştu'**
+  String get errorOccurred;
+
+  /// No description provided for @unexpectedErrorRestart.
+  ///
+  /// In tr, this message translates to:
+  /// **'Beklenmedik bir hata meydana geldi.\nLütfen uygulamayı yeniden başlatın.'**
+  String get unexpectedErrorRestart;
+
+  /// No description provided for @technicalDetails.
+  ///
+  /// In tr, this message translates to:
+  /// **'Teknik Detaylar'**
+  String get technicalDetails;
+
+  /// No description provided for @anErrorOccurred.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir hata oluştu'**
+  String get anErrorOccurred;
+
+  /// No description provided for @componentLoadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu bileşen yüklenirken bir sorun oluştu.'**
+  String get componentLoadError;
+
+  /// No description provided for @pageLoadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'{pageName} sayfası yüklenirken bir hata oluştu.'**
+  String pageLoadError(String pageName);
+
+  /// No description provided for @operationSuccessful.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlem başarılı!'**
+  String get operationSuccessful;
+
+  /// No description provided for @limitWarning.
+  ///
+  /// In tr, this message translates to:
+  /// **'Limit Uyarısı'**
+  String get limitWarning;
+
+  /// No description provided for @balanceWarning.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bakiye Uyarısı'**
+  String get balanceWarning;
+
+  /// No description provided for @continueAnyway.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yine de devam etmek istiyor musunuz?'**
+  String get continueAnyway;
+
+  /// No description provided for @remainingLimitLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kalan Limit'**
+  String get remainingLimitLabel;
+
+  /// No description provided for @currentBalanceLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mevcut Bakiye'**
+  String get currentBalanceLabel;
+
+  /// No description provided for @expenseAmountLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama Tutarı'**
+  String get expenseAmountLabel;
+
+  /// No description provided for @offlineMode.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çevrimdışı Mod'**
+  String get offlineMode;
+
+  /// No description provided for @noInternetConnection.
+  ///
+  /// In tr, this message translates to:
+  /// **'İnternet bağlantısı yok'**
+  String get noInternetConnection;
+
+  /// No description provided for @unavailableFeatures.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çalışmayan Özellikler'**
+  String get unavailableFeatures;
+
+  /// No description provided for @assetPriceUpdates.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlık fiyat güncellemeleri'**
+  String get assetPriceUpdates;
+
+  /// No description provided for @realTimeExchangeRates.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gerçek zamanlı döviz kurları'**
+  String get realTimeExchangeRates;
+
+  /// No description provided for @limitedFeatures.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kısıtlı Özellikler'**
+  String get limitedFeatures;
+
+  /// No description provided for @assetValuesLastKnown.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlık değerleri son bilinen fiyatlarla gösterilir'**
+  String get assetValuesLastKnown;
+
+  /// No description provided for @fullyWorkingFeatures.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tam Çalışan Özellikler'**
+  String get fullyWorkingFeatures;
+
+  /// No description provided for @addEditIncomeExpense.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir/gider ekleme ve düzenleme'**
+  String get addEditIncomeExpense;
+
+  /// No description provided for @backupAndRestore.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yedekleme ve geri yükleme'**
+  String get backupAndRestore;
+
+  /// No description provided for @chartsAndReports.
+  ///
+  /// In tr, this message translates to:
+  /// **'Grafikler ve raporlar'**
+  String get chartsAndReports;
+
+  /// No description provided for @allLocalData.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm yerel veriler'**
+  String get allLocalData;
+
+  /// No description provided for @understood.
+  ///
+  /// In tr, this message translates to:
+  /// **'Anladım'**
+  String get understood;
+
+  /// No description provided for @pleaseEnterEmail.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen e-posta adresinizi girin'**
+  String get pleaseEnterEmail;
+
+  /// No description provided for @enterValidEmail.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçerli bir e-posta adresi girin'**
+  String get enterValidEmail;
+
+  /// No description provided for @pleaseSetPin.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen bir PIN belirleyin'**
+  String get pleaseSetPin;
+
+  /// No description provided for @pinLengthError.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN 4 ile 6 rakam arasında olmalıdır'**
+  String get pinLengthError;
+
+  /// No description provided for @pinDigitsOnly.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN sadece rakamlardan oluşmalıdır'**
+  String get pinDigitsOnly;
+
+  /// No description provided for @pleaseEnterName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen isminizi girin'**
+  String get pleaseEnterName;
+
+  /// No description provided for @nameMinLength.
+  ///
+  /// In tr, this message translates to:
+  /// **'İsminiz en az 2 karakter olmalıdır'**
+  String get nameMinLength;
+
+  /// No description provided for @nameMaxLength.
+  ///
+  /// In tr, this message translates to:
+  /// **'İsminiz en fazla 50 karakter olabilir'**
+  String get nameMaxLength;
+
+  /// No description provided for @pleaseEnterAmount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen tutar girin'**
+  String get pleaseEnterAmount;
+
+  /// No description provided for @enterValidNumber.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçerli bir sayı girin'**
+  String get enterValidNumber;
+
+  /// No description provided for @amountMustBePositive.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tutar pozitif bir sayı olmalıdır'**
+  String get amountMustBePositive;
+
+  /// No description provided for @pleaseEnterQuantity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen miktar girin'**
+  String get pleaseEnterQuantity;
+
+  /// No description provided for @enterValidNumberFormat.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçerli bir sayı formatı girin'**
+  String get enterValidNumberFormat;
+
+  /// No description provided for @quantityCannotBeNegative.
+  ///
+  /// In tr, this message translates to:
+  /// **'Miktar negatif olamaz'**
+  String get quantityCannotBeNegative;
+
+  /// No description provided for @quantityMustBeGreaterThanZero.
+  ///
+  /// In tr, this message translates to:
+  /// **'Miktar 0\'dan büyük olmalıdır'**
+  String get quantityMustBeGreaterThanZero;
+
+  /// No description provided for @pleaseEnterCardName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen kart adını girin'**
+  String get pleaseEnterCardName;
+
+  /// No description provided for @cardNameMinLength.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kart adı en az 2 karakter olmalıdır'**
+  String get cardNameMinLength;
+
+  /// No description provided for @cardNameMaxLength.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kart adı en fazla 30 karakter olabilir'**
+  String get cardNameMaxLength;
+
+  /// No description provided for @pleaseEnterLastFourDigits.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen son 4 haneyi girin'**
+  String get pleaseEnterLastFourDigits;
+
+  /// No description provided for @lastFourDigitsLength.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son 4 hane tam 4 rakam olmalıdır'**
+  String get lastFourDigitsLength;
+
+  /// No description provided for @lastFourDigitsOnly.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son 4 hane sadece rakamlardan oluşmalıdır'**
+  String get lastFourDigitsOnly;
+
+  /// No description provided for @pleaseEnterDebtAmount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen borç tutarını girin'**
+  String get pleaseEnterDebtAmount;
+
+  /// No description provided for @pleaseEnterBalanceAmount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen bakiye girin'**
+  String get pleaseEnterBalanceAmount;
+
+  /// No description provided for @invalidAmountFormat.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçersiz tutar formatı'**
+  String get invalidAmountFormat;
+
+  /// No description provided for @amountCannotBeNegative.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tutar negatif olamaz'**
+  String get amountCannotBeNegative;
+
+  /// No description provided for @limitMustBeGreaterThanZero.
+  ///
+  /// In tr, this message translates to:
+  /// **'Limit 0\'dan büyük olmalı'**
+  String get limitMustBeGreaterThanZero;
+
+  /// No description provided for @limitLessThanDebt.
+  ///
+  /// In tr, this message translates to:
+  /// **'Limit mevcut borçtan küçük olamaz'**
+  String get limitLessThanDebt;
+
+  /// No description provided for @genericError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir hata oluştu. Lütfen tekrar deneyin.'**
+  String get genericError;
+
+  /// No description provided for @dataNotFoundError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Veri bulunamadı'**
+  String get dataNotFoundError;
+
+  /// No description provided for @connectionError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bağlantı hatası. İnternet bağlantınızı kontrol edin.'**
+  String get connectionError;
+
+  /// No description provided for @timeoutError.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlem zaman aşımına uğradı. Lütfen tekrar deneyin.'**
+  String get timeoutError;
+
+  /// No description provided for @permissionError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Erişim izni hatası'**
+  String get permissionError;
+
+  /// No description provided for @priceFetchFailed.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fiyat çekilemedi, lütfen manuel giriniz.'**
+  String get priceFetchFailed;
+
+  /// No description provided for @priceFetchError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fiyat alınırken hata oluştu. Lütfen manuel giriniz.'**
+  String get priceFetchError;
+
+  /// No description provided for @pleaseFillRequiredFields.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen tüm gerekli alanları doldurun'**
+  String get pleaseFillRequiredFields;
+
+  /// No description provided for @currentPriceButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güncel'**
+  String get currentPriceButton;
+
+  /// No description provided for @amountTL.
+  ///
+  /// In tr, this message translates to:
+  /// **'Miktar (TL)'**
+  String get amountTL;
+
+  /// No description provided for @purchaseInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Alış Bilgileri'**
+  String get purchaseInfo;
+
+  /// No description provided for @purchasePriceTL.
+  ///
+  /// In tr, this message translates to:
+  /// **'Alış Fiyatı (TL)'**
+  String get purchasePriceTL;
+
+  /// No description provided for @enterValidPrice.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçerli bir fiyat giriniz'**
+  String get enterValidPrice;
+
+  /// No description provided for @purchasePriceNegative.
+  ///
+  /// In tr, this message translates to:
+  /// **'Alış fiyatı negatif olamaz'**
+  String get purchasePriceNegative;
+
+  /// No description provided for @purchasePriceMustBePositive.
+  ///
+  /// In tr, this message translates to:
+  /// **'Alış fiyatı 0\'dan büyük olmalı'**
+  String get purchasePriceMustBePositive;
+
+  /// No description provided for @minPurchasePrice.
+  ///
+  /// In tr, this message translates to:
+  /// **'Minimum alış fiyatı 0,01 ₺ olmalı'**
+  String get minPurchasePrice;
+
+  /// No description provided for @maxPurchasePrice.
+  ///
+  /// In tr, this message translates to:
+  /// **'Maksimum alış fiyatı 100 milyon ₺ olabilir'**
+  String get maxPurchasePrice;
+
+  /// No description provided for @quantityLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Adet'**
+  String get quantityLabel;
+
+  /// No description provided for @stockNameLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hisse Adı'**
+  String get stockNameLabel;
+
+  /// No description provided for @currencyNameLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Döviz İsmi'**
+  String get currencyNameLabel;
+
+  /// No description provided for @cryptoNameLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kripto İsmi'**
+  String get cryptoNameLabel;
+
+  /// No description provided for @bankNameLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Banka Adı'**
+  String get bankNameLabel;
+
+  /// No description provided for @assetNameField.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlık İsmi'**
+  String get assetNameField;
+
+  /// No description provided for @profileUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil güncellendi'**
+  String get profileUpdated;
+
+  /// No description provided for @updateFailed.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güncelleme başarısız: {error}'**
+  String updateFailed(String error);
+
+  /// No description provided for @profileImageUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil resmi güncellendi'**
+  String get profileImageUpdated;
+
+  /// No description provided for @selectProfileImage.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil Resmi Seç'**
+  String get selectProfileImage;
+
+  /// No description provided for @galleryOrCameraDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Galerinizden bir fotoğraf seçerek ya da kameradan fotoğraf çekerek profil resminizi değiştirebilirsiniz.'**
+  String get galleryOrCameraDesc;
+
+  /// No description provided for @cameraLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kamera'**
+  String get cameraLabel;
+
+  /// No description provided for @takePhotoLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fotoğraf Çek'**
+  String get takePhotoLabel;
+
+  /// No description provided for @galleryLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Galeri'**
+  String get galleryLabel;
+
+  /// No description provided for @selectPhotoLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fotoğraf Seç'**
+  String get selectPhotoLabel;
+
+  /// No description provided for @changeName.
+  ///
+  /// In tr, this message translates to:
+  /// **'İsim Değiştir'**
+  String get changeName;
+
+  /// No description provided for @newNameLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni İsim'**
+  String get newNameLabel;
+
+  /// No description provided for @nameCannotBeEmpty.
+  ///
+  /// In tr, this message translates to:
+  /// **'İsim boş olamaz'**
+  String get nameCannotBeEmpty;
+
+  /// No description provided for @nameUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'İsim Soyisim Güncellendi'**
+  String get nameUpdated;
+
+  /// No description provided for @currentPinLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mevcut PIN'**
+  String get currentPinLabel;
+
+  /// No description provided for @newPinLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni PIN'**
+  String get newPinLabel;
+
+  /// No description provided for @newPinRepeatLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni PIN (Tekrar)'**
+  String get newPinRepeatLabel;
+
+  /// No description provided for @enterPinDigits.
+  ///
+  /// In tr, this message translates to:
+  /// **'4-6 haneli PIN giriniz'**
+  String get enterPinDigits;
+
+  /// No description provided for @pinIncorrect.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN hatalı'**
+  String get pinIncorrect;
+
+  /// No description provided for @pinsDoNotMatch.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN\'ler eşleşmiyor'**
+  String get pinsDoNotMatch;
+
+  /// No description provided for @pinUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN Güncellendi'**
+  String get pinUpdated;
+
+  /// No description provided for @pinVerification.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN Doğrulama'**
+  String get pinVerification;
+
+  /// No description provided for @biometricPinVerificationDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Biyometrik girişi aktifleştirmek için PIN\'inizi doğrulayın'**
+  String get biometricPinVerificationDesc;
+
+  /// No description provided for @activateBiometric.
+  ///
+  /// In tr, this message translates to:
+  /// **'Biyometriği Aktifleştir'**
+  String get activateBiometric;
+
+  /// No description provided for @finalConfirmation.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son Onay'**
+  String get finalConfirmation;
+
+  /// No description provided for @permanentDeleteAccountConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabınızı kalıcı olarak silmek istediğinizden emin misiniz?'**
+  String get permanentDeleteAccountConfirm;
+
+  /// No description provided for @yesDelete.
+  ///
+  /// In tr, this message translates to:
+  /// **'Evet, Sil'**
+  String get yesDelete;
+
+  /// No description provided for @accountDeletedSuccess.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabınız başarıyla silindi'**
+  String get accountDeletedSuccess;
+
+  /// No description provided for @accountDeleteError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesap silinirken hata oluştu: {error}'**
+  String accountDeleteError(String error);
+
+  /// No description provided for @deletePermanently.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabı Kalıcı Olarak Sil'**
+  String get deletePermanently;
+
+  /// No description provided for @pinVerificationTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN Doğrulaması'**
+  String get pinVerificationTitle;
+
+  /// No description provided for @forwardButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'İleri'**
+  String get forwardButton;
+
+  /// No description provided for @thisActionIrreversibleWarning.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu işlem geri alınamaz! Tüm verileriniz kalıcı olarak silinecektir.'**
+  String get thisActionIrreversibleWarning;
+
+  /// No description provided for @expenseMovedToTrash.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama çöp kutusuna taşındı 🗑️'**
+  String get expenseMovedToTrash;
+
+  /// No description provided for @expenseRestored.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama geri yüklendi ✅'**
+  String get expenseRestored;
+
+  /// No description provided for @noSearchResults.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonuç bulunamadı'**
+  String get noSearchResults;
+
+  /// No description provided for @tryDifferentSearch.
+  ///
+  /// In tr, this message translates to:
+  /// **'Farklı bir arama terimi deneyin'**
+  String get tryDifferentSearch;
+
+  /// No description provided for @emptyTrashTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çöpü Boşalt'**
+  String get emptyTrashTitle;
+
+  /// No description provided for @emptyTrashConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm silinen harcamalar kalıcı olarak yok edilecek. Emin misin?'**
+  String get emptyTrashConfirm;
+
+  /// No description provided for @trashEmptied.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çöp kutusu temizlendi.'**
+  String get trashEmptied;
+
+  /// No description provided for @restoreAllTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tümünü Geri Yükle'**
+  String get restoreAllTitle;
+
+  /// No description provided for @restoreAllConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} harcama geri yüklenecek. Onaylıyor musun?'**
+  String restoreAllConfirm(int count);
+
+  /// No description provided for @yesRestore.
+  ///
+  /// In tr, this message translates to:
+  /// **'Evet, Geri Yükle'**
+  String get yesRestore;
+
+  /// No description provided for @allExpensesRestored.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm harcamalar geri yüklendi ♻️'**
+  String get allExpensesRestored;
+
+  /// No description provided for @noDeletedExpenses.
+  ///
+  /// In tr, this message translates to:
+  /// **'Silinen harcama yok.'**
+  String get noDeletedExpenses;
+
+  /// No description provided for @expensePermanentlyDeleted.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama kalıcı olarak silindi 🗑️'**
+  String get expensePermanentlyDeleted;
+
+  /// No description provided for @expenseRestoredRecycled.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama geri yüklendi ♻️'**
+  String get expenseRestoredRecycled;
+
+  /// No description provided for @deleteCategory.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategoriyi Sil'**
+  String get deleteCategory;
+
+  /// No description provided for @deleteCategoryConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{name}\" kategorisini silmek istediğinizden emin misiniz?'**
+  String deleteCategoryConfirm(String name);
+
+  /// No description provided for @categoryDeleted.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori silindi'**
+  String get categoryDeleted;
+
+  /// No description provided for @categoryAdded.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori eklendi ✅'**
+  String get categoryAdded;
+
+  /// No description provided for @systemCategoryCannotDelete.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{name}\" sistem kategorisidir ve silinemez'**
+  String systemCategoryCannotDelete(String name);
+
+  /// No description provided for @resetToDefault.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varsayılana Dön'**
+  String get resetToDefault;
+
+  /// No description provided for @resetCategoriesConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm özel kategorileriniz silinecek ve varsayılan kategoriler yüklenecek. Emin misiniz?'**
+  String get resetCategoriesConfirm;
+
+  /// No description provided for @yesReset.
+  ///
+  /// In tr, this message translates to:
+  /// **'Evet, Sıfırla'**
+  String get yesReset;
+
+  /// No description provided for @defaultCategoriesLoaded.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varsayılan kategoriler yüklendi'**
+  String get defaultCategoriesLoaded;
+
+  /// No description provided for @addNewCategory.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni Kategori Ekle'**
+  String get addNewCategory;
+
+  /// No description provided for @myCategories.
+  ///
+  /// In tr, this message translates to:
+  /// **'KATEGORİLERİM'**
+  String get myCategories;
+
+  /// No description provided for @addNew.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni Ekle'**
+  String get addNew;
+
+  /// No description provided for @selectIconLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'İkon Seç:'**
+  String get selectIconLabel;
+
+  /// No description provided for @categoryOrderUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori sırası güncellendi'**
+  String get categoryOrderUpdated;
+
+  /// No description provided for @micPermissionDenied.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mikrofon izni verilemedi veya cihaz desteklemiyor.'**
+  String get micPermissionDenied;
+
+  /// No description provided for @expenseDeletion.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama Silme'**
+  String get expenseDeletion;
+
+  /// No description provided for @deleteLastExpenseConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son eklenen harcamayı silmek istediğinizden emin misiniz?'**
+  String get deleteLastExpenseConfirm;
+
+  /// No description provided for @commandNotSupported.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu komut henüz desteklenmiyor'**
+  String get commandNotSupported;
+
+  /// No description provided for @noExpenseFoundYet.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz harcama bulunmuyor'**
+  String get noExpenseFoundYet;
+
+  /// No description provided for @categoryNotUnderstood.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori anlaşılamadı'**
+  String get categoryNotUnderstood;
+
+  /// No description provided for @addRecurringToMonthConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tanımlı tekrarlayan işlemleri bu aya eklemek istiyor musunuz?'**
+  String get addRecurringToMonthConfirm;
+
+  /// No description provided for @expenseEditingTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama Düzenleme'**
+  String get expenseEditingTitle;
+
+  /// No description provided for @newAmountNotUnderstood.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni tutarı anlayamadım. Örneğin \"Son harcamayı 100 lira yap\" diyebilirsiniz.'**
+  String get newAmountNotUnderstood;
+
+  /// No description provided for @budgetLimitUpdateTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bütçe Limiti Güncelleme'**
+  String get budgetLimitUpdateTitle;
+
+  /// No description provided for @limitUpdateError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Limit güncellenirken bir hata oluştu'**
+  String get limitUpdateError;
+
+  /// No description provided for @commandProcessing.
+  ///
+  /// In tr, this message translates to:
+  /// **'Komut işleniyor...'**
+  String get commandProcessing;
+
+  /// No description provided for @heardLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Duyulan:'**
+  String get heardLabel;
+
+  /// No description provided for @howToUse.
+  ///
+  /// In tr, this message translates to:
+  /// **'Nasıl kullanılır?'**
+  String get howToUse;
+
+  /// No description provided for @voiceAssistantCapabilities.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sesli asistan ile şunları yapabilirsiniz:'**
+  String get voiceAssistantCapabilities;
+
+  /// No description provided for @addingExpenseLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama ekleme'**
+  String get addingExpenseLabel;
+
+  /// No description provided for @deletingExpenseLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama silme'**
+  String get deletingExpenseLabel;
+
+  /// No description provided for @queryExpenseLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama sorgulama'**
+  String get queryExpenseLabel;
+
+  /// No description provided for @categoryAnalysisLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori analizi'**
+  String get categoryAnalysisLabel;
+
+  /// No description provided for @budgetControlLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bütçe kontrolü'**
+  String get budgetControlLabel;
+
+  /// No description provided for @detailedCommandListInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Detaylı komut listesi için:\nAyarlar → Sesli Asistan → Tüm Komutlar'**
+  String get detailedCommandListInfo;
+
+  /// No description provided for @expenseNameLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama Adı'**
+  String get expenseNameLabel;
+
+  /// No description provided for @whatDidYouBuy.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ne aldın? (Örn: Kahve)'**
+  String get whatDidYouBuy;
+
+  /// No description provided for @expenseDateLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama Tarihi'**
+  String get expenseDateLabel;
+
+  /// No description provided for @selectPaymentMethodHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ödeme Yöntemi Seçin'**
+  String get selectPaymentMethodHint;
+
+  /// No description provided for @enterValidAmountError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçerli bir tutar girin'**
+  String get enterValidAmountError;
+
+  /// No description provided for @recurringTransactionsLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrarlayan İşlemler'**
+  String get recurringTransactionsLabel;
+
+  /// No description provided for @recurringItemsAdded.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} adet tekrarlayan işlem eklendi!'**
+  String recurringItemsAdded(int count);
+
+  /// No description provided for @expenseAddedVoice.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama eklendi: {name} - {amount} ₺'**
+  String expenseAddedVoice(String name, String amount);
+
+  /// No description provided for @monthlyBudgetUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık bütçe {amount} ₺ olarak güncellendi'**
+  String monthlyBudgetUpdated(String amount);
+
+  /// No description provided for @limitNotUnderstood.
+  ///
+  /// In tr, this message translates to:
+  /// **'Limit tutarını anlayamadım. Örneğin \"Aylık limitimi 10000 lira yap\" diyebilirsiniz.'**
+  String get limitNotUnderstood;
+
+  /// No description provided for @updateExpenseConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son harcamayı {amount} ₺ olarak güncellemek istiyor musunuz?'**
+  String updateExpenseConfirm(String amount);
+
+  /// No description provided for @expenseUpdatedVoice.
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} güncellendi: {amount} ₺'**
+  String expenseUpdatedVoice(String name, String amount);
+
+  /// No description provided for @monthlyBudgetUpdateConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık bütçeniz {amount} ₺ olarak güncellensin mi?'**
+  String monthlyBudgetUpdateConfirm(String amount);
+
+  /// No description provided for @maxAmountError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Maksimum tutar {amount} ₺ olabilir'**
+  String maxAmountError(String amount);
+
+  /// No description provided for @descriptionMaxLength.
+  ///
+  /// In tr, this message translates to:
+  /// **'Açıklama en fazla {maxLength} karakter olabilir'**
+  String descriptionMaxLength(int maxLength);
+
+  /// No description provided for @itemNameRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'{itemType} adı gereklidir'**
+  String itemNameRequired(String itemType);
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'{fieldName} gereklidir'**
+  String fieldRequired(String fieldName);
+
+  /// No description provided for @quantityTooSmall.
+  ///
+  /// In tr, this message translates to:
+  /// **'Miktar çok küçük (min: {min})'**
+  String quantityTooSmall(String min);
+
+  /// No description provided for @quantityTooLarge.
+  ///
+  /// In tr, this message translates to:
+  /// **'Miktar çok büyük (max: {max})'**
+  String quantityTooLarge(String max);
+
+  /// No description provided for @maxDecimalPlaces.
+  ///
+  /// In tr, this message translates to:
+  /// **'En fazla {count} ondalık basamak girebilirsiniz'**
+  String maxDecimalPlaces(int count);
+
+  /// No description provided for @maxBalanceError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Maksimum tutar {amount} olabilir'**
+  String maxBalanceError(String amount);
+
+  /// No description provided for @minLimitError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Minimum limit {amount} ₺ olmalı'**
+  String minLimitError(String amount);
+
+  /// No description provided for @maxLimitError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Maksimum limit {amount} olabilir'**
+  String maxLimitError(String amount);
+
+  /// No description provided for @streakInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri Bilgileri'**
+  String get streakInfo;
+
+  /// No description provided for @howStreakWorks.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri Nasıl Çalışır?'**
+  String get howStreakWorks;
+
+  /// No description provided for @editPhotoBtn.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fotoğraf Düzenle'**
+  String get editPhotoBtn;
+
+  /// No description provided for @cropError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kırpma hatası: {error}'**
+  String cropError(String error);
+
+  /// No description provided for @saveError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydetme hatası: {error}'**
+  String saveError(String error);
+
+  /// No description provided for @myPaymentMethods.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ödeme Yöntemlerim'**
+  String get myPaymentMethods;
+
+  /// No description provided for @myIncomesTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelirlerim'**
+  String get myIncomesTitle;
+
+  /// No description provided for @enterValidAmountAndName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen geçerli tutar ve isim girin'**
+  String get enterValidAmountAndName;
+
+  /// No description provided for @tryAgainAction.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrar Dene'**
+  String get tryAgainAction;
+
+  /// No description provided for @incomeRecycleBin.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir Çöp Kutusu'**
+  String get incomeRecycleBin;
+
+  /// No description provided for @incomeCategories.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir Kategorileri'**
+  String get incomeCategories;
+
+  /// No description provided for @incomeSettingsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir Ayarları'**
+  String get incomeSettingsTitle;
+
+  /// No description provided for @recurringIncomesTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrarlayan Gelirler'**
+  String get recurringIncomesTitle;
+
+  /// No description provided for @expenseCategoriesTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama Kategorileri'**
+  String get expenseCategoriesTitle;
+
+  /// No description provided for @myExpensesTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcamalarım'**
+  String get myExpensesTitle;
+
+  /// No description provided for @assetRecycleBin.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlık Çöp Kutusu'**
+  String get assetRecycleBin;
+
+  /// No description provided for @assetDetail.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlık Detayı'**
+  String get assetDetail;
+
+  /// No description provided for @deleteAsset.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlığı Sil'**
+  String get deleteAsset;
+
+  /// No description provided for @myAssets.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlıklarım'**
+  String get myAssets;
+
+  /// No description provided for @analysisAndReports.
+  ///
+  /// In tr, this message translates to:
+  /// **'Analiz ve Raporlar'**
+  String get analysisAndReports;
+
+  /// No description provided for @expenseTab.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcama'**
+  String get expenseTab;
+
+  /// No description provided for @incomeTab.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir'**
+  String get incomeTab;
+
+  /// No description provided for @assetTab.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlık'**
+  String get assetTab;
+
+  /// No description provided for @widgetCreationError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Widget oluşturulurken bir hata oluştu.'**
+  String get widgetCreationError;
+
+  /// No description provided for @appInitializationFailedMsg.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygulama başlatılamadı\\n{error}'**
+  String appInitializationFailedMsg(String error);
 }
 
 class _AppLocalizationsDelegate

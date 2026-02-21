@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:image/image.dart' as img;
 
 /// Isolate'de çalışacak resim işleme parametreleri
@@ -375,9 +376,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
       case CropFailure(:final cause):
         setState(() => _isCropping = false);
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Kırpma hatası: $cause')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.cropError(cause.toString()))),
+          );
         }
     }
   }
@@ -417,9 +418,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
     } catch (e) {
       setState(() => _isCropping = false);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Kaydetme hatası: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.saveError(e.toString()))),
+        );
       }
     }
   }

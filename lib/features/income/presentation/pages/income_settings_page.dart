@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'income_category_management_page.dart';
 import 'recurring_income_page.dart';
 import '../controllers/incomes_controller.dart';
@@ -54,7 +55,7 @@ class _GelirlerAyarlariSayfasiState extends State<GelirlerAyarlariSayfasi> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Gelir Ayarları"),
+          title: Text(context.l10n.incomeSettingsTitle),
           backgroundColor: Colors.transparent,
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),

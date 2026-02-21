@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/services/haptic_service.dart';
@@ -45,7 +46,7 @@ class ExpenseDetailPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Harcama Detayı'),
+        title: Text(context.l10n.expenseDetail),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -66,28 +67,28 @@ class ExpenseDetailPage extends StatelessWidget {
             _buildInfoCard(
               context: context,
               theme: theme,
-              title: 'Harcama Bilgileri',
+              title: context.l10n.expenseInfo,
               icon: Icons.receipt_long,
               iconColor: _accentColor,
               children: [
                 _buildInfoRow(
                   context,
-                  'Tarih',
+                  context.l10n.date,
                   dateFormat.format(tarih),
                   Icons.calendar_today,
                 ),
                 const SizedBox(height: 12),
                 _buildInfoRow(
                   context,
-                  'Kategori',
-                  harcama['kategori'] ?? 'Belirtilmemiş',
+                  context.l10n.category,
+                  harcama['kategori'] ?? context.l10n.notSpecified,
                   categoryIcon ?? Icons.category,
                 ),
                 if (pm != null) ...[
                   const SizedBox(height: 12),
                   _buildInfoRow(
                     context,
-                    'Ödeme Yöntemi',
+                    context.l10n.expensePaymentMethod,
                     pm.lastFourDigits != null
                         ? '${pm.name} ****${pm.lastFourDigits}'
                         : pm.name,
@@ -147,7 +148,7 @@ class ExpenseDetailPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  harcama['isim'] ?? 'Harcama',
+                  harcama['isim'] ?? context.l10n.expense,
                   style: TextStyle(
                     color: theme.colorScheme.onSurface,
                     fontSize: 20,
@@ -270,14 +271,14 @@ class ExpenseDetailPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.payments, color: Colors.red, size: 24),
-              SizedBox(width: 8),
+              const Icon(Icons.payments, color: Colors.red, size: 24),
+              const SizedBox(width: 8),
               Text(
-                'Harcanan Tutar',
-                style: TextStyle(
+                context.l10n.spentAmountLabel,
+                style: const TextStyle(
                   color: Colors.red,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -343,7 +344,7 @@ class ExpenseDetailPage extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.edit),
-            label: const Text('Düzenle'),
+            label: Text(context.l10n.edit),
           ),
         ),
         const SizedBox(width: 12),
@@ -363,7 +364,7 @@ class ExpenseDetailPage extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.delete_outline),
-            label: const Text('Sil'),
+            label: Text(context.l10n.delete),
           ),
         ),
       ],
@@ -375,15 +376,13 @@ class ExpenseDetailPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Harcamayı Sil'),
-        content: Text(
-          '"${harcama['isim']}" harcamasını silmek istediğinize emin misiniz?',
-        ),
+        title: Text(context.l10n.deleteExpense),
+        content: Text(context.l10n.deleteExpenseConfirm(harcama['isim'] ?? '')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             style: TextButton.styleFrom(foregroundColor: Colors.white),
-            child: const Text('İptal'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -392,7 +391,10 @@ class ExpenseDetailPage extends StatelessWidget {
               Navigator.pop(context); // Detay sayfasını kapat
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Sil'),
+            child: Text(
+              context.l10n.delete,
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),

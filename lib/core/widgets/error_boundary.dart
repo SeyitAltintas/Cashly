@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'error_screen.dart';
 
 /// Widget ağacındaki hataları yakalayan ve güvenli bir şekilde işleyen widget.
@@ -151,7 +152,7 @@ class _DefaultErrorWidget extends StatelessWidget {
           const SizedBox(height: 8),
 
           Text(
-            'Bu bileşen yüklenirken bir sorun oluştu.',
+            context.l10n.widgetCreationError,
             style: TextStyle(
               color: Theme.of(
                 context,
@@ -178,7 +179,7 @@ class _DefaultErrorWidget extends StatelessWidget {
                 ),
               ),
               icon: const Icon(Icons.refresh, size: 20),
-              label: const Text('Tekrar Dene'),
+              label: Text(context.l10n.retry),
             ),
           ],
         ],
