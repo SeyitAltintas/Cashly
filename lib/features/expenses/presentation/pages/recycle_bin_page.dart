@@ -83,9 +83,12 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        title: const Text("Çöpü Boşalt", style: TextStyle(color: Colors.white)),
+        title: Text(
+          context.l10n.emptyTrashBin,
+          style: const TextStyle(color: Colors.white),
+        ),
         content: Text(
-          "Tüm silinen harcamalar kalıcı olarak yok edilecek. Emin misin?",
+          context.l10n.confirmEmptyTrashBin,
           style: TextStyle(
             color: Theme.of(
               context,
@@ -95,15 +98,18 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text("İptal", style: TextStyle(color: Colors.white)),
+            child: Text(
+              context.l10n.cancel,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red.shade800,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
-              "Evet, Sil",
+            child: Text(
+              context.l10n.yesDelete,
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -121,7 +127,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
       }
       getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
       if (mounted) {
-        AppSnackBar.deleted(context, 'Çöp kutusu temizlendi.');
+        AppSnackBar.deleted(context, context.l10n.trashBinEmptied);
       }
     }
   }
@@ -145,7 +151,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
     );
 
     if (mounted) {
-      AppSnackBar.success(context, 'Harcama geri yüklendi ♻️');
+      AppSnackBar.success(context, context.l10n.expenseRestored);
     }
   }
 
@@ -159,7 +165,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
     }
     getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
     if (mounted) {
-      AppSnackBar.deleted(context, 'Harcama kalıcı olarak silindi 🗑️');
+      AppSnackBar.deleted(context, context.l10n.expensePermanentlyDeleted);
     }
   }
 
@@ -171,12 +177,12 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        title: const Text(
-          "Tümünü Geri Yükle",
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          context.l10n.restoreAll,
+          style: const TextStyle(color: Colors.white),
         ),
         content: Text(
-          "${silinenHarcamalar.length} harcama geri yüklenecek. Onaylıyor musun?",
+          context.l10n.confirmRestoreAllExpenses(silinenHarcamalar.length),
           style: TextStyle(
             color: Theme.of(
               context,
@@ -186,15 +192,18 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text("İptal", style: TextStyle(color: Colors.white)),
+            child: Text(
+              context.l10n.cancel,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green.shade700,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
-              "Evet, Geri Yükle",
+            child: Text(
+              context.l10n.yesRestore,
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -225,7 +234,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
       );
 
       if (mounted) {
-        AppSnackBar.success(context, 'Tüm harcamalar geri yüklendi ♻️');
+        AppSnackBar.success(context, context.l10n.allExpensesRestored);
       }
     }
   }
@@ -243,12 +252,12 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
           if (silinenHarcamalar.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.restore, color: Colors.green),
-              tooltip: "Tümünü Geri Yükle",
+              tooltip: context.l10n.restoreAll,
               onPressed: tumunuGeriYukle,
             ),
           IconButton(
             icon: const Icon(Icons.delete_sweep, color: Colors.white),
-            tooltip: "Çöpü Boşalt",
+            tooltip: context.l10n.emptyTrashBin,
             onPressed: copuBosalt,
           ),
         ],
@@ -256,7 +265,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
       body: silinenHarcamalar.isEmpty
           ? Center(
               child: Text(
-                "Silinen harcama yok.",
+                context.l10n.noDeletedExpenses,
                 style: TextStyle(
                   color: Theme.of(
                     context,
@@ -314,7 +323,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                           onPressed: () => harcamayiGeriYukle(harcama),
-                          tooltip: "Geri Yükle",
+                          tooltip: context.l10n.restoreItem,
                         ),
                         IconButton(
                           icon: const Icon(
@@ -322,7 +331,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
                             color: ColorConstants.kirmiziVurgu,
                           ),
                           onPressed: () => harcamayiKaliciSil(harcama),
-                          tooltip: "Kalıcı Sil",
+                          tooltip: context.l10n.deletePermanently,
                         ),
                       ],
                     ),

@@ -576,7 +576,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get emptyRecycleBin => 'Çöp kutusu boş';
 
   @override
-  String get restoreItem => 'Öğeyi geri yükle';
+  String get restoreItem => 'Geri Yükle';
 
   @override
   String get permanentDeleteItem => 'Kalıcı olarak sil';
@@ -1360,7 +1360,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get paymentMethod => 'Ödeme Yöntemi';
 
   @override
-  String get selectPaymentMethod => 'Ödeme yöntemi seçin';
+  String get selectPaymentMethod => 'Ödeme Yöntemi Seçin';
 
   @override
   String get update => 'Güncelle';
@@ -1506,8 +1506,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get tryAgainShort => 'Yeniden';
 
   @override
-  String scheduledTransfersFailed(String errors) {
-    return 'Bazı zamanlanmış transferler başarısız: $errors';
+  String scheduledTransfersFailed(String reasons) {
+    return 'Şu işlemler gerçekleştirilemedi: $reasons';
   }
 
   @override
@@ -1522,13 +1522,13 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String insufficientBalanceAccount(String account) {
-    return '$account: yetersiz bakiye';
+  String insufficientBalanceAccount(String accountName) {
+    return '$accountName hesabında yetersiz bakiye';
   }
 
   @override
-  String noDebtToPay(String account) {
-    return '$account: borç yok';
+  String noDebtToPay(String accountName) {
+    return '$accountName kapatılacak borç yok';
   }
 
   @override
@@ -1890,10 +1890,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get pinDigitsOnly => 'PIN sadece rakamlardan oluşmalıdır';
 
   @override
-  String get pleaseEnterName => 'Lütfen isminizi girin';
+  String get pleaseEnterName => 'Lütfen bir isim girin';
 
   @override
-  String get nameMinLength => 'İsminiz en az 2 karakter olmalıdır';
+  String get nameMinLength => 'İsim en az 2 karakter olmalı';
 
   @override
   String get nameMaxLength => 'İsminiz en fazla 50 karakter olabilir';
@@ -2119,7 +2119,7 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get deletePermanently => 'Hesabı Kalıcı Olarak Sil';
+  String get deletePermanently => 'Kalıcı Sil';
 
   @override
   String get pinVerificationTitle => 'PIN Doğrulaması';
@@ -2135,7 +2135,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get expenseMovedToTrash => 'Harcama çöp kutusuna taşındı 🗑️';
 
   @override
-  String get expenseRestored => 'Harcama geri yüklendi ✅';
+  String get expenseRestored => 'Harcama geri yüklendi ';
 
   @override
   String get noSearchResults => 'Sonuç bulunamadı';
@@ -2165,13 +2165,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get yesRestore => 'Evet, Geri Yükle';
 
   @override
-  String get allExpensesRestored => 'Tüm harcamalar geri yüklendi ♻️';
+  String get allExpensesRestored => 'Tüm harcamalar geri yüklendi ';
 
   @override
   String get noDeletedExpenses => 'Silinen harcama yok.';
 
   @override
-  String get expensePermanentlyDeleted => 'Harcama kalıcı olarak silindi 🗑️';
+  String get expensePermanentlyDeleted => 'Harcama kalıcı olarak silindi ';
 
   @override
   String get expenseRestoredRecycled => 'Harcama geri yüklendi ♻️';
@@ -2188,7 +2188,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get categoryDeleted => 'Kategori silindi';
 
   @override
-  String get categoryAdded => 'Kategori eklendi ✅';
+  String get categoryAdded => 'Kategori eklendi ';
 
   @override
   String systemCategoryCannotDelete(String name) {
@@ -2474,4 +2474,830 @@ class AppLocalizationsTr extends AppLocalizations {
   String appInitializationFailedMsg(String error) {
     return 'Uygulama başlatılamadı\\n$error';
   }
+
+  @override
+  String get manageFinancialTransactions => 'Finansal işlemlerinizi yönetin';
+
+  @override
+  String get cashFlow => 'Nakit Akışı';
+
+  @override
+  String get myWallet => 'Cüzdanım';
+
+  @override
+  String get otherTransactions => 'Diğer İşlemler';
+
+  @override
+  String get moneyTransfer => 'Para Transferi';
+
+  @override
+  String get assetsSubtitle => 'Altın, döviz, kripto ve diğer varlıklar';
+
+  @override
+  String get paymentMethodsSubtitle => 'Banka kartları ve nakit hesapları';
+
+  @override
+  String get analysisSubtitle => 'Harcama ve gelir istatistikleri';
+
+  @override
+  String get transferSubtitle => 'Hesaplar arası para aktarımı';
+
+  @override
+  String get cardType => 'Kart Tipi';
+
+  @override
+  String get nameLabel => 'İsim';
+
+  @override
+  String get bankCardName => 'Banka/Kart Adı';
+
+  @override
+  String get lastFourDigits => 'Son 4 Hane (Opsiyonel)';
+
+  @override
+  String get cardLimit => 'Kart Limiti';
+
+  @override
+  String get cardColor => 'Kart Rengi';
+
+  @override
+  String get swipeForMoreColors => 'Daha fazla renk için sağa kaydırın →';
+
+  @override
+  String get nameMustContainLetter => 'İsim en az bir harf içermeli';
+
+  @override
+  String get mustBeFourDigits => 'Tam 4 rakam girmelisiniz';
+
+  @override
+  String get invalidCardNumber => 'Geçersiz kart numarası';
+
+  @override
+  String get pleaseEnterDebt => 'Lütfen borç tutarını girin (0 olabilir)';
+
+  @override
+  String get pleaseEnterBalance => 'Lütfen bakiye girin';
+
+  @override
+  String get maxAmountLimit => 'Maksimum tutar 100 milyon ₺ olabilir';
+
+  @override
+  String get limitCannotBeLessThanDebt => 'Limit mevcut borçtan küçük olamaz';
+
+  @override
+  String get minLimitWarning => 'Minimum limit 100 ₺ olmalı';
+
+  @override
+  String get foodAndCafe => 'Yemek ve Kafe';
+
+  @override
+  String get groceryAndSnacks => 'Market ve Atıştırmalık';
+
+  @override
+  String get vehicleAndTransport => 'Araç ve Ulaşım';
+
+  @override
+  String get giftAndSpecial => 'Hediye ve Özel';
+
+  @override
+  String get fixedExpenses => 'Sabit Giderler';
+
+  @override
+  String get categoryOther => 'Diğer';
+
+  @override
+  String get salary => 'Maaş';
+
+  @override
+  String get freelance => 'Freelance';
+
+  @override
+  String get investment => 'Yatırım';
+
+  @override
+  String get rentalIncome => 'Kira Geliri';
+
+  @override
+  String get gift => 'Hediye';
+
+  @override
+  String get ziraatBank => 'Ziraat Bankası';
+
+  @override
+  String get searchPaymentMethod => 'Ödeme yöntemi ara...';
+
+  @override
+  String get trashBin => 'Çöp Kutusu';
+
+  @override
+  String get noResultsFound => 'Sonuç bulunamadı';
+
+  @override
+  String get tryDifferentSearchTerm => 'Farklı bir arama terimi deneyin';
+
+  @override
+  String get noPaymentMethodYet => 'Henüz ödeme yöntemi yok';
+
+  @override
+  String get startByAddingFirstPaymentMethod =>
+      'İlk ödeme yönteminizi ekleyerek başlayın';
+
+  @override
+  String get debt => 'Borç';
+
+  @override
+  String get balanceLabel => 'Bakiye';
+
+  @override
+  String get addCard => 'Kart Ekle';
+
+  @override
+  String get cashWalletExample => 'Örn: Cüzdan';
+
+  @override
+  String get ziraatBankExample => 'Örn: Ziraat Bankası';
+
+  @override
+  String get expensesThisMonth => 'Bu ayki harcamalar';
+
+  @override
+  String get incomesThisMonth => 'Bu ayki gelirler';
+
+  @override
+  String get totalLimit => 'Toplam Limit';
+
+  @override
+  String daysCount(int count) {
+    return '$count gün';
+  }
+
+  @override
+  String get todayLabel => 'Bugün';
+
+  @override
+  String get less => 'az';
+
+  @override
+  String get more => 'fazla';
+
+  @override
+  String get dailyAverageLabel => 'GÜNLÜK ORTALAMA';
+
+  @override
+  String get budgetStatusLabel => 'BÜTÇE DURUMU';
+
+  @override
+  String get totalExpenseLabel => 'TOPLAM HARCAMA';
+
+  @override
+  String get totalIncomeLabel => 'TOPLAM GELİR';
+
+  @override
+  String get remainingLabel => 'Kalan';
+
+  @override
+  String get validAmountRequired => 'Geçerli bir tutar girin';
+
+  @override
+  String get expenseNameHint => 'Ne aldın? (Örn: Kahve)';
+
+  @override
+  String get updateButton => 'Güncelle';
+
+  @override
+  String get yesterdayLabel => 'Dün';
+
+  @override
+  String get movedToTrash => 'çöp kutusuna taşındı';
+
+  @override
+  String get restored => 'geri yüklendi';
+
+  @override
+  String get voiceInput => 'Sesli Giriş';
+
+  @override
+  String get added => 'eklendi';
+
+  @override
+  String monthlyIncomeCount(int count) {
+    return 'Bu ay $count gelir kaydı';
+  }
+
+  @override
+  String get incomeNameLabel => 'Gelir Adı';
+
+  @override
+  String get incomeNameHint => 'Nereden geldi? (Örn: Borç Ödemesi)';
+
+  @override
+  String get selectAccount => 'Hesap Seçin';
+
+  @override
+  String get searchAsset => 'Varlık ara...';
+
+  @override
+  String get totalAssetLabel => 'TOPLAM VARLIK';
+
+  @override
+  String totalAssetCount(int count) {
+    return 'Toplam $count adet varlık kaydı';
+  }
+
+  @override
+  String get profilePhotoUpdated => 'Profil fotoğrafı güncellendi';
+
+  @override
+  String profilePhotoUpdateFailed(String error) {
+    return 'Profil fotoğrafı güncellenirken hata oluştu: $error';
+  }
+
+  @override
+  String get budgetLimitSaved => 'Bütçe limiti kaydedildi!';
+
+  @override
+  String get categoryListUpdated => 'Kategori listesi güncellendi!';
+
+  @override
+  String get changesSaved => 'Değişiklikler kaydedildi';
+
+  @override
+  String get trashBinEmptied => 'Çöp kutusu temizlendi.';
+
+  @override
+  String get incomeRestored => 'Gelir geri yüklendi ';
+
+  @override
+  String get incomePermanentlyDeleted => 'Gelir kalıcı olarak silindi ';
+
+  @override
+  String get allIncomesRestored => 'Tüm gelirler geri yüklendi ';
+
+  @override
+  String expenseDeletedWithName(String name) {
+    return '$name silindi';
+  }
+
+  @override
+  String get pleaseEnterValidEmail =>
+      'Lütfen geçerli bir e-posta adresi girin.';
+
+  @override
+  String biometricAuthFailed(String error) {
+    return 'Biyometrik doğrulama başarısız: $error';
+  }
+
+  @override
+  String get emptyTrashBin => 'Çöpü Boşalt';
+
+  @override
+  String get confirmEmptyTrashBin =>
+      'Tüm silinen öğeler kalıcı olarak yok edilecek. Emin misin?';
+
+  @override
+  String get restoreAll => 'Tümünü Geri Yükle';
+
+  @override
+  String confirmRestoreAllExpenses(int count) {
+    return '$count harcama geri yüklenecek. Onaylıyor musun?';
+  }
+
+  @override
+  String confirmRestoreAllIncomes(int count) {
+    return '$count gelir geri yüklenecek. Onaylıyor musun?';
+  }
+
+  @override
+  String confirmRestoreAllAssets(int count) {
+    return '$count varlık geri yüklenecek. Onaylıyor musun?';
+  }
+
+  @override
+  String get noDeletedIncomes => 'Silinen gelir yok.';
+
+  @override
+  String get noDeletedAssets => 'Çöp kutusu boş.';
+
+  @override
+  String expenseAddedDetailed(String name, String amount) {
+    return 'Harcama eklendi: $name - $amount ₺';
+  }
+
+  @override
+  String accountDeleteFailed(String error) {
+    return 'Hesap silinirken hata oluştu: $error';
+  }
+
+  @override
+  String get profileAccountDeleted => 'Hesabınız başarıyla silindi';
+
+  @override
+  String get janShort => 'OCA';
+
+  @override
+  String get febShort => 'ŞUB';
+
+  @override
+  String get marShort => 'MAR';
+
+  @override
+  String get aprShort => 'NİS';
+
+  @override
+  String get mayShort => 'MAY';
+
+  @override
+  String get junShort => 'HAZ';
+
+  @override
+  String get julShort => 'TEM';
+
+  @override
+  String get augShort => 'AĞU';
+
+  @override
+  String get sepShort => 'EYL';
+
+  @override
+  String get octShort => 'EKİ';
+
+  @override
+  String get novShort => 'KAS';
+
+  @override
+  String get decShort => 'ARA';
+
+  @override
+  String get transferPageTitle => 'Para Transferi';
+
+  @override
+  String get pleaseSelectAccounts => 'Lütfen hesapları seçin';
+
+  @override
+  String get cannotTransferToSameAccount => 'Aynı hesaba transfer yapılamaz';
+
+  @override
+  String get noDebtOnCreditCard =>
+      'Bu kredi kartında borç bulunmuyor. Transfer yapılamaz.';
+
+  @override
+  String creditCardDebtLimit(String amount) {
+    return 'Kredi kartı borcu $amount, en fazla bu kadar gönderebilirsiniz';
+  }
+
+  @override
+  String scheduledTransferMessage(
+    String fromAccount,
+    String toAccount,
+    String amount,
+    String date,
+  ) {
+    return '$fromAccount ➔ $toAccount\n$amount $date tarihinde transfer edilmek üzere zamanlandı.';
+  }
+
+  @override
+  String completedTransferMessage(
+    String fromAccount,
+    String toAccount,
+    String amount,
+    String time,
+  ) {
+    return '$fromAccount ➔ $toAccount\n$amount saat $time\'de başarıyla transfer edildi.';
+  }
+
+  @override
+  String get sender => 'GÖNDEREN';
+
+  @override
+  String get receiver => 'ALAN';
+
+  @override
+  String get amountToSend => 'Gönderilecek Tutar';
+
+  @override
+  String get enterAmountHint => 'Tutar giriniz';
+
+  @override
+  String get amountMustBeGreaterThanZero => 'Tutar 0\'dan büyük olmalı';
+
+  @override
+  String get maximumAmountExceeded => 'Maksimum tutar aşıldı';
+
+  @override
+  String payAllDebt(String amount) {
+    return 'Tüm borcu öde ($amount)';
+  }
+
+  @override
+  String scheduledTransferInfo(String date, String time) {
+    return 'Bu transfer $date saat $time\'de gerçekleştirilecek.';
+  }
+
+  @override
+  String get scheduleTransferButton => 'Transferi Zamanla';
+
+  @override
+  String get makeTransferButton => 'Transfer Yap';
+
+  @override
+  String get transactionHistory => 'İşlem Geçmişi';
+
+  @override
+  String pendingTransfers(int count) {
+    return '⏳ Bekleyen ($count)';
+  }
+
+  @override
+  String failedTransfers(int count) {
+    return '✗ Başarısız ($count)';
+  }
+
+  @override
+  String completedTransfersLabel(int count) {
+    return '✓ Tamamlanan ($count)';
+  }
+
+  @override
+  String get noTransferHistory => 'Henüz transfer işlemi yok';
+
+  @override
+  String get unknownAccount => 'Bilinmeyen';
+
+  @override
+  String get downloadReportTooltip => 'Rapor İndir';
+
+  @override
+  String get noExpenseDataForThisMonth => 'Bu ay için harcama verisi yok.';
+
+  @override
+  String get highestExpense => 'En çok harcama';
+
+  @override
+  String get categoryDistribution => 'Kategori Dağılımı';
+
+  @override
+  String get noIncomeDataForThisMonth => 'Bu ay için gelir verisi bulunmuyor.';
+
+  @override
+  String get highestIncome => 'En fazla gelir';
+
+  @override
+  String get noAssetsAddedYet => 'Henüz varlık eklenmemiş.';
+
+  @override
+  String get mostValuableType => 'En değerli tür';
+
+  @override
+  String get assetTypes => 'Varlık Türleri';
+
+  @override
+  String get distributionByPaymentMethod => 'Ödeme Yöntemine Göre Dağılım';
+
+  @override
+  String get otherStr => 'Diğer';
+
+  @override
+  String get pdfReportTitle => 'PDF Raporu';
+
+  @override
+  String get selectSectionsToInclude => 'Dahil edilecek bölümleri seçin';
+
+  @override
+  String get reportPeriod => 'Rapor Dönemi';
+
+  @override
+  String get reportOptions => 'Rapor Seçenekleri';
+
+  @override
+  String get selectAll => 'Hepsi';
+
+  @override
+  String get includeAllVisualSummaries =>
+      'Tüm görsel özet seçeneklerini dahil et';
+
+  @override
+  String get financialSummaryCards => 'Finansal Özet Kartları';
+
+  @override
+  String get expenseIncomeAssetTotals => 'Harcama, gelir ve varlık toplamları';
+
+  @override
+  String get netStatusCards => 'Net Durum Kartları';
+
+  @override
+  String get monthlyNetStatusAndSavings => 'Aylık net durum ve tasarruf oranı';
+
+  @override
+  String get pieChartAndDistribution => 'Pasta Grafiği ve Dağılım';
+
+  @override
+  String get expenseIncomeAssetDistribution =>
+      'Harcama/gelir/varlık dağılım grafiği';
+
+  @override
+  String get budgetStatusTitle => 'Bütçe Durumu';
+
+  @override
+  String get budgetProgressBarAndLimit =>
+      'Bütçe ilerleme çubuğu ve limit bilgisi';
+
+  @override
+  String get statisticsCards => 'İstatistik Kartları';
+
+  @override
+  String get dailyAverageAndPreviousMonthComparison =>
+      'Günlük ortalama ve geçen ay karşılaştırma';
+
+  @override
+  String get top5Expenses => 'En Yüksek 5 Harcama';
+
+  @override
+  String get top5ExpensesListDescription =>
+      'En yüksek tutarlı 5 harcama listesi';
+
+  @override
+  String get tablesToIncludeInReport => 'Rapora Dahil Edilecek Tablolar';
+
+  @override
+  String get monthlyExpenseDetails => 'Aylık harcama detayları';
+
+  @override
+  String get monthlyIncomeDetails => 'Aylık gelir detayları';
+
+  @override
+  String get assetListAndValues => 'Varlık listesi ve değerleri';
+
+  @override
+  String get selectAtLeastOneTable => 'En az bir tablo seçmelisiniz';
+
+  @override
+  String get preparing => 'Hazırlanıyor...';
+
+  @override
+  String get createAndSharePdf => 'PDF Oluştur ve Paylaş';
+
+  @override
+  String get daysText => 'gün';
+
+  @override
+  String get dailyStreak => 'Günlük Seri 🔥';
+
+  @override
+  String get freezeUsed => 'Koruyucu kullanıldı';
+
+  @override
+  String get totalLogins => 'Toplam Giriş';
+
+  @override
+  String get streakFreeze => 'Seri Koruyucu';
+
+  @override
+  String get protectsStreakEvenIfSkipped => 'Bir gün atlasan bile serini korur';
+
+  @override
+  String get streakFreezeUsedToday => 'Bugün seri koruyucu kullanıldı!';
+
+  @override
+  String nextFreezeIn(int days) {
+    return 'Sonraki koruyucu: $days gün sonra';
+  }
+
+  @override
+  String nextBadgeIs(String badgeName) {
+    return 'Sonraki Rozet: $badgeName';
+  }
+
+  @override
+  String daysRemainingForBadge(int remaining) {
+    return '$remaining gün kaldı';
+  }
+
+  @override
+  String get badges => 'Rozetler';
+
+  @override
+  String get achievements => 'Başarılar';
+
+  @override
+  String get dShort => 'g';
+
+  @override
+  String get earned => '✓ Kazanıldı';
+
+  @override
+  String requiredStreakDays(int requiredStreak) {
+    return '$requiredStreak günlük seri gerekli';
+  }
+
+  @override
+  String get streakWhatIsIt => 'Seri Nedir?';
+
+  @override
+  String get streakDescription =>
+      'Seri, uygulamayı art arda kaç gün açtığınızı gösteren bir sayaçtır.\n\n• Her gün uygulamayı açtığınızda seriniz 1 artar\n• Bir gün atlarsanız seriniz sıfırlanır\n• Gün içinde birden fazla giriş yapmanız sadece 1 giriş olarak sayılır\n\nSeri sistemi, finansal alışkanlıklarınızı takip etmenizi ve düzenli olmanızı teşvik eder.';
+
+  @override
+  String get streakFreezeWhatIsIt => 'Seri Koruyucu Nedir?';
+
+  @override
+  String get streakFreezeDescription =>
+      'Seri Koruyucu, bir gün uygulamayı açmayı unutsanız bile serinizi koruyan özel bir özelliktir.\n\n• Yeni kullanıcılar 1 seri koruyucu ile başlar\n• Her 7 günlük seride 1 yeni koruyucu kazanırsınız\n• Maksimum 3 koruyucu biriktirebilirsiniz\n• 1 gün atlarsanız otomatik olarak kullanılır\n• 2 veya daha fazla gün atlarsanız seri sıfırlanır';
+
+  @override
+  String get badgesDescription =>
+      'Belirli seri hedeflerine ulaştığınızda rozetler kazanırsınız:\n\n🔥 Ateş Başlangıcı - 3 günlük seri\n⭐ Haftalık Yıldız - 7 günlük seri\n💪 Kararlı - 14 günlük seri\n🏅 Aylık Şampiyon - 30 günlük seri\n💎 Süper Seri - 60 günlük seri\n👑 Seri Ustası - 100 günlük seri\n🏆 Efsane - 365 günlük seri\n\nRozetler kalıcıdır, seri sıfırlansa bile kaybolmaz!';
+
+  @override
+  String get achievementsDescription =>
+      'Başarılar, uygulamayı kullanırken elde ettiğiniz özel hedeflerdir:\n\n✓ İlk Adım - Uygulamayı ilk kez açın\n✓ Seri Başlatıcı - 3 günlük seri oluşturun\n✓ Seri Koruyucu - Bir seri koruyucu kullanın\n✓ Düzenli Kullanıcı - Toplam 10 gün giriş yapın\n✓ Süreklilik Ustası - 30 günlük seri oluşturun\n✓ Finansal Guru - Toplam 100 gün giriş yapın\n\nBaşarıları tamamladığınızda yeşil onay işareti görürsünüz.';
+
+  @override
+  String get statisticsTitle => 'İstatistikler';
+
+  @override
+  String get statisticsDescription =>
+      'Seri sayfasında aşağıdaki istatistikleri görebilirsiniz:\n\n📊 Mevcut Seri - Şu anki ardışık giriş sayınız\n🏆 En Uzun Seri - Şimdiye kadarki en yüksek seriniz\n📅 Toplam Giriş - Uygulamayı açtığınız toplam gün sayısı\n❄️ Seri Koruyucu - Elinizdeki koruyucu sayısı\n\nBu istatistikler ilerlemenizi takip etmenize yardımcı olur.';
+
+  @override
+  String get tipsTitle => 'İpuçları';
+
+  @override
+  String get tipsDescription =>
+      'Serinizi korumak için bazı ipuçları:\n\n💡 Her gün aynı saatte uygulamayı açmayı alışkanlık haline getirin\n💡 Bildirimler açıksa günlük hatırlatıcı alabilirsiniz\n💡 Seri koruyucularınızı tatil veya yoğun günler için saklayın\n💡 7, 14, 30 gibi hedefler belirleyin\n💡 En uzun seri rekorunuzu kırmaya çalışın\n\nDüzenli finansal takip, daha iyi para yönetimi demektir!';
+
+  @override
+  String get streakSystem => 'Seri Sistemi';
+
+  @override
+  String get streakSystemSubtitle =>
+      'Finansal alışkanlıklarınızı geliştirin ve\ndüzenli takip ödüllerini kazanın!';
+
+  @override
+  String get cropPhoto => 'Fotoğrafı Kırp';
+
+  @override
+  String get continueText => 'Devam';
+
+  @override
+  String get rotateLeft90 => '90° Sol';
+
+  @override
+  String get rotateRight90 => '90° Sağ';
+
+  @override
+  String get flipHorizontal => 'Yatay';
+
+  @override
+  String get flipVertical => 'Dikey';
+
+  @override
+  String get compare => 'Karşılaştır';
+
+  @override
+  String get undo => 'Geri Al';
+
+  @override
+  String get redo => 'İleri Al';
+
+  @override
+  String get resetAll => 'Tümünü Sıfırla';
+
+  @override
+  String get rotation => 'Döndürme';
+
+  @override
+  String get grid => 'Grid';
+
+  @override
+  String get apply => 'Uygula';
+
+  @override
+  String get filters => 'Filtreler';
+
+  @override
+  String get adjustments => 'Ayarlar';
+
+  @override
+  String get transform => 'Dönüşüm';
+
+  @override
+  String get text => 'Metin';
+
+  @override
+  String get emoji => 'Emoji';
+
+  @override
+  String get frame => 'Çerçeve';
+
+  @override
+  String get intensity => 'Yoğunluk';
+
+  @override
+  String get brightness => 'Parlaklık';
+
+  @override
+  String get contrast => 'Kontrast';
+
+  @override
+  String get saturation => 'Doygunluk';
+
+  @override
+  String get temperature => 'Sıcaklık';
+
+  @override
+  String get tint => 'Renk Tonu';
+
+  @override
+  String get shadows => 'Gölgeler';
+
+  @override
+  String get highlights => 'Parlaklıklar';
+
+  @override
+  String get vignette => 'Vinyet';
+
+  @override
+  String get selectProfilePhoto => 'Profil Resmi Seç';
+
+  @override
+  String get selectProfilePhotoDesc =>
+      'Galerinizden bir fotoğraf seçerek ya da kameradan fotoğraf çekerek profil resminizi değiştirebilirsiniz.';
+
+  @override
+  String get camera => 'Kamera';
+
+  @override
+  String get takePhoto => 'Fotoğraf Çek';
+
+  @override
+  String get gallery => 'Galeri';
+
+  @override
+  String get choosePhoto => 'Fotoğraf Seç';
+
+  @override
+  String get day => 'gün';
+
+  @override
+  String get securityPin => 'Güvenlik PIN\'i';
+
+  @override
+  String get fullName => 'İsim Soyisim';
+
+  @override
+  String get emailAddress => 'E-posta';
+
+  @override
+  String get firstStep => 'İlk Adım';
+
+  @override
+  String get firstStepDesc => 'Uygulamayı ilk kez açtın';
+
+  @override
+  String get streakStarter => 'Seri Başlatıcı';
+
+  @override
+  String get streakStarterDesc => '3 günlük seri oluştur';
+
+  @override
+  String get streakFreezeDescAction => 'Bir seri koruyucu kullan';
+
+  @override
+  String get regularUser => 'Düzenli Kullanıcı';
+
+  @override
+  String get regularUserDesc => 'Toplam 10 gün giriş yap';
+
+  @override
+  String get continuityMaster => 'Süreklilik Ustası';
+
+  @override
+  String get continuityMasterDesc => '30 günlük seri oluştur';
+
+  @override
+  String get financialGuru => 'Finansal Guru';
+
+  @override
+  String get financialGuruDesc => 'Toplam 100 gün giriş yap';
+
+  @override
+  String get typeText => 'Metin yazın...';
+
+  @override
+  String get sizeLabel => 'Boyut:';
+
+  @override
+  String get thickness => 'Kalınlık';
+
+  @override
+  String get rotateLeft => 'Sola';
+
+  @override
+  String get rotateRight => 'Sağa';
+
+  @override
+  String get horizontal => 'Yatay';
+
+  @override
+  String get vertical => 'Dikey';
 }

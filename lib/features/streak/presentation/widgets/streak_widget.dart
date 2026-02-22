@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../../data/models/streak_model.dart';
 import '../pages/streak_page.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Dashboard'da gösterilecek seri widget'ı
 /// Animasyonlu ateş maskotu ve seri sayısını gösterir
@@ -119,7 +120,7 @@ class _StreakWidgetState extends State<StreakWidget>
                     ),
                     // Gün etiketi - küçük
                     Text(
-                      'gün',
+                      context.l10n.day,
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w500,

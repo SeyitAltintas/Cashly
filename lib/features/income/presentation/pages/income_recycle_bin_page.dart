@@ -34,21 +34,6 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
       _controller?.binSilinenGelirler ?? _localSilinenGelirler;
   List<Income> get tumGelirler => _controller?.tumGelirler ?? _localTumGelirler;
 
-  final List<String> _months = [
-    "Ocak",
-    "Şubat",
-    "Mart",
-    "Nisan",
-    "Mayıs",
-    "Haziran",
-    "Temmuz",
-    "Ağustos",
-    "Eylül",
-    "Ekim",
-    "Kasım",
-    "Aralık",
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -110,9 +95,12 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        title: const Text("Çöpü Boşalt", style: TextStyle(color: Colors.white)),
+        title: Text(
+          context.l10n.emptyTrashBin,
+          style: const TextStyle(color: Colors.white),
+        ),
         content: Text(
-          "Tüm silinen gelirler kalıcı olarak yok edilecek. Emin misin?",
+          context.l10n.confirmEmptyTrashBin,
           style: TextStyle(
             color: Theme.of(
               context,
@@ -122,15 +110,18 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text("İptal", style: TextStyle(color: Colors.white)),
+            child: Text(
+              context.l10n.cancel,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red.shade800,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
-              "Evet, Sil",
+            child: Text(
+              context.l10n.yesDelete,
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -148,7 +139,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
       }
       kaydet();
       if (mounted) {
-        AppSnackBar.deleted(context, 'Çöp kutusu temizlendi.');
+        AppSnackBar.deleted(context, context.l10n.trashBinEmptied);
       }
     }
   }
@@ -166,7 +157,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
     }
     kaydet();
     if (mounted) {
-      AppSnackBar.success(context, 'Gelir geri yüklendi ♻️');
+      AppSnackBar.success(context, context.l10n.incomeRestored);
     }
   }
 
@@ -180,7 +171,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
     }
     kaydet();
     if (mounted) {
-      AppSnackBar.deleted(context, 'Gelir kalıcı olarak silindi 🗑️');
+      AppSnackBar.deleted(context, context.l10n.incomePermanentlyDeleted);
     }
   }
 
@@ -192,12 +183,12 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        title: const Text(
-          "Tümünü Geri Yükle",
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          context.l10n.restoreAll,
+          style: const TextStyle(color: Colors.white),
         ),
         content: Text(
-          "${silinenGelirler.length} gelir geri yüklenecek. Onaylıyor musun?",
+          context.l10n.confirmRestoreAllIncomes(silinenGelirler.length),
           style: TextStyle(
             color: Theme.of(
               context,
@@ -207,15 +198,18 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text("İptal", style: TextStyle(color: Colors.white)),
+            child: Text(
+              context.l10n.cancel,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green.shade700,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
-              "Evet, Geri Yükle",
+            child: Text(
+              context.l10n.yesRestore,
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -238,7 +232,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
       }
       kaydet();
       if (mounted) {
-        AppSnackBar.success(context, 'Tüm gelirler geri yüklendi ♻️');
+        AppSnackBar.success(context, context.l10n.allIncomesRestored);
       }
     }
   }
@@ -256,12 +250,12 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
           if (silinenGelirler.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.restore, color: Colors.green),
-              tooltip: "Tümünü Geri Yükle",
+              tooltip: context.l10n.restoreAll,
               onPressed: tumunuGeriYukle,
             ),
           IconButton(
             icon: const Icon(Icons.delete_sweep, color: Colors.white),
-            tooltip: "Çöpü Boşalt",
+            tooltip: context.l10n.emptyTrashBin,
             onPressed: copuBosalt,
           ),
         ],
@@ -278,7 +272,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "Silinen gelir yok.",
+                    context.l10n.noDeletedIncomes,
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -326,7 +320,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
                       style: const TextStyle(color: Colors.white),
                     ),
                     subtitle: Text(
-                      "${gelir.amount.toStringAsFixed(2)} ₺ • ${gelir.date.day} ${_months[gelir.date.month - 1]} ${gelir.date.year}",
+                      "${gelir.amount.toStringAsFixed(2)} ₺ • ${gelir.date.day} ${context.getMonthName(gelir.date.month)} ${gelir.date.year}",
                       style: TextStyle(
                         color: Theme.of(
                           context,
@@ -342,7 +336,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
                             color: Colors.green.shade400,
                           ),
                           onPressed: () => geliriGeriYukle(gelir),
-                          tooltip: "Geri Yükle",
+                          tooltip: context.l10n.restoreItem,
                         ),
                         IconButton(
                           icon: const Icon(
@@ -350,7 +344,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
                             color: ColorConstants.kirmiziVurgu,
                           ),
                           onPressed: () => geliriKaliciSil(gelir),
-                          tooltip: "Kalıcı Sil",
+                          tooltip: context.l10n.deletePermanently,
                         ),
                       ],
                     ),

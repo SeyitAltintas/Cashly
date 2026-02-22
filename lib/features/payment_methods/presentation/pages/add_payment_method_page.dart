@@ -52,8 +52,13 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
   int get _selectedColorIndex =>
       _controller?.formSelectedColorIndex ?? _localSelectedColorIndex;
 
-  final List<String> _types = ['banka', 'kredi', 'nakit'];
-  final List<String> _typeLabels = ['Banka Kartı', 'Kredi Kartı', 'Nakit'];
+  // Dynamic getters to ensure l10n is updated correctly on language change
+  List<String> get _types => ['banka', 'kredi', 'nakit'];
+  List<String> get _typeLabels => [
+    context.l10n.bankAccount,
+    context.l10n.creditCard,
+    context.l10n.cash,
+  ];
 
   @override
   void initState() {
@@ -142,7 +147,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
         } else {
           ErrorHandler.showErrorSnackBar(
             context,
-            'Kaydetme sırasında bir hata oluştu',
+            context.l10n.unexpectedError(e.toString()),
           );
         }
       }
@@ -163,7 +168,9 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          isEditing ? 'Ödeme Yöntemi Düzenle' : 'Yeni Ödeme Yöntemi',
+          isEditing
+              ? context.l10n.editPaymentMethod
+              : context.l10n.addPaymentMethod,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
@@ -220,7 +227,9 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
 
   Widget _buildCardPreview() {
     final name = _nameController.text.isEmpty
-        ? (_selectedType == 'nakit' ? 'Nakit' : 'Kart Adı')
+        ? (_selectedType == 'nakit'
+              ? context.l10n.cash
+              : context.l10n.bankCardName)
         : _nameController.text;
     final lastFour = _lastFourController.text.isEmpty
         ? '••••'
@@ -310,7 +319,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name.toUpperCase(),
+                      context.translateDbName(name).toUpperCase(),
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 14,
@@ -335,7 +344,9 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    _selectedType == 'kredi' ? 'Borç' : 'Bakiye',
+                    _selectedType == 'kredi'
+                        ? context.l10n.currentDebt
+                        : context.l10n.balance,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 11,
@@ -362,9 +373,9 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Kart Tipi',
-          style: TextStyle(
+        Text(
+          context.l10n.cardType,
+          style: const TextStyle(
             color: Colors.white54,
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -425,7 +436,9 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _selectedType == 'nakit' ? 'İsim' : 'Banka/Kart Adı',
+          _selectedType == 'nakit'
+              ? context.l10n.nameLabel
+              : context.l10n.bankCardName,
           style: const TextStyle(color: Colors.white54, fontSize: 13),
         ),
         const SizedBox(height: 8),
@@ -440,8 +453,8 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           ],
           decoration: InputDecoration(
             hintText: _selectedType == 'nakit'
-                ? 'Örn: Cüzdan'
-                : 'Örn: Ziraat Bankası',
+                ? context.l10n.cashWalletExample
+                : context.l10n.ziraatBankExample,
             hintStyle: const TextStyle(color: Colors.white24),
             counterText: '',
             prefixIcon: Icon(
@@ -472,14 +485,14 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
-              return 'Lütfen bir isim girin';
+              return context.l10n.pleaseEnterName;
             }
             final trimmed = value.trim();
             if (trimmed.length < 2) {
-              return 'İsim en az 2 karakter olmalı';
+              return context.l10n.nameMinLength;
             }
             if (RegExp(r'^[\s0-9]+$').hasMatch(trimmed)) {
-              return 'İsim en az bir harf içermeli';
+              return context.l10n.nameMustContainLetter;
             }
             return null;
           },
@@ -493,9 +506,9 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Son 4 Hane (Opsiyonel)',
-          style: TextStyle(color: Colors.white54, fontSize: 13),
+        Text(
+          context.l10n.lastFourDigits,
+          style: const TextStyle(color: Colors.white54, fontSize: 13),
         ),
         const SizedBox(height: 8),
         TextFormField(
@@ -535,10 +548,10 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               return null;
             }
             if (value.isNotEmpty && value.length < 4) {
-              return 'Tam 4 rakam girmelisiniz';
+              return context.l10n.mustBeFourDigits;
             }
             if (RegExp(r'^(.)\1{3}$').hasMatch(value)) {
-              return 'Geçersiz kart numarası';
+              return context.l10n.invalidCardNumber;
             }
             return null;
           },
@@ -553,7 +566,9 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _selectedType == 'kredi' ? 'Mevcut Borç' : 'Bakiye',
+          _selectedType == 'kredi'
+              ? context.l10n.currentDebt
+              : context.l10n.balance,
           style: const TextStyle(color: Colors.white54, fontSize: 13),
         ),
         const SizedBox(height: 8),
@@ -600,19 +615,19 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           validator: (value) {
             if (value == null || value.isEmpty) {
               return _selectedType == 'kredi'
-                  ? 'Lütfen borç tutarını girin (0 olabilir)'
-                  : 'Lütfen bakiye girin';
+                  ? context.l10n.pleaseEnterDebt
+                  : context.l10n.pleaseEnterBalance;
             }
             // Türk formatından parse et (1.234,56 -> 1234.56)
             final amount = AmountInputFormatter.parseFormattedAmount(value);
             if (amount == null) {
-              return 'Geçersiz tutar formatı';
+              return context.l10n.invalidAmountFormat;
             }
             if (amount < 0) {
-              return 'Tutar negatif olamaz';
+              return context.l10n.amountCannotBeNegative;
             }
             if (amount > 100000000) {
-              return 'Maksimum tutar 100 milyon ₺ olabilir';
+              return context.l10n.maxAmountLimit;
             }
             return null;
           },
@@ -625,9 +640,9 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Kart Limiti',
-          style: TextStyle(color: Colors.white54, fontSize: 13),
+        Text(
+          context.l10n.cardLimit,
+          style: const TextStyle(color: Colors.white54, fontSize: 13),
         ),
         const SizedBox(height: 8),
         TextFormField(
@@ -675,10 +690,10 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             // Türk formatından parse et (10.000,00 -> 10000.00)
             final limit = AmountInputFormatter.parseFormattedAmount(value);
             if (limit == null) {
-              return 'Geçersiz tutar formatı';
+              return context.l10n.invalidAmountFormat;
             }
             if (limit <= 0) {
-              return 'Limit 0\'dan büyük olmalı';
+              return context.l10n.limitMustBeGreaterThanZero;
             }
             // Mevcut borç değerini parse et
             final debt =
@@ -687,13 +702,13 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                 ) ??
                 0;
             if (limit < debt) {
-              return 'Limit mevcut borçtan küçük olamaz';
+              return context.l10n.limitCannotBeLessThanDebt;
             }
             if (limit > 1000000000) {
-              return 'Maksimum limit 1 milyar ₺ olabilir';
+              return context.l10n.maxAmountLimit;
             }
             if (limit < 100) {
-              return 'Minimum limit 100 ₺ olmalı';
+              return context.l10n.minLimitWarning;
             }
             return null;
           },
@@ -706,13 +721,13 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Kart Rengi',
-          style: TextStyle(color: Colors.white54, fontSize: 13),
+        Text(
+          context.l10n.cardColor,
+          style: const TextStyle(color: Colors.white54, fontSize: 13),
         ),
         const SizedBox(height: 4),
         Text(
-          'Daha fazla renk için sağa kaydırın →',
+          context.l10n.swipeForMoreColors,
           style: TextStyle(
             fontSize: 11,
             color: Colors.white.withValues(alpha: 0.4),

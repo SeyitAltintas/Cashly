@@ -8,6 +8,7 @@ import '../../data/models/transfer_model.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../settings/domain/repositories/settings_repository.dart';
 import '../controllers/payment_methods_controller.dart';
 
@@ -128,12 +129,18 @@ class _TransferPageState extends State<TransferPage> {
     }
 
     if (_fromAccountId == null || _toAccountId == null) {
-      ErrorHandler.showErrorSnackBar(context, 'Lütfen hesapları seçin');
+      ErrorHandler.showErrorSnackBar(
+        context,
+        context.l10n.pleaseSelectAccounts,
+      );
       return;
     }
 
     if (_fromAccountId == _toAccountId) {
-      ErrorHandler.showErrorSnackBar(context, 'Aynı hesaba transfer yapılamaz');
+      ErrorHandler.showErrorSnackBar(
+        context,
+        context.l10n.cannotTransferToSameAccount,
+      );
       return;
     }
 
@@ -142,7 +149,7 @@ class _TransferPageState extends State<TransferPage> {
     );
 
     if (amount == null || amount <= 0) {
-      ErrorHandler.showErrorSnackBar(context, 'Geçerli bir tutar girin');
+      ErrorHandler.showErrorSnackBar(context, context.l10n.enterValidAmount);
       return;
     }
 
@@ -157,7 +164,7 @@ class _TransferPageState extends State<TransferPage> {
       if (borcMiktari <= 0) {
         ErrorHandler.showErrorSnackBar(
           context,
-          'Bu kredi kartında borç bulunmuyor. Transfer yapılamaz.',
+          context.l10n.noDebtOnCreditCard,
         );
         return;
       }
@@ -166,7 +173,9 @@ class _TransferPageState extends State<TransferPage> {
       if (amount > borcMiktari) {
         ErrorHandler.showErrorSnackBar(
           context,
-          'Kredi kartı borcu ${CurrencyFormatter.format(borcMiktari)}, en fazla bu kadar gönderebilirsiniz',
+          context.l10n.creditCardDebtLimit(
+            CurrencyFormatter.format(borcMiktari),
+          ),
         );
         return;
       }
@@ -232,8 +241,12 @@ class _TransferPageState extends State<TransferPage> {
         'd MMMM yyyy HH:mm',
         'tr_TR',
       ).format(_selectedDate);
-      final msg =
-          "$fromAccountName ➔ $toAccountName\n$formattedAmount $formattedDate tarihinde transfer edilmek üzere zamanlandı.";
+      final msg = context.l10n.scheduledTransferMessage(
+        fromAccountName,
+        toAccountName,
+        formattedAmount,
+        formattedDate,
+      );
       if (_controller != null) {
         _controller!.setTransferSuccessMessage(msg);
       } else {
@@ -242,8 +255,12 @@ class _TransferPageState extends State<TransferPage> {
       }
     } else {
       final formattedTime = DateFormat('HH:mm', 'tr_TR').format(_selectedDate);
-      final msg =
-          "$fromAccountName ➔ $toAccountName\n$formattedAmount saat $formattedTime'de başarıyla transfer edildi.";
+      final msg = context.l10n.completedTransferMessage(
+        fromAccountName,
+        toAccountName,
+        formattedAmount,
+        formattedTime,
+      );
       if (_controller != null) {
         _controller!.setTransferSuccessMessage(msg);
       } else {
@@ -321,7 +338,7 @@ class _TransferPageState extends State<TransferPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Para Transferi",
+          context.l10n.transferPageTitle,
           style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -442,7 +459,7 @@ class _TransferPageState extends State<TransferPage> {
             ),
             const SizedBox(width: 8),
             Text(
-              'İşlem Geçmişi',
+              context.l10n.transactionHistory,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -456,7 +473,7 @@ class _TransferPageState extends State<TransferPage> {
         // Bekleyen transferler
         if (pendingTransfers.isNotEmpty) ...[
           _buildStatusLabel(
-            '⏳ Bekleyen (${pendingTransfers.length})',
+            context.l10n.pendingTransfers(pendingTransfers.length),
             Colors.orange,
           ),
           const SizedBox(height: 8),
@@ -469,7 +486,7 @@ class _TransferPageState extends State<TransferPage> {
         // Başarısız transferler
         if (failedTransfers.isNotEmpty) ...[
           _buildStatusLabel(
-            '✗ Başarısız (${failedTransfers.length})',
+            context.l10n.failedTransfers(failedTransfers.length),
             Colors.red,
           ),
           const SizedBox(height: 8),
@@ -482,7 +499,7 @@ class _TransferPageState extends State<TransferPage> {
         // Tamamlanan transferler
         if (completedTransfers.isNotEmpty) ...[
           _buildStatusLabel(
-            '✓ Tamamlanan (${completedTransfers.length})',
+            context.l10n.completedTransfersLabel(completedTransfers.length),
             Colors.green,
           ),
           const SizedBox(height: 8),
@@ -498,7 +515,7 @@ class _TransferPageState extends State<TransferPage> {
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Text(
-                'Henüz transfer işlemi yok',
+                context.l10n.noTransferHistory,
                 style: TextStyle(
                   color: textColor.withValues(alpha: 0.5),
                   fontSize: 14,
@@ -533,7 +550,7 @@ class _TransferPageState extends State<TransferPage> {
     return Column(
       children: [
         Text(
-          "Gönderilecek Tutar",
+          context.l10n.amountToSend,
           style: TextStyle(
             color: textColor.withValues(alpha: 0.5),
             fontSize: 14,
@@ -561,7 +578,7 @@ class _TransferPageState extends State<TransferPage> {
             validator: (value) {
               // Edge case: Boş değer
               if (value == null || value.isEmpty) {
-                return 'Tutar giriniz';
+                return context.l10n.enterAmountHint;
               }
               // Nokta ve virgülleri temizle
               final cleanValue = value.replaceAll('.', '').replaceAll(',', '');
@@ -569,15 +586,15 @@ class _TransferPageState extends State<TransferPage> {
 
               // Edge case: Geçersiz sayı
               if (amount == null) {
-                return 'Geçerli bir tutar giriniz';
+                return context.l10n.enterValidAmount;
               }
               // Edge case: Sıfır veya negatif
               if (amount <= 0) {
-                return 'Tutar 0\'dan büyük olmalı';
+                return context.l10n.amountMustBeGreaterThanZero;
               }
               // Edge case: Çok büyük değer (100 milyon TL üzeri)
               if (amount > 100000000) {
-                return 'Maksimum tutar aşıldı';
+                return context.l10n.maximumAmountExceeded;
               }
               return null;
             },
@@ -673,9 +690,9 @@ class _TransferPageState extends State<TransferPage> {
           children: [
             // Gönderen
             _buildAccountTile(
-              label: "GÖNDEREN",
+              label: context.l10n.sender,
               value: _fromAccountId,
-              hint: "Hesap Seçin",
+              hint: context.l10n.selectAccount,
               icon: Icons.upload_rounded,
               onChanged: (val) {
                 if (_controller != null) {
@@ -692,9 +709,9 @@ class _TransferPageState extends State<TransferPage> {
             const SizedBox(height: 24),
             // Alan
             _buildAccountTile(
-              label: "ALAN",
+              label: context.l10n.receiver,
               value: _toAccountId,
-              hint: "Hesap Seçin",
+              hint: context.l10n.selectAccount,
               icon: Icons.download_rounded,
               onChanged: (val) {
                 if (_controller != null) {
@@ -811,7 +828,7 @@ class _TransferPageState extends State<TransferPage> {
                 ),
               ),
               // Eğer bu ALAN hesap ise ve Kredi Kartı ise "Tümünü Öde" göster
-              if (label == "ALAN" &&
+              if (label == context.l10n.receiver &&
                   selectedAccount != null &&
                   selectedAccount.type == 'kredi' &&
                   selectedAccount.balance > 0)
@@ -830,7 +847,9 @@ class _TransferPageState extends State<TransferPage> {
                         horizontal: 8,
                       ),
                       child: Text(
-                        "Tüm borcu öde (${CurrencyFormatter.format(selectedAccount.balance)})",
+                        context.l10n.payAllDebt(
+                          CurrencyFormatter.format(selectedAccount.balance),
+                        ),
                         style: TextStyle(
                           color: _primaryColor,
                           fontSize: 12,
@@ -899,7 +918,10 @@ class _TransferPageState extends State<TransferPage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Bu transfer ${DateFormat('d MMMM yyyy', 'tr_TR').format(_selectedDate)} saat ${DateFormat('HH:mm', 'tr_TR').format(_selectedDate)}\'de gerçekleştirilecek.',
+              context.l10n.scheduledTransferInfo(
+                DateFormat('d MMMM yyyy', 'tr_TR').format(_selectedDate),
+                DateFormat('HH:mm', 'tr_TR').format(_selectedDate),
+              ),
               style: TextStyle(
                 color: isDark ? Colors.orange.shade300 : Colors.orange.shade800,
                 fontSize: 13,
@@ -934,7 +956,9 @@ class _TransferPageState extends State<TransferPage> {
               const SizedBox(width: 8),
             ],
             Text(
-              _isScheduled ? "Transferi Zamanla" : "Transfer Yap",
+              _isScheduled
+                  ? context.l10n.scheduleTransferButton
+                  : context.l10n.makeTransferButton,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
@@ -1004,8 +1028,8 @@ class _TransferPageState extends State<TransferPage> {
     required String status,
   }) {
     // Hesap isimlerini bul
-    String fromName = 'Bilinmeyen';
-    String toName = 'Bilinmeyen';
+    String fromName = context.l10n.unknownAccount;
+    String toName = context.l10n.unknownAccount;
 
     for (var pm in widget.paymentMethods) {
       if (pm.id == transfer.fromAccountId) fromName = pm.name;

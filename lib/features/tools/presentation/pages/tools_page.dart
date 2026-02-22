@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../controllers/tools_controller.dart';
@@ -62,7 +63,7 @@ class _ToolsPageState extends State<ToolsPage> {
                         const SizedBox(height: 28),
 
                         // Ana İşlemler Bölümü
-                        _buildSectionTitle(context, "Nakit Akışı"),
+                        _buildSectionTitle(context, context.l10n.cashFlow),
                         const SizedBox(height: 14),
 
                         // Harcama ve Gelir kartları (yan yana)
@@ -72,7 +73,7 @@ class _ToolsPageState extends State<ToolsPage> {
                               Expanded(
                                 child: _FinanceCard(
                                   icon: Icons.arrow_downward_rounded,
-                                  title: "Harcamalarım",
+                                  title: context.l10n.myExpenses,
                                   iconColor: const Color(0xFFE53935),
                                   iconBgColor: const Color(
                                     0xFFE53935,
@@ -90,7 +91,7 @@ class _ToolsPageState extends State<ToolsPage> {
                               Expanded(
                                 child: _FinanceCard(
                                   icon: Icons.arrow_upward_rounded,
-                                  title: "Gelirlerim",
+                                  title: context.l10n.myIncomes,
                                   iconColor: const Color(0xFF43A047),
                                   iconBgColor: const Color(
                                     0xFF43A047,
@@ -107,14 +108,14 @@ class _ToolsPageState extends State<ToolsPage> {
                         const SizedBox(height: 24),
 
                         // Hesaplarım Bölümü
-                        _buildSectionTitle(context, "Cüzdanım"),
+                        _buildSectionTitle(context, context.l10n.myWallet),
                         const SizedBox(height: 14),
 
                         // Varlıklar ve Ödeme Yöntemleri
                         _FinanceListTile(
                           icon: Icons.account_balance_wallet_outlined,
-                          title: "Varlıklarım",
-                          subtitle: "Altın, döviz, kripto ve diğer varlıklar",
+                          title: context.l10n.myAssets,
+                          subtitle: context.l10n.assetsSubtitle,
                           iconColor: const Color(0xFF1E88E5),
                           onTap: () {
                             HapticService.lightImpact();
@@ -124,8 +125,8 @@ class _ToolsPageState extends State<ToolsPage> {
                         const SizedBox(height: 10),
                         _FinanceListTile(
                           icon: Icons.credit_card_outlined,
-                          title: "Ödeme Yöntemlerim",
-                          subtitle: "Banka kartları ve nakit hesapları",
+                          title: context.l10n.myPaymentMethods,
+                          subtitle: context.l10n.paymentMethodsSubtitle,
                           iconColor: const Color(0xFF8E24AA),
                           onTap: () {
                             HapticService.lightImpact();
@@ -136,14 +137,17 @@ class _ToolsPageState extends State<ToolsPage> {
                         const SizedBox(height: 24),
 
                         // Araçlar Bölümü
-                        _buildSectionTitle(context, "Diğer İşlemler"),
+                        _buildSectionTitle(
+                          context,
+                          context.l10n.otherTransactions,
+                        ),
                         const SizedBox(height: 14),
 
                         // Analiz ve Transfer
                         _FinanceListTile(
                           icon: Icons.insights_outlined,
-                          title: "Analiz ve Raporlar",
-                          subtitle: "Harcama ve gelir istatistikleri",
+                          title: context.l10n.analysisAndReports,
+                          subtitle: context.l10n.analysisSubtitle,
                           iconColor: const Color(0xFFFF7043),
                           onTap: () {
                             HapticService.lightImpact();
@@ -153,8 +157,8 @@ class _ToolsPageState extends State<ToolsPage> {
                         const SizedBox(height: 10),
                         _FinanceListTile(
                           icon: Icons.sync_alt_rounded,
-                          title: "Para Transferi",
-                          subtitle: "Hesaplar arası para aktarımı",
+                          title: context.l10n.moneyTransfer,
+                          subtitle: context.l10n.transferSubtitle,
                           iconColor: const Color.fromARGB(255, 0, 123, 110),
                           onTap: () {
                             HapticService.lightImpact();
@@ -190,7 +194,7 @@ class _ToolsPageState extends State<ToolsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Tüm İşlemler",
+            context.l10n.allTransactions,
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w700,
@@ -200,7 +204,7 @@ class _ToolsPageState extends State<ToolsPage> {
           ),
           const SizedBox(height: 6),
           Text(
-            "Finansal işlemlerinizi yönetin",
+            context.l10n.manageFinancialTransactions,
             style: TextStyle(
               fontSize: 15,
               color: Theme.of(

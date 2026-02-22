@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/services/export_service.dart';
 import '../../../../core/widgets/month_year_picker.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 import '../state/pdf_export_state.dart';
 
 /// PDF Rapor Hazırlama Sayfası
@@ -66,7 +67,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final month = _getMonthName(_selectedDate.month);
+    final month = context.getShortMonthName(_selectedDate.month);
     final year = _selectedDate.year;
 
     return Scaffold(
@@ -79,7 +80,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'PDF Raporu',
+          context.l10n.pdfReportTitle,
           style: TextStyle(
             color: theme.colorScheme.onSurface,
             fontWeight: FontWeight.bold,
@@ -133,7 +134,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'PDF Raporu',
+                          context.l10n.pdfReportTitle,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -141,7 +142,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                           ),
                         ),
                         Text(
-                          'Dahil edilecek bölümleri seçin',
+                          context.l10n.selectSectionsToInclude,
                           style: TextStyle(
                             fontSize: 12,
                             color: theme.colorScheme.onSurface.withValues(
@@ -204,7 +205,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Rapor Dönemi',
+                            context.l10n.reportPeriod,
                             style: TextStyle(
                               fontSize: 12,
                               color: theme.colorScheme.onSurface.withValues(
@@ -237,14 +238,14 @@ class _PdfExportPageState extends State<PdfExportPage> {
 
             // Rapor Seçenekleri - görsel özet alt seçenekleri
             _buildFieldsetSection(
-              title: 'Rapor Seçenekleri',
+              title: context.l10n.reportOptions,
               theme: theme,
               child: Column(
                 children: [
                   // Hepsi checkbox
                   _buildCheckboxTile(
-                    title: 'Hepsi',
-                    subtitle: 'Tüm görsel özet seçeneklerini dahil et',
+                    title: context.l10n.selectAll,
+                    subtitle: context.l10n.includeAllVisualSummaries,
                     icon: Icons.select_all,
                     color: Colors.purple,
                     value: _allVisualOptionsSelected,
@@ -259,8 +260,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   ),
                   // 1. Finansal Özet Kartları
                   _buildCheckboxTile(
-                    title: 'Finansal Özet Kartları',
-                    subtitle: 'Harcama, gelir ve varlık toplamları',
+                    title: context.l10n.financialSummaryCards,
+                    subtitle: context.l10n.expenseIncomeAssetTotals,
                     icon: Icons.dashboard_outlined,
                     color: Colors.orange,
                     value: _includeFinansalOzet,
@@ -269,8 +270,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   ),
                   // 2. Net Durum Kartları
                   _buildCheckboxTile(
-                    title: 'Net Durum Kartları',
-                    subtitle: 'Aylık net durum ve tasarruf oranı',
+                    title: context.l10n.netStatusCards,
+                    subtitle: context.l10n.monthlyNetStatusAndSavings,
                     icon: Icons.balance,
                     color: Colors.teal,
                     value: _includeNetDurum,
@@ -279,8 +280,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   ),
                   // 3. Pasta Grafiği ve Dağılım
                   _buildCheckboxTile(
-                    title: 'Pasta Grafiği ve Dağılım',
-                    subtitle: 'Harcama/gelir/varlık dağılım grafiği',
+                    title: context.l10n.pieChartAndDistribution,
+                    subtitle: context.l10n.expenseIncomeAssetDistribution,
                     icon: Icons.pie_chart_outline,
                     color: Colors.indigo,
                     value: _includePastaGrafik,
@@ -289,8 +290,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   ),
                   // 4. Bütçe Durumu
                   _buildCheckboxTile(
-                    title: 'Bütçe Durumu',
-                    subtitle: 'Bütçe ilerleme çubuğu ve limit bilgisi',
+                    title: context.l10n.budgetStatusTitle,
+                    subtitle: context.l10n.budgetProgressBarAndLimit,
                     icon: Icons.account_balance_wallet,
                     color: Colors.green,
                     value: _includeButceDurumu,
@@ -299,8 +300,9 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   ),
                   // 5. İstatistik Kartları
                   _buildCheckboxTile(
-                    title: 'İstatistik Kartları',
-                    subtitle: 'Günlük ortalama ve geçen ay karşılaştırma',
+                    title: context.l10n.statisticsCards,
+                    subtitle:
+                        context.l10n.dailyAverageAndPreviousMonthComparison,
                     icon: Icons.analytics_outlined,
                     color: Colors.blue,
                     value: _includeIstatistikler,
@@ -309,8 +311,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   ),
                   // 6. En Yüksek 5 Harcama
                   _buildCheckboxTile(
-                    title: 'En Yüksek 5 Harcama',
-                    subtitle: 'En yüksek tutarlı 5 harcama listesi',
+                    title: context.l10n.top5Expenses,
+                    subtitle: context.l10n.top5ExpensesListDescription,
                     icon: Icons.leaderboard_outlined,
                     color: Colors.red,
                     value: _includeTop5Harcama,
@@ -324,13 +326,13 @@ class _PdfExportPageState extends State<PdfExportPage> {
 
             // Tablolar bölümü - fieldset tarzı çerçeveli section
             _buildFieldsetSection(
-              title: 'Rapora Dahil Edilecek Tablolar',
+              title: context.l10n.tablesToIncludeInReport,
               theme: theme,
               child: Column(
                 children: [
                   _buildCheckboxTile(
-                    title: 'Harcamalarım',
-                    subtitle: 'Aylık harcama detayları',
+                    title: context.l10n.myExpensesTitle,
+                    subtitle: context.l10n.monthlyExpenseDetails,
                     icon: Icons.shopping_cart_outlined,
                     color: Colors.red,
                     value: _includeExpenses,
@@ -338,8 +340,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
                         _pdfState.includeExpenses = value ?? false,
                   ),
                   _buildCheckboxTile(
-                    title: 'Gelirlerim',
-                    subtitle: 'Aylık gelir detayları',
+                    title: context.l10n.myIncomesTitle,
+                    subtitle: context.l10n.monthlyIncomeDetails,
                     icon: Icons.wallet_outlined,
                     color: Colors.green,
                     value: _includeIncomes,
@@ -347,8 +349,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
                         _pdfState.includeIncomes = value ?? false,
                   ),
                   _buildCheckboxTile(
-                    title: 'Varlıklarım',
-                    subtitle: 'Varlık listesi ve değerleri',
+                    title: context.l10n.myAssets,
+                    subtitle: context.l10n.assetListAndValues,
                     icon: Icons.account_balance_outlined,
                     color: Colors.blue,
                     value: _includeAssets,
@@ -388,7 +390,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'En az bir tablo seçmelisiniz',
+                        context.l10n.selectAtLeastOneTable,
                         style: TextStyle(
                           color: Colors.orange.shade700,
                           fontWeight: FontWeight.w500,
@@ -421,10 +423,10 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   ),
                 ),
                 child: _isExporting
-                    ? const Row(
+                    ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
@@ -434,8 +436,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
                           ),
                           SizedBox(width: 12),
                           Text(
-                            'Hazırlanıyor...',
-                            style: TextStyle(
+                            context.l10n.preparing,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -443,18 +445,18 @@ class _PdfExportPageState extends State<PdfExportPage> {
                           ),
                         ],
                       )
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.share_rounded,
                             size: 22,
                             color: Colors.white,
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Text(
-                            'PDF Oluştur ve Paylaş',
-                            style: TextStyle(
+                            context.l10n.createAndSharePdf,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -584,24 +586,6 @@ class _PdfExportPageState extends State<PdfExportPage> {
         ),
       ),
     );
-  }
-
-  String _getMonthName(int month) {
-    const months = [
-      'Ocak',
-      'Şubat',
-      'Mart',
-      'Nisan',
-      'Mayıs',
-      'Haziran',
-      'Temmuz',
-      'Ağustos',
-      'Eylül',
-      'Ekim',
-      'Kasım',
-      'Aralık',
-    ];
-    return months[month - 1];
   }
 
   Future<void> _exportPdf() async {

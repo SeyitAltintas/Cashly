@@ -3,6 +3,7 @@ import 'package:cashly/core/theme/app_theme.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/utils/currency_formatter.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Tek bir harcama satırı widget'ı
 /// Dismissible (kaydırarak silme) ve ödeme yöntemi gösterimi içerir
@@ -79,7 +80,7 @@ class ExpenseListItem extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _getMonth(harcama['tarih']),
+                          _getMonth(context, harcama['tarih']),
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.7),
                             fontSize: 11,
@@ -101,7 +102,7 @@ class ExpenseListItem extends StatelessWidget {
                 ],
               ),
               title: Text(
-                harcama['isim'],
+                context.translateDbName(harcama['isim']),
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w500,
@@ -145,24 +146,38 @@ class ExpenseListItem extends StatelessWidget {
     return date.day.toString();
   }
 
-  String _getMonth(dynamic dateStr) {
+  String _getMonth(BuildContext context, dynamic dateStr) {
     if (dateStr == null) return "-";
     final date = DateTime.tryParse(dateStr.toString());
     if (date == null) return "-";
-    const months = [
-      "OCA",
-      "ŞUB",
-      "MAR",
-      "NİS",
-      "MAY",
-      "HAZ",
-      "TEM",
-      "AĞU",
-      "EYL",
-      "EKİ",
-      "KAS",
-      "ARA",
-    ];
-    return months[date.month - 1];
+
+    switch (date.month) {
+      case 1:
+        return context.l10n.january.substring(0, 3).toUpperCase();
+      case 2:
+        return context.l10n.february.substring(0, 3).toUpperCase();
+      case 3:
+        return context.l10n.march.substring(0, 3).toUpperCase();
+      case 4:
+        return context.l10n.april.substring(0, 3).toUpperCase();
+      case 5:
+        return context.l10n.may.substring(0, 3).toUpperCase();
+      case 6:
+        return context.l10n.june.substring(0, 3).toUpperCase();
+      case 7:
+        return context.l10n.july.substring(0, 3).toUpperCase();
+      case 8:
+        return context.l10n.august.substring(0, 3).toUpperCase();
+      case 9:
+        return context.l10n.september.substring(0, 3).toUpperCase();
+      case 10:
+        return context.l10n.october.substring(0, 3).toUpperCase();
+      case 11:
+        return context.l10n.november.substring(0, 3).toUpperCase();
+      case 12:
+        return context.l10n.december.substring(0, 3).toUpperCase();
+      default:
+        return "-";
+    }
   }
 }

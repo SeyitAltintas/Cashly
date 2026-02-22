@@ -28,100 +28,48 @@ class StreakHelpPage extends StatelessWidget {
               context,
               icon: Icons.local_fire_department,
               iconColor: const Color(0xFFFF6B35),
-              title: 'Seri Nedir?',
-              content: '''
-Seri, uygulamayı art arda kaç gün açtığınızı gösteren bir sayaçtır.
-
-• Her gün uygulamayı açtığınızda seriniz 1 artar
-• Bir gün atlarsanız seriniz sıfırlanır
-• Gün içinde birden fazla giriş yapmanız sadece 1 giriş olarak sayılır
-
-Seri sistemi, finansal alışkanlıklarınızı takip etmenizi ve düzenli olmanızı teşvik eder.''',
+              title: context.l10n.streakWhatIsIt,
+              content: context.l10n.streakDescription,
             ),
 
             _buildExpansionTile(
               context,
               icon: Icons.ac_unit,
               iconColor: const Color(0xFF00BCD4),
-              title: 'Seri Koruyucu Nedir?',
-              content: '''
-Seri Koruyucu, bir gün uygulamayı açmayı unutsanız bile serinizi koruyan özel bir özelliktir.
-
-• Yeni kullanıcılar 1 seri koruyucu ile başlar
-• Her 7 günlük seride 1 yeni koruyucu kazanırsınız
-• Maksimum 3 koruyucu biriktirebilirsiniz
-• 1 gün atlarsanız otomatik olarak kullanılır
-• 2 veya daha fazla gün atlarsanız seri sıfırlanır''',
+              title: context.l10n.streakFreezeWhatIsIt,
+              content: context.l10n.streakFreezeDescription,
             ),
 
             _buildExpansionTile(
               context,
               icon: Icons.military_tech,
               iconColor: const Color(0xFFFFD700),
-              title: 'Rozetler',
-              content: '''
-Belirli seri hedeflerine ulaştığınızda rozetler kazanırsınız:
-
-🔥 Ateş Başlangıcı - 3 günlük seri
-⭐ Haftalık Yıldız - 7 günlük seri
-💪 Kararlı - 14 günlük seri
-🏅 Aylık Şampiyon - 30 günlük seri
-💎 Süper Seri - 60 günlük seri
-👑 Seri Ustası - 100 günlük seri
-🏆 Efsane - 365 günlük seri
-
-Rozetler kalıcıdır, seri sıfırlansa bile kaybolmaz!''',
+              title: context.l10n.badges,
+              content: context.l10n.badgesDescription,
             ),
 
             _buildExpansionTile(
               context,
               icon: Icons.emoji_events,
               iconColor: const Color(0xFF9C27B0),
-              title: 'Başarılar',
-              content: '''
-Başarılar, uygulamayı kullanırken elde ettiğiniz özel hedeflerdir:
-
-✓ İlk Adım - Uygulamayı ilk kez açın
-✓ Seri Başlatıcı - 3 günlük seri oluşturun
-✓ Seri Koruyucu - Bir seri koruyucu kullanın
-✓ Düzenli Kullanıcı - Toplam 10 gün giriş yapın
-✓ Süreklilik Ustası - 30 günlük seri oluşturun
-✓ Finansal Guru - Toplam 100 gün giriş yapın
-
-Başarıları tamamladığınızda yeşil onay işareti görürsünüz.''',
+              title: context.l10n.achievements,
+              content: context.l10n.achievementsDescription,
             ),
 
             _buildExpansionTile(
               context,
               icon: Icons.bar_chart,
               iconColor: const Color(0xFF4CAF50),
-              title: 'İstatistikler',
-              content: '''
-Seri sayfasında aşağıdaki istatistikleri görebilirsiniz:
-
-📊 Mevcut Seri - Şu anki ardışık giriş sayınız
-🏆 En Uzun Seri - Şimdiye kadarki en yüksek seriniz
-📅 Toplam Giriş - Uygulamayı açtığınız toplam gün sayısı
-❄️ Seri Koruyucu - Elinizdeki koruyucu sayısı
-
-Bu istatistikler ilerlemenizi takip etmenize yardımcı olur.''',
+              title: context.l10n.statisticsTitle,
+              content: context.l10n.statisticsDescription,
             ),
 
             _buildExpansionTile(
               context,
               icon: Icons.tips_and_updates,
               iconColor: const Color(0xFFFF9800),
-              title: 'İpuçları',
-              content: '''
-Serinizi korumak için bazı ipuçları:
-
-💡 Her gün aynı saatte uygulamayı açmayı alışkanlık haline getirin
-💡 Bildirimler açıksa günlük hatırlatıcı alabilirsiniz
-💡 Seri koruyucularınızı tatil veya yoğun günler için saklayın
-💡 7, 14, 30 gibi hedefler belirleyin
-💡 En uzun seri rekorunuzu kırmaya çalışın
-
-Düzenli finansal takip, daha iyi para yönetimi demektir!''',
+              title: context.l10n.tipsTitle,
+              content: context.l10n.tipsDescription,
             ),
 
             const SizedBox(height: 32),
@@ -158,7 +106,7 @@ Düzenli finansal takip, daha iyi para yönetimi demektir!''',
           ),
           const SizedBox(height: 16),
           Text(
-            'Seri Sistemi',
+            context.l10n.streakSystem,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -167,7 +115,7 @@ Düzenli finansal takip, daha iyi para yönetimi demektir!''',
           ),
           const SizedBox(height: 8),
           Text(
-            'Finansal alışkanlıklarınızı geliştirin ve\ndüzenli takip ödüllerini kazanın!',
+            context.l10n.streakSystemSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,

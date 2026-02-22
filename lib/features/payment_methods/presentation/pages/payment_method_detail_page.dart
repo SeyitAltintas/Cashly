@@ -1,3 +1,4 @@
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/color_constants.dart';
@@ -92,7 +93,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
         items.add(
           _TransactionItem(
             type: _TransactionType.income,
-            title: g.name,
+            title: context.translateDbName(g.name),
             amount: g.amount,
             date: g.date,
             category: g.category,
@@ -118,7 +119,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
         items.add(
           _TransactionItem(
             type: _TransactionType.transferOut,
-            title: '${toAccount.name} hesabına giden transfer',
+            title: '${context.translateDbName(toAccount.name)} hesabına giden transfer',
             amount: t.amount,
             date: t.date,
             category: '',
@@ -139,7 +140,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
         items.add(
           _TransactionItem(
             type: _TransactionType.transferIn,
-            title: '${fromAccount.name} hesabından gelen transfer',
+            title: '${context.translateDbName(fromAccount.name)} hesabından gelen transfer',
             amount: t.amount,
             date: t.date,
             category: '',
@@ -186,7 +187,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(pm.name),
+        title: Text(context.translateDbName(pm.name)),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),

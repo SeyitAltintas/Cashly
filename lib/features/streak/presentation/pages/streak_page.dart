@@ -55,7 +55,7 @@ class _StreakPageState extends State<StreakPage> {
               actions: [
                 IconButton(
                   icon: const Icon(Icons.help_outline, color: Colors.white),
-                  tooltip: 'Seri Nasıl Çalışır?',
+                  tooltip: context.l10n.howStreakWorks,
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -91,7 +91,7 @@ class _StreakPageState extends State<StreakPage> {
                   ],
 
                   // Rozetler Başlığı
-                  _buildSectionTitle(context, 'Rozetler'),
+                  _buildSectionTitle(context, context.l10n.badges),
                   const SizedBox(height: 16),
 
                   // Rozet Grid
@@ -99,7 +99,7 @@ class _StreakPageState extends State<StreakPage> {
                   const SizedBox(height: 32),
 
                   // Başarılar
-                  _buildSectionTitle(context, 'Başarılar'),
+                  _buildSectionTitle(context, context.l10n.achievements),
                   const SizedBox(height: 16),
                   _buildAchievementsList(context, controller),
                 ],
@@ -173,11 +173,11 @@ class _StreakPageState extends State<StreakPage> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 8),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
                             child: Text(
-                              'gün',
-                              style: TextStyle(
+                              context.l10n.daysText,
+                              style: const TextStyle(
                                 fontSize: 18,
                                 color: Colors.white70,
                                 fontWeight: FontWeight.w500,
@@ -187,9 +187,9 @@ class _StreakPageState extends State<StreakPage> {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Günlük Seri 🔥',
-                        style: TextStyle(
+                      Text(
+                        context.l10n.dailyStreak,
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white70,
                           fontWeight: FontWeight.w500,
@@ -207,18 +207,18 @@ class _StreakPageState extends State<StreakPage> {
                             color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.ac_unit,
                                 color: Colors.white,
                                 size: 14,
                               ),
-                              SizedBox(width: 4),
+                              const SizedBox(width: 4),
                               Text(
-                                'Koruyucu kullanıldı',
-                                style: TextStyle(
+                                context.l10n.freezeUsed,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
@@ -249,7 +249,7 @@ class _StreakPageState extends State<StreakPage> {
             context,
             icon: Icons.emoji_events,
             value: '${streakData.longestStreak}',
-            label: 'En Uzun Seri',
+            label: context.l10n.longestStreak,
             color: const Color(0xFFFFD700),
           ),
         ),
@@ -259,7 +259,7 @@ class _StreakPageState extends State<StreakPage> {
             context,
             icon: Icons.calendar_today,
             value: '${streakData.totalLoginDays}',
-            label: 'Toplam Giriş',
+            label: context.l10n.totalLogins,
             color: const Color(0xFF4FC3F7),
           ),
         ),
@@ -342,7 +342,7 @@ class _StreakPageState extends State<StreakPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Seri Koruyucu',
+                      context.l10n.streakFreeze,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -351,7 +351,7 @@ class _StreakPageState extends State<StreakPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Bir gün atlasan bile serini korur',
+                      context.l10n.protectsStreakEvenIfSkipped,
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(
@@ -407,7 +407,7 @@ class _StreakPageState extends State<StreakPage> {
                   const Icon(Icons.check_circle, color: Colors.green, size: 18),
                   const SizedBox(width: 8),
                   Text(
-                    'Bugün seri koruyucu kullanıldı!',
+                    context.l10n.streakFreezeUsedToday,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -431,7 +431,7 @@ class _StreakPageState extends State<StreakPage> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Sonraki koruyucu: $nextFreezeIn gün sonra',
+                  context.l10n.nextFreezeIn(nextFreezeIn),
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(
@@ -480,7 +480,7 @@ class _StreakPageState extends State<StreakPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Sonraki Rozet: ${badge.name}',
+                      context.l10n.nextBadgeIs(badge.name),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -489,7 +489,7 @@ class _StreakPageState extends State<StreakPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '$remaining gün kaldı',
+                      context.l10n.daysRemainingForBadge(remaining),
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(
@@ -597,7 +597,7 @@ class _StreakPageState extends State<StreakPage> {
             ),
             const SizedBox(height: 2),
             Text(
-              '${badge.requiredStreak}g',
+              '${badge.requiredStreak}${context.l10n.dShort}',
               style: TextStyle(
                 fontSize: 10,
                 color: isEarned
@@ -696,8 +696,8 @@ class _StreakPageState extends State<StreakPage> {
               ),
               child: Text(
                 isEarned
-                    ? '✓ Kazanıldı'
-                    : '${badge.requiredStreak} günlük seri gerekli',
+                    ? context.l10n.earned
+                    : context.l10n.requiredStreakDays(badge.requiredStreak),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -720,7 +720,7 @@ class _StreakPageState extends State<StreakPage> {
     BuildContext context,
     StreakController controller,
   ) {
-    final achievements = controller.achievements;
+    final achievements = controller.getAchievements(context);
 
     return Column(
       children: achievements.map((achievement) {

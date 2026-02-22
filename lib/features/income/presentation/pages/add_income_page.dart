@@ -8,6 +8,8 @@ import '../../../../core/constants/color_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../controllers/incomes_controller.dart';
 
+import 'package:cashly/core/extensions/l10n_extensions.dart';
+
 /// Gelir ekleme/düzenleme sayfası
 /// Modern ve sade tasarım - Gelir temasına uygun (yeşil)
 class AddIncomePage extends StatefulWidget {
@@ -132,7 +134,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
     );
 
     if (amount == null) {
-      ErrorHandler.showErrorSnackBar(context, 'Geçerli bir tutar girin');
+      ErrorHandler.showErrorSnackBar(context, context.l10n.validAmountRequired);
       return;
     }
 
@@ -160,7 +162,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          isEditing ? "Geliri Düzenle" : "Gelir Ekle",
+          isEditing ? context.l10n.editIncome : context.l10n.addIncome,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
@@ -181,11 +183,13 @@ class _AddIncomePageState extends State<AddIncomePage> {
             // Diğer alanlar
             _buildTextField(
               controller: _nameController,
-              label: "Gelir Adı",
-              hint: "Nereden geldi? (Örn: Borç Ödemesi)",
+              label: context.l10n.incomeNameLabel,
+              hint: context.l10n.incomeNameHint,
               icon: Icons.attach_money,
-              validator: (value) =>
-                  Validators.validateItemName(value, itemType: 'Gelir'),
+              validator: (value) => Validators.validateItemName(
+                value,
+                itemType: context.l10n.income,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -221,9 +225,9 @@ class _AddIncomePageState extends State<AddIncomePage> {
         builder: (FormFieldState<String> state) {
           return Column(
             children: [
-              const Text(
-                "Tutar",
-                style: TextStyle(color: Colors.white54, fontSize: 14),
+              Text(
+                context.l10n.incomeAmount,
+                style: const TextStyle(color: Colors.white54, fontSize: 14),
               ),
               const SizedBox(height: 8),
               Row(
@@ -344,7 +348,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
           setState(() {});
         }
       },
-      labelText: 'Gelir Tarihi',
+      labelText: context.l10n.incomeDate,
     );
   }
 
@@ -369,9 +373,9 @@ class _AddIncomePageState extends State<AddIncomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Hesap",
-          style: TextStyle(color: Colors.white54, fontSize: 13),
+        Text(
+          context.l10n.incomePaymentMethod,
+          style: const TextStyle(color: Colors.white54, fontSize: 13),
         ),
         const SizedBox(height: 8),
         Container(
@@ -387,17 +391,17 @@ class _AddIncomePageState extends State<AddIncomePage> {
               style: const TextStyle(color: Colors.white, fontSize: 16),
               isExpanded: true,
               icon: const Icon(Icons.expand_more, color: Colors.white38),
-              hint: const Row(
+              hint: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.account_balance_wallet_outlined,
                     color: _accentColor,
                     size: 20,
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Text(
-                    'Hesap Seçin',
-                    style: TextStyle(color: Colors.white38),
+                    context.l10n.selectAccount,
+                    style: const TextStyle(color: Colors.white38),
                   ),
                 ],
               ),
@@ -418,7 +422,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: pm.name,
+                                text: context.translateDbName(pm.name),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -481,7 +485,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
           borderRadius: BorderRadius.circular(20),
           child: Center(
             child: Text(
-              isEditing ? "Güncelle" : "Gelir Ekle",
+              isEditing ? context.l10n.updateButton : context.l10n.addIncome,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 17,

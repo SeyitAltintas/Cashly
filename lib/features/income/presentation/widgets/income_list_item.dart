@@ -3,6 +3,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../data/models/income_model.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 
 class IncomeListItem extends StatelessWidget {
   final Income income;
@@ -74,7 +75,7 @@ class IncomeListItem extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _getMonth(income.date),
+                          _getMonth(context, income.date),
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.7),
                             fontSize: 11,
@@ -96,7 +97,7 @@ class IncomeListItem extends StatelessWidget {
                 ],
               ),
               title: Text(
-                income.name,
+                context.translateDbName(income.name),
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w500,
@@ -137,21 +138,34 @@ class IncomeListItem extends StatelessWidget {
     return date.day.toString();
   }
 
-  String _getMonth(DateTime date) {
-    const months = [
-      "OCA",
-      "ŞUB",
-      "MAR",
-      "NİS",
-      "MAY",
-      "HAZ",
-      "TEM",
-      "AĞU",
-      "EYL",
-      "EKİ",
-      "KAS",
-      "ARA",
-    ];
-    return months[date.month - 1];
+  String _getMonth(BuildContext context, DateTime date) {
+    switch (date.month) {
+      case 1:
+        return context.l10n.january.substring(0, 3).toUpperCase();
+      case 2:
+        return context.l10n.february.substring(0, 3).toUpperCase();
+      case 3:
+        return context.l10n.march.substring(0, 3).toUpperCase();
+      case 4:
+        return context.l10n.april.substring(0, 3).toUpperCase();
+      case 5:
+        return context.l10n.may.substring(0, 3).toUpperCase();
+      case 6:
+        return context.l10n.june.substring(0, 3).toUpperCase();
+      case 7:
+        return context.l10n.july.substring(0, 3).toUpperCase();
+      case 8:
+        return context.l10n.august.substring(0, 3).toUpperCase();
+      case 9:
+        return context.l10n.september.substring(0, 3).toUpperCase();
+      case 10:
+        return context.l10n.october.substring(0, 3).toUpperCase();
+      case 11:
+        return context.l10n.november.substring(0, 3).toUpperCase();
+      case 12:
+        return context.l10n.december.substring(0, 3).toUpperCase();
+      default:
+        return "-";
+    }
   }
 }

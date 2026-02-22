@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 class AssetSummaryCard extends StatelessWidget {
   final double totalAssets;
@@ -67,7 +68,7 @@ class AssetSummaryCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          "TOPLAM VARLIK",
+                          context.l10n.totalAssetLabel,
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -121,7 +122,7 @@ class AssetSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      "Toplam $assetCount adet varlık kaydı",
+                      context.l10n.totalAssetCount(assetCount),
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.5),
                         fontSize: subtitleFontSize,

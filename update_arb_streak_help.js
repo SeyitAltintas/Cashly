@@ -1,0 +1,26 @@
+const fs = require('fs');
+const tr = JSON.parse(fs.readFileSync('lib/l10n/app_tr.arb', 'utf8'));
+const en = JSON.parse(fs.readFileSync('lib/l10n/app_en.arb', 'utf8'));
+
+const append = {
+    'streakWhatIsIt': ['Seri Nedir?', 'What is Streak?'],
+    'streakDescription': ['Seri, uygulamayı art arda kaç gün açtığınızı gösteren bir sayaçtır.\n\n• Her gün uygulamayı açtığınızda seriniz 1 artar\n• Bir gün atlarsanız seriniz sıfırlanır\n• Gün içinde birden fazla giriş yapmanız sadece 1 giriş olarak sayılır\n\nSeri sistemi, finansal alışkanlıklarınızı takip etmenizi ve düzenli olmanızı teşvik eder.', 'Streak is a counter showing how many consecutive days you opened the app.\n\n• Each day you open the app, your streak increases by 1\n• If you skip a day, your streak resets\n• Multiple logins in a day count as 1 login\n\nThe streak system encourages you to track your financial habits and stay organized.'],
+    'streakFreezeWhatIsIt': ['Seri Koruyucu Nedir?', 'What is Streak Freeze?'],
+    'streakFreezeDescription': ['Seri Koruyucu, bir gün uygulamayı açmayı unutsanız bile serinizi koruyan özel bir özelliktir.\n\n• Yeni kullanıcılar 1 seri koruyucu ile başlar\n• Her 7 günlük seride 1 yeni koruyucu kazanırsınız\n• Maksimum 3 koruyucu biriktirebilirsiniz\n• 1 gün atlarsanız otomatik olarak kullanılır\n• 2 veya daha fazla gün atlarsanız seri sıfırlanır', 'Streak Freeze is a special feature that protects your streak even if you forget to open the app for a day.\n\n• New users start with 1 streak freeze\n• You earn 1 new freeze for every 7 day streak\n• You can stack maximum 3 freezes\n• Used automatically if you skip 1 day\n• Streak resets if you skip 2 or more days'],
+    'badgesDescription': ['Belirli seri hedeflerine ulaştığınızda rozetler kazanırsınız:\n\n🔥 Ateş Başlangıcı - 3 günlük seri\n⭐ Haftalık Yıldız - 7 günlük seri\n💪 Kararlı - 14 günlük seri\n🏅 Aylık Şampiyon - 30 günlük seri\n💎 Süper Seri - 60 günlük seri\n👑 Seri Ustası - 100 günlük seri\n🏆 Efsane - 365 günlük seri\n\nRozetler kalıcıdır, seri sıfırlansa bile kaybolmaz!', "You earn badges when you reach specific streak goals:\n\n🔥 Fire Starter - 3 day streak\n⭐ Weekly Star - 7 day streak\n💪 Determined - 14 day streak\n🏅 Monthly Champion - 30 day streak\n💎 Super Streak - 60 day streak\n👑 Streak Master - 100 day streak\n🏆 Legend - 365 day streak\n\nBadges are permanent, they don't disappear even if your streak resets!"],
+    'achievementsDescription': ['Başarılar, uygulamayı kullanırken elde ettiğiniz özel hedeflerdir:\n\n✓ İlk Adım - Uygulamayı ilk kez açın\n✓ Seri Başlatıcı - 3 günlük seri oluşturun\n✓ Seri Koruyucu - Bir seri koruyucu kullanın\n✓ Düzenli Kullanıcı - Toplam 10 gün giriş yapın\n✓ Süreklilik Ustası - 30 günlük seri oluşturun\n✓ Finansal Guru - Toplam 100 gün giriş yapın\n\nBaşarıları tamamladığınızda yeşil onay işareti görürsünüz.', "Achievements are special goals you earn while using the app:\n\n✓ First Step - Open the app for the first time\n✓ Streak Starter - Create a 3 day streak\n✓ Streak Freeze - Use a streak freeze\n✓ Regular User - Login for a total of 10 days\n✓ Continuity Master - Create a 30 day streak\n✓ Financial Guru - Login for a total of 100 days\n\nYou'll see a green checkmark when you complete achievements."],
+    'statisticsTitle': ['İstatistikler', 'Statistics'],
+    'statisticsDescription': ['Seri sayfasında aşağıdaki istatistikleri görebilirsiniz:\n\n📊 Mevcut Seri - Şu anki ardışık giriş sayınız\n🏆 En Uzun Seri - Şimdiye kadarki en yüksek seriniz\n📅 Toplam Giriş - Uygulamayı açtığınız toplam gün sayısı\n❄️ Seri Koruyucu - Elinizdeki koruyucu sayısı\n\nBu istatistikler ilerlemenizi takip etmenize yardımcı olur.', 'You can see the following statistics on the streak page:\n\n📊 Current Streak - Your current consecutive logins\n🏆 Longest Streak - Your highest streak so far\n📅 Total Logins - Total number of days you opened the app\n❄️ Streak Freeze - Number of freezes you have\n\nThese statistics help you track your progress.'],
+    'tipsTitle': ['İpuçları', 'Tips'],
+    'tipsDescription': ['Serinizi korumak için bazı ipuçları:\n\n💡 Her gün aynı saatte uygulamayı açmayı alışkanlık haline getirin\n💡 Bildirimler açıksa günlük hatırlatıcı alabilirsiniz\n💡 Seri koruyucularınızı tatil veya yoğun günler için saklayın\n💡 7, 14, 30 gibi hedefler belirleyin\n💡 En uzun seri rekorunuzu kırmaya çalışın\n\nDüzenli finansal takip, daha iyi para yönetimi demektir!', 'Some tips to protect your streak:\n\n💡 Make it a habit to open the app at the same time every day\n💡 If notifications are on, you can receive daily reminders\n💡 Save your streak freezes for holidays or busy days\n💡 Set goals like 7, 14, 30 days\n💡 Try to break your longest streak record\n\nRegular financial tracking means better money management!'],
+    'streakSystem': ['Seri Sistemi', 'Streak System'],
+    'streakSystemSubtitle': ['Finansal alışkanlıklarınızı geliştirin ve\ndüzenli takip ödüllerini kazanın!', 'Improve your financial habits and\nearn regular tracking rewards!']
+};
+
+for (const [k, [vTr, vEn]] of Object.entries(append)) {
+    if (!tr[k]) tr[k] = vTr;
+    if (!en[k]) en[k] = vEn;
+}
+
+fs.writeFileSync('lib/l10n/app_tr.arb', JSON.stringify(tr, null, 2));
+fs.writeFileSync('lib/l10n/app_en.arb', JSON.stringify(en, null, 2));

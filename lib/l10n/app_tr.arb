@@ -194,7 +194,7 @@
   "restore": "Geri Yükle",
   "permanentDelete": "Kalıcı Sil",
   "emptyRecycleBin": "Çöp kutusu boş",
-  "restoreItem": "Öğeyi geri yükle",
+  "restoreItem": "Geri Yükle",
   "permanentDeleteItem": "Kalıcı olarak sil",
   "deletedItems": "Silinen Öğeler",
   "budgetLimit": "Bütçe Limiti",
@@ -500,7 +500,7 @@
     }
   },
   "paymentMethod": "Ödeme Yöntemi",
-  "selectPaymentMethod": "Ödeme yöntemi seçin",
+  "selectPaymentMethod": "Ödeme Yöntemi Seçin",
   "update": "Güncelle",
   "transactionUpdated": "İşlem güncellendi",
   "transactionAdded": "İşlem eklendi",
@@ -617,10 +617,10 @@
   "resetAllEffects": "Tüm Efektleri Sıfırla",
   "confirm": "Onayla",
   "tryAgainShort": "Yeniden",
-  "scheduledTransfersFailed": "Bazı zamanlanmış transferler başarısız: {errors}",
+  "scheduledTransfersFailed": "Şu işlemler gerçekleştirilemedi: {reasons}",
   "@scheduledTransfersFailed": {
     "placeholders": {
-      "errors": {
+      "reasons": {
         "type": "String"
       }
     }
@@ -628,25 +628,18 @@
   "senderAccountNotFound": "Gönderen hesap bulunamadı",
   "receiverAccountNotFound": "Alıcı hesap bulunamadı",
   "accountDeleted": "{account} silinmiş",
-  "@accountDeleted": {
-    "placeholders": {
-      "account": {
-        "type": "String"
-      }
-    }
-  },
-  "insufficientBalanceAccount": "{account}: yetersiz bakiye",
+  "insufficientBalanceAccount": "{accountName} hesabında yetersiz bakiye",
   "@insufficientBalanceAccount": {
     "placeholders": {
-      "account": {
+      "accountName": {
         "type": "String"
       }
     }
   },
-  "noDebtToPay": "{account}: borç yok",
+  "noDebtToPay": "{accountName} kapatılacak borç yok",
   "@noDebtToPay": {
     "placeholders": {
-      "account": {
+      "accountName": {
         "type": "String"
       }
     }
@@ -763,8 +756,8 @@
   "pleaseSetPin": "Lütfen bir PIN belirleyin",
   "pinLengthError": "PIN 4 ile 6 rakam arasında olmalıdır",
   "pinDigitsOnly": "PIN sadece rakamlardan oluşmalıdır",
-  "pleaseEnterName": "Lütfen isminizi girin",
-  "nameMinLength": "İsminiz en az 2 karakter olmalıdır",
+  "pleaseEnterName": "Lütfen bir isim girin",
+  "nameMinLength": "İsim en az 2 karakter olmalı",
   "nameMaxLength": "İsminiz en fazla 50 karakter olabilir",
   "pleaseEnterAmount": "Lütfen tutar girin",
   "enterValidNumber": "Geçerli bir sayı girin",
@@ -850,12 +843,12 @@
       }
     }
   },
-  "deletePermanently": "Hesabı Kalıcı Olarak Sil",
+  "deletePermanently": "Kalıcı Sil",
   "pinVerificationTitle": "PIN Doğrulaması",
   "forwardButton": "İleri",
   "thisActionIrreversibleWarning": "Bu işlem geri alınamaz! Tüm verileriniz kalıcı olarak silinecektir.",
   "expenseMovedToTrash": "Harcama çöp kutusuna taşındı 🗑️",
-  "expenseRestored": "Harcama geri yüklendi ✅",
+  "expenseRestored": "Harcama geri yüklendi ",
   "noSearchResults": "Sonuç bulunamadı",
   "tryDifferentSearch": "Farklı bir arama terimi deneyin",
   "emptyTrashTitle": "Çöpü Boşalt",
@@ -871,9 +864,9 @@
     }
   },
   "yesRestore": "Evet, Geri Yükle",
-  "allExpensesRestored": "Tüm harcamalar geri yüklendi ♻️",
+  "allExpensesRestored": "Tüm harcamalar geri yüklendi ",
   "noDeletedExpenses": "Silinen harcama yok.",
-  "expensePermanentlyDeleted": "Harcama kalıcı olarak silindi 🗑️",
+  "expensePermanentlyDeleted": "Harcama kalıcı olarak silindi ",
   "expenseRestoredRecycled": "Harcama geri yüklendi ♻️",
   "deleteCategory": "Kategoriyi Sil",
   "deleteCategoryConfirm": "\"{name}\" kategorisini silmek istediğinizden emin misiniz?",
@@ -885,7 +878,7 @@
     }
   },
   "categoryDeleted": "Kategori silindi",
-  "categoryAdded": "Kategori eklendi ✅",
+  "categoryAdded": "Kategori eklendi ",
   "systemCategoryCannotDelete": "\"{name}\" sistem kategorisidir ve silinemez",
   "@systemCategoryCannotDelete": {
     "placeholders": {
@@ -1110,5 +1103,448 @@
         "type": "String"
       }
     }
-  }
+  },
+  "manageFinancialTransactions": "Finansal işlemlerinizi yönetin",
+  "cashFlow": "Nakit Akışı",
+  "myWallet": "Cüzdanım",
+  "otherTransactions": "Diğer İşlemler",
+  "moneyTransfer": "Para Transferi",
+  "assetsSubtitle": "Altın, döviz, kripto ve diğer varlıklar",
+  "paymentMethodsSubtitle": "Banka kartları ve nakit hesapları",
+  "analysisSubtitle": "Harcama ve gelir istatistikleri",
+  "transferSubtitle": "Hesaplar arası para aktarımı",
+  "cardType": "Kart Tipi",
+  "nameLabel": "İsim",
+  "bankCardName": "Banka/Kart Adı",
+  "lastFourDigits": "Son 4 Hane (Opsiyonel)",
+  "cardLimit": "Kart Limiti",
+  "cardColor": "Kart Rengi",
+  "swipeForMoreColors": "Daha fazla renk için sağa kaydırın →",
+  "nameMustContainLetter": "İsim en az bir harf içermeli",
+  "mustBeFourDigits": "Tam 4 rakam girmelisiniz",
+  "invalidCardNumber": "Geçersiz kart numarası",
+  "pleaseEnterDebt": "Lütfen borç tutarını girin (0 olabilir)",
+  "pleaseEnterBalance": "Lütfen bakiye girin",
+  "maxAmountLimit": "Maksimum tutar 100 milyon ₺ olabilir",
+  "limitCannotBeLessThanDebt": "Limit mevcut borçtan küçük olamaz",
+  "minLimitWarning": "Minimum limit 100 ₺ olmalı",
+  "foodAndCafe": "Yemek ve Kafe",
+  "groceryAndSnacks": "Market ve Atıştırmalık",
+  "vehicleAndTransport": "Araç ve Ulaşım",
+  "giftAndSpecial": "Hediye ve Özel",
+  "fixedExpenses": "Sabit Giderler",
+  "categoryOther": "Diğer",
+  "salary": "Maaş",
+  "freelance": "Freelance",
+  "investment": "Yatırım",
+  "rentalIncome": "Kira Geliri",
+  "gift": "Hediye",
+  "ziraatBank": "Ziraat Bankası",
+  "searchPaymentMethod": "Ödeme yöntemi ara...",
+  "trashBin": "Çöp Kutusu",
+  "noResultsFound": "Sonuç bulunamadı",
+  "tryDifferentSearchTerm": "Farklı bir arama terimi deneyin",
+  "noPaymentMethodYet": "Henüz ödeme yöntemi yok",
+  "startByAddingFirstPaymentMethod": "İlk ödeme yönteminizi ekleyerek başlayın",
+  "debt": "Borç",
+  "balanceLabel": "Bakiye",
+  "addCard": "Kart Ekle",
+  "cashWalletExample": "Örn: Cüzdan",
+  "ziraatBankExample": "Örn: Ziraat Bankası",
+  "expensesThisMonth": "Bu ayki harcamalar",
+  "incomesThisMonth": "Bu ayki gelirler",
+  "totalLimit": "Toplam Limit",
+  "daysCount": "{count} gün",
+  "todayLabel": "Bugün",
+  "less": "az",
+  "more": "fazla",
+  "dailyAverageLabel": "GÜNLÜK ORTALAMA",
+  "budgetStatusLabel": "BÜTÇE DURUMU",
+  "totalExpenseLabel": "TOPLAM HARCAMA",
+  "totalIncomeLabel": "TOPLAM GELİR",
+  "@daysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "remainingLabel": "Kalan",
+  "validAmountRequired": "Geçerli bir tutar girin",
+  "expenseNameHint": "Ne aldın? (Örn: Kahve)",
+  "updateButton": "Güncelle",
+  "yesterdayLabel": "Dün",
+  "movedToTrash": "çöp kutusuna taşındı",
+  "restored": "geri yüklendi",
+  "voiceInput": "Sesli Giriş",
+  "added": "eklendi",
+  "monthlyIncomeCount": "Bu ay {count} gelir kaydı",
+  "@monthlyIncomeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "incomeNameLabel": "Gelir Adı",
+  "incomeNameHint": "Nereden geldi? (Örn: Borç Ödemesi)",
+  "selectAccount": "Hesap Seçin",
+  "searchAsset": "Varlık ara...",
+  "totalAssetLabel": "TOPLAM VARLIK",
+  "totalAssetCount": "Toplam {count} adet varlık kaydı",
+  "@totalAssetCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profilePhotoUpdated": "Profil fotoğrafı güncellendi",
+  "profilePhotoUpdateFailed": "Profil fotoğrafı güncellenirken hata oluştu: {error}",
+  "budgetLimitSaved": "Bütçe limiti kaydedildi!",
+  "categoryListUpdated": "Kategori listesi güncellendi!",
+  "changesSaved": "Değişiklikler kaydedildi",
+  "trashBinEmptied": "Çöp kutusu temizlendi.",
+  "incomeRestored": "Gelir geri yüklendi ",
+  "incomePermanentlyDeleted": "Gelir kalıcı olarak silindi ",
+  "allIncomesRestored": "Tüm gelirler geri yüklendi ",
+  "expenseDeletedWithName": "{name} silindi",
+  "pleaseEnterValidEmail": "Lütfen geçerli bir e-posta adresi girin.",
+  "biometricAuthFailed": "Biyometrik doğrulama başarısız: {error}",
+  "@profilePhotoUpdateFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@expenseDeletedWithName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@biometricAuthFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "emptyTrashBin": "Çöpü Boşalt",
+  "confirmEmptyTrashBin": "Tüm silinen öğeler kalıcı olarak yok edilecek. Emin misin?",
+  "restoreAll": "Tümünü Geri Yükle",
+  "confirmRestoreAllExpenses": "{count} harcama geri yüklenecek. Onaylıyor musun?",
+  "confirmRestoreAllIncomes": "{count} gelir geri yüklenecek. Onaylıyor musun?",
+  "confirmRestoreAllAssets": "{count} varlık geri yüklenecek. Onaylıyor musun?",
+  "noDeletedIncomes": "Silinen gelir yok.",
+  "noDeletedAssets": "Çöp kutusu boş.",
+  "@confirmRestoreAllExpenses": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmRestoreAllIncomes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmRestoreAllAssets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseAddedDetailed": "Harcama eklendi: {name} - {amount} ₺",
+  "@expenseAddedDetailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "accountDeleteFailed": "Hesap silinirken hata oluştu: {error}",
+  "@accountDeleteFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@accountDeleted": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "profileAccountDeleted": "Hesabınız başarıyla silindi",
+  "janShort": "OCA",
+  "febShort": "ŞUB",
+  "marShort": "MAR",
+  "aprShort": "NİS",
+  "mayShort": "MAY",
+  "junShort": "HAZ",
+  "julShort": "TEM",
+  "augShort": "AĞU",
+  "sepShort": "EYL",
+  "octShort": "EKİ",
+  "novShort": "KAS",
+  "decShort": "ARA",
+  "transferPageTitle": "Para Transferi",
+  "pleaseSelectAccounts": "Lütfen hesapları seçin",
+  "cannotTransferToSameAccount": "Aynı hesaba transfer yapılamaz",
+  "noDebtOnCreditCard": "Bu kredi kartında borç bulunmuyor. Transfer yapılamaz.",
+  "creditCardDebtLimit": "Kredi kartı borcu {amount}, en fazla bu kadar gönderebilirsiniz",
+  "scheduledTransferMessage": "{fromAccount} ➔ {toAccount}\n{amount} {date} tarihinde transfer edilmek üzere zamanlandı.",
+  "completedTransferMessage": "{fromAccount} ➔ {toAccount}\n{amount} saat {time}'de başarıyla transfer edildi.",
+  "sender": "GÖNDEREN",
+  "receiver": "ALAN",
+  "amountToSend": "Gönderilecek Tutar",
+  "enterAmountHint": "Tutar giriniz",
+  "amountMustBeGreaterThanZero": "Tutar 0'dan büyük olmalı",
+  "maximumAmountExceeded": "Maksimum tutar aşıldı",
+  "payAllDebt": "Tüm borcu öde ({amount})",
+  "scheduledTransferInfo": "Bu transfer {date} saat {time}'de gerçekleştirilecek.",
+  "scheduleTransferButton": "Transferi Zamanla",
+  "makeTransferButton": "Transfer Yap",
+  "transactionHistory": "İşlem Geçmişi",
+  "pendingTransfers": "⏳ Bekleyen ({count})",
+  "failedTransfers": "✗ Başarısız ({count})",
+  "completedTransfersLabel": "✓ Tamamlanan ({count})",
+  "noTransferHistory": "Henüz transfer işlemi yok",
+  "unknownAccount": "Bilinmeyen",
+  "@creditCardDebtLimit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@payAllDebt": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@scheduledTransferMessage": {
+    "placeholders": {
+      "fromAccount": {
+        "type": "String"
+      },
+      "toAccount": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@completedTransferMessage": {
+    "placeholders": {
+      "fromAccount": {
+        "type": "String"
+      },
+      "toAccount": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@scheduledTransferInfo": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@pendingTransfers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@failedTransfers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@completedTransfersLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadReportTooltip": "Rapor İndir",
+  "noExpenseDataForThisMonth": "Bu ay için harcama verisi yok.",
+  "highestExpense": "En çok harcama",
+  "categoryDistribution": "Kategori Dağılımı",
+  "noIncomeDataForThisMonth": "Bu ay için gelir verisi bulunmuyor.",
+  "highestIncome": "En fazla gelir",
+  "noAssetsAddedYet": "Henüz varlık eklenmemiş.",
+  "mostValuableType": "En değerli tür",
+  "assetTypes": "Varlık Türleri",
+  "distributionByPaymentMethod": "Ödeme Yöntemine Göre Dağılım",
+  "otherStr": "Diğer",
+  "pdfReportTitle": "PDF Raporu",
+  "selectSectionsToInclude": "Dahil edilecek bölümleri seçin",
+  "reportPeriod": "Rapor Dönemi",
+  "reportOptions": "Rapor Seçenekleri",
+  "selectAll": "Hepsi",
+  "includeAllVisualSummaries": "Tüm görsel özet seçeneklerini dahil et",
+  "financialSummaryCards": "Finansal Özet Kartları",
+  "expenseIncomeAssetTotals": "Harcama, gelir ve varlık toplamları",
+  "netStatusCards": "Net Durum Kartları",
+  "monthlyNetStatusAndSavings": "Aylık net durum ve tasarruf oranı",
+  "pieChartAndDistribution": "Pasta Grafiği ve Dağılım",
+  "expenseIncomeAssetDistribution": "Harcama/gelir/varlık dağılım grafiği",
+  "budgetStatusTitle": "Bütçe Durumu",
+  "budgetProgressBarAndLimit": "Bütçe ilerleme çubuğu ve limit bilgisi",
+  "statisticsCards": "İstatistik Kartları",
+  "dailyAverageAndPreviousMonthComparison": "Günlük ortalama ve geçen ay karşılaştırma",
+  "top5Expenses": "En Yüksek 5 Harcama",
+  "top5ExpensesListDescription": "En yüksek tutarlı 5 harcama listesi",
+  "tablesToIncludeInReport": "Rapora Dahil Edilecek Tablolar",
+  "monthlyExpenseDetails": "Aylık harcama detayları",
+  "monthlyIncomeDetails": "Aylık gelir detayları",
+  "assetListAndValues": "Varlık listesi ve değerleri",
+  "selectAtLeastOneTable": "En az bir tablo seçmelisiniz",
+  "preparing": "Hazırlanıyor...",
+  "createAndSharePdf": "PDF Oluştur ve Paylaş",
+  "daysText": "gün",
+  "dailyStreak": "Günlük Seri 🔥",
+  "freezeUsed": "Koruyucu kullanıldı",
+  "totalLogins": "Toplam Giriş",
+  "streakFreeze": "Seri Koruyucu",
+  "protectsStreakEvenIfSkipped": "Bir gün atlasan bile serini korur",
+  "streakFreezeUsedToday": "Bugün seri koruyucu kullanıldı!",
+  "nextFreezeIn": "Sonraki koruyucu: {days} gün sonra",
+  "nextBadgeIs": "Sonraki Rozet: {badgeName}",
+  "daysRemainingForBadge": "{remaining} gün kaldı",
+  "badges": "Rozetler",
+  "achievements": "Başarılar",
+  "dShort": "g",
+  "earned": "✓ Kazanıldı",
+  "requiredStreakDays": "{requiredStreak} günlük seri gerekli",
+  "@nextFreezeIn": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@daysRemainingForBadge": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "@requiredStreakDays": {
+    "placeholders": {
+      "requiredStreak": {
+        "type": "int"
+      }
+    }
+  },
+  "@nextBadgeIs": {
+    "placeholders": {
+      "badgeName": {
+        "type": "String"
+      }
+    }
+  },
+  "streakWhatIsIt": "Seri Nedir?",
+  "streakDescription": "Seri, uygulamayı art arda kaç gün açtığınızı gösteren bir sayaçtır.\n\n• Her gün uygulamayı açtığınızda seriniz 1 artar\n• Bir gün atlarsanız seriniz sıfırlanır\n• Gün içinde birden fazla giriş yapmanız sadece 1 giriş olarak sayılır\n\nSeri sistemi, finansal alışkanlıklarınızı takip etmenizi ve düzenli olmanızı teşvik eder.",
+  "streakFreezeWhatIsIt": "Seri Koruyucu Nedir?",
+  "streakFreezeDescription": "Seri Koruyucu, bir gün uygulamayı açmayı unutsanız bile serinizi koruyan özel bir özelliktir.\n\n• Yeni kullanıcılar 1 seri koruyucu ile başlar\n• Her 7 günlük seride 1 yeni koruyucu kazanırsınız\n• Maksimum 3 koruyucu biriktirebilirsiniz\n• 1 gün atlarsanız otomatik olarak kullanılır\n• 2 veya daha fazla gün atlarsanız seri sıfırlanır",
+  "badgesDescription": "Belirli seri hedeflerine ulaştığınızda rozetler kazanırsınız:\n\n🔥 Ateş Başlangıcı - 3 günlük seri\n⭐ Haftalık Yıldız - 7 günlük seri\n💪 Kararlı - 14 günlük seri\n🏅 Aylık Şampiyon - 30 günlük seri\n💎 Süper Seri - 60 günlük seri\n👑 Seri Ustası - 100 günlük seri\n🏆 Efsane - 365 günlük seri\n\nRozetler kalıcıdır, seri sıfırlansa bile kaybolmaz!",
+  "achievementsDescription": "Başarılar, uygulamayı kullanırken elde ettiğiniz özel hedeflerdir:\n\n✓ İlk Adım - Uygulamayı ilk kez açın\n✓ Seri Başlatıcı - 3 günlük seri oluşturun\n✓ Seri Koruyucu - Bir seri koruyucu kullanın\n✓ Düzenli Kullanıcı - Toplam 10 gün giriş yapın\n✓ Süreklilik Ustası - 30 günlük seri oluşturun\n✓ Finansal Guru - Toplam 100 gün giriş yapın\n\nBaşarıları tamamladığınızda yeşil onay işareti görürsünüz.",
+  "statisticsTitle": "İstatistikler",
+  "statisticsDescription": "Seri sayfasında aşağıdaki istatistikleri görebilirsiniz:\n\n📊 Mevcut Seri - Şu anki ardışık giriş sayınız\n🏆 En Uzun Seri - Şimdiye kadarki en yüksek seriniz\n📅 Toplam Giriş - Uygulamayı açtığınız toplam gün sayısı\n❄️ Seri Koruyucu - Elinizdeki koruyucu sayısı\n\nBu istatistikler ilerlemenizi takip etmenize yardımcı olur.",
+  "tipsTitle": "İpuçları",
+  "tipsDescription": "Serinizi korumak için bazı ipuçları:\n\n💡 Her gün aynı saatte uygulamayı açmayı alışkanlık haline getirin\n💡 Bildirimler açıksa günlük hatırlatıcı alabilirsiniz\n💡 Seri koruyucularınızı tatil veya yoğun günler için saklayın\n💡 7, 14, 30 gibi hedefler belirleyin\n💡 En uzun seri rekorunuzu kırmaya çalışın\n\nDüzenli finansal takip, daha iyi para yönetimi demektir!",
+  "streakSystem": "Seri Sistemi",
+  "streakSystemSubtitle": "Finansal alışkanlıklarınızı geliştirin ve\ndüzenli takip ödüllerini kazanın!",
+  "cropPhoto": "Fotoğrafı Kırp",
+  "continueText": "Devam",
+  "rotateLeft90": "90° Sol",
+  "rotateRight90": "90° Sağ",
+  "flipHorizontal": "Yatay",
+  "flipVertical": "Dikey",
+  "compare": "Karşılaştır",
+  "undo": "Geri Al",
+  "redo": "İleri Al",
+  "resetAll": "Tümünü Sıfırla",
+  "rotation": "Döndürme",
+  "grid": "Grid",
+  "apply": "Uygula",
+  "filters": "Filtreler",
+  "adjustments": "Ayarlar",
+  "transform": "Dönüşüm",
+  "text": "Metin",
+  "emoji": "Emoji",
+  "frame": "Çerçeve",
+  "intensity": "Yoğunluk",
+  "brightness": "Parlaklık",
+  "contrast": "Kontrast",
+  "saturation": "Doygunluk",
+  "temperature": "Sıcaklık",
+  "tint": "Renk Tonu",
+  "shadows": "Gölgeler",
+  "highlights": "Parlaklıklar",
+  "vignette": "Vinyet",
+  "selectProfilePhoto": "Profil Resmi Seç",
+  "selectProfilePhotoDesc": "Galerinizden bir fotoğraf seçerek ya da kameradan fotoğraf çekerek profil resminizi değiştirebilirsiniz.",
+  "camera": "Kamera",
+  "takePhoto": "Fotoğraf Çek",
+  "gallery": "Galeri",
+  "choosePhoto": "Fotoğraf Seç",
+  "day": "gün",
+  "securityPin": "Güvenlik PIN'i",
+  "fullName": "İsim Soyisim",
+  "emailAddress": "E-posta",
+  "firstStep": "İlk Adım",
+  "firstStepDesc": "Uygulamayı ilk kez açtın",
+  "streakStarter": "Seri Başlatıcı",
+  "streakStarterDesc": "3 günlük seri oluştur",
+  "streakFreezeDescAction": "Bir seri koruyucu kullan",
+  "regularUser": "Düzenli Kullanıcı",
+  "regularUserDesc": "Toplam 10 gün giriş yap",
+  "continuityMaster": "Süreklilik Ustası",
+  "continuityMasterDesc": "30 günlük seri oluştur",
+  "financialGuru": "Finansal Guru",
+  "financialGuruDesc": "Toplam 100 gün giriş yap",
+  "typeText": "Metin yazın...",
+  "sizeLabel": "Boyut:",
+  "thickness": "Kalınlık",
+  "rotateLeft": "Sola",
+  "rotateRight": "Sağa",
+  "horizontal": "Yatay",
+  "vertical": "Dikey"
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_theme.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Profil bilgi kartları widget'ı
 /// İsim, E-posta, PIN gibi ayar kartlarını gösterir
@@ -30,7 +31,7 @@ class ProfileInfoCards extends StatelessWidget {
         // İsim Değiştirme Kartı
         _buildSettingsCard(
           context,
-          title: "İsim Soyisim",
+          title: context.l10n.fullName,
           subtitle: name,
           icon: Icons.person_outline,
           onTap: onNameTap,
@@ -41,7 +42,7 @@ class ProfileInfoCards extends StatelessWidget {
         // E-posta (Değiştirilemez)
         _buildSettingsCard(
           context,
-          title: "E-posta",
+          title: context.l10n.emailAddress,
           subtitle: email,
           icon: Icons.email_outlined,
           onTap: null,
@@ -52,7 +53,7 @@ class ProfileInfoCards extends StatelessWidget {
         // PIN Değiştirme
         _buildSettingsCard(
           context,
-          title: "Güvenlik PIN'i",
+          title: context.l10n.securityPin,
           subtitle: "****",
           icon: Icons.lock_outline,
           onTap: onPinTap,

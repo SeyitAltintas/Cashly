@@ -4,6 +4,7 @@ import '../../../../core/domain/usecases/streak_usecases.dart';
 import '../../data/models/streak_model.dart';
 import '../../data/services/streak_service.dart';
 import '../../data/constants/streak_badges.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Streak Controller
 /// Seri sayfası için ChangeNotifier tabanlı state yönetimi sağlar.
@@ -79,51 +80,52 @@ class StreakController extends ChangeNotifier {
   }
 
   /// Başarılar listesi
-  List<Map<String, dynamic>> get achievements => [
+  List<Map<String, dynamic>> getAchievements(BuildContext context) => [
     {
       'icon': Icons.play_arrow,
-      'title': 'İlk Adım',
-      'description': 'Uygulamayı ilk kez açtın',
+      'title': context.l10n.firstStep,
+      'description': context.l10n.firstStepDesc,
       'earned': _streakData.totalLoginDays >= 1,
     },
     {
       'icon': Icons.local_fire_department,
-      'title': 'Seri Başlatıcı',
-      'description': '3 günlük seri oluştur',
+      'title': context.l10n.streakStarter,
+      'description': context.l10n.streakStarterDesc,
       'earned': _streakData.longestStreak >= 3,
     },
     {
       'icon': Icons.ac_unit,
-      'title': 'Seri Koruyucu',
-      'description': 'Bir seri koruyucu kullan',
+      'title': context.l10n.streakFreeze,
+      'description': context.l10n.streakFreezeDescAction,
       'earned': _streakData.totalFreezesUsed >= 1,
     },
     {
       'icon': Icons.calendar_month,
-      'title': 'Düzenli Kullanıcı',
-      'description': 'Toplam 10 gün giriş yap',
+      'title': context.l10n.regularUser,
+      'description': context.l10n.regularUserDesc,
       'earned': _streakData.totalLoginDays >= 10,
     },
     {
       'icon': Icons.trending_up,
-      'title': 'Süreklilik Ustası',
-      'description': '30 günlük seri oluştur',
+      'title': context.l10n.continuityMaster,
+      'description': context.l10n.continuityMasterDesc,
       'earned': _streakData.longestStreak >= 30,
     },
     {
       'icon': Icons.all_inclusive,
-      'title': 'Finansal Guru',
-      'description': 'Toplam 100 gün giriş yap',
+      'title': context.l10n.financialGuru,
+      'description': context.l10n.financialGuruDesc,
       'earned': _streakData.totalLoginDays >= 100,
     },
   ];
 
   /// Kazanılan başarı sayısı
-  int get earnedAchievementsCount =>
-      achievements.where((a) => a['earned'] == true).length;
+  int getEarnedAchievementsCount(BuildContext context) =>
+      getAchievements(context).where((a) => a['earned'] == true).length;
 
   /// Toplam başarı sayısı
-  int get totalAchievementsCount => achievements.length;
+  int getTotalAchievementsCount(BuildContext context) =>
+      getAchievements(context).length;
 
   // ===== USE CASE METODLARI =====
 

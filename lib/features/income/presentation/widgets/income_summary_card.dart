@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 class IncomeSummaryCard extends StatelessWidget {
   final String ayIsmi;
@@ -80,7 +81,7 @@ class IncomeSummaryCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              "TOPLAM GELİR",
+                              context.l10n.totalIncomeLabel,
                               style: TextStyle(
                                 color: Theme.of(
                                   context,
@@ -200,7 +201,7 @@ class IncomeSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      "Bu ay $gelirSayisi gelir kaydı",
+                      context.l10n.monthlyIncomeCount(gelirSayisi),
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.5),
                         fontSize: subtitleFontSize,

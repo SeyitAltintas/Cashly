@@ -149,14 +149,14 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     final oTarih = DateTime(tarih.year, tarih.month, tarih.day);
     final fark = bugun.difference(oTarih).inDays;
 
-    if (fark == 0) return "Bugün";
-    if (fark == 1) return "Dün";
+    if (fark == 0) return context.l10n.todayLabel;
+    if (fark == 1) return context.l10n.yesterdayLabel;
 
-    return "${oTarih.day} ${aylarListesi[oTarih.month - 1]}";
+    return "${oTarih.day} ${context.getMonthName(oTarih.month)}";
   }
 
   String get ayIsmi {
-    return "${aylarListesi[secilenAy.month - 1]} ${secilenAy.year}";
+    return "${context.getMonthName(secilenAy.month)} ${secilenAy.year}";
   }
 
   void oncekiAy() {
@@ -217,7 +217,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
       if (!mounted) return;
       AppSnackBar.deleted(
         context,
-        'Harcama çöp kutusuna taşındı 🗑️',
+        '${context.l10n.expense} ${context.l10n.movedToTrash} 🗑️',
         onUndo: () async {
           // Sayfa hala aktif mi kontrol et
           if (!mounted) return;
@@ -239,7 +239,10 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
 
             // Geri alındı bildirimi
             if (mounted) {
-              AppSnackBar.success(context, 'Harcama geri yüklendi ✅');
+              AppSnackBar.success(
+                context,
+                '${context.l10n.expense} ${context.l10n.restored} ✅',
+              );
             }
           } catch (e) {
             if (!mounted) return;
@@ -335,7 +338,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                 autofocus: true,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: "Harcama ara...",
+                  hintText: context.l10n.searchExpense,
                   border: InputBorder.none,
                   hintStyle: TextStyle(
                     color: Theme.of(
@@ -354,7 +357,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                 filtreleVeGoster();
               },
               child: Text(
-                "Bugüne git",
+                context.l10n.goToToday,
                 style: TextStyle(
                   color: Theme.of(
                     context,
@@ -399,10 +402,10 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                 Expanded(
                   child: gosterilenHarcamalar.isEmpty
                       ? aramaModu
-                            ? const EmptyStateWidget(
+                            ? EmptyStateWidget(
                                 icon: Icons.search_off,
-                                title: 'Sonuç bulunamadı',
-                                subtitle: 'Farklı bir arama terimi deneyin',
+                                title: context.l10n.noResultsFound,
+                                subtitle: context.l10n.tryDifferentSearchTerm,
                               )
                             : EmptyStateWidget.noExpenses()
                       : RefreshIndicator(
@@ -523,7 +526,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
         items: [
           BottomBarItem(
             icon: Icons.delete_outline,
-            label: "Çöp Kutusu",
+            label: context.l10n.trashBin,
             onTap: () {
               HapticService.selectionClick();
               Navigator.push(
@@ -539,7 +542,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           ),
           BottomBarItem(
             icon: Icons.mic,
-            label: "Sesli Giriş",
+            label: context.l10n.voiceInput,
             onTap: () {
               HapticService.selectionClick();
               _showVoiceInput();
@@ -589,7 +592,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
 
           AppSnackBar.success(
             context,
-            'Harcama eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
+            '${context.l10n.expense} ${context.l10n.added}: $name - ${amount.toStringAsFixed(2)} ₺',
           );
         },
         onDeleteLastExpense: () async {

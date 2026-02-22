@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/utils/currency_formatter.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Harcama özet kartı widget'ı - Carousel formatında
 /// Sayfa 1: Toplam harcama ve tarih seçimi
@@ -141,7 +142,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        "TOPLAM HARCAMA",
+                        context.l10n.totalExpenseLabel,
                         style: TextStyle(
                           color: Theme.of(
                             context,
@@ -261,7 +262,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
               ),
               const SizedBox(width: 4),
               Text(
-                "Bu ayki harcamalar",
+                context.l10n.expensesThisMonth,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.5),
                   fontSize: subtitleFontSize,
@@ -313,7 +314,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "BÜTÇE DURUMU",
+                context.l10n.budgetStatusLabel,
                 style: TextStyle(
                   color: Theme.of(
                     context,
@@ -362,7 +363,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "KALAN",
+                    context.l10n.remainingLabel.toUpperCase(),
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.4),
                       fontSize: 10,
@@ -385,7 +386,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    "TOPLAM LİMİT",
+                    context.l10n.totalLimit.toUpperCase(),
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.4),
                       fontSize: 10,
@@ -484,7 +485,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    "GÜNLÜK ORTALAMA",
+                    context.l10n.dailyAverageLabel,
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -504,7 +505,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  "$gecenGunSayisi gün",
+                  context.l10n.daysCount(gecenGunSayisi),
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
@@ -551,7 +552,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      "Bugün: ${CurrencyFormatter.format(bugunHarcama)}",
+                      "${context.l10n.todayLabel}: ${CurrencyFormatter.format(bugunHarcama)}",
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 11,
@@ -579,8 +580,8 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                     Flexible(
                       child: Text(
                         ortalamaninAltinda
-                            ? "${CurrencyFormatter.format(fark)} az"
-                            : "${CurrencyFormatter.format(fark)} fazla",
+                            ? "${CurrencyFormatter.format(fark)} ${context.l10n.less}"
+                            : "${CurrencyFormatter.format(fark)} ${context.l10n.more}",
                         style: TextStyle(
                           color: ortalamaninAltinda
                               ? Colors.greenAccent

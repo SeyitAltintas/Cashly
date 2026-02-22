@@ -134,7 +134,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                 autofocus: true,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: "Ödeme yöntemi ara...",
+                  hintText: context.l10n.searchPaymentMethod,
                   border: InputBorder.none,
                   hintStyle: TextStyle(
                     color: Theme.of(
@@ -154,7 +154,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline, color: Colors.white),
-            tooltip: "Çöp Kutusu",
+            tooltip: context.l10n.trashBin,
             onPressed: () {
               Navigator.push(
                 context,
@@ -246,7 +246,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
             ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // Yeni ödeme yöntemi ekleme sayfasına git
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -296,9 +295,12 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
         },
         backgroundColor: Theme.of(context).colorScheme.secondary,
         icon: const Icon(Icons.add, color: Colors.black),
-        label: const Text(
-          "Kart Ekle",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        label: Text(
+          context.l10n.addCard,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -307,15 +309,15 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   Widget _buildPaymentMethodsList() {
     if (_filteredMethods.isEmpty) {
       return _aramaModu && _aramaController.text.isNotEmpty
-          ? const EmptyStateWidget(
+          ? EmptyStateWidget(
               icon: Icons.search_off,
-              title: 'Sonuç bulunamadı',
-              subtitle: 'Farklı bir arama terimi deneyin',
+              title: context.l10n.noResultsFound,
+              subtitle: context.l10n.tryDifferentSearchTerm,
             )
-          : const EmptyStateWidget(
+          : EmptyStateWidget(
               icon: Icons.credit_card_off,
-              title: 'Henüz ödeme yöntemi yok',
-              subtitle: 'İlk ödeme yönteminizi ekleyerek başlayın',
+              title: context.l10n.noPaymentMethodYet,
+              subtitle: context.l10n.startByAddingFirstPaymentMethod,
               iconColor: Colors.orange,
             );
     }
@@ -455,7 +457,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          pm.typeDisplayName,
+                          context.translateDbName(pm.typeDisplayName),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
@@ -492,7 +494,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            pm.name.toUpperCase(),
+                            context.translateDbName(pm.name).toUpperCase(),
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 11,
@@ -513,7 +515,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            pm.type == 'kredi' ? 'Borç' : 'Bakiye',
+                            pm.type == 'kredi'
+                                ? context.l10n.debt
+                                : context.l10n.balanceLabel,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.6),
                               fontSize: 10,

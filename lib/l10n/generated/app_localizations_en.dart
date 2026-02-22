@@ -577,7 +577,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emptyRecycleBin => 'Recycle bin is empty';
 
   @override
-  String get restoreItem => 'Restore item';
+  String get restoreItem => 'Restore';
 
   @override
   String get permanentDeleteItem => 'Permanently delete';
@@ -1359,7 +1359,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentMethod => 'Payment Method';
 
   @override
-  String get selectPaymentMethod => 'Select a payment method';
+  String get selectPaymentMethod => 'Select Payment Method';
 
   @override
   String get update => 'Update';
@@ -1505,8 +1505,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tryAgainShort => 'Again';
 
   @override
-  String scheduledTransfersFailed(String errors) {
-    return 'Some scheduled transfers failed: $errors';
+  String scheduledTransfersFailed(String reasons) {
+    return 'The following transactions failed: $reasons';
   }
 
   @override
@@ -1521,13 +1521,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String insufficientBalanceAccount(String account) {
-    return '$account: insufficient balance';
+  String insufficientBalanceAccount(String accountName) {
+    return 'Insufficient balance in $accountName account';
   }
 
   @override
-  String noDebtToPay(String account) {
-    return '$account: no debt to pay';
+  String noDebtToPay(String accountName) {
+    return 'No debt to pay for $accountName';
   }
 
   @override
@@ -1887,7 +1887,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pinDigitsOnly => 'PIN must contain only digits';
 
   @override
-  String get pleaseEnterName => 'Please enter your name';
+  String get pleaseEnterName => 'Please enter a name';
 
   @override
   String get nameMinLength => 'Name must be at least 2 characters';
@@ -2117,7 +2117,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deletePermanently => 'Delete Account Permanently';
+  String get deletePermanently => 'Delete Permanently';
 
   @override
   String get pinVerificationTitle => 'PIN Verification';
@@ -2133,7 +2133,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseMovedToTrash => 'Expense moved to trash';
 
   @override
-  String get expenseRestored => 'Expense restored';
+  String get expenseRestored => 'Expense restored ';
 
   @override
   String get noSearchResults => 'No results found';
@@ -2163,13 +2163,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yesRestore => 'Yes, Restore';
 
   @override
-  String get allExpensesRestored => 'All expenses restored';
+  String get allExpensesRestored => 'All expenses restored ';
 
   @override
   String get noDeletedExpenses => 'No deleted expenses.';
 
   @override
-  String get expensePermanentlyDeleted => 'Expense permanently deleted';
+  String get expensePermanentlyDeleted => 'Expense permanently deleted ';
 
   @override
   String get expenseRestoredRecycled => 'Expense restored';
@@ -2186,7 +2186,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryDeleted => 'Category deleted';
 
   @override
-  String get categoryAdded => 'Category added';
+  String get categoryAdded => 'Category added ';
 
   @override
   String systemCategoryCannotDelete(String name) {
@@ -2472,4 +2472,832 @@ class AppLocalizationsEn extends AppLocalizations {
   String appInitializationFailedMsg(String error) {
     return 'Failed to start the application\\n$error';
   }
+
+  @override
+  String get manageFinancialTransactions =>
+      'Manage your financial transactions';
+
+  @override
+  String get cashFlow => 'Cash Flow';
+
+  @override
+  String get myWallet => 'My Wallet';
+
+  @override
+  String get otherTransactions => 'Other Transactions';
+
+  @override
+  String get moneyTransfer => 'Money Transfer';
+
+  @override
+  String get assetsSubtitle => 'Gold, currency, crypto and other assets';
+
+  @override
+  String get paymentMethodsSubtitle => 'Bank cards and cash accounts';
+
+  @override
+  String get analysisSubtitle => 'Expense and income statistics';
+
+  @override
+  String get transferSubtitle => 'Money transfer between accounts';
+
+  @override
+  String get cardType => 'Card Type';
+
+  @override
+  String get nameLabel => 'Name';
+
+  @override
+  String get bankCardName => 'Bank/Card Name';
+
+  @override
+  String get lastFourDigits => 'Last 4 Digits (Optional)';
+
+  @override
+  String get cardLimit => 'Card Limit';
+
+  @override
+  String get cardColor => 'Card Color';
+
+  @override
+  String get swipeForMoreColors => 'Swipe right for more colors →';
+
+  @override
+  String get nameMustContainLetter => 'Name must contain at least one letter';
+
+  @override
+  String get mustBeFourDigits => 'Must be exactly 4 digits';
+
+  @override
+  String get invalidCardNumber => 'Invalid card number';
+
+  @override
+  String get pleaseEnterDebt => 'Please enter debt amount (can be 0)';
+
+  @override
+  String get pleaseEnterBalance => 'Please enter balance';
+
+  @override
+  String get maxAmountLimit => 'Maximum amount can be 100 million ₺';
+
+  @override
+  String get limitCannotBeLessThanDebt =>
+      'Limit cannot be less than current debt';
+
+  @override
+  String get minLimitWarning => 'Minimum limit is 100 ₺';
+
+  @override
+  String get foodAndCafe => 'Food & Cafe';
+
+  @override
+  String get groceryAndSnacks => 'Grocery & Snacks';
+
+  @override
+  String get vehicleAndTransport => 'Vehicle & Transport';
+
+  @override
+  String get giftAndSpecial => 'Gift & Special';
+
+  @override
+  String get fixedExpenses => 'Fixed Expenses';
+
+  @override
+  String get categoryOther => 'Other';
+
+  @override
+  String get salary => 'Salary';
+
+  @override
+  String get freelance => 'Freelance';
+
+  @override
+  String get investment => 'Investment';
+
+  @override
+  String get rentalIncome => 'Rental Income';
+
+  @override
+  String get gift => 'Gift';
+
+  @override
+  String get ziraatBank => 'Ziraat Bank';
+
+  @override
+  String get searchPaymentMethod => 'Search payment method...';
+
+  @override
+  String get trashBin => 'Trash Bin';
+
+  @override
+  String get noResultsFound => 'No results found';
+
+  @override
+  String get tryDifferentSearchTerm => 'Try a different search term';
+
+  @override
+  String get noPaymentMethodYet => 'No payment method yet';
+
+  @override
+  String get startByAddingFirstPaymentMethod =>
+      'Start by adding your first payment method';
+
+  @override
+  String get debt => 'Debt';
+
+  @override
+  String get balanceLabel => 'Balance';
+
+  @override
+  String get addCard => 'Add Card';
+
+  @override
+  String get cashWalletExample => 'e.g. Wallet';
+
+  @override
+  String get ziraatBankExample => 'e.g. Ziraat Bank';
+
+  @override
+  String get expensesThisMonth => 'Expenses this month';
+
+  @override
+  String get incomesThisMonth => 'Incomes this month';
+
+  @override
+  String get totalLimit => 'Total Limit';
+
+  @override
+  String daysCount(int count) {
+    return '$count days';
+  }
+
+  @override
+  String get todayLabel => 'Today';
+
+  @override
+  String get less => 'less';
+
+  @override
+  String get more => 'more';
+
+  @override
+  String get dailyAverageLabel => 'DAILY AVERAGE';
+
+  @override
+  String get budgetStatusLabel => 'BUDGET STATUS';
+
+  @override
+  String get totalExpenseLabel => 'TOTAL EXPENSE';
+
+  @override
+  String get totalIncomeLabel => 'TOTAL INCOME';
+
+  @override
+  String get remainingLabel => 'Remaining';
+
+  @override
+  String get validAmountRequired => 'Please enter a valid amount';
+
+  @override
+  String get expenseNameHint => 'What did you buy? (e.g. Coffee)';
+
+  @override
+  String get updateButton => 'Update';
+
+  @override
+  String get yesterdayLabel => 'Yesterday';
+
+  @override
+  String get movedToTrash => 'moved to trash';
+
+  @override
+  String get restored => 'restored';
+
+  @override
+  String get voiceInput => 'Voice Input';
+
+  @override
+  String get added => 'added';
+
+  @override
+  String monthlyIncomeCount(int count) {
+    return '$count income records this month';
+  }
+
+  @override
+  String get incomeNameLabel => 'Income Name';
+
+  @override
+  String get incomeNameHint => 'Where did it come from? (e.g. Loan Repayment)';
+
+  @override
+  String get selectAccount => 'Select Account';
+
+  @override
+  String get searchAsset => 'Search asset...';
+
+  @override
+  String get totalAssetLabel => 'TOTAL ASSET';
+
+  @override
+  String totalAssetCount(int count) {
+    return 'Total $count asset records';
+  }
+
+  @override
+  String get profilePhotoUpdated => 'Profile photo updated';
+
+  @override
+  String profilePhotoUpdateFailed(String error) {
+    return 'Failed to update profile photo: $error';
+  }
+
+  @override
+  String get budgetLimitSaved => 'Budget limit saved!';
+
+  @override
+  String get categoryListUpdated => 'Category list updated!';
+
+  @override
+  String get changesSaved => 'Changes saved';
+
+  @override
+  String get trashBinEmptied => 'Trash bin emptied.';
+
+  @override
+  String get incomeRestored => 'Income restored ';
+
+  @override
+  String get incomePermanentlyDeleted => 'Income permanently deleted ';
+
+  @override
+  String get allIncomesRestored => 'All incomes restored ';
+
+  @override
+  String expenseDeletedWithName(String name) {
+    return '$name deleted';
+  }
+
+  @override
+  String get pleaseEnterValidEmail => 'Please enter a valid email address.';
+
+  @override
+  String biometricAuthFailed(String error) {
+    return 'Biometric authentication failed: $error';
+  }
+
+  @override
+  String get emptyTrashBin => 'Empty Trash Bin';
+
+  @override
+  String get confirmEmptyTrashBin =>
+      'All deleted items will be permanently destroyed. Are you sure?';
+
+  @override
+  String get restoreAll => 'Restore All';
+
+  @override
+  String confirmRestoreAllExpenses(int count) {
+    return '$count expenses will be restored. Do you confirm?';
+  }
+
+  @override
+  String confirmRestoreAllIncomes(int count) {
+    return '$count incomes will be restored. Do you confirm?';
+  }
+
+  @override
+  String confirmRestoreAllAssets(int count) {
+    return '$count assets will be restored. Do you confirm?';
+  }
+
+  @override
+  String get noDeletedIncomes => 'No deleted incomes.';
+
+  @override
+  String get noDeletedAssets => 'Trash bin is empty.';
+
+  @override
+  String expenseAddedDetailed(String name, String amount) {
+    return 'Expense added: $name - $amount ₺';
+  }
+
+  @override
+  String accountDeleteFailed(String error) {
+    return 'Error deleting account: $error';
+  }
+
+  @override
+  String get profileAccountDeleted =>
+      'Your account has been deleted successfully';
+
+  @override
+  String get janShort => 'JAN';
+
+  @override
+  String get febShort => 'FEB';
+
+  @override
+  String get marShort => 'MAR';
+
+  @override
+  String get aprShort => 'APR';
+
+  @override
+  String get mayShort => 'MAY';
+
+  @override
+  String get junShort => 'JUN';
+
+  @override
+  String get julShort => 'JUL';
+
+  @override
+  String get augShort => 'AUG';
+
+  @override
+  String get sepShort => 'SEP';
+
+  @override
+  String get octShort => 'OCT';
+
+  @override
+  String get novShort => 'NOV';
+
+  @override
+  String get decShort => 'DEC';
+
+  @override
+  String get transferPageTitle => 'Money Transfer';
+
+  @override
+  String get pleaseSelectAccounts => 'Please select accounts';
+
+  @override
+  String get cannotTransferToSameAccount =>
+      'Cannot transfer to the same account';
+
+  @override
+  String get noDebtOnCreditCard =>
+      'There is no debt on this credit card. Transfer cannot be made.';
+
+  @override
+  String creditCardDebtLimit(String amount) {
+    return 'Credit card debt is $amount, you can send at most this much';
+  }
+
+  @override
+  String scheduledTransferMessage(
+    String fromAccount,
+    String toAccount,
+    String amount,
+    String date,
+  ) {
+    return '$fromAccount ➔ $toAccount\n$amount scheduled to be transferred on $date.';
+  }
+
+  @override
+  String completedTransferMessage(
+    String fromAccount,
+    String toAccount,
+    String amount,
+    String time,
+  ) {
+    return '$fromAccount ➔ $toAccount\n$amount successfully transferred at $time.';
+  }
+
+  @override
+  String get sender => 'SENDER';
+
+  @override
+  String get receiver => 'RECEIVER';
+
+  @override
+  String get amountToSend => 'Amount to Send';
+
+  @override
+  String get enterAmountHint => 'Enter amount';
+
+  @override
+  String get amountMustBeGreaterThanZero => 'Amount must be greater than 0';
+
+  @override
+  String get maximumAmountExceeded => 'Maximum amount exceeded';
+
+  @override
+  String payAllDebt(String amount) {
+    return 'Pay all debt ($amount)';
+  }
+
+  @override
+  String scheduledTransferInfo(String date, String time) {
+    return 'This transfer will be executed on $date at $time.';
+  }
+
+  @override
+  String get scheduleTransferButton => 'Schedule Transfer';
+
+  @override
+  String get makeTransferButton => 'Make Transfer';
+
+  @override
+  String get transactionHistory => 'Transaction History';
+
+  @override
+  String pendingTransfers(int count) {
+    return '⏳ Pending ($count)';
+  }
+
+  @override
+  String failedTransfers(int count) {
+    return '✗ Failed ($count)';
+  }
+
+  @override
+  String completedTransfersLabel(int count) {
+    return '✓ Completed ($count)';
+  }
+
+  @override
+  String get noTransferHistory => 'No transfer history yet';
+
+  @override
+  String get unknownAccount => 'Unknown';
+
+  @override
+  String get downloadReportTooltip => 'Download Report';
+
+  @override
+  String get noExpenseDataForThisMonth => 'No expense data for this month.';
+
+  @override
+  String get highestExpense => 'Highest expense';
+
+  @override
+  String get categoryDistribution => 'Category Distribution';
+
+  @override
+  String get noIncomeDataForThisMonth => 'No income data for this month.';
+
+  @override
+  String get highestIncome => 'Highest income';
+
+  @override
+  String get noAssetsAddedYet => 'No assets added yet.';
+
+  @override
+  String get mostValuableType => 'Most valuable type';
+
+  @override
+  String get assetTypes => 'Asset Types';
+
+  @override
+  String get distributionByPaymentMethod => 'Distribution By Payment Method';
+
+  @override
+  String get otherStr => 'Other';
+
+  @override
+  String get pdfReportTitle => 'PDF Report';
+
+  @override
+  String get selectSectionsToInclude => 'Select sections to include';
+
+  @override
+  String get reportPeriod => 'Report Period';
+
+  @override
+  String get reportOptions => 'Report Options';
+
+  @override
+  String get selectAll => 'All';
+
+  @override
+  String get includeAllVisualSummaries => 'Include all visual summary options';
+
+  @override
+  String get financialSummaryCards => 'Financial Summary Cards';
+
+  @override
+  String get expenseIncomeAssetTotals => 'Expense, income and asset totals';
+
+  @override
+  String get netStatusCards => 'Net Status Cards';
+
+  @override
+  String get monthlyNetStatusAndSavings =>
+      'Monthly net status and savings rate';
+
+  @override
+  String get pieChartAndDistribution => 'Pie Chart and Distribution';
+
+  @override
+  String get expenseIncomeAssetDistribution =>
+      'Expense/income/asset distribution graph';
+
+  @override
+  String get budgetStatusTitle => 'Budget Status';
+
+  @override
+  String get budgetProgressBarAndLimit => 'Budget progress bar and limit info';
+
+  @override
+  String get statisticsCards => 'Statistics Cards';
+
+  @override
+  String get dailyAverageAndPreviousMonthComparison =>
+      'Daily average and previous month comparison';
+
+  @override
+  String get top5Expenses => 'Top 5 Expenses';
+
+  @override
+  String get top5ExpensesListDescription => 'List of top 5 expenses by amount';
+
+  @override
+  String get tablesToIncludeInReport => 'Tables to Include in Report';
+
+  @override
+  String get monthlyExpenseDetails => 'Monthly expense details';
+
+  @override
+  String get monthlyIncomeDetails => 'Monthly income details';
+
+  @override
+  String get assetListAndValues => 'Asset list and values';
+
+  @override
+  String get selectAtLeastOneTable => 'You must select at least one table';
+
+  @override
+  String get preparing => 'Preparing...';
+
+  @override
+  String get createAndSharePdf => 'Create and Share PDF';
+
+  @override
+  String get daysText => 'days';
+
+  @override
+  String get dailyStreak => 'Daily Streak 🔥';
+
+  @override
+  String get freezeUsed => 'Freeze used';
+
+  @override
+  String get totalLogins => 'Total Logins';
+
+  @override
+  String get streakFreeze => 'Streak Freeze';
+
+  @override
+  String get protectsStreakEvenIfSkipped =>
+      'Protects your streak even if you skip a day';
+
+  @override
+  String get streakFreezeUsedToday => 'Streak freeze used today!';
+
+  @override
+  String nextFreezeIn(int days) {
+    return 'Next freeze in $days days';
+  }
+
+  @override
+  String nextBadgeIs(String badgeName) {
+    return 'Next Badge: $badgeName';
+  }
+
+  @override
+  String daysRemainingForBadge(int remaining) {
+    return '$remaining days left';
+  }
+
+  @override
+  String get badges => 'Badges';
+
+  @override
+  String get achievements => 'Achievements';
+
+  @override
+  String get dShort => 'd';
+
+  @override
+  String get earned => '✓ Earned';
+
+  @override
+  String requiredStreakDays(int requiredStreak) {
+    return '$requiredStreak day streak required';
+  }
+
+  @override
+  String get streakWhatIsIt => 'What is Streak?';
+
+  @override
+  String get streakDescription =>
+      'Streak is a counter showing how many consecutive days you opened the app.\n\n• Each day you open the app, your streak increases by 1\n• If you skip a day, your streak resets\n• Multiple logins in a day count as 1 login\n\nThe streak system encourages you to track your financial habits and stay organized.';
+
+  @override
+  String get streakFreezeWhatIsIt => 'What is Streak Freeze?';
+
+  @override
+  String get streakFreezeDescription =>
+      'Streak Freeze is a special feature that protects your streak even if you forget to open the app for a day.\n\n• New users start with 1 streak freeze\n• You earn 1 new freeze for every 7 day streak\n• You can stack maximum 3 freezes\n• Used automatically if you skip 1 day\n• Streak resets if you skip 2 or more days';
+
+  @override
+  String get badgesDescription =>
+      'You earn badges when you reach specific streak goals:\n\n🔥 Fire Starter - 3 day streak\n⭐ Weekly Star - 7 day streak\n💪 Determined - 14 day streak\n🏅 Monthly Champion - 30 day streak\n💎 Super Streak - 60 day streak\n👑 Streak Master - 100 day streak\n🏆 Legend - 365 day streak\n\nBadges are permanent, they don\'t disappear even if your streak resets!';
+
+  @override
+  String get achievementsDescription =>
+      'Achievements are special goals you earn while using the app:\n\n✓ First Step - Open the app for the first time\n✓ Streak Starter - Create a 3 day streak\n✓ Streak Freeze - Use a streak freeze\n✓ Regular User - Login for a total of 10 days\n✓ Continuity Master - Create a 30 day streak\n✓ Financial Guru - Login for a total of 100 days\n\nYou\'ll see a green checkmark when you complete achievements.';
+
+  @override
+  String get statisticsTitle => 'Statistics';
+
+  @override
+  String get statisticsDescription =>
+      'You can see the following statistics on the streak page:\n\n📊 Current Streak - Your current consecutive logins\n🏆 Longest Streak - Your highest streak so far\n📅 Total Logins - Total number of days you opened the app\n❄️ Streak Freeze - Number of freezes you have\n\nThese statistics help you track your progress.';
+
+  @override
+  String get tipsTitle => 'Tips';
+
+  @override
+  String get tipsDescription =>
+      'Some tips to protect your streak:\n\n💡 Make it a habit to open the app at the same time every day\n💡 If notifications are on, you can receive daily reminders\n💡 Save your streak freezes for holidays or busy days\n💡 Set goals like 7, 14, 30 days\n💡 Try to break your longest streak record\n\nRegular financial tracking means better money management!';
+
+  @override
+  String get streakSystem => 'Streak System';
+
+  @override
+  String get streakSystemSubtitle =>
+      'Improve your financial habits and\nearn regular tracking rewards!';
+
+  @override
+  String get cropPhoto => 'Crop Photo';
+
+  @override
+  String get continueText => 'Continue';
+
+  @override
+  String get rotateLeft90 => '90° Left';
+
+  @override
+  String get rotateRight90 => '90° Right';
+
+  @override
+  String get flipHorizontal => 'Horizontal';
+
+  @override
+  String get flipVertical => 'Vertical';
+
+  @override
+  String get compare => 'Compare';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get redo => 'Redo';
+
+  @override
+  String get resetAll => 'Reset All';
+
+  @override
+  String get rotation => 'Rotation';
+
+  @override
+  String get grid => 'Grid';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String get adjustments => 'Adjustments';
+
+  @override
+  String get transform => 'Transform';
+
+  @override
+  String get text => 'Text';
+
+  @override
+  String get emoji => 'Emoji';
+
+  @override
+  String get frame => 'Frame';
+
+  @override
+  String get intensity => 'Intensity';
+
+  @override
+  String get brightness => 'Brightness';
+
+  @override
+  String get contrast => 'Contrast';
+
+  @override
+  String get saturation => 'Saturation';
+
+  @override
+  String get temperature => 'Temperature';
+
+  @override
+  String get tint => 'Tint';
+
+  @override
+  String get shadows => 'Shadows';
+
+  @override
+  String get highlights => 'Highlights';
+
+  @override
+  String get vignette => 'Vignette';
+
+  @override
+  String get selectProfilePhoto => 'Select Profile Photo';
+
+  @override
+  String get selectProfilePhotoDesc =>
+      'You can change your profile picture by choosing a photo from your gallery or taking a picture with your camera.';
+
+  @override
+  String get camera => 'Camera';
+
+  @override
+  String get takePhoto => 'Take Photo';
+
+  @override
+  String get gallery => 'Gallery';
+
+  @override
+  String get choosePhoto => 'Choose Photo';
+
+  @override
+  String get day => 'day';
+
+  @override
+  String get securityPin => 'Security PIN';
+
+  @override
+  String get fullName => 'Full Name';
+
+  @override
+  String get emailAddress => 'Email Address';
+
+  @override
+  String get firstStep => 'First Step';
+
+  @override
+  String get firstStepDesc => 'Opened the app for the first time';
+
+  @override
+  String get streakStarter => 'Streak Starter';
+
+  @override
+  String get streakStarterDesc => 'Create a 3 day streak';
+
+  @override
+  String get streakFreezeDescAction => 'Use a streak freeze';
+
+  @override
+  String get regularUser => 'Regular User';
+
+  @override
+  String get regularUserDesc => 'Login for a total of 10 days';
+
+  @override
+  String get continuityMaster => 'Continuity Master';
+
+  @override
+  String get continuityMasterDesc => 'Create a 30 day streak';
+
+  @override
+  String get financialGuru => 'Financial Guru';
+
+  @override
+  String get financialGuruDesc => 'Login for a total of 100 days';
+
+  @override
+  String get typeText => 'Type text...';
+
+  @override
+  String get sizeLabel => 'Size:';
+
+  @override
+  String get thickness => 'Thickness';
+
+  @override
+  String get rotateLeft => 'Left';
+
+  @override
+  String get rotateRight => 'Right';
+
+  @override
+  String get horizontal => 'Horizontal';
+
+  @override
+  String get vertical => 'Vertical';
 }

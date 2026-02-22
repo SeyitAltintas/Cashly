@@ -440,8 +440,8 @@ class _ImageCropScreenState extends State<ImageCropScreen>
       appBar: AppBar(
         backgroundColor: _backgroundColor,
         elevation: 0,
-        title: const Text(
-          'Fotoğrafı Kırp',
+        title: Text(
+          context.l10n.cropPhoto,
           style: TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.w600,
@@ -470,8 +470,8 @@ class _ImageCropScreenState extends State<ImageCropScreen>
           else if (_isCropReady)
             TextButton(
               onPressed: _onCrop,
-              child: const Text(
-                'Devam',
+              child: Text(
+                context.l10n.continueText,
                 style: TextStyle(
                   fontFamily: 'Inter',
                   color: Colors.white,
@@ -614,7 +614,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                 // Fine Rotation Slider - snap + haptic
                 _buildSliderRow(
                   icon: Icons.rotate_right,
-                  label: 'Döndürme',
+                  label: context.l10n.rotation,
                   value: _fineRotation,
                   min: -180,
                   max: 180,
@@ -630,30 +630,30 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                   children: [
                     _buildIconButton(
                       icon: Icons.rotate_left,
-                      label: '90° Sol',
+                      label: context.l10n.rotateLeft90,
                       onTap: () => _rotateImage(-90),
                     ),
                     _buildIconButton(
                       icon: Icons.rotate_right,
-                      label: '90° Sağ',
+                      label: context.l10n.rotateRight90,
                       onTap: () => _rotateImage(90),
                     ),
                     _buildIconButton(
                       icon: Icons.flip,
-                      label: 'Yatay',
+                      label: context.l10n.flipHorizontal,
                       onTap: () => _flipImage(horizontal: true),
                       isActive: _flipHorizontal,
                     ),
                     _buildIconButton(
                       icon: Icons.flip,
-                      label: 'Dikey',
+                      label: context.l10n.flipVertical,
                       rotateIcon: true,
                       onTap: () => _flipImage(vertical: true),
                       isActive: _flipVertical,
                     ),
                     _buildIconButton(
                       icon: _showGrid ? Icons.grid_on : Icons.grid_off,
-                      label: 'Grid',
+                      label: context.l10n.grid,
                       onTap: () {
                         _pushUndo();
                         HapticFeedback.selectionClick();
@@ -753,7 +753,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
             ),
             const SizedBox(height: 4),
             Text(
-              'Karşılaştır',
+              context.l10n.compare,
               style: TextStyle(
                 fontFamily: 'Inter',
                 color: _showOriginal ? _primaryColor : Colors.white54,
@@ -778,14 +778,14 @@ class _ImageCropScreenState extends State<ImageCropScreen>
         children: [
           _buildUndoRedoButton(
             icon: Icons.undo_rounded,
-            label: 'Geri Al',
+            label: context.l10n.undo,
             onTap: _undo,
             isEnabled: _undoStack.isNotEmpty,
           ),
           const SizedBox(width: 12),
           _buildUndoRedoButton(
             icon: Icons.redo_rounded,
-            label: 'İleri Al',
+            label: context.l10n.redo,
             onTap: _redo,
             isEnabled: _redoStack.isNotEmpty,
           ),
@@ -793,7 +793,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
           GestureDetector(
             onTap: _resetAll,
             child: Text(
-              'Tümünü Sıfırla',
+              context.l10n.resetAll,
               style: TextStyle(
                 fontFamily: 'Inter',
                 color: Colors.white.withValues(alpha: 0.7),

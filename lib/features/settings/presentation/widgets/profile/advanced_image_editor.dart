@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'editor_models.dart';
 
 /// Gelişmiş profil resmi düzenleme ekranı
@@ -89,9 +90,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
       appBar: AppBar(
         backgroundColor: _backgroundColor,
         elevation: 0,
-        title: const Text(
-          'Fotoğraf Düzenle',
-          style: TextStyle(
+        title: Text(
+          context.l10n.editPhoto,
+          style: const TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.w600,
             fontSize: 17,
@@ -119,9 +120,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           else
             TextButton(
               onPressed: _saveEditedImage,
-              child: const Text(
-                'Uygula',
-                style: TextStyle(
+              child: Text(
+                context.l10n.apply,
+                style: const TextStyle(
                   fontFamily: 'Inter',
                   color: Colors.white, // Beyaz renk
                   fontWeight: FontWeight.bold,
@@ -234,12 +235,12 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       tabAlignment: TabAlignment.start,
                       padding: EdgeInsets.zero,
                       tabs: [
-                        _buildTab(Icons.filter_vintage, 'Filtreler'),
-                        _buildTab(Icons.tune, 'Ayarlar'),
-                        _buildTab(Icons.crop_rotate, 'Dönüşüm'),
-                        _buildTab(Icons.text_fields, 'Metin'),
-                        _buildTab(Icons.emoji_emotions, 'Emoji'),
-                        _buildTab(Icons.auto_awesome, 'Çerçeve'),
+                        _buildTab(Icons.filter_vintage, context.l10n.filters),
+                        _buildTab(Icons.tune, context.l10n.adjustments),
+                        _buildTab(Icons.crop_rotate, context.l10n.transform),
+                        _buildTab(Icons.text_fields, context.l10n.text),
+                        _buildTab(Icons.emoji_emotions, context.l10n.emoji),
+                        _buildTab(Icons.auto_awesome, context.l10n.frame),
                       ],
                     ),
                   ),
@@ -697,10 +698,10 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
         children: [
           const Icon(Icons.opacity, color: Colors.white54, size: 16),
           const SizedBox(width: 6),
-          const SizedBox(
+          SizedBox(
             width: 72,
             child: Text(
-              'Yoğunluk',
+              context.l10n.intensity,
               style: TextStyle(
                 fontFamily: 'Inter',
                 color: Colors.white70,
@@ -770,44 +771,36 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
       child: Column(
         children: [
           _buildSliderWithReset(
-            'Parlaklık',
+            context.l10n.brightness,
             Icons.brightness_6,
             _state.brightness,
             (v) => setState(() => _state.brightness = v),
             () => setState(() => _state.brightness = 0),
           ),
           _buildSliderWithReset(
-            'Kontrast',
+            context.l10n.contrast,
             Icons.contrast,
             _state.contrast,
             (v) => setState(() => _state.contrast = v),
             () => setState(() => _state.contrast = 0),
           ),
           _buildSliderWithReset(
-            'Doygunluk',
+            context.l10n.saturation,
             Icons.palette,
             _state.saturation,
             (v) => setState(() => _state.saturation = v),
             () => setState(() => _state.saturation = 0),
           ),
           _buildSliderWithReset(
-            'Sıcaklık',
+            context.l10n.temperature,
             Icons.thermostat,
             _state.temperature,
             (v) => setState(() => _state.temperature = v),
             () => setState(() => _state.temperature = 0),
           ),
           _buildSliderWithReset(
-            'Vignette',
-            Icons.vignette,
-            _state.vignette,
-            (v) => setState(() => _state.vignette = v),
-            () => setState(() => _state.vignette = 0),
-            min: 0,
-          ),
-          _buildSliderWithReset(
-            'Tint',
-            Icons.gradient,
+            context.l10n.tint,
+            Icons.color_lens,
             _state.tint,
             (v) => setState(() => _state.tint = v),
             () => setState(() => _state.tint = 0),
@@ -927,7 +920,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           children: [
             _buildTransformButton(
               icon: Icons.rotate_left,
-              label: 'Sola',
+              label: context.l10n.rotateLeft,
               onTap: () {
                 _pushUndo();
                 _state.rotationAngle = (_state.rotationAngle - 90) % 360;
@@ -944,7 +937,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             ),
             _buildTransformButton(
               icon: Icons.rotate_right,
-              label: 'Sağa',
+              label: context.l10n.rotateRight,
               onTap: () {
                 _pushUndo();
                 _state.rotationAngle = (_state.rotationAngle + 90) % 360;
@@ -961,7 +954,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             ),
             _buildTransformButton(
               icon: Icons.flip,
-              label: 'Yatay',
+              label: context.l10n.horizontal,
               isActive: _state.flipHorizontal,
               onTap: () {
                 _pushUndo();
@@ -972,7 +965,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             ),
             _buildTransformButton(
               icon: Icons.flip,
-              label: 'Dikey',
+              label: context.l10n.vertical,
               rotateIcon: true,
               isActive: _state.flipVertical,
               onTap: () {
@@ -1064,7 +1057,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       fontSize: 13,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Metin yazın...',
+                      hintText: context.l10n.typeText,
                       hintStyle: TextStyle(
                         fontFamily: 'Inter',
                         color: Colors.white.withValues(alpha: 0.4),
@@ -1369,9 +1362,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
-                const Text(
-                  'Boyut:',
-                  style: TextStyle(
+                Text(
+                  context.l10n.sizeLabel,
+                  style: const TextStyle(
                     fontFamily: 'Inter',
                     color: Colors.white54,
                     fontSize: 11,
@@ -1482,11 +1475,11 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               children: [
                 const Icon(Icons.line_weight, color: Colors.white54, size: 16),
                 const SizedBox(width: 6),
-                const SizedBox(
+                SizedBox(
                   width: 56,
                   child: Text(
-                    'Kalınlık',
-                    style: TextStyle(
+                    context.l10n.thickness,
+                    style: const TextStyle(
                       fontFamily: 'Inter',
                       color: Colors.white70,
                       fontSize: 11,
@@ -1670,14 +1663,14 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           const SizedBox(width: 20),
           _buildUndoRedoButton(
             icon: Icons.undo_rounded,
-            label: 'Geri Al',
+            label: context.l10n.undo,
             onTap: _undo,
             isEnabled: _undoStack.isNotEmpty,
           ),
           const SizedBox(width: 12),
           _buildUndoRedoButton(
             icon: Icons.redo_rounded,
-            label: 'İleri Al',
+            label: context.l10n.redo,
             onTap: _redo,
             isEnabled: _redoStack.isNotEmpty,
           ),
@@ -1685,7 +1678,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           GestureDetector(
             onTap: _resetAll,
             child: Text(
-              'Tümünü Sıfırla',
+              context.l10n.resetAll,
               style: TextStyle(
                 fontFamily: 'Inter',
                 color: Colors.white.withValues(alpha: 0.7),

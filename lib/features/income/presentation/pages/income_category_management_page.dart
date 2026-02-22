@@ -448,7 +448,7 @@ class _GelirKategoriYonetimiSayfasiState
                         kaydet();
                         AppSnackBar.success(
                           context,
-                          'Kategori sırası güncellendi',
+                          context.l10n.categoryOrderUpdated,
                           duration: const Duration(seconds: 1),
                         );
                       },

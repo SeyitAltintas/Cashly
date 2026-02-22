@@ -139,7 +139,7 @@ class _AnalysisPageState extends State<AnalysisPage>
       actions: [
         IconButton(
           icon: const Icon(Icons.file_download_outlined, color: Colors.white),
-          tooltip: 'Rapor İndir',
+          tooltip: context.l10n.downloadReportTooltip,
           onPressed: _showExportSheet,
         ),
       ],
@@ -273,8 +273,8 @@ class _AnalysisPageState extends State<AnalysisPage>
     }).toList();
 
     if (monthlyExpenses.isEmpty) {
-      return const AnalysisEmptyState(
-        message: "Bu ay için harcama verisi yok.",
+      return AnalysisEmptyState(
+        message: context.l10n.noExpenseDataForThisMonth,
       );
     }
 
@@ -289,11 +289,11 @@ class _AnalysisPageState extends State<AnalysisPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AnalysisHeaderCard(
-            title: "Toplam Harcama",
+            title: context.l10n.totalExpenseLabel,
             totalAmount: CurrencyFormatter.format(totalAmount),
             primaryColor: Colors.red.shade300,
             icon: Icons.trending_down,
-            topCategoryLabel: "En çok harcama",
+            topCategoryLabel: context.l10n.highestExpense,
             topCategoryName: topCategory,
             topCategoryAmount: CurrencyFormatter.format(topAmount),
           ),
@@ -301,7 +301,7 @@ class _AnalysisPageState extends State<AnalysisPage>
           _buildPieChart(sections),
           const SizedBox(height: 24),
           _buildCategoryList(
-            "Kategori Dağılımı",
+            context.l10n.categoryDistribution,
             totals,
             totalAmount,
             expenseColors,
@@ -325,9 +325,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     }).toList();
 
     if (monthlyIncomes.isEmpty) {
-      return const AnalysisEmptyState(
-        message: "Bu ay için gelir verisi bulunmuyor.",
-      );
+      return AnalysisEmptyState(message: context.l10n.noIncomeDataForThisMonth);
     }
 
     // Kategori toplamları
@@ -347,11 +345,11 @@ class _AnalysisPageState extends State<AnalysisPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AnalysisHeaderCard(
-            title: "Toplam Gelir",
+            title: context.l10n.totalIncomeLabel,
             totalAmount: CurrencyFormatter.format(totalIncome),
             primaryColor: Colors.green.shade300,
             icon: Icons.trending_up,
-            topCategoryLabel: "En fazla gelir",
+            topCategoryLabel: context.l10n.highestIncome,
             topCategoryName: topCategory,
             topCategoryAmount: CurrencyFormatter.format(topAmount),
           ),
@@ -359,7 +357,7 @@ class _AnalysisPageState extends State<AnalysisPage>
           _buildPieChart(sections),
           const SizedBox(height: 24),
           _buildCategoryList(
-            "Gelir Kategorileri",
+            context.l10n.incomeCategories,
             totals,
             totalIncome,
             incomeColors,
@@ -374,13 +372,13 @@ class _AnalysisPageState extends State<AnalysisPage>
     final activeAssets = widget.assets.where((a) => !a.isDeleted).toList();
 
     if (activeAssets.isEmpty) {
-      return const AnalysisEmptyState(message: "Henüz varlık eklenmemiş.");
+      return AnalysisEmptyState(message: context.l10n.noAssetsAddedYet);
     }
 
     Map<String, double> totals = {};
     double totalValue = 0;
     for (var asset in activeAssets) {
-      String type = asset.type ?? "Diğer";
+      String type = asset.type ?? context.l10n.otherStr;
       // amount zaten toplam değeri içeriyor, quantity ile çarpmaya gerek yok
       double value = asset.amount;
       totals[type] = (totals[type] ?? 0) + value;
@@ -396,18 +394,23 @@ class _AnalysisPageState extends State<AnalysisPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AnalysisHeaderCard(
-            title: "Toplam Varlık",
+            title: context.l10n.totalAssetLabel,
             totalAmount: CurrencyFormatter.format(totalValue),
             primaryColor: Colors.blue.shade600,
             icon: Icons.diamond_outlined,
-            topCategoryLabel: "En değerli tür",
+            topCategoryLabel: context.l10n.mostValuableType,
             topCategoryName: topType,
             topCategoryAmount: CurrencyFormatter.format(topAmount),
           ),
           const SizedBox(height: 24),
           _buildPieChart(sections),
           const SizedBox(height: 24),
-          _buildCategoryList("Varlık Türleri", totals, totalValue, assetColors),
+          _buildCategoryList(
+            context.l10n.assetTypes,
+            totals,
+            totalValue,
+            assetColors,
+          ),
         ],
       ),
     );
@@ -422,7 +425,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     Map<String, double> totals = {};
     double totalAmount = 0;
     for (var h in expenses) {
-      String cat = h['kategori'] ?? "Diğer";
+      String cat = h['kategori'] ?? context.l10n.otherStr;
       double amount = double.tryParse(h['tutar'].toString()) ?? 0;
       totals[cat] = (totals[cat] ?? 0) + amount;
       totalAmount += amount;
@@ -568,7 +571,7 @@ class _AnalysisPageState extends State<AnalysisPage>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Ödeme Yöntemine Göre Dağılım",
+          context.l10n.distributionByPaymentMethod,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
             fontSize: 16,
@@ -592,7 +595,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     double total,
     Color color,
   ) {
-    String pmName = 'Belirtilmemiş';
+    String pmName = context.l10n.notSpecified;
     IconData pmIcon = Icons.help_outline;
 
     if (pmId != 'unknown') {

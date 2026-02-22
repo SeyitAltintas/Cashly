@@ -60,11 +60,11 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
-          "Tümünü Geri Yükle",
+          context.l10n.restoreAll,
           style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         content: Text(
-          "${widget.deletedAssets.length} varlık geri yüklenecek. Onaylıyor musun?",
+          context.l10n.confirmRestoreAllAssets(widget.deletedAssets.length),
           style: TextStyle(
             color: Theme.of(
               context,
@@ -75,7 +75,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
-              "İptal",
+              context.l10n.cancel,
               style: TextStyle(
                 color: Theme.of(
                   context,
@@ -99,8 +99,8 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                 widget.onRestoreAll!();
               }
             },
-            child: const Text(
-              "Evet, Geri Yükle",
+            child: Text(
+              context.l10n.yesRestore,
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -124,7 +124,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
           if (_deletedAssets.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.restore, color: Colors.green),
-              tooltip: "Tümünü Geri Yükle",
+              tooltip: context.l10n.restoreAll,
               onPressed: _confirmRestoreAll,
             ),
           IconButton(
@@ -132,7 +132,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
               Icons.delete_sweep,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            tooltip: "Çöpü Boşalt",
+            tooltip: context.l10n.emptyTrashBin,
             onPressed: () {
               if (_deletedAssets.isEmpty) return;
               showDialog(
@@ -140,13 +140,13 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                 builder: (ctx) => AlertDialog(
                   backgroundColor: Theme.of(context).colorScheme.surface,
                   title: Text(
-                    "Çöpü Boşalt",
+                    context.l10n.emptyTrashBin,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   content: Text(
-                    "Tüm silinen varlıklar kalıcı olarak yok edilecek. Emin misin?",
+                    context.l10n.confirmEmptyTrashBin,
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -157,7 +157,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
                       child: Text(
-                        "İptal",
+                        context.l10n.cancel,
                         style: TextStyle(
                           color: Theme.of(
                             context,
@@ -175,8 +175,8 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                         Navigator.pop(ctx);
                         Navigator.pop(context); // Sayfadan çık
                       },
-                      child: const Text(
-                        "Evet, Sil",
+                      child: Text(
+                        context.l10n.yesDelete,
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -201,7 +201,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    "Çöp kutusu boş.",
+                    context.l10n.noDeletedAssets,
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -262,7 +262,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                             widget.onRestore(asset);
                             _binState.removeAsset(asset);
                           },
-                          tooltip: "Geri Yükle",
+                          tooltip: context.l10n.restoreItem,
                         ),
                         IconButton(
                           icon: const Icon(
@@ -273,7 +273,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                             widget.onPermanentDelete(asset);
                             _binState.removeAsset(asset);
                           },
-                          tooltip: "Kalıcı Sil",
+                          tooltip: context.l10n.deletePermanently,
                         ),
                       ],
                     ),

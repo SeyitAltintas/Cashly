@@ -61,11 +61,14 @@ class ProfileSettingsHelper {
       await authController.checkAuth();
       onUserUpdated();
       if (context.mounted) {
-        AppSnackBar.success(context, successMessage ?? "Profil güncellendi");
+        AppSnackBar.success(
+          context,
+          successMessage ?? context.l10n.profileUpdated,
+        );
       }
     } catch (e) {
       if (context.mounted) {
-        AppSnackBar.error(context, "Güncelleme başarısız: $e");
+        AppSnackBar.error(context, context.l10n.updateFailed(e.toString()));
       }
     }
   }
@@ -102,7 +105,7 @@ class ProfileSettingsHelper {
 
     _updateUser(
       profileImage: compressedPath ?? editedFile.path,
-      successMessage: "Profil resmi güncellendi",
+      successMessage: context.l10n.profilePhotoUpdated,
     );
     if (context.mounted) Navigator.pop(context);
   }
@@ -180,11 +183,11 @@ class ProfileSettingsHelper {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSheetHeader(ctx, "Profil Resmi Seç"),
+            _buildSheetHeader(ctx, context.l10n.selectProfilePhoto),
             const SizedBox(height: 24),
             // Açıklama metni
             Text(
-              "Galerinizden bir fotoğraf seçerek ya da kameradan fotoğraf çekerek profil resminizi değiştirebilirsiniz.",
+              context.l10n.selectProfilePhotoDesc,
               style: TextStyle(
                 color: Theme.of(
                   ctx,
@@ -201,8 +204,8 @@ class ProfileSettingsHelper {
                   child: _buildSelectionCard(
                     ctx,
                     icon: Icons.camera_alt_rounded,
-                    title: "Kamera",
-                    subtitle: "Fotoğraf Çek",
+                    title: context.l10n.camera,
+                    subtitle: context.l10n.takePhoto,
                     color: Colors.blue,
                     onTap: _pickImageFromCamera,
                   ),
@@ -212,8 +215,8 @@ class ProfileSettingsHelper {
                   child: _buildSelectionCard(
                     ctx,
                     icon: Icons.photo_library_rounded,
-                    title: "Galeri",
-                    subtitle: "Fotoğraf Seç",
+                    title: context.l10n.gallery,
+                    subtitle: context.l10n.choosePhoto,
                     color: Colors.purple,
                     onTap: _pickImageFromGallery,
                   ),
@@ -668,7 +671,7 @@ class ProfileSettingsHelper {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         AppSnackBar.success(
                           newCtx,
-                          "Hesabınız başarıyla silindi",
+                          context.l10n.profileAccountDeleted,
                         );
                       });
                       return LoginPage(authController: authController);
@@ -680,7 +683,7 @@ class ProfileSettingsHelper {
                 if (context.mounted) {
                   AppSnackBar.error(
                     context,
-                    "Hesap silinirken hata oluştu: $e",
+                    context.l10n.accountDeleteFailed(e.toString()),
                   );
                 }
               }

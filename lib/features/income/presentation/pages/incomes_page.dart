@@ -91,7 +91,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   }
 
   String get ayIsmi {
-    return "${aylarListesi[secilenAy.month - 1]} ${secilenAy.year}";
+    return "${context.getMonthName(secilenAy.month)} ${secilenAy.year}";
   }
 
   List<Income> get filtrelenmisGelirler {
@@ -165,7 +165,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           // Bildirim göster
           AppSnackBar.success(
             context,
-            '$name eklendi: ${amount.toStringAsFixed(0)} ₺',
+            '${context.l10n.income} ${context.l10n.added}: $name - ${amount.toStringAsFixed(0)} ₺',
           );
         },
       ),
@@ -203,7 +203,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
       if (!mounted) return;
       AppSnackBar.deleted(
         context,
-        'Gelir çöp kutusuna taşındı 🗑️',
+        '${context.l10n.income} ${context.l10n.movedToTrash} 🗑️',
         onUndo: () async {
           // Sayfa hala aktif mi kontrol et
           if (!mounted) return;
@@ -222,7 +222,10 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
 
             // Geri alındı bildirimi
             if (mounted) {
-              AppSnackBar.success(context, 'Gelir geri yüklendi ✅');
+              AppSnackBar.success(
+                context,
+                '${context.l10n.income} ${context.l10n.restored} ✅',
+              );
             }
           } catch (e) {
             if (!mounted) return;
@@ -300,7 +303,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
               if (!mounted) return;
               AppSnackBar.success(
                 context,
-                'Gelir eklendi: $name - ${amount.toStringAsFixed(2)} ₺',
+                '${context.l10n.income} ${context.l10n.added}: $name - ${amount.toStringAsFixed(2)} ₺',
               );
             } catch (e) {
               if (!mounted) return;
@@ -336,7 +339,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                 autofocus: true,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: "Gelir ara...",
+                  hintText: context.l10n.searchIncome,
                   border: InputBorder.none,
                   hintStyle: TextStyle(
                     color: Theme.of(
@@ -354,7 +357,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                 _controller.secilenAy = DateTime.now();
               },
               child: Text(
-                "Bugüne git",
+                context.l10n.goToToday,
                 style: TextStyle(
                   color: Theme.of(
                     context,
@@ -399,10 +402,10 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                 Expanded(
                   child: gelirler.isEmpty
                       ? gelirAramaModu
-                            ? const EmptyStateWidget(
+                            ? EmptyStateWidget(
                                 icon: Icons.search_off,
-                                title: 'Sonuç bulunamadı',
-                                subtitle: 'Farklı bir arama terimi deneyin',
+                                title: context.l10n.noResultsFound,
+                                subtitle: context.l10n.tryDifferentSearchTerm,
                               )
                             : EmptyStateWidget.noIncomes()
                       : RefreshIndicator(
@@ -444,7 +447,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
         items: [
           BottomBarItem(
             icon: Icons.delete_outline,
-            label: "Çöp Kutusu",
+            label: context.l10n.trashBin,
             onTap: () {
               HapticService.selectionClick();
               Navigator.push(
@@ -460,7 +463,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           ),
           BottomBarItem(
             icon: Icons.mic,
-            label: "Sesli Giriş",
+            label: context.l10n.voiceInput,
             onTap: () {
               HapticService.selectionClick();
               _showVoiceInput();

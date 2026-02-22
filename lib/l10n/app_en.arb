@@ -194,7 +194,7 @@
   "restore": "Restore",
   "permanentDelete": "Permanently Delete",
   "emptyRecycleBin": "Recycle bin is empty",
-  "restoreItem": "Restore item",
+  "restoreItem": "Restore",
   "permanentDeleteItem": "Permanently delete",
   "deletedItems": "Deleted Items",
   "budgetLimit": "Budget Limit",
@@ -500,7 +500,7 @@
     }
   },
   "paymentMethod": "Payment Method",
-  "selectPaymentMethod": "Select a payment method",
+  "selectPaymentMethod": "Select Payment Method",
   "update": "Update",
   "transactionUpdated": "Transaction updated",
   "transactionAdded": "Transaction added",
@@ -617,10 +617,10 @@
   "resetAllEffects": "Reset All Effects",
   "confirm": "Confirm",
   "tryAgainShort": "Again",
-  "scheduledTransfersFailed": "Some scheduled transfers failed: {errors}",
+  "scheduledTransfersFailed": "The following transactions failed: {reasons}",
   "@scheduledTransfersFailed": {
     "placeholders": {
-      "errors": {
+      "reasons": {
         "type": "String"
       }
     }
@@ -628,25 +628,18 @@
   "senderAccountNotFound": "Sender account not found",
   "receiverAccountNotFound": "Receiver account not found",
   "accountDeleted": "{account} deleted",
-  "@accountDeleted": {
-    "placeholders": {
-      "account": {
-        "type": "String"
-      }
-    }
-  },
-  "insufficientBalanceAccount": "{account}: insufficient balance",
+  "insufficientBalanceAccount": "Insufficient balance in {accountName} account",
   "@insufficientBalanceAccount": {
     "placeholders": {
-      "account": {
+      "accountName": {
         "type": "String"
       }
     }
   },
-  "noDebtToPay": "{account}: no debt to pay",
+  "noDebtToPay": "No debt to pay for {accountName}",
   "@noDebtToPay": {
     "placeholders": {
-      "account": {
+      "accountName": {
         "type": "String"
       }
     }
@@ -763,7 +756,7 @@
   "pleaseSetPin": "Please set a PIN",
   "pinLengthError": "PIN must be between 4 and 6 digits",
   "pinDigitsOnly": "PIN must contain only digits",
-  "pleaseEnterName": "Please enter your name",
+  "pleaseEnterName": "Please enter a name",
   "nameMinLength": "Name must be at least 2 characters",
   "nameMaxLength": "Name can be at most 50 characters",
   "pleaseEnterAmount": "Please enter an amount",
@@ -850,12 +843,12 @@
       }
     }
   },
-  "deletePermanently": "Delete Account Permanently",
+  "deletePermanently": "Delete Permanently",
   "pinVerificationTitle": "PIN Verification",
   "forwardButton": "Next",
   "thisActionIrreversibleWarning": "This action cannot be undone! All your data will be permanently deleted.",
   "expenseMovedToTrash": "Expense moved to trash",
-  "expenseRestored": "Expense restored",
+  "expenseRestored": "Expense restored ",
   "noSearchResults": "No results found",
   "tryDifferentSearch": "Try a different search term",
   "emptyTrashTitle": "Empty Trash",
@@ -871,9 +864,9 @@
     }
   },
   "yesRestore": "Yes, Restore",
-  "allExpensesRestored": "All expenses restored",
+  "allExpensesRestored": "All expenses restored ",
   "noDeletedExpenses": "No deleted expenses.",
-  "expensePermanentlyDeleted": "Expense permanently deleted",
+  "expensePermanentlyDeleted": "Expense permanently deleted ",
   "expenseRestoredRecycled": "Expense restored",
   "deleteCategory": "Delete Category",
   "deleteCategoryConfirm": "Are you sure you want to delete the \"{name}\" category?",
@@ -885,7 +878,7 @@
     }
   },
   "categoryDeleted": "Category deleted",
-  "categoryAdded": "Category added",
+  "categoryAdded": "Category added ",
   "systemCategoryCannotDelete": "\"{name}\" is a system category and cannot be deleted",
   "@systemCategoryCannotDelete": {
     "placeholders": {
@@ -1110,5 +1103,448 @@
         "type": "String"
       }
     }
-  }
+  },
+  "manageFinancialTransactions": "Manage your financial transactions",
+  "cashFlow": "Cash Flow",
+  "myWallet": "My Wallet",
+  "otherTransactions": "Other Transactions",
+  "moneyTransfer": "Money Transfer",
+  "assetsSubtitle": "Gold, currency, crypto and other assets",
+  "paymentMethodsSubtitle": "Bank cards and cash accounts",
+  "analysisSubtitle": "Expense and income statistics",
+  "transferSubtitle": "Money transfer between accounts",
+  "cardType": "Card Type",
+  "nameLabel": "Name",
+  "bankCardName": "Bank/Card Name",
+  "lastFourDigits": "Last 4 Digits (Optional)",
+  "cardLimit": "Card Limit",
+  "cardColor": "Card Color",
+  "swipeForMoreColors": "Swipe right for more colors →",
+  "nameMustContainLetter": "Name must contain at least one letter",
+  "mustBeFourDigits": "Must be exactly 4 digits",
+  "invalidCardNumber": "Invalid card number",
+  "pleaseEnterDebt": "Please enter debt amount (can be 0)",
+  "pleaseEnterBalance": "Please enter balance",
+  "maxAmountLimit": "Maximum amount can be 100 million ₺",
+  "limitCannotBeLessThanDebt": "Limit cannot be less than current debt",
+  "minLimitWarning": "Minimum limit is 100 ₺",
+  "foodAndCafe": "Food & Cafe",
+  "groceryAndSnacks": "Grocery & Snacks",
+  "vehicleAndTransport": "Vehicle & Transport",
+  "giftAndSpecial": "Gift & Special",
+  "fixedExpenses": "Fixed Expenses",
+  "categoryOther": "Other",
+  "salary": "Salary",
+  "freelance": "Freelance",
+  "investment": "Investment",
+  "rentalIncome": "Rental Income",
+  "gift": "Gift",
+  "ziraatBank": "Ziraat Bank",
+  "searchPaymentMethod": "Search payment method...",
+  "trashBin": "Trash Bin",
+  "noResultsFound": "No results found",
+  "tryDifferentSearchTerm": "Try a different search term",
+  "noPaymentMethodYet": "No payment method yet",
+  "startByAddingFirstPaymentMethod": "Start by adding your first payment method",
+  "debt": "Debt",
+  "balanceLabel": "Balance",
+  "addCard": "Add Card",
+  "cashWalletExample": "e.g. Wallet",
+  "ziraatBankExample": "e.g. Ziraat Bank",
+  "expensesThisMonth": "Expenses this month",
+  "incomesThisMonth": "Incomes this month",
+  "totalLimit": "Total Limit",
+  "daysCount": "{count} days",
+  "todayLabel": "Today",
+  "less": "less",
+  "more": "more",
+  "dailyAverageLabel": "DAILY AVERAGE",
+  "budgetStatusLabel": "BUDGET STATUS",
+  "totalExpenseLabel": "TOTAL EXPENSE",
+  "totalIncomeLabel": "TOTAL INCOME",
+  "@daysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "remainingLabel": "Remaining",
+  "validAmountRequired": "Please enter a valid amount",
+  "expenseNameHint": "What did you buy? (e.g. Coffee)",
+  "updateButton": "Update",
+  "yesterdayLabel": "Yesterday",
+  "movedToTrash": "moved to trash",
+  "restored": "restored",
+  "voiceInput": "Voice Input",
+  "added": "added",
+  "monthlyIncomeCount": "{count} income records this month",
+  "@monthlyIncomeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "incomeNameLabel": "Income Name",
+  "incomeNameHint": "Where did it come from? (e.g. Loan Repayment)",
+  "selectAccount": "Select Account",
+  "searchAsset": "Search asset...",
+  "totalAssetLabel": "TOTAL ASSET",
+  "totalAssetCount": "Total {count} asset records",
+  "@totalAssetCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profilePhotoUpdated": "Profile photo updated",
+  "profilePhotoUpdateFailed": "Failed to update profile photo: {error}",
+  "budgetLimitSaved": "Budget limit saved!",
+  "categoryListUpdated": "Category list updated!",
+  "changesSaved": "Changes saved",
+  "trashBinEmptied": "Trash bin emptied.",
+  "incomeRestored": "Income restored ",
+  "incomePermanentlyDeleted": "Income permanently deleted ",
+  "allIncomesRestored": "All incomes restored ",
+  "expenseDeletedWithName": "{name} deleted",
+  "pleaseEnterValidEmail": "Please enter a valid email address.",
+  "biometricAuthFailed": "Biometric authentication failed: {error}",
+  "@profilePhotoUpdateFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@expenseDeletedWithName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@biometricAuthFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "emptyTrashBin": "Empty Trash Bin",
+  "confirmEmptyTrashBin": "All deleted items will be permanently destroyed. Are you sure?",
+  "restoreAll": "Restore All",
+  "confirmRestoreAllExpenses": "{count} expenses will be restored. Do you confirm?",
+  "confirmRestoreAllIncomes": "{count} incomes will be restored. Do you confirm?",
+  "confirmRestoreAllAssets": "{count} assets will be restored. Do you confirm?",
+  "noDeletedIncomes": "No deleted incomes.",
+  "noDeletedAssets": "Trash bin is empty.",
+  "@confirmRestoreAllExpenses": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmRestoreAllIncomes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmRestoreAllAssets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "expenseAddedDetailed": "Expense added: {name} - {amount} ₺",
+  "@expenseAddedDetailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "accountDeleteFailed": "Error deleting account: {error}",
+  "@accountDeleteFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@accountDeleted": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "profileAccountDeleted": "Your account has been deleted successfully",
+  "janShort": "JAN",
+  "febShort": "FEB",
+  "marShort": "MAR",
+  "aprShort": "APR",
+  "mayShort": "MAY",
+  "junShort": "JUN",
+  "julShort": "JUL",
+  "augShort": "AUG",
+  "sepShort": "SEP",
+  "octShort": "OCT",
+  "novShort": "NOV",
+  "decShort": "DEC",
+  "transferPageTitle": "Money Transfer",
+  "pleaseSelectAccounts": "Please select accounts",
+  "cannotTransferToSameAccount": "Cannot transfer to the same account",
+  "noDebtOnCreditCard": "There is no debt on this credit card. Transfer cannot be made.",
+  "creditCardDebtLimit": "Credit card debt is {amount}, you can send at most this much",
+  "scheduledTransferMessage": "{fromAccount} ➔ {toAccount}\n{amount} scheduled to be transferred on {date}.",
+  "completedTransferMessage": "{fromAccount} ➔ {toAccount}\n{amount} successfully transferred at {time}.",
+  "sender": "SENDER",
+  "receiver": "RECEIVER",
+  "amountToSend": "Amount to Send",
+  "enterAmountHint": "Enter amount",
+  "amountMustBeGreaterThanZero": "Amount must be greater than 0",
+  "maximumAmountExceeded": "Maximum amount exceeded",
+  "payAllDebt": "Pay all debt ({amount})",
+  "scheduledTransferInfo": "This transfer will be executed on {date} at {time}.",
+  "scheduleTransferButton": "Schedule Transfer",
+  "makeTransferButton": "Make Transfer",
+  "transactionHistory": "Transaction History",
+  "pendingTransfers": "⏳ Pending ({count})",
+  "failedTransfers": "✗ Failed ({count})",
+  "completedTransfersLabel": "✓ Completed ({count})",
+  "noTransferHistory": "No transfer history yet",
+  "unknownAccount": "Unknown",
+  "@creditCardDebtLimit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@payAllDebt": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@scheduledTransferMessage": {
+    "placeholders": {
+      "fromAccount": {
+        "type": "String"
+      },
+      "toAccount": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@completedTransferMessage": {
+    "placeholders": {
+      "fromAccount": {
+        "type": "String"
+      },
+      "toAccount": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@scheduledTransferInfo": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@pendingTransfers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@failedTransfers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@completedTransfersLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadReportTooltip": "Download Report",
+  "noExpenseDataForThisMonth": "No expense data for this month.",
+  "highestExpense": "Highest expense",
+  "categoryDistribution": "Category Distribution",
+  "noIncomeDataForThisMonth": "No income data for this month.",
+  "highestIncome": "Highest income",
+  "noAssetsAddedYet": "No assets added yet.",
+  "mostValuableType": "Most valuable type",
+  "assetTypes": "Asset Types",
+  "distributionByPaymentMethod": "Distribution By Payment Method",
+  "otherStr": "Other",
+  "pdfReportTitle": "PDF Report",
+  "selectSectionsToInclude": "Select sections to include",
+  "reportPeriod": "Report Period",
+  "reportOptions": "Report Options",
+  "selectAll": "All",
+  "includeAllVisualSummaries": "Include all visual summary options",
+  "financialSummaryCards": "Financial Summary Cards",
+  "expenseIncomeAssetTotals": "Expense, income and asset totals",
+  "netStatusCards": "Net Status Cards",
+  "monthlyNetStatusAndSavings": "Monthly net status and savings rate",
+  "pieChartAndDistribution": "Pie Chart and Distribution",
+  "expenseIncomeAssetDistribution": "Expense/income/asset distribution graph",
+  "budgetStatusTitle": "Budget Status",
+  "budgetProgressBarAndLimit": "Budget progress bar and limit info",
+  "statisticsCards": "Statistics Cards",
+  "dailyAverageAndPreviousMonthComparison": "Daily average and previous month comparison",
+  "top5Expenses": "Top 5 Expenses",
+  "top5ExpensesListDescription": "List of top 5 expenses by amount",
+  "tablesToIncludeInReport": "Tables to Include in Report",
+  "monthlyExpenseDetails": "Monthly expense details",
+  "monthlyIncomeDetails": "Monthly income details",
+  "assetListAndValues": "Asset list and values",
+  "selectAtLeastOneTable": "You must select at least one table",
+  "preparing": "Preparing...",
+  "createAndSharePdf": "Create and Share PDF",
+  "daysText": "days",
+  "dailyStreak": "Daily Streak 🔥",
+  "freezeUsed": "Freeze used",
+  "totalLogins": "Total Logins",
+  "streakFreeze": "Streak Freeze",
+  "protectsStreakEvenIfSkipped": "Protects your streak even if you skip a day",
+  "streakFreezeUsedToday": "Streak freeze used today!",
+  "nextFreezeIn": "Next freeze in {days} days",
+  "nextBadgeIs": "Next Badge: {badgeName}",
+  "daysRemainingForBadge": "{remaining} days left",
+  "badges": "Badges",
+  "achievements": "Achievements",
+  "dShort": "d",
+  "earned": "✓ Earned",
+  "requiredStreakDays": "{requiredStreak} day streak required",
+  "@nextFreezeIn": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@daysRemainingForBadge": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "@requiredStreakDays": {
+    "placeholders": {
+      "requiredStreak": {
+        "type": "int"
+      }
+    }
+  },
+  "@nextBadgeIs": {
+    "placeholders": {
+      "badgeName": {
+        "type": "String"
+      }
+    }
+  },
+  "streakWhatIsIt": "What is Streak?",
+  "streakDescription": "Streak is a counter showing how many consecutive days you opened the app.\n\n• Each day you open the app, your streak increases by 1\n• If you skip a day, your streak resets\n• Multiple logins in a day count as 1 login\n\nThe streak system encourages you to track your financial habits and stay organized.",
+  "streakFreezeWhatIsIt": "What is Streak Freeze?",
+  "streakFreezeDescription": "Streak Freeze is a special feature that protects your streak even if you forget to open the app for a day.\n\n• New users start with 1 streak freeze\n• You earn 1 new freeze for every 7 day streak\n• You can stack maximum 3 freezes\n• Used automatically if you skip 1 day\n• Streak resets if you skip 2 or more days",
+  "badgesDescription": "You earn badges when you reach specific streak goals:\n\n🔥 Fire Starter - 3 day streak\n⭐ Weekly Star - 7 day streak\n💪 Determined - 14 day streak\n🏅 Monthly Champion - 30 day streak\n💎 Super Streak - 60 day streak\n👑 Streak Master - 100 day streak\n🏆 Legend - 365 day streak\n\nBadges are permanent, they don't disappear even if your streak resets!",
+  "achievementsDescription": "Achievements are special goals you earn while using the app:\n\n✓ First Step - Open the app for the first time\n✓ Streak Starter - Create a 3 day streak\n✓ Streak Freeze - Use a streak freeze\n✓ Regular User - Login for a total of 10 days\n✓ Continuity Master - Create a 30 day streak\n✓ Financial Guru - Login for a total of 100 days\n\nYou'll see a green checkmark when you complete achievements.",
+  "statisticsTitle": "Statistics",
+  "statisticsDescription": "You can see the following statistics on the streak page:\n\n📊 Current Streak - Your current consecutive logins\n🏆 Longest Streak - Your highest streak so far\n📅 Total Logins - Total number of days you opened the app\n❄️ Streak Freeze - Number of freezes you have\n\nThese statistics help you track your progress.",
+  "tipsTitle": "Tips",
+  "tipsDescription": "Some tips to protect your streak:\n\n💡 Make it a habit to open the app at the same time every day\n💡 If notifications are on, you can receive daily reminders\n💡 Save your streak freezes for holidays or busy days\n💡 Set goals like 7, 14, 30 days\n💡 Try to break your longest streak record\n\nRegular financial tracking means better money management!",
+  "streakSystem": "Streak System",
+  "streakSystemSubtitle": "Improve your financial habits and\nearn regular tracking rewards!",
+  "cropPhoto": "Crop Photo",
+  "continueText": "Continue",
+  "rotateLeft90": "90° Left",
+  "rotateRight90": "90° Right",
+  "flipHorizontal": "Horizontal",
+  "flipVertical": "Vertical",
+  "compare": "Compare",
+  "undo": "Undo",
+  "redo": "Redo",
+  "resetAll": "Reset All",
+  "rotation": "Rotation",
+  "grid": "Grid",
+  "apply": "Apply",
+  "filters": "Filters",
+  "adjustments": "Adjustments",
+  "transform": "Transform",
+  "text": "Text",
+  "emoji": "Emoji",
+  "frame": "Frame",
+  "intensity": "Intensity",
+  "brightness": "Brightness",
+  "contrast": "Contrast",
+  "saturation": "Saturation",
+  "temperature": "Temperature",
+  "tint": "Tint",
+  "shadows": "Shadows",
+  "highlights": "Highlights",
+  "vignette": "Vignette",
+  "selectProfilePhoto": "Select Profile Photo",
+  "selectProfilePhotoDesc": "You can change your profile picture by choosing a photo from your gallery or taking a picture with your camera.",
+  "camera": "Camera",
+  "takePhoto": "Take Photo",
+  "gallery": "Gallery",
+  "choosePhoto": "Choose Photo",
+  "day": "day",
+  "securityPin": "Security PIN",
+  "fullName": "Full Name",
+  "emailAddress": "Email Address",
+  "firstStep": "First Step",
+  "firstStepDesc": "Opened the app for the first time",
+  "streakStarter": "Streak Starter",
+  "streakStarterDesc": "Create a 3 day streak",
+  "streakFreezeDescAction": "Use a streak freeze",
+  "regularUser": "Regular User",
+  "regularUserDesc": "Login for a total of 10 days",
+  "continuityMaster": "Continuity Master",
+  "continuityMasterDesc": "Create a 30 day streak",
+  "financialGuru": "Financial Guru",
+  "financialGuruDesc": "Login for a total of 100 days",
+  "typeText": "Type text...",
+  "sizeLabel": "Size:",
+  "thickness": "Thickness",
+  "rotateLeft": "Left",
+  "rotateRight": "Right",
+  "horizontal": "Horizontal",
+  "vertical": "Vertical"
 }

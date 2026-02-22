@@ -9,6 +9,8 @@ import '../../../../core/constants/color_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../controllers/expenses_controller.dart';
 
+import 'package:cashly/core/extensions/l10n_extensions.dart';
+
 /// Harcama ekleme/düzenleme sayfası
 /// Modern ve sade tasarım - Harcama temasına uygun
 class AddExpensePage extends StatefulWidget {
@@ -153,7 +155,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
 
     if (amount == null) {
-      ErrorHandler.showErrorSnackBar(context, 'Geçerli bir tutar girin');
+      ErrorHandler.showErrorSnackBar(context, context.l10n.validAmountRequired);
       return;
     }
 
@@ -223,7 +225,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          isEditing ? "Harcamayı Düzenle" : "Harcama Ekle",
+          isEditing ? context.l10n.editExpense : context.l10n.addExpense,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
@@ -244,11 +246,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
             // Diğer alanlar
             _buildTextField(
               controller: _nameController,
-              label: "Harcama Adı",
-              hint: "Ne aldın? (Örn: Kahve)",
+              label: context.l10n.expenseNameLabel,
+              hint: context.l10n.expenseNameHint,
               icon: Icons.shopping_bag_outlined,
-              validator: (value) =>
-                  Validators.validateItemName(value, itemType: 'Harcama'),
+              validator: (value) => Validators.validateItemName(
+                value,
+                itemType: context.l10n.expense,
+              ), // Maybe need better
             ),
             const SizedBox(height: 16),
 
@@ -284,9 +288,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
         builder: (FormFieldState<String> state) {
           return Column(
             children: [
-              const Text(
-                "Tutar",
-                style: TextStyle(color: Colors.white54, fontSize: 14),
+              Text(
+                context.l10n.expenseAmount,
+                style: const TextStyle(color: Colors.white54, fontSize: 14),
               ),
               const SizedBox(height: 8),
               Row(
@@ -407,7 +411,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           setState(() {});
         }
       },
-      labelText: 'Harcama Tarihi',
+      labelText: context.l10n.expenseDate,
     );
   }
 
@@ -432,9 +436,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Ödeme Yöntemi",
-          style: TextStyle(color: Colors.white54, fontSize: 13),
+        Text(
+          context.l10n.expensePaymentMethod,
+          style: const TextStyle(color: Colors.white54, fontSize: 13),
         ),
         const SizedBox(height: 8),
         Container(
@@ -450,17 +454,17 @@ class _AddExpensePageState extends State<AddExpensePage> {
               style: const TextStyle(color: Colors.white, fontSize: 16),
               isExpanded: true,
               icon: const Icon(Icons.expand_more, color: Colors.white38),
-              hint: const Row(
+              hint: Row(
                 children: [
                   Icon(
                     Icons.account_balance_wallet_outlined,
                     color: _accentColor,
                     size: 20,
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Text(
-                    'Ödeme Yöntemi Seçin',
-                    style: TextStyle(color: Colors.white38),
+                    context.l10n.selectPaymentMethod,
+                    style: const TextStyle(color: Colors.white38),
                   ),
                 ],
               ),
@@ -481,7 +485,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: pm.name,
+                                text: context.translateDbName(pm.name),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -545,7 +549,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           borderRadius: BorderRadius.circular(20),
           child: Center(
             child: Text(
-              isEditing ? "Güncelle" : "Harcama Ekle",
+              isEditing ? context.l10n.updateButton : context.l10n.addExpense,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 17,

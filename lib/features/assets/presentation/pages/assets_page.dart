@@ -136,7 +136,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 decoration: InputDecoration(
-                  hintText: "Varlık ara...",
+                  hintText: context.l10n.searchAsset,
                   border: InputBorder.none,
                   hintStyle: TextStyle(
                     color: Theme.of(
@@ -193,7 +193,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
         items: [
           BottomBarItem(
             icon: Icons.delete_outline,
-            label: "Çöp Kutusu",
+            label: context.l10n.trashBin,
             onTap: () {
               HapticService.selectionClick();
               Navigator.push(
@@ -222,7 +222,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
           ),
         ],
         centerButtonColor: Colors.blue.shade600,
-        centerButtonLabel: "Varlık Ekle",
+        centerButtonLabel: context.l10n.addAsset,
         onCenterButtonTap: () {
           HapticService.lightImpact();
           _showAddAssetSheet();
@@ -276,10 +276,10 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
   Widget _buildAssetList() {
     if (_filtrelenmisVarliklar.isEmpty) {
       return _aramaModu && _aramaController.text.isNotEmpty
-          ? const EmptyStateWidget(
+          ? EmptyStateWidget(
               icon: Icons.search_off,
-              title: 'Sonuç bulunamadı',
-              subtitle: 'Farklı bir arama terimi deneyin',
+              title: context.l10n.noResultsFound,
+              subtitle: context.l10n.tryDifferentSearchTerm,
             )
           : EmptyStateWidget.noAssets();
     }

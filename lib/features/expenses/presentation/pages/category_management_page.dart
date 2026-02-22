@@ -237,7 +237,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
     secilenIkon = 'category';
     Navigator.pop(context);
 
-    AppSnackBar.success(context, 'Kategori eklendi ✅');
+    AppSnackBar.success(context, context.l10n.categoryAdded);
   }
 
   void kategoriSil(int index) {
@@ -294,7 +294,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
               );
               Navigator.pop(context);
 
-              AppSnackBar.deleted(context, 'Kategori silindi');
+              AppSnackBar.deleted(context, context.l10n.categoryDeleted);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red.shade800,
@@ -353,7 +353,10 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
               );
               Navigator.pop(context);
 
-              AppSnackBar.success(context, 'Varsayılan kategoriler yüklendi');
+              AppSnackBar.success(
+                context,
+                context.l10n.defaultCategoriesLoaded,
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -697,7 +700,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
 
                   AppSnackBar.success(
                     context,
-                    'Kategori sırası güncellendi',
+                    context.l10n.categoryOrderUpdated,
                     duration: const Duration(seconds: 1),
                   );
                 },

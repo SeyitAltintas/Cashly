@@ -38,7 +38,7 @@ class RecentTransactionsCard extends StatelessWidget {
   }
 
   /// Son işlemleri birleştirir ve sıralar
-  List<Map<String, dynamic>> _getRecentTransactions() {
+  List<Map<String, dynamic>> _getRecentTransactions(BuildContext context) {
     List<Map<String, dynamic>> transactions = [];
 
     // Harcamalar ekle
@@ -48,10 +48,10 @@ class RecentTransactionsCard extends StatelessWidget {
       if (tarih != null) {
         transactions.add({
           'type': 'expense',
-          'name': h['isim'] ?? 'Expense',
+          'name': context.translateDbName(h['isim'] ?? 'Expense'),
           'amount': (h['tutar'] as num?)?.toDouble() ?? 0,
           'date': tarih,
-          'category': h['kategori'] ?? 'Diğer',
+          'category': context.translateDbName(h['kategori'] ?? 'Diğer'),
         });
       }
     }
@@ -61,17 +61,21 @@ class RecentTransactionsCard extends StatelessWidget {
       if (g.isDeleted) continue;
       transactions.add({
         'type': 'income',
-        'name': g.name,
+        'name': context.translateDbName(g.name),
         'amount': g.amount,
         'date': g.date,
-        'category': g.category,
+        'category': context.translateDbName(g.category),
       });
     }
 
     // Transferler ekle
     for (var t in transferler) {
-      final fromName = _getPaymentMethodName(t.fromAccountId);
-      final toName = _getPaymentMethodName(t.toAccountId);
+      final fromName = context.translateDbName(
+        _getPaymentMethodName(t.fromAccountId),
+      );
+      final toName = context.translateDbName(
+        _getPaymentMethodName(t.toAccountId),
+      );
       transactions.add({
         'type': 'transfer',
         'name': '$fromName → $toName',
@@ -105,7 +109,7 @@ class RecentTransactionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final recentTransactions = _getRecentTransactions();
+    final recentTransactions = _getRecentTransactions(context);
 
     return AnimatedCard(
       delay: 500,

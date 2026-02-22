@@ -5,6 +5,7 @@ import '../controllers/auth_controller.dart';
 import '../../../../core/services/biometric_service.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../state/user_login_form_state.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Kullanıcı seçili giriş formu widget'ı
 /// Belirli bir kullanıcı için PIN ile giriş ekranı
@@ -91,7 +92,10 @@ class _UserLoginFormState extends State<UserLoginForm> {
       }
     } catch (e) {
       if (mounted) {
-        AppSnackBar.error(context, "Biyometrik doğrulama başarısız: $e");
+        AppSnackBar.error(
+          context,
+          context.l10n.biometricAuthFailed(e.toString()),
+        );
       }
     } finally {
       if (mounted) {

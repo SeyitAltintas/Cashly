@@ -3,6 +3,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../data/models/asset_model.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 
 class AssetListItem extends StatelessWidget {
   final Asset asset;
@@ -85,7 +86,7 @@ class AssetListItem extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            _getMonth(asset.purchaseDate),
+                            context.getShortMonthName(asset.purchaseDate.month),
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 10,
@@ -156,24 +157,6 @@ class AssetListItem extends StatelessWidget {
 
   String _getDay(DateTime date) {
     return date.day.toString();
-  }
-
-  String _getMonth(DateTime date) {
-    const months = [
-      "OCA",
-      "ŞUB",
-      "MAR",
-      "NİS",
-      "MAY",
-      "HAZ",
-      "TEM",
-      "AĞU",
-      "EYL",
-      "EKİ",
-      "KAS",
-      "ARA",
-    ];
-    return months[date.month - 1];
   }
 
   String _getYear(DateTime date) {
