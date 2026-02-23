@@ -18,6 +18,7 @@ class PdfTableBuilder {
     required int totalColumnIndex,
     required pw.Font turkishFont,
     required pw.Font turkishFontBold,
+    required bool isTr,
   }) {
     final headerStyle = pw.TextStyle(
       font: turkishFontBold,
@@ -28,7 +29,7 @@ class PdfTableBuilder {
 
     // Toplam satırı için veriyi hazırla
     final totalRow = List<String>.generate(headers.length, (index) {
-      if (index == totalColumnIndex - 1) return 'TOPLAM';
+      if (index == totalColumnIndex - 1) return isTr ? 'TOPLAM' : 'TOTAL';
       if (index == totalColumnIndex) return total;
       return '';
     });

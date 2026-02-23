@@ -20,6 +20,7 @@ class PdfHeaderBuilder {
     required DateTime startDate,
     required DateTime endDate,
     required Uint8List logoBytes,
+    required bool isTr,
   }) {
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 16),
@@ -35,7 +36,7 @@ class PdfHeaderBuilder {
               pw.Image(pw.MemoryImage(logoBytes), height: 35),
               pw.SizedBox(height: 6),
               pw.Text(
-                'Finansal Durum Raporu',
+                isTr ? 'Finansal Durum Raporu' : 'Financial Status Report',
                 style: pw.TextStyle(
                   font: fontBold,
                   fontSize: 14,
@@ -73,7 +74,7 @@ class PdfHeaderBuilder {
   }
 
   /// Footer oluştur - sayfa numarası ve tarih
-  static pw.Widget buildFooter(pw.Context context, pw.Font font) {
+  static pw.Widget buildFooter(pw.Context context, pw.Font font, bool isTr) {
     final now = DateTime.now();
     final dateTimeFormat = DateFormat('dd.MM.yyyy HH:mm');
 
@@ -88,7 +89,9 @@ class PdfHeaderBuilder {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text(
-            'Cashly ile oluşturuldu •  ${dateTimeFormat.format(now)}',
+            isTr
+                ? 'Cashly ile oluşturuldu •  ${dateTimeFormat.format(now)}'
+                : 'Generated with Cashly •  ${dateTimeFormat.format(now)}',
             style: pw.TextStyle(
               font: font,
               fontSize: 9,
@@ -96,7 +99,9 @@ class PdfHeaderBuilder {
             ),
           ),
           pw.Text(
-            'Sayfa ${context.pageNumber} / ${context.pagesCount}',
+            isTr
+                ? 'Sayfa ${context.pageNumber} / ${context.pagesCount}'
+                : 'Page ${context.pageNumber} / ${context.pagesCount}',
             style: pw.TextStyle(
               font: font,
               fontSize: 9,
@@ -112,6 +117,7 @@ class PdfHeaderBuilder {
   static pw.Widget buildNoDataMessage({
     required pw.Font font,
     required pw.Font fontBold,
+    required bool isTr,
   }) {
     return pw.Center(
       child: pw.Container(
@@ -136,7 +142,7 @@ class PdfHeaderBuilder {
             ),
             pw.SizedBox(height: 16),
             pw.Text(
-              'Veri Bulunamadı',
+              isTr ? 'Veri Bulunamadı' : 'No Data Found',
               style: pw.TextStyle(
                 font: fontBold,
                 fontSize: 18,
@@ -145,7 +151,9 @@ class PdfHeaderBuilder {
             ),
             pw.SizedBox(height: 12),
             pw.Text(
-              'Seçilen dönemde harcama, gelir veya varlık verisi bulunamadı.',
+              isTr
+                  ? 'Seçilen dönemde harcama, gelir veya varlık verisi bulunamadı.'
+                  : 'No expense, income, or asset data found in the selected period.',
               textAlign: pw.TextAlign.center,
               style: pw.TextStyle(
                 font: font,
@@ -165,7 +173,9 @@ class PdfHeaderBuilder {
                 borderRadius: pw.BorderRadius.circular(4),
               ),
               child: pw.Text(
-                'Farklı bir dönem seçerek tekrar deneyin.',
+                isTr
+                    ? 'Farklı bir dönem seçerek tekrar deneyin.'
+                    : 'Try again by selecting a different period.',
                 style: pw.TextStyle(
                   font: font,
                   fontSize: 9,

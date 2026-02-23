@@ -19,6 +19,7 @@ class PdfVisualSummaryBuilder {
     required double degisimYuzdesi,
     required pw.Font turkishFont,
     required pw.Font turkishFontBold,
+    required bool isTr,
     // Alt seçenek kontrolleri
     bool showFinansalOzet = true,
     bool showNetDurum = true,
@@ -53,7 +54,7 @@ class PdfVisualSummaryBuilder {
         pw.Padding(
           padding: const pw.EdgeInsets.only(left: 4, bottom: 12),
           child: pw.Text(
-            'Finansal Özet',
+            isTr ? 'Finansal Özet' : 'Financial Summary',
             style: pw.TextStyle(
               font: turkishFont,
               fontSize: 13,
@@ -70,6 +71,7 @@ class PdfVisualSummaryBuilder {
             toplamVarlik: toplamVarlik,
             turkishFont: turkishFont,
             turkishFontBold: turkishFontBold,
+            isTr: isTr,
           ),
           pw.SizedBox(height: 10),
         ],
@@ -82,6 +84,7 @@ class PdfVisualSummaryBuilder {
             tasarrufOrani: tasarrufOrani,
             turkishFont: turkishFont,
             turkishFontBold: turkishFontBold,
+            isTr: isTr,
           ),
           pw.SizedBox(height: 20),
         ],
@@ -101,6 +104,7 @@ class PdfVisualSummaryBuilder {
             butceDurumu: butceDurumu,
             turkishFont: turkishFont,
             turkishFontBold: turkishFontBold,
+            isTr: isTr,
           ),
           pw.SizedBox(height: 16),
         ],
@@ -113,6 +117,7 @@ class PdfVisualSummaryBuilder {
             toplamHarcama: toplamHarcama,
             turkishFont: turkishFont,
             turkishFontBold: turkishFontBold,
+            isTr: isTr,
           ),
           pw.SizedBox(height: 16),
         ],
@@ -125,6 +130,7 @@ class PdfVisualSummaryBuilder {
             gecenAyToplam: gecenAyToplam,
             turkishFont: turkishFont,
             turkishFontBold: turkishFontBold,
+            isTr: isTr,
           ),
           pw.SizedBox(height: 16),
         ],
@@ -135,6 +141,7 @@ class PdfVisualSummaryBuilder {
             top5Harcamalar: top5Harcamalar,
             turkishFont: turkishFont,
             turkishFontBold: turkishFontBold,
+            isTr: isTr,
           ),
       ],
     );
@@ -147,6 +154,7 @@ class PdfVisualSummaryBuilder {
     required double toplamVarlik,
     required pw.Font turkishFont,
     required pw.Font turkishFontBold,
+    required bool isTr,
   }) {
     return pw.Container(
       decoration: pw.BoxDecoration(
@@ -162,7 +170,7 @@ class PdfVisualSummaryBuilder {
             child: _buildCompactSummaryItem(
               icon: '↓',
               iconColor: PdfUtils.expenseColor,
-              title: 'Toplam Harcama',
+              title: isTr ? 'Toplam Harcama' : 'Total Expense',
               value: PdfUtils.formatCurrency(toplamHarcama),
               valueColor: PdfUtils.expenseColor,
               font: turkishFont,
@@ -176,7 +184,7 @@ class PdfVisualSummaryBuilder {
             child: _buildCompactSummaryItem(
               icon: '↑',
               iconColor: PdfUtils.incomeColor,
-              title: 'Toplam Gelir',
+              title: isTr ? 'Toplam Gelir' : 'Total Income',
               value: PdfUtils.formatCurrency(toplamGelir),
               valueColor: PdfUtils.incomeColor,
               font: turkishFont,
@@ -190,7 +198,7 @@ class PdfVisualSummaryBuilder {
             child: _buildCompactSummaryItem(
               icon: '≈',
               iconColor: PdfUtils.assetColor,
-              title: 'Toplam Varlık',
+              title: isTr ? 'Toplam Varlık' : 'Total Asset',
               value: PdfUtils.formatCurrency(toplamVarlik),
               valueColor: PdfUtils.assetColor,
               font: turkishFont,
@@ -209,6 +217,7 @@ class PdfVisualSummaryBuilder {
     required double tasarrufOrani,
     required pw.Font turkishFont,
     required pw.Font turkishFontBold,
+    required bool isTr,
   }) {
     return pw.Row(
       children: [
@@ -239,7 +248,7 @@ class PdfVisualSummaryBuilder {
                     ),
                     pw.SizedBox(width: 4),
                     pw.Text(
-                      'Aylık Net Durum',
+                      isTr ? 'Aylık Net Durum' : 'Monthly Net Status',
                       style: pw.TextStyle(
                         font: turkishFont,
                         fontSize: 9,
@@ -289,7 +298,7 @@ class PdfVisualSummaryBuilder {
                     ),
                     pw.SizedBox(width: 4),
                     pw.Text(
-                      'Tasarruf Oranı',
+                      isTr ? 'Tasarruf Oranı' : 'Savings Rate',
                       style: pw.TextStyle(
                         font: turkishFont,
                         fontSize: 9,
@@ -331,6 +340,7 @@ class PdfVisualSummaryBuilder {
     required double butceDurumu,
     required pw.Font turkishFont,
     required pw.Font turkishFontBold,
+    required bool isTr,
   }) {
     return pw.Container(
       padding: const pw.EdgeInsets.all(16),
@@ -400,7 +410,7 @@ class PdfVisualSummaryBuilder {
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Text(
-                  'Dağılım',
+                  isTr ? 'Dağılım' : 'Distribution',
                   style: pw.TextStyle(
                     font: turkishFontBold,
                     fontSize: 11,
@@ -410,21 +420,21 @@ class PdfVisualSummaryBuilder {
                 pw.SizedBox(height: 10),
                 // Açıklama
                 _buildLegendItem(
-                  'Harcama',
+                  isTr ? 'Harcama' : 'Expense',
                   harcamaOran,
                   PdfUtils.expenseColor,
                   turkishFont,
                 ),
                 pw.SizedBox(height: 4),
                 _buildLegendItem(
-                  'Gelir',
+                  isTr ? 'Gelir' : 'Income',
                   gelirOran,
                   PdfUtils.incomeColor,
                   turkishFont,
                 ),
                 pw.SizedBox(height: 4),
                 _buildLegendItem(
-                  'Varlık',
+                  isTr ? 'Varlık' : 'Asset',
                   varlikOran,
                   PdfUtils.assetColor,
                   turkishFont,
@@ -433,7 +443,7 @@ class PdfVisualSummaryBuilder {
                 pw.Divider(color: PdfColors.grey200),
                 pw.SizedBox(height: 8),
                 _buildStatRow(
-                  label: 'Net Durum',
+                  label: isTr ? 'Net Durum' : 'Net Status',
                   value:
                       '${isPositive ? '+' : ''}${PdfUtils.formatCurrency(netDurum)}',
                   color: isPositive
@@ -444,7 +454,7 @@ class PdfVisualSummaryBuilder {
                 ),
                 pw.SizedBox(height: 4),
                 _buildStatRow(
-                  label: 'Harcama/Gelir',
+                  label: isTr ? 'Harcama/Gelir' : 'Expense/Income',
                   value: '%${butceDurumu.toStringAsFixed(0)}',
                   color: butceDurumu > 90
                       ? PdfUtils.expenseColor
@@ -469,6 +479,7 @@ class PdfVisualSummaryBuilder {
     required double toplamHarcama,
     required pw.Font turkishFont,
     required pw.Font turkishFontBold,
+    required bool isTr,
   }) {
     return pw.Container(
       padding: const pw.EdgeInsets.all(16),
@@ -484,7 +495,7 @@ class PdfVisualSummaryBuilder {
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
               pw.Text(
-                'Bütçe Durumu',
+                isTr ? 'Bütçe Durumu' : 'Budget Status',
                 style: pw.TextStyle(
                   font: turkishFontBold,
                   fontSize: 11,
@@ -492,7 +503,9 @@ class PdfVisualSummaryBuilder {
                 ),
               ),
               pw.Text(
-                '%${butceDurumu.toStringAsFixed(0)} kullanıldı',
+                isTr
+                    ? '%${butceDurumu.toStringAsFixed(0)} kullanıldı'
+                    : '${butceDurumu.toStringAsFixed(0)}% used',
                 style: pw.TextStyle(
                   font: turkishFont,
                   fontSize: 10,
@@ -564,7 +577,9 @@ class PdfVisualSummaryBuilder {
             child: pw.Column(
               children: [
                 pw.Text(
-                  'Harcama limitiniz: ${PdfUtils.formatCurrency(aylikButceLimiti)}',
+                  isTr
+                      ? 'Harcama limitiniz: ${PdfUtils.formatCurrency(aylikButceLimiti)}'
+                      : 'Your spending limit: ${PdfUtils.formatCurrency(aylikButceLimiti)}',
                   style: pw.TextStyle(
                     font: turkishFont,
                     fontSize: 9,
@@ -576,7 +591,9 @@ class PdfVisualSummaryBuilder {
                     aylikButceLimiti > 0) ...[
                   pw.SizedBox(height: 4),
                   pw.Text(
-                    'Limit aşımı: ${PdfUtils.formatCurrency(toplamHarcama - aylikButceLimiti)}',
+                    isTr
+                        ? 'Limit aşımı: ${PdfUtils.formatCurrency(toplamHarcama - aylikButceLimiti)}'
+                        : 'Limit exceeded: ${PdfUtils.formatCurrency(toplamHarcama - aylikButceLimiti)}',
                     style: pw.TextStyle(
                       font: turkishFontBold,
                       fontSize: 9,
@@ -599,6 +616,7 @@ class PdfVisualSummaryBuilder {
     required double gecenAyToplam,
     required pw.Font turkishFont,
     required pw.Font turkishFontBold,
+    required bool isTr,
   }) {
     return pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -617,7 +635,7 @@ class PdfVisualSummaryBuilder {
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Text(
-                  'Günlük Ortalama',
+                  isTr ? 'Günlük Ortalama' : 'Daily Average',
                   style: pw.TextStyle(
                     font: turkishFont,
                     fontSize: 9,
@@ -657,7 +675,7 @@ class PdfVisualSummaryBuilder {
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Text(
-                  'Geçen Aya Göre',
+                  isTr ? 'Geçen Aya Göre' : 'Compared to Last Month',
                   style: pw.TextStyle(
                     font: turkishFont,
                     fontSize: 9,
@@ -712,6 +730,7 @@ class PdfVisualSummaryBuilder {
     required List<Map<String, dynamic>> top5Harcamalar,
     required pw.Font turkishFont,
     required pw.Font turkishFontBold,
+    required bool isTr,
   }) {
     return pw.Container(
       padding: const pw.EdgeInsets.all(14),
@@ -724,7 +743,7 @@ class PdfVisualSummaryBuilder {
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text(
-            'En Yüksek 5 Harcama',
+            isTr ? 'En Yüksek 5 Harcama' : 'Top 5 Expenses',
             style: pw.TextStyle(
               font: turkishFontBold,
               fontSize: 11,
@@ -735,7 +754,8 @@ class PdfVisualSummaryBuilder {
           ...top5Harcamalar.asMap().entries.map((entry) {
             final index = entry.key;
             final h = entry.value;
-            final kategori = h['kategori'] as String? ?? 'Diğer';
+            final kategori =
+                h['kategori'] as String? ?? (isTr ? 'Diğer' : 'Other');
             final tutar = (h['tutar'] as num).toDouble();
             final aciklama = h['aciklama'] as String? ?? '';
             final isim = h['isim'] as String? ?? '';

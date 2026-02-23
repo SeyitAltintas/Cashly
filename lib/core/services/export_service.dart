@@ -154,7 +154,7 @@ class ExportService {
             ),
           ),
           footer: (context) =>
-              PdfHeaderBuilder.buildFooter(context, turkishFont),
+              PdfHeaderBuilder.buildFooter(context, turkishFont, isTr),
           build: (context) => [
             // Başlık bölümü - Logo ile
             PdfHeaderBuilder.buildHeader(
@@ -164,6 +164,7 @@ class ExportService {
               startDate: startDate,
               endDate: endDate,
               logoBytes: logoBytes,
+              isTr: isTr,
             ),
             pw.SizedBox(height: 12),
 
@@ -175,6 +176,7 @@ class ExportService {
               PdfHeaderBuilder.buildNoDataMessage(
                 font: turkishFont,
                 fontBold: turkishFontBold,
+                isTr: isTr,
               ),
             ] else ...[
               // Görsel Özet bölümü (herhangi bir seçenek açıksa)
@@ -202,6 +204,7 @@ class ExportService {
                   showButceDurumu: includeButceDurumu,
                   showIstatistikler: includeIstatistikler,
                   showTop5Harcama: includeTop5Harcama,
+                  isTr: isTr,
                 ),
               ],
 
@@ -231,6 +234,7 @@ class ExportService {
                   totalColumnIndex: 3,
                   turkishFont: turkishFont,
                   turkishFontBold: turkishFontBold,
+                  isTr: isTr,
                 ),
               ],
 
@@ -262,6 +266,7 @@ class ExportService {
                   totalColumnIndex: 3,
                   turkishFont: turkishFont,
                   turkishFontBold: turkishFontBold,
+                  isTr: isTr,
                 ),
               ],
 
@@ -292,6 +297,7 @@ class ExportService {
                   totalColumnIndex: 2,
                   turkishFont: turkishFont,
                   turkishFontBold: turkishFontBold,
+                  isTr: isTr,
                 ),
               ],
             ],
