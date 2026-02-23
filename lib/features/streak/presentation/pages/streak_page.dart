@@ -480,7 +480,7 @@ class _StreakPageState extends State<StreakPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      context.l10n.nextBadgeIs(badge.name),
+                      context.l10n.nextBadgeIs(badge.localizedName(context)),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -665,7 +665,7 @@ class _StreakPageState extends State<StreakPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              '${badge.emoji} ${badge.name}',
+              '${badge.emoji} ${badge.localizedName(context)}',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -674,7 +674,7 @@ class _StreakPageState extends State<StreakPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              badge.description,
+              badge.localizedDescription(context),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,

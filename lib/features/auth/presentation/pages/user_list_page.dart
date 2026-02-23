@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
 import 'login_page.dart';
@@ -52,9 +53,12 @@ class _UserListPageState extends State<UserListPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
-          "Kullanıcılar",
-          style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold),
+        title: Text(
+          context.l10n.users,
+          style: const TextStyle(
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
@@ -64,10 +68,13 @@ class _UserListPageState extends State<UserListPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.white))
           : _users.isEmpty
-          ? const Center(
+          ? Center(
               child: Text(
-                "Kayıtlı kullanıcı yok.",
-                style: TextStyle(fontFamily: 'Inter', color: Colors.white70),
+                context.l10n.noRegisteredUsers,
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  color: Colors.white70,
+                ),
               ),
             )
           : ListView.builder(
@@ -178,7 +185,7 @@ class _UserListPageState extends State<UserListPage> {
               color: Theme.of(context).colorScheme.secondary,
             ),
             label: Text(
-              "Yeni Kullanıcı Ekle",
+              context.l10n.addNewUser,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

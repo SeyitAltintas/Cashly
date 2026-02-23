@@ -935,6 +935,21 @@
   "categoryAnalysisLabel": "Kategori analizi",
   "budgetControlLabel": "Bütçe kontrolü",
   "detailedCommandListInfo": "Detaylı komut listesi için:\nAyarlar → Sesli Asistan → Tüm Komutlar",
+  "voiceIncomeInput": "Sesli Gelir Girişi",
+  "voiceExpenseInput": "Sesli Harcama Girişi",
+  "micPreparing": "Mikrofon hazırlanıyor...",
+  "micListening": "Dinliyorum...",
+  "tapToSpeakAgain": "Tekrar konuşmak için dokunun",
+  "tapToStopMic": "Durdurmak için mikrofona dokunun",
+  "pdfReportGenerated": "PDF raporu oluşturuldu",
+  "pdfGenerationError": "PDF oluşturulurken hata: {error}",
+  "@pdfGenerationError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "expenseNameLabel": "Harcama Adı",
   "whatDidYouBuy": "Ne aldın? (Örn: Kahve)",
   "expenseDateLabel": "Harcama Tarihi",
@@ -1465,6 +1480,20 @@
   "nextBadgeIs": "Sonraki Rozet: {badgeName}",
   "daysRemainingForBadge": "{remaining} gün kaldı",
   "badges": "Rozetler",
+  "badgeFireStarterName": "Ateş Başlangıcı",
+  "badgeFireStarterDesc": "3 gün üst üste giriş yaptın!",
+  "badgeWeeklyStarName": "Haftalık Yıldız",
+  "badgeWeeklyStarDesc": "7 gün üst üste giriş yaptın!",
+  "badgeSteadyName": "Kararlı",
+  "badgeSteadyDesc": "2 hafta boyunca her gün giriş yaptın!",
+  "badgeMonthlyChampName": "Aylık Şampiyon",
+  "badgeMonthlyChampDesc": "1 ay boyunca her gün giriş yaptın!",
+  "badgeSuperStreakName": "Süper Seri",
+  "badgeSuperStreakDesc": "2 ay boyunca her gün giriş yaptın!",
+  "badgeStreakMasterName": "Seri Ustası",
+  "badgeStreakMasterDesc": "100 gün üst üste giriş yaptın!",
+  "badgeLegendName": "Efsane",
+  "badgeLegendDesc": "1 yıl boyunca her gün giriş yaptın!",
   "achievements": "Başarılar",
   "dShort": "g",
   "earned": "✓ Kazanıldı",
@@ -1564,5 +1593,67 @@
   "rotateLeft": "Sola",
   "rotateRight": "Sağa",
   "horizontal": "Yatay",
-  "vertical": "Dikey"
+  "vertical": "Dikey",
+  "signupSubtitleExpense": "Harcamalarınızı yönetmeye başlamak için kayıt olun.",
+  "emailLabel": "E-posta",
+  "pinLabel": "PIN (4-6 Rakam)",
+  "securityQuestion": "Güvenlik Sorusu",
+  "securityQuestionAnswer": "Güvenlik Sorusu Cevabı",
+  "signupSuccess": "Kayıt başarılı! Hoş geldiniz! 🎉",
+  "signupError": "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.",
+  "loginWithAnotherAccount": "Başka hesap ile giriş yap",
+  "loginWithGoogle": "Google ile Giriş Yap",
+  "verifyIdentity": "Giriş yapmak için kimliğinizi doğrulayın",
+  "loginFailed": "Giriş yapılamadı: {error}",
+  "@loginFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "tapAndSpeak": "Mikrofona dokunun ve konuşun",
+  "voiceExampleIncome": "Örnek: \"500 lira maaş\"",
+  "heard": "Duyulan: ",
+  "amountTl": "Tutar (₺)",
+  "incomeName": "Gelir Adı",
+  "orDivider": "veya",
+  "biometricLoginFailed": "Biyometrik giriş başarısız",
+  "enterRegisteredEmail": "Kayıtlı e-posta adresinizi girin",
+  "userNotFoundWithEmail": "Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı",
+  "noSecurityQuestionDefined": "Bu hesap için güvenlik sorusu tanımlanmamış",
+  "wrongAnswerTryAgain": "Yanlış cevap! Lütfen tekrar deneyin.",
+  "setNewPin": "Yeni PIN Belirle",
+  "enterNewPinDigits": "4-6 haneli yeni PIN kodunuzu girin",
+  "pinUpdatedSuccess": "PIN başarıyla güncellendi! ✓",
+  "yourAnswer": "Cevabınız",
+  "pleaseEnterAnswer": "Lütfen cevabınızı girin",
+  "pleaseEnterNewPin": "Lütfen yeni PIN girin",
+  "pinMinDigits": "PIN en az 4 haneli olmalı",
+  "pinOnlyNumbers": "PIN sadece rakamlardan oluşmalı",
+  "pleaseRepeatPin": "Lütfen PIN'i tekrar girin",
+  "pinRepeatLabel": "PIN Tekrar",
+  "continueButton": "Devam",
+  "verifyButton": "Doğrula",
+  "updatePinButton": "PIN'i Güncelle",
+  "expenseDeleted": "{name} silindi",
+  "@expenseDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "updateExpenseAmountMsg": "Son harcamayı {amount} ₺ olarak güncellemek istiyor musunuz?",
+  "@updateExpenseAmountMsg": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lastWeek": "Geçen hafta",
+  "users": "Kullanıcılar",
+  "noRegisteredUsers": "Kayıtlı kullanıcı yok.",
+  "addNewUser": "Yeni Kullanıcı Ekle"
 }

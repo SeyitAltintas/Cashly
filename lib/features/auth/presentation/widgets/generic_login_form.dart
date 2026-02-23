@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../controllers/auth_controller.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
@@ -75,8 +76,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
       } else {
         ErrorHandler.showErrorSnackBar(
           context,
-          widget.authController.error ??
-              "Giriş başarısız. E-posta veya PIN hatalı.",
+          context.l10n.loginFailed(widget.authController.error ?? ''),
         );
       }
     } catch (e) {
@@ -106,7 +106,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
                 Image.asset('assets/image/seffaflogo.png', height: 70),
                 const SizedBox(height: 120),
                 Text(
-                  "Giriş Yap",
+                  context.l10n.login,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 32,
@@ -145,7 +145,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
       keyboardType: TextInputType.emailAddress,
       validator: Validators.validateEmail,
       decoration: InputDecoration(
-        labelText: "E-posta",
+        labelText: context.l10n.emailLabel,
         labelStyle: const TextStyle(color: Colors.white70),
         prefixIcon: Icon(
           Icons.email_outlined,
@@ -262,8 +262,8 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
                   color: Colors.white,
                 ),
               )
-            : const Text(
-                "Giriş Yap",
+            : Text(
+                context.l10n.login,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -282,7 +282,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
         TextButton(
           onPressed: widget.onSignUp,
           child: Text(
-            "Hesabınız yok mu? Kayıt olun",
+            context.l10n.dontHaveAccount,
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
@@ -290,7 +290,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
         TextButton(
           onPressed: widget.onForgotPassword,
           child: Text(
-            "Şifremi Unuttum",
+            context.l10n.forgotPassword,
             style: TextStyle(
               color: Theme.of(
                 context,

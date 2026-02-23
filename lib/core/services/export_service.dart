@@ -39,13 +39,28 @@ class ExportService {
     bool includeButceDurumu = true,
     bool includeIstatistikler = true,
     bool includeTop5Harcama = true,
+    String locale = 'tr',
   }) async {
+    final isTr = locale == 'tr';
     try {
       // Fontları ve logoyu yükle
       final turkishFont = await PdfUtils.loadTurkishFont();
       final turkishFontBold = await PdfUtils.loadTurkishFontBold();
       final logoBytes = await PdfUtils.loadBlackLogoImage();
       final pdf = pw.Document();
+
+      // Locale-aware table labels
+      final lExpenses = isTr ? 'Harcamalar' : 'Expenses';
+      final lIncomes = isTr ? 'Gelirler' : 'Incomes';
+      final lAssets = isTr ? 'Varlıklar' : 'Assets';
+      final lName = isTr ? 'İsim' : 'Name';
+      final lCategory = isTr ? 'Kategori' : 'Category';
+      final lDate = isTr ? 'Tarih' : 'Date';
+      final lAmount = isTr ? 'Tutar' : 'Amount';
+      final lValue = isTr ? 'Değer' : 'Value';
+      final lReportGenerated = isTr
+          ? 'PDF raporu oluşturuldu'
+          : 'PDF report generated';
 
       // Repository'leri al
       final expenseRepo = getIt<ExpenseRepository>();
@@ -194,7 +209,7 @@ class ExportService {
               if (includeExpenses && harcamalar.isNotEmpty) ...[
                 pw.NewPage(),
                 ...PdfTableBuilder.buildTableSection(
-                  title: 'Harcamalar',
+                  title: lExpenses,
                   headerColor: PdfUtils.expenseColor,
                   data: harcamalar.asMap().entries.map((entry) {
                     final h = entry.value;
@@ -211,7 +226,7 @@ class ExportService {
                           : PdfColors.white,
                     );
                   }).toList(),
-                  headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
+                  headers: [lName, lCategory, lDate, lAmount],
                   total: PdfUtils.formatCurrency(toplamHarcama),
                   totalColumnIndex: 3,
                   turkishFont: turkishFont,
@@ -223,7 +238,7 @@ class ExportService {
               if (includeIncomes && gelirler.isNotEmpty) ...[
                 pw.NewPage(),
                 ...PdfTableBuilder.buildTableSection(
-                  title: 'Gelirler',
+                  title: lIncomes,
                   headerColor: PdfUtils.incomeColor,
                   data: gelirler.asMap().entries.map((entry) {
                     final g = entry.value;
@@ -242,7 +257,7 @@ class ExportService {
                           : PdfColors.white,
                     );
                   }).toList(),
-                  headers: ['İsim', 'Kategori', 'Tarih', 'Tutar'],
+                  headers: [lName, lCategory, lDate, lAmount],
                   total: PdfUtils.formatCurrency(toplamGelir),
                   totalColumnIndex: 3,
                   turkishFont: turkishFont,
@@ -254,7 +269,7 @@ class ExportService {
               if (includeAssets && varliklar.isNotEmpty) ...[
                 pw.NewPage(),
                 ...PdfTableBuilder.buildTableSection(
-                  title: 'Varlıklar',
+                  title: lAssets,
                   headerColor: PdfUtils.assetColor,
                   data: varliklar.asMap().entries.map((entry) {
                     final v = entry.value;
@@ -272,7 +287,7 @@ class ExportService {
                           : PdfColors.white,
                     );
                   }).toList(),
-                  headers: ['İsim', 'Kategori', 'Değer'],
+                  headers: [lName, lCategory, lValue],
                   total: PdfUtils.formatCurrency(toplamVarlik),
                   totalColumnIndex: 2,
                   turkishFont: turkishFont,
@@ -293,12 +308,13 @@ class ExportService {
       return ExportResult(
         success: true,
         filePath: file.path,
-        message: 'PDF raporu oluşturuldu',
+        message: lReportGenerated,
       );
     } catch (e) {
       return ExportResult(
         success: false,
-        message: 'PDF oluşturulurken hata: $e',
+        message:
+            '${isTr ? "PDF oluşturulurken hata" : "Error generating PDF"}: $e',
       );
     }
   }
@@ -306,7 +322,7 @@ class ExportService {
   /// Dosyayı paylaş
   static Future<void> shareFile(String filePath) async {
     await SharePlus.instance.share(
-      ShareParams(files: [XFile(filePath)], subject: 'Cashly Raporu'),
+      ShareParams(files: [XFile(filePath)], subject: 'Cashly Report'),
     );
   }
 

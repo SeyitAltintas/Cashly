@@ -167,13 +167,12 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         if (_controller != null) {
           _controller!.setVoiceInitialized(
             success: false,
-            error: 'Mikrofon izni verilemedi veya cihaz desteklemiyor.',
+            error: context.l10n.micPermissionDenied,
           );
         } else {
           _localIsInitializing = false;
           _localHasError = true;
-          _localErrorMessage =
-              'Mikrofon izni verilemedi veya cihaz desteklemiyor.';
+          _localErrorMessage = context.l10n.micPermissionDenied;
           setState(() {});
         }
       }
@@ -412,13 +411,13 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
 
       if (topCategory != null) {
         await _ttsService.enCokKategoriBildirimi(
-          kategori: topCategory['kategori'] ?? 'Bilinmiyor',
+          kategori: topCategory['kategori'] ?? context.l10n.unknown,
           tutar: (topCategory['tutar'] as num?)?.toDouble() ?? 0,
           userId: widget.userId,
         );
       } else {
         await _ttsService.speak(
-          'Henüz harcama bulunmuyor',
+          context.l10n.noExpenseFoundYet,
           userId: widget.userId,
         );
       }
@@ -445,7 +444,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       }
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) {
@@ -469,7 +468,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       }
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) {
@@ -493,7 +492,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       }
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) {
@@ -518,7 +517,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       }
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) {
@@ -530,7 +529,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
   /// Kategori bazlı harcama sorgusunu işle
   Future<void> _handleGetCategoryTotal(String? kategori) async {
     if (kategori == null) {
-      await _ttsService.speak('Kategori anlaşılamadı', userId: widget.userId);
+      await _ttsService.speak(
+        context.l10n.categoryNotUnderstood,
+        userId: widget.userId,
+      );
       if (mounted) {
         Navigator.pop(context);
       }
@@ -551,7 +553,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       }
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) {
@@ -565,8 +567,8 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     if (widget.onAddFixedExpenses != null) {
       // Inline onay iste
       _requestConfirmation(
-        baslik: 'Tekrarlayan İşlemler',
-        mesaj: 'Tanımlı tekrarlayan işlemleri bu aya eklemek istiyor musunuz?',
+        baslik: context.l10n.recurringTransactionsLabel,
+        mesaj: context.l10n.addRecurringToMonthConfirm,
         onConfirm: () async {
           final result = await widget.onAddFixedExpenses!();
 
@@ -581,7 +583,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                 (result['adet'] as int) > 0) {
               AppSnackBar.success(
                 context,
-                '${result['adet']} adet tekrarlayan işlem eklendi!',
+                context.l10n.recurringItemsAdded(result['adet'] as int),
               );
             }
             Navigator.pop(context);
@@ -590,7 +592,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       );
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) {
@@ -603,7 +605,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
   Future<void> _handleEditLastExpense(double? yeniTutar) async {
     if (yeniTutar == null) {
       await _ttsService.speak(
-        'Yeni tutarı anlayamadım. Örneğin "Son harcamayı 100 lira yap" diyebilirsiniz.',
+        context.l10n.newAmountNotUnderstood,
         userId: widget.userId,
       );
       if (mounted) Navigator.pop(context);
@@ -613,9 +615,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     if (widget.onEditLastExpense != null) {
       // Inline onay iste
       _requestConfirmation(
-        baslik: 'Harcama Düzenleme',
-        mesaj:
-            'Son harcamayı ${yeniTutar.toStringAsFixed(0)} ₺ olarak güncellemek istiyor musunuz?',
+        baslik: context.l10n.expenseEditingTitle,
+        mesaj: context.l10n.updateExpenseAmountMsg(
+          yeniTutar.toStringAsFixed(0),
+        ),
         onConfirm: () async {
           Map<String, dynamic>? result;
           try {
@@ -642,7 +645,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               );
 
               if (mounted) {
-                AppSnackBar.deleted(context, '$harcamaIsmi silindi');
+                AppSnackBar.deleted(
+                  context,
+                  context.l10n.expenseDeleted(harcamaIsmi),
+                );
                 Navigator.pop(context);
               }
             } else {
@@ -670,7 +676,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       );
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) Navigator.pop(context);
@@ -692,7 +698,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       }
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) {
@@ -719,7 +725,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       }
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) {
@@ -746,7 +752,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       }
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) {
@@ -773,7 +779,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       }
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) {
@@ -789,7 +795,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     String? kategori,
   ) async {
     if (kategori == null) {
-      await _ttsService.speak('Kategori anlaşılamadı', userId: widget.userId);
+      await _ttsService.speak(
+        context.l10n.categoryNotUnderstood,
+        userId: widget.userId,
+      );
       if (mounted) {
         Navigator.pop(context);
       }
@@ -810,13 +819,13 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       final dateDiff = today.difference(baslangic).inDays;
 
       if (dateDiff == 1 && baslangic == bitis) {
-        donem = 'Dün';
+        donem = context.l10n.yesterday;
       } else if (dateDiff <= 7) {
-        donem = 'Bu hafta';
+        donem = context.l10n.thisWeek;
       } else if (dateDiff <= 14) {
-        donem = 'Geçen hafta';
+        donem = context.l10n.lastWeek;
       } else {
-        donem = 'Geçen ay';
+        donem = context.l10n.lastMonth;
       }
 
       await _ttsService.tarihliKategoriHarcamaBildirimi(
@@ -831,7 +840,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       }
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) {
@@ -862,14 +871,17 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       } else {
         debugPrint('onCheckBudget null!');
         await _ttsService.speak(
-          'Bu komut henüz desteklenmiyor',
+          context.l10n.commandNotSupported,
           userId: widget.userId,
         );
       }
     } catch (e, stackTrace) {
       debugPrint('_handleKalanButce hatası: $e');
       debugPrint('Stack trace: $stackTrace');
-      await _ttsService.speak('Bir hata oluştu', userId: widget.userId);
+      await _ttsService.speak(
+        context.l10n.anErrorOccurred,
+        userId: widget.userId,
+      );
     } finally {
       debugPrint('_handleKalanButce finally bloğu, mounted: $mounted');
       if (mounted) {
@@ -882,7 +894,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
   Future<void> _handleLimitBelirle(double? yeniLimit) async {
     if (yeniLimit == null || yeniLimit <= 0) {
       await _ttsService.speak(
-        'Limit tutarını anlayamadım. Örneğin "Aylık limitimi 10000 lira yap" diyebilirsiniz.',
+        context.l10n.limitNotUnderstood,
         userId: widget.userId,
       );
       if (mounted) Navigator.pop(context);
@@ -892,9 +904,10 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     if (widget.onSetBudgetLimit != null) {
       // Inline onay iste
       _requestConfirmation(
-        baslik: 'Bütçe Limiti Güncelleme',
-        mesaj:
-            'Aylık bütçeniz ${yeniLimit.toStringAsFixed(0)} ₺ olarak güncellensin mi?',
+        baslik: context.l10n.budgetLimitUpdateTitle,
+        mesaj: context.l10n.monthlyBudgetUpdateConfirm(
+          yeniLimit.toStringAsFixed(0),
+        ),
         onConfirm: () async {
           try {
             await widget.onSetBudgetLimit!(yeniLimit);
@@ -907,14 +920,14 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             if (mounted) {
               AppSnackBar.success(
                 context,
-                'Aylık bütçe ${yeniLimit.toStringAsFixed(0)} ₺ olarak güncellendi',
+                context.l10n.monthlyBudgetUpdated(yeniLimit.toStringAsFixed(0)),
               );
               Navigator.pop(context);
             }
           } catch (e) {
             debugPrint('Limit güncelleme hatası: $e');
             await _ttsService.speak(
-              'Limit güncellenirken bir hata oluştu',
+              context.l10n.limitUpdateError,
               userId: widget.userId,
             );
             if (mounted) Navigator.pop(context);
@@ -923,7 +936,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       );
     } else {
       await _ttsService.speak(
-        'Bu komut henüz desteklenmiyor',
+        context.l10n.commandNotSupported,
         userId: widget.userId,
       );
       if (mounted) Navigator.pop(context);
@@ -984,7 +997,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         );
       } else {
         await _ttsService.speak(
-          'Bu komut henüz desteklenmiyor',
+          context.l10n.commandNotSupported,
           userId: widget.userId,
         );
       }
@@ -1020,12 +1033,14 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     String isim = _isimController.text.trim();
 
     if (tutar == null || tutar <= 0) {
-      AppSnackBar.error(context, 'Geçerli bir tutar girin');
+      AppSnackBar.error(context, context.l10n.enterValidAmount);
       return;
     }
 
     if (isim.isEmpty) {
-      isim = _recognizedText.isNotEmpty ? _recognizedText : 'Harcama';
+      isim = _recognizedText.isNotEmpty
+          ? _recognizedText
+          : context.l10n.expense;
     }
 
     // Tarih: parseResult'tan gelen tarih veya bugün
@@ -1057,7 +1072,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             Icon(Icons.mic, color: Theme.of(context).colorScheme.secondary),
             const SizedBox(width: 12),
             Text(
-              'Sesli Asistan',
+              context.l10n.voiceAssistant,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
@@ -1070,7 +1085,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Sesli asistan ile şunları yapabilirsiniz:',
+              context.l10n.voiceAssistantCapabilities,
               style: TextStyle(
                 color: Theme.of(
                   context,
@@ -1082,16 +1097,28 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             _buildFeatureItem(
               context,
               Icons.add_circle_outline,
-              'Harcama ekleme',
+              context.l10n.addingExpenseLabel,
             ),
-            _buildFeatureItem(context, Icons.delete_outline, 'Harcama silme'),
+            _buildFeatureItem(
+              context,
+              Icons.delete_outline,
+              context.l10n.deletingExpenseLabel,
+            ),
             _buildFeatureItem(
               context,
               Icons.account_balance_wallet,
-              'Harcama sorgulama',
+              context.l10n.queryExpenseLabel,
             ),
-            _buildFeatureItem(context, Icons.pie_chart, 'Kategori analizi'),
-            _buildFeatureItem(context, Icons.warning_amber, 'Bütçe kontrolü'),
+            _buildFeatureItem(
+              context,
+              Icons.pie_chart,
+              context.l10n.categoryAnalysisLabel,
+            ),
+            _buildFeatureItem(
+              context,
+              Icons.warning_amber,
+              context.l10n.budgetControlLabel,
+            ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(10),
@@ -1111,7 +1138,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Detaylı komut listesi için:\nAyarlar → Sesli Asistan → Tüm Komutlar',
+                      context.l10n.detailedCommandListInfo,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                         fontSize: 11,
@@ -1127,7 +1154,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Tamam',
+              context.l10n.ok,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.secondary,
                 fontWeight: FontWeight.bold,
@@ -1207,7 +1234,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                 const SizedBox(width: 40), // Simetri için boşluk
                 Expanded(
                   child: Text(
-                    'Sesli Asistan',
+                    context.l10n.voiceAssistant,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
@@ -1224,7 +1251,6 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                     ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                   onPressed: _showHelpDialog,
-                  tooltip: 'Nasıl kullanılır?',
                 ),
               ],
             ),
@@ -1255,7 +1281,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: 'Duyulan: ',
+                        text: context.l10n.heard,
                         style: TextStyle(
                           color: Theme.of(
                             context,
@@ -1379,7 +1405,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Komut işleniyor...',
+                        context.l10n.commandProcessing,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w500,
@@ -1409,7 +1435,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: 'Duyulan: ',
+                        text: context.l10n.heard,
                         style: TextStyle(
                           color: Theme.of(
                             context,
@@ -1441,7 +1467,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 decoration: InputDecoration(
-                  labelText: 'Tutar (₺)',
+                  labelText: context.l10n.amountTl,
                   labelStyle: TextStyle(
                     color: Theme.of(
                       context,
@@ -1485,7 +1511,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 decoration: InputDecoration(
-                  labelText: 'Harcama Adı',
+                  labelText: context.l10n.expenseNameLabel,
                   labelStyle: TextStyle(
                     color: Theme.of(
                       context,
@@ -1652,7 +1678,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         ),
         const SizedBox(height: 16),
         Text(
-          'Mikrofon hazırlanıyor...',
+          context.l10n.micPreparing,
           style: TextStyle(
             color: Theme.of(
               context,
@@ -1740,7 +1766,9 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
           ),
           const SizedBox(height: 12),
           Text(
-            _isListening ? 'Dinliyorum...' : 'Tekrar konuşmak için dokunun',
+            _isListening
+                ? context.l10n.micListening
+                : context.l10n.tapToSpeakAgain,
             style: TextStyle(
               color: _isListening
                   ? ColorConstants.kirmiziVurgu
@@ -1755,7 +1783,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                'Durdurmak için mikrofona dokunun',
+                context.l10n.tapToStopMic,
                 style: TextStyle(
                   fontSize: 11,
                   color: Theme.of(

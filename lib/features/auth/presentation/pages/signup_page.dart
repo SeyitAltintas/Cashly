@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../controllers/auth_controller.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import 'login_page.dart';
@@ -79,7 +80,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 100),
                 Text(
-                  "Hesap Oluştur",
+                  context.l10n.createAccount,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 32,
@@ -89,7 +90,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "Harcamalarınızı yönetmeye başlamak için kayıt olun.",
+                  context.l10n.signupSubtitleExpense,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 16,
@@ -108,7 +109,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   validator: Validators.validateName,
                   decoration: InputDecoration(
-                    labelText: "İsim Soyisim",
+                    labelText: context.l10n.fullName,
                     labelStyle: TextStyle(
                       color: Theme.of(
                         context,
@@ -157,7 +158,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   keyboardType: TextInputType.emailAddress,
                   validator: Validators.validateEmail,
                   decoration: InputDecoration(
-                    labelText: "E-posta",
+                    labelText: context.l10n.emailLabel,
                     labelStyle: TextStyle(
                       color: Theme.of(
                         context,
@@ -211,7 +212,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   maxLength: 6,
                   validator: Validators.validatePIN,
                   decoration: InputDecoration(
-                    labelText: "PIN (4-6 Rakam)",
+                    labelText: context.l10n.pinLabel,
                     labelStyle: TextStyle(
                       color: Theme.of(
                         context,
@@ -273,7 +274,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   dropdownColor: Theme.of(context).colorScheme.surface,
                   decoration: InputDecoration(
-                    labelText: "Güvenlik Sorusu",
+                    labelText: context.l10n.securityQuestion,
                     labelStyle: TextStyle(
                       color: Theme.of(
                         context,
@@ -341,7 +342,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   decoration: InputDecoration(
-                    labelText: "Güvenlik Sorusu Cevabı",
+                    labelText: context.l10n.securityQuestionAnswer,
                     labelStyle: TextStyle(
                       color: Theme.of(
                         context,
@@ -421,7 +422,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               if (success) {
                                 AppSnackBar.successWithMessenger(
                                   messenger,
-                                  "Kayıt başarılı! Hoş geldiniz! 🎉",
+                                  context.l10n.signupSuccess,
                                 );
                                 if (!mounted) return;
                                 navigator.pushReplacement(
@@ -435,7 +436,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 AppSnackBar.errorWithMessenger(
                                   messenger,
                                   widget.authController.error ??
-                                      "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.",
+                                      context.l10n.signupError,
                                 );
                               }
                             } catch (e) {
@@ -465,8 +466,8 @@ class _SignUpPageState extends State<SignUpPage> {
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           )
-                        : const Text(
-                            "Kayıt Ol",
+                        : Text(
+                            context.l10n.signup,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -490,7 +491,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       );
                     },
                     child: Text(
-                      "Zaten hesabınız var mı? Giriş Yap",
+                      context.l10n.alreadyHaveAccount,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                       ),

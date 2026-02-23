@@ -68,7 +68,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
     try {
       // Biyometrik doğrulama yap
       final authenticated = await _biometricService.authenticate(
-        reason: 'Giriş yapmak için kimliğinizi doğrulayın',
+        reason: context.l10n.verifyIdentity,
       );
 
       if (!mounted) return;
@@ -86,7 +86,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
         } else {
           AppSnackBar.error(
             context,
-            widget.authController.error ?? "Biyometrik giriş başarısız",
+            widget.authController.error ?? context.l10n.biometricLoginFailed,
           );
         }
       }
@@ -387,8 +387,8 @@ class _UserLoginFormState extends State<UserLoginForm> {
                   color: Colors.white,
                 ),
               )
-            : const Text(
-                "Giriş Yap",
+            : Text(
+                context.l10n.login,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -412,7 +412,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            "veya",
+            "${context.l10n.orDivider}",
             style: TextStyle(
               color: Theme.of(
                 context,
@@ -463,7 +463,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
             ),
             Expanded(
               child: Text(
-                "Google ile Giriş Yap",
+                context.l10n.loginWithGoogle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -484,14 +484,14 @@ class _UserLoginFormState extends State<UserLoginForm> {
         TextButton(
           onPressed: widget.onSwitchToGenericLogin,
           child: Text(
-            "Başka hesap ile giriş yap",
+            context.l10n.loginWithAnotherAccount,
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
         TextButton(
           onPressed: widget.onForgotPassword,
           child: Text(
-            "Şifremi Unuttum",
+            context.l10n.forgotPassword,
             style: TextStyle(
               color: Theme.of(
                 context,

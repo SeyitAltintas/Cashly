@@ -1,21 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'month_year_picker.dart';
-
-/// Ay isimleri listesi (Türkçe)
-const List<String> _aylarListesi = [
-  "Ocak",
-  "Şubat",
-  "Mart",
-  "Nisan",
-  "Mayıs",
-  "Haziran",
-  "Temmuz",
-  "Ağustos",
-  "Eylül",
-  "Ekim",
-  "Kasım",
-  "Aralık",
-];
 
 /// Ortak ay seçici buton widget'ı
 /// Üç sayfada (Harcamalar, Gelirler, İşlem Geçmişi) kullanılır
@@ -44,8 +29,16 @@ class MonthSelectorButton extends StatelessWidget {
     this.useNeutralSelectedStyle = false,
   });
 
-  /// Ay ismini döndür
-  String get _monthName => _aylarListesi[selectedMonth - 1];
+  /// Ay ismini dile göre döndür
+  String _monthName(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode == 'tr'
+        ? 'tr_TR'
+        : 'en_US';
+    return DateFormat(
+      'MMMM',
+      locale,
+    ).format(DateTime(selectedYear, selectedMonth));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +60,7 @@ class MonthSelectorButton extends StatelessWidget {
             const Icon(Icons.calendar_month, size: 16, color: Colors.white),
             const SizedBox(width: 6),
             Text(
-              '$_monthName $selectedYear',
+              '${_monthName(context)} $selectedYear',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 13,

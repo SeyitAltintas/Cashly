@@ -4412,6 +4412,54 @@ abstract class AppLocalizations {
   /// **'Detaylı komut listesi için:\nAyarlar → Sesli Asistan → Tüm Komutlar'**
   String get detailedCommandListInfo;
 
+  /// No description provided for @voiceIncomeInput.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sesli Gelir Girişi'**
+  String get voiceIncomeInput;
+
+  /// No description provided for @voiceExpenseInput.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sesli Harcama Girişi'**
+  String get voiceExpenseInput;
+
+  /// No description provided for @micPreparing.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mikrofon hazırlanıyor...'**
+  String get micPreparing;
+
+  /// No description provided for @micListening.
+  ///
+  /// In tr, this message translates to:
+  /// **'Dinliyorum...'**
+  String get micListening;
+
+  /// No description provided for @tapToSpeakAgain.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrar konuşmak için dokunun'**
+  String get tapToSpeakAgain;
+
+  /// No description provided for @tapToStopMic.
+  ///
+  /// In tr, this message translates to:
+  /// **'Durdurmak için mikrofona dokunun'**
+  String get tapToStopMic;
+
+  /// No description provided for @pdfReportGenerated.
+  ///
+  /// In tr, this message translates to:
+  /// **'PDF raporu oluşturuldu'**
+  String get pdfReportGenerated;
+
+  /// No description provided for @pdfGenerationError.
+  ///
+  /// In tr, this message translates to:
+  /// **'PDF oluşturulurken hata: {error}'**
+  String pdfGenerationError(String error);
+
   /// No description provided for @expenseNameLabel.
   ///
   /// In tr, this message translates to:
@@ -5784,6 +5832,90 @@ abstract class AppLocalizations {
   /// **'Rozetler'**
   String get badges;
 
+  /// No description provided for @badgeFireStarterName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ateş Başlangıcı'**
+  String get badgeFireStarterName;
+
+  /// No description provided for @badgeFireStarterDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'3 gün üst üste giriş yaptın!'**
+  String get badgeFireStarterDesc;
+
+  /// No description provided for @badgeWeeklyStarName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftalık Yıldız'**
+  String get badgeWeeklyStarName;
+
+  /// No description provided for @badgeWeeklyStarDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'7 gün üst üste giriş yaptın!'**
+  String get badgeWeeklyStarDesc;
+
+  /// No description provided for @badgeSteadyName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kararlı'**
+  String get badgeSteadyName;
+
+  /// No description provided for @badgeSteadyDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'2 hafta boyunca her gün giriş yaptın!'**
+  String get badgeSteadyDesc;
+
+  /// No description provided for @badgeMonthlyChampName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık Şampiyon'**
+  String get badgeMonthlyChampName;
+
+  /// No description provided for @badgeMonthlyChampDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'1 ay boyunca her gün giriş yaptın!'**
+  String get badgeMonthlyChampDesc;
+
+  /// No description provided for @badgeSuperStreakName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Süper Seri'**
+  String get badgeSuperStreakName;
+
+  /// No description provided for @badgeSuperStreakDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'2 ay boyunca her gün giriş yaptın!'**
+  String get badgeSuperStreakDesc;
+
+  /// No description provided for @badgeStreakMasterName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri Ustası'**
+  String get badgeStreakMasterName;
+
+  /// No description provided for @badgeStreakMasterDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'100 gün üst üste giriş yaptın!'**
+  String get badgeStreakMasterDesc;
+
+  /// No description provided for @badgeLegendName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Efsane'**
+  String get badgeLegendName;
+
+  /// No description provided for @badgeLegendDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'1 yıl boyunca her gün giriş yaptın!'**
+  String get badgeLegendDesc;
+
   /// No description provided for @achievements.
   ///
   /// In tr, this message translates to:
@@ -6215,6 +6347,252 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Dikey'**
   String get vertical;
+
+  /// No description provided for @signupSubtitleExpense.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcamalarınızı yönetmeye başlamak için kayıt olun.'**
+  String get signupSubtitleExpense;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'E-posta'**
+  String get emailLabel;
+
+  /// No description provided for @pinLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN (4-6 Rakam)'**
+  String get pinLabel;
+
+  /// No description provided for @securityQuestion.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güvenlik Sorusu'**
+  String get securityQuestion;
+
+  /// No description provided for @securityQuestionAnswer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güvenlik Sorusu Cevabı'**
+  String get securityQuestionAnswer;
+
+  /// No description provided for @signupSuccess.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kayıt başarılı! Hoş geldiniz! 🎉'**
+  String get signupSuccess;
+
+  /// No description provided for @signupError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.'**
+  String get signupError;
+
+  /// No description provided for @loginWithAnotherAccount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başka hesap ile giriş yap'**
+  String get loginWithAnotherAccount;
+
+  /// No description provided for @loginWithGoogle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Google ile Giriş Yap'**
+  String get loginWithGoogle;
+
+  /// No description provided for @verifyIdentity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Giriş yapmak için kimliğinizi doğrulayın'**
+  String get verifyIdentity;
+
+  /// No description provided for @loginFailed.
+  ///
+  /// In tr, this message translates to:
+  /// **'Giriş yapılamadı: {error}'**
+  String loginFailed(String error);
+
+  /// No description provided for @tapAndSpeak.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mikrofona dokunun ve konuşun'**
+  String get tapAndSpeak;
+
+  /// No description provided for @voiceExampleIncome.
+  ///
+  /// In tr, this message translates to:
+  /// **'Örnek: \"500 lira maaş\"'**
+  String get voiceExampleIncome;
+
+  /// No description provided for @heard.
+  ///
+  /// In tr, this message translates to:
+  /// **'Duyulan: '**
+  String get heard;
+
+  /// No description provided for @amountTl.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tutar (₺)'**
+  String get amountTl;
+
+  /// No description provided for @incomeName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir Adı'**
+  String get incomeName;
+
+  /// No description provided for @orDivider.
+  ///
+  /// In tr, this message translates to:
+  /// **'veya'**
+  String get orDivider;
+
+  /// No description provided for @biometricLoginFailed.
+  ///
+  /// In tr, this message translates to:
+  /// **'Biyometrik giriş başarısız'**
+  String get biometricLoginFailed;
+
+  /// No description provided for @enterRegisteredEmail.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kayıtlı e-posta adresinizi girin'**
+  String get enterRegisteredEmail;
+
+  /// No description provided for @userNotFoundWithEmail.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı'**
+  String get userNotFoundWithEmail;
+
+  /// No description provided for @noSecurityQuestionDefined.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu hesap için güvenlik sorusu tanımlanmamış'**
+  String get noSecurityQuestionDefined;
+
+  /// No description provided for @wrongAnswerTryAgain.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yanlış cevap! Lütfen tekrar deneyin.'**
+  String get wrongAnswerTryAgain;
+
+  /// No description provided for @setNewPin.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni PIN Belirle'**
+  String get setNewPin;
+
+  /// No description provided for @enterNewPinDigits.
+  ///
+  /// In tr, this message translates to:
+  /// **'4-6 haneli yeni PIN kodunuzu girin'**
+  String get enterNewPinDigits;
+
+  /// No description provided for @pinUpdatedSuccess.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN başarıyla güncellendi! ✓'**
+  String get pinUpdatedSuccess;
+
+  /// No description provided for @yourAnswer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Cevabınız'**
+  String get yourAnswer;
+
+  /// No description provided for @pleaseEnterAnswer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen cevabınızı girin'**
+  String get pleaseEnterAnswer;
+
+  /// No description provided for @pleaseEnterNewPin.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen yeni PIN girin'**
+  String get pleaseEnterNewPin;
+
+  /// No description provided for @pinMinDigits.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN en az 4 haneli olmalı'**
+  String get pinMinDigits;
+
+  /// No description provided for @pinOnlyNumbers.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN sadece rakamlardan oluşmalı'**
+  String get pinOnlyNumbers;
+
+  /// No description provided for @pleaseRepeatPin.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen PIN\'i tekrar girin'**
+  String get pleaseRepeatPin;
+
+  /// No description provided for @pinRepeatLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN Tekrar'**
+  String get pinRepeatLabel;
+
+  /// No description provided for @continueButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devam'**
+  String get continueButton;
+
+  /// No description provided for @verifyButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Doğrula'**
+  String get verifyButton;
+
+  /// No description provided for @updatePinButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'PIN\'i Güncelle'**
+  String get updatePinButton;
+
+  /// No description provided for @expenseDeleted.
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} silindi'**
+  String expenseDeleted(String name);
+
+  /// No description provided for @updateExpenseAmountMsg.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son harcamayı {amount} ₺ olarak güncellemek istiyor musunuz?'**
+  String updateExpenseAmountMsg(String amount);
+
+  /// No description provided for @lastWeek.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçen hafta'**
+  String get lastWeek;
+
+  /// No description provided for @users.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kullanıcılar'**
+  String get users;
+
+  /// No description provided for @noRegisteredUsers.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kayıtlı kullanıcı yok.'**
+  String get noRegisteredUsers;
+
+  /// No description provided for @addNewUser.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni Kullanıcı Ekle'**
+  String get addNewUser;
 }
 
 class _AppLocalizationsDelegate

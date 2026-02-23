@@ -10,6 +10,7 @@ import 'package:cashly/features/payment_methods/data/models/payment_method_model
 import 'package:cashly/features/payment_methods/data/models/transfer_model.dart';
 import 'package:cashly/core/constants/icon_constants.dart';
 import 'package:cashly/core/services/asset_price_update_service.dart';
+import 'package:intl/intl.dart';
 
 /// Ana sayfa için state yönetimi sağlayan Provider sınıfı.
 /// Harcamalar, gelirler, varlıklar, ödeme yöntemleri ve transferleri yönetir.
@@ -50,27 +51,21 @@ class HomeProvider extends ChangeNotifier {
   Map<String, List<Map<String, dynamic>>>? _cachedGunlukGruplar;
   int _cacheHarcamaHashCode = 0;
 
-  // Ay isimleri
-  final List<String> aylarListesi = [
-    "Ocak",
-    "Şubat",
-    "Mart",
-    "Nisan",
-    "Mayıs",
-    "Haziran",
-    "Temmuz",
-    "Ağustos",
-    "Eylül",
-    "Ekim",
-    "Kasım",
-    "Aralık",
-  ];
+  // Ay isimleri - dinamik locale
+  String _locale = 'tr_TR';
 
   // ===== BAŞLATMA =====
   void _init() {
     kategorileriYukle();
     gelirKategorileriYukle();
     verileriOku();
+  }
+
+  /// Locale'i dışarıdan geçirmek için
+  void setLocale(String locale) {
+    _locale = locale;
+    _invalidateCache();
+    notifyListeners();
   }
 
   // ===== KATEGORİ YÖNETİMİ =====
@@ -389,7 +384,8 @@ class HomeProvider extends ChangeNotifier {
 
   /// Ay ismini döndürür
   String get ayIsmi {
-    return "${aylarListesi[secilenAy.month - 1]} ${secilenAy.year}";
+    final monthName = DateFormat('MMMM', _locale).format(secilenAy);
+    return '$monthName ${secilenAy.year}';
   }
 
   /// Kalan bütçe limiti
@@ -413,10 +409,11 @@ class HomeProvider extends ChangeNotifier {
     final oTarih = DateTime(tarih.year, tarih.month, tarih.day);
     final fark = bugun.difference(oTarih).inDays;
 
-    if (fark == 0) return "Bugün";
-    if (fark == 1) return "Dün";
+    if (fark == 0) return _locale.startsWith('tr') ? 'Bugün' : 'Today';
+    if (fark == 1) return _locale.startsWith('tr') ? 'Dün' : 'Yesterday';
 
-    return "${oTarih.day} ${aylarListesi[oTarih.month - 1]}";
+    final monthName = DateFormat('MMMM', _locale).format(oTarih);
+    return '${oTarih.day} $monthName';
   }
 
   // ===== HARCAMA İŞLEMLERİ =====

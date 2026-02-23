@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../controllers/auth_controller.dart';
 
 /// Şifremi Unuttum akışı yardımcı sınıfı
@@ -45,7 +46,7 @@ class ForgotPasswordHelper {
                   children: [
                     _buildHandle(sheetContext),
                     Text(
-                      "Şifremi Unuttum",
+                      context.l10n.forgotPassword,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -54,7 +55,7 @@ class ForgotPasswordHelper {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Kayıtlı e-posta adresinizi girin",
+                      context.l10n.enterRegisteredEmail,
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(
@@ -83,8 +84,7 @@ class ForgotPasswordHelper {
 
                         if (user == null) {
                           setSheetState(() {
-                            errorMessage =
-                                "Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı";
+                            errorMessage = context.l10n.userNotFoundWithEmail;
                           });
                           return;
                         }
@@ -93,7 +93,7 @@ class ForgotPasswordHelper {
                             user.securityAnswer == null) {
                           setSheetState(() {
                             errorMessage =
-                                "Bu hesap için güvenlik sorusu tanımlanmamış";
+                                context.l10n.noSecurityQuestionDefined;
                           });
                           return;
                         }
@@ -149,7 +149,7 @@ class ForgotPasswordHelper {
                   children: [
                     _buildHandle(sheetContext),
                     Text(
-                      "Güvenlik Sorusu",
+                      context.l10n.securityQuestion,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -175,7 +175,7 @@ class ForgotPasswordHelper {
 
                         if (user == null) {
                           setSheetState(
-                            () => errorMessage = "Kullanıcı bulunamadı",
+                            () => errorMessage = context.l10n.userNotFound,
                           );
                           return;
                         }
@@ -183,8 +183,7 @@ class ForgotPasswordHelper {
                         final normalizedAnswer = answer.trim().toLowerCase();
                         if (user.securityAnswer != normalizedAnswer) {
                           setSheetState(() {
-                            errorMessage =
-                                "Yanlış cevap! Lütfen tekrar deneyin.";
+                            errorMessage = context.l10n.wrongAnswerTryAgain;
                           });
                           return;
                         }
@@ -240,7 +239,7 @@ class ForgotPasswordHelper {
                   children: [
                     _buildHandle(builderContext),
                     Text(
-                      "Yeni PIN Belirle",
+                      context.l10n.setNewPin,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -249,7 +248,7 @@ class ForgotPasswordHelper {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "4-6 haneli yeni PIN kodunuzu girin",
+                      context.l10n.enterNewPinDigits,
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(
@@ -262,7 +261,7 @@ class ForgotPasswordHelper {
                       builderContext,
                       pinController,
                       isPinVisible,
-                      "Yeni PIN",
+                      context.l10n.newPinLabel,
                       Icons.lock_outline,
                       onVisibilityToggle: () {
                         setSheetState(() => isPinVisible = !isPinVisible);
@@ -294,7 +293,7 @@ class ForgotPasswordHelper {
                           await authController.updateUserPin(user.id, newPin);
 
                           setSheetState(() {
-                            successMessage = "PIN başarıyla güncellendi! ✓";
+                            successMessage = context.l10n.pinUpdatedSuccess;
                             errorMessage = null;
                           });
 
@@ -305,7 +304,7 @@ class ForgotPasswordHelper {
                           Navigator.pop(sheetContext);
                         } else {
                           setSheetState(
-                            () => errorMessage = "Kullanıcı bulunamadı",
+                            () => errorMessage = context.l10n.userNotFound,
                           );
                         }
                       },
@@ -347,13 +346,17 @@ class ForgotPasswordHelper {
       keyboardType: TextInputType.emailAddress,
       style: TextStyle(color: Theme.of(ctx).colorScheme.onSurface),
       onChanged: (_) => onChanged(),
-      decoration: _inputDecoration(ctx, "E-posta", Icons.email_outlined),
+      decoration: _inputDecoration(
+        ctx,
+        context.l10n.emailLabel,
+        Icons.email_outlined,
+      ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Lütfen e-posta adresinizi girin';
+          return context.l10n.pleaseEnterEmail;
         }
         if (!value.contains('@')) {
-          return 'Geçerli bir e-posta adresi girin';
+          return context.l10n.enterValidEmail;
         }
         return null;
       },
@@ -366,12 +369,12 @@ class ForgotPasswordHelper {
       style: TextStyle(color: Theme.of(ctx).colorScheme.onSurface),
       decoration: _inputDecoration(
         ctx,
-        "Cevabınız",
+        context.l10n.yourAnswer,
         Icons.question_answer_outlined,
       ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Lütfen cevabınızı girin';
+          return context.l10n.pleaseEnterAnswer;
         }
         return null;
       },
@@ -411,13 +414,13 @@ class ForgotPasswordHelper {
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Lütfen yeni PIN girin';
+          return context.l10n.pleaseEnterNewPin;
         }
         if (value.length < 4) {
-          return 'PIN en az 4 haneli olmalı';
+          return context.l10n.pinMinDigits;
         }
         if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-          return 'PIN sadece rakamlardan oluşmalı';
+          return context.l10n.pinOnlyNumbers;
         }
         return null;
       },
@@ -441,12 +444,12 @@ class ForgotPasswordHelper {
       ),
       decoration: _inputDecoration(
         ctx,
-        "PIN Tekrar",
+        context.l10n.pinRepeatLabel,
         Icons.lock_reset,
       ).copyWith(counterText: ""),
       validator: (value) {
-        if (value == null || value.isEmpty) return 'Lütfen PIN\'i tekrar girin';
-        if (value != pinController.text) return 'PIN\'ler eşleşmiyor';
+        if (value == null || value.isEmpty) return context.l10n.pleaseRepeatPin;
+        if (value != pinController.text) return context.l10n.pinsDoNotMatch;
         return null;
       },
     );
@@ -602,8 +605,8 @@ class ForgotPasswordHelper {
             borderRadius: BorderRadius.circular(50),
           ),
         ),
-        child: const Text(
-          "Devam",
+        child: Text(
+          context.l10n.continueButton,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -629,8 +632,8 @@ class ForgotPasswordHelper {
             borderRadius: BorderRadius.circular(50),
           ),
         ),
-        child: const Text(
-          "Doğrula",
+        child: Text(
+          context.l10n.verifyButton,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -656,8 +659,8 @@ class ForgotPasswordHelper {
             borderRadius: BorderRadius.circular(50),
           ),
         ),
-        child: const Text(
-          "PIN'i Güncelle",
+        child: Text(
+          context.l10n.updatePinButton,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,

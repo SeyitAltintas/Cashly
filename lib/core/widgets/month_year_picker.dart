@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../services/haptic_service.dart';
 import '../state/month_year_picker_state.dart';
+import '../extensions/l10n_extensions.dart';
+import 'package:intl/intl.dart';
 
 /// Picker Modları
 enum PickerMode {
@@ -10,22 +12,6 @@ enum PickerMode {
   time, // Saat, Dakika
   dateTime, // Gün, Ay, Yıl, Saat, Dakika
 }
-
-/// Ay isimleri listesi (Türkçe)
-const List<String> _aylarListesi = [
-  "Ocak",
-  "Şubat",
-  "Mart",
-  "Nisan",
-  "Mayıs",
-  "Haziran",
-  "Temmuz",
-  "Ağustos",
-  "Eylül",
-  "Ekim",
-  "Kasım",
-  "Aralık",
-];
 
 /// Ortak tarih/saat seçici bottom sheet widget'ı
 /// iOS tarzı (Cupertino) tasarım ve Glassmorphism efekti
@@ -216,7 +202,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                     }
                   },
                   child: Text(
-                    "Bitti",
+                    context.l10n.done,
                     style: TextStyle(
                       color: useNeutral ? Colors.white : accentColor,
                       fontSize: 17,
@@ -302,37 +288,22 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
   String _getTitleForMode(PickerMode mode) {
     switch (mode) {
       case PickerMode.time:
-        return "Saat Seç";
+        return context.l10n.selectTime;
       case PickerMode.monthYear:
-        return "Ay ve Yıl Seç";
+        return context.l10n.selectMonthAndYear;
       case PickerMode.dateTime:
-        return "Tarih ve Saat Seç";
+        return context.l10n.selectDateAndTime;
       case PickerMode.date:
-        return "Tarih Seç";
+        return context.l10n.selectDate;
     }
   }
 
   /// Seçilen tarihi formatlı döndür
   String _getFormattedDateForMode() {
-    // Türkçe ay isimleri
-    const aylar = [
-      'Ocak',
-      'Şubat',
-      'Mart',
-      'Nisan',
-      'Mayıs',
-      'Haziran',
-      'Temmuz',
-      'Ağustos',
-      'Eylül',
-      'Ekim',
-      'Kasım',
-      'Aralık',
-    ];
-    final day = _currentDate.day;
-    final month = aylar[_currentDate.month - 1];
-    final year = _currentDate.year;
-    return '$day $month $year';
+    final locale = Localizations.localeOf(context).languageCode == 'tr'
+        ? 'tr_TR'
+        : 'en_US';
+    return DateFormat('d MMMM yyyy', locale).format(_currentDate);
   }
 
   /// Seçilen saati formatlı döndür
@@ -358,9 +329,17 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
             },
             // childCount vermezsek sonsuz olur
             itemBuilder: (context, index) {
+              final locale =
+                  Localizations.localeOf(context).languageCode == 'tr'
+                  ? 'tr_TR'
+                  : 'en_US';
+              final monthName = DateFormat(
+                'MMMM',
+                locale,
+              ).format(DateTime(2023, (index % 12) + 1));
               return Center(
                 child: Text(
-                  _aylarListesi[index % 12],
+                  monthName,
                   style: TextStyle(
                     color: isDark ? Colors.white : Colors.black,
                     fontSize: 20,
@@ -416,9 +395,11 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
         break;
     }
 
+    final appLocale = Localizations.localeOf(context);
+
     return Localizations.override(
       context: context,
-      locale: const Locale('tr', 'TR'),
+      locale: appLocale,
       child: CupertinoTheme(
         data: CupertinoThemeData(
           brightness: isDark ? Brightness.dark : Brightness.light,
@@ -446,7 +427,3 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     );
   }
 }
-
-/// Ay isimlerini döndüren yardımcı fonksiyon
-/// Diğer dosyalarda kullanılabilir
-List<String> get aylarListesi => _aylarListesi;

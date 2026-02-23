@@ -2309,6 +2309,32 @@ class AppLocalizationsTr extends AppLocalizations {
       'Detaylı komut listesi için:\nAyarlar → Sesli Asistan → Tüm Komutlar';
 
   @override
+  String get voiceIncomeInput => 'Sesli Gelir Girişi';
+
+  @override
+  String get voiceExpenseInput => 'Sesli Harcama Girişi';
+
+  @override
+  String get micPreparing => 'Mikrofon hazırlanıyor...';
+
+  @override
+  String get micListening => 'Dinliyorum...';
+
+  @override
+  String get tapToSpeakAgain => 'Tekrar konuşmak için dokunun';
+
+  @override
+  String get tapToStopMic => 'Durdurmak için mikrofona dokunun';
+
+  @override
+  String get pdfReportGenerated => 'PDF raporu oluşturuldu';
+
+  @override
+  String pdfGenerationError(String error) {
+    return 'PDF oluşturulurken hata: $error';
+  }
+
+  @override
   String get expenseNameLabel => 'Harcama Adı';
 
   @override
@@ -3092,6 +3118,48 @@ class AppLocalizationsTr extends AppLocalizations {
   String get badges => 'Rozetler';
 
   @override
+  String get badgeFireStarterName => 'Ateş Başlangıcı';
+
+  @override
+  String get badgeFireStarterDesc => '3 gün üst üste giriş yaptın!';
+
+  @override
+  String get badgeWeeklyStarName => 'Haftalık Yıldız';
+
+  @override
+  String get badgeWeeklyStarDesc => '7 gün üst üste giriş yaptın!';
+
+  @override
+  String get badgeSteadyName => 'Kararlı';
+
+  @override
+  String get badgeSteadyDesc => '2 hafta boyunca her gün giriş yaptın!';
+
+  @override
+  String get badgeMonthlyChampName => 'Aylık Şampiyon';
+
+  @override
+  String get badgeMonthlyChampDesc => '1 ay boyunca her gün giriş yaptın!';
+
+  @override
+  String get badgeSuperStreakName => 'Süper Seri';
+
+  @override
+  String get badgeSuperStreakDesc => '2 ay boyunca her gün giriş yaptın!';
+
+  @override
+  String get badgeStreakMasterName => 'Seri Ustası';
+
+  @override
+  String get badgeStreakMasterDesc => '100 gün üst üste giriş yaptın!';
+
+  @override
+  String get badgeLegendName => 'Efsane';
+
+  @override
+  String get badgeLegendDesc => '1 yıl boyunca her gün giriş yaptın!';
+
+  @override
   String get achievements => 'Başarılar';
 
   @override
@@ -3316,4 +3384,137 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get vertical => 'Dikey';
+
+  @override
+  String get signupSubtitleExpense =>
+      'Harcamalarınızı yönetmeye başlamak için kayıt olun.';
+
+  @override
+  String get emailLabel => 'E-posta';
+
+  @override
+  String get pinLabel => 'PIN (4-6 Rakam)';
+
+  @override
+  String get securityQuestion => 'Güvenlik Sorusu';
+
+  @override
+  String get securityQuestionAnswer => 'Güvenlik Sorusu Cevabı';
+
+  @override
+  String get signupSuccess => 'Kayıt başarılı! Hoş geldiniz! 🎉';
+
+  @override
+  String get signupError =>
+      'Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.';
+
+  @override
+  String get loginWithAnotherAccount => 'Başka hesap ile giriş yap';
+
+  @override
+  String get loginWithGoogle => 'Google ile Giriş Yap';
+
+  @override
+  String get verifyIdentity => 'Giriş yapmak için kimliğinizi doğrulayın';
+
+  @override
+  String loginFailed(String error) {
+    return 'Giriş yapılamadı: $error';
+  }
+
+  @override
+  String get tapAndSpeak => 'Mikrofona dokunun ve konuşun';
+
+  @override
+  String get voiceExampleIncome => 'Örnek: \"500 lira maaş\"';
+
+  @override
+  String get heard => 'Duyulan: ';
+
+  @override
+  String get amountTl => 'Tutar (₺)';
+
+  @override
+  String get incomeName => 'Gelir Adı';
+
+  @override
+  String get orDivider => 'veya';
+
+  @override
+  String get biometricLoginFailed => 'Biyometrik giriş başarısız';
+
+  @override
+  String get enterRegisteredEmail => 'Kayıtlı e-posta adresinizi girin';
+
+  @override
+  String get userNotFoundWithEmail =>
+      'Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı';
+
+  @override
+  String get noSecurityQuestionDefined =>
+      'Bu hesap için güvenlik sorusu tanımlanmamış';
+
+  @override
+  String get wrongAnswerTryAgain => 'Yanlış cevap! Lütfen tekrar deneyin.';
+
+  @override
+  String get setNewPin => 'Yeni PIN Belirle';
+
+  @override
+  String get enterNewPinDigits => '4-6 haneli yeni PIN kodunuzu girin';
+
+  @override
+  String get pinUpdatedSuccess => 'PIN başarıyla güncellendi! ✓';
+
+  @override
+  String get yourAnswer => 'Cevabınız';
+
+  @override
+  String get pleaseEnterAnswer => 'Lütfen cevabınızı girin';
+
+  @override
+  String get pleaseEnterNewPin => 'Lütfen yeni PIN girin';
+
+  @override
+  String get pinMinDigits => 'PIN en az 4 haneli olmalı';
+
+  @override
+  String get pinOnlyNumbers => 'PIN sadece rakamlardan oluşmalı';
+
+  @override
+  String get pleaseRepeatPin => 'Lütfen PIN\'i tekrar girin';
+
+  @override
+  String get pinRepeatLabel => 'PIN Tekrar';
+
+  @override
+  String get continueButton => 'Devam';
+
+  @override
+  String get verifyButton => 'Doğrula';
+
+  @override
+  String get updatePinButton => 'PIN\'i Güncelle';
+
+  @override
+  String expenseDeleted(String name) {
+    return '$name silindi';
+  }
+
+  @override
+  String updateExpenseAmountMsg(String amount) {
+    return 'Son harcamayı $amount ₺ olarak güncellemek istiyor musunuz?';
+  }
+
+  @override
+  String get lastWeek => 'Geçen hafta';
+
+  @override
+  String get users => 'Kullanıcılar';
+
+  @override
+  String get noRegisteredUsers => 'Kayıtlı kullanıcı yok.';
+
+  @override
+  String get addNewUser => 'Yeni Kullanıcı Ekle';
 }

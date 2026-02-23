@@ -5,13 +5,11 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 /// Kullanıcının dönem seçmesini sağlar.
 class MonthYearPickerDialog extends StatefulWidget {
   final DateTime secilenAy;
-  final List<String> aylarListesi;
   final void Function(int yil, int ay) onSecildi;
 
   const MonthYearPickerDialog({
     super.key,
     required this.secilenAy,
-    required this.aylarListesi,
     required this.onSecildi,
   });
 
@@ -19,16 +17,12 @@ class MonthYearPickerDialog extends StatefulWidget {
   static void show(
     BuildContext context, {
     required DateTime secilenAy,
-    required List<String> aylarListesi,
     required void Function(int yil, int ay) onSecildi,
   }) {
     showDialog(
       context: context,
-      builder: (context) => MonthYearPickerDialog(
-        secilenAy: secilenAy,
-        aylarListesi: aylarListesi,
-        onSecildi: onSecildi,
-      ),
+      builder: (context) =>
+          MonthYearPickerDialog(secilenAy: secilenAy, onSecildi: onSecildi),
     );
   }
 
@@ -139,7 +133,7 @@ class _MonthYearPickerDialogState extends State<MonthYearPickerDialog> {
                         return ListTile(
                           title: Center(
                             child: Text(
-                              widget.aylarListesi[index],
+                              context.getMonthName(index + 1),
                               style: TextStyle(
                                 color: seciliMi
                                     ? Theme.of(context).colorScheme.secondary

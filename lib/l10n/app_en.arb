@@ -935,6 +935,21 @@
   "categoryAnalysisLabel": "Category analysis",
   "budgetControlLabel": "Budget control",
   "detailedCommandListInfo": "For detailed command list:\nSettings -> Voice Assistant -> All Commands",
+  "voiceIncomeInput": "Voice Income Input",
+  "voiceExpenseInput": "Voice Expense Input",
+  "micPreparing": "Microphone is preparing...",
+  "micListening": "Listening...",
+  "tapToSpeakAgain": "Tap to speak again",
+  "tapToStopMic": "Tap the microphone to stop",
+  "pdfReportGenerated": "PDF report generated",
+  "pdfGenerationError": "Error generating PDF: {error}",
+  "@pdfGenerationError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "expenseNameLabel": "Expense Name",
   "whatDidYouBuy": "What did you buy? (e.g. Coffee)",
   "expenseDateLabel": "Expense Date",
@@ -1465,6 +1480,20 @@
   "nextBadgeIs": "Next Badge: {badgeName}",
   "daysRemainingForBadge": "{remaining} days left",
   "badges": "Badges",
+  "badgeFireStarterName": "Fire Starter",
+  "badgeFireStarterDesc": "You logged in for 3 consecutive days!",
+  "badgeWeeklyStarName": "Weekly Star",
+  "badgeWeeklyStarDesc": "You logged in for 7 consecutive days!",
+  "badgeSteadyName": "Steady",
+  "badgeSteadyDesc": "You logged in every day for 2 weeks!",
+  "badgeMonthlyChampName": "Monthly Champ",
+  "badgeMonthlyChampDesc": "You logged in every day for 1 month!",
+  "badgeSuperStreakName": "Super Streak",
+  "badgeSuperStreakDesc": "You logged in every day for 2 months!",
+  "badgeStreakMasterName": "Streak Master",
+  "badgeStreakMasterDesc": "You logged in for 100 consecutive days!",
+  "badgeLegendName": "Legend",
+  "badgeLegendDesc": "You logged in every day for 1 year!",
   "achievements": "Achievements",
   "dShort": "d",
   "earned": "✓ Earned",
@@ -1564,5 +1593,67 @@
   "rotateLeft": "Left",
   "rotateRight": "Right",
   "horizontal": "Horizontal",
-  "vertical": "Vertical"
+  "vertical": "Vertical",
+  "signupSubtitleExpense": "Sign up to start managing your expenses.",
+  "emailLabel": "Email",
+  "pinLabel": "PIN (4-6 Digits)",
+  "securityQuestion": "Security Question",
+  "securityQuestionAnswer": "Security Question Answer",
+  "signupSuccess": "Registration successful! Welcome! 🎉",
+  "signupError": "An error occurred during registration. Please try again.",
+  "loginWithAnotherAccount": "Login with another account",
+  "loginWithGoogle": "Login with Google",
+  "verifyIdentity": "Verify your identity to log in",
+  "loginFailed": "Login failed: {error}",
+  "@loginFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "tapAndSpeak": "Tap the microphone and speak",
+  "voiceExampleIncome": "Example: \"500 dollars salary\"",
+  "heard": "Heard: ",
+  "amountTl": "Amount (₺)",
+  "incomeName": "Income Name",
+  "orDivider": "or",
+  "biometricLoginFailed": "Biometric login failed",
+  "enterRegisteredEmail": "Enter your registered email address",
+  "userNotFoundWithEmail": "No user found with this email address",
+  "noSecurityQuestionDefined": "No security question defined for this account",
+  "wrongAnswerTryAgain": "Wrong answer! Please try again.",
+  "setNewPin": "Set New PIN",
+  "enterNewPinDigits": "Enter your new 4-6 digit PIN code",
+  "pinUpdatedSuccess": "PIN updated successfully! ✓",
+  "yourAnswer": "Your Answer",
+  "pleaseEnterAnswer": "Please enter your answer",
+  "pleaseEnterNewPin": "Please enter a new PIN",
+  "pinMinDigits": "PIN must be at least 4 digits",
+  "pinOnlyNumbers": "PIN must contain only numbers",
+  "pleaseRepeatPin": "Please repeat the PIN",
+  "pinRepeatLabel": "Repeat PIN",
+  "continueButton": "Continue",
+  "verifyButton": "Verify",
+  "updatePinButton": "Update PIN",
+  "expenseDeleted": "{name} deleted",
+  "@expenseDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "updateExpenseAmountMsg": "Do you want to update the last expense to {amount} ₺?",
+  "@updateExpenseAmountMsg": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lastWeek": "Last week",
+  "users": "Users",
+  "noRegisteredUsers": "No registered users.",
+  "addNewUser": "Add New User"
 }

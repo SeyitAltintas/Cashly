@@ -2306,6 +2306,32 @@ class AppLocalizationsEn extends AppLocalizations {
       'For detailed command list:\nSettings -> Voice Assistant -> All Commands';
 
   @override
+  String get voiceIncomeInput => 'Voice Income Input';
+
+  @override
+  String get voiceExpenseInput => 'Voice Expense Input';
+
+  @override
+  String get micPreparing => 'Microphone is preparing...';
+
+  @override
+  String get micListening => 'Listening...';
+
+  @override
+  String get tapToSpeakAgain => 'Tap to speak again';
+
+  @override
+  String get tapToStopMic => 'Tap the microphone to stop';
+
+  @override
+  String get pdfReportGenerated => 'PDF report generated';
+
+  @override
+  String pdfGenerationError(String error) {
+    return 'Error generating PDF: $error';
+  }
+
+  @override
   String get expenseNameLabel => 'Expense Name';
 
   @override
@@ -3092,6 +3118,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get badges => 'Badges';
 
   @override
+  String get badgeFireStarterName => 'Fire Starter';
+
+  @override
+  String get badgeFireStarterDesc => 'You logged in for 3 consecutive days!';
+
+  @override
+  String get badgeWeeklyStarName => 'Weekly Star';
+
+  @override
+  String get badgeWeeklyStarDesc => 'You logged in for 7 consecutive days!';
+
+  @override
+  String get badgeSteadyName => 'Steady';
+
+  @override
+  String get badgeSteadyDesc => 'You logged in every day for 2 weeks!';
+
+  @override
+  String get badgeMonthlyChampName => 'Monthly Champ';
+
+  @override
+  String get badgeMonthlyChampDesc => 'You logged in every day for 1 month!';
+
+  @override
+  String get badgeSuperStreakName => 'Super Streak';
+
+  @override
+  String get badgeSuperStreakDesc => 'You logged in every day for 2 months!';
+
+  @override
+  String get badgeStreakMasterName => 'Streak Master';
+
+  @override
+  String get badgeStreakMasterDesc => 'You logged in for 100 consecutive days!';
+
+  @override
+  String get badgeLegendName => 'Legend';
+
+  @override
+  String get badgeLegendDesc => 'You logged in every day for 1 year!';
+
+  @override
   String get achievements => 'Achievements';
 
   @override
@@ -3316,4 +3384,136 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vertical => 'Vertical';
+
+  @override
+  String get signupSubtitleExpense =>
+      'Sign up to start managing your expenses.';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get pinLabel => 'PIN (4-6 Digits)';
+
+  @override
+  String get securityQuestion => 'Security Question';
+
+  @override
+  String get securityQuestionAnswer => 'Security Question Answer';
+
+  @override
+  String get signupSuccess => 'Registration successful! Welcome! 🎉';
+
+  @override
+  String get signupError =>
+      'An error occurred during registration. Please try again.';
+
+  @override
+  String get loginWithAnotherAccount => 'Login with another account';
+
+  @override
+  String get loginWithGoogle => 'Login with Google';
+
+  @override
+  String get verifyIdentity => 'Verify your identity to log in';
+
+  @override
+  String loginFailed(String error) {
+    return 'Login failed: $error';
+  }
+
+  @override
+  String get tapAndSpeak => 'Tap the microphone and speak';
+
+  @override
+  String get voiceExampleIncome => 'Example: \"500 dollars salary\"';
+
+  @override
+  String get heard => 'Heard: ';
+
+  @override
+  String get amountTl => 'Amount (₺)';
+
+  @override
+  String get incomeName => 'Income Name';
+
+  @override
+  String get orDivider => 'or';
+
+  @override
+  String get biometricLoginFailed => 'Biometric login failed';
+
+  @override
+  String get enterRegisteredEmail => 'Enter your registered email address';
+
+  @override
+  String get userNotFoundWithEmail => 'No user found with this email address';
+
+  @override
+  String get noSecurityQuestionDefined =>
+      'No security question defined for this account';
+
+  @override
+  String get wrongAnswerTryAgain => 'Wrong answer! Please try again.';
+
+  @override
+  String get setNewPin => 'Set New PIN';
+
+  @override
+  String get enterNewPinDigits => 'Enter your new 4-6 digit PIN code';
+
+  @override
+  String get pinUpdatedSuccess => 'PIN updated successfully! ✓';
+
+  @override
+  String get yourAnswer => 'Your Answer';
+
+  @override
+  String get pleaseEnterAnswer => 'Please enter your answer';
+
+  @override
+  String get pleaseEnterNewPin => 'Please enter a new PIN';
+
+  @override
+  String get pinMinDigits => 'PIN must be at least 4 digits';
+
+  @override
+  String get pinOnlyNumbers => 'PIN must contain only numbers';
+
+  @override
+  String get pleaseRepeatPin => 'Please repeat the PIN';
+
+  @override
+  String get pinRepeatLabel => 'Repeat PIN';
+
+  @override
+  String get continueButton => 'Continue';
+
+  @override
+  String get verifyButton => 'Verify';
+
+  @override
+  String get updatePinButton => 'Update PIN';
+
+  @override
+  String expenseDeleted(String name) {
+    return '$name deleted';
+  }
+
+  @override
+  String updateExpenseAmountMsg(String amount) {
+    return 'Do you want to update the last expense to $amount ₺?';
+  }
+
+  @override
+  String get lastWeek => 'Last week';
+
+  @override
+  String get users => 'Users';
+
+  @override
+  String get noRegisteredUsers => 'No registered users.';
+
+  @override
+  String get addNewUser => 'Add New User';
 }

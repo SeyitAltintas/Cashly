@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Rozet tanımı
 class StreakBadge {
@@ -150,6 +151,53 @@ class StreakBadges {
       );
     } catch (_) {
       return null; // Tüm rozetler kazanıldı
+    }
+  }
+}
+
+/// Rozetleri mevcut dile çevirmek için eklenti
+extension StreakBadgeL10n on StreakBadge {
+  String localizedName(BuildContext context) {
+    final l10n = context.l10n;
+    switch (id) {
+      case 'ates_baslangici':
+        return l10n.badgeFireStarterName;
+      case 'haftalik_yildiz':
+        return l10n.badgeWeeklyStarName;
+      case 'kararli':
+        return l10n.badgeSteadyName;
+      case 'aylik_sampiyon':
+        return l10n.badgeMonthlyChampName;
+      case 'super_seri':
+        return l10n.badgeSuperStreakName;
+      case 'seri_ustasi':
+        return l10n.badgeStreakMasterName;
+      case 'efsane':
+        return l10n.badgeLegendName;
+      default:
+        return name;
+    }
+  }
+
+  String localizedDescription(BuildContext context) {
+    final l10n = context.l10n;
+    switch (id) {
+      case 'ates_baslangici':
+        return l10n.badgeFireStarterDesc;
+      case 'haftalik_yildiz':
+        return l10n.badgeWeeklyStarDesc;
+      case 'kararli':
+        return l10n.badgeSteadyDesc;
+      case 'aylik_sampiyon':
+        return l10n.badgeMonthlyChampDesc;
+      case 'super_seri':
+        return l10n.badgeSuperStreakDesc;
+      case 'seri_ustasi':
+        return l10n.badgeStreakMasterDesc;
+      case 'efsane':
+        return l10n.badgeLegendDesc;
+      default:
+        return description;
     }
   }
 }

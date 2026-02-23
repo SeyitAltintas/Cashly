@@ -110,13 +110,12 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
         if (_controller != null) {
           _controller!.setVoiceInitialized(
             success: false,
-            error: 'Mikrofon izni verilemedi veya cihaz desteklemiyor.',
+            error: context.l10n.micPermissionDenied,
           );
         } else {
           _localIsInitializing = false;
           _localHasError = true;
-          _localErrorMessage =
-              'Mikrofon izni verilemedi veya cihaz desteklemiyor.';
+          _localErrorMessage = context.l10n.micPermissionDenied;
           setState(() {});
         }
       }
@@ -242,7 +241,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
               Icon(Icons.mic, color: Colors.green.shade400, size: 28),
               const SizedBox(width: 8),
               Text(
-                'Sesli Gelir Girişi',
+                context.l10n.voiceIncomeInput,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -277,7 +276,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
         const CircularProgressIndicator(color: Colors.green),
         const SizedBox(height: 16),
         Text(
-          'Hazırlanıyor...',
+          context.l10n.preparing,
           style: TextStyle(
             color: Theme.of(
               context,
@@ -353,7 +352,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
         ),
         const SizedBox(height: 20),
         Text(
-          'Dinliyorum...',
+          context.l10n.micListening,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,
@@ -362,7 +361,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
         ),
         const SizedBox(height: 4),
         Text(
-          'Durdurmak için mikrofona dokunun',
+          context.l10n.tapToStopMic,
           style: TextStyle(
             fontSize: 12,
             color: Theme.of(
@@ -383,7 +382,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
               TextSpan(
                 children: [
                   TextSpan(
-                    text: 'Duyulan: ',
+                    text: context.l10n.heard,
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -432,7 +431,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
         ),
         const SizedBox(height: 16),
         Text(
-          'Mikrofona dokunun ve konuşun',
+          context.l10n.tapAndSpeak,
           style: TextStyle(
             color: Theme.of(
               context,
@@ -441,7 +440,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
         ),
         const SizedBox(height: 8),
         Text(
-          'Örnek: "500 lira maaş"',
+          context.l10n.voiceExampleIncome,
           style: TextStyle(
             fontSize: 12,
             color: Theme.of(
@@ -469,7 +468,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
             TextSpan(
               children: [
                 TextSpan(
-                  text: 'Duyulan: ',
+                  text: context.l10n.heard,
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -497,7 +496,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
-            labelText: 'Tutar (₺)',
+            labelText: context.l10n.amountTl,
             labelStyle: TextStyle(
               color: Theme.of(
                 context,
@@ -534,7 +533,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
           controller: _isimController,
           style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
-            labelText: 'Gelir Adı',
+            labelText: context.l10n.incomeName,
             labelStyle: TextStyle(
               color: Theme.of(
                 context,

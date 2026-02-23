@@ -610,6 +610,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
       includeButceDurumu: _includeButceDurumu,
       includeIstatistikler: _includeIstatistikler,
       includeTop5Harcama: _includeTop5Harcama,
+      locale: Localizations.localeOf(context).languageCode,
     );
 
     _pdfState.isExporting = false;
