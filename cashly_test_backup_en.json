@@ -1,0 +1,1748 @@
+{
+    "version": "1.5",
+    "exportDate": "2026-04-30T00:00:00.000Z",
+    "userId": "test_user_2026",
+    "data": {
+        "harcamalar": [
+            {
+                "id": "exp_10_01",
+                "isim": "Weekly Grocery",
+                "tutar": 850,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2025-10-02T10:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_02",
+                "isim": "Fuel",
+                "tutar": 900,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2025-10-03T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_03",
+                "isim": "Electricity Bill",
+                "tutar": 480,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-10-05T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_04",
+                "isim": "Restaurant Meal",
+                "tutar": 350,
+                "kategori": "Food & Cafe",
+                "tarih": "2025-10-06T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_05",
+                "isim": "Gas Bill",
+                "tutar": 320,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-10-08T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_06",
+                "isim": "Coffee",
+                "tutar": 75,
+                "kategori": "Food & Cafe",
+                "tarih": "2025-10-09T08:30:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_07",
+                "isim": "Clothing Shopping",
+                "tutar": 650,
+                "kategori": "Other",
+                "tarih": "2025-10-10T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_08",
+                "isim": "Water Bill",
+                "tutar": 95,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-10-12T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_09",
+                "isim": "Grocery Shopping",
+                "tutar": 720,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2025-10-14T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_10",
+                "isim": "Cinema",
+                "tutar": 180,
+                "kategori": "Other",
+                "tarih": "2025-10-15T19:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_11",
+                "isim": "Internet Bill",
+                "tutar": 250,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-10-18T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_12",
+                "isim": "Gift",
+                "tutar": 400,
+                "kategori": "Gift & Special",
+                "tarih": "2025-10-20T16:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_13",
+                "isim": "Phone Bill",
+                "tutar": 195,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-10-22T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_14",
+                "isim": "Taxi",
+                "tutar": 120,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2025-10-24T22:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_15",
+                "isim": "Cafe",
+                "tutar": 95,
+                "kategori": "Food & Cafe",
+                "tarih": "2025-10-26T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_16",
+                "isim": "Grocery",
+                "tutar": 580,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2025-10-28T12:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_17",
+                "isim": "Fuel",
+                "tutar": 850,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2025-10-30T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_01",
+                "isim": "Grocery Shopping",
+                "tutar": 920,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2025-11-01T10:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_02",
+                "isim": "Fuel",
+                "tutar": 980,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2025-11-03T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_03",
+                "isim": "Electricity Bill",
+                "tutar": 550,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-11-05T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_04",
+                "isim": "Breakfast",
+                "tutar": 220,
+                "kategori": "Food & Cafe",
+                "tarih": "2025-11-06T09:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_05",
+                "isim": "Gas Bill",
+                "tutar": 420,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-11-08T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_06",
+                "isim": "Taxi",
+                "tutar": 85,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2025-11-09T23:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_07",
+                "isim": "Gym",
+                "tutar": 750,
+                "kategori": "Other",
+                "tarih": "2025-11-10T18:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_08",
+                "isim": "Grocery",
+                "tutar": 680,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2025-11-12T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_09",
+                "isim": "Restaurant",
+                "tutar": 380,
+                "kategori": "Food & Cafe",
+                "tarih": "2025-11-14T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_10",
+                "isim": "Water Bill",
+                "tutar": 110,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-11-15T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_11",
+                "isim": "Coffee",
+                "tutar": 65,
+                "kategori": "Food & Cafe",
+                "tarih": "2025-11-16T08:30:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_12",
+                "isim": "Internet Bill",
+                "tutar": 250,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-11-18T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_13",
+                "isim": "Clothes",
+                "tutar": 550,
+                "kategori": "Other",
+                "tarih": "2025-11-20T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_14",
+                "isim": "Phone Bill",
+                "tutar": 195,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-11-22T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_15",
+                "isim": "Grocery",
+                "tutar": 750,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2025-11-24T12:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_16",
+                "isim": "Gift",
+                "tutar": 300,
+                "kategori": "Gift & Special",
+                "tarih": "2025-11-26T16:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_17",
+                "isim": "Fuel",
+                "tutar": 920,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2025-11-28T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_18",
+                "isim": "Cafe",
+                "tutar": 120,
+                "kategori": "Food & Cafe",
+                "tarih": "2025-11-30T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_01",
+                "isim": "Grocery Shopping",
+                "tutar": 1100,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2025-12-01T10:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_02",
+                "isim": "Fuel",
+                "tutar": 1050,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2025-12-03T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_03",
+                "isim": "Electricity Bill",
+                "tutar": 680,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-12-05T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_04",
+                "isim": "New Year Gift 1",
+                "tutar": 500,
+                "kategori": "Gift & Special",
+                "tarih": "2025-12-06T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_05",
+                "isim": "Gas Bill",
+                "tutar": 580,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-12-08T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_06",
+                "isim": "Coffee",
+                "tutar": 80,
+                "kategori": "Food & Cafe",
+                "tarih": "2025-12-09T08:30:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_07",
+                "isim": "New Year Gift 2",
+                "tutar": 650,
+                "kategori": "Gift & Special",
+                "tarih": "2025-12-10T16:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_08",
+                "isim": "Grocery",
+                "tutar": 880,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2025-12-12T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_09",
+                "isim": "Water Bill",
+                "tutar": 120,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-12-13T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_10",
+                "isim": "New Year Dinner",
+                "tutar": 850,
+                "kategori": "Food & Cafe",
+                "tarih": "2025-12-14T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_11",
+                "isim": "Taxi",
+                "tutar": 150,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2025-12-15T23:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_12",
+                "isim": "Internet Bill",
+                "tutar": 250,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-12-16T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_13",
+                "isim": "Clothes",
+                "tutar": 900,
+                "kategori": "Other",
+                "tarih": "2025-12-18T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_14",
+                "isim": "Market Yılbaşı",
+                "tutar": 1500,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2025-12-20T12:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_15",
+                "isim": "Phone Bill",
+                "tutar": 195,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-12-22T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_16",
+                "isim": "New Year Gift 3",
+                "tutar": 400,
+                "kategori": "Gift & Special",
+                "tarih": "2025-12-24T14:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_17",
+                "isim": "Fuel",
+                "tutar": 950,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2025-12-26T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_18",
+                "isim": "Coffee",
+                "tutar": 90,
+                "kategori": "Food & Cafe",
+                "tarih": "2025-12-28T08:30:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_19",
+                "isim": "Grocery",
+                "tutar": 650,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2025-12-29T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_20",
+                "isim": "New Year Party",
+                "tutar": 450,
+                "kategori": "Food & Cafe",
+                "tarih": "2025-12-31T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_01",
+                "isim": "Grocery",
+                "tutar": 1200,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-01-02T10:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_02",
+                "isim": "Fuel",
+                "tutar": 1100,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2026-01-03T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_03",
+                "isim": "Gas Bill",
+                "tutar": 1500,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-01-08T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_04",
+                "isim": "Restaurant",
+                "tutar": 600,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-01-10T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_05",
+                "isim": "Clothes",
+                "tutar": 1200,
+                "kategori": "Other",
+                "tarih": "2026-01-12T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_06",
+                "isim": "Electricity Bill",
+                "tutar": 720,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-01-05T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_07",
+                "isim": "Gas Bill",
+                "tutar": 1650,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-01-08T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_08",
+                "isim": "Breakfast",
+                "tutar": 280,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-01-11T09:30:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_09",
+                "isim": "Internet Bill",
+                "tutar": 260,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-01-15T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_10",
+                "isim": "Grocery",
+                "tutar": 890,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-01-17T12:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_11",
+                "isim": "Water Bill",
+                "tutar": 125,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-01-18T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_12",
+                "isim": "Coffee",
+                "tutar": 85,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-01-19T08:30:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_13",
+                "isim": "Phone Bill",
+                "tutar": 205,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-01-22T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_14",
+                "isim": "Fuel",
+                "tutar": 1150,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2026-01-24T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_15",
+                "isim": "Weekly Grocery",
+                "tutar": 950,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-01-26T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_16",
+                "isim": "Restaurant",
+                "tutar": 420,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-01-28T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_17",
+                "isim": "Parking",
+                "tutar": 150,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2026-01-30T14:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_01",
+                "isim": "Grocery Shopping",
+                "tutar": 1050,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-02-01T10:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_02",
+                "isim": "Fuel",
+                "tutar": 1200,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2026-02-03T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_03",
+                "isim": "Electricity Bill",
+                "tutar": 690,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-02-05T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_04",
+                "isim": "Valentine's Day Gift",
+                "tutar": 1500,
+                "kategori": "Gift & Special",
+                "tarih": "2026-02-14T12:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_05",
+                "isim": "Valentine's Day Dinner",
+                "tutar": 850,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-02-14T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_06",
+                "isim": "Gas Bill",
+                "tutar": 1400,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-02-08T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_07",
+                "isim": "Grocery",
+                "tutar": 780,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-02-10T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_08",
+                "isim": "Coffee",
+                "tutar": 90,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-02-11T08:30:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_09",
+                "isim": "Internet Bill",
+                "tutar": 260,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-02-15T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_10",
+                "isim": "Water Bill",
+                "tutar": 130,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-02-16T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_11",
+                "isim": "Gym Membership",
+                "tutar": 800,
+                "kategori": "Other",
+                "tarih": "2026-02-01T18:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_12",
+                "isim": "Phone Bill",
+                "tutar": 205,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-02-20T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_13",
+                "isim": "Weekly Grocery",
+                "tutar": 920,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-02-22T12:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_14",
+                "isim": "Taxi",
+                "tutar": 130,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2026-02-24T22:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_15",
+                "isim": "Fuel",
+                "tutar": 1100,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2026-02-26T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_16",
+                "isim": "Cafe",
+                "tutar": 145,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-02-28T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_01",
+                "isim": "Grocery Shopping",
+                "tutar": 1150,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-03-01T10:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_02",
+                "isim": "Fuel",
+                "tutar": 1180,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2026-03-03T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_03",
+                "isim": "Electricity Bill",
+                "tutar": 620,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-03-05T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_04",
+                "isim": "Gas Bill",
+                "tutar": 980,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-03-08T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_05",
+                "isim": "8 Mart Hediyesi",
+                "tutar": 600,
+                "kategori": "Gift & Special",
+                "tarih": "2026-03-08T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_06",
+                "isim": "Restaurant",
+                "tutar": 480,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-03-08T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_07",
+                "isim": "Grocery",
+                "tutar": 850,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-03-10T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_08",
+                "isim": "Coffee",
+                "tutar": 95,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-03-12T08:30:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_09",
+                "isim": "Internet Bill",
+                "tutar": 260,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-03-15T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_10",
+                "isim": "Water Bill",
+                "tutar": 115,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-03-16T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_11",
+                "isim": "Araç Bakımı",
+                "tutar": 2800,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2026-03-18T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_12",
+                "isim": "Phone Bill",
+                "tutar": 205,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-03-20T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_13",
+                "isim": "Weekly Grocery",
+                "tutar": 980,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-03-22T12:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_14",
+                "isim": "Nevruz Yemeği",
+                "tutar": 350,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-03-21T19:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_15",
+                "isim": "Kitap",
+                "tutar": 180,
+                "kategori": "Other",
+                "tarih": "2026-03-25T16:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_16",
+                "isim": "Fuel",
+                "tutar": 1200,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2026-03-27T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_17",
+                "isim": "Grocery",
+                "tutar": 720,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-03-29T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_01",
+                "isim": "Grocery Shopping",
+                "tutar": 1100,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-04-01T10:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_02",
+                "isim": "Fuel",
+                "tutar": 1250,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2026-04-03T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_03",
+                "isim": "Electricity Bill",
+                "tutar": 560,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-04-05T14:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_04",
+                "isim": "Gas Bill",
+                "tutar": 650,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-04-08T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_05",
+                "isim": "Ramazan Bayramı Hediyesi",
+                "tutar": 800,
+                "kategori": "Gift & Special",
+                "tarih": "2026-04-10T12:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_06",
+                "isim": "Bayram Yemeği",
+                "tutar": 650,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-04-10T13:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_07",
+                "isim": "Grocery",
+                "tutar": 920,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-04-12T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_08",
+                "isim": "Coffee",
+                "tutar": 100,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-04-13T08:30:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_09",
+                "isim": "Internet Bill",
+                "tutar": 260,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-04-15T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_10",
+                "isim": "23 Nisan Çocuk Hediyesi",
+                "tutar": 450,
+                "kategori": "Gift & Special",
+                "tarih": "2026-04-23T14:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_11",
+                "isim": "Water Bill",
+                "tutar": 120,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-04-16T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_12",
+                "isim": "Clothing Shopping",
+                "tutar": 1350,
+                "kategori": "Other",
+                "tarih": "2026-04-18T15:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_13",
+                "isim": "Phone Bill",
+                "tutar": 205,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-04-20T10:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_14",
+                "isim": "Weekly Grocery",
+                "tutar": 1050,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-04-22T12:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_15",
+                "isim": "Restaurant",
+                "tutar": 520,
+                "kategori": "Food & Cafe",
+                "tarih": "2026-04-25T20:00:00.000Z",
+                "odemeYontemiId": "pm_yapi_kredi",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_16",
+                "isim": "Fuel",
+                "tutar": 1200,
+                "kategori": "Vehicle & Transport",
+                "tarih": "2026-04-27T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_17",
+                "isim": "Grocery",
+                "tutar": 780,
+                "kategori": "Grocery & Snacks",
+                "tarih": "2026-04-29T11:00:00.000Z",
+                "odemeYontemiId": "pm_nakit",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_10_18",
+                "isim": "Rent",
+                "tutar": 8500,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-10-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_11_19",
+                "isim": "Rent",
+                "tutar": 8500,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-11-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_12_21",
+                "isim": "Rent",
+                "tutar": 8500,
+                "kategori": "Fixed Expenses",
+                "tarih": "2025-12-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_01_18",
+                "isim": "Rent",
+                "tutar": 9000,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-01-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_02_17",
+                "isim": "Rent",
+                "tutar": 9000,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-02-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_03_18",
+                "isim": "Rent",
+                "tutar": 9000,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-03-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "exp_04_18",
+                "isim": "Rent",
+                "tutar": 9000,
+                "kategori": "Fixed Expenses",
+                "tarih": "2026-04-01T09:00:00.000Z",
+                "odemeYontemiId": "pm_ziraat",
+                "isDeleted": false
+            }
+        ],
+        "gelirler": [
+            {
+                "id": "inc_10_01",
+                "name": "Maaş",
+                "amount": 38000,
+                "category": "Maaş",
+                "date": "2025-10-01T09:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_10_02",
+                "name": "Freelance Proje",
+                "amount": 5500,
+                "category": "Freelance",
+                "date": "2025-10-15T12:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_11_01",
+                "name": "Maaş",
+                "amount": 38000,
+                "category": "Maaş",
+                "date": "2025-11-01T09:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_11_02",
+                "name": "Prim",
+                "amount": 8000,
+                "category": "Diğer",
+                "date": "2025-11-15T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_11_03",
+                "name": "Freelance",
+                "amount": 3500,
+                "category": "Freelance",
+                "date": "2025-11-20T12:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_12_01",
+                "name": "Maaş",
+                "amount": 38000,
+                "category": "Maaş",
+                "date": "2025-12-01T09:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_12_02",
+                "name": "Kira Geliri",
+                "amount": 9500,
+                "category": "Kira Geliri",
+                "date": "2025-12-05T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_12_03",
+                "name": "Yılbaşı Primi",
+                "amount": 12000,
+                "category": "Diğer",
+                "date": "2025-12-20T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_12_04",
+                "name": "Freelance",
+                "amount": 4000,
+                "category": "Freelance",
+                "date": "2025-12-25T12:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_01_01",
+                "name": "Maaş (Zamlı)",
+                "amount": 45000,
+                "category": "Maaş",
+                "date": "2026-01-01T09:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_01_02",
+                "name": "Freelance Proje",
+                "amount": 6000,
+                "category": "Freelance",
+                "date": "2026-01-15T12:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_01_03",
+                "name": "Kira Geliri",
+                "amount": 10000,
+                "category": "Kira Geliri",
+                "date": "2026-01-05T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_02_01",
+                "name": "Maaş",
+                "amount": 45000,
+                "category": "Maaş",
+                "date": "2026-02-01T09:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_02_02",
+                "name": "Freelance Web Projesi",
+                "amount": 8500,
+                "category": "Freelance",
+                "date": "2026-02-12T12:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_02_03",
+                "name": "Kira Geliri",
+                "amount": 10000,
+                "category": "Kira Geliri",
+                "date": "2026-02-05T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_03_01",
+                "name": "Maaş",
+                "amount": 45000,
+                "category": "Maaş",
+                "date": "2026-03-01T09:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_03_02",
+                "name": "Freelance Mobil Proje",
+                "amount": 12000,
+                "category": "Freelance",
+                "date": "2026-03-18T12:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_03_03",
+                "name": "Kira Geliri",
+                "amount": 10000,
+                "category": "Kira Geliri",
+                "date": "2026-03-05T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_03_04",
+                "name": "Prim",
+                "amount": 7500,
+                "category": "Diğer",
+                "date": "2026-03-25T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_04_01",
+                "name": "Maaş",
+                "amount": 45000,
+                "category": "Maaş",
+                "date": "2026-04-01T09:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_04_02",
+                "name": "Freelance Proje",
+                "amount": 5000,
+                "category": "Freelance",
+                "date": "2026-04-15T12:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_04_03",
+                "name": "Kira Geliri",
+                "amount": 10000,
+                "category": "Kira Geliri",
+                "date": "2026-04-05T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            },
+            {
+                "id": "inc_04_04",
+                "name": "Bayram İkramiyesi",
+                "amount": 10000,
+                "category": "Diğer",
+                "date": "2026-04-09T10:00:00.000Z",
+                "paymentMethodId": "pm_ziraat",
+                "isDeleted": false
+            }
+        ],
+        "varliklar": [
+            {
+                "id": "asset_gold_001",
+                "name": "Gram Altın",
+                "amount": 92500,
+                "quantity": 28,
+                "category": "Altın",
+                "type": "Gram",
+                "lastUpdated": "2026-01-03T10:00:00.000Z",
+                "purchaseDate": "2025-05-15T10:00:00.000Z",
+                "purchasePrice": 75000,
+                "isDeleted": false
+            },
+            {
+                "id": "asset_quarter_001",
+                "name": "Çeyrek Altın",
+                "amount": 14200,
+                "quantity": 2,
+                "category": "Altın",
+                "type": "Çeyrek",
+                "lastUpdated": "2026-01-03T10:00:00.000Z",
+                "purchaseDate": "2025-03-10T10:00:00.000Z",
+                "purchasePrice": 11500,
+                "isDeleted": false
+            },
+            {
+                "id": "asset_usd_001",
+                "name": "Amerikan Doları",
+                "amount": 36500,
+                "quantity": 1000,
+                "category": "Döviz",
+                "type": "Amerikan Doları (USD)",
+                "lastUpdated": "2026-01-03T10:00:00.000Z",
+                "purchaseDate": "2025-07-20T10:00:00.000Z",
+                "purchasePrice": 32000,
+                "isDeleted": false
+            },
+            {
+                "id": "asset_eur_001",
+                "name": "Euro",
+                "amount": 19800,
+                "quantity": 500,
+                "category": "Döviz",
+                "type": "Euro (EUR)",
+                "lastUpdated": "2026-01-03T10:00:00.000Z",
+                "purchaseDate": "2025-08-15T10:00:00.000Z",
+                "purchasePrice": 17500,
+                "isDeleted": false
+            },
+            {
+                "id": "asset_btc_001",
+                "name": "Bitcoin",
+                "amount": 48000,
+                "quantity": 0.02,
+                "category": "Kripto",
+                "type": "BTC",
+                "lastUpdated": "2026-01-03T10:00:00.000Z",
+                "purchaseDate": "2025-06-01T10:00:00.000Z",
+                "purchasePrice": 35000,
+                "isDeleted": false
+            },
+            {
+                "id": "asset_eth_001",
+                "name": "Ethereum",
+                "amount": 12500,
+                "quantity": 0.5,
+                "category": "Kripto",
+                "type": "ETH",
+                "lastUpdated": "2026-01-03T10:00:00.000Z",
+                "purchaseDate": "2025-09-10T10:00:00.000Z",
+                "purchasePrice": 10000,
+                "isDeleted": false
+            }
+        ],
+        "odemeYontemleri": [
+            {
+                "id": "pm_ziraat",
+                "name": "Ziraat Bankası",
+                "type": "banka",
+                "lastFourDigits": "4521",
+                "balance": 85860,
+                "limit": null,
+                "colorIndex": 0,
+                "createdAt": "2025-01-01T10:00:00.000Z",
+                "isDeleted": false
+            },
+            {
+                "id": "pm_yapi_kredi",
+                "name": "Yapı Kredi",
+                "type": "kredi",
+                "lastFourDigits": "8832",
+                "balance": 3410,
+                "limit": 35000,
+                "colorIndex": 2,
+                "createdAt": "2025-01-15T10:00:00.000Z",
+                "isDeleted": false
+            },
+            {
+                "id": "pm_nakit",
+                "name": "Nakit",
+                "type": "nakit",
+                "lastFourDigits": null,
+                "balance": 19385,
+                "limit": null,
+                "colorIndex": 1,
+                "createdAt": "2025-01-01T10:00:00.000Z",
+                "isDeleted": false
+            }
+        ],
+        "transferler": [
+            {
+                "id": "tr_10_01",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_nakit",
+                "amount": 5000,
+                "date": "2025-10-05T10:00:00.000Z",
+                "description": "Nakit çekim",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_11_01",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_nakit",
+                "amount": 6000,
+                "date": "2025-11-05T10:00:00.000Z",
+                "description": "Nakit çekim",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_11_02",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_yapi_kredi",
+                "amount": 2000,
+                "date": "2025-11-25T10:00:00.000Z",
+                "description": "Kredi kartı borç ödemesi",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_12_01",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_nakit",
+                "amount": 7000,
+                "date": "2025-12-05T10:00:00.000Z",
+                "description": "Nakit çekim",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_12_02",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_yapi_kredi",
+                "amount": 3000,
+                "date": "2025-12-28T10:00:00.000Z",
+                "description": "Kredi kartı borç ödemesi",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_01_01",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_nakit",
+                "amount": 5000,
+                "date": "2026-01-04T10:00:00.000Z",
+                "description": "Nakit çekimi",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_01_02",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_yapi_kredi",
+                "amount": 3500,
+                "date": "2026-01-25T10:00:00.000Z",
+                "description": "Kredi kartı ödemesi",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_01_03",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_nakit",
+                "amount": 2000,
+                "date": "2026-02-01T10:00:00.000Z",
+                "description": "Planlı nakit çekimi",
+                "isScheduled": true,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_02_01",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_nakit",
+                "amount": 6000,
+                "date": "2026-02-05T10:00:00.000Z",
+                "description": "Nakit çekim",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_02_02",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_yapi_kredi",
+                "amount": 4000,
+                "date": "2026-02-25T10:00:00.000Z",
+                "description": "Kredi kartı borç ödemesi",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_03_01",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_nakit",
+                "amount": 7000,
+                "date": "2026-03-05T10:00:00.000Z",
+                "description": "Nakit çekim",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_03_02",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_yapi_kredi",
+                "amount": 3500,
+                "date": "2026-03-28T10:00:00.000Z",
+                "description": "Kredi kartı borç ödemesi",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_04_01",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_nakit",
+                "amount": 6000,
+                "date": "2026-04-05T10:00:00.000Z",
+                "description": "Nakit çekim",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            },
+            {
+                "id": "tr_04_02",
+                "fromAccountId": "pm_ziraat",
+                "toAccountId": "pm_yapi_kredi",
+                "amount": 5000,
+                "date": "2026-04-26T10:00:00.000Z",
+                "description": "Kredi kartı borç ödemesi",
+                "isScheduled": false,
+                "isExecuted": true,
+                "isFailed": false
+            }
+        ],
+        "butce": 25000,
+        "varsayilanOdemeYontemi": "pm_nakit",
+        "kategoriler": [
+            {
+                "isim": "Yemek ve Kafe",
+                "ikon": "restaurant"
+            },
+            {
+                "isim": "Market ve Atıştırmalık",
+                "ikon": "shopping_basket"
+            },
+            {
+                "isim": "Araç ve Ulaşım",
+                "ikon": "two_wheeler"
+            },
+            {
+                "isim": "Hediye ve Özel",
+                "ikon": "card_giftcard"
+            },
+            {
+                "isim": "Sabit Giderler",
+                "ikon": "credit_card"
+            },
+            {
+                "isim": "Diğer",
+                "ikon": "category"
+            }
+        ],
+        "kategoriButceleri": {
+            "Yemek ve Kafe": 3000,
+            "Market ve Atıştırmalık": 5000,
+            "Araç ve Ulaşım": 4000,
+            "Hediye ve Özel": 2000,
+            "Sabit Giderler": 8000,
+            "Diğer": 3000
+        },
+        "gelirKategorileri": [
+            {
+                "isim": "Maaş",
+                "ikon": "work"
+            },
+            {
+                "isim": "Freelance",
+                "ikon": "laptop"
+            },
+            {
+                "isim": "Yatırım",
+                "ikon": "trending_up"
+            },
+            {
+                "isim": "Kira Geliri",
+                "ikon": "home"
+            },
+            {
+                "isim": "Hediye",
+                "ikon": "card_giftcard"
+            },
+            {
+                "isim": "Diğer",
+                "ikon": "category"
+            }
+        ],
+        "streak": {
+            "currentStreak": 45,
+            "longestStreak": 52,
+            "lastLoginDate": "2026-04-30",
+            "totalLoginDays": 195,
+            "earnedBadges": [
+                "first_login",
+                "week_streak",
+                "two_week_streak",
+                "month_streak"
+            ],
+            "startDate": "2025-10-01T00:00:00.000",
+            "freezeCount": 3,
+            "usedFreezeToday": false,
+            "totalFreezesUsed": 2
+        }
+    },
+    "settings": {
+        "themeIndex": 0,
+        "moneyAnimation": true,
+        "hapticMasterEnabled": true,
+        "hapticButtonTaps": true,
+        "hapticNavigation": true,
+        "hapticDelete": true,
+        "hapticSuccess": true,
+        "hapticError": true,
+        "hapticCelebration": true,
+        "notificationSettings": {
+            "recurringReminderEnabled": true,
+            "streakReminderEnabled": true,
+            "streakReminderHour": 20,
+            "streakReminderMinute": 0,
+            "monthlySummaryEnabled": true,
+            "monthlySummaryHour": 18,
+            "monthlySummaryMinute": 0,
+            "streakBreakWarningEnabled": true,
+            "weeklyMiniSummaryEnabled": true
+        }
+    },
+    "profile": {
+        "name": "Seyit Altıntaş",
+        "profileImageBase64": null
+    }
+}

@@ -61,7 +61,11 @@ class _DashboardPageState extends State<DashboardPage> {
     // DI'dan controller al
     _controller = getIt<DashboardController>();
     // İlk veri yüklemesi
-    _updateControllerData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _updateControllerData();
+      }
+    });
   }
 
   @override
@@ -77,7 +81,11 @@ class _DashboardPageState extends State<DashboardPage> {
         oldWidget.secilenAy != widget.secilenAy ||
         oldWidget.streakData != widget.streakData ||
         oldWidget.transferler != widget.transferler) {
-      _updateControllerData();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _updateControllerData();
+        }
+      });
     }
   }
 

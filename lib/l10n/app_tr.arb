@@ -1655,5 +1655,6 @@
   "lastWeek": "Geçen hafta",
   "users": "Kullanıcılar",
   "noRegisteredUsers": "Kayıtlı kullanıcı yok.",
-  "addNewUser": "Yeni Kullanıcı Ekle"
+  "addNewUser": "Yeni Kullanıcı Ekle",
+  "welcome": "Hoşgeldiniz"
 }

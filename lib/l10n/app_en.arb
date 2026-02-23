@@ -1655,5 +1655,6 @@
   "lastWeek": "Last week",
   "users": "Users",
   "noRegisteredUsers": "No registered users.",
-  "addNewUser": "Add New User"
+  "addNewUser": "Add New User",
+  "welcome": "Welcome"
 }

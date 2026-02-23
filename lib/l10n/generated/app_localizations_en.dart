@@ -3516,4 +3516,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addNewUser => 'Add New User';
+
+  @override
+  String get welcome => 'Welcome';
 }

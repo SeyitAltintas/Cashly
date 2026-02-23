@@ -212,7 +212,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
     return Column(
       children: [
         Text(
-          "Hoşgeldiniz",
+          context.l10n.welcome,
           style: TextStyle(
             fontFamily: 'Inter',
             fontSize: 24,

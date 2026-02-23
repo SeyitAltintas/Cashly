@@ -6593,6 +6593,12 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Yeni Kullanıcı Ekle'**
   String get addNewUser;
+
+  /// No description provided for @welcome.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hoşgeldiniz'**
+  String get welcome;
 }
 
 class _AppLocalizationsDelegate
