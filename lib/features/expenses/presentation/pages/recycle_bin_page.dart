@@ -8,6 +8,7 @@ import 'package:cashly/features/payment_methods/data/models/payment_method_model
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/services/currency_service.dart';
 import '../controllers/expenses_controller.dart';
 
 class CopKutusuSayfasi extends StatefulWidget {
@@ -287,6 +288,14 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
                 DateTime tarih =
                     DateTime.tryParse(harcama['tarih'].toString()) ??
                     DateTime.now();
+                final tutar = (harcama['tutar'] as num).toDouble();
+                final pb = harcama['paraBirimi']?.toString() ?? 'TRY';
+                final cur = getIt<CurrencyService>();
+                final convertedAmount = cur.convert(
+                  tutar,
+                  pb,
+                  cur.currentCurrency,
+                );
 
                 return Card(
                   color: Theme.of(context).colorScheme.surface,
@@ -308,7 +317,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
                       style: const TextStyle(color: Colors.white),
                     ),
                     subtitle: Text(
-                      "${CurrencyFormatter.format((harcama['tutar'] as num).toDouble())} • ${tarih.day}.${tarih.month}.${tarih.year}",
+                      "${CurrencyFormatter.format(convertedAmount)} • ${tarih.day}.${tarih.month}.${tarih.year}",
                       style: TextStyle(
                         color: Theme.of(
                           context,

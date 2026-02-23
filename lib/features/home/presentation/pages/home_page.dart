@@ -468,7 +468,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             assets: varliklar.where((a) => !a.isDeleted).toList(),
             deletedAssets: varliklar.where((a) => a.isDeleted).toList(),
             onDelete: (asset) {
-              asset.isDeleted = true;
+              final index = varliklar.indexWhere((a) => a.id == asset.id);
+              if (index != -1) {
+                varliklar[index] = varliklar[index].copyWith(isDeleted: true);
+              }
               _homeState.varliklar = List.from(varliklar);
               _varliklariKaydet();
             },
@@ -476,17 +479,20 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
               final index = varliklar.indexWhere((a) => a.id == asset.id);
               if (index != -1) {
                 varliklar[index] = asset;
-                _homeState.varliklar = List.from(varliklar);
               }
+              _homeState.varliklar = List.from(varliklar);
               _varliklariKaydet();
             },
             onRestore: (asset) {
-              asset.isDeleted = false;
+              final index = varliklar.indexWhere((a) => a.id == asset.id);
+              if (index != -1) {
+                varliklar[index] = varliklar[index].copyWith(isDeleted: false);
+              }
               _homeState.varliklar = List.from(varliklar);
               _varliklariKaydet();
             },
             onPermanentDelete: (asset) {
-              varliklar.remove(asset);
+              varliklar.removeWhere((a) => a.id == asset.id);
               _homeState.varliklar = List.from(varliklar);
               _varliklariKaydet();
             },

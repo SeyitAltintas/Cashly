@@ -4,6 +4,8 @@ import '../../data/models/asset_model.dart';
 import '../../../settings/presentation/state/recycle_bin_states.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 
 class AssetRecycleBinPage extends StatefulWidget {
   final List<Asset> deletedAssets;
@@ -222,6 +224,12 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                   return buildLoadingIndicator();
                 }
                 final asset = _deletedAssets[index];
+                final cur = getIt<CurrencyService>();
+                final convertedAmount = cur.convert(
+                  asset.amount,
+                  asset.paraBirimi,
+                  cur.currentCurrency,
+                );
                 return Card(
                   color: const Color(0xFF1E1E1E),
                   shape: RoundedRectangleBorder(
@@ -244,7 +252,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                       ),
                     ),
                     subtitle: Text(
-                      "${CurrencyFormatter.format(asset.amount)} • ${asset.category}",
+                      "${CurrencyFormatter.format(convertedAmount)} • ${asset.category}",
                       style: TextStyle(
                         color: Theme.of(
                           context,

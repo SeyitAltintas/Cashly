@@ -56,31 +56,37 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
           assets: varliklar.where((a) => !a.isDeleted).toList(),
           deletedAssets: varliklar.where((a) => a.isDeleted).toList(),
           onDelete: (asset) {
-            asset.isDeleted = true;
-            varliklar = List.from(varliklar); // trigger notifyListeners
+            final index = varliklar.indexWhere((a) => a.id == asset.id);
+            if (index != -1) {
+              varliklar[index] = varliklar[index].copyWith(isDeleted: true);
+            }
+            varliklar = List.from(varliklar);
             varliklariKaydet();
           },
           onEdit: (asset) {
             final index = varliklar.indexWhere((a) => a.id == asset.id);
             if (index != -1) {
               varliklar[index] = asset;
-              varliklar = List.from(varliklar); // trigger notifyListeners
             }
+            varliklar = List.from(varliklar);
             varliklariKaydet();
           },
           onRestore: (asset) {
-            asset.isDeleted = false;
-            varliklar = List.from(varliklar); // trigger notifyListeners
+            final index = varliklar.indexWhere((a) => a.id == asset.id);
+            if (index != -1) {
+              varliklar[index] = varliklar[index].copyWith(isDeleted: false);
+            }
+            varliklar = List.from(varliklar);
             varliklariKaydet();
           },
           onPermanentDelete: (asset) {
-            varliklar.remove(asset);
-            varliklar = List.from(varliklar); // trigger notifyListeners
+            varliklar.removeWhere((a) => a.id == asset.id);
+            varliklar = List.from(varliklar);
             varliklariKaydet();
           },
           onEmptyBin: () {
             varliklar.removeWhere((a) => a.isDeleted);
-            varliklar = List.from(varliklar); // trigger notifyListeners
+            varliklar = List.from(varliklar);
             varliklariKaydet();
           },
           onAdd: (name, amount, quantity, category, type) {
@@ -96,7 +102,7 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
                 isDeleted: false,
               ),
             );
-            varliklar = List.from(varliklar); // trigger notifyListeners
+            varliklar = List.from(varliklar);
             varliklariKaydet();
           },
         ),

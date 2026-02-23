@@ -264,7 +264,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                     isDeleted: false,
                     paraBirimi: getIt<CurrencyService>().currentCurrency,
                   );
-                  await _controller.addAsset(newAsset);
+                  _controller.addAsset(newAsset);
                   widget.onAdd(name, amount, quantity, category, type);
                 } catch (e) {
                   if (!mounted) return;
@@ -311,16 +311,9 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
           // RepaintBoundary ile render izolasyonu - performans optimizasyonu
           return AssetListItem(
             asset: asset,
-            onDelete: () async {
-              try {
-                await _controller.deleteAsset(asset);
-                widget.onDelete(asset);
-              } catch (e) {
-                if (!mounted) return;
-                if (e is AppException) {
-                  ErrorHandler.handleAppException(context, e);
-                }
-              }
+            onDelete: () {
+              _controller.deleteAsset(asset);
+              widget.onDelete(asset);
             },
             onTap: () {
               Navigator.push(
@@ -328,28 +321,13 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                 MaterialPageRoute(
                   builder: (context) => AssetDetailPage(
                     asset: asset,
-                    onEdit: (updatedAsset) async {
-                      try {
-                        // Lokal listeyi güncelle
-                        await _controller.updateAsset(updatedAsset);
-                        widget.onEdit(updatedAsset);
-                      } catch (e) {
-                        if (!mounted) return;
-                        if (e is AppException) {
-                          ErrorHandler.handleAppException(context, e);
-                        }
-                      }
+                    onEdit: (updatedAsset) {
+                      _controller.updateAsset(updatedAsset);
+                      widget.onEdit(updatedAsset);
                     },
-                    onDelete: (deletedAsset) async {
-                      try {
-                        await _controller.deleteAsset(deletedAsset);
-                        widget.onDelete(deletedAsset);
-                      } catch (e) {
-                        if (!mounted) return;
-                        if (e is AppException) {
-                          ErrorHandler.handleAppException(context, e);
-                        }
-                      }
+                    onDelete: (deletedAsset) {
+                      _controller.deleteAsset(deletedAsset);
+                      widget.onDelete(deletedAsset);
                     },
                   ),
                 ),
@@ -371,26 +349,19 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                           type,
                           purchaseDate,
                           purchasePrice,
-                        ) async {
-                          try {
-                            final updatedAsset = asset.copyWith(
-                              name: name,
-                              amount: amount,
-                              quantity: quantity,
-                              category: category,
-                              type: type,
-                              lastUpdated: DateTime.now(),
-                              purchaseDate: purchaseDate,
-                              purchasePrice: purchasePrice,
-                            );
-                            await _controller.updateAsset(updatedAsset);
-                            widget.onEdit(updatedAsset);
-                          } catch (e) {
-                            if (!mounted) return;
-                            if (e is AppException) {
-                              ErrorHandler.handleAppException(context, e);
-                            }
-                          }
+                        ) {
+                          final updatedAsset = asset.copyWith(
+                            name: name,
+                            amount: amount,
+                            quantity: quantity,
+                            category: category,
+                            type: type,
+                            lastUpdated: DateTime.now(),
+                            purchaseDate: purchaseDate,
+                            purchasePrice: purchasePrice,
+                          );
+                          _controller.updateAsset(updatedAsset);
+                          widget.onEdit(updatedAsset);
                         },
                   ),
                 ),

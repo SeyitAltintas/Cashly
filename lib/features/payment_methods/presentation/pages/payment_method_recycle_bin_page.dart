@@ -6,6 +6,8 @@ import 'package:cashly/core/mixins/lazy_loading_mixin.dart';
 
 import '../../data/models/payment_method_model.dart';
 import '../../../../core/services/currency_service.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../settings/presentation/state/recycle_bin_states.dart';
 
 class PaymentMethodRecycleBinPage extends StatefulWidget {
@@ -235,6 +237,13 @@ class _PaymentMethodRecycleBinPageState
     final colors = CardColorConstants
         .gradients[pm.colorIndex.clamp(0, CardColorConstants.count - 1)];
 
+    final cur = getIt<CurrencyService>();
+    final convertedAmount = cur.convert(
+      pm.balance,
+      pm.paraBirimi,
+      cur.currentCurrency,
+    );
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -273,7 +282,7 @@ class _PaymentMethodRecycleBinPageState
           ),
         ),
         subtitle: Text(
-          '${pm.typeDisplayName} • ${pm.balance.toStringAsFixed(2)} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
+          '${pm.typeDisplayName} • ${CurrencyFormatter.format(convertedAmount)}',
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.6),
             fontSize: 12,

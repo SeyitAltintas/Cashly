@@ -175,7 +175,7 @@ void main() {
           lastUpdated: DateTime.now(),
         );
 
-        await controller.addAsset(yeniVarlik);
+        controller.addAsset(yeniVarlik);
 
         expect(controller.assets.length, equals(1));
       });
@@ -194,7 +194,7 @@ void main() {
         mockRepo.setAssets([varlik.toMap()]);
 
         await controller.loadData();
-        await controller.deleteAsset(controller.assets.first);
+        controller.deleteAsset(controller.assets.first);
 
         expect(controller.assets.length, equals(0));
         expect(controller.deletedAssets.length, equals(1));
@@ -215,7 +215,7 @@ void main() {
         mockRepo.setDeletedAssets([varlik.toMap()]);
 
         await controller.loadData();
-        await controller.restoreAsset(controller.deletedAssets.first);
+        controller.restoreAsset(controller.deletedAssets.first);
 
         expect(controller.assets.length, equals(1));
         expect(controller.deletedAssets.length, equals(0));
@@ -246,7 +246,7 @@ void main() {
         ]);
 
         await controller.loadData();
-        await controller.emptyBin();
+        controller.emptyBin();
 
         expect(controller.deletedAssets.length, equals(0));
       });

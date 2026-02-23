@@ -7,6 +7,7 @@ import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/services/currency_service.dart';
 import '../../data/models/income_model.dart';
 import '../controllers/incomes_controller.dart';
 
@@ -293,6 +294,12 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
                   return buildLoadingIndicator();
                 }
                 final gelir = silinenGelirler[index];
+                final cur = getIt<CurrencyService>();
+                final convertedAmount = cur.convert(
+                  gelir.amount,
+                  gelir.paraBirimi,
+                  cur.currentCurrency,
+                );
 
                 return Card(
                   color: Theme.of(context).colorScheme.surface,
@@ -321,7 +328,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
                       style: const TextStyle(color: Colors.white),
                     ),
                     subtitle: Text(
-                      "${CurrencyFormatter.format(gelir.amount)} • ${gelir.date.day} ${context.getMonthName(gelir.date.month)} ${gelir.date.year}",
+                      "${CurrencyFormatter.format(convertedAmount)} • ${gelir.date.day} ${context.getMonthName(gelir.date.month)} ${gelir.date.year}",
                       style: TextStyle(
                         color: Theme.of(
                           context,
