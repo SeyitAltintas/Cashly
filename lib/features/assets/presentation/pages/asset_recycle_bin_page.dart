@@ -101,7 +101,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
             },
             child: Text(
               context.l10n.yesRestore,
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -177,7 +177,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                       },
                       child: Text(
                         context.l10n.yesDelete,
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ],

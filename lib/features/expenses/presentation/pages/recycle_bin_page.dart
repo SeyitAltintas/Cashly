@@ -110,7 +110,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
               context.l10n.yesDelete,
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -204,7 +204,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
               context.l10n.yesRestore,
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
             ),
           ),
         ],

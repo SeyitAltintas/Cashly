@@ -702,7 +702,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             width: 72,
             child: Text(
               context.l10n.intensity,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Inter',
                 color: Colors.white70,
                 fontSize: 11,

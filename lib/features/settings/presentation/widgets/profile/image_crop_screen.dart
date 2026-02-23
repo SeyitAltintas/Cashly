@@ -442,7 +442,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
         elevation: 0,
         title: Text(
           context.l10n.cropPhoto,
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: 'Inter',
             fontWeight: FontWeight.w600,
             fontSize: 17,
@@ -472,7 +472,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
               onPressed: _onCrop,
               child: Text(
                 context.l10n.continueText,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: 'Inter',
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

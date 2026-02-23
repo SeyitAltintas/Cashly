@@ -434,7 +434,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                               color: Colors.white,
                             ),
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           Text(
                             context.l10n.preparing,
                             style: const TextStyle(

@@ -456,7 +456,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
               icon: const Icon(Icons.expand_more, color: Colors.white38),
               hint: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.account_balance_wallet_outlined,
                     color: _accentColor,
                     size: 20,
