@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cashly/features/settings/presentation/widgets/expense_settings/default_payment_section.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
+import 'package:cashly/features/settings/presentation/widgets/expense_settings/default_payment_section.dart';
+import 'package:cashly/l10n/generated/app_localizations.dart';
 
 /// DefaultPaymentSection testleri
 /// ThemeManager bağımlılığı olmayan widget testi
@@ -10,6 +11,9 @@ void main() {
     testWidgets('boş ödeme listesiyle empty state göstermeli', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           theme: ThemeData.dark(),
           home: Scaffold(
             body: DefaultPaymentSection(
@@ -41,6 +45,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           theme: ThemeData.dark(),
           home: Scaffold(
             body: DefaultPaymentSection(

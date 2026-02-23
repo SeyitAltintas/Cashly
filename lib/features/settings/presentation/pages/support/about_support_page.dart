@@ -133,7 +133,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
             'assets/image/seffaflogo.png',
             height: 44,
             fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => Text(
+            errorBuilder: (_, _, _) => Text(
               'Cashly',
               style: TextStyle(
                 fontSize: 28,
@@ -245,7 +245,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                     'assets/image/seffaflogo.png',
                     height: 44,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Text(
+                    errorBuilder: (_, _, _) => const Text(
                       'Cashly',
                       style: TextStyle(
                         fontSize: 28,

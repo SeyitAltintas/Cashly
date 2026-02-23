@@ -57,7 +57,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
       if (hasPermission) {
         // İzin verildiyse bildirimleri planla
         await _scheduler.rescheduleAll();
-        _showSnackBar(context.l10n.notificationsEnabled, Colors.green);
+        if (mounted) {
+          _showSnackBar(context.l10n.notificationsEnabled, Colors.green);
+        }
       }
     }
   }

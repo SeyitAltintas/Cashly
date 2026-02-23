@@ -103,11 +103,13 @@ class ProfileSettingsHelper {
       editedFile,
     );
 
+    if (!context.mounted) return;
+
     _updateUser(
       profileImage: compressedPath ?? editedFile.path,
       successMessage: context.l10n.profilePhotoUpdated,
     );
-    if (context.mounted) Navigator.pop(context);
+    Navigator.pop(context);
   }
 
   Future<void> _pickImageFromGallery() async {
