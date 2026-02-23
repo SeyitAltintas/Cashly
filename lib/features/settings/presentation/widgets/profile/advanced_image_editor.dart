@@ -806,14 +806,14 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             () => setState(() => _state.tint = 0),
           ),
           _buildSliderWithReset(
-            'Gölgeler',
+            context.l10n.shadows,
             Icons.wb_shade,
             _state.shadows,
             (v) => setState(() => _state.shadows = v),
             () => setState(() => _state.shadows = 0),
           ),
           _buildSliderWithReset(
-            'Parlamalar',
+            context.l10n.highlights,
             Icons.wb_sunny,
             _state.highlights,
             (v) => setState(() => _state.highlights = v),
@@ -1586,7 +1586,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      frame.name,
+                      _localizedFrameName(frame.name),
                       style: TextStyle(
                         fontFamily: 'Inter',
                         color: isSelected
@@ -1609,6 +1609,85 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
         ),
       ],
     );
+  }
+
+  /// Frame isimlerini lokalize et
+  String _localizedFrameName(String name) {
+    final l10n = context.l10n;
+    const frameKeys = {
+      'Yok': 'frameNone',
+      'Beyaz': 'frameWhite',
+      'Siyah': 'frameBlack',
+      'Polaroid': 'framePolaroid',
+      'Altın': 'frameGold',
+      'Gümüş': 'frameSilver',
+      'Neon': 'frameNeon',
+      'Neon Pembe': 'frameNeonPink',
+      'Okyanus': 'frameOcean',
+      'Günbatımı': 'frameSunset',
+      'Retro': 'frameRetro',
+      'Vintage': 'frameVintage',
+      'Mint': 'frameMint',
+      'Lavanta': 'frameLavender',
+      'Rose Gold': 'frameRoseGold',
+      'Bronz': 'frameBronze',
+      'Buz': 'frameIce',
+      'Orman': 'frameForest',
+      'Mercan': 'frameCoral',
+      'Gece': 'frameNight',
+      'Şampanya': 'frameChampagne',
+      'Yakut': 'frameRuby',
+    };
+    final key = frameKeys[name];
+    if (key == null) return name;
+    switch (key) {
+      case 'frameNone':
+        return l10n.frameNone;
+      case 'frameWhite':
+        return l10n.frameWhite;
+      case 'frameBlack':
+        return l10n.frameBlack;
+      case 'framePolaroid':
+        return l10n.framePolaroid;
+      case 'frameGold':
+        return l10n.frameGold;
+      case 'frameSilver':
+        return l10n.frameSilver;
+      case 'frameNeon':
+        return l10n.frameNeon;
+      case 'frameNeonPink':
+        return l10n.frameNeonPink;
+      case 'frameOcean':
+        return l10n.frameOcean;
+      case 'frameSunset':
+        return l10n.frameSunset;
+      case 'frameRetro':
+        return l10n.frameRetro;
+      case 'frameVintage':
+        return l10n.frameVintage;
+      case 'frameMint':
+        return l10n.frameMint;
+      case 'frameLavender':
+        return l10n.frameLavender;
+      case 'frameRoseGold':
+        return l10n.frameRoseGold;
+      case 'frameBronze':
+        return l10n.frameBronze;
+      case 'frameIce':
+        return l10n.frameIce;
+      case 'frameForest':
+        return l10n.frameForest;
+      case 'frameCoral':
+        return l10n.frameCoral;
+      case 'frameNight':
+        return l10n.frameNight;
+      case 'frameChampagne':
+        return l10n.frameChampagne;
+      case 'frameRuby':
+        return l10n.frameRuby;
+      default:
+        return name;
+    }
   }
 
   // === ACTIONS ===

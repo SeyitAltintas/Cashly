@@ -3556,4 +3556,70 @@ class AppLocalizationsTr extends AppLocalizations {
   String currentRateInfo(String currency, String rate) {
     return 'Güncel Kur: 1 $currency = $rate ₺';
   }
+
+  @override
+  String get frameNone => 'Yok';
+
+  @override
+  String get frameWhite => 'Beyaz';
+
+  @override
+  String get frameBlack => 'Siyah';
+
+  @override
+  String get framePolaroid => 'Polaroid';
+
+  @override
+  String get frameGold => 'Altın';
+
+  @override
+  String get frameSilver => 'Gümüş';
+
+  @override
+  String get frameNeon => 'Neon';
+
+  @override
+  String get frameNeonPink => 'Neon Pembe';
+
+  @override
+  String get frameOcean => 'Okyanus';
+
+  @override
+  String get frameSunset => 'Günbatımı';
+
+  @override
+  String get frameRetro => 'Retro';
+
+  @override
+  String get frameVintage => 'Vintage';
+
+  @override
+  String get frameMint => 'Mint';
+
+  @override
+  String get frameLavender => 'Lavanta';
+
+  @override
+  String get frameRoseGold => 'Rose Gold';
+
+  @override
+  String get frameBronze => 'Bronz';
+
+  @override
+  String get frameIce => 'Buz';
+
+  @override
+  String get frameForest => 'Orman';
+
+  @override
+  String get frameCoral => 'Mercan';
+
+  @override
+  String get frameNight => 'Gece';
+
+  @override
+  String get frameChampagne => 'Şampanya';
+
+  @override
+  String get frameRuby => 'Yakut';
 }

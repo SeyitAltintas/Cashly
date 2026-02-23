@@ -4,10 +4,24 @@ import 'package:cashly/features/expenses/presentation/widgets/expense_summary_ca
 import 'package:cashly/features/income/presentation/widgets/income_summary_card.dart';
 import 'package:cashly/features/assets/presentation/widgets/asset_summary_card.dart';
 import 'package:cashly/l10n/generated/app_localizations.dart';
+import 'package:cashly/core/services/currency_service.dart';
+import 'package:get_it/get_it.dart';
 
 /// Summary Card Widget Testleri
 /// Özet kartlarının doğru şekilde render edildigini test eder
 void main() {
+  setUpAll(() {
+    if (!GetIt.instance.isRegistered<CurrencyService>()) {
+      GetIt.instance.registerLazySingleton<CurrencyService>(
+        () => CurrencyService(),
+      );
+    }
+  });
+
+  tearDownAll(() {
+    GetIt.instance.reset();
+  });
+
   group('ExpenseSummaryCard Testleri', () {
     testWidgets('widget oluşturulabilmeli', (tester) async {
       await tester.pumpWidget(

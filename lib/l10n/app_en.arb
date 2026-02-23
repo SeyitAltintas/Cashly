@@ -1677,5 +1677,27 @@
         "type": "String"
       }
     }
-  }
+  },
+  "frameNone": "None",
+  "frameWhite": "White",
+  "frameBlack": "Black",
+  "framePolaroid": "Polaroid",
+  "frameGold": "Gold",
+  "frameSilver": "Silver",
+  "frameNeon": "Neon",
+  "frameNeonPink": "Neon Pink",
+  "frameOcean": "Ocean",
+  "frameSunset": "Sunset",
+  "frameRetro": "Retro",
+  "frameVintage": "Vintage",
+  "frameMint": "Mint",
+  "frameLavender": "Lavender",
+  "frameRoseGold": "Rose Gold",
+  "frameBronze": "Bronze",
+  "frameIce": "Ice",
+  "frameForest": "Forest",
+  "frameCoral": "Coral",
+  "frameNight": "Night",
+  "frameChampagne": "Champagne",
+  "frameRuby": "Ruby"
 }

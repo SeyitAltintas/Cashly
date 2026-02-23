@@ -6665,6 +6665,138 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Güncel Kur: 1 {currency} = {rate} ₺'**
   String currentRateInfo(String currency, String rate);
+
+  /// No description provided for @frameNone.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yok'**
+  String get frameNone;
+
+  /// No description provided for @frameWhite.
+  ///
+  /// In tr, this message translates to:
+  /// **'Beyaz'**
+  String get frameWhite;
+
+  /// No description provided for @frameBlack.
+  ///
+  /// In tr, this message translates to:
+  /// **'Siyah'**
+  String get frameBlack;
+
+  /// No description provided for @framePolaroid.
+  ///
+  /// In tr, this message translates to:
+  /// **'Polaroid'**
+  String get framePolaroid;
+
+  /// No description provided for @frameGold.
+  ///
+  /// In tr, this message translates to:
+  /// **'Altın'**
+  String get frameGold;
+
+  /// No description provided for @frameSilver.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gümüş'**
+  String get frameSilver;
+
+  /// No description provided for @frameNeon.
+  ///
+  /// In tr, this message translates to:
+  /// **'Neon'**
+  String get frameNeon;
+
+  /// No description provided for @frameNeonPink.
+  ///
+  /// In tr, this message translates to:
+  /// **'Neon Pembe'**
+  String get frameNeonPink;
+
+  /// No description provided for @frameOcean.
+  ///
+  /// In tr, this message translates to:
+  /// **'Okyanus'**
+  String get frameOcean;
+
+  /// No description provided for @frameSunset.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günbatımı'**
+  String get frameSunset;
+
+  /// No description provided for @frameRetro.
+  ///
+  /// In tr, this message translates to:
+  /// **'Retro'**
+  String get frameRetro;
+
+  /// No description provided for @frameVintage.
+  ///
+  /// In tr, this message translates to:
+  /// **'Vintage'**
+  String get frameVintage;
+
+  /// No description provided for @frameMint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mint'**
+  String get frameMint;
+
+  /// No description provided for @frameLavender.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lavanta'**
+  String get frameLavender;
+
+  /// No description provided for @frameRoseGold.
+  ///
+  /// In tr, this message translates to:
+  /// **'Rose Gold'**
+  String get frameRoseGold;
+
+  /// No description provided for @frameBronze.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bronz'**
+  String get frameBronze;
+
+  /// No description provided for @frameIce.
+  ///
+  /// In tr, this message translates to:
+  /// **'Buz'**
+  String get frameIce;
+
+  /// No description provided for @frameForest.
+  ///
+  /// In tr, this message translates to:
+  /// **'Orman'**
+  String get frameForest;
+
+  /// No description provided for @frameCoral.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mercan'**
+  String get frameCoral;
+
+  /// No description provided for @frameNight.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gece'**
+  String get frameNight;
+
+  /// No description provided for @frameChampagne.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şampanya'**
+  String get frameChampagne;
+
+  /// No description provided for @frameRuby.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yakut'**
+  String get frameRuby;
 }
 
 class _AppLocalizationsDelegate

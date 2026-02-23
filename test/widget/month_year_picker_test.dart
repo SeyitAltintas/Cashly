@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:cashly/l10n/generated/app_localizations.dart';
 import 'package:cashly/core/widgets/month_year_picker.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+/// Turkish locale wrapping helper for MonthYearPicker tests
+Widget buildTestableWidget(Widget child, {Locale locale = const Locale('tr')}) {
+  return MaterialApp(
+    locale: locale,
+    localizationsDelegates: const [
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+    ],
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: Scaffold(body: child),
+  );
+}
 
 void main() {
   setUpAll(() async {
@@ -15,25 +32,21 @@ void main() {
       final now = DateTime(2026, 1, 15);
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MonthYearPicker(initialDate: now, onDateSelected: (_) {}),
-          ),
+        buildTestableWidget(
+          MonthYearPicker(initialDate: now, onDateSelected: (_) {}),
         ),
       );
 
       // Widget var mı
       expect(find.byType(MonthYearPicker), findsOneWidget);
 
-      // Başlık 'Ay ve Yıl Seç' (default mode)
+      // Başlık l10n'den geliyor — "Ay ve Yıl Seç" (tr) veya "Select Month and Year" (en)
+      // Türkçe locale kullanıyoruz
       expect(find.text('Ay ve Yıl Seç'), findsOneWidget);
 
       // 'Bitti' butonu var mı
       expect(find.text('Bitti'), findsOneWidget);
     });
-
-    // Date mode testi encoding sorunları nedeniyle kaldırıldı
-    // Manuel test edilmeli.
 
     testWidgets('Bitti butonuna tıklayınca onDateSelected çalışır', (
       WidgetTester tester,
@@ -42,12 +55,10 @@ void main() {
       DateTime? selectedDate;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: MonthYearPicker(
-              initialDate: now,
-              onDateSelected: (date) => selectedDate = date,
-            ),
+        buildTestableWidget(
+          MonthYearPicker(
+            initialDate: now,
+            onDateSelected: (date) => selectedDate = date,
           ),
         ),
       );
@@ -55,10 +66,6 @@ void main() {
       // Bitti'ye tıkla
       await tester.tap(find.text('Bitti'));
       await tester.pump();
-
-      // Callback çalıştı mı? (Değişiklik yapmadık, initialDate'e yakın/aynı olmalı,
-      // MonthYearPicker month mode'da gün 1 dönebilir veya girilen günü koruyabilir,
-      // Kodda: DateTime(_selectedYear, _selectedMonthIndex + 1) dönüyor yani gün 1 oluyor)
 
       expect(selectedDate, isNotNull);
       expect(selectedDate?.year, 2026);
@@ -70,6 +77,14 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('tr'),
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: Builder(
               builder: (context) => TextButton(

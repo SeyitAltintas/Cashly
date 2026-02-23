@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/features/assets/presentation/controllers/assets_controller.dart';
 import 'package:cashly/features/assets/domain/repositories/asset_repository.dart';
 import 'package:cashly/features/assets/data/models/asset_model.dart';
+import 'package:cashly/core/services/currency_service.dart';
+import 'package:get_it/get_it.dart';
 
 /// Mock AssetRepository
 class MockAssetRepository implements AssetRepository {
@@ -40,6 +42,18 @@ class MockAssetRepository implements AssetRepository {
 }
 
 void main() {
+  setUpAll(() {
+    if (!GetIt.instance.isRegistered<CurrencyService>()) {
+      GetIt.instance.registerLazySingleton<CurrencyService>(
+        () => CurrencyService(),
+      );
+    }
+  });
+
+  tearDownAll(() {
+    GetIt.instance.reset();
+  });
+
   group('AssetsController', () {
     late MockAssetRepository mockRepo;
     late AssetsController controller;

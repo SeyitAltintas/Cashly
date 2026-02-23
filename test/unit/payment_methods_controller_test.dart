@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/features/payment_methods/presentation/controllers/payment_methods_controller.dart';
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
+import 'package:cashly/core/services/currency_service.dart';
+import 'package:get_it/get_it.dart';
 
 /// Mock PaymentMethodRepository
 class MockPaymentMethodRepository implements PaymentMethodRepository {
@@ -63,6 +65,18 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
 }
 
 void main() {
+  setUpAll(() {
+    if (!GetIt.instance.isRegistered<CurrencyService>()) {
+      GetIt.instance.registerLazySingleton<CurrencyService>(
+        () => CurrencyService(),
+      );
+    }
+  });
+
+  tearDownAll(() {
+    GetIt.instance.reset();
+  });
+
   group('PaymentMethodsController', () {
     late MockPaymentMethodRepository mockRepo;
     late PaymentMethodsController controller;

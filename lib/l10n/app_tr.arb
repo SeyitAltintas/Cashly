@@ -1677,5 +1677,27 @@
         "type": "String"
       }
     }
-  }
+  },
+  "frameNone": "Yok",
+  "frameWhite": "Beyaz",
+  "frameBlack": "Siyah",
+  "framePolaroid": "Polaroid",
+  "frameGold": "Altın",
+  "frameSilver": "Gümüş",
+  "frameNeon": "Neon",
+  "frameNeonPink": "Neon Pembe",
+  "frameOcean": "Okyanus",
+  "frameSunset": "Günbatımı",
+  "frameRetro": "Retro",
+  "frameVintage": "Vintage",
+  "frameMint": "Mint",
+  "frameLavender": "Lavanta",
+  "frameRoseGold": "Rose Gold",
+  "frameBronze": "Bronz",
+  "frameIce": "Buz",
+  "frameForest": "Orman",
+  "frameCoral": "Mercan",
+  "frameNight": "Gece",
+  "frameChampagne": "Şampanya",
+  "frameRuby": "Yakut"
 }

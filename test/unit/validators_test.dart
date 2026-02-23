@@ -1,7 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/core/utils/validators.dart';
+import 'package:cashly/core/services/currency_service.dart';
+import 'package:get_it/get_it.dart';
 
 void main() {
+  setUpAll(() {
+    if (!GetIt.instance.isRegistered<CurrencyService>()) {
+      GetIt.instance.registerLazySingleton<CurrencyService>(
+        () => CurrencyService(),
+      );
+    }
+  });
+
+  tearDownAll(() {
+    GetIt.instance.reset();
+  });
+
   group('Validators', () {
     group('validateEmail', () {
       test('geçerli email adresi için null döner', () {
