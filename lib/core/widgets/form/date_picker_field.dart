@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../constants/color_constants.dart';
+import '../../extensions/l10n_extensions.dart';
 
 /// Tarih seçici form alanı widget'ı
 /// Tarih seçimi için tutarlı görünüm ve davranış sağlar.
@@ -17,7 +18,7 @@ class DatePickerField extends StatelessWidget {
     super.key,
     required this.selectedDate,
     required this.onDateChanged,
-    this.labelText = 'Tarih',
+    this.labelText,
     this.accentColor,
     this.firstDate,
     this.lastDate,
@@ -28,6 +29,10 @@ class DatePickerField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final color = accentColor ?? ColorConstants.kirmiziVurgu;
+    final displayLabel = labelText ?? context.l10n.expenseDate;
+    final locale = Localizations.localeOf(context).languageCode == 'tr'
+        ? 'tr_TR'
+        : 'en_US';
 
     return GestureDetector(
       onTap: () => _showDatePicker(context),
@@ -46,19 +51,16 @@ class DatePickerField extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (labelText != null)
-                    Text(
-                      labelText!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.6,
-                        ),
-                      ),
+                  Text(
+                    displayLabel,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
+                  ),
                   const SizedBox(height: 2),
                   Text(
-                    DateFormat(dateFormat, 'tr_TR').format(selectedDate),
+                    DateFormat(dateFormat, locale).format(selectedDate),
                     style: TextStyle(
                       fontSize: 16,
                       color: theme.colorScheme.onSurface,
@@ -107,7 +109,7 @@ class DatePickerField extends StatelessWidget {
     Key? key,
     required DateTime selectedDate,
     required Function(DateTime) onDateChanged,
-    String? labelText = 'Harcama Tarihi',
+    String? labelText,
   }) {
     return DatePickerField(
       key: key,
@@ -123,7 +125,7 @@ class DatePickerField extends StatelessWidget {
     Key? key,
     required DateTime selectedDate,
     required Function(DateTime) onDateChanged,
-    String? labelText = 'Gelir Tarihi',
+    String? labelText,
   }) {
     return DatePickerField(
       key: key,

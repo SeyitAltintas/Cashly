@@ -1,6 +1,24 @@
 {
   "@@locale": "en",
   "appTitle": "Cashly",
+  "transferOutTitle": "Transfer to {accountName} account",
+  "@transferOutTitle": {
+    "placeholders": {
+      "accountName": {
+        "type": "String"
+      }
+    }
+  },
+  "transferInTitle": "Transfer from {accountName} account",
+  "@transferInTitle": {
+    "placeholders": {
+      "accountName": {
+        "type": "String"
+      }
+    }
+  },
+  "noTransactionsFoundThisMonth": "No transactions found this month",
+  "limitLabel": "Limit",
   "settings": "Settings",
   "appSettings": "App Settings",
   "appearance": "Appearance",

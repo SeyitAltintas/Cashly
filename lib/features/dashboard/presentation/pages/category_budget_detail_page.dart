@@ -183,8 +183,12 @@ class CategoryBudgetDetailPage extends StatelessWidget {
               ),
               Text(
                 isOverBudget
-                    ? 'Aşım: ${CurrencyFormatter.format(-remaining)}'
-                    : 'Kalan: ${CurrencyFormatter.format(remaining)}',
+                    ? context.l10n.exceeded(
+                        CurrencyFormatter.format(-remaining),
+                      )
+                    : context.l10n.remaining(
+                        CurrencyFormatter.format(remaining),
+                      ),
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -222,7 +226,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  data.kategori,
+                  context.translateDbName(data.kategori),
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -318,7 +322,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            entry.key,
+            context.translateDbName(entry.key),
             style: TextStyle(
               fontSize: 14,
               color: Theme.of(

@@ -1,6 +1,24 @@
 {
   "@@locale": "tr",
   "appTitle": "Cashly",
+  "transferOutTitle": "{accountName} hesabına giden transfer",
+  "@transferOutTitle": {
+    "placeholders": {
+      "accountName": {
+        "type": "String"
+      }
+    }
+  },
+  "transferInTitle": "{accountName} hesabından gelen transfer",
+  "@transferInTitle": {
+    "placeholders": {
+      "accountName": {
+        "type": "String"
+      }
+    }
+  },
+  "noTransactionsFoundThisMonth": "Bu ayda işlem bulunamadı",
+  "limitLabel": "Limit",
   "settings": "Ayarlar",
   "appSettings": "Uygulama Ayarları",
   "appearance": "Görünüm",

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/color_constants.dart';
+import '../../extensions/l10n_extensions.dart';
 
 /// Kategori seçici widget'ı
 /// Harcama ve gelir kategorileri için yeniden kullanılabilir dropdown.
@@ -17,7 +18,7 @@ class CategorySelector extends StatelessWidget {
     required this.selectedCategory,
     required this.categoryIcons,
     required this.onChanged,
-    this.labelText = 'Kategori',
+    this.labelText,
     this.accentColor,
     this.isExpanded = true,
     this.showLabel = true,
@@ -43,7 +44,7 @@ class CategorySelector extends StatelessWidget {
               child: DropdownButton<String>(
                 value: selectedCategory,
                 hint: Text(
-                  labelText ?? 'Kategori seçin',
+                  labelText ?? context.l10n.category,
                   style: TextStyle(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
@@ -57,7 +58,7 @@ class CategorySelector extends StatelessWidget {
                       children: [
                         Icon(entry.value, size: 20, color: color),
                         const SizedBox(width: 8),
-                        Text(entry.key),
+                        Text(context.translateDbName(entry.key)),
                       ],
                     ),
                   );

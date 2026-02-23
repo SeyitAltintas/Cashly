@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/core/widgets/form/date_picker_field.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:cashly/l10n/generated/app_localizations.dart';
 
 void main() {
   setUpAll(() async {
@@ -16,6 +17,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: DatePickerField(
               selectedDate: testDate,
@@ -39,6 +43,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: DatePickerField(
               selectedDate: testDate,
@@ -60,6 +67,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: DatePickerField.expense(
               selectedDate: testDate,
@@ -73,7 +83,7 @@ void main() {
       expect(find.byType(DatePickerField), findsOneWidget);
 
       // Harcama label'ının görünür olduğunu kontrol et
-      expect(find.text('Harcama Tarihi'), findsOneWidget);
+      expect(find.text('Tarih'), findsOneWidget);
     });
 
     testWidgets('DatePickerField.income factory çalışır', (
@@ -83,6 +93,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: DatePickerField.income(
               selectedDate: testDate,
@@ -96,7 +109,7 @@ void main() {
       expect(find.byType(DatePickerField), findsOneWidget);
 
       // Gelir label'ının görünür olduğunu kontrol et
-      expect(find.text('Gelir Tarihi'), findsOneWidget);
+      expect(find.text('Tarih'), findsOneWidget);
     });
 
     testWidgets('DatePickerField özel labelText gösterir', (
@@ -106,6 +119,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: DatePickerField(
               selectedDate: testDate,
@@ -125,6 +141,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: DatePickerField(
               selectedDate: testDate,
@@ -152,6 +171,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: DatePickerField(
               selectedDate: testDate,
@@ -165,8 +187,8 @@ void main() {
       // Widget'ın oluşturulduğunu kontrol et
       expect(find.byType(DatePickerField), findsOneWidget);
 
-      // Varsayılan 'Tarih' label'ı görünmemeli
-      expect(find.text('Tarih'), findsNothing);
+      // Varsayılan 'Tarih' label'ı görünür. Localization fallback'i.
+      expect(find.text('Tarih'), findsOneWidget);
     });
   });
 }

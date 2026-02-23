@@ -104,6 +104,30 @@ abstract class AppLocalizations {
   /// **'Cashly'**
   String get appTitle;
 
+  /// No description provided for @transferOutTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'{accountName} hesabına giden transfer'**
+  String transferOutTitle(String accountName);
+
+  /// No description provided for @transferInTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'{accountName} hesabından gelen transfer'**
+  String transferInTitle(String accountName);
+
+  /// No description provided for @noTransactionsFoundThisMonth.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu ayda işlem bulunamadı'**
+  String get noTransactionsFoundThisMonth;
+
+  /// No description provided for @limitLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Limit'**
+  String get limitLabel;
+
   /// No description provided for @settings.
   ///
   /// In tr, this message translates to:

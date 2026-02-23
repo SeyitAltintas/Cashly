@@ -110,7 +110,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
           (pm) => pm.id == t.toAccountId,
           orElse: () => PaymentMethod(
             id: '',
-            name: 'Bilinmeyen',
+            name: context.l10n.unknown,
             type: 'banka',
             balance: 0,
             createdAt: DateTime.now(),
@@ -119,7 +119,9 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
         items.add(
           _TransactionItem(
             type: _TransactionType.transferOut,
-            title: '${context.translateDbName(toAccount.name)} hesabına giden transfer',
+            title: context.l10n.transferOutTitle(
+              context.translateDbName(toAccount.name),
+            ),
             amount: t.amount,
             date: t.date,
             category: '',
@@ -131,7 +133,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
           (pm) => pm.id == t.fromAccountId,
           orElse: () => PaymentMethod(
             id: '',
-            name: 'Bilinmeyen',
+            name: context.l10n.unknown,
             type: 'banka',
             balance: 0,
             createdAt: DateTime.now(),
@@ -140,7 +142,9 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
         items.add(
           _TransactionItem(
             type: _TransactionType.transferIn,
-            title: '${context.translateDbName(fromAccount.name)} hesabından gelen transfer',
+            title: context.l10n.transferInTitle(
+              context.translateDbName(fromAccount.name),
+            ),
             amount: t.amount,
             date: t.date,
             category: '',
@@ -249,7 +253,9 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  pm.type == 'kredi' ? 'Borç' : 'Bakiye',
+                  pm.type == 'kredi'
+                      ? context.l10n.debt
+                      : context.l10n.balanceLabel,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.7),
                     fontSize: 14,
@@ -271,14 +277,14 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Limit: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ₺',
+                        '${context.l10n.limitLabel}: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ₺',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12,
                         ),
                       ),
                       Text(
-                        'Kalan: ${AmountInputFormatter.formatInitialValue(pm.limit! - pm.balance).replaceAll(',00', '')} ₺',
+                        '${context.l10n.remainingLimitLabel}: ${AmountInputFormatter.formatInitialValue(pm.limit! - pm.balance).replaceAll(',00', '')} ₺',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12,
@@ -303,7 +309,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'İşlem Geçmişi (${allFilteredTransactions.length})',
+                  '${context.l10n.transactionHistory} (${allFilteredTransactions.length})',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
@@ -339,7 +345,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Bu ayda işlem bulunamadı',
+                          context.l10n.noTransactionsFoundThisMonth,
                           style: TextStyle(
                             color: Theme.of(
                               context,

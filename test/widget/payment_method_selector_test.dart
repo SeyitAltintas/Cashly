@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/core/widgets/form/payment_method_selector.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
+import 'package:cashly/l10n/generated/app_localizations.dart';
 
 void main() {
   final List<PaymentMethod> mockPaymentMethods = [
@@ -29,6 +30,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: PaymentMethodSelector(
               selectedPaymentMethodId: null,
@@ -43,12 +47,15 @@ void main() {
       expect(find.byType(PaymentMethodSelector), findsOneWidget);
 
       // Varsayılan hint text
-      expect(find.text('Ödeme yöntemi seçin'), findsOneWidget);
+      expect(find.text('Ödeme Yöntemi Seçin'), findsOneWidget);
     });
 
     testWidgets('Seçili ödeme yöntemini gösterir', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: PaymentMethodSelector(
               selectedPaymentMethodId: '1',
@@ -70,6 +77,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: PaymentMethodSelector(
               selectedPaymentMethodId: null,
@@ -101,6 +111,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: PaymentMethodSelector.expense(
               selectedPaymentMethodId: null,
@@ -123,6 +136,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: PaymentMethodSelector.income(
               selectedPaymentMethodId: null,

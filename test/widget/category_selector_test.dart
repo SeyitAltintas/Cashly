@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/core/widgets/form/category_selector.dart';
+import 'package:cashly/l10n/generated/app_localizations.dart';
 
 void main() {
   // Test için örnek kategori ikonları
@@ -18,6 +19,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: CategorySelector(
               selectedCategory: null,
@@ -40,6 +44,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: CategorySelector.expense(
               selectedCategory: 'Yiyecek',
@@ -62,6 +69,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: CategorySelector.income(
               selectedCategory: 'Ulaşım',
@@ -84,6 +94,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: CategorySelector(
               selectedCategory: null,
@@ -104,6 +117,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: CategorySelector(
               selectedCategory: 'Yiyecek',
@@ -132,6 +148,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: StatefulBuilder(
               builder: (context, setState) {
@@ -165,6 +184,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: CategorySelector(
               selectedCategory: 'Yiyecek',

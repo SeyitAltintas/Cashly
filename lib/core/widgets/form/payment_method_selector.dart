@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import '../../constants/color_constants.dart';
+import '../../extensions/l10n_extensions.dart';
 
 /// Ödeme yöntemi seçici widget'ı
 /// Harcama ve gelir girişlerinde ödeme yöntemi seçimi için yeniden kullanılabilir.
@@ -19,11 +20,11 @@ class PaymentMethodSelector extends StatelessWidget {
     required this.selectedPaymentMethodId,
     required this.paymentMethods,
     required this.onChanged,
-    this.labelText = 'Ödeme Yöntemi',
+    this.labelText,
     this.accentColor,
     this.isExpanded = true,
     this.allowNull = true,
-    this.nullOptionText = 'Ödeme yöntemi seçin',
+    this.nullOptionText,
   });
 
   @override
@@ -46,14 +47,14 @@ class PaymentMethodSelector extends StatelessWidget {
               child: DropdownButton<String?>(
                 value: selectedPaymentMethodId,
                 hint: Text(
-                  labelText ?? 'Ödeme yöntemi seçin',
+                  labelText ?? context.l10n.selectPaymentMethodHint,
                   style: TextStyle(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
                 isExpanded: isExpanded,
                 dropdownColor: theme.colorScheme.surface,
-                items: _buildItems(theme, color),
+                items: _buildItems(context, theme, color),
                 onChanged: onChanged,
               ),
             ),
@@ -63,7 +64,11 @@ class PaymentMethodSelector extends StatelessWidget {
     );
   }
 
-  List<DropdownMenuItem<String?>> _buildItems(ThemeData theme, Color color) {
+  List<DropdownMenuItem<String?>> _buildItems(
+    BuildContext context,
+    ThemeData theme,
+    Color color,
+  ) {
     final items = <DropdownMenuItem<String?>>[];
 
     // Null seçeneği opsiyonel
@@ -72,7 +77,7 @@ class PaymentMethodSelector extends StatelessWidget {
         DropdownMenuItem<String?>(
           value: null,
           child: Text(
-            nullOptionText ?? 'Ödeme yöntemi seçin',
+            nullOptionText ?? context.l10n.selectPaymentMethodHint,
             style: TextStyle(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
@@ -127,12 +132,14 @@ class PaymentMethodSelector extends StatelessWidget {
     required String? selectedPaymentMethodId,
     required List<PaymentMethod> paymentMethods,
     required Function(String?) onChanged,
+    String? labelText,
   }) {
     return PaymentMethodSelector(
       key: key,
       selectedPaymentMethodId: selectedPaymentMethodId,
       paymentMethods: paymentMethods,
       onChanged: onChanged,
+      labelText: labelText,
       accentColor: ColorConstants.kirmiziVurgu,
     );
   }
@@ -143,12 +150,14 @@ class PaymentMethodSelector extends StatelessWidget {
     required String? selectedPaymentMethodId,
     required List<PaymentMethod> paymentMethods,
     required Function(String?) onChanged,
+    String? labelText,
   }) {
     return PaymentMethodSelector(
       key: key,
       selectedPaymentMethodId: selectedPaymentMethodId,
       paymentMethods: paymentMethods,
       onChanged: onChanged,
+      labelText: labelText,
       accentColor: Colors.green,
     );
   }

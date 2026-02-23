@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/features/expenses/presentation/widgets/expense_summary_card.dart';
 import 'package:cashly/features/income/presentation/widgets/income_summary_card.dart';
 import 'package:cashly/features/assets/presentation/widgets/asset_summary_card.dart';
+import 'package:cashly/l10n/generated/app_localizations.dart';
 
 /// Summary Card Widget Testleri
 /// Özet kartlarının doğru şekilde render edildigini test eder
@@ -11,6 +12,9 @@ void main() {
     testWidgets('widget oluşturulabilmeli', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: ExpenseSummaryCard(
               ayIsmi: 'Ocak 2026',
@@ -34,6 +38,9 @@ void main() {
     testWidgets('toplam harcama gösterilmeli', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: ExpenseSummaryCard(
               ayIsmi: 'Ocak 2026',
@@ -61,6 +68,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: ExpenseSummaryCard(
               ayIsmi: 'Ocak 2026',
@@ -92,6 +102,9 @@ void main() {
     testWidgets('carousel PageView ve page indicator içermeli', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: ExpenseSummaryCard(
               ayIsmi: 'Ocak 2026',
@@ -121,6 +134,9 @@ void main() {
     testWidgets('widget oluşturulabilmeli', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: IncomeSummaryCard(
               ayIsmi: 'Ocak 2026',
@@ -142,6 +158,9 @@ void main() {
     testWidgets('toplam gelir gösterilmeli', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('tr'),
           home: Scaffold(
             body: IncomeSummaryCard(
               ayIsmi: 'Ocak 2026',
@@ -166,6 +185,9 @@ void main() {
     testWidgets('widget oluşturulabilmeli', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('tr'),
           home: Scaffold(
             body: AssetSummaryCard(totalAssets: 50000.0, assetCount: 5),
           ),
@@ -180,6 +202,9 @@ void main() {
     testWidgets('toplam varlık ve sayı gösterilmeli', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('tr'),
           home: Scaffold(
             body: AssetSummaryCard(totalAssets: 50000.0, assetCount: 5),
           ),

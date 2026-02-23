@@ -12,6 +12,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String get appTitle => 'Cashly';
 
   @override
+  String transferOutTitle(String accountName) {
+    return '$accountName hesabına giden transfer';
+  }
+
+  @override
+  String transferInTitle(String accountName) {
+    return '$accountName hesabından gelen transfer';
+  }
+
+  @override
+  String get noTransactionsFoundThisMonth => 'Bu ayda işlem bulunamadı';
+
+  @override
+  String get limitLabel => 'Limit';
+
+  @override
   String get settings => 'Ayarlar';
 
   @override
