@@ -9,6 +9,7 @@ class Asset {
   final DateTime lastUpdated;
   final DateTime purchaseDate; // Alış tarihi
   final double purchasePrice; // Alış fiyatı (toplam)
+  final String paraBirimi;
   bool isDeleted;
 
   Asset({
@@ -21,6 +22,7 @@ class Asset {
     required this.lastUpdated,
     DateTime? purchaseDate,
     double? purchasePrice,
+    this.paraBirimi = 'TRY',
     this.isDeleted = false,
   }) : purchaseDate = purchaseDate ?? lastUpdated,
        purchasePrice = purchasePrice ?? amount;
@@ -50,6 +52,7 @@ class Asset {
       'lastUpdated': lastUpdated.toIso8601String(),
       'purchaseDate': purchaseDate.toIso8601String(),
       'purchasePrice': purchasePrice,
+      'paraBirimi': paraBirimi,
       'isDeleted': isDeleted,
     };
   }
@@ -77,6 +80,7 @@ class Asset {
       purchasePrice:
           (map['purchasePrice'] as num?)?.toDouble() ??
           amount, // Geriye dönük uyumluluk
+      paraBirimi: map['paraBirimi'] as String? ?? 'TRY',
       isDeleted: map['isDeleted'] as bool? ?? false,
     );
   }
@@ -92,6 +96,7 @@ class Asset {
     DateTime? lastUpdated,
     DateTime? purchaseDate,
     double? purchasePrice,
+    String? paraBirimi,
     bool? isDeleted,
   }) {
     return Asset(
@@ -104,6 +109,7 @@ class Asset {
       lastUpdated: lastUpdated ?? this.lastUpdated,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       purchasePrice: purchasePrice ?? this.purchasePrice,
+      paraBirimi: paraBirimi ?? this.paraBirimi,
       isDeleted: isDeleted ?? this.isDeleted,
     );
   }

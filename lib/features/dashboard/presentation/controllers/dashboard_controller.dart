@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/domain/usecases/dashboard_usecases.dart';
+import '../../../../core/services/currency_service.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -97,11 +98,13 @@ class DashboardController extends ChangeNotifier {
     }
 
     // Yerel hesaplama (fallback)
+    final service = getIt<CurrencyService>();
+    final target = service.currentCurrency;
     double total = 0;
     for (var pm in _odemeYontemleri) {
       if (pm.isDeleted) continue;
       if (pm.type == 'kredi') continue;
-      total += pm.balance;
+      total += service.convert(pm.balance, pm.paraBirimi, target);
     }
     return total;
   }
@@ -118,11 +121,13 @@ class DashboardController extends ChangeNotifier {
     }
 
     // Yerel hesaplama (fallback)
+    final service = getIt<CurrencyService>();
+    final target = service.currentCurrency;
     double total = 0;
     for (var pm in _odemeYontemleri) {
       if (pm.isDeleted) continue;
       if (pm.type == 'kredi' && pm.balance > 0) {
-        total += pm.balance;
+        total += service.convert(pm.balance, pm.paraBirimi, target);
       }
     }
     return total;
@@ -130,6 +135,8 @@ class DashboardController extends ChangeNotifier {
 
   /// Aylık toplam harcama
   double get monthlyExpense {
+    final service = getIt<CurrencyService>();
+    final target = service.currentCurrency;
     double total = 0;
     for (var h in _harcamalar) {
       if (h['silindi'] == true) continue;
@@ -137,7 +144,9 @@ class DashboardController extends ChangeNotifier {
       if (tarih != null &&
           tarih.year == _secilenAy.year &&
           tarih.month == _secilenAy.month) {
-        total += (h['tutar'] as num?)?.toDouble() ?? 0;
+        final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
+        final paraBirimi = h['paraBirimi']?.toString() ?? 'TRY';
+        total += service.convert(tutar, paraBirimi, target);
       }
     }
     return total;
@@ -145,11 +154,13 @@ class DashboardController extends ChangeNotifier {
 
   /// Aylık toplam gelir
   double get monthlyIncome {
+    final service = getIt<CurrencyService>();
+    final target = service.currentCurrency;
     double total = 0;
     for (var g in _gelirler) {
       if (g.isDeleted) continue;
       if (g.date.year == _secilenAy.year && g.date.month == _secilenAy.month) {
-        total += g.amount;
+        total += service.convert(g.amount, g.paraBirimi, target);
       }
     }
     return total;
@@ -160,10 +171,12 @@ class DashboardController extends ChangeNotifier {
 
   /// Toplam varlık değeri
   double get totalAssets {
+    final service = getIt<CurrencyService>();
+    final target = service.currentCurrency;
     double total = 0;
     for (var v in _varliklar) {
       if (v.isDeleted) continue;
-      total += v.amount;
+      total += service.convert(v.amount, v.paraBirimi, target);
     }
     return total;
   }
@@ -184,6 +197,8 @@ class DashboardController extends ChangeNotifier {
 
   /// Kategori bazlı aylık harcamalar
   Map<String, double> get categoryExpenses {
+    final service = getIt<CurrencyService>();
+    final target = service.currentCurrency;
     final expenses = <String, double>{};
     for (var h in _harcamalar) {
       if (h['silindi'] == true) continue;
@@ -193,7 +208,9 @@ class DashboardController extends ChangeNotifier {
           tarih.month == _secilenAy.month) {
         final kategori = h['kategori'] as String? ?? 'Diğer';
         final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
-        expenses[kategori] = (expenses[kategori] ?? 0) + tutar;
+        final paraBirimi = h['paraBirimi']?.toString() ?? 'TRY';
+        final convertedTutar = service.convert(tutar, paraBirimi, target);
+        expenses[kategori] = (expenses[kategori] ?? 0) + convertedTutar;
       }
     }
     return expenses;

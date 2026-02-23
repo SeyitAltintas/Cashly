@@ -4,6 +4,8 @@ import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../data/models/income_model.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 
 class IncomeListItem extends StatelessWidget {
   final Income income;
@@ -104,13 +106,23 @@ class IncomeListItem extends StatelessWidget {
                   fontSize: 15,
                 ),
               ),
-              trailing: Text(
-                "+${CurrencyFormatter.formatWithoutSymbol(income.amount)} ₺",
-                style: const TextStyle(
-                  color: Colors.greenAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+              trailing: Builder(
+                builder: (context) {
+                  final cur = getIt<CurrencyService>();
+                  final converted = cur.convert(
+                    income.amount,
+                    income.paraBirimi,
+                    cur.currentCurrency,
+                  );
+                  return Text(
+                    CurrencyFormatter.formatSigned(converted, showPlus: true),
+                    style: const TextStyle(
+                      color: Colors.greenAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  );
+                },
               ),
             ),
           ),

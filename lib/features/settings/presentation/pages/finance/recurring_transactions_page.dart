@@ -6,6 +6,7 @@ import '../../../../../core/exceptions/app_exceptions.dart';
 import '../../../../expenses/domain/repositories/expense_repository.dart';
 import '../../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../../payment_methods/data/models/payment_method_model.dart';
+import '../../../../../core/utils/currency_formatter.dart';
 import 'state/recurring_transactions_state.dart';
 
 /// Tekrarlayan İşlemler yönetim sayfası
@@ -669,7 +670,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                 ),
               ),
               Text(
-                '${tutar.toStringAsFixed(2)} ₺',
+                CurrencyFormatter.format(tutar),
                 style: TextStyle(
                   color: Colors.red.shade400,
                   fontSize: 16,

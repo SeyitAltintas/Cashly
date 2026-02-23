@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/currency_formatter.dart';
 
 /// Yetersiz bakiye veya limit uyarısı göstermek için modern tasarımlı diyalog widget'ı.
 ///
@@ -266,7 +267,7 @@ class BalanceWarningDialog extends StatelessWidget {
           ],
         ),
         Text(
-          '${currentBalance.toStringAsFixed(2)} ₺',
+          CurrencyFormatter.format(currentBalance),
           style: const TextStyle(
             color: Colors.green,
             fontSize: 16,
@@ -307,7 +308,7 @@ class BalanceWarningDialog extends StatelessWidget {
           ],
         ),
         Text(
-          '${expenseAmount.toStringAsFixed(2)} ₺',
+          CurrencyFormatter.format(expenseAmount),
           style: const TextStyle(
             color: Colors.red,
             fontSize: 16,

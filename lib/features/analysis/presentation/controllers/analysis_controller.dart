@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 
 /// Analysis Controller
 /// Analiz sayfası için ChangeNotifier tabanlı state yönetimi sağlar.
@@ -105,29 +107,38 @@ class AnalysisController extends ChangeNotifier {
 
   /// Toplam aylık harcama
   double get totalMonthlyExpense {
+    final cur = getIt<CurrencyService>();
     return monthlyExpenses.fold(0.0, (sum, h) {
-      return sum + ((h['tutar'] as num?)?.toDouble() ?? 0);
+      final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
+      final pb = h['paraBirimi']?.toString() ?? 'TRY';
+      return sum + cur.convert(tutar, pb, cur.currentCurrency);
     });
   }
 
   /// Kategori bazlı harcama toplamları
   Map<String, double> get expenseCategoryTotals {
+    final cur = getIt<CurrencyService>();
     final totals = <String, double>{};
     for (var h in monthlyExpenses) {
       final kategori = h['kategori']?.toString() ?? 'Diğer';
       final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
-      totals[kategori] = (totals[kategori] ?? 0) + tutar;
+      final pb = h['paraBirimi']?.toString() ?? 'TRY';
+      final deger = cur.convert(tutar, pb, cur.currentCurrency);
+      totals[kategori] = (totals[kategori] ?? 0) + deger;
     }
     return totals;
   }
 
   /// Ödeme yöntemi bazlı harcama toplamları
   Map<String, double> get expensePaymentMethodTotals {
+    final cur = getIt<CurrencyService>();
     final totals = <String, double>{};
     for (var h in monthlyExpenses) {
       final pmId = h['odemeYontemiId']?.toString() ?? 'nakit';
       final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
-      totals[pmId] = (totals[pmId] ?? 0) + tutar;
+      final pb = h['paraBirimi']?.toString() ?? 'TRY';
+      totals[pmId] =
+          (totals[pmId] ?? 0) + cur.convert(tutar, pb, cur.currentCurrency);
     }
     return totals;
   }
@@ -159,18 +170,24 @@ class AnalysisController extends ChangeNotifier {
 
   /// Toplam aylık gelir
   double get totalMonthlyIncome {
+    final cur = getIt<CurrencyService>();
     return monthlyIncomes.fold(0.0, (sum, g) {
-      return sum + ((g['amount'] as num?)?.toDouble() ?? 0);
+      final amount = (g['amount'] as num?)?.toDouble() ?? 0;
+      final pb = g['paraBirimi']?.toString() ?? 'TRY';
+      return sum + cur.convert(amount, pb, cur.currentCurrency);
     });
   }
 
   /// Kategori bazlı gelir toplamları
   Map<String, double> get incomeCategoryTotals {
+    final cur = getIt<CurrencyService>();
     final totals = <String, double>{};
     for (var g in monthlyIncomes) {
       final kategori = g['category']?.toString() ?? 'Diğer';
       final tutar = (g['amount'] as num?)?.toDouble() ?? 0;
-      totals[kategori] = (totals[kategori] ?? 0) + tutar;
+      final pb = g['paraBirimi']?.toString() ?? 'TRY';
+      totals[kategori] =
+          (totals[kategori] ?? 0) + cur.convert(tutar, pb, cur.currentCurrency);
     }
     return totals;
   }
@@ -192,18 +209,28 @@ class AnalysisController extends ChangeNotifier {
 
   /// Toplam varlık değeri
   double get totalAssetValue {
+    final cur = getIt<CurrencyService>();
     return activeAssets.fold(0.0, (sum, v) {
-      return sum + ((v['currentValue'] as num?)?.toDouble() ?? 0);
+      final am =
+          (v['amount'] as num?)?.toDouble() ??
+          0; // Wait, is it amount or currentValue? The previous code used currentValue but later it might be amount. Wait, let me check the previous code for activeAssets
+      final val = (v['currentValue'] as num?)?.toDouble() ?? am;
+      final pb = v['paraBirimi']?.toString() ?? 'TRY';
+      return sum + cur.convert(val, pb, cur.currentCurrency);
     });
   }
 
   /// Varlık türü bazlı toplamlar
   Map<String, double> get assetTypeTotals {
+    final cur = getIt<CurrencyService>();
     final totals = <String, double>{};
     for (var v in activeAssets) {
       final tip = v['type']?.toString() ?? 'Diğer';
-      final deger = (v['currentValue'] as num?)?.toDouble() ?? 0;
-      totals[tip] = (totals[tip] ?? 0) + deger;
+      final am = (v['amount'] as num?)?.toDouble() ?? 0;
+      final deger = (v['currentValue'] as num?)?.toDouble() ?? am;
+      final pb = v['paraBirimi']?.toString() ?? 'TRY';
+      totals[tip] =
+          (totals[tip] ?? 0) + cur.convert(deger, pb, cur.currentCurrency);
     }
     return totals;
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/utils/currency_formatter.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../data/models/payment_method_model.dart';
 
 /// Carousel Sayfa 2: Borç Analizi
@@ -63,7 +64,7 @@ class DebtAnalysisCardPage extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                'TOPLAM BORÇ',
+                context.l10n.totalDebt,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.6),
                   fontSize: 11,
@@ -98,7 +99,7 @@ class DebtAnalysisCardPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Limit Kullanımı',
+                    context.l10n.limitUsage,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 11,
@@ -134,12 +135,12 @@ class DebtAnalysisCardPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _DebtInfoChip(
-                label: 'Kullanılan',
+                label: context.l10n.usedAmount,
                 value: CurrencyFormatter.format(toplamBorc),
                 color: ColorConstants.kirmiziVurgu,
               ),
               _DebtInfoChip(
-                label: 'Toplam Limit',
+                label: context.l10n.totalLimit,
                 value: CurrencyFormatter.format(toplamLimit),
                 color: Colors.blueAccent,
               ),

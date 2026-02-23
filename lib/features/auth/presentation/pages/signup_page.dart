@@ -417,14 +417,14 @@ class _SignUpPageState extends State<SignUpPage> {
                                         _securityAnswerController.text,
                                   );
 
-                              if (!mounted) return;
+                              if (!context.mounted) return;
 
                               if (success) {
                                 AppSnackBar.successWithMessenger(
                                   messenger,
                                   context.l10n.signupSuccess,
                                 );
-                                if (!mounted) return;
+                                if (!context.mounted) return;
                                 navigator.pushReplacement(
                                   MaterialPageRoute(
                                     builder: (_) => AnaSayfa(
@@ -440,7 +440,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 );
                               }
                             } catch (e) {
-                              if (!mounted) return;
+                              if (!context.mounted) return;
                               AppSnackBar.errorWithMessenger(
                                 messenger,
                                 "Hata: ${e.toString()}",
@@ -468,7 +468,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           )
                         : Text(
                             context.l10n.signup,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,

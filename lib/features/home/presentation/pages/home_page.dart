@@ -4,6 +4,7 @@ import 'package:cashly/core/widgets/app_snackbar.dart';
 
 import 'package:cashly/features/settings/presentation/pages/profile/profile_page.dart';
 import 'package:cashly/core/di/injection_container.dart';
+import 'package:cashly/core/services/currency_service.dart';
 import 'package:cashly/core/services/asset_price_update_service.dart';
 
 // Auth
@@ -683,6 +684,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                 date: date,
                 isScheduled: isScheduled,
                 isExecuted: !isScheduled, // Anında transfer zaten uygulandı
+                paraBirimi: getIt<CurrencyService>().currentCurrency,
               ),
             );
             _transferleriKaydet();

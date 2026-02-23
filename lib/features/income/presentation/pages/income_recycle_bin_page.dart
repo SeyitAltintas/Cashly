@@ -6,6 +6,7 @@ import '../../../income/domain/repositories/income_repository.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/core/mixins/lazy_loading_mixin.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../data/models/income_model.dart';
 import '../controllers/incomes_controller.dart';
 
@@ -320,7 +321,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
                       style: const TextStyle(color: Colors.white),
                     ),
                     subtitle: Text(
-                      "${gelir.amount.toStringAsFixed(2)} ₺ • ${gelir.date.day} ${context.getMonthName(gelir.date.month)} ${gelir.date.year}",
+                      "${CurrencyFormatter.format(gelir.amount)} • ${gelir.date.day} ${context.getMonthName(gelir.date.month)} ${gelir.date.year}",
                       style: TextStyle(
                         color: Theme.of(
                           context,

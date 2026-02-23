@@ -5,6 +5,8 @@ import '../../../payment_methods/domain/repositories/payment_method_repository.d
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 
 /// Harcamalar Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
@@ -380,9 +382,12 @@ class ExpensesController extends ChangeNotifier {
 
   // Aylık toplam (hesaplanmış değer)
   double get toplamTutar {
+    final cur = getIt<CurrencyService>();
     double toplam = 0;
     for (var h in _gosterilenHarcamalar) {
-      toplam += (h['tutar'] as num?)?.toDouble() ?? 0;
+      final t = (h['tutar'] as num?)?.toDouble() ?? 0;
+      final pb = h['paraBirimi']?.toString() ?? 'TRY';
+      toplam += cur.convert(t, pb, cur.currentCurrency);
     }
     return toplam;
   }
@@ -610,6 +615,7 @@ class ExpensesController extends ChangeNotifier {
     required String category,
     required DateTime date,
     String? paymentMethodId,
+    String? paraBirimi,
     Map<String, dynamic>? duzenlenecekHarcama,
     String? eskiOdemeYontemiId,
     double? eskiTutar,
@@ -653,6 +659,10 @@ class ExpensesController extends ChangeNotifier {
             "tarih": date.toString(),
             "silindi": false,
             "odemeYontemiId": paymentMethodId,
+            "paraBirimi":
+                paraBirimi ??
+                duzenlenecekHarcama['paraBirimi'] ??
+                getIt<CurrencyService>().currentCurrency,
           };
         }
       } else {
@@ -667,6 +677,7 @@ class ExpensesController extends ChangeNotifier {
           "tarih": date.toString(),
           "silindi": false,
           "odemeYontemiId": paymentMethodId,
+          "paraBirimi": paraBirimi ?? getIt<CurrencyService>().currentCurrency,
         });
       }
 
@@ -820,6 +831,9 @@ class ExpensesController extends ChangeNotifier {
             "tarih": date.toString(),
             "silindi": false,
             "odemeYontemiId": paymentMethodId,
+            "paraBirimi":
+                duzenlenecekHarcama['paraBirimi'] ??
+                getIt<CurrencyService>().currentCurrency,
           };
         }
       } else {
@@ -834,6 +848,7 @@ class ExpensesController extends ChangeNotifier {
           "tarih": date.toString(),
           "silindi": false,
           "odemeYontemiId": paymentMethodId,
+          "paraBirimi": getIt<CurrencyService>().currentCurrency,
         });
       }
 

@@ -6,6 +6,8 @@ import '../../../../core/exceptions/app_exceptions.dart';
 import '../../../income/domain/repositories/income_repository.dart';
 import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/services/currency_service.dart';
 import '../controllers/incomes_controller.dart';
 
 /// Tekrarlayan Gelirler yönetim sayfası (maaş, kira geliri vb.)
@@ -209,7 +211,8 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                     decoration: InputDecoration(
-                      labelText: 'Tutar (₺)',
+                      labelText:
+                          'Tutar (${getIt<CurrencyService>().currentSymbol})',
                       labelStyle: TextStyle(
                         color: Theme.of(
                           context,
@@ -672,7 +675,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                 ),
               ),
               Text(
-                '+${tutar.toStringAsFixed(2)} ₺',
+                '+${CurrencyFormatter.format(tutar)}',
                 style: const TextStyle(
                   color: Colors.green,
                   fontSize: 16,

@@ -2,6 +2,8 @@ import 'base_usecase.dart';
 import '../../../features/expenses/domain/repositories/expense_repository.dart';
 import '../../../features/income/domain/repositories/income_repository.dart';
 import '../../../features/payment_methods/domain/repositories/payment_method_repository.dart';
+import '../../di/injection_container.dart';
+import '../../services/currency_service.dart';
 
 // ===== DASHBOARD USE CASES =====
 
@@ -16,6 +18,8 @@ class CalculateTotalBalance
   @override
   double call(CalculateTotalBalanceParams params) {
     final paymentMethods = repository.getPaymentMethods(params.userId);
+    final currencyService = getIt<CurrencyService>();
+    final targetCurrency = currencyService.currentCurrency;
 
     double total = 0.0;
     for (final pm in paymentMethods) {
@@ -25,7 +29,12 @@ class CalculateTotalBalance
 
       final balance = pm['balance'];
       if (balance is num) {
-        total += balance.toDouble();
+        final sourceCurrency = pm['paraBirimi']?.toString() ?? 'TRY';
+        total += currencyService.convert(
+          balance.toDouble(),
+          sourceCurrency,
+          targetCurrency,
+        );
       }
     }
 
@@ -48,6 +57,8 @@ class CalculateTotalDebt
   @override
   double call(CalculateTotalDebtParams params) {
     final paymentMethods = repository.getPaymentMethods(params.userId);
+    final currencyService = getIt<CurrencyService>();
+    final targetCurrency = currencyService.currentCurrency;
 
     double total = 0.0;
     for (final pm in paymentMethods) {
@@ -56,7 +67,12 @@ class CalculateTotalDebt
 
       final balance = pm['balance'];
       if (balance is num) {
-        total += balance.toDouble();
+        final sourceCurrency = pm['paraBirimi']?.toString() ?? 'TRY';
+        total += currencyService.convert(
+          balance.toDouble(),
+          sourceCurrency,
+          targetCurrency,
+        );
       }
     }
 
@@ -79,6 +95,8 @@ class GetMonthlyExpense
   @override
   double call(GetMonthlyExpenseParams params) {
     final expenses = repository.getExpenses(params.userId);
+    final currencyService = getIt<CurrencyService>();
+    final targetCurrency = currencyService.currentCurrency;
 
     double total = 0.0;
     for (final expense in expenses) {
@@ -94,7 +112,12 @@ class GetMonthlyExpense
       if (date.year == params.year && date.month == params.month) {
         final amount = expense['tutar'];
         if (amount is num) {
-          total += amount.toDouble();
+          final sourceCurrency = expense['paraBirimi']?.toString() ?? 'TRY';
+          total += currencyService.convert(
+            amount.toDouble(),
+            sourceCurrency,
+            targetCurrency,
+          );
         }
       }
     }
@@ -123,6 +146,8 @@ class GetMonthlyIncome implements UseCaseSync<double, GetMonthlyIncomeParams> {
   @override
   double call(GetMonthlyIncomeParams params) {
     final incomes = repository.getIncomes(params.userId);
+    final currencyService = getIt<CurrencyService>();
+    final targetCurrency = currencyService.currentCurrency;
 
     double total = 0.0;
     for (final income in incomes) {
@@ -138,7 +163,12 @@ class GetMonthlyIncome implements UseCaseSync<double, GetMonthlyIncomeParams> {
       if (date.year == params.year && date.month == params.month) {
         final amount = income['tutar'];
         if (amount is num) {
-          total += amount.toDouble();
+          final sourceCurrency = income['paraBirimi']?.toString() ?? 'TRY';
+          total += currencyService.convert(
+            amount.toDouble(),
+            sourceCurrency,
+            targetCurrency,
+          );
         }
       }
     }
@@ -173,6 +203,9 @@ class GetFinancialSummary
 
   @override
   FinancialSummary call(GetFinancialSummaryParams params) {
+    final currencyService = getIt<CurrencyService>();
+    final targetCurrency = currencyService.currentCurrency;
+
     // Toplam bakiye
     final paymentMethods = paymentMethodRepository.getPaymentMethods(
       params.userId,
@@ -183,10 +216,20 @@ class GetFinancialSummary
     for (final pm in paymentMethods) {
       if (pm['isDeleted'] == true) continue;
       final balance = pm['balance'] as num? ?? 0;
+      final sourceCurrency = pm['paraBirimi']?.toString() ?? 'TRY';
+
       if (pm['type'] == 'kredi') {
-        totalDebt += balance.toDouble();
+        totalDebt += currencyService.convert(
+          balance.toDouble(),
+          sourceCurrency,
+          targetCurrency,
+        );
       } else {
-        totalBalance += balance.toDouble();
+        totalBalance += currencyService.convert(
+          balance.toDouble(),
+          sourceCurrency,
+          targetCurrency,
+        );
       }
     }
 
@@ -205,7 +248,13 @@ class GetFinancialSummary
       if (dateStr == null) continue;
       final date = DateTime.tryParse(dateStr);
       if (date != null && date.year == now.year && date.month == now.month) {
-        monthlyExpense += (expense['tutar'] as num?)?.toDouble() ?? 0;
+        final amount = (expense['tutar'] as num?)?.toDouble() ?? 0;
+        final sourceCurrency = expense['paraBirimi']?.toString() ?? 'TRY';
+        monthlyExpense += currencyService.convert(
+          amount,
+          sourceCurrency,
+          targetCurrency,
+        );
       }
     }
 
@@ -215,7 +264,13 @@ class GetFinancialSummary
       if (dateStr == null) continue;
       final date = DateTime.tryParse(dateStr);
       if (date != null && date.year == now.year && date.month == now.month) {
-        monthlyIncome += (income['tutar'] as num?)?.toDouble() ?? 0;
+        final amount = (income['tutar'] as num?)?.toDouble() ?? 0;
+        final sourceCurrency = income['paraBirimi']?.toString() ?? 'TRY';
+        monthlyIncome += currencyService.convert(
+          amount,
+          sourceCurrency,
+          targetCurrency,
+        );
       }
     }
 

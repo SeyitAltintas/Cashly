@@ -27,6 +27,9 @@ import '../services/notification_service.dart';
 import '../services/notification_scheduler.dart';
 import '../repositories/notification_settings_repository.dart';
 
+// Currency Service
+import '../services/currency_service.dart';
+
 // Use Cases
 import '../domain/usecases/expense_usecases.dart';
 import '../domain/usecases/income_usecases.dart';
@@ -75,6 +78,9 @@ Future<void> initializeDependencies() async {
   getIt.registerLazySingleton<NotificationScheduler>(
     () => NotificationScheduler(),
   );
+
+  // Currency Service
+  getIt.registerLazySingleton<CurrencyService>(() => CurrencyService());
 
   // ===== REPOSITORIES =====
 

@@ -8,6 +8,8 @@ import '../../../../core/widgets/form/form_widgets.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../controllers/expenses_controller.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 
@@ -21,6 +23,7 @@ class AddExpensePage extends StatefulWidget {
     String category,
     DateTime date,
     String? paymentMethodId,
+    String paraBirimi,
   )
   onSave;
   final Map<String, IconData> categories;
@@ -56,6 +59,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
   DateTime _localSelectedDate = DateTime.now();
   String _localSelectedCategory = '';
   String? _localSelectedPaymentMethodId;
+  String _localSelectedCurrency = 'TRY';
 
   // Getter'lar - controller varsa onu, yoksa yerel state'i kullan
   String get _selectedCategory =>
@@ -97,6 +101,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
           DateTime.tryParse(widget.expenseToEdit!['tarih'].toString()) ??
           DateTime.now();
       final editPaymentMethodId = widget.expenseToEdit!['odemeYontemiId'];
+      _localSelectedCurrency =
+          widget.expenseToEdit!['paraBirimi']?.toString() ??
+          getIt<CurrencyService>().currentCurrency;
 
       if (_controller != null) {
         _controller!.initializeFormState(
@@ -111,6 +118,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         _localSelectedPaymentMethodId = editPaymentMethodId;
       }
     } else {
+      _localSelectedCurrency = getIt<CurrencyService>().currentCurrency;
       // Yeni harcama için varsayılanlar
       String? defaultPmId;
       if (widget.defaultPaymentMethodId != null &&
@@ -207,6 +215,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       _selectedCategory,
       _selectedDate,
       _selectedPaymentMethodId,
+      _localSelectedCurrency,
     );
     if (mounted) Navigator.pop(context);
   }
@@ -297,12 +306,36 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text(
-                    "₺",
-                    style: TextStyle(
-                      color: Colors.white38,
-                      fontSize: 36,
-                      fontWeight: FontWeight.w300,
+                  DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _localSelectedCurrency,
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.white38,
+                      ),
+                      dropdownColor: Colors.grey[900],
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _localSelectedCurrency = newValue;
+                          });
+                        }
+                      },
+                      items: CurrencyService.supportedCurrencies.keys
+                          .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                CurrencyService.supportedCurrencies[value]!,
+                                style: const TextStyle(
+                                  color: Colors.white38,
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                            );
+                          })
+                          .toList(),
                     ),
                   ),
                   const SizedBox(width: 8),

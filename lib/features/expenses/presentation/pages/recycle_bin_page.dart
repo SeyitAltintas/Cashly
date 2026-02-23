@@ -7,6 +7,7 @@ import 'package:cashly/features/payment_methods/domain/repositories/payment_meth
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/core/mixins/lazy_loading_mixin.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../controllers/expenses_controller.dart';
 
 class CopKutusuSayfasi extends StatefulWidget {
@@ -307,7 +308,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
                       style: const TextStyle(color: Colors.white),
                     ),
                     subtitle: Text(
-                      "${harcama['tutar']} ₺ • ${tarih.day}.${tarih.month}.${tarih.year}",
+                      "${CurrencyFormatter.format((harcama['tutar'] as num).toDouble())} • ${tarih.day}.${tarih.month}.${tarih.year}",
                       style: TextStyle(
                         color: Theme.of(
                           context,

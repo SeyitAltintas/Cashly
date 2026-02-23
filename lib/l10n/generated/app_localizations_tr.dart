@@ -3520,4 +3520,40 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get welcome => 'Hoşgeldiniz';
+
+  @override
+  String get accountCreatedDate => 'Hesap Oluşturulma Tarihi';
+
+  @override
+  String get lastLoginDate => 'Son Giriş Tarihi';
+
+  @override
+  String get totalDebt => 'TOPLAM BORÇ';
+
+  @override
+  String get limitUsage => 'Limit Kullanımı';
+
+  @override
+  String get usedAmount => 'Kullanılan';
+
+  @override
+  String get mainCurrency => 'Ana Para Birimi';
+
+  @override
+  String get mainCurrencySubtitle => 'Uygulama para birimi: ₺, \$, vs.';
+
+  @override
+  String get currencySettingsTitle => 'Para Birimi Ayarları';
+
+  @override
+  String get currencyDescription =>
+      'Uygulamanın genel para birimini buradan seçebilirsiniz. Seçiminiz anında tüm sayfalara yansıyacaktır.';
+
+  @override
+  String get currenciesLabel => 'PARA BİRİMLERİ';
+
+  @override
+  String currentRateInfo(String currency, String rate) {
+    return 'Güncel Kur: 1 $currency = $rate ₺';
+  }
 }

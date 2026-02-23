@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../constants/color_constants.dart';
+import '../../di/injection_container.dart';
+import '../../services/currency_service.dart';
 
 /// Merkezi form alanı widget'ı
 /// Tüm form alanları için tutarlı görünüm sağlar.
@@ -118,7 +120,7 @@ class AppFormField extends StatelessWidget {
   static AppFormField amount({
     Key? key,
     required TextEditingController controller,
-    String labelText = 'Tutar (₺)',
+    String? labelText,
     String? Function(String?)? validator,
     Function(String)? onChanged,
     Color? accentColor,
@@ -126,7 +128,8 @@ class AppFormField extends StatelessWidget {
     return AppFormField(
       key: key,
       controller: controller,
-      labelText: labelText,
+      labelText:
+          labelText ?? 'Tutar (${getIt<CurrencyService>().currentSymbol})',
       prefixIcon: Icon(
         Icons.attach_money,
         color: accentColor ?? ColorConstants.kirmiziVurgu,

@@ -14,6 +14,7 @@ import '../widgets/payment_method_summary_card.dart';
 import 'payment_method_recycle_bin_page.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../../core/services/currency_service.dart';
 
 import '../controllers/payment_methods_controller.dart';
 import '../../../../core/utils/error_handler.dart';
@@ -270,6 +271,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                           colorIndex: colorIndex,
                           createdAt: DateTime.now(),
                           isDeleted: false,
+                          paraBirimi: getIt<CurrencyService>().currentCurrency,
                         );
                         await _controller.addMethod(newPm);
                         widget.onAdd(
@@ -400,6 +402,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                             colorIndex: colorIndex,
                             createdAt: pm.createdAt,
                             isDeleted: false,
+                            paraBirimi: pm.paraBirimi,
                           );
                           await _controller.updateMethod(updatedPm);
                           widget.onEdit(updatedPm);
@@ -503,7 +506,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                           ),
                           if (pm.type == 'kredi' && pm.limit != null)
                             Text(
-                              'Limit: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ₺',
+                              'Limit: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.5),
                                 fontSize: 10,
@@ -524,7 +527,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                             ),
                           ),
                           Text(
-                            '${AmountInputFormatter.formatInitialValue(pm.balance)} ₺',
+                            '${AmountInputFormatter.formatInitialValue(pm.balance)} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,

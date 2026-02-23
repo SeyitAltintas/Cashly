@@ -5,6 +5,7 @@ import '../repositories/expense_repository.dart';
 import '../di/injection_container.dart';
 import '../utils/notification_logger.dart';
 import '../../features/streak/domain/repositories/streak_repository.dart';
+import 'currency_service.dart';
 import 'notification_service.dart';
 
 /// Zamanlanmış bildirimlerin yönetimi
@@ -174,7 +175,7 @@ class NotificationScheduler {
 
     // Mesajı duruma göre ayarla
     final String body = monthlyTotal > 0
-        ? 'Bu ay ₺${monthlyTotal.toStringAsFixed(0)} harcadınız. Detaylar için tıklayın.'
+        ? 'Bu ay ${getIt<CurrencyService>().currentSymbol}${monthlyTotal.toStringAsFixed(0)} harcadınız. Detaylar için tıklayın.'
         : 'Bu ayki finansal durumunuzu görüntülemek için tıklayın.';
 
     await _notificationService.scheduleNotification(
@@ -278,7 +279,8 @@ class NotificationScheduler {
     await _notificationService.scheduleNotification(
       id: notificationId,
       title: '💸 Ödeme Yaklaşıyor',
-      body: '$transactionName için ₺$formattedAmount ödemeniz yarın.',
+      body:
+          '$transactionName için ${getIt<CurrencyService>().currentSymbol}$formattedAmount ödemeniz yarın.',
       scheduledDate: scheduledDate,
       type: NotificationType.recurringReminder,
       payload: 'recurring_$transactionId',
@@ -449,7 +451,7 @@ class NotificationScheduler {
 
     // Mesajı duruma göre ayarla
     final String body = topCategory.isNotEmpty && topAmount > 0
-        ? 'Bu hafta en çok $topCategory kategorisine ₺${topAmount.toStringAsFixed(0)} harcadınız.'
+        ? 'Bu hafta en çok $topCategory kategorisine ${getIt<CurrencyService>().currentSymbol}${topAmount.toStringAsFixed(0)} harcadınız.'
         : 'Bu hafta en çok hangi kategoride harcama yaptığınızı görün!';
 
     await _notificationService.scheduleNotification(

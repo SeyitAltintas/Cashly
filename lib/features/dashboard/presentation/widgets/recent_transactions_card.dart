@@ -244,7 +244,7 @@ class RecentTransactionsCard extends StatelessWidget {
             ),
           ),
           Text(
-            "$prefix${CurrencyFormatter.formatWithoutSymbol(transaction['amount'] as double)} ₺",
+            "$prefix${CurrencyFormatter.format(transaction['amount'] as double)}",
             style: TextStyle(
               color: iconColor.withValues(alpha: 0.9),
               fontWeight: FontWeight.bold,

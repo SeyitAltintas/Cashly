@@ -1,3 +1,6 @@
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
+
 /// Harcama hesaplama yardımcı sınıfı
 /// VoiceInputSheet callback'lerinde kullanılan hesaplama mantığını içerir
 class ExpenseCalculationHelper {
@@ -13,11 +16,19 @@ class ExpenseCalculationHelper {
     required this.butceLimiti,
   });
 
+  /// Tutarı hedef para birimine çevirir
+  double _convert(Map<String, dynamic> h) {
+    final cur = getIt<CurrencyService>();
+    final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
+    final pb = h['paraBirimi']?.toString() ?? 'TRY';
+    return cur.convert(tutar, pb, cur.currentCurrency);
+  }
+
   /// Aylık toplam harcamayı hesaplar
   double get toplamTutar {
     double toplam = 0;
     for (var h in gosterilenHarcamalar) {
-      toplam += (h['tutar'] as num?)?.toDouble() ?? 0;
+      toplam += _convert(h);
     }
     return toplam;
   }
@@ -47,7 +58,7 @@ class ExpenseCalculationHelper {
     Map<String, double> kategoriToplamlari = {};
     for (var h in gosterilenHarcamalar) {
       String kat = h['kategori'] ?? "Diğer";
-      double tutar = double.tryParse(h['tutar'].toString()) ?? 0;
+      double tutar = _convert(h);
       kategoriToplamlari[kat] = (kategoriToplamlari[kat] ?? 0) + tutar;
     }
     if (kategoriToplamlari.isEmpty) return null;
@@ -77,7 +88,7 @@ class ExpenseCalculationHelper {
       if (tarih != null &&
           tarih.isAfter(weekStart.subtract(const Duration(days: 1))) &&
           tarih.isBefore(now.add(const Duration(days: 1)))) {
-        haftalikToplam += (h['tutar'] as num?)?.toDouble() ?? 0;
+        haftalikToplam += _convert(h);
       }
     }
     return haftalikToplam;
@@ -95,7 +106,7 @@ class ExpenseCalculationHelper {
       if (tarih != null) {
         final harcamaTarihi = DateTime(tarih.year, tarih.month, tarih.day);
         if (harcamaTarihi.isAtSameMomentAs(today)) {
-          gunlukToplam += (h['tutar'] as num?)?.toDouble() ?? 0;
+          gunlukToplam += _convert(h);
         }
       }
     }
@@ -123,7 +134,7 @@ class ExpenseCalculationHelper {
     double toplam = 0;
     for (var h in gosterilenHarcamalar) {
       if (h['kategori'] == kategori) {
-        toplam += double.tryParse(h['tutar'].toString()) ?? 0;
+        toplam += _convert(h);
       }
     }
     return toplam;
@@ -148,7 +159,7 @@ class ExpenseCalculationHelper {
                 harcamaTarihi.isAfter(baslangicGun)) &&
             (harcamaTarihi.isAtSameMomentAs(bitisGun) ||
                 harcamaTarihi.isBefore(bitisGun))) {
-          toplam += (h['tutar'] as num?)?.toDouble() ?? 0;
+          toplam += _convert(h);
         }
       }
     }
@@ -179,7 +190,7 @@ class ExpenseCalculationHelper {
                 harcamaTarihi.isAfter(baslangicGun)) &&
             (harcamaTarihi.isAtSameMomentAs(bitisGun) ||
                 harcamaTarihi.isBefore(bitisGun))) {
-          toplam += (h['tutar'] as num?)?.toDouble() ?? 0;
+          toplam += _convert(h);
         }
       }
     }

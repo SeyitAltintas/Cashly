@@ -27,6 +27,8 @@ import '../helpers/expense_calculation_helper.dart';
 import '../controllers/expenses_controller.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/services/currency_service.dart';
 
 class ExpensesPage extends StatefulWidget {
   final List<Map<String, dynamic>> tumHarcamalar;
@@ -122,9 +124,12 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   void filtreleVeGoster() => _filtreleVeGoster();
 
   double get toplamTutar {
+    final cur = getIt<CurrencyService>();
     double toplam = 0;
     for (var h in gosterilenHarcamalar) {
-      toplam += double.tryParse(h['tutar'].toString()) ?? 0;
+      final tutar = double.tryParse(h['tutar'].toString()) ?? 0;
+      final pb = h['paraBirimi']?.toString() ?? 'TRY';
+      toplam += cur.convert(tutar, pb, cur.currentCurrency);
     }
     return toplam;
   }
@@ -276,39 +281,48 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
               .where((pm) => !pm.isDeleted)
               .toList(),
           defaultPaymentMethodId: widget.varsayilanOdemeYontemiId,
-          onSave: (name, amount, category, date, paymentMethodId) async {
-            try {
-              await _controller.harcamaEkleVeyaDuzenleLegacy(
-                tumHarcamalar: widget.tumHarcamalar,
-                tumOdemeYontemleri: widget.tumOdemeYontemleri,
-                name: name,
-                amount: amount,
-                category: category,
-                date: date,
-                paymentMethodId: paymentMethodId,
-                duzenlenecekHarcama: duzenlenecekHarcama,
-                eskiOdemeYontemiId: eskiOdemeYontemiId,
-                eskiTutar: eskiTutar,
-                aramaMetni: tArama.text,
-                onResetLazyLoading: resetLazyLoading,
-              );
+          onSave:
+              (
+                name,
+                amount,
+                category,
+                date,
+                paymentMethodId,
+                paraBirimi,
+              ) async {
+                try {
+                  await _controller.harcamaEkleVeyaDuzenleLegacy(
+                    tumHarcamalar: widget.tumHarcamalar,
+                    tumOdemeYontemleri: widget.tumOdemeYontemleri,
+                    name: name,
+                    amount: amount,
+                    category: category,
+                    date: date,
+                    paymentMethodId: paymentMethodId,
+                    paraBirimi: paraBirimi,
+                    duzenlenecekHarcama: duzenlenecekHarcama,
+                    eskiOdemeYontemiId: eskiOdemeYontemiId,
+                    eskiTutar: eskiTutar,
+                    aramaMetni: tArama.text,
+                    onResetLazyLoading: resetLazyLoading,
+                  );
 
-              widget.onHarcamalarChanged(widget.tumHarcamalar);
-              widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+                  widget.onHarcamalarChanged(widget.tumHarcamalar);
+                  widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-              if (duzenlenecekHarcama == null) {
-                if (!mounted) return;
-                if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
-                  MoneyAnimationOverlay.show(context);
+                  if (duzenlenecekHarcama == null) {
+                    if (!mounted) return;
+                    if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
+                      MoneyAnimationOverlay.show(context);
+                    }
+                  }
+                } catch (e) {
+                  if (!mounted) return;
+                  if (e is AppException) {
+                    ErrorHandler.handleAppException(context, e);
+                  }
                 }
-              }
-            } catch (e) {
-              if (!mounted) return;
-              if (e is AppException) {
-                ErrorHandler.handleAppException(context, e);
-              }
-            }
-          },
+              },
         ),
       ),
     );
@@ -592,7 +606,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
 
           AppSnackBar.success(
             context,
-            '${context.l10n.expense} ${context.l10n.added}: $name - ${amount.toStringAsFixed(2)} ₺',
+            '${context.l10n.expense} ${context.l10n.added}: $name - ${CurrencyFormatter.format(amount)}',
           );
         },
         onDeleteLastExpense: () async {
@@ -739,6 +753,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           };
         },
         onGetDateRangeTotal: (DateTime baslangic, DateTime bitis) {
+          final cur = getIt<CurrencyService>();
           double toplam = 0;
           final baslangicGun = DateTime(
             baslangic.year,
@@ -759,7 +774,9 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                       harcamaTarihi.isAfter(baslangicGun)) &&
                   (harcamaTarihi.isAtSameMomentAs(bitisGun) ||
                       harcamaTarihi.isBefore(bitisGun))) {
-                toplam += (h['tutar'] as num?)?.toDouble() ?? 0;
+                final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
+                final pb = h['paraBirimi']?.toString() ?? 'TRY';
+                toplam += cur.convert(tutar, pb, cur.currentCurrency);
               }
             }
           }
@@ -767,6 +784,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
         },
         onGetDateRangeCategoryTotal:
             (DateTime baslangic, DateTime bitis, String kategori) {
+              final cur = getIt<CurrencyService>();
               double toplam = 0;
               final baslangicGun = DateTime(
                 baslangic.year,
@@ -788,7 +806,9 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                           harcamaTarihi.isAfter(baslangicGun)) &&
                       (harcamaTarihi.isAtSameMomentAs(bitisGun) ||
                           harcamaTarihi.isBefore(bitisGun))) {
-                    toplam += (h['tutar'] as num?)?.toDouble() ?? 0;
+                    final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
+                    final pb = h['paraBirimi']?.toString() ?? 'TRY';
+                    toplam += cur.convert(tutar, pb, cur.currentCurrency);
                   }
                 }
               }

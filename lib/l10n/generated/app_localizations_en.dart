@@ -3519,4 +3519,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcome => 'Welcome';
+
+  @override
+  String get accountCreatedDate => 'Account Created';
+
+  @override
+  String get lastLoginDate => 'Last Login Date';
+
+  @override
+  String get totalDebt => 'TOTAL DEBT';
+
+  @override
+  String get limitUsage => 'Limit Usage';
+
+  @override
+  String get usedAmount => 'Used';
+
+  @override
+  String get mainCurrency => 'Main Currency';
+
+  @override
+  String get mainCurrencySubtitle => 'App currency: ₺, \$, etc.';
+
+  @override
+  String get currencySettingsTitle => 'Currency Settings';
+
+  @override
+  String get currencyDescription =>
+      'You can select the app\'s general currency here. Your selection will be instantly reflected across all pages.';
+
+  @override
+  String get currenciesLabel => 'CURRENCIES';
+
+  @override
+  String currentRateInfo(String currency, String rate) {
+    return 'Current Rate: 1 $currency = $rate ₺';
+  }
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/utils/currency_formatter.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/core/di/injection_container.dart';
+import 'package:cashly/core/services/currency_service.dart';
 
 /// Harcama özet kartı widget'ı - Carousel formatında
 /// Sayfa 1: Toplam harcama ve tarih seçimi
@@ -434,6 +436,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
         : 0;
 
     // Bugünkü harcamayı hesapla
+    final cur = getIt<CurrencyService>();
     double bugunHarcama = 0;
     for (var h in widget.harcamalar) {
       if (h['silindi'] == true) continue;
@@ -442,7 +445,9 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
         if (tarih.year == now.year &&
             tarih.month == now.month &&
             tarih.day == now.day) {
-          bugunHarcama += (h['tutar'] as num?)?.toDouble() ?? 0;
+          final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
+          final pb = h['paraBirimi']?.toString() ?? 'TRY';
+          bugunHarcama += cur.convert(tutar, pb, cur.currentCurrency);
         }
       }
     }

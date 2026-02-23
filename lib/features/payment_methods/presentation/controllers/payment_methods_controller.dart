@@ -3,6 +3,8 @@ import '../../data/models/payment_method_model.dart';
 import '../../domain/repositories/payment_method_repository.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 
 /// Ödeme Yöntemleri Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
@@ -194,15 +196,25 @@ class PaymentMethodsController extends ChangeNotifier {
   List<PaymentMethod> get filteredMethods => _filteredMethods;
 
   double get totalBalance {
+    final cur = getIt<CurrencyService>();
     return _filteredMethods
         .where((pm) => pm.type != 'kredi')
-        .fold(0.0, (sum, pm) => sum + pm.balance);
+        .fold(
+          0.0,
+          (sum, pm) =>
+              sum + cur.convert(pm.balance, pm.paraBirimi, cur.currentCurrency),
+        );
   }
 
   double get totalDebt {
+    final cur = getIt<CurrencyService>();
     return _filteredMethods
         .where((pm) => pm.type == 'kredi')
-        .fold(0.0, (sum, pm) => sum + pm.balance);
+        .fold(
+          0.0,
+          (sum, pm) =>
+              sum + cur.convert(pm.balance, pm.paraBirimi, cur.currentCurrency),
+        );
   }
 
   // ===== REPOSITORY İŞLEMLERİ =====

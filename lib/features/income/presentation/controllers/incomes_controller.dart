@@ -6,6 +6,8 @@ import '../../../payment_methods/domain/repositories/payment_method_repository.d
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 
 /// Gelirler Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
@@ -202,7 +204,12 @@ class IncomesController extends ChangeNotifier {
   }
 
   double get toplamTutar {
-    return filteredGelirler.fold(0.0, (sum, g) => sum + g.amount);
+    final cur = getIt<CurrencyService>();
+    return filteredGelirler.fold(
+      0.0,
+      (sum, g) =>
+          sum + cur.convert(g.amount, g.paraBirimi, cur.currentCurrency),
+    );
   }
 
   // ===== REPOSITORY İŞLEMLERİ =====
@@ -375,6 +382,7 @@ class IncomesController extends ChangeNotifier {
           category: category,
           date: date,
           paymentMethodId: paymentMethodId,
+          paraBirimi: income.paraBirimi,
           isDeleted: false,
         );
       }
@@ -402,6 +410,7 @@ class IncomesController extends ChangeNotifier {
       category: category,
       date: date,
       paymentMethodId: paymentMethodId,
+      paraBirimi: getIt<CurrencyService>().currentCurrency,
     );
 
     await addIncome(newIncome);

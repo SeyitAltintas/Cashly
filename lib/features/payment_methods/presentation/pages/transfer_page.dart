@@ -11,6 +11,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../settings/domain/repositories/settings_repository.dart';
 import '../controllers/payment_methods_controller.dart';
+import '../../../../core/services/currency_service.dart';
 
 class TransferPage extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
@@ -237,9 +238,12 @@ class _TransferPageState extends State<TransferPage> {
 
     // Zamanlanmış transfer için farklı mesaj
     if (_isScheduled) {
+      final appLocale = Localizations.localeOf(context).languageCode == 'tr'
+          ? 'tr_TR'
+          : 'en_US';
       final formattedDate = DateFormat(
         'd MMMM yyyy HH:mm',
-        'tr_TR',
+        appLocale,
       ).format(_selectedDate);
       final msg = context.l10n.scheduledTransferMessage(
         fromAccountName,
@@ -254,7 +258,13 @@ class _TransferPageState extends State<TransferPage> {
         setState(() {});
       }
     } else {
-      final formattedTime = DateFormat('HH:mm', 'tr_TR').format(_selectedDate);
+      final appLocale2 = Localizations.localeOf(context).languageCode == 'tr'
+          ? 'tr_TR'
+          : 'en_US';
+      final formattedTime = DateFormat(
+        'HH:mm',
+        appLocale2,
+      ).format(_selectedDate);
       final msg = context.l10n.completedTransferMessage(
         fromAccountName,
         toAccountName,
@@ -605,10 +615,25 @@ class _TransferPageState extends State<TransferPage> {
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
               ),
-              prefixIcon: Icon(
-                Icons.currency_lira,
-                size: 36,
-                color: _primaryColor,
+              prefixIcon: Builder(
+                builder: (ctx) {
+                  final cur = getIt<CurrencyService>();
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: Text(
+                      cur.currentSymbol,
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: _primaryColor,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              prefixIconConstraints: const BoxConstraints(
+                minWidth: 0,
+                minHeight: 0,
               ),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
@@ -888,13 +913,20 @@ class _TransferPageState extends State<TransferPage> {
               ),
               const SizedBox(width: 8),
               // Tarih ve saat gösterimi
-              Text(
-                DateFormat('d MMM yyyy • HH:mm', 'tr_TR').format(_selectedDate),
-                style: TextStyle(
-                  color: textColor.withValues(alpha: 0.8),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+              Builder(
+                builder: (ctx) {
+                  final loc = Localizations.localeOf(ctx).languageCode == 'tr'
+                      ? 'tr_TR'
+                      : 'en_US';
+                  return Text(
+                    DateFormat('d MMM yyyy • HH:mm', loc).format(_selectedDate),
+                    style: TextStyle(
+                      color: textColor.withValues(alpha: 0.8),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -918,10 +950,15 @@ class _TransferPageState extends State<TransferPage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              context.l10n.scheduledTransferInfo(
-                DateFormat('d MMMM yyyy', 'tr_TR').format(_selectedDate),
-                DateFormat('HH:mm', 'tr_TR').format(_selectedDate),
-              ),
+              (() {
+                final loc = Localizations.localeOf(context).languageCode == 'tr'
+                    ? 'tr_TR'
+                    : 'en_US';
+                return context.l10n.scheduledTransferInfo(
+                  DateFormat('d MMMM yyyy', loc).format(_selectedDate),
+                  DateFormat('HH:mm', loc).format(_selectedDate),
+                );
+              })(),
               style: TextStyle(
                 color: isDark ? Colors.orange.shade300 : Colors.orange.shade800,
                 fontSize: 13,
@@ -1095,10 +1132,17 @@ class _TransferPageState extends State<TransferPage> {
                 Text(
                   status == 'failed' && transfer.failureReason != null
                       ? transfer.failureReason!
-                      : DateFormat(
-                          'd MMM yyyy • HH:mm',
-                          'tr_TR',
-                        ).format(transfer.date),
+                      : (() {
+                          final loc =
+                              Localizations.localeOf(context).languageCode ==
+                                  'tr'
+                              ? 'tr_TR'
+                              : 'en_US';
+                          return DateFormat(
+                            'd MMM yyyy • HH:mm',
+                            loc,
+                          ).format(transfer.date);
+                        })(),
                   style: TextStyle(
                     fontSize: 12,
                     color: status == 'failed'
@@ -1111,13 +1155,23 @@ class _TransferPageState extends State<TransferPage> {
           ),
 
           // Tutar
-          Text(
-            CurrencyFormatter.format(transfer.amount),
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: accentColor,
-            ),
+          Builder(
+            builder: (ctx) {
+              final cur = getIt<CurrencyService>();
+              final converted = cur.convert(
+                transfer.amount,
+                transfer.paraBirimi,
+                cur.currentCurrency,
+              );
+              return Text(
+                CurrencyFormatter.format(converted),
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: accentColor,
+                ),
+              );
+            },
           ),
         ],
       ),

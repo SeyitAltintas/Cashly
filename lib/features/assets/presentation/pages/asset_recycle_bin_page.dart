@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../data/models/asset_model.dart';
 import '../../../settings/presentation/state/recycle_bin_states.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 
 class AssetRecycleBinPage extends StatefulWidget {
@@ -243,7 +244,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                       ),
                     ),
                     subtitle: Text(
-                      "${asset.amount} ₺ • ${asset.category}",
+                      "${CurrencyFormatter.format(asset.amount)} • ${asset.category}",
                       style: TextStyle(
                         color: Theme.of(
                           context,

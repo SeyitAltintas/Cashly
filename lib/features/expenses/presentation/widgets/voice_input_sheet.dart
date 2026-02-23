@@ -5,6 +5,7 @@ import '../../../../core/services/speech/speech_service.dart';
 import '../../../../core/services/tts_service.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../controllers/expenses_controller.dart';
 
 /// Sesli harcama girişi için modal bottom sheet widget'ı
@@ -663,7 +664,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               if (mounted) {
                 AppSnackBar.info(
                   context,
-                  '$harcamaIsmi güncellendi: ${yeniTutar.toStringAsFixed(0)} ₺',
+                  '$harcamaIsmi güncellendi: ${CurrencyFormatter.format(yeniTutar)}',
                 );
                 Navigator.pop(context);
               }
@@ -878,6 +879,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     } catch (e, stackTrace) {
       debugPrint('_handleKalanButce hatası: $e');
       debugPrint('Stack trace: $stackTrace');
+      if (!mounted) return;
       await _ttsService.speak(
         context.l10n.anErrorOccurred,
         userId: widget.userId,
@@ -926,6 +928,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             }
           } catch (e) {
             debugPrint('Limit güncelleme hatası: $e');
+            if (!mounted) return;
             await _ttsService.speak(
               context.l10n.limitUpdateError,
               userId: widget.userId,

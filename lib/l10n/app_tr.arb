@@ -1656,5 +1656,26 @@
   "users": "Kullanıcılar",
   "noRegisteredUsers": "Kayıtlı kullanıcı yok.",
   "addNewUser": "Yeni Kullanıcı Ekle",
-  "welcome": "Hoşgeldiniz"
+  "welcome": "Hoşgeldiniz",
+  "accountCreatedDate": "Hesap Oluşturulma Tarihi",
+  "lastLoginDate": "Son Giriş Tarihi",
+  "totalDebt": "TOPLAM BORÇ",
+  "limitUsage": "Limit Kullanımı",
+  "usedAmount": "Kullanılan",
+  "mainCurrency": "Ana Para Birimi",
+  "mainCurrencySubtitle": "Uygulama para birimi: ₺, $, vs.",
+  "currencySettingsTitle": "Para Birimi Ayarları",
+  "currencyDescription": "Uygulamanın genel para birimini buradan seçebilirsiniz. Seçiminiz anında tüm sayfalara yansıyacaktır.",
+  "currenciesLabel": "PARA BİRİMLERİ",
+  "currentRateInfo": "Güncel Kur: 1 {currency} = {rate} ₺",
+  "@currentRateInfo": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  }
 }

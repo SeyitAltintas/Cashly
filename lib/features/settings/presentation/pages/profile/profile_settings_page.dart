@@ -76,7 +76,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   }
 
   String _formatDate(DateTime date) {
-    final formatter = DateFormat('d MMMM yyyy, HH:mm', 'tr_TR');
+    final locale = Localizations.localeOf(context).languageCode == 'tr'
+        ? 'tr_TR'
+        : 'en_US';
+    final formatter = DateFormat('d MMMM yyyy, HH:mm', locale);
     return formatter.format(date);
   }
 

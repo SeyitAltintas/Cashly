@@ -17,6 +17,7 @@ import 'core/theme/theme_manager.dart';
 import 'core/widgets/error_screen.dart';
 import 'core/di/injection_container.dart';
 import 'core/services/price_cache_service.dart';
+import 'core/services/currency_service.dart';
 import 'core/services/network_service.dart';
 import 'core/router/app_router.dart';
 
@@ -57,6 +58,7 @@ void main() async {
             providers: [
               ChangeNotifierProvider(create: (_) => ThemeManager()),
               ChangeNotifierProvider(create: (_) => LocaleManager()),
+              ChangeNotifierProvider.value(value: getIt<CurrencyService>()),
             ],
             child: const CashlyApp(),
           ),
@@ -127,6 +129,10 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
 
       // Fiyat cache service'ı başlat (offline fallback için)
       await PriceCacheService().init();
+
+      // Para Birimi servisini başlat
+      final currencyService = getIt<CurrencyService>();
+      await currencyService.init();
 
       // Network durumu izleme servisini başlat
       await NetworkService().initialize();

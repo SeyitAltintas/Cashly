@@ -8,6 +8,7 @@ class PaymentMethod {
   final double? limit; // Kredi kartı limiti (opsiyonel)
   final int colorIndex; // Kart rengi (0-5 arası)
   final DateTime createdAt;
+  final String paraBirimi;
   bool isDeleted;
 
   PaymentMethod({
@@ -19,6 +20,7 @@ class PaymentMethod {
     this.limit,
     this.colorIndex = 0,
     required this.createdAt,
+    this.paraBirimi = 'TRY',
     this.isDeleted = false,
   });
 
@@ -33,6 +35,7 @@ class PaymentMethod {
       'limit': limit,
       'colorIndex': colorIndex,
       'createdAt': createdAt.toIso8601String(),
+      'paraBirimi': paraBirimi,
       'isDeleted': isDeleted,
     };
   }
@@ -50,6 +53,7 @@ class PaymentMethod {
       createdAt: map['createdAt'] != null
           ? DateTime.parse(map['createdAt'] as String)
           : DateTime.now(),
+      paraBirimi: map['paraBirimi'] as String? ?? 'TRY',
       isDeleted: map['isDeleted'] as bool? ?? false,
     );
   }
@@ -64,6 +68,7 @@ class PaymentMethod {
     double? limit,
     int? colorIndex,
     DateTime? createdAt,
+    String? paraBirimi,
     bool? isDeleted,
   }) {
     return PaymentMethod(
@@ -75,6 +80,7 @@ class PaymentMethod {
       limit: limit ?? this.limit,
       colorIndex: colorIndex ?? this.colorIndex,
       createdAt: createdAt ?? this.createdAt,
+      paraBirimi: paraBirimi ?? this.paraBirimi,
       isDeleted: isDeleted ?? this.isDeleted,
     );
   }

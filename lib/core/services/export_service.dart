@@ -7,6 +7,7 @@ import '../di/injection_container.dart';
 import '../../features/expenses/domain/repositories/expense_repository.dart';
 import '../../features/income/domain/repositories/income_repository.dart';
 import '../../features/assets/domain/repositories/asset_repository.dart';
+import 'currency_service.dart';
 
 // PDF modülleri
 import 'pdf_utils/pdf_utils.dart';
@@ -81,18 +82,22 @@ class ExportService {
       final tumVarliklar = assetRepo.getAssets(userId);
 
       // Finansal özet için toplamları hesapla (TÜM verilerden)
-      final toplamHarcama = tumHarcamalar.fold<double>(
-        0,
-        (sum, h) => sum + (h['tutar'] as num).toDouble(),
-      );
-      final toplamGelir = tumGelirler.fold<double>(
-        0,
-        (sum, g) => sum + ((g['amount'] as num?) ?? 0).toDouble(),
-      );
-      final toplamVarlik = tumVarliklar.fold<double>(
-        0,
-        (sum, v) => sum + ((v['amount'] as num?) ?? 0).toDouble(),
-      );
+      final cur = getIt<CurrencyService>();
+      final toplamHarcama = tumHarcamalar.fold<double>(0, (sum, h) {
+        final tutar = (h['tutar'] as num).toDouble();
+        final pb = h['paraBirimi']?.toString() ?? 'TRY';
+        return sum + cur.convert(tutar, pb, cur.currentCurrency);
+      });
+      final toplamGelir = tumGelirler.fold<double>(0, (sum, g) {
+        final amount = ((g['amount'] as num?) ?? 0).toDouble();
+        final pb = g['paraBirimi']?.toString() ?? 'TRY';
+        return sum + cur.convert(amount, pb, cur.currentCurrency);
+      });
+      final toplamVarlik = tumVarliklar.fold<double>(0, (sum, v) {
+        final amount = ((v['amount'] as num?) ?? 0).toDouble();
+        final pb = v['paraBirimi']?.toString() ?? 'TRY';
+        return sum + cur.convert(amount, pb, cur.currentCurrency);
+      });
 
       // Kullanıcının ayarladığı aylık bütçe limitini al
       final aylikButceLimiti = expenseRepo.getBudget(userId);
@@ -126,10 +131,11 @@ class ExportService {
         gecenAyBaslangic,
         gecenAyBitis,
       );
-      final gecenAyToplam = gecenAyHarcamalar.fold<double>(
-        0,
-        (sum, h) => sum + (h['tutar'] as num).toDouble(),
-      );
+      final gecenAyToplam = gecenAyHarcamalar.fold<double>(0, (sum, h) {
+        final tutar = (h['tutar'] as num).toDouble();
+        final pb = h['paraBirimi']?.toString() ?? 'TRY';
+        return sum + cur.convert(tutar, pb, cur.currentCurrency);
+      });
       final degisimYuzdesi = gecenAyToplam > 0
           ? ((toplamHarcama - gecenAyToplam) / gecenAyToplam * 100)
           : 0.0;

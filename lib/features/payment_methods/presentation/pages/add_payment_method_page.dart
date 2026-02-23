@@ -6,6 +6,9 @@ import '../../../../core/utils/amount_input_formatter.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
 import '../../../../core/constants/card_color_constants.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../controllers/payment_methods_controller.dart';
 
 /// Ödeme Yöntemi Ekleme/Düzenleme Sayfası
@@ -331,7 +334,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                     ),
                     if (_selectedType == 'kredi' && limit != null)
                       Text(
-                        'Limit: ${AmountInputFormatter.formatInitialValue(limit).replaceAll(',00', '')} ₺',
+                        'Limit: ${CurrencyFormatter.formatInteger(limit)}',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.5),
                           fontSize: 11,
@@ -353,7 +356,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                     ),
                   ),
                   Text(
-                    '${AmountInputFormatter.formatInitialValue(balance)} ₺',
+                    CurrencyFormatter.format(balance),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
@@ -589,7 +592,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               color: Theme.of(context).colorScheme.secondary,
               size: 22,
             ),
-            suffixText: '₺',
+            suffixText: getIt<CurrencyService>().currentSymbol,
             suffixStyle: const TextStyle(color: Colors.white54),
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.05),
@@ -660,7 +663,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               color: Theme.of(context).colorScheme.secondary,
               size: 22,
             ),
-            suffixText: '₺',
+            suffixText: getIt<CurrencyService>().currentSymbol,
             suffixStyle: const TextStyle(color: Colors.white54),
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.05),

@@ -3,6 +3,8 @@ import '../../data/models/asset_model.dart';
 import '../../domain/repositories/asset_repository.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 
 /// Varlıklar Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
@@ -154,9 +156,14 @@ class AssetsController extends ChangeNotifier {
   List<Asset> get filtrelenmisVarliklar => _filtrelenmisVarliklar;
 
   double get toplamDeger {
+    final cur = getIt<CurrencyService>();
     return _assets
         .where((a) => !a.isDeleted)
-        .fold(0.0, (sum, a) => sum + a.amount);
+        .fold(
+          0.0,
+          (sum, a) =>
+              sum + cur.convert(a.amount, a.paraBirimi, cur.currentCurrency),
+        );
   }
 
   // ===== REPOSITORY İŞLEMLERİ =====

@@ -6599,6 +6599,72 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Hoşgeldiniz'**
   String get welcome;
+
+  /// No description provided for @accountCreatedDate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesap Oluşturulma Tarihi'**
+  String get accountCreatedDate;
+
+  /// No description provided for @lastLoginDate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son Giriş Tarihi'**
+  String get lastLoginDate;
+
+  /// No description provided for @totalDebt.
+  ///
+  /// In tr, this message translates to:
+  /// **'TOPLAM BORÇ'**
+  String get totalDebt;
+
+  /// No description provided for @limitUsage.
+  ///
+  /// In tr, this message translates to:
+  /// **'Limit Kullanımı'**
+  String get limitUsage;
+
+  /// No description provided for @usedAmount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kullanılan'**
+  String get usedAmount;
+
+  /// No description provided for @mainCurrency.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ana Para Birimi'**
+  String get mainCurrency;
+
+  /// No description provided for @mainCurrencySubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygulama para birimi: ₺, \$, vs.'**
+  String get mainCurrencySubtitle;
+
+  /// No description provided for @currencySettingsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Para Birimi Ayarları'**
+  String get currencySettingsTitle;
+
+  /// No description provided for @currencyDescription.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygulamanın genel para birimini buradan seçebilirsiniz. Seçiminiz anında tüm sayfalara yansıyacaktır.'**
+  String get currencyDescription;
+
+  /// No description provided for @currenciesLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'PARA BİRİMLERİ'**
+  String get currenciesLabel;
+
+  /// No description provided for @currentRateInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güncel Kur: 1 {currency} = {rate} ₺'**
+  String currentRateInfo(String currency, String rate);
 }
 
 class _AppLocalizationsDelegate

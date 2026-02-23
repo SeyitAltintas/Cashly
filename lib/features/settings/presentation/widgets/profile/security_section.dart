@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_theme.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Güvenlik ayarları section widget'ı
 /// Biyometrik giriş toggle ve tarih bilgileri
@@ -50,14 +51,14 @@ class SecuritySection extends StatelessWidget {
                 ),
               ),
               title: Text(
-                "Biyometrik Giriş",
+                context.l10n.biometricLogin,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               subtitle: Text(
-                "Parmak izi veya yüz tanıma ile giriş",
+                context.l10n.biometricDesc,
                 style: TextStyle(
                   color: Theme.of(
                     context,
@@ -83,7 +84,7 @@ class SecuritySection extends StatelessWidget {
         // Hesap Oluşturulma Tarihi
         _buildInfoCard(
           context,
-          title: "Hesap Oluşturulma Tarihi",
+          title: context.l10n.accountCreatedDate,
           subtitle: createdAt,
           icon: Icons.calendar_today_outlined,
           colorIndex: 3,
@@ -93,7 +94,7 @@ class SecuritySection extends StatelessWidget {
         // Son Giriş Tarihi
         _buildInfoCard(
           context,
-          title: "Son Giriş Tarihi",
+          title: context.l10n.lastLoginDate,
           subtitle: lastLoginAt,
           icon: Icons.login_outlined,
           colorIndex: 4,

@@ -1,3 +1,6 @@
+import '../di/injection_container.dart';
+import '../services/currency_service.dart';
+
 /// Cashly uygulaması için validasyon yardımcı fonksiyonları
 class Validators {
   /// Email adresi format kontrolü
@@ -85,7 +88,7 @@ class Validators {
     }
 
     if (maxAmount != null && amount > maxAmount) {
-      return 'Maksimum tutar ${maxAmount.toStringAsFixed(0)} ₺ olabilir';
+      return 'Maksimum tutar ${maxAmount.toStringAsFixed(0)} ${getIt<CurrencyService>().currentSymbol} olabilir';
     }
 
     return null;
@@ -340,7 +343,7 @@ class Validators {
     }
 
     if (limit < minLimit) {
-      return 'Minimum limit $minLimit ₺ olmalı';
+      return 'Minimum limit $minLimit ${getIt<CurrencyService>().currentSymbol} olmalı';
     }
 
     if (limit < currentDebt) {

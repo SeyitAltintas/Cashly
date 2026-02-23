@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../../../core/di/injection_container.dart';
 import '../../../../../core/extensions/l10n_extensions.dart';
 import '../../../../expenses/domain/repositories/expense_repository.dart';
+import '../../../../../core/services/currency_service.dart';
 import '../../../../../core/widgets/app_snackbar.dart';
 
 /// Kategori Bütçe Limitleri Sayfası
@@ -164,7 +165,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                     dialogContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
-                suffixText: '₺',
+                suffixText: getIt<CurrencyService>().currentSymbol,
                 suffixStyle: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

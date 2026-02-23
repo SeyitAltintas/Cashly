@@ -255,28 +255,28 @@ class ProfileSettingsHelper {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSheetHeader(ctx, "İsim Değiştir"),
+              _buildSheetHeader(ctx, context.l10n.changeName),
               const SizedBox(height: 24),
               Form(
                 key: formKey,
                 child: TextFormField(
                   controller: nameController,
                   style: TextStyle(color: Theme.of(ctx).colorScheme.onSurface),
-                  decoration: _inputDecoration(ctx, "Yeni İsim"),
+                  decoration: _inputDecoration(ctx, context.l10n.newNameLabel),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "İsim boş olamaz";
+                      return context.l10n.nameCannotBeEmpty;
                     }
                     return null;
                   },
                 ),
               ),
               const SizedBox(height: 24),
-              _buildPrimaryButton(ctx, "Kaydet", () {
+              _buildPrimaryButton(ctx, context.l10n.save, () {
                 if (formKey.currentState!.validate()) {
                   _updateUser(
                     name: nameController.text.trim(),
-                    successMessage: "İsim Soyisim Güncellendi",
+                    successMessage: context.l10n.nameUpdated,
                   );
                   Navigator.pop(ctx);
                 }
@@ -322,7 +322,12 @@ class ProfileSettingsHelper {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSheetHeader(ctx, step == 1 ? "Mevcut PIN" : "Yeni PIN"),
+                  _buildSheetHeader(
+                    ctx,
+                    step == 1
+                        ? context.l10n.currentPinLabel
+                        : context.l10n.newPinLabel,
+                  ),
                   const SizedBox(height: 24),
                   Form(
                     key: formKey,
@@ -332,7 +337,7 @@ class ProfileSettingsHelper {
                           _buildPinField(
                             ctx,
                             currentPinController,
-                            "Mevcut PIN",
+                            context.l10n.currentPinLabel,
                             isCurrentPinVisible,
                             () => setStateBottomSheet(
                               () => isCurrentPinVisible = !isCurrentPinVisible,
@@ -341,10 +346,10 @@ class ProfileSettingsHelper {
                               if (value == null ||
                                   value.length < 4 ||
                                   value.length > 6) {
-                                return "4-6 haneli PIN giriniz";
+                                return context.l10n.enterPinDigits;
                               }
                               if (value != currentUser.pin) {
-                                return "PIN hatalı";
+                                return context.l10n.pinIncorrect;
                               }
                               return null;
                             },
@@ -353,7 +358,7 @@ class ProfileSettingsHelper {
                           _buildPinField(
                             ctx,
                             newPinController,
-                            "Yeni PIN",
+                            context.l10n.newPinLabel,
                             isNewPinVisible,
                             () => setStateBottomSheet(
                               () => isNewPinVisible = !isNewPinVisible,
@@ -363,7 +368,7 @@ class ProfileSettingsHelper {
                               if (value == null ||
                                   value.length < 4 ||
                                   value.length > 6) {
-                                return "4-6 haneli PIN giriniz";
+                                return context.l10n.enterPinDigits;
                               }
                               return null;
                             },
@@ -372,14 +377,14 @@ class ProfileSettingsHelper {
                           _buildPinField(
                             ctx,
                             confirmPinController,
-                            "Yeni PIN (Tekrar)",
+                            context.l10n.newPinRepeatLabel,
                             isConfirmPinVisible,
                             () => setStateBottomSheet(
                               () => isConfirmPinVisible = !isConfirmPinVisible,
                             ),
                             validator: (value) {
                               if (value != newPinController.text) {
-                                return "PIN'ler eşleşmiyor";
+                                return context.l10n.pinsDoNotMatch;
                               }
                               return null;
                             },
@@ -389,19 +394,23 @@ class ProfileSettingsHelper {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  _buildPrimaryButton(ctx, step == 1 ? "İleri" : "Kaydet", () {
-                    if (formKey.currentState!.validate()) {
-                      if (step == 1) {
-                        setStateBottomSheet(() => step = 2);
-                      } else {
-                        _updateUser(
-                          pin: newPinController.text,
-                          successMessage: "PIN Güncellendi",
-                        );
-                        Navigator.pop(ctx);
+                  _buildPrimaryButton(
+                    ctx,
+                    step == 1 ? context.l10n.forwardButton : context.l10n.save,
+                    () {
+                      if (formKey.currentState!.validate()) {
+                        if (step == 1) {
+                          setStateBottomSheet(() => step = 2);
+                        } else {
+                          _updateUser(
+                            pin: newPinController.text,
+                            successMessage: context.l10n.pinUpdated,
+                          );
+                          Navigator.pop(ctx);
+                        }
                       }
-                    }
-                  }),
+                    },
+                  ),
                   const SizedBox(height: 16),
                 ],
               ),
@@ -440,10 +449,10 @@ class ProfileSettingsHelper {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSheetHeader(ctx, "PIN Doğrulama"),
+                  _buildSheetHeader(ctx, context.l10n.pinVerification),
                   const SizedBox(height: 8),
                   Text(
-                    "Biyometrik girişi aktifleştirmek için PIN'inizi doğrulayın",
+                    context.l10n.biometricPinVerificationDesc,
                     style: TextStyle(
                       color: Theme.of(
                         ctx,
@@ -467,10 +476,10 @@ class ProfileSettingsHelper {
                         if (value == null ||
                             value.length < 4 ||
                             value.length > 6) {
-                          return "4-6 haneli PIN giriniz";
+                          return context.l10n.enterPinDigits;
                         }
                         if (value != currentUser.pin) {
-                          return "PIN hatalı";
+                          return context.l10n.pinIncorrect;
                         }
                         return null;
                       },
@@ -487,9 +496,9 @@ class ProfileSettingsHelper {
                         }
                       },
                       icon: const Icon(Icons.fingerprint),
-                      label: const Text(
-                        "Biyometriği Aktifleştir",
-                        style: TextStyle(
+                      label: Text(
+                        context.l10n.activateBiometric,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -546,7 +555,7 @@ class ProfileSettingsHelper {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Hesabı Sil",
+                        context.l10n.deleteAccount,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -567,7 +576,7 @@ class ProfileSettingsHelper {
                     child: _buildPinField(
                       ctx,
                       pinController,
-                      "PIN Doğrulaması",
+                      context.l10n.pinVerification,
                       isPinVisible,
                       () => setStateBottomSheet(
                         () => isPinVisible = !isPinVisible,
@@ -578,10 +587,10 @@ class ProfileSettingsHelper {
                         if (value == null ||
                             value.length < 4 ||
                             value.length > 6) {
-                          return "4-6 haneli PIN giriniz";
+                          return context.l10n.enterPinDigits;
                         }
                         if (value != currentUser.pin) {
-                          return "PIN hatalı";
+                          return context.l10n.pinIncorrect;
                         }
                         return null;
                       },
@@ -625,7 +634,7 @@ class ProfileSettingsHelper {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      "Son Onay",
+                      context.l10n.finalConfirmation,
                       style: TextStyle(
                         color: Theme.of(dlgCtx).colorScheme.onSurface,
                       ),
@@ -633,7 +642,7 @@ class ProfileSettingsHelper {
                   ],
                 ),
                 content: Text(
-                  "Hesabınızı kalıcı olarak silmek istediğinizden emin misiniz?",
+                  context.l10n.permanentDeleteAccountConfirm,
                   style: TextStyle(
                     color: Theme.of(dlgCtx).colorScheme.onSurface,
                   ),
@@ -642,7 +651,7 @@ class ProfileSettingsHelper {
                   TextButton(
                     onPressed: () => Navigator.pop(dlgCtx, false),
                     child: Text(
-                      "İptal",
+                      context.l10n.cancel,
                       style: TextStyle(
                         color: Theme.of(dlgCtx).colorScheme.onSurface,
                       ),
@@ -700,9 +709,9 @@ class ProfileSettingsHelper {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        child: const Text(
-          "Hesabı Kalıcı Olarak Sil",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        child: Text(
+          context.l10n.deletePermanently,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -746,10 +755,10 @@ class ProfileSettingsHelper {
             size: 24,
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
-              "Bu işlem geri alınamaz! Tüm verileriniz kalıcı olarak silinecektir.",
-              style: TextStyle(
+              context.l10n.thisActionIrreversibleWarning,
+              style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,

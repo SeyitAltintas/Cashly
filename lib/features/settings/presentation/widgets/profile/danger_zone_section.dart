@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Tehlikeli bölge section widget'ı
 /// Hesap silme butonu
@@ -15,9 +16,9 @@ class DangerZoneSection extends StatelessWidget {
         const SizedBox(height: 40),
 
         // Tehlikeli Bölge Başlık
-        const Text(
-          "Tehlikeli Bölge",
-          style: TextStyle(
+        Text(
+          context.l10n.dangerZone,
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Colors.red,
@@ -44,12 +45,15 @@ class DangerZoneSection extends StatelessWidget {
               ),
               child: const Icon(Icons.delete_forever, color: Colors.red),
             ),
-            title: const Text(
-              "Hesabı Sil",
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            title: Text(
+              context.l10n.deleteAccount,
+              style: const TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             subtitle: Text(
-              "Hesabınızı ve tüm verilerinizi kalıcı olarak silin",
+              context.l10n.deleteAccountDesc,
               style: TextStyle(color: Colors.red.withValues(alpha: 0.7)),
             ),
             trailing: Icon(

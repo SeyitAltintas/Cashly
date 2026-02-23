@@ -6,6 +6,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/utils/amount_input_formatter.dart';
 import '../../../../core/widgets/app_date_picker.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 import '../controllers/assets_controller.dart';
 
 /// Varlık ekleme/düzenleme sayfası
@@ -877,12 +878,12 @@ class _AddAssetPageState extends State<AddAssetPage> {
 
               // Edge Case 5: Çok küçük değer (pratik olmayan)
               if (amount < 0.01) {
-                return 'Minimum alış fiyatı 0,01 ₺ olmalı';
+                return context.l10n.minPurchasePrice;
               }
 
               // Edge Case 6: Aşırı yüksek değer (100 milyon TL)
               if (amount > 100000000) {
-                return 'Maksimum alış fiyatı 100 milyon ₺ olabilir';
+                return context.l10n.maxPurchasePrice;
               }
 
               return null;

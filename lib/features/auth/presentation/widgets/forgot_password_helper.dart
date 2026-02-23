@@ -607,7 +607,7 @@ class ForgotPasswordHelper {
         ),
         child: Text(
           context.l10n.continueButton,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -634,7 +634,7 @@ class ForgotPasswordHelper {
         ),
         child: Text(
           context.l10n.verifyButton,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -661,7 +661,7 @@ class ForgotPasswordHelper {
         ),
         child: Text(
           context.l10n.updatePinButton,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.white,

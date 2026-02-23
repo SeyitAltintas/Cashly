@@ -4,6 +4,8 @@ import '../../data/models/asset_model.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 
 class AssetListItem extends StatelessWidget {
   final Asset asset;
@@ -125,13 +127,26 @@ class AssetListItem extends StatelessWidget {
                   fontSize: 15,
                 ),
               ),
-              trailing: Text(
-                CurrencyFormatter.format(asset.amount),
-                style: const TextStyle(
-                  color: Colors.blueAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+              trailing: Builder(
+                builder: (context) {
+                  final cur = getIt<CurrencyService>();
+                  final converted = cur.convert(
+                    asset.amount,
+                    asset.paraBirimi,
+                    cur.currentCurrency,
+                  );
+                  return Text(
+                    CurrencyFormatter.format(
+                      converted,
+                      currency: cur.currentCurrency,
+                    ),
+                    style: const TextStyle(
+                      color: Colors.blueAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  );
+                },
               ),
             ),
           ),

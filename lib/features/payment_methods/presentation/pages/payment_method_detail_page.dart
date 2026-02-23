@@ -10,6 +10,7 @@ import '../../data/models/payment_method_model.dart';
 import '../../data/models/transfer_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../controllers/payment_methods_controller.dart';
+import '../../../../core/services/currency_service.dart';
 
 /// Hesap detay sayfası - Bir ödeme yönteminin tüm işlemlerini gösterir
 class PaymentMethodDetailPage extends StatefulWidget {
@@ -262,7 +263,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                   ),
                 ),
                 Text(
-                  '${AmountInputFormatter.formatInitialValue(pm.balance)} ₺',
+                  '${AmountInputFormatter.formatInitialValue(pm.balance)} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
                   style: TextStyle(
                     color: pm.type == 'kredi'
                         ? Colors.redAccent
@@ -277,14 +278,14 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${context.l10n.limitLabel}: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ₺',
+                        '${context.l10n.limitLabel}: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12,
                         ),
                       ),
                       Text(
-                        '${context.l10n.remainingLimitLabel}: ${AmountInputFormatter.formatInitialValue(pm.limit! - pm.balance).replaceAll(',00', '')} ₺',
+                        '${context.l10n.remainingLimitLabel}: ${AmountInputFormatter.formatInitialValue(pm.limit! - pm.balance).replaceAll(',00', '')} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12,
@@ -446,7 +447,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
             ),
           ),
           Text(
-            '$amountPrefix${item.amount.toStringAsFixed(2)} ₺',
+            '$amountPrefix${item.amount.toStringAsFixed(2)} ${CurrencyService.supportedCurrencies[widget.paymentMethod.paraBirimi] ?? '₺'}',
             style: TextStyle(color: iconColor, fontWeight: FontWeight.bold),
           ),
         ],

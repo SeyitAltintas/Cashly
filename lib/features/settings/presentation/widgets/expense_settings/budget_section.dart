@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/core/di/injection_container.dart';
+import 'package:cashly/core/services/currency_service.dart';
 
 /// Bütçe limiti ayarları bölümü widget'ı
 class BudgetSection extends StatelessWidget {
@@ -133,7 +135,7 @@ class BudgetSection extends StatelessWidget {
                             ).colorScheme.onSurface.withValues(alpha: 0.4),
                             fontSize: 14,
                           ),
-                          suffixText: "₺",
+                          suffixText: getIt<CurrencyService>().currentSymbol,
                           suffixStyle: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

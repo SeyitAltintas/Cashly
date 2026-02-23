@@ -1656,5 +1656,26 @@
   "users": "Users",
   "noRegisteredUsers": "No registered users.",
   "addNewUser": "Add New User",
-  "welcome": "Welcome"
+  "welcome": "Welcome",
+  "accountCreatedDate": "Account Created",
+  "lastLoginDate": "Last Login Date",
+  "totalDebt": "TOTAL DEBT",
+  "limitUsage": "Limit Usage",
+  "usedAmount": "Used",
+  "mainCurrency": "Main Currency",
+  "mainCurrencySubtitle": "App currency: ₺, $, etc.",
+  "currencySettingsTitle": "Currency Settings",
+  "currencyDescription": "You can select the app's general currency here. Your selection will be instantly reflected across all pages.",
+  "currenciesLabel": "CURRENCIES",
+  "currentRateInfo": "Current Rate: 1 {currency} = {rate} ₺",
+  "@currentRateInfo": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -7,6 +7,7 @@ class Transfer {
   final double amount;
   final DateTime date;
   final String? description;
+  final String paraBirimi;
 
   /// Transfer zamanlanmış mı? (ileri tarihli transfer)
   final bool isScheduled;
@@ -27,6 +28,7 @@ class Transfer {
     required this.amount,
     required this.date,
     this.description,
+    this.paraBirimi = 'TRY',
     this.isScheduled = false,
     this.isExecuted = false,
     this.isFailed = false,
@@ -42,6 +44,7 @@ class Transfer {
       amount: (map['amount'] as num?)?.toDouble() ?? 0.0,
       date: DateTime.tryParse(map['date']?.toString() ?? '') ?? DateTime.now(),
       description: map['description'],
+      paraBirimi: map['paraBirimi'] ?? 'TRY',
       isScheduled: map['isScheduled'] ?? false,
       isExecuted: map['isExecuted'] ?? false,
       isFailed: map['isFailed'] ?? false,
@@ -58,6 +61,7 @@ class Transfer {
       'amount': amount,
       'date': date.toIso8601String(),
       'description': description,
+      'paraBirimi': paraBirimi,
       'isScheduled': isScheduled,
       'isExecuted': isExecuted,
       'isFailed': isFailed,
@@ -84,6 +88,7 @@ class Transfer {
     double? amount,
     DateTime? date,
     String? description,
+    String? paraBirimi,
     bool? isScheduled,
     bool? isExecuted,
     bool? isFailed,
@@ -96,6 +101,7 @@ class Transfer {
       amount: amount ?? this.amount,
       date: date ?? this.date,
       description: description ?? this.description,
+      paraBirimi: paraBirimi ?? this.paraBirimi,
       isScheduled: isScheduled ?? this.isScheduled,
       isExecuted: isExecuted ?? this.isExecuted,
       isFailed: isFailed ?? this.isFailed,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 import 'package:cashly/core/theme/app_theme.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/utils/currency_formatter.dart';
@@ -109,13 +111,21 @@ class ExpenseListItem extends StatelessWidget {
                   fontSize: 15,
                 ),
               ),
-              trailing: Text(
-                "-${CurrencyFormatter.formatWithoutSymbol((harcama['tutar'] as num).toDouble())} ₺",
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+              trailing: Builder(
+                builder: (context) {
+                  final cur = getIt<CurrencyService>();
+                  final t = (harcama['tutar'] as num).toDouble();
+                  final pb = harcama['paraBirimi']?.toString() ?? 'TRY';
+                  final converted = cur.convert(t, pb, cur.currentCurrency);
+                  return Text(
+                    CurrencyFormatter.formatSigned(-converted),
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  );
+                },
               ),
             ),
           ),

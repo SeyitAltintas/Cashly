@@ -16,11 +16,13 @@ import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/utils/debouncer.dart';
 import '../widgets/income_summary_card.dart';
 import '../widgets/income_list_item.dart';
-import '../../../../core/widgets/skeleton_widget.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/widgets/skeleton_widget.dart';
+import '../../../../core/services/currency_service.dart';
 import '../controllers/incomes_controller.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
+import '../../../../core/utils/currency_formatter.dart';
 
 class IncomesPage extends StatefulWidget {
   final List<Income> tumGelirler;
@@ -108,9 +110,10 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   }
 
   double get toplamGelir {
+    final cur = getIt<CurrencyService>();
     double toplam = 0;
     for (var g in filtrelenmisGelirler) {
-      toplam += g.amount;
+      toplam += cur.convert(g.amount, g.paraBirimi, cur.currentCurrency);
     }
     return toplam;
   }
@@ -165,7 +168,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           // Bildirim göster
           AppSnackBar.success(
             context,
-            '${context.l10n.income} ${context.l10n.added}: $name - ${amount.toStringAsFixed(0)} ₺',
+            '${context.l10n.income} ${context.l10n.added}: $name - ${CurrencyFormatter.format(amount)}',
           );
         },
       ),
@@ -303,7 +306,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
               if (!mounted) return;
               AppSnackBar.success(
                 context,
-                '${context.l10n.income} ${context.l10n.added}: $name - ${amount.toStringAsFixed(2)} ₺',
+                '${context.l10n.income} ${context.l10n.added}: $name - ${CurrencyFormatter.format(amount)}',
               );
             } catch (e) {
               if (!mounted) return;

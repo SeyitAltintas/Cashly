@@ -3,6 +3,7 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -331,9 +332,15 @@ class _AnalysisPageState extends State<AnalysisPage>
     // Kategori toplamları
     Map<String, double> totals = {};
     double totalIncome = 0;
+    final cur = getIt<CurrencyService>();
     for (var income in monthlyIncomes) {
-      totals[income.category] = (totals[income.category] ?? 0) + income.amount;
-      totalIncome += income.amount;
+      double amount = cur.convert(
+        income.amount,
+        income.paraBirimi,
+        cur.currentCurrency,
+      );
+      totals[income.category] = (totals[income.category] ?? 0) + amount;
+      totalIncome += amount;
     }
 
     final (topCategory, topAmount) = _findTopCategory(totals);
@@ -377,10 +384,15 @@ class _AnalysisPageState extends State<AnalysisPage>
 
     Map<String, double> totals = {};
     double totalValue = 0;
+    final cur = getIt<CurrencyService>();
     for (var asset in activeAssets) {
       String type = asset.type ?? context.l10n.otherStr;
       // amount zaten toplam değeri içeriyor, quantity ile çarpmaya gerek yok
-      double value = asset.amount;
+      double value = cur.convert(
+        asset.amount,
+        asset.paraBirimi,
+        cur.currentCurrency,
+      );
       totals[type] = (totals[type] ?? 0) + value;
       totalValue += value;
     }
@@ -424,9 +436,12 @@ class _AnalysisPageState extends State<AnalysisPage>
   ) {
     Map<String, double> totals = {};
     double totalAmount = 0;
+    final cur = getIt<CurrencyService>();
     for (var h in expenses) {
-      String cat = h['kategori'] ?? context.l10n.otherStr;
-      double amount = double.tryParse(h['tutar'].toString()) ?? 0;
+      String cat = context.translateDbName(h['kategori'] ?? 'Diğer');
+      double t = double.tryParse(h['tutar'].toString()) ?? 0;
+      String pb = h['paraBirimi']?.toString() ?? 'TRY';
+      double amount = cur.convert(t, pb, cur.currentCurrency);
       totals[cat] = (totals[cat] ?? 0) + amount;
       totalAmount += amount;
     }
@@ -548,10 +563,13 @@ class _AnalysisPageState extends State<AnalysisPage>
   ) {
     Map<String, double> pmTotals = {};
     double pmTotal = 0;
+    final cur = getIt<CurrencyService>();
 
     for (var h in monthlyExpenses) {
       String pmId = h['odemeYontemiId'] ?? 'unknown';
-      double amount = double.tryParse(h['tutar'].toString()) ?? 0;
+      double t = double.tryParse(h['tutar'].toString()) ?? 0;
+      String pb = h['paraBirimi']?.toString() ?? 'TRY';
+      double amount = cur.convert(t, pb, cur.currentCurrency);
       pmTotals[pmId] = (pmTotals[pmId] ?? 0) + amount;
       pmTotal += amount;
     }

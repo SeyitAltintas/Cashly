@@ -16,6 +16,7 @@ import '../widgets/asset_summary_card.dart';
 import '../widgets/asset_list_item.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../../core/services/currency_service.dart';
 
 import '../controllers/assets_controller.dart';
 import '../../../../core/utils/error_handler.dart';
@@ -116,9 +117,12 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
   }
 
   double get totalAssets {
+    final cur = getIt<CurrencyService>();
     return _controller.filtrelenmisVarliklar.fold(
       0.0,
-      (sum, asset) => sum + asset.amount,
+      (sum, asset) =>
+          sum +
+          cur.convert(asset.amount, asset.paraBirimi, cur.currentCurrency),
     );
   }
 
@@ -258,6 +262,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                     purchaseDate: purchaseDate,
                     purchasePrice: purchasePrice,
                     isDeleted: false,
+                    paraBirimi: getIt<CurrencyService>().currentCurrency,
                   );
                   await _controller.addAsset(newAsset);
                   widget.onAdd(name, amount, quantity, category, type);

@@ -10,6 +10,7 @@ import 'appearance/haptic_settings_page.dart';
 import 'notifications/notification_settings_page.dart';
 import 'finance/expense_settings_page.dart';
 import 'finance/transfer_settings_page.dart';
+import 'finance/currency_settings_page.dart';
 import '../state/main_settings_state.dart';
 
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
@@ -239,6 +240,22 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 ),
               );
               if (result == true) _mainState.needsRefresh = true;
+            },
+          ),
+          const SettingsDivider(),
+          SettingsTile(
+            icon: Icons.currency_exchange,
+            iconColor: Colors.purpleAccent,
+            title: context.l10n.mainCurrency,
+            subtitle: context.l10n.mainCurrencySubtitle,
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CurrencySettingsPage(),
+                ),
+              );
+              _mainState.needsRefresh = true;
             },
           ),
           const SettingsDivider(),

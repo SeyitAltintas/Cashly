@@ -5,6 +5,7 @@ import 'package:cashly/core/constants/card_color_constants.dart';
 import 'package:cashly/core/mixins/lazy_loading_mixin.dart';
 
 import '../../data/models/payment_method_model.dart';
+import '../../../../core/services/currency_service.dart';
 import '../../../settings/presentation/state/recycle_bin_states.dart';
 
 class PaymentMethodRecycleBinPage extends StatefulWidget {
@@ -272,7 +273,7 @@ class _PaymentMethodRecycleBinPageState
           ),
         ),
         subtitle: Text(
-          '${pm.typeDisplayName} • ${pm.balance.toStringAsFixed(2)} ₺',
+          '${pm.typeDisplayName} • ${pm.balance.toStringAsFixed(2)} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.6),
             fontSize: 12,

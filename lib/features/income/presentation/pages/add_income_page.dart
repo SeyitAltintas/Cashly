@@ -7,6 +7,8 @@ import '../../../../core/widgets/form/form_widgets.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../controllers/incomes_controller.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 
@@ -234,9 +236,9 @@ class _AddIncomePageState extends State<AddIncomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text(
-                    "₺",
-                    style: TextStyle(
+                  Text(
+                    getIt<CurrencyService>().currentSymbol,
+                    style: const TextStyle(
                       color: Colors.white38,
                       fontSize: 36,
                       fontWeight: FontWeight.w300,

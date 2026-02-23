@@ -320,17 +320,28 @@ class ExpenseDetailPage extends StatelessWidget {
                     expenseToEdit: harcama,
                     categories: kategoriIkonlari,
                     paymentMethods: paymentMethods,
-                    onSave: (isim, tutar, kategori, tarih, odemeYontemiId) {
-                      // Güncellenmiş harcamayı oluştur
-                      final updatedHarcama = Map<String, dynamic>.from(harcama);
-                      updatedHarcama['isim'] = isim;
-                      updatedHarcama['tutar'] = tutar;
-                      updatedHarcama['kategori'] = kategori;
-                      updatedHarcama['tarih'] = tarih.toIso8601String();
-                      updatedHarcama['odemeYontemiId'] = odemeYontemiId;
-                      onEdit(updatedHarcama);
-                      Navigator.pop(context); // Detay sayfasını kapat
-                    },
+                    onSave:
+                        (
+                          isim,
+                          tutar,
+                          kategori,
+                          tarih,
+                          odemeYontemiId,
+                          paraBirimi,
+                        ) {
+                          // Güncellenmiş harcamayı oluştur
+                          final updatedHarcama = Map<String, dynamic>.from(
+                            harcama,
+                          );
+                          updatedHarcama['isim'] = isim;
+                          updatedHarcama['tutar'] = tutar;
+                          updatedHarcama['kategori'] = kategori;
+                          updatedHarcama['tarih'] = tarih.toIso8601String();
+                          updatedHarcama['odemeYontemiId'] = odemeYontemiId;
+                          updatedHarcama['paraBirimi'] = paraBirimi;
+                          onEdit(updatedHarcama);
+                          Navigator.pop(context); // Detay sayfasını kapat
+                        },
                   ),
                 ),
               );

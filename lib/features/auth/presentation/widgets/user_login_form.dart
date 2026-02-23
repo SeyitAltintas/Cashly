@@ -389,7 +389,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
               )
             : Text(
                 context.l10n.login,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -412,7 +412,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            "${context.l10n.orDivider}",
+            context.l10n.orDivider,
             style: TextStyle(
               color: Theme.of(
                 context,

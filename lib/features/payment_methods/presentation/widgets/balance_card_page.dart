@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:cashly/core/utils/currency_formatter.dart';
 import 'package:cashly/core/widgets/cached_image.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Carousel Sayfa 1: Toplam Bakiye + Profil
 /// Premium banka kartı tasarımıyla toplam bakiye ve kullanıcı bilgilerini gösterir
@@ -207,7 +208,7 @@ class BalanceCardPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'TOPLAM BAKİYE',
+                                  context.l10n.totalBalance.toUpperCase(),
                                   style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.6),
                                     fontSize: labelFontSize,
