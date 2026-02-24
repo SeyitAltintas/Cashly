@@ -443,6 +443,16 @@ class IncomesController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Widget prop'larından veriyi yükle (AssetsController.setAssetsFromWidget benzeri)
+  /// initState'te çağrılır — notifyListeners gerekmez (ilk build henüz olmadı)
+  void setIncomesFromWidget(
+    List<Income> incomes,
+    List<PaymentMethod> paymentMethods,
+  ) {
+    _tumGelirler = List.from(incomes);
+    _tumOdemeYontemleri = List.from(paymentMethods);
+  }
+
   void refresh() {
     notifyListeners();
   }

@@ -277,6 +277,13 @@ class _AddAssetPageState extends State<AddAssetPage> {
         unitPrice = await _priceService.getSilverPrice(_selectedType ?? 'Gram');
       }
 
+      // PriceService tüm fiyatları TRY cinsinden döndürür.
+      // Seçilen kur TRY değilse, dönüşüm uygula.
+      if (unitPrice != null && _localSelectedCurrency != 'TRY') {
+        final cur = getIt<CurrencyService>();
+        unitPrice = cur.convert(unitPrice, 'TRY', _localSelectedCurrency);
+      }
+
       if (mounted) {
         if (_controller != null) {
           _controller!.setFormLoading(false);

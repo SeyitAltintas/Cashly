@@ -71,6 +71,12 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     _controller.secilenAy = widget.secilenAy;
     _controller.addListener(_onStateChanged);
 
+    // Widget prop'larından veriyi controller'a yükle
+    _controller.setIncomesFromWidget(
+      widget.tumGelirler,
+      widget.tumOdemeYontemleri,
+    );
+
     initLazyLoading();
 
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -79,7 +85,11 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   }
 
   void _onStateChanged() {
-    if (mounted) setState(() {});
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
   }
 
   @override
@@ -98,7 +108,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
 
   List<Income> get filtrelenmisGelirler {
     String aramaMetni = tGelirArama.text.toLowerCase();
-    return widget.tumGelirler.where((g) {
+    return _controller.tumGelirler.where((g) {
       if (g.isDeleted) return false;
       if (g.date.year != secilenAy.year || g.date.month != secilenAy.month) {
         return false;
@@ -163,7 +173,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           // bu yüzden sadece geliri ekliyoruz
 
           // Callback'i çağır
-          widget.onGelirlerChanged(widget.tumGelirler);
+          widget.onGelirlerChanged(_controller.tumGelirler);
 
           // Bildirim göster
           AppSnackBar.success(
@@ -185,22 +195,24 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     int? pmIndex;
 
     if (eskiPmId != null) {
-      pmIndex = widget.tumOdemeYontemleri.indexWhere((p) => p.id == eskiPmId);
+      pmIndex = _controller.tumOdemeYontemleri.indexWhere(
+        (p) => p.id == eskiPmId,
+      );
       if (pmIndex != -1) {
-        eskiBakiye = widget.tumOdemeYontemleri[pmIndex].balance;
+        eskiBakiye = _controller.tumOdemeYontemleri[pmIndex].balance;
       }
     }
 
     PaymentMethod? pm;
     if (pmIndex != null && pmIndex != -1) {
-      pm = widget.tumOdemeYontemleri[pmIndex];
+      pm = _controller.tumOdemeYontemleri[pmIndex];
     }
 
     try {
       await _controller.deleteIncome(income, pm: pm, pmIndex: pmIndex);
 
-      widget.onGelirlerChanged(widget.tumGelirler);
-      widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+      widget.onGelirlerChanged(_controller.tumGelirler);
+      widget.onOdemeYontemleriChanged(_controller.tumOdemeYontemleri);
 
       // Geri Al özelliği ile SnackBar göster
       if (!mounted) return;
@@ -220,8 +232,8 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
               pmIndex: pmIndex,
               oldBalance: eskiBakiye,
             );
-            widget.onGelirlerChanged(widget.tumGelirler);
-            widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+            widget.onGelirlerChanged(_controller.tumGelirler);
+            widget.onOdemeYontemleriChanged(_controller.tumOdemeYontemleri);
 
             // Geri alındı bildirimi
             if (mounted) {
@@ -253,7 +265,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
         builder: (context) => AddIncomePage(
           incomeToEdit: income.toMap(),
           categories: widget.gelirKategoriIkonlari,
-          paymentMethods: widget.tumOdemeYontemleri
+          paymentMethods: _controller.tumOdemeYontemleri
               .where((pm) => !pm.isDeleted)
               .toList(),
           onSave:
@@ -276,8 +288,10 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                     paraBirimi: paraBirimi,
                   );
 
-                  widget.onGelirlerChanged(widget.tumGelirler);
-                  widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+                  widget.onGelirlerChanged(_controller.tumGelirler);
+                  widget.onOdemeYontemleriChanged(
+                    _controller.tumOdemeYontemleri,
+                  );
                 } catch (e) {
                   if (!mounted) return;
                   if (e is AppException) {
@@ -296,7 +310,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
       MaterialPageRoute(
         builder: (context) => AddIncomePage(
           categories: widget.gelirKategoriIkonlari,
-          paymentMethods: widget.tumOdemeYontemleri
+          paymentMethods: _controller.tumOdemeYontemleri
               .where((pm) => !pm.isDeleted)
               .toList(),
           onSave:
@@ -318,8 +332,10 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                     paraBirimi: paraBirimi,
                   );
 
-                  widget.onGelirlerChanged(widget.tumGelirler);
-                  widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+                  widget.onGelirlerChanged(_controller.tumGelirler);
+                  widget.onOdemeYontemleriChanged(
+                    _controller.tumOdemeYontemleri,
+                  );
 
                   if (!mounted) return;
                   AppSnackBar.success(
@@ -474,8 +490,10 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      GelirCopKutusuSayfasi(userId: widget.userId ?? ''),
+                  builder: (context) => GelirCopKutusuSayfasi(
+                    userId: widget.userId ?? '',
+                    controller: _controller,
+                  ),
                 ),
               ).then((_) {
                 if (mounted) _controller.refresh();
