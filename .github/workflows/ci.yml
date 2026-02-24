@@ -76,3 +76,41 @@ jobs:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 14
+
+  # Entegrasyon Testleri (E2E)
+  integration-test:
+    name: E2E Integration Tests
+    # macOS runner'ları donanım hızlandırmalı emülatörler için daha stabildir
+    runs-on: macos-latest
+    needs: analyze-and-test
+    
+    steps:
+      - name: Checkout kod
+        uses: actions/checkout@v4
+
+      - name: Java kurulumu
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Flutter kurulumu
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Bağımlılıkları yükle
+        run: flutter pub get
+
+      - name: Android Emulator Başlat ve Testleri Koştur
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          script: flutter test integration_test/
+          # Hardware acceleration on macOS
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+

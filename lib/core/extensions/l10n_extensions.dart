@@ -61,11 +61,13 @@ extension AppLocalizationsX on BuildContext {
     if (defaultName == 'Ons') return localizations.goldOunce;
 
     // Döviz Türleri
-    if (defaultName == 'Amerikan Doları (USD)')
+    if (defaultName == 'Amerikan Doları (USD)') {
       return localizations.currencyUSD;
+    }
     if (defaultName == 'Euro (EUR)') return localizations.currencyEUR;
-    if (defaultName == 'İngiliz Sterlini (GBP)')
+    if (defaultName == 'İngiliz Sterlini (GBP)') {
       return localizations.currencyGBP;
+    }
     if (defaultName == 'İsviçre Frangı (CHF)') return localizations.currencyCHF;
     if (defaultName == 'Japon Yeni (JPY)') return localizations.currencyJPY;
     if (defaultName == 'Kanada Doları (CAD)') return localizations.currencyCAD;
