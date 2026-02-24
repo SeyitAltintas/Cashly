@@ -22,6 +22,7 @@ class AddAssetPage extends StatefulWidget {
     String? type,
     DateTime purchaseDate,
     double purchasePrice,
+    String paraBirimi,
   )
   onSave;
   final Asset? asset;
@@ -64,6 +65,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
   DateTime? _localPurchaseDate;
   bool _localIsLoading = false;
   String? _localErrorMessage;
+  String _localSelectedCurrency = 'TRY';
 
   // Getter'lar - controller varsa onu kullan
   String get _selectedCategory =>
@@ -141,6 +143,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
         convertedAmount,
       );
       _quantityController.text = widget.asset!.quantity.toString();
+      _localSelectedCurrency = widget.asset!.paraBirimi;
 
       final editCategory = widget.asset!.category;
       String? editType;
@@ -182,6 +185,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
         convertedPurchasePrice,
       );
     } else {
+      _localSelectedCurrency = getIt<CurrencyService>().currentCurrency;
       _quantityController.text = "1";
       if (_controller != null) {
         _controller!.initializeFormState(editPurchaseDate: DateTime.now());
@@ -361,6 +365,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
         effectiveType,
         _purchaseDate,
         purchasePrice,
+        _localSelectedCurrency,
       );
       if (mounted) Navigator.pop(context);
     } else {
@@ -693,16 +698,57 @@ class _AddAssetPageState extends State<AddAssetPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        () {
-          final sym = getIt<CurrencyService>().currentSymbol;
-          return Text(
-            '${context.l10n.amount} ($sym)',
-            style: const TextStyle(color: Colors.white54, fontSize: 13),
-          );
-        }(),
+        Text(
+          '${context.l10n.amount} (${CurrencyService.supportedCurrencies[_localSelectedCurrency] ?? _localSelectedCurrency})',
+          style: const TextStyle(color: Colors.white54, fontSize: 13),
+        ),
         const SizedBox(height: 8),
         Row(
           children: [
+            // Kur seçme dropdown
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _localSelectedCurrency,
+                  icon: const Icon(
+                    Icons.arrow_drop_down,
+                    color: Colors.white38,
+                    size: 20,
+                  ),
+                  dropdownColor: Colors.grey[900],
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _localSelectedCurrency = newValue;
+                      });
+                    }
+                  },
+                  items: CurrencyService.supportedCurrencies.keys
+                      .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(
+                            '${CurrencyService.supportedCurrencies[value]!} $value',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                              fontWeight: _localSelectedCurrency == value
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        );
+                      })
+                      .toList(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
             Expanded(
               child: TextFormField(
                 controller: _amountController,
@@ -717,7 +763,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                   hintText: "0",
                   hintStyle: const TextStyle(color: Colors.white24),
                   prefixIcon: Icon(
-                    Icons.currency_lira,
+                    Icons.account_balance_wallet_outlined,
                     color: _accentColor,
                     size: 22,
                   ),
@@ -923,7 +969,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
             },
             decoration: InputDecoration(
               labelText:
-                  '${context.l10n.assetPurchasePrice} (${getIt<CurrencyService>().currentSymbol})',
+                  '${context.l10n.assetPurchasePrice} (${CurrencyService.supportedCurrencies[_localSelectedCurrency] ?? _localSelectedCurrency})',
               labelStyle: TextStyle(color: Colors.amber.shade700),
               hintText: 'e.g. 1,250.00',
               hintStyle: const TextStyle(color: Colors.white24),

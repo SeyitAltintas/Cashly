@@ -363,6 +363,7 @@ class IncomesController extends ChangeNotifier {
     required String category,
     required DateTime date,
     String? paymentMethodId,
+    String? paraBirimi,
   }) async {
     try {
       if (income.paymentMethodId != null) {
@@ -382,7 +383,7 @@ class IncomesController extends ChangeNotifier {
           category: category,
           date: date,
           paymentMethodId: paymentMethodId,
-          paraBirimi: income.paraBirimi,
+          paraBirimi: paraBirimi ?? income.paraBirimi,
           isDeleted: false,
         );
       }
@@ -402,6 +403,7 @@ class IncomesController extends ChangeNotifier {
     required String category,
     required DateTime date,
     String? paymentMethodId,
+    String? paraBirimi,
   }) async {
     final newIncome = Income(
       id: DateTime.now().toString(),
@@ -410,7 +412,7 @@ class IncomesController extends ChangeNotifier {
       category: category,
       date: date,
       paymentMethodId: paymentMethodId,
-      paraBirimi: getIt<CurrencyService>().currentCurrency,
+      paraBirimi: paraBirimi ?? getIt<CurrencyService>().currentCurrency,
     );
 
     await addIncome(newIncome);

@@ -256,26 +256,35 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           paymentMethods: widget.tumOdemeYontemleri
               .where((pm) => !pm.isDeleted)
               .toList(),
-          onSave: (name, amount, category, date, paymentMethodId) async {
-            try {
-              await _controller.updateIncome(
-                income: income,
-                name: name,
-                amount: amount,
-                category: category,
-                date: date,
-                paymentMethodId: paymentMethodId,
-              );
+          onSave:
+              (
+                name,
+                amount,
+                category,
+                date,
+                paymentMethodId,
+                paraBirimi,
+              ) async {
+                try {
+                  await _controller.updateIncome(
+                    income: income,
+                    name: name,
+                    amount: amount,
+                    category: category,
+                    date: date,
+                    paymentMethodId: paymentMethodId,
+                    paraBirimi: paraBirimi,
+                  );
 
-              widget.onGelirlerChanged(widget.tumGelirler);
-              widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
-            } catch (e) {
-              if (!mounted) return;
-              if (e is AppException) {
-                ErrorHandler.handleAppException(context, e);
-              }
-            }
-          },
+                  widget.onGelirlerChanged(widget.tumGelirler);
+                  widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+                } catch (e) {
+                  if (!mounted) return;
+                  if (e is AppException) {
+                    ErrorHandler.handleAppException(context, e);
+                  }
+                }
+              },
         ),
       ),
     );
@@ -290,31 +299,40 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           paymentMethods: widget.tumOdemeYontemleri
               .where((pm) => !pm.isDeleted)
               .toList(),
-          onSave: (name, amount, category, date, paymentMethodId) async {
-            try {
-              await _controller.addIncomeWithPayment(
-                name: name,
-                amount: amount,
-                category: category,
-                date: date,
-                paymentMethodId: paymentMethodId,
-              );
+          onSave:
+              (
+                name,
+                amount,
+                category,
+                date,
+                paymentMethodId,
+                paraBirimi,
+              ) async {
+                try {
+                  await _controller.addIncomeWithPayment(
+                    name: name,
+                    amount: amount,
+                    category: category,
+                    date: date,
+                    paymentMethodId: paymentMethodId,
+                    paraBirimi: paraBirimi,
+                  );
 
-              widget.onGelirlerChanged(widget.tumGelirler);
-              widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+                  widget.onGelirlerChanged(widget.tumGelirler);
+                  widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
-              if (!mounted) return;
-              AppSnackBar.success(
-                context,
-                '${context.l10n.income} ${context.l10n.added}: $name - ${CurrencyFormatter.format(amount)}',
-              );
-            } catch (e) {
-              if (!mounted) return;
-              if (e is AppException) {
-                ErrorHandler.handleAppException(context, e);
-              }
-            }
-          },
+                  if (!mounted) return;
+                  AppSnackBar.success(
+                    context,
+                    '${context.l10n.income} ${context.l10n.added}: $name - ${CurrencyFormatter.format(amount)}',
+                  );
+                } catch (e) {
+                  if (!mounted) return;
+                  if (e is AppException) {
+                    ErrorHandler.handleAppException(context, e);
+                  }
+                }
+              },
         ),
       ),
     );

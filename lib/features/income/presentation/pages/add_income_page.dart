@@ -22,6 +22,7 @@ class AddIncomePage extends StatefulWidget {
     String category,
     DateTime date,
     String? paymentMethodId,
+    String paraBirimi,
   )
   onSave;
   final Map<String, IconData> categories;
@@ -52,6 +53,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
   DateTime _localSelectedDate = DateTime.now();
   String _localSelectedCategory = '';
   String? _localSelectedPaymentMethodId;
+  String _localSelectedCurrency = 'TRY';
 
   // Getter'lar
   String get _selectedCategory =>
@@ -80,6 +82,9 @@ class _AddIncomePageState extends State<AddIncomePage> {
       final cur = getIt<CurrencyService>();
       final convertedAmount = cur.convert(rawAmount, pb, cur.currentCurrency);
       _amountController.text = convertedAmount.toStringAsFixed(2);
+      _localSelectedCurrency =
+          widget.incomeToEdit!['paraBirimi']?.toString() ??
+          getIt<CurrencyService>().currentCurrency;
       final editCategory = widget.incomeToEdit!['category'] as String?;
       final categoryToUse =
           (editCategory != null && _categoryIcons.containsKey(editCategory))
@@ -103,6 +108,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
         _localSelectedPaymentMethodId = editPaymentMethodId;
       }
     } else {
+      _localSelectedCurrency = getIt<CurrencyService>().currentCurrency;
       final nakitHesap = widget.paymentMethods
           .where((pm) => pm.type == 'nakit')
           .firstOrNull;
@@ -150,6 +156,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
       _selectedCategory,
       _selectedDate,
       _selectedPaymentMethodId,
+      _localSelectedCurrency,
     );
     if (mounted) Navigator.pop(context);
   }
@@ -240,12 +247,36 @@ class _AddIncomePageState extends State<AddIncomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    getIt<CurrencyService>().currentSymbol,
-                    style: const TextStyle(
-                      color: Colors.white38,
-                      fontSize: 36,
-                      fontWeight: FontWeight.w300,
+                  DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _localSelectedCurrency,
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.white38,
+                      ),
+                      dropdownColor: Colors.grey[900],
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _localSelectedCurrency = newValue;
+                          });
+                        }
+                      },
+                      items: CurrencyService.supportedCurrencies.keys
+                          .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                CurrencyService.supportedCurrencies[value]!,
+                                style: const TextStyle(
+                                  color: Colors.white38,
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                            );
+                          })
+                          .toList(),
                     ),
                   ),
                   const SizedBox(width: 8),

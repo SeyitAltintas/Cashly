@@ -397,6 +397,7 @@ class AssetDetailPage extends StatelessWidget {
                           type,
                           purchaseDate,
                           purchasePrice,
+                          paraBirimi,
                         ) {
                           final updatedAsset = asset.copyWith(
                             name: name,
@@ -407,6 +408,7 @@ class AssetDetailPage extends StatelessWidget {
                             lastUpdated: DateTime.now(),
                             purchaseDate: purchaseDate,
                             purchasePrice: purchasePrice,
+                            paraBirimi: paraBirimi,
                           );
                           onEdit(updatedAsset);
                           Navigator.pop(context); // Detay sayfasını kapat

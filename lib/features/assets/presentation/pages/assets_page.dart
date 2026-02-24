@@ -249,6 +249,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                 type,
                 purchaseDate,
                 purchasePrice,
+                paraBirimi,
               ) async {
                 try {
                   final newAsset = Asset(
@@ -262,7 +263,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                     purchaseDate: purchaseDate,
                     purchasePrice: purchasePrice,
                     isDeleted: false,
-                    paraBirimi: getIt<CurrencyService>().currentCurrency,
+                    paraBirimi: paraBirimi,
                   );
                   _controller.addAsset(newAsset);
                   widget.onAdd(name, amount, quantity, category, type);
@@ -349,6 +350,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                           type,
                           purchaseDate,
                           purchasePrice,
+                          paraBirimi,
                         ) {
                           final updatedAsset = asset.copyWith(
                             name: name,
@@ -359,6 +361,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                             lastUpdated: DateTime.now(),
                             purchaseDate: purchaseDate,
                             purchasePrice: purchasePrice,
+                            paraBirimi: paraBirimi,
                           );
                           _controller.updateAsset(updatedAsset);
                           widget.onEdit(updatedAsset);
