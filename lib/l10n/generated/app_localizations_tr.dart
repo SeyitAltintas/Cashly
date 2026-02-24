@@ -478,6 +478,30 @@ class AppLocalizationsTr extends AppLocalizations {
   String get assetPurchaseDate => 'Alış Tarihi';
 
   @override
+  String get assetCurrentValue => 'Şuanki Değer';
+
+  @override
+  String get assetUnitPurchasePrice => 'Birim Alış Fiyatı';
+
+  @override
+  String get assetUnitCurrentPrice => 'Birim Güncel Fiyat';
+
+  @override
+  String get assetProfitLabel => 'Kar';
+
+  @override
+  String get assetLossLabel => 'Zarar';
+
+  @override
+  String get assetInflationDisclaimer =>
+      'Bu hesaplama enflasyon etkisini içermez';
+
+  @override
+  String assetQuantityUnit(String count) {
+    return '$count adet';
+  }
+
+  @override
   String get noAssets => 'Henüz varlık yok';
 
   @override
@@ -497,6 +521,57 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get other => 'Diğer';
+
+  @override
+  String get hisseSenedi => 'Hisse Senedi';
+
+  @override
+  String get banka => 'Banka';
+
+  @override
+  String get goldGram => 'Gram';
+
+  @override
+  String get goldQuarter => 'Çeyrek';
+
+  @override
+  String get goldHalf => 'Yarım';
+
+  @override
+  String get goldFull => 'Tam';
+
+  @override
+  String get goldRepublic => 'Cumhuriyet';
+
+  @override
+  String get goldAta => 'Ata';
+
+  @override
+  String get goldOunce => 'Ons';
+
+  @override
+  String get silverGram => 'Gram';
+
+  @override
+  String get silverOunce => 'Ons';
+
+  @override
+  String get currencyUSD => 'Amerikan Doları (USD)';
+
+  @override
+  String get currencyEUR => 'Euro (EUR)';
+
+  @override
+  String get currencyGBP => 'İngiliz Sterlini (GBP)';
+
+  @override
+  String get currencyCHF => 'İsviçre Frangı (CHF)';
+
+  @override
+  String get currencyJPY => 'Japon Yeni (JPY)';
+
+  @override
+  String get currencyCAD => 'Kanada Doları (CAD)';
 
   @override
   String get addPaymentMethod => 'Ödeme Yöntemi Ekle';
@@ -2493,6 +2568,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get deleteAsset => 'Varlığı Sil';
+
+  @override
+  String deleteAssetConfirm(String name) {
+    return '\"$name\" varlığını silmek istediğinize emin misiniz?';
+  }
 
   @override
   String get myAssets => 'Varlıklarım';

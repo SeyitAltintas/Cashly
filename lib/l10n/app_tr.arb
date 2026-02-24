@@ -174,6 +174,20 @@
   "assetCurrentPrice": "Güncel Fiyat",
   "assetPurchasePrice": "Alış Fiyatı",
   "assetPurchaseDate": "Alış Tarihi",
+  "assetCurrentValue": "Şuanki Değer",
+  "assetUnitPurchasePrice": "Birim Alış Fiyatı",
+  "assetUnitCurrentPrice": "Birim Güncel Fiyat",
+  "assetProfitLabel": "Kar",
+  "assetLossLabel": "Zarar",
+  "assetInflationDisclaimer": "Bu hesaplama enflasyon etkisini içermez",
+  "assetQuantityUnit": "{count} adet",
+  "@assetQuantityUnit": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "noAssets": "Henüz varlık yok",
   "gold": "Altın",
   "silver": "Gümüş",
@@ -181,6 +195,23 @@
   "stock": "Hisse",
   "crypto": "Kripto",
   "other": "Diğer",
+  "hisseSenedi": "Hisse Senedi",
+  "banka": "Banka",
+  "goldGram": "Gram",
+  "goldQuarter": "Çeyrek",
+  "goldHalf": "Yarım",
+  "goldFull": "Tam",
+  "goldRepublic": "Cumhuriyet",
+  "goldAta": "Ata",
+  "goldOunce": "Ons",
+  "silverGram": "Gram",
+  "silverOunce": "Ons",
+  "currencyUSD": "Amerikan Doları (USD)",
+  "currencyEUR": "Euro (EUR)",
+  "currencyGBP": "İngiliz Sterlini (GBP)",
+  "currencyCHF": "İsviçre Frangı (CHF)",
+  "currencyJPY": "Japon Yeni (JPY)",
+  "currencyCAD": "Kanada Doları (CAD)",
   "addPaymentMethod": "Ödeme Yöntemi Ekle",
   "editPaymentMethod": "Ödeme Yöntemini Düzenle",
   "paymentMethodName": "İsim",
@@ -1123,6 +1154,14 @@
   "assetRecycleBin": "Varlık Çöp Kutusu",
   "assetDetail": "Varlık Detayı",
   "deleteAsset": "Varlığı Sil",
+  "deleteAssetConfirm": "\"{name}\" varlığını silmek istediğinize emin misiniz?",
+  "@deleteAssetConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "myAssets": "Varlıklarım",
   "analysisAndReports": "Analiz ve Raporlar",
   "expenseTab": "Harcama",

@@ -43,6 +43,33 @@ extension AppLocalizationsX on BuildContext {
     if (defaultName == 'Kira Geliri') return localizations.rentalIncome;
     if (defaultName == 'Hediye') return localizations.gift;
 
+    // Varlık Kategorileri
+    if (defaultName == 'Altın') return localizations.gold;
+    if (defaultName == 'Gümüş') return localizations.silver;
+    if (defaultName == 'Döviz') return localizations.currency;
+    if (defaultName == 'Kripto') return localizations.crypto;
+    if (defaultName == 'Banka') return localizations.banka;
+    if (defaultName == 'Hisse Senedi') return localizations.hisseSenedi;
+
+    // Altın Türleri
+    if (defaultName == 'Gram') return localizations.goldGram;
+    if (defaultName == 'Çeyrek') return localizations.goldQuarter;
+    if (defaultName == 'Yarım') return localizations.goldHalf;
+    if (defaultName == 'Tam') return localizations.goldFull;
+    if (defaultName == 'Cumhuriyet') return localizations.goldRepublic;
+    if (defaultName == 'Ata') return localizations.goldAta;
+    if (defaultName == 'Ons') return localizations.goldOunce;
+
+    // Döviz Türleri
+    if (defaultName == 'Amerikan Doları (USD)')
+      return localizations.currencyUSD;
+    if (defaultName == 'Euro (EUR)') return localizations.currencyEUR;
+    if (defaultName == 'İngiliz Sterlini (GBP)')
+      return localizations.currencyGBP;
+    if (defaultName == 'İsviçre Frangı (CHF)') return localizations.currencyCHF;
+    if (defaultName == 'Japon Yeni (JPY)') return localizations.currencyJPY;
+    if (defaultName == 'Kanada Doları (CAD)') return localizations.currencyCAD;
+
     return defaultName; // Kullanıcının özel eklediği farklı bir isimse aynen kalsın
   }
 

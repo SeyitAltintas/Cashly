@@ -7,6 +7,8 @@ import '../../../../core/utils/error_handler.dart';
 import '../../../../core/utils/amount_input_formatter.dart';
 import '../../../../core/widgets/app_date_picker.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 import '../controllers/assets_controller.dart';
 
 /// Varlık ekleme/düzenleme sayfası
@@ -129,8 +131,14 @@ class _AddAssetPageState extends State<AddAssetPage> {
 
     if (widget.asset != null) {
       _nameController.text = widget.asset!.name;
-      _amountController.text = AmountInputFormatter.formatInitialValue(
+      final cur = getIt<CurrencyService>();
+      final convertedAmount = cur.convert(
         widget.asset!.amount,
+        widget.asset!.paraBirimi,
+        cur.currentCurrency,
+      );
+      _amountController.text = AmountInputFormatter.formatInitialValue(
+        convertedAmount,
       );
       _quantityController.text = widget.asset!.quantity.toString();
 
@@ -165,8 +173,13 @@ class _AddAssetPageState extends State<AddAssetPage> {
       if (editCategory == 'Diğer') {
         _customCategoryNameController.text = widget.asset!.name;
       }
-      _purchasePriceController.text = AmountInputFormatter.formatInitialValue(
+      final convertedPurchasePrice = cur.convert(
         widget.asset!.purchasePrice,
+        widget.asset!.paraBirimi,
+        cur.currentCurrency,
+      );
+      _purchasePriceController.text = AmountInputFormatter.formatInitialValue(
+        convertedPurchasePrice,
       );
     } else {
       _quantityController.text = "1";
@@ -271,9 +284,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
             );
             _controller!.clearFormError();
           } else {
-            _controller!.setFormError(
-              'Fiyat çekilemedi, lütfen manuel giriniz.',
-            );
+            _controller!.setFormError(context.l10n.priceFetchFailed);
           }
         } else {
           _localIsLoading = false;
@@ -285,7 +296,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
             );
             _localErrorMessage = null;
           } else {
-            _localErrorMessage = 'Fiyat çekilemedi, lütfen manuel giriniz.';
+            _localErrorMessage = context.l10n.priceFetchFailed;
           }
           setState(() {});
         }
@@ -294,13 +305,10 @@ class _AddAssetPageState extends State<AddAssetPage> {
       if (mounted) {
         if (_controller != null) {
           _controller!.setFormLoading(false);
-          _controller!.setFormError(
-            'Fiyat alınırken hata oluştu. Lütfen manuel giriniz.',
-          );
+          _controller!.setFormError(context.l10n.priceFetchError);
         } else {
           _localIsLoading = false;
-          _localErrorMessage =
-              'Fiyat alınırken hata oluştu. Lütfen manuel giriniz.';
+          _localErrorMessage = context.l10n.priceFetchError;
           setState(() {});
         }
       }
@@ -358,7 +366,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
     } else {
       ErrorHandler.showErrorSnackBar(
         context,
-        'Lütfen tüm gerekli alanları doldurun',
+        context.l10n.pleaseFillRequiredFields,
       );
     }
   }
@@ -377,7 +385,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          isEditing ? "Varlık Düzenle" : "Varlık Ekle",
+          isEditing ? context.l10n.editAsset : context.l10n.addAsset,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
@@ -394,11 +402,13 @@ class _AddAssetPageState extends State<AddAssetPage> {
             // Varlık Adı
             _buildTextField(
               controller: _nameController,
-              label: "Varlık Adı",
-              hint: "Örn: Gram Altın",
+              label: context.l10n.assetName,
+              hint: 'e.g. Gold Gram',
               icon: Icons.diamond_outlined,
-              validator: (value) =>
-                  Validators.validateItemName(value, itemType: 'Varlık'),
+              validator: (value) => Validators.validateItemName(
+                value,
+                itemType: context.l10n.assetNameField,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -419,11 +429,13 @@ class _AddAssetPageState extends State<AddAssetPage> {
             if (_selectedCategory == 'Diğer') ...[
               _buildTextField(
                 controller: _customCategoryNameController,
-                label: "Varlık İsmi",
-                hint: "Örn: Antika Saat",
+                label: context.l10n.assetNameField,
+                hint: 'e.g. Antique Watch',
                 icon: Icons.edit_outlined,
-                validator: (value) =>
-                    Validators.validateItemName(value, itemType: 'Varlık'),
+                validator: (value) => Validators.validateItemName(
+                  value,
+                  itemType: context.l10n.assetNameField,
+                ),
               ),
               const SizedBox(height: 16),
             ],
@@ -432,11 +444,13 @@ class _AddAssetPageState extends State<AddAssetPage> {
             if (_selectedCategory == 'Hisse Senedi') ...[
               _buildTextField(
                 controller: _stockNameController,
-                label: "Hisse Adı",
-                hint: "Örn: THYAO, SASA",
+                label: context.l10n.stockNameLabel,
+                hint: 'e.g. THYAO, SASA',
                 icon: Icons.trending_up,
-                validator: (value) =>
-                    Validators.validateItemName(value, itemType: 'Hisse'),
+                validator: (value) => Validators.validateItemName(
+                  value,
+                  itemType: context.l10n.stockNameLabel,
+                ),
               ),
               const SizedBox(height: 16),
             ],
@@ -445,11 +459,13 @@ class _AddAssetPageState extends State<AddAssetPage> {
             if (_selectedCategory == 'Döviz' && _selectedType == 'Diğer') ...[
               _buildTextField(
                 controller: _customCurrencyNameController,
-                label: "Döviz İsmi",
-                hint: "Örn: İsveç Kronu (SEK)",
+                label: context.l10n.currencyNameLabel,
+                hint: 'e.g. SEK, NOK',
                 icon: Icons.attach_money,
-                validator: (value) =>
-                    Validators.validateItemName(value, itemType: 'Döviz'),
+                validator: (value) => Validators.validateItemName(
+                  value,
+                  itemType: context.l10n.currencyNameLabel,
+                ),
               ),
               const SizedBox(height: 16),
             ],
@@ -458,11 +474,13 @@ class _AddAssetPageState extends State<AddAssetPage> {
             if (_selectedCategory == 'Kripto' && _selectedType == 'Diğer') ...[
               _buildTextField(
                 controller: _customCryptoNameController,
-                label: "Kripto İsmi",
-                hint: "Örn: DOGE, SHIB",
+                label: context.l10n.cryptoNameLabel,
+                hint: 'e.g. DOGE, SHIB',
                 icon: Icons.currency_bitcoin,
-                validator: (value) =>
-                    Validators.validateItemName(value, itemType: 'Kripto'),
+                validator: (value) => Validators.validateItemName(
+                  value,
+                  itemType: context.l10n.cryptoNameLabel,
+                ),
               ),
               const SizedBox(height: 16),
             ],
@@ -471,11 +489,13 @@ class _AddAssetPageState extends State<AddAssetPage> {
             if (_selectedCategory == 'Banka' && _selectedType == 'Diğer') ...[
               _buildTextField(
                 controller: _customBankNameController,
-                label: "Banka Adı",
-                hint: "Örn: N26, Revolut",
+                label: context.l10n.bankNameLabel,
+                hint: 'e.g. N26, Revolut',
                 icon: Icons.account_balance,
-                validator: (value) =>
-                    Validators.validateItemName(value, itemType: 'Banka'),
+                validator: (value) => Validators.validateItemName(
+                  value,
+                  itemType: context.l10n.bankNameLabel,
+                ),
               ),
               const SizedBox(height: 16),
             ],
@@ -485,8 +505,8 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 _selectedCategory != 'Döviz') ...[
               _buildTextField(
                 controller: _quantityController,
-                label: "Adet",
-                hint: "Örn: 1.0",
+                label: context.l10n.quantityLabel,
+                hint: 'e.g. 1.0',
                 icon: Icons.numbers,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
@@ -574,9 +594,9 @@ class _AddAssetPageState extends State<AddAssetPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Kategori",
-          style: TextStyle(color: Colors.white54, fontSize: 13),
+        Text(
+          context.l10n.category,
+          style: const TextStyle(color: Colors.white54, fontSize: 13),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -585,7 +605,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
           children: _categories.map((category) {
             final isSelected = _selectedCategory == category;
             return ChoiceChip(
-              label: Text(category),
+              label: Text(context.translateDbName(category)),
               selected: isSelected,
               onSelected: (selected) {
                 if (_controller != null) {
@@ -625,7 +645,9 @@ class _AddAssetPageState extends State<AddAssetPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _selectedCategory == 'Banka' ? "Banka Adı" : "Tür",
+          _selectedCategory == 'Banka'
+              ? context.l10n.bankNameLabel
+              : context.l10n.category,
           style: const TextStyle(color: Colors.white54, fontSize: 13),
         ),
         const SizedBox(height: 8),
@@ -638,16 +660,19 @@ class _AddAssetPageState extends State<AddAssetPage> {
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _selectedType,
-              hint: const Text(
-                "Seçiniz",
-                style: TextStyle(color: Colors.white38),
+              hint: Text(
+                context.l10n.notSpecified,
+                style: const TextStyle(color: Colors.white38),
               ),
               dropdownColor: const Color(0xFF1E1E1E),
               style: const TextStyle(color: Colors.white, fontSize: 16),
               isExpanded: true,
               icon: const Icon(Icons.expand_more, color: Colors.white38),
               items: _types[_selectedCategory]!.map((String type) {
-                return DropdownMenuItem<String>(value: type, child: Text(type));
+                return DropdownMenuItem<String>(
+                  value: type,
+                  child: Text(context.translateDbName(type)),
+                );
               }).toList(),
               onChanged: (value) {
                 if (_controller != null) {
@@ -668,10 +693,13 @@ class _AddAssetPageState extends State<AddAssetPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Miktar (TL)",
-          style: TextStyle(color: Colors.white54, fontSize: 13),
-        ),
+        () {
+          final sym = getIt<CurrencyService>().currentSymbol;
+          return Text(
+            '${context.l10n.amount} ($sym)',
+            style: const TextStyle(color: Colors.white54, fontSize: 13),
+          );
+        }(),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -738,7 +766,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                           ),
                         )
                       : Text(
-                          "Güncel",
+                          context.l10n.currentPriceButton,
                           style: TextStyle(
                             color: _accentColor,
                             fontWeight: FontWeight.bold,
@@ -792,7 +820,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
               Icon(Icons.history, color: Colors.amber.shade700, size: 20),
               const SizedBox(width: 8),
               Text(
-                "Alış Bilgileri",
+                context.l10n.purchaseInfo,
                 style: TextStyle(
                   color: Colors.amber.shade700,
                   fontWeight: FontWeight.bold,
@@ -836,7 +864,12 @@ class _AddAssetPageState extends State<AddAssetPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      DateFormat('dd MMMM yyyy', 'tr_TR').format(_purchaseDate),
+                      DateFormat(
+                        'dd MMMM yyyy',
+                        Localizations.localeOf(context).languageCode == 'tr'
+                            ? 'tr_TR'
+                            : 'en_US',
+                      ).format(_purchaseDate),
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),
@@ -863,17 +896,17 @@ class _AddAssetPageState extends State<AddAssetPage> {
 
               // Edge Case 2: Geçersiz sayı formatı
               if (amount == null) {
-                return 'Geçerli bir fiyat giriniz';
+                return context.l10n.enterValidPrice;
               }
 
               // Edge Case 3: Negatif değer
               if (amount < 0) {
-                return 'Alış fiyatı negatif olamaz';
+                return context.l10n.purchasePriceNegative;
               }
 
               // Edge Case 4: Sıfır değer
               if (amount == 0) {
-                return 'Alış fiyatı 0\'dan büyük olmalı';
+                return context.l10n.purchasePriceMustBePositive;
               }
 
               // Edge Case 5: Çok küçük değer (pratik olmayan)
@@ -889,9 +922,10 @@ class _AddAssetPageState extends State<AddAssetPage> {
               return null;
             },
             decoration: InputDecoration(
-              labelText: "Alış Fiyatı (TL)",
+              labelText:
+                  '${context.l10n.assetPurchasePrice} (${getIt<CurrencyService>().currentSymbol})',
               labelStyle: TextStyle(color: Colors.amber.shade700),
-              hintText: "Örn: 1.250,00",
+              hintText: 'e.g. 1,250.00',
               hintStyle: const TextStyle(color: Colors.white24),
               filled: true,
               fillColor: Colors.white.withValues(alpha: 0.05),
@@ -944,7 +978,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
           borderRadius: BorderRadius.circular(20),
           child: Center(
             child: Text(
-              isEditing ? "Güncelle" : "Varlık Ekle",
+              isEditing ? context.l10n.save : context.l10n.addAsset,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 17,

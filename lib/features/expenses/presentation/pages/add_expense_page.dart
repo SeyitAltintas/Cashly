@@ -91,7 +91,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
     if (widget.expenseToEdit != null) {
       _nameController.text = widget.expenseToEdit!['isim'];
-      _amountController.text = widget.expenseToEdit!['tutar'].toString();
+      final rawAmount = (widget.expenseToEdit!['tutar'] as num).toDouble();
+      final pb = widget.expenseToEdit!['paraBirimi']?.toString() ?? 'TRY';
+      final cur = getIt<CurrencyService>();
+      final convertedAmount = cur.convert(rawAmount, pb, cur.currentCurrency);
+      _amountController.text = convertedAmount.toStringAsFixed(2);
       final editCategory = widget.expenseToEdit!['kategori'] as String?;
       final categoryToUse =
           (editCategory != null && _categoryIcons.containsKey(editCategory))
@@ -540,7 +544,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       ),
                       // Bakiye göster (en sağda)
                       Text(
-                        CurrencyFormatter.format(pm.balance),
+                        () {
+                          final cur = getIt<CurrencyService>();
+                          return CurrencyFormatter.format(
+                            cur.convert(
+                              pm.balance,
+                              pm.paraBirimi,
+                              cur.currentCurrency,
+                            ),
+                          );
+                        }(),
                         style: TextStyle(
                           color: _accentColor.withValues(alpha: 0.8),
                           fontSize: 13,

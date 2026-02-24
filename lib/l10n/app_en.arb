@@ -174,6 +174,20 @@
   "assetCurrentPrice": "Current Price",
   "assetPurchasePrice": "Purchase Price",
   "assetPurchaseDate": "Purchase Date",
+  "assetCurrentValue": "Current Value",
+  "assetUnitPurchasePrice": "Unit Purchase Price",
+  "assetUnitCurrentPrice": "Unit Current Price",
+  "assetProfitLabel": "Profit",
+  "assetLossLabel": "Loss",
+  "assetInflationDisclaimer": "This calculation does not include the effect of inflation",
+  "assetQuantityUnit": "{count} units",
+  "@assetQuantityUnit": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "noAssets": "No assets yet",
   "gold": "Gold",
   "silver": "Silver",
@@ -181,6 +195,23 @@
   "stock": "Stock",
   "crypto": "Crypto",
   "other": "Other",
+  "hisseSenedi": "Stocks",
+  "banka": "Bank",
+  "goldGram": "Gram",
+  "goldQuarter": "Quarter",
+  "goldHalf": "Half",
+  "goldFull": "Full",
+  "goldRepublic": "Republic",
+  "goldAta": "Ata",
+  "goldOunce": "Ounce",
+  "silverGram": "Gram",
+  "silverOunce": "Ounce",
+  "currencyUSD": "US Dollar (USD)",
+  "currencyEUR": "Euro (EUR)",
+  "currencyGBP": "British Pound (GBP)",
+  "currencyCHF": "Swiss Franc (CHF)",
+  "currencyJPY": "Japanese Yen (JPY)",
+  "currencyCAD": "Canadian Dollar (CAD)",
   "addPaymentMethod": "Add Payment Method",
   "editPaymentMethod": "Edit Payment Method",
   "paymentMethodName": "Name",
@@ -1123,6 +1154,14 @@
   "assetRecycleBin": "Asset Recycle Bin",
   "assetDetail": "Asset Detail",
   "deleteAsset": "Delete Asset",
+  "deleteAssetConfirm": "Are you sure you want to delete \"{name}\"?",
+  "@deleteAssetConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "myAssets": "My Assets",
   "analysisAndReports": "Analysis and Reports",
   "expenseTab": "Expense",

@@ -174,9 +174,16 @@ class _TransferPageState extends State<TransferPage> {
       if (amount > borcMiktari) {
         ErrorHandler.showErrorSnackBar(
           context,
-          context.l10n.creditCardDebtLimit(
-            CurrencyFormatter.format(borcMiktari),
-          ),
+          context.l10n.creditCardDebtLimit(() {
+            final cur = getIt<CurrencyService>();
+            return CurrencyFormatter.format(
+              cur.convert(
+                borcMiktari,
+                toAccount.paraBirimi,
+                cur.currentCurrency,
+              ),
+            );
+          }()),
         );
         return;
       }
@@ -234,7 +241,12 @@ class _TransferPageState extends State<TransferPage> {
     // Bilgi mesajı oluştur
     final fromAccountName = fromAccount.name;
     final toAccountName = toAccount.name;
-    final formattedAmount = CurrencyFormatter.format(amount);
+    final formattedAmount = () {
+      final cur = getIt<CurrencyService>();
+      return CurrencyFormatter.format(
+        cur.convert(amount, fromAccount.paraBirimi, cur.currentCurrency),
+      );
+    }();
 
     // Zamanlanmış transfer için farklı mesaj
     if (_isScheduled) {
@@ -838,7 +850,16 @@ class _TransferPageState extends State<TransferPage> {
                           Text(pm.name),
                           const Spacer(),
                           Text(
-                            CurrencyFormatter.format(pm.balance),
+                            () {
+                              final cur = getIt<CurrencyService>();
+                              return CurrencyFormatter.format(
+                                cur.convert(
+                                  pm.balance,
+                                  pm.paraBirimi,
+                                  cur.currentCurrency,
+                                ),
+                              );
+                            }(),
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.normal,
@@ -872,9 +893,16 @@ class _TransferPageState extends State<TransferPage> {
                         horizontal: 8,
                       ),
                       child: Text(
-                        context.l10n.payAllDebt(
-                          CurrencyFormatter.format(selectedAccount.balance),
-                        ),
+                        context.l10n.payAllDebt(() {
+                          final cur = getIt<CurrencyService>();
+                          return CurrencyFormatter.format(
+                            cur.convert(
+                              selectedAccount.balance,
+                              selectedAccount.paraBirimi,
+                              cur.currentCurrency,
+                            ),
+                          );
+                        }()),
                         style: TextStyle(
                           color: _primaryColor,
                           fontSize: 12,

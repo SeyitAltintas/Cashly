@@ -5,12 +5,14 @@ import '../../../../core/constants/color_constants.dart';
 import '../../../../core/constants/card_color_constants.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/widgets/month_selector_button.dart';
-import '../../../../core/utils/amount_input_formatter.dart';
+
 import '../../data/models/payment_method_model.dart';
 import '../../data/models/transfer_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../controllers/payment_methods_controller.dart';
 import '../../../../core/services/currency_service.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/utils/currency_formatter.dart';
 
 /// Hesap detay sayfası - Bir ödeme yönteminin tüm işlemlerini gösterir
 class PaymentMethodDetailPage extends StatefulWidget {
@@ -188,6 +190,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
         .gradients[pm.colorIndex.clamp(0, CardColorConstants.count - 1)];
     final allFilteredTransactions = _getFilteredTransactions();
     final transactions = applyPagination(allFilteredTransactions);
+    final cur = getIt<CurrencyService>();
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -263,7 +266,9 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                   ),
                 ),
                 Text(
-                  '${AmountInputFormatter.formatInitialValue(pm.balance)} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
+                  CurrencyFormatter.format(
+                    cur.convert(pm.balance, pm.paraBirimi, cur.currentCurrency),
+                  ),
                   style: TextStyle(
                     color: pm.type == 'kredi'
                         ? Colors.redAccent
@@ -278,14 +283,14 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${context.l10n.limitLabel}: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
+                        '${context.l10n.limitLabel}: ${CurrencyFormatter.formatInteger(cur.convert(pm.limit!, pm.paraBirimi, cur.currentCurrency))}',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12,
                         ),
                       ),
                       Text(
-                        '${context.l10n.remainingLimitLabel}: ${AmountInputFormatter.formatInitialValue(pm.limit! - pm.balance).replaceAll(',00', '')} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
+                        '${context.l10n.remainingLimitLabel}: ${CurrencyFormatter.formatInteger(cur.convert(pm.limit! - pm.balance, pm.paraBirimi, cur.currentCurrency))}',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12,
@@ -446,10 +451,10 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
               ],
             ),
           ),
-          Text(
-            '$amountPrefix${item.amount.toStringAsFixed(2)} ${CurrencyService.supportedCurrencies[widget.paymentMethod.paraBirimi] ?? '₺'}',
-            style: TextStyle(color: iconColor, fontWeight: FontWeight.bold),
-          ),
+          Text(() {
+            final cur = getIt<CurrencyService>();
+            return '$amountPrefix${CurrencyFormatter.format(cur.convert(item.amount, widget.paymentMethod.paraBirimi, cur.currentCurrency))}';
+          }(), style: TextStyle(color: iconColor, fontWeight: FontWeight.bold)),
         ],
       ),
     );

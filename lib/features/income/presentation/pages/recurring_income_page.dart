@@ -675,7 +675,12 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                 ),
               ),
               Text(
-                '+${CurrencyFormatter.format(tutar)}',
+                () {
+                  final pb = gelir['paraBirimi']?.toString() ?? 'TRY';
+                  final cur = getIt<CurrencyService>();
+                  final converted = cur.convert(tutar, pb, cur.currentCurrency);
+                  return '+${CurrencyFormatter.format(converted)}';
+                }(),
                 style: const TextStyle(
                   color: Colors.green,
                   fontSize: 16,

@@ -75,7 +75,11 @@ class _AddIncomePageState extends State<AddIncomePage> {
 
     if (widget.incomeToEdit != null) {
       _nameController.text = widget.incomeToEdit!['name'] ?? '';
-      _amountController.text = widget.incomeToEdit!['amount'].toString();
+      final rawAmount = (widget.incomeToEdit!['amount'] as num).toDouble();
+      final pb = widget.incomeToEdit!['paraBirimi']?.toString() ?? 'TRY';
+      final cur = getIt<CurrencyService>();
+      final convertedAmount = cur.convert(rawAmount, pb, cur.currentCurrency);
+      _amountController.text = convertedAmount.toStringAsFixed(2);
       final editCategory = widget.incomeToEdit!['category'] as String?;
       final categoryToUse =
           (editCategory != null && _categoryIcons.containsKey(editCategory))
@@ -445,7 +449,16 @@ class _AddIncomePageState extends State<AddIncomePage> {
                         ),
                       ),
                       Text(
-                        CurrencyFormatter.format(pm.balance),
+                        () {
+                          final cur = getIt<CurrencyService>();
+                          return CurrencyFormatter.format(
+                            cur.convert(
+                              pm.balance,
+                              pm.paraBirimi,
+                              cur.currentCurrency,
+                            ),
+                          );
+                        }(),
                         style: TextStyle(
                           color: _accentColor.withValues(alpha: 0.8),
                           fontSize: 13,

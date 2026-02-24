@@ -5,6 +5,8 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../data/models/asset_model.dart';
 import 'add_asset_page.dart';
 import '../../../../core/services/haptic_service.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 
 /// Varlık detay sayfası - Varlığın alış bilgileri ve güncel değerini gösterir
 class AssetDetailPage extends StatelessWidget {
@@ -22,8 +24,40 @@ class AssetDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final dateFormat = DateFormat('dd MMMM yyyy', 'tr_TR');
+    final appLocale = Localizations.localeOf(context).languageCode == 'tr'
+        ? 'tr_TR'
+        : 'en_US';
+    final dateFormat = DateFormat('dd MMMM yyyy', appLocale);
     final isProfit = asset.profitLoss >= 0;
+    final cur = getIt<CurrencyService>();
+    final targetCurrency = cur.currentCurrency;
+
+    // Kur dönüşümlü tutarlar
+    final convertedPurchasePrice = cur.convert(
+      asset.purchasePrice,
+      asset.paraBirimi,
+      targetCurrency,
+    );
+    final convertedUnitPurchasePrice = cur.convert(
+      asset.unitPurchasePrice,
+      asset.paraBirimi,
+      targetCurrency,
+    );
+    final convertedAmount = cur.convert(
+      asset.amount,
+      asset.paraBirimi,
+      targetCurrency,
+    );
+    final convertedUnitCurrentPrice = cur.convert(
+      asset.unitCurrentPrice,
+      asset.paraBirimi,
+      targetCurrency,
+    );
+    final convertedProfitLoss = cur.convert(
+      asset.profitLoss,
+      asset.paraBirimi,
+      targetCurrency,
+    );
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -49,36 +83,36 @@ class AssetDetailPage extends StatelessWidget {
             _buildInfoCard(
               context: context,
               theme: theme,
-              title: 'Alış Bilgileri',
+              title: context.l10n.purchaseInfo,
               icon: Icons.calendar_today,
               iconColor: Colors.blue.shade400,
               children: [
                 _buildInfoRow(
                   context,
-                  'Alış Tarihi',
+                  context.l10n.assetPurchaseDate,
                   dateFormat.format(asset.purchaseDate),
                   Icons.event,
                 ),
                 const SizedBox(height: 12),
                 _buildInfoRow(
                   context,
-                  'Alış Fiyatı',
-                  CurrencyFormatter.format(asset.purchasePrice),
+                  context.l10n.assetPurchasePrice,
+                  CurrencyFormatter.format(convertedPurchasePrice),
                   Icons.shopping_cart,
                 ),
                 const SizedBox(height: 12),
                 _buildInfoRow(
                   context,
-                  'Miktar',
-                  '${asset.quantity} adet',
+                  context.l10n.quantityLabel,
+                  context.l10n.assetQuantityUnit(asset.quantity.toString()),
                   Icons.inventory_2,
                 ),
                 if (asset.quantity > 1) ...[
                   const SizedBox(height: 12),
                   _buildInfoRow(
                     context,
-                    'Birim Alış Fiyatı',
-                    CurrencyFormatter.format(asset.unitPurchasePrice),
+                    context.l10n.assetUnitPurchasePrice,
+                    CurrencyFormatter.format(convertedUnitPurchasePrice),
                     Icons.price_change,
                   ),
                 ],
@@ -90,22 +124,22 @@ class AssetDetailPage extends StatelessWidget {
             _buildInfoCard(
               context: context,
               theme: theme,
-              title: 'Güncel Değer',
+              title: context.l10n.assetCurrentValue,
               icon: Icons.trending_up,
               iconColor: Colors.green.shade400,
               children: [
                 _buildInfoRow(
                   context,
-                  'Şuanki Değer',
-                  CurrencyFormatter.format(asset.amount),
+                  context.l10n.assetCurrentValue,
+                  CurrencyFormatter.format(convertedAmount),
                   Icons.account_balance_wallet,
                 ),
                 if (asset.quantity > 1) ...[
                   const SizedBox(height: 12),
                   _buildInfoRow(
                     context,
-                    'Birim Güncel Fiyat',
-                    CurrencyFormatter.format(asset.unitCurrentPrice),
+                    context.l10n.assetUnitCurrentPrice,
+                    CurrencyFormatter.format(convertedUnitCurrentPrice),
                     Icons.price_check,
                   ),
                 ],
@@ -114,7 +148,7 @@ class AssetDetailPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Kar/Zarar Kartı
-            _buildProfitLossCard(context, theme, isProfit),
+            _buildProfitLossCard(context, theme, isProfit, convertedProfitLoss),
             const SizedBox(height: 24),
 
             // Aksiyon Butonları
@@ -169,7 +203,7 @@ class AssetDetailPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${asset.category}${asset.type != null ? ' • ${asset.type}' : ''}',
+                  '${context.translateDbName(asset.category)}${asset.type != null ? ' • ${context.translateDbName(asset.type!)}' : ''}',
                   style: TextStyle(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 14,
@@ -267,10 +301,13 @@ class AssetDetailPage extends StatelessWidget {
     BuildContext context,
     ThemeData theme,
     bool isProfit,
+    double convertedProfitLoss,
   ) {
     final profitColor = isProfit ? Colors.green : Colors.red;
     final profitIcon = isProfit ? Icons.trending_up : Icons.trending_down;
-    final profitText = isProfit ? 'Kar' : 'Zarar';
+    final profitText = isProfit
+        ? context.l10n.assetProfitLabel
+        : context.l10n.assetLossLabel;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -306,7 +343,7 @@ class AssetDetailPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '${isProfit ? '+' : ''}${CurrencyFormatter.format(asset.profitLoss)}',
+            '${isProfit ? '+' : ''}${CurrencyFormatter.format(convertedProfitLoss)}',
             style: TextStyle(
               color: profitColor,
               fontSize: 28,
@@ -325,7 +362,7 @@ class AssetDetailPage extends StatelessWidget {
           const SizedBox(height: 12),
           // Enflasyon disclaimer
           Text(
-            'Bu hesaplama enflasyon etkisini içermez',
+            context.l10n.assetInflationDisclaimer,
             style: TextStyle(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
               fontSize: 11,
@@ -420,9 +457,7 @@ class AssetDetailPage extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(context.l10n.deleteAsset),
-        content: Text(
-          '"${asset.name}" varlığını silmek istediğinize emin misiniz?',
-        ),
+        content: Text(context.l10n.deleteAssetConfirm(asset.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),

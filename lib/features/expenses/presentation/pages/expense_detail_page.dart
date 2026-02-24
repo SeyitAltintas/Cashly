@@ -4,6 +4,8 @@ import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/services/haptic_service.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import 'add_expense_page.dart';
 
@@ -253,6 +255,9 @@ class ExpenseDetailPage extends StatelessWidget {
   /// Tutar kartı
   Widget _buildAmountCard(BuildContext context, ThemeData theme) {
     final tutar = (harcama['tutar'] as num?)?.toDouble() ?? 0.0;
+    final pb = harcama['paraBirimi']?.toString() ?? 'TRY';
+    final cur = getIt<CurrencyService>();
+    final convertedAmount = cur.convert(tutar, pb, cur.currentCurrency);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -288,7 +293,7 @@ class ExpenseDetailPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '-${CurrencyFormatter.format(tutar)}',
+            '-${CurrencyFormatter.format(convertedAmount)}',
             style: const TextStyle(
               color: Colors.red,
               fontSize: 28,

@@ -479,6 +479,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetPurchaseDate => 'Purchase Date';
 
   @override
+  String get assetCurrentValue => 'Current Value';
+
+  @override
+  String get assetUnitPurchasePrice => 'Unit Purchase Price';
+
+  @override
+  String get assetUnitCurrentPrice => 'Unit Current Price';
+
+  @override
+  String get assetProfitLabel => 'Profit';
+
+  @override
+  String get assetLossLabel => 'Loss';
+
+  @override
+  String get assetInflationDisclaimer =>
+      'This calculation does not include the effect of inflation';
+
+  @override
+  String assetQuantityUnit(String count) {
+    return '$count units';
+  }
+
+  @override
   String get noAssets => 'No assets yet';
 
   @override
@@ -498,6 +522,57 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get other => 'Other';
+
+  @override
+  String get hisseSenedi => 'Stocks';
+
+  @override
+  String get banka => 'Bank';
+
+  @override
+  String get goldGram => 'Gram';
+
+  @override
+  String get goldQuarter => 'Quarter';
+
+  @override
+  String get goldHalf => 'Half';
+
+  @override
+  String get goldFull => 'Full';
+
+  @override
+  String get goldRepublic => 'Republic';
+
+  @override
+  String get goldAta => 'Ata';
+
+  @override
+  String get goldOunce => 'Ounce';
+
+  @override
+  String get silverGram => 'Gram';
+
+  @override
+  String get silverOunce => 'Ounce';
+
+  @override
+  String get currencyUSD => 'US Dollar (USD)';
+
+  @override
+  String get currencyEUR => 'Euro (EUR)';
+
+  @override
+  String get currencyGBP => 'British Pound (GBP)';
+
+  @override
+  String get currencyCHF => 'Swiss Franc (CHF)';
+
+  @override
+  String get currencyJPY => 'Japanese Yen (JPY)';
+
+  @override
+  String get currencyCAD => 'Canadian Dollar (CAD)';
 
   @override
   String get addPaymentMethod => 'Add Payment Method';
@@ -2490,6 +2565,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteAsset => 'Delete Asset';
+
+  @override
+  String deleteAssetConfirm(String name) {
+    return 'Are you sure you want to delete \"$name\"?';
+  }
 
   @override
   String get myAssets => 'My Assets';

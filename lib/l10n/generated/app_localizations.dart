@@ -1016,6 +1016,48 @@ abstract class AppLocalizations {
   /// **'Alış Tarihi'**
   String get assetPurchaseDate;
 
+  /// No description provided for @assetCurrentValue.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şuanki Değer'**
+  String get assetCurrentValue;
+
+  /// No description provided for @assetUnitPurchasePrice.
+  ///
+  /// In tr, this message translates to:
+  /// **'Birim Alış Fiyatı'**
+  String get assetUnitPurchasePrice;
+
+  /// No description provided for @assetUnitCurrentPrice.
+  ///
+  /// In tr, this message translates to:
+  /// **'Birim Güncel Fiyat'**
+  String get assetUnitCurrentPrice;
+
+  /// No description provided for @assetProfitLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kar'**
+  String get assetProfitLabel;
+
+  /// No description provided for @assetLossLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Zarar'**
+  String get assetLossLabel;
+
+  /// No description provided for @assetInflationDisclaimer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu hesaplama enflasyon etkisini içermez'**
+  String get assetInflationDisclaimer;
+
+  /// No description provided for @assetQuantityUnit.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} adet'**
+  String assetQuantityUnit(String count);
+
   /// No description provided for @noAssets.
   ///
   /// In tr, this message translates to:
@@ -1057,6 +1099,108 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Diğer'**
   String get other;
+
+  /// No description provided for @hisseSenedi.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hisse Senedi'**
+  String get hisseSenedi;
+
+  /// No description provided for @banka.
+  ///
+  /// In tr, this message translates to:
+  /// **'Banka'**
+  String get banka;
+
+  /// No description provided for @goldGram.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gram'**
+  String get goldGram;
+
+  /// No description provided for @goldQuarter.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çeyrek'**
+  String get goldQuarter;
+
+  /// No description provided for @goldHalf.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yarım'**
+  String get goldHalf;
+
+  /// No description provided for @goldFull.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tam'**
+  String get goldFull;
+
+  /// No description provided for @goldRepublic.
+  ///
+  /// In tr, this message translates to:
+  /// **'Cumhuriyet'**
+  String get goldRepublic;
+
+  /// No description provided for @goldAta.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ata'**
+  String get goldAta;
+
+  /// No description provided for @goldOunce.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ons'**
+  String get goldOunce;
+
+  /// No description provided for @silverGram.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gram'**
+  String get silverGram;
+
+  /// No description provided for @silverOunce.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ons'**
+  String get silverOunce;
+
+  /// No description provided for @currencyUSD.
+  ///
+  /// In tr, this message translates to:
+  /// **'Amerikan Doları (USD)'**
+  String get currencyUSD;
+
+  /// No description provided for @currencyEUR.
+  ///
+  /// In tr, this message translates to:
+  /// **'Euro (EUR)'**
+  String get currencyEUR;
+
+  /// No description provided for @currencyGBP.
+  ///
+  /// In tr, this message translates to:
+  /// **'İngiliz Sterlini (GBP)'**
+  String get currencyGBP;
+
+  /// No description provided for @currencyCHF.
+  ///
+  /// In tr, this message translates to:
+  /// **'İsviçre Frangı (CHF)'**
+  String get currencyCHF;
+
+  /// No description provided for @currencyJPY.
+  ///
+  /// In tr, this message translates to:
+  /// **'Japon Yeni (JPY)'**
+  String get currencyJPY;
+
+  /// No description provided for @currencyCAD.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kanada Doları (CAD)'**
+  String get currencyCAD;
 
   /// No description provided for @addPaymentMethod.
   ///
@@ -4705,6 +4849,12 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Varlığı Sil'**
   String get deleteAsset;
+
+  /// No description provided for @deleteAssetConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{name}\" varlığını silmek istediğinize emin misiniz?'**
+  String deleteAssetConfirm(String name);
 
   /// No description provided for @myAssets.
   ///
