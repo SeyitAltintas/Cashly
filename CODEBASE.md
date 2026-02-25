@@ -209,8 +209,8 @@ sesli_geri_bildirim_{userId} → Voice feedback toggle
 |---|---|---|---|
 | **Unit Test** | 51 | 826 | Controllers, Services, Models, Utils, Handlers |
 | **Widget Test** | 21 | ~200+ | UI bileşenleri, form widgets |
-| **E2E Integration Test** | 60 | 60 akış | Tüm 47 sayfa %100 kapsam + Cihaz Davranışları (Scale, Keyboard vs) |
-| **TOPLAM** | **132** | **1085+** | ✅ |
+| **E2E Integration Test** | 65 | 65 akış | Tüm 47 sayfa %100 kapsam + Cihaz Davranışları + Kaos/Stress |
+| **TOPLAM** | **137** | **1090+** | ✅ |
 
 ```
 test/
@@ -218,7 +218,7 @@ test/
 ├── unit/              → 51 dosya (controller, servis, model, handler, util testleri)
 └── widget/            → 21 dosya (UI bileşen testleri)
 
-integration_test/      → 60 dosya (E2E kullanıcı akışları)
+integration_test/      → 65 dosya (E2E kullanıcı akışları)
 ```
 
 **Test adlandırma:** `{kaynak_dosya}_test.dart`
@@ -351,7 +351,7 @@ integration_test/      → 60 dosya (E2E kullanıcı akışları)
 
 ---
 
-### 🚀 E2E Integration Testler (60 dosya / 60 akış)
+### 🚀 E2E Integration Testler (65 dosya / 65 akış)
 
 #### 🔐 Kimlik Doğrulama & Lifecycle & Cihaz Ayarları (8 test)
 
@@ -449,24 +449,29 @@ integration_test/      → 60 dosya (E2E kullanıcı akışları)
 | `voice_commands_flow_test.dart` | Ayarlar → Sesli Asistan → Komut listesi → Detay → Geri dön |
 | `about_support_flow_test.dart` | Ayarlar → Hakkında → SSS açma → Gizlilik Politikası → Kullanım Koşulları |
 
-#### 🔥 Form, Streak & Araçlar Edge Case (7 test)
+#### 🔥 Form, Streak & Araçlar Edge Case (9 test)
 
 | Dosya | Kullanıcı Yolculuğu |
 |---|---|
 | `form_validation_errors_test.dart` | Ekleme formunu boş bırakıp kaydetme zorlaması, Validator mesajlarının ekrana düşme testi |
 | `empty_state_ui_flow_test.dart` | Kayıtlı işlem yokken Varlıkların ve Hesapların EmptyState "Burada işlem yok" uyarısı çizme testi |
+| `unsaved_form_changes_alert_test.dart` | Bir input formunu doldurup kaydetmeden doğrudan 'Geri' basıp verileri feda etme (WillPopScope / Uyarı) uyarısı testleri |
 | `streak_page_flow_test.dart` | Dashboard'daki streak ikonu → Streak sayfası (rozet/istatistik) → Yardım → Geri |
 | `tools_page_flow_test.dart` | Araçlar sekmesi → Kartlara tıklama → Alt sayfa açma → Geri dön |
 | `quick_add_from_tools_test.dart` | Form açılışlarını Ana Ekran (FAB) yerine "Tools/Araçlar" kısa yollarından başlatma stabilitesi |
 | `keyboard_visibility_scroll_test.dart` | Bir formdaki en dip Input alanına tıklandığında ekran klavyesinin Scroll view'i itip görünürlüğünü koruması |
 | `rapid_tap_debouncer_test.dart` | Spam/Throttle Testi: Kaydet butonuna aralıksız defalarca basarak uygulamanın kilitlenmesinin engellenmesi ("Debouncer") |
+| `long_list_scroll_performance_test.dart` | Yüzlerce işlemin olduğu bir ListView içinde çok hızlı/sert `fling` (aşağı çekmeler) yaparak RAM sızıntısı olmadığını saptama kapasitesi |
 
-#### 🔗 Cross-Feature / Entegrasyon Testleri (2 test)
+#### 🔗 Cross-Feature & Network / Entegrasyon Testleri (5 test)
 
 | Dosya | Kullanıcı Yolculuğu |
 |---|---|
 | `income_payment_integration_test.dart` | Gelir eklerken ödeme yöntemine bağla → Hesaplarım'da bakiye yansıması |
 | `net_balance_flow_test.dart` | 10000 TL gelir ekle + 3000 TL gider ekle → Dashboard'da net bakiye doğrulama |
+| `offline_network_currency_test.dart` | Varlık piyasası API yenileme isteğinde İnternet bağlantı zaman aşımı testlerinin Timeout Exception sarmalaması |
+| `export_backup_file_flow_test.dart` | Dosya okuma/yazma Native I/O entegrasyonuna (Platform-Channel) geçiş yapıp JSON backup almaya çalışması |
+| `multi_currency_conversion_test.dart` | Çapraz para çiftleriyle ($ USD harcama, € EUR varlık) gibi egzotik işlemlerde Matematiksel ondalıklı Parse'ın UI'ı yıkıp yıkmadığı |
 
 ---
 
