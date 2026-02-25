@@ -209,8 +209,8 @@ sesli_geri_bildirim_{userId} → Voice feedback toggle
 |---|---|---|---|
 | **Unit Test** | 51 | 826 | Controllers, Services, Models, Utils, Handlers |
 | **Widget Test** | 21 | ~200+ | UI bileşenleri, form widgets |
-| **E2E Integration Test** | 55 | 55 akış | Tüm 47 sayfa %100 kapsam + Edge Caseler |
-| **TOPLAM** | **127** | **1080+** | ✅ |
+| **E2E Integration Test** | 60 | 60 akış | Tüm 47 sayfa %100 kapsam + Cihaz Davranışları (Scale, Keyboard vs) |
+| **TOPLAM** | **132** | **1085+** | ✅ |
 
 ```
 test/
@@ -218,7 +218,7 @@ test/
 ├── unit/              → 51 dosya (controller, servis, model, handler, util testleri)
 └── widget/            → 21 dosya (UI bileşen testleri)
 
-integration_test/      → 55 dosya (E2E kullanıcı akışları)
+integration_test/      → 60 dosya (E2E kullanıcı akışları)
 ```
 
 **Test adlandırma:** `{kaynak_dosya}_test.dart`
@@ -351,9 +351,9 @@ integration_test/      → 55 dosya (E2E kullanıcı akışları)
 
 ---
 
-### 🚀 E2E Integration Testler (55 dosya / 55 akış)
+### 🚀 E2E Integration Testler (60 dosya / 60 akış)
 
-#### 🔐 Kimlik Doğrulama & Lifecycle (5 test)
+#### 🔐 Kimlik Doğrulama & Lifecycle & Cihaz Ayarları (8 test)
 
 | Dosya | Kullanıcı Yolculuğu |
 |---|---|
@@ -362,6 +362,9 @@ integration_test/      → 55 dosya (E2E kullanıcı akışları)
 | `auth_flow_test.dart` | Login → Signup geçişi, kimlik doğrulama |
 | `signup_multiuser_flow_test.dart` | Yeni kullanıcı kaydı, kullanıcı listesi, kullanıcı değiştirme |
 | `app_lifecycle_lock_flow_test.dart` | Uygulamanın background'a (Paused) gidip tekrar açılması (Resumed) ve kilit davranışı / stabilizasyonu |
+| `hardware_back_navigation_test.dart` | Derin sayfalarda Android/iOS Donanım (Geri) Tuşunun Route pop davranışını test eder. |
+| `accessibility_text_scale_test.dart` | Telefon Text Size ayarının %300 (3.0x) büyütülmesinde UI'ın "RenderFlex Overflow" çökmesi yaşayıp yaşamadığı. |
+| `theme_persistence_restart_test.dart` | Ayarlardan UI seçeneklerini (Tema vs.) değiştirip app'i reboot/detach ettikten sonra açılış senaryosunun testi. |
 
 #### 📊 Dashboard & Navigasyon (4 test)
 
@@ -446,7 +449,7 @@ integration_test/      → 55 dosya (E2E kullanıcı akışları)
 | `voice_commands_flow_test.dart` | Ayarlar → Sesli Asistan → Komut listesi → Detay → Geri dön |
 | `about_support_flow_test.dart` | Ayarlar → Hakkında → SSS açma → Gizlilik Politikası → Kullanım Koşulları |
 
-#### 🔥 Form, Streak & Araçlar Edge Case (5 test)
+#### 🔥 Form, Streak & Araçlar Edge Case (7 test)
 
 | Dosya | Kullanıcı Yolculuğu |
 |---|---|
@@ -455,6 +458,8 @@ integration_test/      → 55 dosya (E2E kullanıcı akışları)
 | `streak_page_flow_test.dart` | Dashboard'daki streak ikonu → Streak sayfası (rozet/istatistik) → Yardım → Geri |
 | `tools_page_flow_test.dart` | Araçlar sekmesi → Kartlara tıklama → Alt sayfa açma → Geri dön |
 | `quick_add_from_tools_test.dart` | Form açılışlarını Ana Ekran (FAB) yerine "Tools/Araçlar" kısa yollarından başlatma stabilitesi |
+| `keyboard_visibility_scroll_test.dart` | Bir formdaki en dip Input alanına tıklandığında ekran klavyesinin Scroll view'i itip görünürlüğünü koruması |
+| `rapid_tap_debouncer_test.dart` | Spam/Throttle Testi: Kaydet butonuna aralıksız defalarca basarak uygulamanın kilitlenmesinin engellenmesi ("Debouncer") |
 
 #### 🔗 Cross-Feature / Entegrasyon Testleri (2 test)
 
