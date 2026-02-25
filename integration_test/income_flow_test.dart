@@ -48,7 +48,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 4. Tutarı gir
-      final tutarAramaString = 'Tutar';
+      const tutarAramaString = 'Tutar';
       final tutarField = find.widgetWithText(TextField, tutarAramaString);
       if (tutarField.evaluate().isNotEmpty) {
         await tester.enterText(tutarField, '1500');

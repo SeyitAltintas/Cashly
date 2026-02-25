@@ -80,7 +80,8 @@ jobs:
   # Entegrasyon Testleri (E2E)
   integration-test:
     name: E2E Integration Tests
-    # macOS runner'ları donanım hızlandırmalı emülatörler için daha stabildir
+    # macos-latest = Apple Silicon (ARM64). Emülatör mimarisi buna uygun olmalı.
+    # x86_64 emülatör ARM host'ta çalışmaz!
     runs-on: macos-latest
     needs: analyze-and-test
     
@@ -106,9 +107,9 @@ jobs:
       - name: Android Emulator Başlat ve Testleri Koştur
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
-          target: default
-          arch: x86_64
+          api-level: 31
+          target: google_apis
+          arch: arm64-v8a
           ram-size: 2048M
           disk-size: 8G
           emulator-boot-timeout: 900

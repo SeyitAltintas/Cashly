@@ -42,7 +42,7 @@ void main() {
       }
 
       // 4. Formu Doldur: Bakiye
-      final bakiyeAramaString = 'Bakiye';
+      const bakiyeAramaString = 'Bakiye';
       final bakiyeField = find.widgetWithText(TextField, bakiyeAramaString);
       if (bakiyeField.evaluate().isNotEmpty) {
         await tester.enterText(bakiyeField, '25000');
