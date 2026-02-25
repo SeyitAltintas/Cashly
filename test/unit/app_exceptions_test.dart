@@ -25,7 +25,7 @@ void main() {
 
     test('originalError korunur', () {
       const original = FormatException('bad format');
-      final e = AppException('Wrap', originalError: original);
+      const e = AppException('Wrap', originalError: original);
       expect(e.originalError, isA<FormatException>());
     });
   });

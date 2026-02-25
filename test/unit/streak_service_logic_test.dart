@@ -16,7 +16,7 @@ void main() {
       // İlk giriş simülasyonu
       expect(data.lastLoginDate, isEmpty);
 
-      final newData = StreakData(
+      const newData = StreakData(
         currentStreak: 1,
         longestStreak: 1,
         lastLoginDate: today,

@@ -1,5 +1,5 @@
-# Cashly Flutter CI/CD Pipeline
-# Her push ve pull request'te otomatik olarak çalışır
+# Cashly Flutter Enterprise CI/CD Pipeline
+# Tüm dal itmelerinde ve Main/Develop çekme isteklerindeki kalite kontrol
 
 name: Flutter CI
 
@@ -10,38 +10,41 @@ on:
     branches: [ main, master, develop ]
 
 jobs:
-  # Kod Analizi ve Test
+  # 1. Aşama: Kod Kalitesi, Format ve Unit/Widget Testler
   analyze-and-test:
-    name: Analyze & Test
+    name: Code Quality & Unit Tests
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout kod
+      - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      - name: Flutter kurulumu
+      - name: ⚙️ Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
-      - name: Bağımlılıkları yükle
+      - name: 📦 Install Dependencies
         run: flutter pub get
 
-      - name: Kod analizi (flutter analyze)
+      - name: 🖌️ Verify Code Formatting (Dart Format)
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: 🧐 Code Analysis (Lint)
         run: flutter analyze --no-fatal-infos
 
-      - name: Unit ve Widget testleri
+      - name: 🧪 Unit & Widget Tests
         run: flutter test --coverage
 
-      - name: Test coverage raporu
+      - name: 🌍 Upload Test Coverage
         uses: codecov/codecov-action@v4
         with:
           file: coverage/lcov.info
           fail_ci_if_error: false
         continue-on-error: true
 
-  # Android Build - Sadece commit mesajında 'build' varsa çalışır
+  # 2. Aşama: Derleme (Sadece commit "build" içeriyorsa)
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
@@ -49,62 +52,65 @@ jobs:
     if: contains(github.event.head_commit.message, 'build')
     
     steps:
-      - name: Checkout kod
+      - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      - name: Java kurulumu
+      - name: ☕ Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
+          cache: 'gradle' # 🚀 Gradle için build sürelerini %50 hızlandırır
 
-      - name: Flutter kurulumu
+      - name: ⚙️ Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
-      - name: Bağımlılıkları yükle
+      - name: 📦 Install Dependencies
         run: flutter pub get
 
-      - name: APK oluştur (Release)
+      - name: 🚀 Build Release APK
         run: flutter build apk --release
 
-      - name: APK artifact olarak kaydet
+      - name: 📦 Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 14
 
-  # Entegrasyon Testleri (E2E)
+  # 3. Aşama: Maliyetli Emülatör E2E Testleri
   integration-test:
-    name: E2E Integration Tests
-    # macos-latest = Apple Silicon (ARM64). Emülatör mimarisi buna uygun olmalı.
-    # x86_64 emülatör ARM host'ta çalışmaz!
+    name: E2E Lifecycle & UI Tests
     runs-on: macos-latest
     needs: analyze-and-test
+    # ⚠️ Emülatörler GitHub Actions için çok uzun sürüyor (Özellikle 55 E2E testi için)
+    # Bu adımı sadece PR'larda (Main'e giden kararlı kodlarda) VEYA commit "run-e2e" diyorsa çalıştır.
+    if: github.event_name == 'pull_request' || contains(github.event.head_commit.message, 'run-e2e')
     
     steps:
-      - name: Checkout kod
+      - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      - name: Java kurulumu
+      - name: ☕ Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
+          cache: 'gradle' # 🚀 Emülatörde çalışırken build time kurtarır
 
-      - name: Flutter kurulumu
+      - name: ⚙️ Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
-      - name: Bağımlılıkları yükle
+      - name: 📦 Install Dependencies
         run: flutter pub get
 
-      - name: Android Emulator Başlat ve Testleri Koştur
+      - name: 🤖 Android Emulator Runner & 55 Flow Test
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 31
@@ -113,6 +119,7 @@ jobs:
           ram-size: 2048M
           disk-size: 8G
           emulator-boot-timeout: 900
-          script: flutter test integration_test/ --timeout 600s
+          # TEST TIMEOUT'u 55 dosya için genişletiyoruz (3600 sn = 60 dakika teorik koruma)
+          script: flutter test integration_test/ --timeout 3600s
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
 

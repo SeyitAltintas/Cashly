@@ -201,18 +201,323 @@ sesli_geri_bildirim_{userId} → Voice feedback toggle
 
 ---
 
-## 🧪 Test Structure
+## 🧪 Test Yapısı — Kapsamlı Dokümantasyon
+
+### Genel Bakış
+
+| Kategori | Dosya Sayısı | Test Sayısı | Kapsam |
+|---|---|---|---|
+| **Unit Test** | 51 | 826 | Controllers, Services, Models, Utils, Handlers |
+| **Widget Test** | 21 | ~200+ | UI bileşenleri, form widgets |
+| **E2E Integration Test** | 55 | 55 akış | Tüm 47 sayfa %100 kapsam + Edge Caseler |
+| **TOPLAM** | **127** | **1080+** | ✅ |
 
 ```
-test/helpers/     → mock_hive.dart, test_helpers.dart (shared utilities)
-test/unit/        → 25 files (controllers, services, business logic)
-test/widget/      → 21 files (UI component tests)
-integration_test/ → 11 files (E2E flows: auth, expense, income, nav, settings)
+test/
+├── helpers/           → mock_hive.dart, test_helpers.dart (paylaşılan test araçları)
+├── unit/              → 51 dosya (controller, servis, model, handler, util testleri)
+└── widget/            → 21 dosya (UI bileşen testleri)
+
+integration_test/      → 55 dosya (E2E kullanıcı akışları)
 ```
 
-**Test naming:** `{source_file}_test.dart`
+**Test adlandırma:** `{kaynak_dosya}_test.dart`
 **Mock framework:** `mocktail`
 **CI:** GitHub Actions (`ci.yml`) → analyze + test + coverage + conditional APK build
+
+---
+
+### 📋 Unit Testler (51 dosya / 826 test)
+
+#### 🎮 Controller Testleri (9 dosya)
+
+| Dosya | Test Edilen Kaynak | Test İçeriği |
+|---|---|---|
+| `analysis_controller_test.dart` | `analysis_controller.dart` | Analiz sayfası state yönetimi, tarih filtresi, grafik veri hazırlama |
+| `auth_controller_test.dart` | `auth_controller.dart` | Login/logout, PIN doğrulama, kullanıcı değiştirme, oturum yönetimi |
+| `assets_controller_test.dart` | `assets_controller.dart` | Varlık CRUD, fiyat güncelleme, filtreleme, silme/geri yükleme |
+| `dashboard_controller_test.dart` | `dashboard_controller.dart` | Dashboard veri toplama, bakiye hesaplama, bütçe durum kontrolü |
+| `expenses_controller_test.dart` | `expenses_controller.dart` | Harcama CRUD, kategori filtreleme, ay bazlı sorgulama |
+| `incomes_controller_test.dart` | `incomes_controller.dart` | Gelir CRUD, kategori yönetimi, tekrarlayan gelirler |
+| `payment_methods_controller_test.dart` | `payment_methods_controller.dart` | Ödeme yöntemi CRUD, bakiye güncelleme, transfer işlemleri |
+| `streak_controller_test.dart` | `streak_controller.dart` | Seri güncellemesi, rozet kontrolü, freeze kullanımı |
+| `tools_controller_test.dart` | `tools_controller.dart` | Araçlar sayfası state yönetimi |
+
+#### 🔧 Servis Testleri (8 dosya)
+
+| Dosya | Test Edilen Kaynak | Test İçeriği |
+|---|---|---|
+| `currency_service_test.dart` | `currency_service.dart` | `supportedCurrencies` map (TRY/USD/EUR/GBP), `convert()` — aynı birim, sıfır tutar, bilinmeyen birim, negatif tutar, büyük tutarlar, ondalık hassasiyet, sembol çözümleme |
+| `currency_formatter_test.dart` | `currency_formatter.dart` | Para biçimlendirme, binlik ayracı, ondalık, sembol konumu |
+| `price_service_test.dart` | `price_service.dart` | TRY=1.0 sabiti, altın tipleri (gram/çeyrek/yarım/tam/cumhuriyet/ata/ons), gümüş (gram/ons), kripto (bitcoin/ethereum), döviz (USD/EUR/GBP), cache helper fonksiyonları |
+| `asset_price_update_service_test.dart` | `asset_price_update_service.dart` | Kategori filtreleme (Banka/Hisse/Diğer atlanır), silinen varlık koruması, sıralama tutarlılığı, API online/offline davranış, `getUnitPrice` routing |
+| `cache_service_test.dart` | `price_cache_service.dart` | Cache okuma/yazma, TTL, geçersizleme |
+| `image_cache_service_test.dart` | `image_cache_service.dart` | Profil resmi cache, boyut limiti |
+| `image_compression_service_test.dart` | `image_compression_service.dart` | Varsayılan boyutlar, kalite sabitleri, singleton pattern, Size model |
+| `network_service_test.dart` | `network_service.dart` | Bağlantı durumu, offline/online geçişleri |
+
+#### 📊 Model Testleri (5 dosya)
+
+| Dosya | Test Edilen Kaynak | Test İçeriği |
+|---|---|---|
+| `asset_model_test.dart` | `asset_model.dart` | Constructor defaults, kâr/zarar hesaplama (%50 kâr, %20 zarar, başa baş, sıfıra bölme), birim fiyat, `toMap`/`fromMap` round-trip, geriye dönük uyumluluk, `copyWith` |
+| `income_model_test.dart` | `income_model.dart` | Constructor zorunlu/opsiyonel alanlar, serialization, varsayılan değerler, `copyWith` immutability |
+| `payment_method_model_test.dart` | `payment_method_model.dart` | `typeDisplayName` (banka/kredi/nakit/unknown), `remainingLimit` (normal, maxed out, exceeded, limit null), serialization round-trip, geriye dönük uyumluluk |
+| `transfer_model_test.dart` | `transfer_model.dart` | `isDue` (geçmiş/bugün/gelecek tarih), `isPending` durum makinesi (5 senaryo), serialization, `copyWith` |
+| `user_model_test.dart` | `user_model.dart` + `user_entity.dart` | UserEntity/UserModel constructor, `toMap`/`fromMap`, `fromEntity` dönüşümü, geriye dönük uyumluluk |
+
+#### 🏷️ Streak & Rozet Testleri (3 dosya)
+
+| Dosya | Test Edilen Kaynak | Test İçeriği |
+|---|---|---|
+| `streak_model_badges_test.dart` | `streak_model.dart` + `streak_badges.dart` | StreakData constructor, `empty()` factory, `canUseFreeze`, serialization, `copyWith`, `toString`; 7 rozet sıralama (3→365 gün), `getBadgeById`, `getEarnedBadges` ilerleme (0→365+ gün), `getNextBadge` |
+| `streak_service_logic_test.dart` | `streak_service.dart` | Seri hesaplama mantığı, gün atlanması, freeze kullanımı |
+| `streak_controller_test.dart` | `streak_controller.dart` | UI state yönetimi, rozet bildirimleri |
+
+#### 🗣️ Ses Komutu Handler Testleri (4 dosya)
+
+| Dosya | Test Edilen Kaynak | Test İçeriği |
+|---|---|---|
+| `voice_command_handlers_test.dart` | `expense_action_handler.dart`, `expense_query_handler.dart`, `misc_handler.dart` | Harcama silme/düzenleme/ekleme komutları, 7 zaman bazlı sorgu tipi, tarih aralığı çıkarma, öncelik sıralaması |
+| `voice_command_types_test.dart` | `voice_command_types.dart` | Komut enum'ları, tip güvenliği |
+| `budget_handler_test.dart` | `budget_handler.dart` | Bütçe aşım sorguları, kalan bütçe, limit belirleme, tasarruf hesaplama |
+| `category_query_handler_test.dart` | `category_query_handler.dart` | Kategori bazlı sorgular, "en çok hangi kategori", zaman bazlı kategori sorguları |
+
+#### 🔢 Util & Parser Testleri (7 dosya)
+
+| Dosya | Test Edilen Kaynak | Test İçeriği |
+|---|---|---|
+| `amount_extractor_test.dart` | `amount_extractor.dart` | Sayı çıkarma, ondalık, binlik, "bin/milyon" çarpanları, Türkçe sayı kelimeleri |
+| `amount_input_formatter_test.dart` | `amount_input_formatter.dart` | Tutar giriş formatlama, binlik ayracı, max değer |
+| `date_extractor_test.dart` | `date_extractor.dart` | "bugün", "dün", "geçen hafta", "bu ay" gibi Türkçe tarih ifadelerinden DateTime çıkarma |
+| `category_matcher_test.dart` | `category_matcher.dart` | Kategori eşleme, fuzzy matching, büyük/küçük harf duyarsızlık |
+| `validators_test.dart` | `validators.dart` | Form validasyonları: email, PIN, tutar, zorunlu alan |
+| `validators_extended_test.dart` | `validators.dart` | Genişletilmiş validasyonlar: edge case'ler, uluslararası formatlar |
+| `debouncer_test.dart` | `debouncer.dart` | Zamanlayıcı, iptal, yeniden tetikleme |
+
+#### 📦 İş Mantığı Testleri (6 dosya)
+
+| Dosya | Test Edilen Kaynak | Test İçeriği |
+|---|---|---|
+| `expense_business_logic_test.dart` | Gider iş kuralları | Bütçe kontrolü, kategori filtreleme, toplam hesaplama |
+| `income_business_logic_test.dart` | Gelir iş kuralları | Aylık gelir toplama, kategori bazlı raporlama |
+| `asset_business_logic_test.dart` | Varlık iş kuralları | Portföy değerleme, kar/zarar hesaplama |
+| `payment_method_business_logic_test.dart` | Ödeme yöntemi iş kuralları | Bakiye kontrolü, limit aşım, transfer validasyonu |
+| `recurring_transaction_logic_test.dart` | Tekrarlayan işlem mantığı | Otomatik oluşturma zamanlaması, şablon uygulama |
+| `export_filter_logic_test.dart` | PDF dışa aktarma filtreleme | Tarih aralığı, kategori filtresi, veri hazırlama |
+
+#### 🛡️ Altyapı Testleri (9 dosya)
+
+| Dosya | Test Edilen Kaynak | Test İçeriği |
+|---|---|---|
+| `base_usecase_test.dart` | `base_usecase.dart` | `NoParams` marker, `Result` Either-pattern, `fold` type-safe callbacks, generic type safety |
+| `app_exceptions_test.dart` | `app_exceptions.dart` | 8 exception sınıfı, hata mesajları, inheritance |
+| `error_handler_test.dart` | `error_handler.dart` | Hata yakalama, loglama, kullanıcıya gösterme stratejisi |
+| `color_constants_test.dart` | `color_constants.dart` | Renk sabitleri, tema tutarlılığı |
+| `month_year_picker_state_test.dart` | `month_year_picker` state | Ay/yıl seçimi state yönetimi |
+| `notification_service_test.dart` | `notification_service.dart` | Bildirim servisi, zamanlama |
+| `notification_scheduler_test.dart` | `notification_scheduler.dart` | Bildirim zamanlayıcı, tekrarlayan bildirimler |
+| `notification_types_test.dart` | `notification_types.dart` | Bildirim tipleri enum, öncelik |
+| `notification_exception_test.dart` | `notification_exception.dart` | Bildirim hata sınıfları |
+| `pdf_utils_test.dart` | `pdf_utils.dart` | PDF oluşturma yardımcı fonksiyonları |
+
+---
+
+### 🖼️ Widget Testleri (21 dosya / ~200+ test)
+
+| Dosya | Test Edilen Widget | Test İçeriği |
+|---|---|---|
+| `add_expense_form_test.dart` | Harcama ekleme formu | Form validasyonu, tutar girişi, kategori seçimi |
+| `add_income_form_test.dart` | Gelir ekleme formu | Form alanları, varsayılan değerler |
+| `add_asset_form_test.dart` | Varlık ekleme formu | Kategori bazlı form değişimi (Altın/Kripto/Döviz) |
+| `add_payment_method_form_test.dart` | Ödeme yöntemi formu | Kart tipi seçimi, son 4 hane, limit alanı |
+| `dashboard_card_test.dart` | Dashboard kartları | Bakiye kartı, bütçe kartı, son işlemler |
+| `expense_list_item_test.dart` | Harcama listesi öğesi | Tutar formatlama, kategori ikonu, tarih gösterimi |
+| `income_list_item_test.dart` | Gelir listesi öğesi | Tutar, kategori, ödeme yöntemi gösterimi |
+| `asset_list_item_test.dart` | Varlık listesi öğesi | Güncel fiyat, kar/zarar renklendirme |
+| `payment_method_card_test.dart` | Ödeme yöntemi kartı | Kart rengi, bakiye, son 4 hane |
+| `category_chip_test.dart` | Kategori chip widget | Seçili/seçilmemiş durumu, ikon |
+| `empty_state_test.dart` | Boş durum widget | İkon, mesaj, buton |
+| `animated_card_test.dart` | Animasyonlu kart | Giriş animasyonu, dokunma efekti |
+| `app_snackbar_test.dart` | Bildirim snackbar | Başarı/hata/uyarı renkleri |
+| `month_year_picker_test.dart` | Ay-yıl seçici | Ay seçimi, yıl değiştirme, sınır kontrolü |
+| `budget_progress_test.dart` | Bütçe ilerleme çubuğu | Yüzde hesaplama, renk değişimi (yeşil→sarı→kırmızı) |
+| `streak_badge_test.dart` | Rozet widget | Kazanılmış/kazanılmamış gösterimi, animasyon |
+| `transfer_form_test.dart` | Transfer formu | Hesap seçimi, tutar validasyonu |
+| `currency_selector_test.dart` | Para birimi seçici | TRY/USD/EUR/GBP listesi, sembol gösterimi |
+| `search_bar_test.dart` | Arama çubuğu | Metin girişi, temizleme, debounce |
+| `date_picker_test.dart` | Tarih seçici | Tarih seçimi, format |
+| `confirmation_dialog_test.dart` | Onay dialog | İptal/Onayla butonları, mesaj |
+
+---
+
+### 🚀 E2E Integration Testler (55 dosya / 55 akış)
+
+#### 🔐 Kimlik Doğrulama & Lifecycle (5 test)
+
+| Dosya | Kullanıcı Yolculuğu |
+|---|---|
+| `app_test.dart` | Uygulama başlatma, ana sayfa yüklenmesi |
+| `login_test.dart` | PIN ile giriş yapma akışı |
+| `auth_flow_test.dart` | Login → Signup geçişi, kimlik doğrulama |
+| `signup_multiuser_flow_test.dart` | Yeni kullanıcı kaydı, kullanıcı listesi, kullanıcı değiştirme |
+| `app_lifecycle_lock_flow_test.dart` | Uygulamanın background'a (Paused) gidip tekrar açılması (Resumed) ve kilit davranışı / stabilizasyonu |
+
+#### 📊 Dashboard & Navigasyon (4 test)
+
+| Dosya | Kullanıcı Yolculuğu |
+|---|---|
+| `dashboard_sync_test.dart` | Gelir ekleme → Dashboard bakiye senkronizasyonu |
+| `navigation_test.dart` | Alt menü sekmeleri arası geçiş |
+| `full_app_tour_test.dart` | **Smoke test:** Tüm ana sekmelere (Dashboard, vb.) sırayla git, hiçbirinde crash olmadığını doğrula |
+| `date_filter_flow_test.dart` | Tarih/Ay seçici üzerinden geçmiş aylara gidip filtreleme ve boş veri UI kontrolü |
+
+#### 💸 Gider Akışları (9 test)
+
+| Dosya | Kullanıcı Yolculuğu |
+|---|---|
+| `expense_flow_test.dart` | Harcama ekleme → Listede görünme → Tutar doğrulama |
+| `expense_edit_flow_test.dart` | Harcama ekle → Detaya tıkla → İsim ve tutarı düzenle → Kaydedildiğini doğrula |
+| `multi_expense_flow_test.dart` | 3 harcama sırayla ekle (Kahve/Taksi/Yemek) → Listede sıralama → Dashboard toplamı |
+| `expense_delete_balance_test.dart` | Harcama ekle → Swipe-to-delete → Dashboard bakiyesinin geri döndüğünü doğrula |
+| `recycle_bin_flow_test.dart` | Silinen harcama → Çöp kutusunda görünme |
+| `complex_recycle_bin_flow_test.dart` | Harcama sil → Çöp kutusuna git → Geri yükle → Ana listede tekrar göründüğünü doğrula |
+| `category_management_flow_test.dart` | Ayarlar → Gider Ayarları → Kategori Yönetimi → "Hobi E2E" kategorisi ekle → Listede doğrula |
+| `search_filter_flow_test.dart` | Gider listesinde 'Arama' ikonuna basıp kelime ile spesifik veriyi filtreleme |
+| `custom_category_delete_test.dart` | Özel kategori oluşturup Sil butonuna basma, Onay Dialog'unun gelmesinin testi |
+
+#### 💰 Gelir Akışları (5 test)
+
+| Dosya | Kullanıcı Yolculuğu |
+|---|---|
+| `income_flow_test.dart` | Gelir ekleme → Listede görünme → Tutar doğrulama |
+| `income_edit_flow_test.dart` | Gelir ekle → Detaya tıkla → İsim düzenle → Kaydet → Güncelleme doğrula |
+| `recurring_income_flow_test.dart` | Gelir Ayarları → "Maaş E2E" tekrarlayan gelir ekle → Listede doğrula |
+| `income_category_flow_test.dart` | Gelir Ayarları → Kategori Yönetimi → "Yatırım Geliri E2E" ekle → Doğrula |
+| `income_recycle_bin_flow_test.dart` | Gelirler → Ayarlar → Çöp kutusu sayfasını aç → Stabilite kontrolü |
+
+#### 📦 Varlık Akışları (4 test)
+
+| Dosya | Kullanıcı Yolculuğu |
+|---|---|
+| `asset_flow_test.dart` | Varlık ekleme (varlık tipini seç) → Listede görünme |
+| `asset_offline_sync_test.dart` | Varlık ekle → Pull-to-refresh (fiyat çek) → Offline toleransı, cache kullanımı |
+| `asset_detail_flow_test.dart` | Varlık ekle → Detay sayfasını aç → Kar/zarar bilgisi → Geri dön |
+| `asset_recycle_bin_flow_test.dart` | Varlıklar → Çöp kutusunu aç → Silinen varlıkları gör → Geri dön |
+
+#### 💳 Ödeme Yöntemi & Transfer Akışları (6 test)
+
+| Dosya | Kullanıcı Yolculuğu |
+|---|---|
+| `payment_method_flow_test.dart` | Ödeme yöntemi ekleme (banka/kredi/nakit) → Listede görünme |
+| `payment_detail_flow_test.dart` | İlk ödeme yöntemine tıkla → Detay sayfasında bakiye/limit → Borç analizi → Geri |
+| `payment_recycle_bin_flow_test.dart` | Hesaplarım → Çöp kutusunu aç → Silinen yöntemleri gör |
+| `transfer_flow_test.dart` | Hesaplarım → Transfer sayfası → Tutar gir → Transfer Et |
+| `scheduled_transfer_flow_test.dart` | Transfer ederken pop-up tarih seçicide ileri tarihli bekleme (Pending) zamanı atamak |
+| `credit_card_payment_flow_test.dart` | Bankadan eksi limitli kredi kartına ödeme atıp borç kapatma simülasyonu (Dropdown etkileşimi) |
+
+#### 📈 Analiz & Raporlar (2 test)
+
+| Dosya | Kullanıcı Yolculuğu |
+|---|---|
+| `analysis_flow_test.dart` | Harcama ekle → Analiz sekmesi → Grafik/liste render → Tab değiştirme |
+| `export_report_flow_test.dart` | Harcama ekle → Raporlar → PDF dışa aktarma başlat → Crash kontrolü |
+
+#### 🎯 Bütçe Yönetimi (2 test)
+
+| Dosya | Kullanıcı Yolculuğu |
+|---|---|
+| `budget_limit_warning_flow_test.dart` | Ayarlar'da 1000 TL bütçe koy → 1500 TL harcama ekle → Dashboard'da aşım uyarısı |
+| `category_budget_flow_test.dart` | Ayarlar → Kategori Bütçeleri → Kategoriye 2000 TL limit → Dashboard'da yansıma |
+
+#### ⚙️ Ayarlar Akışları (11 test)
+
+| Dosya | Kullanıcı Yolculuğu |
+|---|---|
+| `settings_flow_test.dart` | Ayarlar sekmesi → Tema değiştirme → UI güncelleme |
+| `theme_toggle_rebuild_test.dart` | Ayarlar'dan Karanlık tema seçip Ağır UI Grafik ekranlarına giderek "Rebuild/Crash" kontrolü |
+| `language_change_flow_test.dart` | Ayarlar → Dil → TR'den EN'e geçiş → Nav bar güncellenmesi → Tekrar TR'ye |
+| `currency_change_flow_test.dart` | Dashboard'da ₺ (TRY) → Ayarlar → $ (USD) → Dashboard sembol değişimi → ₺'ye geri |
+| `notification_settings_flow_test.dart` | Ayarlar → Bildirimler → Switch toggle açma/kapama → Stabilite |
+| `appearance_settings_flow_test.dart` | Ayarlar → Görünüm → Animasyon toggle → Haptic toggle → Stabilite |
+| `transfer_settings_flow_test.dart` | Ayarlar → Transfer Ayarları → Switch toggle → Geri dön |
+| `recurring_transaction_flow_test.dart` | Ayarlar → Gider Ayarları → Tekrarlayan gider "Kira 5000 TL" ekle → Doğrula |
+| `profile_update_flow_test.dart` | Ayarlar → Profil → İsim "E2E Test Kullanıcı" olarak güncelle → Kaydet → Doğrula |
+| `voice_commands_flow_test.dart` | Ayarlar → Sesli Asistan → Komut listesi → Detay → Geri dön |
+| `about_support_flow_test.dart` | Ayarlar → Hakkında → SSS açma → Gizlilik Politikası → Kullanım Koşulları |
+
+#### 🔥 Form, Streak & Araçlar Edge Case (5 test)
+
+| Dosya | Kullanıcı Yolculuğu |
+|---|---|
+| `form_validation_errors_test.dart` | Ekleme formunu boş bırakıp kaydetme zorlaması, Validator mesajlarının ekrana düşme testi |
+| `empty_state_ui_flow_test.dart` | Kayıtlı işlem yokken Varlıkların ve Hesapların EmptyState "Burada işlem yok" uyarısı çizme testi |
+| `streak_page_flow_test.dart` | Dashboard'daki streak ikonu → Streak sayfası (rozet/istatistik) → Yardım → Geri |
+| `tools_page_flow_test.dart` | Araçlar sekmesi → Kartlara tıklama → Alt sayfa açma → Geri dön |
+| `quick_add_from_tools_test.dart` | Form açılışlarını Ana Ekran (FAB) yerine "Tools/Araçlar" kısa yollarından başlatma stabilitesi |
+
+#### 🔗 Cross-Feature / Entegrasyon Testleri (2 test)
+
+| Dosya | Kullanıcı Yolculuğu |
+|---|---|
+| `income_payment_integration_test.dart` | Gelir eklerken ödeme yöntemine bağla → Hesaplarım'da bakiye yansıması |
+| `net_balance_flow_test.dart` | 10000 TL gelir ekle + 3000 TL gider ekle → Dashboard'da net bakiye doğrulama |
+
+---
+
+### 🗺️ Sayfa ↔ Test Eşleştirme Tablosu (47/47 = %100)
+
+| Sayfa | Test Eden E2E Dosya(ları) |
+|---|---|
+| `home_page.dart` | `app_test`, `navigation_test`, `full_app_tour_test` |
+| `dashboard_page.dart` | `dashboard_sync_test`, `budget_limit_warning_flow_test`, `net_balance_flow_test` |
+| `login_page.dart` | `login_test`, `auth_flow_test` |
+| `signup_page.dart` | `auth_flow_test`, `signup_multiuser_flow_test` |
+| `user_list_page.dart` | `signup_multiuser_flow_test` |
+| `expenses_page.dart` | `expense_flow_test`, `multi_expense_flow_test`, `expense_delete_balance_test` |
+| `add_expense_page.dart` | `expense_flow_test`, `multi_expense_flow_test` |
+| `expense_detail_page.dart` | `expense_edit_flow_test` |
+| `recycle_bin_page.dart` | `recycle_bin_flow_test`, `complex_recycle_bin_flow_test` |
+| `category_management_page.dart` | `category_management_flow_test` |
+| `incomes_page.dart` | `income_flow_test`, `income_edit_flow_test` |
+| `add_income_page.dart` | `income_flow_test` |
+| `income_settings_page.dart` | `recurring_income_flow_test`, `income_category_flow_test` |
+| `recurring_income_page.dart` | `recurring_income_flow_test` |
+| `income_category_management_page.dart` | `income_category_flow_test` |
+| `income_recycle_bin_page.dart` | `income_recycle_bin_flow_test` |
+| `assets_page.dart` | `asset_flow_test`, `asset_offline_sync_test` |
+| `add_asset_page.dart` | `asset_flow_test`, `asset_detail_flow_test` |
+| `asset_detail_page.dart` | `asset_detail_flow_test` |
+| `asset_recycle_bin_page.dart` | `asset_recycle_bin_flow_test` |
+| `payment_methods_page.dart` | `payment_method_flow_test`, `payment_recycle_bin_flow_test` |
+| `add_payment_method_page.dart` | `payment_method_flow_test` |
+| `payment_method_detail_page.dart` | `payment_detail_flow_test` |
+| `payment_method_recycle_bin_page.dart` | `payment_recycle_bin_flow_test` |
+| `transfer_page.dart` | `transfer_flow_test` |
+| `balance_card_page.dart` | `payment_detail_flow_test` |
+| `debt_analysis_card_page.dart` | `payment_detail_flow_test` |
+| `analysis_page.dart` | `analysis_flow_test` |
+| `pdf_export_page.dart` | `export_report_flow_test` |
+| `category_budget_page.dart` | `category_budget_flow_test` |
+| `category_budget_detail_page.dart` | `category_budget_flow_test` |
+| `main_settings_page.dart` | `settings_flow_test` |
+| `appearance_page.dart` | `appearance_settings_flow_test` |
+| `animations_settings_page.dart` | `appearance_settings_flow_test` |
+| `haptic_settings_page.dart` | `appearance_settings_flow_test` |
+| `language_settings_page.dart` | `language_change_flow_test` |
+| `currency_settings_page.dart` | `currency_change_flow_test` |
+| `expense_settings_page.dart` | `recurring_transaction_flow_test`, `category_management_flow_test` |
+| `recurring_transactions_page.dart` | `recurring_transaction_flow_test` |
+| `transfer_settings_page.dart` | `transfer_settings_flow_test` |
+| `notification_settings_page.dart` | `notification_settings_flow_test` |
+| `profile_page.dart` | `profile_update_flow_test` |
+| `profile_settings_page.dart` | `profile_update_flow_test` |
+| `about_support_page.dart` | `about_support_flow_test` |
+| `voice_assistant_page.dart` | `voice_commands_flow_test` |
+| `voice_commands_page.dart` | `voice_commands_flow_test` |
+| `streak_page.dart` | `streak_page_flow_test` |
+| `streak_help_page.dart` | `streak_page_flow_test` |
+| `tools_page.dart` | `tools_page_flow_test` |
 
 ---
 
