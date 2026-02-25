@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/core/services/currency_service.dart';
-import 'package:cashly/core/di/injection_container.dart';
 import 'package:get_it/get_it.dart';
 
 void main() {
@@ -19,7 +18,7 @@ void main() {
     // Hive mocklaması yapılmadığı için DB(setCurrency) testlerini atlıyoruz.
     // Fonksiyonel `convert` yeteneğini test edelim.
     test('Aynı para birimine çevirim 1:1 oranındadır', () {
-      final tutar = 100.0;
+      const tutar = 100.0;
 
       final try2try = currencyService.convert(tutar, 'TRY', 'TRY');
       expect(try2try, equals(100.0));
