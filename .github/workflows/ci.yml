@@ -106,11 +106,12 @@ jobs:
       - name: Android Emulator Başlat ve Testleri Koştur
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
-          target: google_apis
+          api-level: 29
+          target: default
           arch: x86_64
-          profile: pixel_6
-          script: flutter test integration_test/
-          # Hardware acceleration on macOS
+          ram-size: 2048M
+          disk-size: 8G
+          emulator-boot-timeout: 900
+          script: flutter test integration_test/ --timeout 600s
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
 
