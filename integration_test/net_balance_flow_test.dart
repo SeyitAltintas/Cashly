@@ -19,6 +19,8 @@ void main() {
     if (gelirlerSekmesi.evaluate().isNotEmpty) {
       await tester.tap(gelirlerSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     final fab = find.byType(FloatingActionButton);
@@ -45,6 +47,8 @@ void main() {
         await tester.tap(kaydet.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 2. Gider Ekle ==========
@@ -52,6 +56,8 @@ void main() {
     if (giderlerSekmesi.evaluate().isNotEmpty) {
       await tester.tap(giderlerSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     final fab2 = find.byType(FloatingActionButton);
@@ -78,6 +84,8 @@ void main() {
         await tester.tap(kaydet.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 3. Dashboard'a Git ==========
@@ -85,6 +93,8 @@ void main() {
     if (anaSayfa.evaluate().isNotEmpty) {
       await tester.tap(anaSayfa.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Dashboard açıldı, net bakiye doğru hesaplanıyor

@@ -41,6 +41,8 @@ void main() {
           await tester.tap(calendarMonthIcon.first);
           await tester.pumpAndSettle();
         }
+      } else {
+        fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
       }
     }
 
@@ -61,6 +63,8 @@ void main() {
         await tester.tap(ok.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 3. Boş Durum (Empty State) Gösterimi ==========
@@ -73,6 +77,8 @@ void main() {
     if (todayIcon.evaluate().isNotEmpty) {
       await tester.tap(todayIcon.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

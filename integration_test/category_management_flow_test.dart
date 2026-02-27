@@ -22,6 +22,8 @@ void main() {
     if (giderAyarlari.evaluate().isNotEmpty) {
       await tester.tap(giderAyarlari.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Kategori Yönetimi butonunu bul
@@ -29,6 +31,8 @@ void main() {
     if (kategoriYonetimi.evaluate().isNotEmpty) {
       await tester.tap(kategoriYonetimi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 2: Yeni Kategori Ekle ==========
@@ -55,6 +59,8 @@ void main() {
         await tester.tap(ekle.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 3: Kategori Listesinde "Hobi E2E" Var Mı ==========

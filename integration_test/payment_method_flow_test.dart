@@ -25,6 +25,8 @@ void main() {
     } else if (hesaplarButonu.evaluate().isNotEmpty) {
       await tester.tap(hesaplarButonu.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // 2. Yeni Hesap/Banka/Kredi Kartı Ekle butonuna tıkla
@@ -62,6 +64,8 @@ void main() {
       // 6. Listede 'E2E Test Bankası' yazısını gör
       expect(find.textContaining('E2E Test Bankası'), findsWidgets);
       expect(find.textContaining('25000'), findsWidgets);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
   });
 }

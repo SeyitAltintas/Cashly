@@ -19,6 +19,8 @@ void main() {
     if (varliklarSekmesi.evaluate().isNotEmpty) {
       await tester.tap(varliklarSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 2. API Güncelleme Butonuna (Refresh) Tıkla ==========
@@ -34,6 +36,8 @@ void main() {
     } else if (syncIcon.evaluate().isNotEmpty) {
       await tester.tap(syncIcon.first);
       await tester.pumpAndSettle(const Duration(seconds: 2));
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 3. Snackbar Error veya Cache Başarısı Kontrolü ==========

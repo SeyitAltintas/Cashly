@@ -33,6 +33,8 @@ void main() {
         await tester.tap(kaydet.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Bekleme yok: Hemen Gider Ekle (Kilit test mekanizması)
@@ -55,6 +57,8 @@ void main() {
         await tester.tap(kaydet.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Dashboard Çarpışma Kontrolü (İki Async İşlem Ana sayfada toplanabilecek mi?)
@@ -62,6 +66,8 @@ void main() {
     if (anaSayfa.evaluate().isNotEmpty) {
       await tester.tap(anaSayfa.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

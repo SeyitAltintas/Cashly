@@ -17,6 +17,8 @@ void main() {
     if (varliklarSekmesi.evaluate().isNotEmpty) {
       await tester.tap(varliklarSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Yeni varlık ekle ==========
@@ -46,6 +48,8 @@ void main() {
         await tester.tap(kaydet.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Detay sayfasını aç ==========
@@ -59,6 +63,8 @@ void main() {
       if (listItems.evaluate().isNotEmpty) {
         await tester.tap(listItems.first);
         await tester.pumpAndSettle();
+      } else {
+        fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
       }
     }
 
@@ -70,6 +76,8 @@ void main() {
     if (backButton.evaluate().isNotEmpty) {
       await tester.tap(backButton);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

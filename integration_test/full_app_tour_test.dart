@@ -21,6 +21,8 @@ void main() {
       await tester.tap(giderlerSekmesi.first);
       await tester.pumpAndSettle();
       expect(find.byType(MaterialApp), findsOneWidget);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Gelirler Sekmesi ==========
@@ -29,6 +31,8 @@ void main() {
       await tester.tap(gelirlerSekmesi.first);
       await tester.pumpAndSettle();
       expect(find.byType(MaterialApp), findsOneWidget);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Varlıklar Sekmesi ==========
@@ -37,6 +41,8 @@ void main() {
       await tester.tap(varliklarSekmesi.first);
       await tester.pumpAndSettle();
       expect(find.byType(MaterialApp), findsOneWidget);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Hesaplarım Sekmesi ==========
@@ -45,6 +51,8 @@ void main() {
       await tester.tap(hesaplarSekmesi.first);
       await tester.pumpAndSettle();
       expect(find.byType(MaterialApp), findsOneWidget);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Analiz Sekmesi ==========
@@ -53,6 +61,8 @@ void main() {
       await tester.tap(analizSekmesi.first);
       await tester.pumpAndSettle();
       expect(find.byType(MaterialApp), findsOneWidget);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Ayarlar Sekmesi ==========
@@ -61,6 +71,8 @@ void main() {
       await tester.tap(ayarlarSekmesi.first);
       await tester.pumpAndSettle();
       expect(find.byType(MaterialApp), findsOneWidget);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Tekrar Ana Sayfaya Dön ==========
@@ -68,6 +80,8 @@ void main() {
     if (anaSayfa.evaluate().isNotEmpty) {
       await tester.tap(anaSayfa.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Tam tur tamamlandı, hiçbir sekmede crash olmadı

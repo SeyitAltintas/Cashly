@@ -60,6 +60,8 @@ void main() {
           }
         }
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
   });
 }

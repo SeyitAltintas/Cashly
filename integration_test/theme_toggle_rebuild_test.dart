@@ -29,6 +29,8 @@ void main() {
     } else if (temaMenu.evaluate().isNotEmpty) {
       await tester.tap(temaMenu.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Tema Değiştir (ListTile veya Segmented Control veya Switch)
@@ -47,6 +49,8 @@ void main() {
       if (switches.evaluate().isNotEmpty) {
         await tester.tap(switches.first);
         await tester.pumpAndSettle();
+      } else {
+        fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
       }
     }
 
@@ -64,6 +68,8 @@ void main() {
       await tester.pumpAndSettle(
         const Duration(seconds: 1),
       ); // Chart çizimi zaman alabilir
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
     expect(find.byType(MaterialApp), findsOneWidget);
 
@@ -72,6 +78,8 @@ void main() {
     if (anaSayfa.evaluate().isNotEmpty) {
       await tester.tap(anaSayfa.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Komple UI rebuild sonrası çökme yok

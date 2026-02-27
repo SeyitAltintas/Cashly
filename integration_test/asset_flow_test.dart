@@ -14,6 +14,8 @@ void main() {
     if (varliklarSekmesi.evaluate().isNotEmpty) {
       await tester.tap(varliklarSekmesi);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     final fab = find.byType(FloatingActionButton).last;
@@ -47,6 +49,8 @@ void main() {
 
       expect(find.textContaining('E2E Test Varlık (Altın)'), findsWidgets);
       expect(find.textContaining('15000'), findsWidgets);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
   });
 }

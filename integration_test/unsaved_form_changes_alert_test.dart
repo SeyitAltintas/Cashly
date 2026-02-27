@@ -49,6 +49,8 @@ void main() {
         // Alert yoksa, doğrudan formu kapatıp arkaya dönmüş olması lazım
         expect(find.byType(MaterialApp), findsOneWidget);
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

@@ -55,6 +55,8 @@ void main() {
         await tester.tap(buttons.at(0));
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulamanın resume olduktan sonra çökmemesi kritik olandır

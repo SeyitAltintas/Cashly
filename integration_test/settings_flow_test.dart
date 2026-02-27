@@ -18,6 +18,8 @@ void main() {
     if (ayarlarSekmesi.evaluate().isNotEmpty) {
       await tester.tap(ayarlarSekmesi);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // 3. Karanlık Mod Switch'ini (SwitchListTile) Bul
@@ -33,6 +35,8 @@ void main() {
         // Testin gerçekten temanın değiştiğini anlaması zor olsa da
         // animatörün kapanıp açıldığını test etmek yeterli bir E2E senaryosudur (state değişimi patlattı mı diye)
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // 4. Dil Değiştirme (Dropdown veya Liste üzerinden)
@@ -49,6 +53,8 @@ void main() {
 
         // Ana sayfaya dönünce metinler "Settings" olmalı vb. (Sizde app localization tam entegre ise test başarılı olur)
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
   });
 }

@@ -29,6 +29,8 @@ void main() {
         await tester.tap(ingilizce.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Geri Ana Sayfaya veya Dashboard'a gel
@@ -43,6 +45,8 @@ void main() {
     } else if (home.evaluate().isNotEmpty) {
       await tester.tap(home.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

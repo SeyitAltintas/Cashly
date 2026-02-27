@@ -32,6 +32,8 @@ void main() {
     } else if (voiceMenu.evaluate().isNotEmpty) {
       await tester.tap(voiceMenu.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 3: Komut Listesi Görünüyor Mu ==========
@@ -51,6 +53,8 @@ void main() {
         await tester.tap(backButton);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmeden sesli komutlar sayfası gezildi

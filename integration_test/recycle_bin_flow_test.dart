@@ -18,6 +18,8 @@ void main() {
     if (harcamalarSekmesi.evaluate().isNotEmpty) {
       await tester.tap(harcamalarSekmesi);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // 3. Geçici bir kayıt ekleyip sonrasında "Sileceğiz"
@@ -45,6 +47,8 @@ void main() {
         await tester.tap(kaydetButonu);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // 4. Şimdi listede görünen 'Silinip Geri Alınacak Harcama'yı siliyoruz (Swipe-to-delete ya da Details ekranı üzerinden)
@@ -67,6 +71,8 @@ void main() {
         find.textContaining('Silinip Geri Alınacak Harcama'),
         findsNothing,
       );
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // 5. Ayarlar / Çöp Kutusu sekmesini açıyoruz.
@@ -74,6 +80,8 @@ void main() {
     if (ayarlarSekmesi.evaluate().isNotEmpty) {
       await tester.tap(ayarlarSekmesi);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulamanızın profil kısmındaki "Silinen Öğeler" butonu...
@@ -110,6 +118,8 @@ void main() {
         find.textContaining('Silinip Geri Alınacak Harcama'),
         findsNothing,
       );
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
   });
 }

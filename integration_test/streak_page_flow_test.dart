@@ -27,6 +27,8 @@ void main() {
     } else if (streakWidget.evaluate().isNotEmpty) {
       await tester.tap(streakWidget.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 2: Streak Sayfası Yüklendi Mi ==========
@@ -57,6 +59,8 @@ void main() {
         await tester.tap(backButton);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmeden streak sayfası gezildi

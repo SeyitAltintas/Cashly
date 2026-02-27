@@ -24,12 +24,16 @@ void main() {
     if (giderAyarlari.evaluate().isNotEmpty) {
       await tester.tap(giderAyarlari.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     final kategoriYonetimi = find.textContaining('Kategori');
     if (kategoriYonetimi.evaluate().isNotEmpty) {
       await tester.tap(kategoriYonetimi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 2. Varolan Kategoriyi Silmeyi Dene ==========
@@ -55,6 +59,8 @@ void main() {
           await tester.tap(silYazisi.first);
           await tester.pumpAndSettle();
         }
+      } else {
+        fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
       }
     }
 
@@ -73,6 +79,8 @@ void main() {
         await tester.tap(evetButonu.last);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmedi ve Alert mekanizması çalıştı

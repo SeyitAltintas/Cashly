@@ -35,6 +35,8 @@ void main() {
 
       // Uzun basma olayı Material arayüz içinde Assertion Error fırlatmamalı
       expect(find.byType(MaterialApp), findsOneWidget);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
   });
 }

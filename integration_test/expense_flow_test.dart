@@ -14,6 +14,8 @@ void main() {
     if (harcamalarSekmesi.evaluate().isNotEmpty) {
       await tester.tap(harcamalarSekmesi);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     final fab = find.byType(FloatingActionButton).last;
@@ -45,6 +47,8 @@ void main() {
 
       expect(find.textContaining('E2E Test Harcama'), findsWidgets);
       expect(find.textContaining('750'), findsWidgets);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
   });
 }

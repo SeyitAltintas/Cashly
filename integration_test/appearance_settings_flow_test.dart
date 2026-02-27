@@ -32,6 +32,8 @@ void main() {
     } else if (appearanceMenu.evaluate().isNotEmpty) {
       await tester.tap(appearanceMenu.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Sayfa açıldı mı
@@ -62,6 +64,8 @@ void main() {
         await tester.tap(backButton);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Haptic Ayarlarını Aç ==========
@@ -91,6 +95,8 @@ void main() {
         await tester.tap(backButton);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

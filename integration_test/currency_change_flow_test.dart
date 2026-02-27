@@ -44,6 +44,8 @@ void main() {
         await tester.tap(dolarOption.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 3: Dashboard'a Dön ve Sembol Kontrolü ==========
@@ -51,6 +53,8 @@ void main() {
     if (dashboardSekmesi.evaluate().isNotEmpty) {
       await tester.tap(dashboardSekmesi);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmeden para birimi değişimi tamamlandı mı?
@@ -78,6 +82,8 @@ void main() {
         await tester.tap(tlOption.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Son kontrol: uygulama sağlam mı?

@@ -19,6 +19,8 @@ void main() {
     if (gelirlerSekmesi.evaluate().isNotEmpty) {
       await tester.tap(gelirlerSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Ayarlara git ==========
@@ -31,6 +33,8 @@ void main() {
     } else if (moreIcon.evaluate().isNotEmpty) {
       await tester.tap(moreIcon.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Kategori Yönetimi ==========
@@ -62,6 +66,8 @@ void main() {
           await tester.pumpAndSettle();
         }
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

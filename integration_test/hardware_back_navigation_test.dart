@@ -30,6 +30,8 @@ void main() {
         await tester.tap(sssMenu.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmedi ve SSS ya da Hakkında sayfasındayız

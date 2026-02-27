@@ -52,6 +52,8 @@ void main() {
 
       // ========== 3. Ekranda Veri Yok veya Listview Boş Kalmalı ==========
       // Uç noktadaki bir veriye filtre atandıktan sonra sistem `RangeError` veya indeks çöküşü yaşamadan "Boş" döner.
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

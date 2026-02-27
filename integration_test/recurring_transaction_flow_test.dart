@@ -24,6 +24,8 @@ void main() {
     if (giderAyarlari.evaluate().isNotEmpty) {
       await tester.tap(giderAyarlari.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Tekrarlayan işlemler bölümünü bul
@@ -61,6 +63,8 @@ void main() {
         // Tekrarlayan işlem listesinde "Kira E2E" görünüyor mu?
         expect(find.textContaining('Kira E2E'), findsWidgets);
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 2: "Bu Aya Ekle" İşlemini Tetikle ==========
@@ -69,6 +73,8 @@ void main() {
     if (backButton.evaluate().isNotEmpty) {
       await tester.tap(backButton);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     final harcamalarSekmesi = find.text('Harcamalar').first;

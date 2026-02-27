@@ -54,6 +54,8 @@ void main() {
     } else if (editButton.evaluate().isNotEmpty) {
       await tester.tap(editButton.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 3: Değerleri Güncelle ==========
@@ -63,6 +65,8 @@ void main() {
       await tester.enterText(editIsimField, 'Güncellenmiş Harcama');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Tutar alanını güncelle
@@ -71,6 +75,8 @@ void main() {
       await tester.enterText(editTutarField, '500');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Kaydet
@@ -82,6 +88,8 @@ void main() {
     } else if (kaydet.evaluate().isNotEmpty) {
       await tester.tap(kaydet);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 4: Listenin Güncellendiğini Doğrula ==========

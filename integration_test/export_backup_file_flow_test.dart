@@ -35,6 +35,8 @@ void main() {
     } else if (yedekle.evaluate().isNotEmpty) {
       await tester.tap(yedekle.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 2. Dışa / İçe Aktar Butonlarına Tıkla ==========
@@ -52,6 +54,8 @@ void main() {
     } else if (iceAktar.evaluate().isNotEmpty) {
       await tester.tap(iceAktar.last);
       await tester.pumpAndSettle(const Duration(seconds: 1));
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Test Runner hala ayakta is "File Platform Channel" bağlantısı sağlıklıdır.

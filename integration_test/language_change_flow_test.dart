@@ -41,6 +41,8 @@ void main() {
         // Uygulama çökmeden dil değiştirebildi mi?
         expect(find.byType(MaterialApp), findsOneWidget);
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 3: Farklı Sekmelerde Dil Kontrolü ==========
@@ -64,6 +66,8 @@ void main() {
       await tester.tap(settingsTab.first);
     } else if (ayarlarTab.evaluate().isNotEmpty) {
       await tester.tap(ayarlarTab.first);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
     await tester.pumpAndSettle();
 
@@ -76,12 +80,16 @@ void main() {
     } else if (dilMenu2.evaluate().isNotEmpty) {
       await tester.tap(dilMenu2.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     final turkceOption = find.text('Türkçe');
     if (turkceOption.evaluate().isNotEmpty) {
       await tester.tap(turkceOption.first);
       await tester.pumpAndSettle(const Duration(seconds: 2));
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmeden senaryo tamamlandı

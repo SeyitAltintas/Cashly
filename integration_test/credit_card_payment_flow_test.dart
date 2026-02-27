@@ -25,6 +25,8 @@ void main() {
     if (hesaplarSekmesi.evaluate().isNotEmpty) {
       await tester.tap(hesaplarSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Ödeme Yöntemi Ekle
@@ -38,6 +40,8 @@ void main() {
         await tester.tap(back.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Transfer'e git
@@ -65,6 +69,8 @@ void main() {
           await tester.pumpAndSettle();
         }
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

@@ -29,6 +29,8 @@ void main() {
     } else if (moreIcon.evaluate().isNotEmpty) {
       await tester.tap(moreIcon.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 3: Tekrarlayan Gelirler Bölümü ==========
@@ -66,6 +68,8 @@ void main() {
         // Listede "Maaş E2E" görünüyor mu
         expect(find.textContaining('Maaş E2E'), findsWidgets);
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmeden tekrarlayan gelir eklendi

@@ -37,6 +37,8 @@ void main() {
           await tester.pumpAndSettle();
         }
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 2. Uygulamayı Kapatıp Yeniden Açmayı Simüle Et ==========

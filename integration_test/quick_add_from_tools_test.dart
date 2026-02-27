@@ -24,6 +24,8 @@ void main() {
     } else if (toolsSekmesi.evaluate().isNotEmpty) {
       await tester.tap(toolsSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 2. Hızlı İşlem İkonuna Tıklama (Harcama Ekle) ==========
@@ -43,6 +45,8 @@ void main() {
       if (cards.evaluate().isNotEmpty) {
         await tester.tap(cards.first);
         await tester.pumpAndSettle();
+      } else {
+        fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
       }
     }
 
@@ -56,6 +60,8 @@ void main() {
         await tester.tap(backButton.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama sağlıklı çalışmaya devam ediyor

@@ -21,6 +21,8 @@ void main() {
     } else if (odemeYontemleri.evaluate().isNotEmpty) {
       await tester.tap(odemeYontemleri.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     final transferIcon = find.byIcon(Icons.swap_horiz);
@@ -31,6 +33,8 @@ void main() {
     } else if (transferText.evaluate().isNotEmpty) {
       await tester.tap(transferText.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 2. Form Alanlarını Doldur ==========
@@ -41,6 +45,8 @@ void main() {
       await tester.enterText(tutarField, '750');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 3. Takvimi Aç ve İleri Tarihi Seç ==========
@@ -59,6 +65,8 @@ void main() {
       } catch (e) {
         // tıklanamıyorsa atla
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Takvim dialogu açıldıysa: Sağ ok (Sonraki Ay)
@@ -77,6 +85,8 @@ void main() {
         await tester.tap(applyBtn.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Transfer Onay
@@ -88,6 +98,8 @@ void main() {
     } else if (kaydetButonu.evaluate().isNotEmpty) {
       await tester.tap(kaydetButonu.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Hata olmaksızın takvim ve transfer işlemi tamamlandı

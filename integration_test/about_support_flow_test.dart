@@ -32,6 +32,8 @@ void main() {
     } else if (aboutMenu.evaluate().isNotEmpty) {
       await tester.tap(aboutMenu.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 3: SSS (FAQ) Bölümünü Aç ==========
@@ -48,6 +50,8 @@ void main() {
     } else if (sikSorulan.evaluate().isNotEmpty) {
       await tester.tap(sikSorulan.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 4: Gizlilik Politikasını Aç ==========
@@ -67,6 +71,8 @@ void main() {
     } else if (privacy.evaluate().isNotEmpty) {
       await tester.tap(privacy.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 5: Kullanım Koşulları ==========
@@ -79,6 +85,8 @@ void main() {
     } else if (terms.evaluate().isNotEmpty) {
       await tester.tap(terms.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmeden hakkında/destek sayfası gezildi

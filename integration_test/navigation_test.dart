@@ -29,6 +29,8 @@ void main() {
         // Scroll yap
         await tester.drag(scrollables.first, const Offset(0, -100));
         await tester.pumpAndSettle();
+      } else {
+        fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
       }
 
       // Uygulama hala çalışıyor olmalı

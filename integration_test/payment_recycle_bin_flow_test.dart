@@ -24,6 +24,8 @@ void main() {
     } else if (odemeYontemleri.evaluate().isNotEmpty) {
       await tester.tap(odemeYontemleri.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Çöp kutusu ikonuna tıkla ==========
@@ -42,6 +44,8 @@ void main() {
         await tester.tap(copKutusu.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);
@@ -51,6 +55,8 @@ void main() {
     if (backButton.evaluate().isNotEmpty) {
       await tester.tap(backButton);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

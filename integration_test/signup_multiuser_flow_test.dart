@@ -21,6 +21,8 @@ void main() {
     if (ayarlarSekmesi.evaluate().isNotEmpty) {
       await tester.tap(ayarlarSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Kullanıcı Yönetimi veya Profil menüsü
@@ -33,6 +35,8 @@ void main() {
     } else if (profilMenu.evaluate().isNotEmpty) {
       await tester.tap(profilMenu.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 2: Yeni Kullanıcı Ekle ==========
@@ -45,6 +49,8 @@ void main() {
     } else if (addButton.evaluate().isNotEmpty) {
       await tester.tap(addButton.last);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // İsim gir
@@ -53,6 +59,8 @@ void main() {
       await tester.enterText(nameField.first, 'E2E Test Kullanıcı 2');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Kaydet / Oluştur
@@ -69,6 +77,8 @@ void main() {
     } else if (create.evaluate().isNotEmpty) {
       await tester.tap(create.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 3: Kullanıcı Listesinde Görünüyor Mu ==========

@@ -74,6 +74,8 @@ void main() {
           expect(find.byType(MaterialApp), findsOneWidget);
         }
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
   });
 }

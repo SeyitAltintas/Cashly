@@ -17,6 +17,8 @@ void main() {
     if (gelirlerSekmesi.evaluate().isNotEmpty) {
       await tester.tap(gelirlerSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 2. Gelir ekle ==========
@@ -44,6 +46,8 @@ void main() {
         await tester.tap(kaydet.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 3. Gelire tıkla (detay/düzenleme) ==========
@@ -51,6 +55,8 @@ void main() {
     if (gelir.evaluate().isNotEmpty) {
       await tester.tap(gelir.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 4. Düzenle ==========
@@ -58,6 +64,8 @@ void main() {
     if (editIcon.evaluate().isNotEmpty) {
       await tester.tap(editIcon.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // İsmi güncelle
@@ -66,6 +74,8 @@ void main() {
       await tester.enterText(fields.first, 'Güncellenmiş Gelir');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Kaydet
@@ -77,6 +87,8 @@ void main() {
     } else if (guncelle.evaluate().isNotEmpty) {
       await tester.tap(guncelle.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

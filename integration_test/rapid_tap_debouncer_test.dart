@@ -18,6 +18,8 @@ void main() {
     if (giderlerSekmesi.evaluate().isNotEmpty) {
       await tester.tap(giderlerSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     final fab = find.byType(FloatingActionButton);
@@ -48,6 +50,8 @@ void main() {
 
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama donmadı veya hata vermedi (Debouncer veya kilit mekanizması korudu)

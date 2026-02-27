@@ -23,6 +23,8 @@ void main() {
     } else if (toolsSekmesi.evaluate().isNotEmpty) {
       await tester.tap(toolsSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 2: Sayfadaki Kart/Butonlara Tıkla ==========
@@ -51,6 +53,8 @@ void main() {
           await tester.pumpAndSettle();
         }
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmeden araçlar sayfası gezildi

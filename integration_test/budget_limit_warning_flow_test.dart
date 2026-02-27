@@ -58,6 +58,8 @@ void main() {
         await tester.tap(backButton);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 2: Büyük bir Harcama Ekle (Limit Aşımı) ==========

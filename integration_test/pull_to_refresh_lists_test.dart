@@ -33,6 +33,8 @@ void main() {
 
       // Yenileme hareketi sistemi ve asenkron veri akışını kırmamalıdır
       expect(find.byType(MaterialApp), findsOneWidget);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
   });
 }

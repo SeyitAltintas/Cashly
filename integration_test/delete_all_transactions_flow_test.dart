@@ -40,6 +40,8 @@ void main() {
         // Sonsuz döngü engellemesi (Fail-safe)
         if (swipeSil.evaluate().isEmpty && trashIcon.evaluate().isEmpty) break;
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Ana Ekran - Mutlak 0 TL olmalı
@@ -47,6 +49,8 @@ void main() {
     if (anaSayfa.evaluate().isNotEmpty) {
       await tester.tap(anaSayfa.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama matematiği boş String ("") veya NULL yerine

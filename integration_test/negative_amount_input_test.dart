@@ -41,6 +41,8 @@ void main() {
           await tester.pumpAndSettle();
         }
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama FormatException veya Assertion hatası fırlatmaktan kaçınabilmeli!

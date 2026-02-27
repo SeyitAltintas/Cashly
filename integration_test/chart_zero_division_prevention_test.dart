@@ -21,6 +21,8 @@ void main() {
       // Paint (Çizim) Frame'leri renderlanırken çökme hatası "Unhandled Exception" fırlattırır.
       // E2E Testi bu süreyi tanıyarak grafiğin tam render olma stresine sokar.
       await tester.pumpAndSettle(const Duration(seconds: 1));
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Analiz chartlarında (FLChart vs) "Toplam = 0" ise ValueCalc (Value / Total * 100)
@@ -34,6 +36,8 @@ void main() {
     if (geriGecmis.evaluate().isNotEmpty) {
       await tester.tap(geriGecmis.first);
       await tester.pumpAndSettle(const Duration(milliseconds: 500));
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

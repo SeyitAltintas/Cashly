@@ -17,6 +17,8 @@ void main() {
     if (gelirlerSekmesi.evaluate().isNotEmpty) {
       await tester.tap(gelirlerSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Ayarlar / Menü ikonu ==========
@@ -29,6 +31,8 @@ void main() {
     } else if (moreIcon.evaluate().isNotEmpty) {
       await tester.tap(moreIcon.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Çöp kutusu menüsü ==========
@@ -41,6 +45,8 @@ void main() {
     } else if (recycleBin.evaluate().isNotEmpty) {
       await tester.tap(recycleBin.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Sayfa açıldı, çökmedi
@@ -51,6 +57,8 @@ void main() {
     if (backButton.evaluate().isNotEmpty) {
       await tester.tap(backButton);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

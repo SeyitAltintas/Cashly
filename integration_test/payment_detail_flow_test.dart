@@ -24,6 +24,8 @@ void main() {
     } else if (odemeYontemleri.evaluate().isNotEmpty) {
       await tester.tap(odemeYontemleri.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 2: İlk Ödeme Yöntemine (Kart/Hesap) Tıkla ==========
@@ -36,6 +38,8 @@ void main() {
     } else if (cards.evaluate().isNotEmpty) {
       await tester.tap(cards.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 3: Detay Sayfası Açıldı Mı ==========
@@ -52,6 +56,8 @@ void main() {
     } else if (debtAnalysis.evaluate().isNotEmpty) {
       await tester.tap(debtAnalysis.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 4: Geri Dön ==========
@@ -59,6 +65,8 @@ void main() {
     if (backButton.evaluate().isNotEmpty) {
       await tester.tap(backButton);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmeden borç analizi gezildi

@@ -21,6 +21,8 @@ void main() {
     if (giderlerSekmesi.evaluate().isNotEmpty) {
       await tester.tap(giderlerSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 2. Harcamaları Ekle ==========
@@ -60,6 +62,8 @@ void main() {
 
       await tester.tap(kaydet.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 3. Arama Çubuğunu Aç ==========
@@ -90,6 +94,8 @@ void main() {
         await tester.tap(backIcon.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama sağlıklı çalışmaya devam ediyor

@@ -23,6 +23,8 @@ void main() {
     if (gelirlerSekmesi.evaluate().isNotEmpty) {
       await tester.tap(gelirlerSekmesi);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // 2. Yeni Gelir Ekle butonuna tıkla (Genellikle FloatingActionButton)
@@ -68,6 +70,8 @@ void main() {
       // 6. Listede 'E2E Test Geliri' yazısını gör
       expect(find.textContaining('E2E Test Geliri'), findsWidgets);
       expect(find.textContaining('1500'), findsWidgets);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
   });
 }

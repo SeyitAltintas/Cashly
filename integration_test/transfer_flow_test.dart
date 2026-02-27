@@ -22,6 +22,8 @@ void main() {
     } else if (odemeYontemleri.evaluate().isNotEmpty) {
       await tester.tap(odemeYontemleri.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 2: Transfer Sayfasına Git ==========
@@ -39,6 +41,8 @@ void main() {
     } else if (transferButton.evaluate().isNotEmpty) {
       await tester.tap(transferButton.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 3: Transfer Formunu Doldur ==========
@@ -48,6 +52,8 @@ void main() {
       await tester.enterText(tutarField, '1000');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Açıklama alanı (varsa)
@@ -56,6 +62,8 @@ void main() {
       await tester.enterText(aciklamaField, 'E2E Transfer Testi');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Transfer Et butonu
@@ -72,6 +80,8 @@ void main() {
     } else if (kaydet.evaluate().isNotEmpty) {
       await tester.tap(kaydet);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmeden transfer tamamlandı

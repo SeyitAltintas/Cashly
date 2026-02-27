@@ -32,6 +32,8 @@ void main() {
     } else if (hesapMenu.evaluate().isNotEmpty) {
       await tester.tap(hesapMenu.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 2: İsim Değiştir ==========
@@ -40,6 +42,8 @@ void main() {
       await tester.enterText(nameField.first, 'E2E Test Kullanıcı');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Kaydet butonu
@@ -47,6 +51,8 @@ void main() {
     if (kaydet.evaluate().isNotEmpty) {
       await tester.tap(kaydet.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 3: Kaydedildiğini Doğrula ==========
@@ -58,6 +64,8 @@ void main() {
     if (backButton.evaluate().isNotEmpty) {
       await tester.tap(backButton);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Profilde güncellenen isim yansıdı mı (Eğer Ayarlar ana sayfasında görünüyorsa)

@@ -19,6 +19,8 @@ void main() {
     if (gelirlerSekmesi.evaluate().isNotEmpty) {
       await tester.tap(gelirlerSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 2. Gelir Ekle ==========
@@ -67,6 +69,8 @@ void main() {
         await tester.tap(kaydet.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 3. Hesaplarım Sekmesinde Bakiye Kontrol ==========
@@ -74,6 +78,8 @@ void main() {
     if (hesaplar.evaluate().isNotEmpty) {
       await tester.tap(hesaplar.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmeden gelir → ödeme yöntemi entegrasyonu tamamlandı

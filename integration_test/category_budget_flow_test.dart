@@ -23,6 +23,8 @@ void main() {
     if (giderAyarlari.evaluate().isNotEmpty) {
       await tester.tap(giderAyarlari.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Kategori Bütçeleri (veya Bütçe Limitleri)
@@ -45,6 +47,8 @@ void main() {
         await tester.tap(kaydet.first);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 2: Dashboard'a Dönüp Kontrol Et ==========
@@ -59,6 +63,8 @@ void main() {
     if (dashboardSekmesi.evaluate().isNotEmpty) {
       await tester.tap(dashboardSekmesi);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmeden bütçe detayı kaydedildi

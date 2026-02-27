@@ -18,6 +18,8 @@ void main() {
     if (giderlerSekmesi.evaluate().isNotEmpty) {
       await tester.tap(giderlerSekmesi.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Sayfada bir Scrollable liste veya ListVew builder var mı
@@ -42,6 +44,8 @@ void main() {
 
       // Kaydırma bitince Widget Tree (ListView.builder mantığı) ayakta duruyor
       expect(find.byType(MaterialApp), findsOneWidget);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
   });
 }

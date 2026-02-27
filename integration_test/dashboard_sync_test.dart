@@ -25,6 +25,8 @@ void main() {
     if (gelirlerSekmesi.evaluate().isNotEmpty) {
       await tester.tap(gelirlerSekmesi);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // 3. Fab tetiklenip test adımı atılır (10.000 TL miktarında)
@@ -52,6 +54,8 @@ void main() {
       // Kaydet
       await tester.tap(find.text('Kaydet'));
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // 4. Tekrar Dashboard'a dön
@@ -59,6 +63,8 @@ void main() {
     if (dashboardSekmesi.evaluate().isNotEmpty) {
       await tester.tap(dashboardSekmesi);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // 5. Yeni Bakiye değerinin güncel olup olmadığını teyit et (Eskiye kıyasla daha fazla olmalı!)

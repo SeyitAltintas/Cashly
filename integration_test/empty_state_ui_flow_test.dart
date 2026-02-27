@@ -34,6 +34,8 @@ void main() {
       } else {
         expect(find.byType(MaterialApp), findsOneWidget);
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== 2. Ödeme Yöntemleri vs. ==========
@@ -43,6 +45,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(MaterialApp), findsOneWidget);
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

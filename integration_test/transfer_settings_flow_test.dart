@@ -28,6 +28,8 @@ void main() {
     } else if (finansAyarlari.evaluate().isNotEmpty) {
       await tester.tap(finansAyarlari.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== Transfer Ayarları ==========
@@ -52,6 +54,8 @@ void main() {
         await tester.tap(backButton);
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     expect(find.byType(MaterialApp), findsOneWidget);

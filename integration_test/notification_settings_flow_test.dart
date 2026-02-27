@@ -28,6 +28,8 @@ void main() {
     } else if (notifMenu.evaluate().isNotEmpty) {
       await tester.tap(notifMenu.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // ========== ADIM 3: Switch'leri Toggle Et ==========
@@ -46,6 +48,8 @@ void main() {
         await tester.tap(switches.at(1));
         await tester.pumpAndSettle();
       }
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // SwitchListTile de olabilir
@@ -56,6 +60,8 @@ void main() {
 
       await tester.tap(switchListTiles.first);
       await tester.pumpAndSettle();
+    } else {
+      fail('Hatali Test: Beklenen UI bileseni (widget) ekranda bulunamadi.');
     }
 
     // Uygulama çökmeden bildirim ayarları değiştirildi
