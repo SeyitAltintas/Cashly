@@ -142,7 +142,7 @@ class _DefaultErrorWidget extends StatelessWidget {
 
           // Hata mesajı
           Text(
-            'Bir hata oluştu',
+            context.l10n.anErrorOccurred,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.bold,
@@ -237,7 +237,7 @@ class _PageErrorBoundaryState extends State<PageErrorBoundary> {
   Widget build(BuildContext context) {
     if (_hasError) {
       return ErrorScreen(
-        errorMessage: '${widget.pageName} sayfası yüklenirken bir hata oluştu.',
+        errorMessage: context.l10n.pageLoadError(widget.pageName),
         onRetry: _retry,
       );
     }

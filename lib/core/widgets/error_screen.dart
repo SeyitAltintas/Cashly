@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Beklenmedik hata durumlarında gösterilecek error ekranı
 class ErrorScreen extends StatelessWidget {
@@ -41,9 +42,9 @@ class ErrorScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Başlık
-                  const Text(
-                    'Bir Hata Oluştu',
-                    style: TextStyle(
+                  Text(
+                    context.l10n.errorOccurred,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -54,8 +55,7 @@ class ErrorScreen extends StatelessWidget {
 
                   // Alt mesaj
                   Text(
-                    errorMessage ??
-                        'Beklenmedik bir hata meydana geldi.\nLütfen uygulamayı yeniden başlatın.',
+                    errorMessage ?? context.l10n.unexpectedErrorRestart,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 16,
@@ -80,9 +80,9 @@ class ErrorScreen extends StatelessWidget {
                         ),
                       ),
                       icon: const Icon(Icons.refresh),
-                      label: const Text(
-                        'Tekrar Dene',
-                        style: TextStyle(fontSize: 16),
+                      label: Text(
+                        context.l10n.retry,
+                        style: const TextStyle(fontSize: 16),
                       ),
                     ),
 
@@ -91,7 +91,7 @@ class ErrorScreen extends StatelessWidget {
                     const SizedBox(height: 40),
                     ExpansionTile(
                       title: Text(
-                        'Teknik Detaylar',
+                        context.l10n.technicalDetails,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.5),
                           fontSize: 12,

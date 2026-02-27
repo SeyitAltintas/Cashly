@@ -112,92 +112,64 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _controller,
-      child: Consumer<DashboardController>(
-        builder: (context, controller, child) {
-          return Scaffold(
-            backgroundColor: Colors.transparent,
-            body: SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Hoş Geldin Bölümü
-                    _buildGreetingSection(context, controller),
-                    const SizedBox(height: 24),
+      child: const Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Hoş Geldin Bölümü
+                _GreetingSection(),
+                SizedBox(height: 24),
 
-                    // Toplam Bakiye Kartı
-                    BalanceCard(totalBalance: controller.totalBalance),
-                    const SizedBox(height: 12),
+                // Toplam Bakiye Kartı
+                _BalanceSection(),
+                SizedBox(height: 12),
 
-                    // Kredi Kartı Borcu (varsa göster)
-                    CreditDebtCard(totalDebt: controller.totalCreditDebt),
-                    const SizedBox(height: 20),
+                // Kredi Kartı Borcu
+                _CreditDebtSection(),
+                SizedBox(height: 20),
 
-                    // Bu Ay Özeti
-                    MonthlySummaryCard(
-                      monthlyExpense: controller.monthlyExpense,
-                      monthlyIncome: controller.monthlyIncome,
-                      netDiff: controller.netDiff,
-                    ),
-                    const SizedBox(height: 20),
+                // Bu Ay Özeti
+                _MonthlySummarySection(),
+                SizedBox(height: 20),
 
-                    // Bütçe Durumu
-                    BudgetStatusCard(
-                      monthlyExpense: controller.monthlyExpense,
-                      butceLimiti: controller.butceLimiti,
-                      categoryBudgets: controller.categoryBudgets,
-                      categoryExpenses: controller.categoryExpenses,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CategoryBudgetDetailPage(
-                              categoryBudgets: controller.categoryBudgets,
-                              categoryExpenses: controller.categoryExpenses,
-                              totalBudget: controller.butceLimiti,
-                              totalExpense: controller.monthlyExpense,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 20),
+                // Bütçe Durumu
+                _BudgetStatusSection(),
+                SizedBox(height: 20),
 
-                    // Varlık Özeti
-                    AssetSummaryCard(totalAssets: controller.totalAssets),
-                    const SizedBox(height: 20),
+                // Varlık Özeti
+                _AssetSummarySection(),
+                SizedBox(height: 20),
 
-                    // Son İşlemler
-                    RecentTransactionsCard(
-                      harcamalar: controller.harcamalar,
-                      gelirler: controller.gelirler,
-                      transferler: controller.transferler,
-                      odemeYontemleri: controller.odemeYontemleri,
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
+                // Son İşlemler
+                _RecentTransactionsSection(),
+                SizedBox(height: 20),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
+}
 
-  /// Hoş geldin bölümünü oluşturur
-  Widget _buildGreetingSection(
-    BuildContext context,
-    DashboardController controller,
-  ) {
+class _GreetingSection extends StatelessWidget {
+  const _GreetingSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final userName = context.select((DashboardController c) => c.userName);
+    final streakData = context.select((DashboardController c) => c.streakData);
+
     return AnimatedCard(
       delay: 0,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Sol taraf: Selamlama metni
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,7 +185,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  controller.userName,
+                  userName,
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -223,13 +195,12 @@ class _DashboardPageState extends State<DashboardPage> {
               ],
             ),
           ),
-          // Sağ taraf: Network status ikonu ve Seri widget'ı
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               const NetworkStatusIcon(),
               const SizedBox(width: 8),
-              StreakWidget(streakData: controller.streakData),
+              StreakWidget(streakData: streakData),
             ],
           ),
         ],
@@ -237,12 +208,102 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  /// Saate göre locale-aware selamlama mesajı
   String _getGreeting(BuildContext context) {
     final hour = DateTime.now().hour;
     if (hour < 6) return context.l10n.goodNight;
     if (hour < 12) return context.l10n.goodMorning;
     if (hour < 18) return context.l10n.goodAfternoon;
     return context.l10n.goodEvening;
+  }
+}
+
+class _BalanceSection extends StatelessWidget {
+  const _BalanceSection();
+  @override
+  Widget build(BuildContext context) {
+    final balance = context.select((DashboardController c) => c.totalBalance);
+    return BalanceCard(totalBalance: balance);
+  }
+}
+
+class _CreditDebtSection extends StatelessWidget {
+  const _CreditDebtSection();
+  @override
+  Widget build(BuildContext context) {
+    final debt = context.select((DashboardController c) => c.totalCreditDebt);
+    return CreditDebtCard(totalDebt: debt);
+  }
+}
+
+class _MonthlySummarySection extends StatelessWidget {
+  const _MonthlySummarySection();
+  @override
+  Widget build(BuildContext context) {
+    final expense = context.select((DashboardController c) => c.monthlyExpense);
+    final income = context.select((DashboardController c) => c.monthlyIncome);
+    final netDiff = context.select((DashboardController c) => c.netDiff);
+    return MonthlySummaryCard(
+      monthlyExpense: expense,
+      monthlyIncome: income,
+      netDiff: netDiff,
+    );
+  }
+}
+
+class _BudgetStatusSection extends StatelessWidget {
+  const _BudgetStatusSection();
+  @override
+  Widget build(BuildContext context) {
+    // Tüm güncellemeleri dinlemek için Consumer kullanıyoruz
+    // çünkü bütçe kartı çok fazla değişkene bağlı
+    return Consumer<DashboardController>(
+      builder: (context, controller, child) {
+        return BudgetStatusCard(
+          monthlyExpense: controller.monthlyExpense,
+          butceLimiti: controller.butceLimiti,
+          categoryBudgets: controller.categoryBudgets,
+          categoryExpenses: controller.categoryExpenses,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CategoryBudgetDetailPage(
+                  categoryBudgets: controller.categoryBudgets,
+                  categoryExpenses: controller.categoryExpenses,
+                  totalBudget: controller.butceLimiti,
+                  totalExpense: controller.monthlyExpense,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _AssetSummarySection extends StatelessWidget {
+  const _AssetSummarySection();
+  @override
+  Widget build(BuildContext context) {
+    final assets = context.select((DashboardController c) => c.totalAssets);
+    return AssetSummaryCard(totalAssets: assets);
+  }
+}
+
+class _RecentTransactionsSection extends StatelessWidget {
+  const _RecentTransactionsSection();
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<DashboardController>(
+      builder: (context, controller, child) {
+        return RecentTransactionsCard(
+          harcamalar: controller.harcamalar,
+          gelirler: controller.gelirler,
+          transferler: controller.transferler,
+          odemeYontemleri: controller.odemeYontemleri,
+        );
+      },
+    );
   }
 }
