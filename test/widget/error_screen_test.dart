@@ -1,11 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/core/widgets/error_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:cashly/l10n/generated/app_localizations.dart';
 
 void main() {
   group('ErrorScreen Testleri', () {
+    Future<void> pumpErrorScreen(
+      WidgetTester tester, {
+      FlutterErrorDetails? errorDetails,
+      String? errorMessage,
+      VoidCallback? onRetry,
+    }) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('tr'), Locale('en')],
+          locale: const Locale('tr'),
+          home: ErrorScreen(
+            errorDetails: errorDetails,
+            errorMessage: errorMessage,
+            onRetry: onRetry,
+          ),
+        ),
+      );
+    }
+
     testWidgets('Temel error screen render edilmeli', (tester) async {
-      await tester.pumpWidget(const MaterialApp(home: ErrorScreen()));
+      await pumpErrorScreen(tester);
 
       // Hata ikonu görünmeli
       expect(find.byIcon(Icons.error_outline), findsOneWidget);
@@ -13,7 +40,7 @@ void main() {
       // Başlık görünmeli
       expect(find.text('Bir Hata Oluştu'), findsOneWidget);
 
-      // Varsayılan mesaj görünmeli
+      // Varsayılan mesaj görünmeli (Kısmi metin arama)
       expect(
         find.textContaining('Beklenmedik bir hata meydana geldi'),
         findsOneWidget,
@@ -21,11 +48,7 @@ void main() {
     });
 
     testWidgets('Özel hata mesajı gösterilmeli', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: ErrorScreen(errorMessage: 'Özel hata mesajı burada'),
-        ),
-      );
+      await pumpErrorScreen(tester, errorMessage: 'Özel hata mesajı burada');
 
       expect(find.text('Özel hata mesajı burada'), findsOneWidget);
     });
@@ -33,9 +56,7 @@ void main() {
     testWidgets('Tekrar dene butonu gösterilmeli ve çalışmalı', (tester) async {
       int retryCount = 0;
 
-      await tester.pumpWidget(
-        MaterialApp(home: ErrorScreen(onRetry: () => retryCount++)),
-      );
+      await pumpErrorScreen(tester, onRetry: () => retryCount++);
 
       // Tekrar dene butonu görünmeli
       expect(find.text('Tekrar Dene'), findsOneWidget);
@@ -47,7 +68,7 @@ void main() {
     });
 
     testWidgets('onRetry null ise buton gösterilmemeli', (tester) async {
-      await tester.pumpWidget(const MaterialApp(home: ErrorScreen()));
+      await pumpErrorScreen(tester);
 
       // Tekrar dene butonu görünmemeli
       expect(find.text('Tekrar Dene'), findsNothing);
@@ -62,9 +83,7 @@ void main() {
         context: ErrorDescription('test context'),
       );
 
-      await tester.pumpWidget(
-        MaterialApp(home: ErrorScreen(errorDetails: errorDetails)),
-      );
+      await pumpErrorScreen(tester, errorDetails: errorDetails);
 
       // Teknik Detaylar expansion tile görünmeli
       expect(find.text('Teknik Detaylar'), findsOneWidget);
@@ -80,7 +99,7 @@ void main() {
     testWidgets('Scaffold doğru background color ile render edilmeli', (
       tester,
     ) async {
-      await tester.pumpWidget(const MaterialApp(home: ErrorScreen()));
+      await pumpErrorScreen(tester);
 
       final scaffoldFinder = find.byType(Scaffold);
       expect(scaffoldFinder, findsOneWidget);
