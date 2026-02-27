@@ -25,56 +25,6 @@ class CurrencySettingsPage extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
-              // Bilgi Kartı
-              Container(
-                margin: const EdgeInsets.only(bottom: 24),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.surface.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.1),
-                    width: 0.5,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.06),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.public,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        context.l10n.currencyDescription,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
               // Liste
               Text(
                 context.l10n.currenciesLabel,
@@ -166,41 +116,42 @@ class CurrencySettingsPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              // Canlı Kur Kartı
-              if (currencyService.isLoading)
-                const Center(child: CircularProgressIndicator())
-              else if (currencyService.currentCurrency != 'TRY')
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.currency_exchange, color: Colors.blue),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          context.l10n.currentRateInfo(
-                            currencyService.currentCurrency,
-                            currencyService
-                                .convert(
-                                  1,
-                                  currencyService.currentCurrency,
-                                  'TRY',
-                                )
-                                .toStringAsFixed(2),
-                          ),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ),
-                    ],
+              // Yeni Bilgi Kartı (Anasayfa ipucu)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.amber.withValues(alpha: 0.3),
+                    width: 1,
                   ),
                 ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.lightbulb_outline,
+                      color: Colors.amber,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        context.l10n.quickCurrencyChangeInfo,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           );
         },

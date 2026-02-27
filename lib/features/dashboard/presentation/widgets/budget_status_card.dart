@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
+import '../controllers/dashboard_controller.dart';
 
 /// Bütçe Durumu Kartı Widget'ı
 /// Bütçe limiti, kullanım oranını ve kategori bazlı limitleri gösterir
@@ -24,6 +26,8 @@ class BudgetStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isObscured = context.select((DashboardController c) => c.isObscured);
+
     final budgetUsed = butceLimiti > 0 ? (monthlyExpense / butceLimiti) : 0.0;
 
     return GestureDetector(
@@ -87,7 +91,10 @@ class BudgetStatusCard extends StatelessWidget {
                 children: [
                   Text(
                     context.l10n.spentAmount(
-                      CurrencyFormatter.formatWithoutSymbol(monthlyExpense),
+                      CurrencyFormatter.format(
+                        monthlyExpense,
+                        isObscured: isObscured,
+                      ),
                     ),
                     style: TextStyle(
                       fontSize: 12,
@@ -98,7 +105,10 @@ class BudgetStatusCard extends StatelessWidget {
                   ),
                   Text(
                     context.l10n.limitAmount(
-                      CurrencyFormatter.formatWithoutSymbol(butceLimiti),
+                      CurrencyFormatter.format(
+                        butceLimiti,
+                        isObscured: isObscured,
+                      ),
                     ),
                     style: TextStyle(
                       fontSize: 12,

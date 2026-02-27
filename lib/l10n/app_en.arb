@@ -1738,5 +1738,13 @@
   "frameCoral": "Coral",
   "frameNight": "Night",
   "frameChampagne": "Champagne",
-  "frameRuby": "Ruby"
+  "frameRuby": "Ruby",
+  "assetNameHint": "e.g. Gold Gram",
+  "customCategoryNameHint": "e.g. Antique Watch",
+  "stockNameHint": "e.g. AAPL, TSLA",
+  "customCurrencyHint": "e.g. SEK, NOK",
+  "customCryptoHint": "e.g. DOGE, SHIB",
+  "bankNameHint": "e.g. N26, Revolut",
+  "quantityHint": "e.g. 1.0",
+  "quickCurrencyChangeInfo": "Tip: You can also quickly switch between currencies by tapping on the Total Balance amount on the Dashboard."
 }

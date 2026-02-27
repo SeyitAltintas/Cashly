@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
+import '../controllers/dashboard_controller.dart';
 
 /// Kredi Kartı Borç Kartı Widget'ı
 /// Dashboard'da toplam kredi kartı borcunu gösterir
@@ -16,6 +18,8 @@ class CreditDebtCard extends StatelessWidget {
     if (totalDebt <= 0) {
       return const SizedBox.shrink();
     }
+
+    final isObscured = context.select((DashboardController c) => c.isObscured);
 
     return AnimatedCard(
       delay: 150,
@@ -66,7 +70,7 @@ class CreditDebtCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    CurrencyFormatter.format(totalDebt),
+                    CurrencyFormatter.format(totalDebt, isObscured: isObscured),
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

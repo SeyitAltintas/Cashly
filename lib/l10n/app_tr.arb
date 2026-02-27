@@ -359,7 +359,7 @@
       }
     }
   },
-  "limitAmount": "{amount} ₺ limit",
+  "limitAmount": "{amount} limit",
   "@limitAmount": {
     "placeholders": {
       "amount": {
@@ -1738,5 +1738,13 @@
   "frameCoral": "Mercan",
   "frameNight": "Gece",
   "frameChampagne": "Şampanya",
-  "frameRuby": "Yakut"
+  "frameRuby": "Yakut",
+  "assetNameHint": "Örn. Gram Altın",
+  "customCategoryNameHint": "Örn. Antika Saat",
+  "stockNameHint": "Örn. THYAO, SASA",
+  "customCurrencyHint": "Örn. SEK, NOK",
+  "customCryptoHint": "Örn. DOGE, SHIB",
+  "bankNameHint": "Örn. Garanti, Ziraat",
+  "quantityHint": "Örn. 1.0",
+  "quickCurrencyChangeInfo": "İpucu: Anasayfadaki Toplam Bakiye tutarının üzerine dokunarak da para birimleri arasında hızlıca geçiş yapabilirsiniz."
 }

@@ -23,6 +23,9 @@ class DashboardController extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _isObscured = false;
+  bool get isObscured => _isObscured;
+
   String _userName = '';
   String get userName => _userName;
 
@@ -45,7 +48,11 @@ class DashboardController extends ChangeNotifier {
   List<Transfer> get transferler => _transferler;
 
   double _butceLimiti = 0;
-  double get butceLimiti => _butceLimiti;
+  double get butceLimiti {
+    if (_butceLimiti <= 0) return 0;
+    final service = getIt<CurrencyService>();
+    return service.convert(_butceLimiti, 'TRY', service.currentCurrency);
+  }
 
   DateTime _secilenAy = DateTime.now();
   DateTime get secilenAy => _secilenAy;
@@ -60,6 +67,22 @@ class DashboardController extends ChangeNotifier {
 
   DashboardController() {
     _initUseCases();
+    // Currency değiştiğinde dashboard'daki hesaplamaları yeniden tetiklemek için dinle
+    if (getIt.isRegistered<CurrencyService>()) {
+      getIt<CurrencyService>().addListener(_onCurrencyChanged);
+    }
+  }
+
+  void _onCurrencyChanged() {
+    refresh();
+  }
+
+  @override
+  void dispose() {
+    if (getIt.isRegistered<CurrencyService>()) {
+      getIt<CurrencyService>().removeListener(_onCurrencyChanged);
+    }
+    super.dispose();
   }
 
   void _initUseCases() {
@@ -183,17 +206,26 @@ class DashboardController extends ChangeNotifier {
 
   /// Bütçe kullanım yüzdesi
   double get budgetUsagePercentage {
-    if (_butceLimiti <= 0) return 0;
-    return (monthlyExpense / _butceLimiti * 100).clamp(0, 100);
+    final limit = butceLimiti;
+    if (limit <= 0) return 0;
+    return (monthlyExpense / limit * 100).clamp(0, 100);
   }
 
   /// Bütçe aşıldı mı?
-  bool get isBudgetExceeded =>
-      _butceLimiti > 0 && monthlyExpense > _butceLimiti;
+  bool get isBudgetExceeded {
+    final limit = butceLimiti;
+    return limit > 0 && monthlyExpense > limit;
+  }
 
   /// Kategori bazlı bütçe limitleri
   Map<String, double> _categoryBudgets = {};
-  Map<String, double> get categoryBudgets => _categoryBudgets;
+  Map<String, double> get categoryBudgets {
+    final service = getIt<CurrencyService>();
+    final target = service.currentCurrency;
+    return _categoryBudgets.map(
+      (key, value) => MapEntry(key, service.convert(value, 'TRY', target)),
+    );
+  }
 
   /// Kategori bazlı aylık harcamalar
   Map<String, double> get categoryExpenses {
@@ -289,6 +321,12 @@ class DashboardController extends ChangeNotifier {
       _isLoading = value;
       notifyListeners();
     }
+  }
+
+  /// Tutarları gizle/göster
+  void toggleObscured() {
+    _isObscured = !_isObscured;
+    notifyListeners();
   }
 
   /// Kullanıcı adını güncelle

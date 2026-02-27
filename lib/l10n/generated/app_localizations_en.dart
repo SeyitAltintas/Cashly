@@ -3701,4 +3701,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get frameRuby => 'Ruby';
+
+  @override
+  String get assetNameHint => 'e.g. Gold Gram';
+
+  @override
+  String get customCategoryNameHint => 'e.g. Antique Watch';
+
+  @override
+  String get stockNameHint => 'e.g. AAPL, TSLA';
+
+  @override
+  String get customCurrencyHint => 'e.g. SEK, NOK';
+
+  @override
+  String get customCryptoHint => 'e.g. DOGE, SHIB';
+
+  @override
+  String get bankNameHint => 'e.g. N26, Revolut';
+
+  @override
+  String get quantityHint => 'e.g. 1.0';
+
+  @override
+  String get quickCurrencyChangeInfo =>
+      'Tip: You can also quickly switch between currencies by tapping on the Total Balance amount on the Dashboard.';
 }

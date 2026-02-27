@@ -980,7 +980,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String limitAmount(String amount) {
-    return '$amount ₺ limit';
+    return '$amount limit';
   }
 
   @override
@@ -3702,4 +3702,29 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get frameRuby => 'Yakut';
+
+  @override
+  String get assetNameHint => 'Örn. Gram Altın';
+
+  @override
+  String get customCategoryNameHint => 'Örn. Antika Saat';
+
+  @override
+  String get stockNameHint => 'Örn. THYAO, SASA';
+
+  @override
+  String get customCurrencyHint => 'Örn. SEK, NOK';
+
+  @override
+  String get customCryptoHint => 'Örn. DOGE, SHIB';
+
+  @override
+  String get bankNameHint => 'Örn. Garanti, Ziraat';
+
+  @override
+  String get quantityHint => 'Örn. 1.0';
+
+  @override
+  String get quickCurrencyChangeInfo =>
+      'İpucu: Anasayfadaki Toplam Bakiye tutarının üzerine dokunarak da para birimleri arasında hızlıca geçiş yapabilirsiniz.';
 }

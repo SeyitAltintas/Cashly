@@ -101,8 +101,8 @@ class LanguageSettingsPage extends StatelessWidget {
                             if (context.mounted) {
                               AppSnackBar.success(
                                 context,
-                                AppLocalizations.of(
-                                  context,
+                                lookupAppLocalizations(
+                                  locale,
                                 ).languageChangeRestart,
                               );
                             }
@@ -157,9 +157,7 @@ class _LanguageTile extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.15)
+                      ? const Color(0xFF10b981).withValues(alpha: 0.15)
                       : Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.08),
@@ -206,14 +204,12 @@ class _LanguageTile extends StatelessWidget {
                   duration: const Duration(milliseconds: 300),
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.2),
+                    color: const Color(0xFF10b981).withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.check,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Color(0xFF10b981),
                     size: 20,
                   ),
                 ),

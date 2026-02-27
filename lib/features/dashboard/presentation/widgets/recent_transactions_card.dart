@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../controllers/dashboard_controller.dart';
 
 /// Son İşlemler Kartı Widget'ı
 /// Harcama, gelir ve transferlerdeki son işlemleri gösterir
@@ -110,6 +112,7 @@ class RecentTransactionsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final recentTransactions = _getRecentTransactions(context);
+    final isObscured = context.select((DashboardController c) => c.isObscured);
 
     return AnimatedCard(
       delay: 500,
@@ -141,7 +144,8 @@ class RecentTransactionsCard extends StatelessWidget {
               _buildEmptyState(context)
             else
               ...recentTransactions.map(
-                (transaction) => _buildTransactionItem(context, transaction),
+                (transaction) =>
+                    _buildTransactionItem(context, transaction, isObscured),
               ),
           ],
         ),
@@ -177,6 +181,7 @@ class RecentTransactionsCard extends StatelessWidget {
   Widget _buildTransactionItem(
     BuildContext context,
     Map<String, dynamic> transaction,
+    bool isObscured,
   ) {
     final type = transaction['type'];
     final isExpense = type == 'expense';
@@ -244,7 +249,7 @@ class RecentTransactionsCard extends StatelessWidget {
             ),
           ),
           Text(
-            "$prefix${CurrencyFormatter.format(transaction['amount'] as double)}",
+            "$prefix${CurrencyFormatter.format(transaction['amount'] as double, isObscured: isObscured)}",
             style: TextStyle(
               color: iconColor.withValues(alpha: 0.9),
               fontWeight: FontWeight.bold,

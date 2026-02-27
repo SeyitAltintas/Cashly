@@ -105,22 +105,6 @@ class _AddAssetPageState extends State<AddAssetPage> {
     ],
     'Kripto': ['BTC', 'ETH', 'SOL', 'AVAX', 'XRP', 'USDT', 'Diğer'],
     'Hisse Senedi': ['Diğer'],
-    'Banka': [
-      'Ziraat Bankası',
-      'İş Bankası',
-      'Garanti BBVA',
-      'Akbank',
-      'Yapı Kredi',
-      'Halkbank',
-      'VakıfBank',
-      'QNB Finansbank',
-      'DenizBank',
-      'TEB',
-      'Kuveyt Türk',
-      'Enpara.com',
-      'Papara',
-      'Diğer',
-    ],
   };
 
   final PriceService _priceService = PriceService();
@@ -175,6 +159,9 @@ class _AddAssetPageState extends State<AddAssetPage> {
       }
       if (editCategory == 'Diğer') {
         _customCategoryNameController.text = widget.asset!.name;
+      }
+      if (editCategory == 'Banka' && typeFromAsset != null) {
+        _customBankNameController.text = typeFromAsset;
       }
       final convertedPurchasePrice = cur.convert(
         widget.asset!.purchasePrice,
@@ -342,9 +329,13 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 amount
           : amount;
 
-      // "Diğer" seçilmişse özel isim alanındaki değeri type olarak kullan
+      // Type değerini ayarlayalım
       String? effectiveType = _selectedType;
-      if (_selectedType == 'Diğer') {
+      if (_selectedCategory == 'Banka') {
+        if (_customBankNameController.text.trim().isNotEmpty) {
+          effectiveType = _customBankNameController.text.trim();
+        }
+      } else if (_selectedType == 'Diğer') {
         switch (_selectedCategory) {
           case 'Döviz':
             if (_customCurrencyNameController.text.trim().isNotEmpty) {
@@ -354,11 +345,6 @@ class _AddAssetPageState extends State<AddAssetPage> {
           case 'Kripto':
             if (_customCryptoNameController.text.trim().isNotEmpty) {
               effectiveType = _customCryptoNameController.text.trim();
-            }
-            break;
-          case 'Banka':
-            if (_customBankNameController.text.trim().isNotEmpty) {
-              effectiveType = _customBankNameController.text.trim();
             }
             break;
         }
@@ -415,7 +401,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
             _buildTextField(
               controller: _nameController,
               label: context.l10n.assetName,
-              hint: 'e.g. Gold Gram',
+              hint: context.l10n.assetNameHint,
               icon: Icons.diamond_outlined,
               validator: (value) => Validators.validateItemName(
                 value,
@@ -442,7 +428,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
               _buildTextField(
                 controller: _customCategoryNameController,
                 label: context.l10n.assetNameField,
-                hint: 'e.g. Antique Watch',
+                hint: context.l10n.customCategoryNameHint,
                 icon: Icons.edit_outlined,
                 validator: (value) => Validators.validateItemName(
                   value,
@@ -457,7 +443,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
               _buildTextField(
                 controller: _stockNameController,
                 label: context.l10n.stockNameLabel,
-                hint: 'e.g. THYAO, SASA',
+                hint: context.l10n.stockNameHint,
                 icon: Icons.trending_up,
                 validator: (value) => Validators.validateItemName(
                   value,
@@ -472,7 +458,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
               _buildTextField(
                 controller: _customCurrencyNameController,
                 label: context.l10n.currencyNameLabel,
-                hint: 'e.g. SEK, NOK',
+                hint: context.l10n.customCurrencyHint,
                 icon: Icons.attach_money,
                 validator: (value) => Validators.validateItemName(
                   value,
@@ -487,7 +473,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
               _buildTextField(
                 controller: _customCryptoNameController,
                 label: context.l10n.cryptoNameLabel,
-                hint: 'e.g. DOGE, SHIB',
+                hint: context.l10n.customCryptoHint,
                 icon: Icons.currency_bitcoin,
                 validator: (value) => Validators.validateItemName(
                   value,
@@ -497,12 +483,12 @@ class _AddAssetPageState extends State<AddAssetPage> {
               const SizedBox(height: 16),
             ],
 
-            // Banka "Diğer" seçildiğinde özel banka adı alanı
-            if (_selectedCategory == 'Banka' && _selectedType == 'Diğer') ...[
+            // Banka seçildiğinde banka adı alanı (Manuel giriş)
+            if (_selectedCategory == 'Banka') ...[
               _buildTextField(
                 controller: _customBankNameController,
                 label: context.l10n.bankNameLabel,
-                hint: 'e.g. N26, Revolut',
+                hint: context.l10n.bankNameHint,
                 icon: Icons.account_balance,
                 validator: (value) => Validators.validateItemName(
                   value,
@@ -518,7 +504,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
               _buildTextField(
                 controller: _quantityController,
                 label: context.l10n.quantityLabel,
-                hint: 'e.g. 1.0',
+                hint: context.l10n.quantityHint,
                 icon: Icons.numbers,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,

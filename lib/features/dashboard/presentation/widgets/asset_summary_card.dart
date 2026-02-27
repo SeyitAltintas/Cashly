@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
+import '../controllers/dashboard_controller.dart';
 
 /// Varlık Özeti Kartı Widget'ı
 /// Toplam varlık değerini gösterir
@@ -23,6 +25,8 @@ class AssetSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isObscured = context.select((DashboardController c) => c.isObscured);
+
     return AnimatedCard(
       delay: 400,
       child: Container(
@@ -59,7 +63,7 @@ class AssetSummaryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  CurrencyFormatter.format(totalAssets),
+                  CurrencyFormatter.format(totalAssets, isObscured: isObscured),
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

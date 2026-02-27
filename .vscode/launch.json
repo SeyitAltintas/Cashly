@@ -1,14 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": "Vanlı",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "deviceId": "4837c5a9",
-            "cwd": "${workspaceFolder}"
-        },
+        
         {
             "name": "Redmi Note 10 Pro",
             "request": "launch",

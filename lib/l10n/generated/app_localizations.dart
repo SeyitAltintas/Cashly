@@ -2003,7 +2003,7 @@ abstract class AppLocalizations {
   /// No description provided for @limitAmount.
   ///
   /// In tr, this message translates to:
-  /// **'{amount} ₺ limit'**
+  /// **'{amount} limit'**
   String limitAmount(String amount);
 
   /// No description provided for @nDays.
@@ -6947,6 +6947,54 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Yakut'**
   String get frameRuby;
+
+  /// No description provided for @assetNameHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Örn. Gram Altın'**
+  String get assetNameHint;
+
+  /// No description provided for @customCategoryNameHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Örn. Antika Saat'**
+  String get customCategoryNameHint;
+
+  /// No description provided for @stockNameHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Örn. THYAO, SASA'**
+  String get stockNameHint;
+
+  /// No description provided for @customCurrencyHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Örn. SEK, NOK'**
+  String get customCurrencyHint;
+
+  /// No description provided for @customCryptoHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Örn. DOGE, SHIB'**
+  String get customCryptoHint;
+
+  /// No description provided for @bankNameHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Örn. Garanti, Ziraat'**
+  String get bankNameHint;
+
+  /// No description provided for @quantityHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Örn. 1.0'**
+  String get quantityHint;
+
+  /// No description provided for @quickCurrencyChangeInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'İpucu: Anasayfadaki Toplam Bakiye tutarının üzerine dokunarak da para birimleri arasında hızlıca geçiş yapabilirsiniz.'**
+  String get quickCurrencyChangeInfo;
 }
 
 class _AppLocalizationsDelegate

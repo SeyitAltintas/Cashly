@@ -5,11 +5,24 @@ import 'package:cashly/features/payment_methods/data/models/payment_method_model
 import 'package:cashly/core/services/currency_service.dart';
 import 'package:get_it/get_it.dart';
 
+class MockCurrencyService extends CurrencyService {
+  String _mockCurrentCurrency = 'TRY';
+
+  @override
+  String get currentCurrency => _mockCurrentCurrency;
+
+  @override
+  Future<void> setCurrency(String currencyCode) async {
+    _mockCurrentCurrency = currencyCode;
+    notifyListeners();
+  }
+}
+
 void main() {
   setUpAll(() {
     if (!GetIt.instance.isRegistered<CurrencyService>()) {
       GetIt.instance.registerLazySingleton<CurrencyService>(
-        () => CurrencyService(),
+        () => MockCurrencyService(),
       );
     }
   });
@@ -118,5 +131,42 @@ void main() {
         expect(controller.totalCreditDebt, equals(1500.0));
       },
     );
+
+    test('CurrencyService değiştiğinde DashboardController kendini yeniler', () async {
+      // Bir listener oluşturup Controller'ı dinleyelim
+      bool wasNotified = false;
+      controller.addListener(() {
+        wasNotified = true;
+      });
+
+      // Bakiye set edelim
+      controller.setOdemeYontemleri([
+        PaymentMethod(
+          id: '1',
+          name: 'Nakit',
+          type: 'nakit',
+          balance: 100.0,
+          createdAt: DateTime.now(),
+        ),
+      ]);
+      wasNotified =
+          false; // setOdemeYontemleri ataması ile notify çalışır, sıfırlayalım
+
+      final currencyService = GetIt.instance<CurrencyService>();
+      // "setCurrency" asenkron çalıştığı için beklemeliyiz
+      await currencyService.setCurrency('USD');
+
+      // CurrencyService'in kendi notify logic'i çalıştı. DashboardController da bunu duymuş olmalı.
+      expect(
+        wasNotified,
+        isTrue,
+        reason:
+            'DashboardController, CurrencyService deki değişikliği dinleyip refresh atmalı',
+      );
+
+      // Test sonrası eski dövize (TRY) çekelim ki diğer testleri (varsa) bozmasın
+      await currencyService.setCurrency('TRY');
+      controller.dispose(); // Listener'ı silsin bellek temizlensin
+    });
   });
 }
