@@ -1832,6 +1832,18 @@ abstract class AppLocalizations {
   /// **'Geçen Ay'**
   String get lastMonth;
 
+  /// No description provided for @last3Months.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son 3 Ay'**
+  String get last3Months;
+
+  /// No description provided for @last6Months.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son 6 Ay'**
+  String get last6Months;
+
   /// No description provided for @thisYear.
   ///
   /// In tr, this message translates to:

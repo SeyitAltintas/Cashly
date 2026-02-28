@@ -19,5 +19,4 @@ export 'presentation/pages/profile/profile_settings_page.dart';
 export 'presentation/pages/finance/expense_settings_page.dart';
 export 'presentation/pages/finance/category_budget_page.dart';
 export 'presentation/pages/finance/recurring_transactions_page.dart';
-export 'presentation/pages/finance/transfer_settings_page.dart';
 export 'presentation/pages/support/about_support_page.dart';

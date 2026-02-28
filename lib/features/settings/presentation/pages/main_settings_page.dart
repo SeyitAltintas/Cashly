@@ -9,7 +9,6 @@ import 'voice/voice_assistant_page.dart';
 import 'appearance/haptic_settings_page.dart';
 import 'notifications/notification_settings_page.dart';
 import 'finance/expense_settings_page.dart';
-import 'finance/transfer_settings_page.dart';
 import 'finance/currency_settings_page.dart';
 import '../state/main_settings_state.dart';
 
@@ -217,24 +216,6 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => GelirlerAyarlariSayfasi(
-                    userId: widget.authController.currentUser!.id,
-                  ),
-                ),
-              );
-              if (result == true) _mainState.needsRefresh = true;
-            },
-          ),
-          const SettingsDivider(),
-          SettingsTile(
-            icon: Icons.swap_horiz_rounded,
-            iconColor: Colors.cyan,
-            title: context.l10n.moneyTransfers,
-            subtitle: context.l10n.moneyTransfersSubtitle,
-            onTap: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TransferSettingsPage(
                     userId: widget.authController.currentUser!.id,
                   ),
                 ),

@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cashly/core/services/locale_manager.dart';
 import 'package:cashly/core/services/haptic_service.dart';
-import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/l10n/generated/app_localizations.dart';
 
-class LanguageSettingsPage extends StatelessWidget {
+class LanguageSettingsPage extends StatefulWidget {
   const LanguageSettingsPage({super.key});
+
+  @override
+  State<LanguageSettingsPage> createState() => _LanguageSettingsPageState();
+}
+
+class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
+  bool _isChanging = false;
 
   @override
   Widget build(BuildContext context) {
@@ -95,16 +101,12 @@ class LanguageSettingsPage extends StatelessWidget {
                         locale: locale,
                         isSelected: isSelected,
                         onTap: () async {
-                          if (!isSelected) {
+                          if (!isSelected && !_isChanging) {
+                            setState(() => _isChanging = true);
                             await HapticService.lightImpact();
                             await localeManager.setLocale(locale);
-                            if (context.mounted) {
-                              AppSnackBar.success(
-                                context,
-                                lookupAppLocalizations(
-                                  locale,
-                                ).languageChangeRestart,
-                              );
+                            if (mounted) {
+                              setState(() => _isChanging = false);
                             }
                           }
                         },

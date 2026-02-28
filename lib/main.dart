@@ -93,6 +93,7 @@ class CashlyApp extends StatefulWidget {
 
 class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
   AuthController? _authController;
+  AppRouter? _appRouter;
   bool _isInitialized = false;
   String? _initError;
 
@@ -160,6 +161,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
       if (mounted) {
         setState(() {
           _authController = authController;
+          _appRouter = AppRouter(authController: authController);
           _isInitialized = true;
         });
       }
@@ -274,7 +276,6 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
         }
 
         // Başarılı başlatma - go_router ile deklaratif navigasyon
-        final appRouter = AppRouter(authController: _authController!);
         return MaterialApp.router(
           title: 'Cashly',
           debugShowCheckedModeBanner: false,
@@ -287,7 +288,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
           ],
           supportedLocales: LocaleManager.supportedLocales,
           theme: themeManager.currentTheme,
-          routerConfig: appRouter.router,
+          routerConfig: _appRouter!.router,
         );
       },
     );

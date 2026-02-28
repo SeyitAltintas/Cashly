@@ -33,6 +33,7 @@ class DashboardPage extends StatefulWidget {
   final StreakData streakData;
   final List<Transfer> transferler;
   final Map<String, double>? categoryBudgets;
+  final VoidCallback? onAssetsPressed;
 
   const DashboardPage({
     super.key,
@@ -46,6 +47,7 @@ class DashboardPage extends StatefulWidget {
     required this.streakData,
     required this.transferler,
     this.categoryBudgets,
+    this.onAssetsPressed,
   });
 
   @override
@@ -112,41 +114,41 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _controller,
-      child: const Scaffold(
+      child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Hoş Geldin Bölümü
-                _GreetingSection(),
-                SizedBox(height: 24),
+                const _GreetingSection(),
+                const SizedBox(height: 24),
 
                 // Toplam Bakiye Kartı
-                _BalanceSection(),
-                SizedBox(height: 12),
+                const _BalanceSection(),
+                const SizedBox(height: 12),
 
                 // Kredi Kartı Borcu
-                _CreditDebtSection(),
-                SizedBox(height: 20),
+                const _CreditDebtSection(),
+                const SizedBox(height: 20),
 
                 // Bu Ay Özeti
-                _MonthlySummarySection(),
-                SizedBox(height: 20),
+                const _MonthlySummarySection(),
+                const SizedBox(height: 20),
 
                 // Bütçe Durumu
-                _BudgetStatusSection(),
-                SizedBox(height: 20),
+                const _BudgetStatusSection(),
+                const SizedBox(height: 20),
 
                 // Varlık Özeti
-                _AssetSummarySection(),
-                SizedBox(height: 20),
+                _AssetSummarySection(onTap: widget.onAssetsPressed),
+                const SizedBox(height: 20),
 
                 // Son İşlemler
-                _RecentTransactionsSection(),
-                SizedBox(height: 20),
+                const _RecentTransactionsSection(),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -283,11 +285,14 @@ class _BudgetStatusSection extends StatelessWidget {
 }
 
 class _AssetSummarySection extends StatelessWidget {
-  const _AssetSummarySection();
+  final VoidCallback? onTap;
+
+  const _AssetSummarySection({this.onTap});
+
   @override
   Widget build(BuildContext context) {
     final assets = context.select((DashboardController c) => c.totalAssets);
-    return AssetSummaryCard(totalAssets: assets);
+    return AssetSummaryCard(totalAssets: assets, onTap: onTap);
   }
 }
 

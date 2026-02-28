@@ -33,18 +33,18 @@ class SettingsRepositoryImpl implements SettingsRepository {
     try {
       final value = _box.get(
         'transfer_gecmisi_limiti_$userId',
-        defaultValue: 20,
+        defaultValue: 30,
       );
       // Edge case: Negatif değerleri (Tümü=-1 hariç) varsayılana çevir
       if (value is int) {
-        if (value < -1) return 20;
-        if (value == 0) return 5; // 0 geçersiz, minimum 5
+        if (value < -1) return 30;
+        if (value == 0) return 30;
         return value;
       }
-      return 20; // Varsayılan
+      return 30; // Varsayılan (30 Gün = Bu Ay)
     } catch (e) {
       debugPrint('Transfer geçmişi limiti okunurken hata: $e');
-      return 20; // Hata durumunda varsayılan
+      return 30; // Hata durumunda varsayılan
     }
   }
 
@@ -53,8 +53,8 @@ class SettingsRepositoryImpl implements SettingsRepository {
     try {
       // Edge case: Geçersiz değerleri düzelt
       int safeLimit = limit;
-      if (limit < -1) safeLimit = 20;
-      if (limit == 0) safeLimit = 5;
+      if (limit < -1) safeLimit = 30;
+      if (limit == 0) safeLimit = 30;
 
       await _box.put('transfer_gecmisi_limiti_$userId', safeLimit);
     } catch (e) {

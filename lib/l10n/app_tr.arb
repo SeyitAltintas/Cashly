@@ -317,6 +317,8 @@
   "thisWeek": "Bu Hafta",
   "thisMonth": "Bu Ay",
   "lastMonth": "Geçen Ay",
+  "last3Months": "Son 3 Ay",
+  "last6Months": "Son 6 Ay",
   "thisYear": "Bu Yıl",
   "customRange": "Özel Aralık",
   "selectDate": "Tarih Seçin",

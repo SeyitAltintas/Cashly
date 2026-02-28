@@ -10,8 +10,9 @@ import '../controllers/dashboard_controller.dart';
 /// Toplam varlık değerini gösterir
 class AssetSummaryCard extends StatelessWidget {
   final double totalAssets;
+  final VoidCallback? onTap;
 
-  const AssetSummaryCard({super.key, required this.totalAssets});
+  const AssetSummaryCard({super.key, required this.totalAssets, this.onTap});
 
   /// Varlık listesinden toplam değeri hesaplar
   static double calculateTotalAssetValue(List<Asset> varliklar) {
@@ -29,62 +30,68 @@ class AssetSummaryCard extends StatelessWidget {
 
     return AnimatedCard(
       delay: 400,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.blue.shade900.withValues(alpha: 0.3),
-              Colors.blue.shade700.withValues(alpha: 0.15),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: Colors.blue.shade600.withValues(alpha: 0.4),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.totalAsset,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  CurrencyFormatter.format(totalAssets, isObscured: isObscured),
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade400,
-                  ),
-                ),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.blue.shade900.withValues(alpha: 0.3),
+                Colors.blue.shade700.withValues(alpha: 0.15),
               ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade600.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                Icons.diamond_outlined,
-                color: Colors.blue.shade400,
-                size: 28,
-              ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.blue.shade600.withValues(alpha: 0.4),
             ),
-          ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.totalAsset,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    CurrencyFormatter.format(
+                      totalAssets,
+                      isObscured: isObscured,
+                    ),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue.shade400,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade600.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.diamond_outlined,
+                  color: Colors.blue.shade400,
+                  size: 28,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

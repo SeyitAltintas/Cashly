@@ -891,6 +891,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get lastMonth => 'Geçen Ay';
 
   @override
+  String get last3Months => 'Son 3 Ay';
+
+  @override
+  String get last6Months => 'Son 6 Ay';
+
+  @override
   String get thisYear => 'Bu Yıl';
 
   @override

@@ -891,6 +891,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lastMonth => 'Last Month';
 
   @override
+  String get last3Months => 'Last 3 Months';
+
+  @override
+  String get last6Months => 'Last 6 Months';
+
+  @override
   String get thisYear => 'This Year';
 
   @override

@@ -441,7 +441,7 @@ class _TransferPageState extends State<TransferPage> {
       ..sort((a, b) => b.date.compareTo(a.date));
 
     // Ayarlardan limit değerini oku
-    int historyLimit = 20; // Varsayılan
+    int historyLimit = 30; // Varsayılan 30 Gün (Bu Ay)
     if (widget.userId != null) {
       try {
         historyLimit = getIt<SettingsRepository>().getTransferHistoryLimit(
@@ -452,10 +452,27 @@ class _TransferPageState extends State<TransferPage> {
       }
     }
 
-    // -1 ise tümünü göster, değilse limit kadar
-    final recentTransfers = historyLimit == -1
-        ? sortedTransfers
-        : sortedTransfers.take(historyLimit).toList();
+    // Eski limit değeri farklı geldiyse 30'a (Bu Ay) ayarla
+    if (![7, 30, 90, 180, 365, -1].contains(historyLimit)) {
+      historyLimit = 30;
+    }
+
+    // Seçilen tarihe göre filtrele
+    List<Transfer> recentTransfers;
+    if (historyLimit == -1) {
+      recentTransfers = sortedTransfers;
+    } else {
+      final now = DateTime.now();
+      // Yalnızca seçilen gün sayısı kadar geriye git,
+      final thresholdDate = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: historyLimit));
+      recentTransfers = sortedTransfers
+          .where((t) => t.date.isAfter(thresholdDate))
+          .toList();
+    }
 
     // Bekleyen, başarısız ve tamamlanan transferleri ayır
     final pendingTransfers = recentTransfers
@@ -488,6 +505,9 @@ class _TransferPageState extends State<TransferPage> {
                 color: textColor,
               ),
             ),
+            const Spacer(),
+            if (widget.userId != null)
+              _buildHistoryLimitSelector(textColor, isDark, historyLimit),
           ],
         ),
         const SizedBox(height: 16),
@@ -1202,6 +1222,108 @@ class _TransferPageState extends State<TransferPage> {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildHistoryLimitSelector(
+    Color textColor,
+    bool isDark,
+    int currentLimit,
+  ) {
+    if (widget.userId == null) return const SizedBox.shrink();
+
+    final limits = [7, 30, 90, 180, 365];
+    if (!limits.contains(currentLimit) && currentLimit != -1) {
+      currentLimit = 30;
+    }
+
+    String getLimitLabel(int limit) {
+      switch (limit) {
+        case 7:
+          return context.l10n.thisWeek;
+        case 30:
+          return context.l10n.thisMonth;
+        case 90:
+          return context.l10n.last3Months;
+        case 180:
+          return context.l10n.last6Months;
+        case 365:
+          return context.l10n.thisYear;
+        case -1:
+          return context.l10n.allTransactions;
+        default:
+          return context.l10n.thisMonth;
+      }
+    }
+
+    return PopupMenuButton<int>(
+      initialValue: currentLimit,
+      tooltip: '',
+      color: Theme.of(context).colorScheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      onSelected: (int value) async {
+        if (value != currentLimit) {
+          HapticService.selectionClick();
+          await getIt<SettingsRepository>().saveTransferHistoryLimit(
+            widget.userId!,
+            value,
+          );
+          if (mounted) setState(() {});
+        }
+      },
+      itemBuilder: (BuildContext context) {
+        return limits.map((limit) {
+          final isSelected = limit == currentLimit;
+          return PopupMenuItem<int>(
+            value: limit,
+            height: 40,
+            child: Row(
+              children: [
+                Text(
+                  getLimitLabel(limit),
+                  style: TextStyle(
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                    color: isSelected ? _primaryColor : textColor,
+                    fontSize: 14,
+                  ),
+                ),
+                if (isSelected) ...[
+                  const Spacer(),
+                  Icon(Icons.check, color: _primaryColor, size: 18),
+                ],
+              ],
+            ),
+          );
+        }).toList();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: textColor.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              getLimitLabel(currentLimit),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: textColor.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 16,
+              color: textColor.withValues(alpha: 0.7),
+            ),
+          ],
+        ),
       ),
     );
   }

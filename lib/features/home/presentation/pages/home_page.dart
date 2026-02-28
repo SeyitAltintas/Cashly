@@ -452,6 +452,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         streakData: _streakData,
         transferler: tumTransferler,
         categoryBudgets: categoryBudgets,
+        onAssetsPressed: _navigateToAssets,
       ),
     );
   }

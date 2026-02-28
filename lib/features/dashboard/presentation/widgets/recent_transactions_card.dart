@@ -6,6 +6,7 @@ import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
+import '../../../../core/services/currency_service.dart';
 import '../controllers/dashboard_controller.dart';
 
 /// Son İşlemler Kartı Widget'ı
@@ -42,16 +43,26 @@ class RecentTransactionsCard extends StatelessWidget {
   /// Son işlemleri birleştirir ve sıralar
   List<Map<String, dynamic>> _getRecentTransactions(BuildContext context) {
     List<Map<String, dynamic>> transactions = [];
+    final currencyService = context.read<CurrencyService>();
+    final targetCurrency = currencyService.currentCurrency;
 
     // Harcamalar ekle
     for (var h in harcamalar) {
       if (h['silindi'] == true) continue;
       DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
       if (tarih != null) {
+        final rawAmount = (h['tutar'] as num?)?.toDouble() ?? 0;
+        final paraBirimi = h['paraBirimi']?.toString() ?? 'TRY';
+        final amount = currencyService.convert(
+          rawAmount,
+          paraBirimi,
+          targetCurrency,
+        );
+
         transactions.add({
           'type': 'expense',
           'name': context.translateDbName(h['isim'] ?? 'Expense'),
-          'amount': (h['tutar'] as num?)?.toDouble() ?? 0,
+          'amount': amount,
           'date': tarih,
           'category': context.translateDbName(h['kategori'] ?? 'Diğer'),
         });
@@ -61,10 +72,15 @@ class RecentTransactionsCard extends StatelessWidget {
     // Gelirler ekle
     for (var g in gelirler) {
       if (g.isDeleted) continue;
+      final amount = currencyService.convert(
+        g.amount,
+        g.paraBirimi,
+        targetCurrency,
+      );
       transactions.add({
         'type': 'income',
         'name': context.translateDbName(g.name),
-        'amount': g.amount,
+        'amount': amount,
         'date': g.date,
         'category': context.translateDbName(g.category),
       });
@@ -78,10 +94,15 @@ class RecentTransactionsCard extends StatelessWidget {
       final toName = context.translateDbName(
         _getPaymentMethodName(t.toAccountId),
       );
+      final amount = currencyService.convert(
+        t.amount,
+        t.paraBirimi,
+        targetCurrency,
+      );
       transactions.add({
         'type': 'transfer',
         'name': '$fromName → $toName',
-        'amount': t.amount,
+        'amount': amount,
         'date': t.date,
         'category': 'Transfer',
       });
