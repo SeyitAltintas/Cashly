@@ -1,7 +1,4 @@
-# Cashly Flutter Enterprise CI/CD Pipeline
-# Tüm dal itmelerinde ve Main/Develop çekme isteklerindeki kalite kontrol
-
-name: Flutter CI
+name: Cashly Flutter Enterprise CI/CD Pipeline
 
 on:
   push:
@@ -44,7 +41,7 @@ jobs:
           fail_ci_if_error: false
         continue-on-error: true
 
-  # 2. Aşama: Derleme (Sadece commit "build" içeriyorsa)
+  # 2. Aşama: Derleme (Sadece commit mesajı "build" içeriyorsa)
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
@@ -58,9 +55,9 @@ jobs:
       - name: ☕ Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin' # Zulu yerine Temurin (Adoptium) daha yaygın ama Zulu da olur.
           java-version: '17'
-          cache: 'gradle' # 🚀 Gradle için build sürelerini %50 hızlandırır
+          cache: 'gradle'
 
       - name: ⚙️ Setup Flutter
         uses: subosito/flutter-action@v2
@@ -81,13 +78,12 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 14
 
-  # 3. Aşama: Maliyetli Emülatör E2E Testleri
+  # 3. Aşama: E2E Testleri (Linux + KVM ile Optimize Edildi)
   integration-test:
     name: E2E Lifecycle & UI Tests
-    runs-on: macos-14 # 🚀 GitHub Intel Mac'leri kapattığı için ARM M1 (macos-14) sunucularını kullanıyoruz.
+    runs-on: ubuntu-latest # 🚀 macOS yerine Linux (KVM destekli) daha hızlı ve ucuz.
     needs: analyze-and-test
-    # ⚠️ Emülatörler GitHub Actions için çok uzun sürüyor (Özellikle 55 E2E testi için)
-    # Bu adımı sadece PR'larda (Main'e giden kararlı kodlarda) VEYA commit "run-e2e" diyorsa çalıştır.
+    # Sadece PR'larda veya özel tetikleyici varsa çalışır.
     if: github.event_name == 'pull_request' || contains(github.event.head_commit.message, 'run-e2e')
     
     steps:
@@ -97,7 +93,7 @@ jobs:
       - name: ☕ Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
           cache: 'gradle'
 
@@ -110,15 +106,17 @@ jobs:
       - name: 📦 Install Dependencies
         run: flutter pub get
 
-      - name: 🤖 Android Emulator Runner & 55 Flow Test
+      - name: 🤖 Android Emulator Runner
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 33
-          target: google_apis
-          arch: arm64-v8a # 🚀 M1 (macos-14) işlemcisi olduğu için performans ve çalışabilirlik adına arm64-v8a kullanıyoruz.
+          api-level: 29 # 🚀 API 33 yerine 29 (Android 10) çok daha stabil ve hafiftir.
+          target: default # 🚀 Google Play servislerine muhtaç değilsen 'default' kullan.
+          arch: x86_64 # 🚀 Linux runner için x86_64 şart.
+          profile: Nexus 6 # Düşük çözünürlüklü cihaz = daha az GPU yükü.
           ram-size: 2048M
-          disk-size: 8G
-          emulator-boot-timeout: 1200
+          disk-size: 4G # 8GB CI için çok fazla olabilir, 4GB genelde yeter.
+          emulator-boot-timeout: 600 # 10 dakika boot için yeterli, fazlası israf.
+          disable-animations: true # 🚀 Testlerin "flaky" olmasını engeller.
           script: flutter test integration_test/ --timeout 3600s
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -verbose -show-kernel
-
+          # -gpu swiftshader_indirect: Headless modda grafik hatalarını önler.
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
