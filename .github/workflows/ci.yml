@@ -84,7 +84,7 @@ jobs:
   # 3. Aşama: Maliyetli Emülatör E2E Testleri
   integration-test:
     name: E2E Lifecycle & UI Tests
-    runs-on: ubuntu-latest
+    runs-on: macos-latest # 🚀 GitHub Ubuntu runner'larında KVM (Nested Virtualization) desteklenmez. Hız için macOS ARM64 kullanılmalı!
     needs: analyze-and-test
     # ⚠️ Emülatörler GitHub Actions için çok uzun sürüyor (Özellikle 55 E2E testi için)
     # Bu adımı sadece PR'larda (Main'e giden kararlı kodlarda) VEYA commit "run-e2e" diyorsa çalıştır.
@@ -99,7 +99,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
-          cache: 'gradle' # 🚀 Emülatörde çalışırken build time kurtarır
+          cache: 'gradle'
 
       - name: ⚙️ Setup Flutter SDK
         uses: subosito/flutter-action@v2
@@ -113,13 +113,12 @@ jobs:
       - name: 🤖 Android Emulator Runner & 55 Flow Test
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 31
+          api-level: 33 # 🚀 ARM64 için genelde API 33 en stabil ve hızlı olanıdır
           target: google_apis
-          arch: x86_64
+          arch: arm64-v8a # 🚀 Cihaz macOS M1 (Apple Silicon) olduğu için arm64-v8a mimarisi HVF (Hypervisor Framework) kullanır ve aşırı hızlı çalışır!
           ram-size: 2048M
           disk-size: 8G
           emulator-boot-timeout: 900
-          # TEST TIMEOUT'u 55 dosya için genişletiyoruz (3600 sn = 60 dakika teorik koruma)
           script: flutter test integration_test/ --timeout 3600s
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
 
