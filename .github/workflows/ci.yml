@@ -84,7 +84,7 @@ jobs:
   # 3. Aşama: Maliyetli Emülatör E2E Testleri
   integration-test:
     name: E2E Lifecycle & UI Tests
-    runs-on: macos-latest # 🚀 GitHub Ubuntu runner'larında KVM (Nested Virtualization) desteklenmez. Hız için macOS ARM64 kullanılmalı!
+    runs-on: macos-13 # 🚀 GitHub kararlı Intel MacOS sunucularında (macos-13) HAXM/Donanım hızlandırması desteklenir. M1 (macos-14) sunucularında şu an HVF sorunları var!
     needs: analyze-and-test
     # ⚠️ Emülatörler GitHub Actions için çok uzun sürüyor (Özellikle 55 E2E testi için)
     # Bu adımı sadece PR'larda (Main'e giden kararlı kodlarda) VEYA commit "run-e2e" diyorsa çalıştır.
@@ -113,12 +113,12 @@ jobs:
       - name: 🤖 Android Emulator Runner & 55 Flow Test
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 33 # 🚀 ARM64 için genelde API 33 en stabil ve hızlı olanıdır
+          api-level: 33
           target: google_apis
-          arch: arm64-v8a # 🚀 Cihaz macOS M1 (Apple Silicon) olduğu için arm64-v8a mimarisi HVF (Hypervisor Framework) kullanır ve aşırı hızlı çalışır!
+          arch: x86_64 # 🚀 macos-13 (Intel) işlemcisi olduğu için x86_64 kullanarak HAXM/KVM donanım hızlandırmasından faydalanılır.
           ram-size: 2048M
           disk-size: 8G
-          emulator-boot-timeout: 900
+          emulator-boot-timeout: 1200
           script: flutter test integration_test/ --timeout 3600s
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -verbose -show-kernel
 
