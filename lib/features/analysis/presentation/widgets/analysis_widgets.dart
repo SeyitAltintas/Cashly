@@ -103,64 +103,88 @@ class LegendItem extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            width: 16,
-            height: 16,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 16,
-                  ),
-                ),
-                if (hasLimit)
-                  Text(
-                    'Limit: ${CurrencyFormatter.format(budgetLimit!)} (${usagePercent.toStringAsFixed(0)}%)',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isOverBudget
-                          ? Colors.red.shade400
-                          : usagePercent > 80
-                          ? Colors.orange.shade400
-                          : Colors.green.shade400,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          Row(
             children: [
-              Text(
-                CurrencyFormatter.format(value),
-                style: TextStyle(
-                  color: isOverBudget
-                      ? Colors.red.shade400
-                      : Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 16,
+                      ),
+                    ),
+                    if (hasLimit)
+                      Text(
+                        'Limit: ${CurrencyFormatter.format(budgetLimit!)} (${usagePercent.toStringAsFixed(0)}%)',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: isOverBudget
+                              ? Colors.red.shade400
+                              : usagePercent > 80
+                              ? Colors.orange.shade400
+                              : Colors.green.shade400,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                  ],
                 ),
               ),
-              Text(
-                "%${(value / total * 100).toStringAsFixed(1)}",
-                style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.54),
-                  fontSize: 12,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    CurrencyFormatter.format(value),
+                    style: TextStyle(
+                      color: isOverBudget
+                          ? Colors.red.shade400
+                          : Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    "%${(value / total * 100).toStringAsFixed(1)}",
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.54),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
+          if (hasLimit) ...[
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: (value / budgetLimit!).clamp(0.0, 1.0),
+                minHeight: 6,
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.1),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  isOverBudget
+                      ? Colors.red.shade400
+                      : usagePercent > 80
+                      ? Colors.orange.shade400
+                      : Colors.green.shade400,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
