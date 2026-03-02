@@ -245,19 +245,6 @@ class LegendItem extends StatelessWidget {
                           fontSize: 16,
                         ),
                       ),
-                      if (hasLimit)
-                        Text(
-                          'Limit: ${CurrencyFormatter.format(budgetLimit!)} (${usagePercent.toStringAsFixed(0)}%)',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: isOverBudget
-                                ? Colors.red.shade400
-                                : usagePercent > 80
-                                ? Colors.orange.shade400
-                                : Colors.green.shade400,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
                     ],
                   ),
                 ),
@@ -286,26 +273,49 @@ class LegendItem extends StatelessWidget {
                 ),
               ],
             ),
-            if (hasLimit) ...[
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: (value / budgetLimit!).clamp(0.0, 1.0),
-                  minHeight: 6,
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.1),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    isOverBudget
-                        ? Colors.red.shade400
-                        : usagePercent > 80
-                        ? Colors.orange.shade400
-                        : Colors.green.shade400,
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: hasLimit
+                          ? (value / budgetLimit!).clamp(0.0, 1.0)
+                          : (total > 0 ? (value / total).clamp(0.0, 1.0) : 0.0),
+                      minHeight: 6,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.1),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        hasLimit
+                            ? (isOverBudget
+                                  ? Colors.red.shade400
+                                  : usagePercent > 80
+                                  ? Colors.orange.shade400
+                                  : Colors.green.shade400)
+                            : color, // Limit yoksa kendi kategorisinin rengini kullan
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
+                if (hasLimit) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    '${usagePercent.toStringAsFixed(0)}%',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: isOverBudget
+                          ? Colors.red.shade400
+                          : usagePercent > 80
+                          ? Colors.orange.shade400
+                          : Colors.green.shade400,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ],
         ),
       ),
