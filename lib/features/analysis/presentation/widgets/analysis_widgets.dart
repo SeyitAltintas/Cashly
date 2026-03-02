@@ -192,6 +192,7 @@ class LegendItem extends StatelessWidget {
   final double total;
   final double? budgetLimit; // Opsiyonel limit
   final IconData? icon; // Kategori için isteğe bağlı ikon
+  final VoidCallback? onTap;
 
   const LegendItem({
     super.key,
@@ -201,6 +202,7 @@ class LegendItem extends StatelessWidget {
     required this.total,
     this.budgetLimit,
     this.icon,
+    this.onTap,
   });
 
   @override
@@ -209,99 +211,103 @@ class LegendItem extends StatelessWidget {
     final isOverBudget = hasLimit && value > budgetLimit!;
     final usagePercent = hasLimit ? (value / budgetLimit! * 100) : 0.0;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: color.withValues(alpha: 0.3)),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: color.withValues(alpha: 0.3)),
+                  ),
+                  child: Icon(
+                    icon ?? Icons.category_outlined,
+                    color: color,
+                    size: 20,
+                  ),
                 ),
-                child: Icon(
-                  icon ?? Icons.category_outlined,
-                  color: color,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 16,
-                      ),
-                    ),
-                    if (hasLimit)
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        'Limit: ${CurrencyFormatter.format(budgetLimit!)} (${usagePercent.toStringAsFixed(0)}%)',
+                        title,
                         style: TextStyle(
-                          fontSize: 11,
-                          color: isOverBudget
-                              ? Colors.red.shade400
-                              : usagePercent > 80
-                              ? Colors.orange.shade400
-                              : Colors.green.shade400,
-                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
                         ),
                       ),
+                      if (hasLimit)
+                        Text(
+                          'Limit: ${CurrencyFormatter.format(budgetLimit!)} (${usagePercent.toStringAsFixed(0)}%)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isOverBudget
+                                ? Colors.red.shade400
+                                : usagePercent > 80
+                                ? Colors.orange.shade400
+                                : Colors.green.shade400,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      CurrencyFormatter.format(value),
+                      style: TextStyle(
+                        color: isOverBudget
+                            ? Colors.red.shade400
+                            : Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      "%${(value / total * 100).toStringAsFixed(1)}",
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.54),
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    CurrencyFormatter.format(value),
-                    style: TextStyle(
-                      color: isOverBudget
-                          ? Colors.red.shade400
-                          : Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.bold,
-                    ),
+              ],
+            ),
+            if (hasLimit) ...[
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: (value / budgetLimit!).clamp(0.0, 1.0),
+                  minHeight: 6,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    isOverBudget
+                        ? Colors.red.shade400
+                        : usagePercent > 80
+                        ? Colors.orange.shade400
+                        : Colors.green.shade400,
                   ),
-                  Text(
-                    "%${(value / total * 100).toStringAsFixed(1)}",
-                    style: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.54),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          if (hasLimit) ...[
-            const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: (value / budgetLimit!).clamp(0.0, 1.0),
-                minHeight: 6,
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.1),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  isOverBudget
-                      ? Colors.red.shade400
-                      : usagePercent > 80
-                      ? Colors.orange.shade400
-                      : Colors.green.shade400,
                 ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

@@ -422,6 +422,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                     totals,
                     totalAmount,
                     expenseColors,
+                    isExpense: true,
                     categoryBudgets: widget.categoryBudgets,
                     categoryIcons: widget.expenseCategoryIcons,
                   ),
@@ -496,6 +497,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                     totals,
                     totalIncome,
                     incomeColors,
+                    isExpense: false,
                     categoryIcons: widget.incomeCategoryIcons,
                   ),
                 ]
@@ -552,6 +554,8 @@ class _AnalysisPageState extends State<AnalysisPage>
                     totals,
                     totalValue,
                     assetColors,
+                    isExpense:
+                        false, // Varlıklar harcama değildir, detaya girmeyeceğiz fakat parametre gerekli.
                   ),
                 ]
                 .animate(interval: 50.ms)
@@ -895,12 +899,191 @@ class _AnalysisPageState extends State<AnalysisPage>
     );
   }
 
+  /// Kategori Detaylarını Bottom Sheet ile Gösterir
+  void _showCategoryDetails(
+    BuildContext context,
+    String categoryKey,
+    bool isExpense,
+  ) {
+    // Sadece Harcama ve Gelirler için detay gösterebiliriz
+    final items = isExpense
+        ? _controller.monthlyExpenses
+              .where(
+                (e) => (e['kategori']?.toString() ?? 'Diğer') == categoryKey,
+              )
+              .toList()
+        : _controller.monthlyIncomes
+              .where(
+                (g) =>
+                    (g.category.isEmpty ? 'Diğer' : g.category) == categoryKey,
+              )
+              .toList();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          height:
+              MediaQuery.of(context).size.height *
+              0.75, // Yüksekliği ekrana göre ayarladık
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              // Çekme çubuğu
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  height: 4,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              // Başlık
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      context.translateDbName(categoryKey),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              // İçerik Listesi
+              Expanded(
+                child: items.isEmpty
+                    ? Center(
+                        child: Text(
+                          'Detay bulunamadı.',
+                          style: TextStyle(color: Colors.grey.shade500),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          dynamic item = items[index];
+                          String title = '';
+                          if (isExpense) {
+                            title = item['aciklama']?.toString() ?? '';
+                          } else {
+                            title = item.description ?? '';
+                          }
+                          double amount = isExpense
+                              ? ((item['tutar'] as num?)?.toDouble() ?? 0.0)
+                              : item.amount;
+                          String currency = isExpense
+                              ? (item['paraBirimi']?.toString() ?? 'TRY')
+                              : item.paraBirimi;
+
+                          // Tarih formatı için
+                          DateTime date = isExpense
+                              ? (DateTime.tryParse(item['tarih'].toString()) ??
+                                    DateTime.now())
+                              : item.date;
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        (isExpense ? Colors.red : Colors.green)
+                                            .withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    isExpense
+                                        ? Icons.shopping_bag_outlined
+                                        : Icons.account_balance_wallet_outlined,
+                                    color: isExpense
+                                        ? Colors.red.shade400
+                                        : Colors.green.shade400,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        title.isNotEmpty
+                                            ? title
+                                            : context.translateDbName(
+                                                categoryKey,
+                                              ), // Açıklama yoksa kategori adını yaz
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 15,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        "${date.day}.${date.month}.${date.year}",
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  "${isExpense ? '-' : '+'}${CurrencyFormatter.format(amount, currency: currency)}",
+                                  style: TextStyle(
+                                    color: isExpense
+                                        ? Colors.red.shade400
+                                        : Colors.green.shade400,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   /// Kategori listesi widget'ı
   Widget _buildCategoryList(
     String title,
     Map<String, double> totals,
     double total,
     List<Color> colors, {
+    required bool isExpense,
     Map<String, double>? categoryBudgets,
     Map<String, IconData>? categoryIcons,
   }) {
@@ -925,6 +1108,12 @@ class _AnalysisPageState extends State<AnalysisPage>
             total: total,
             budgetLimit: categoryBudgets?[e.key],
             icon: categoryIcons?[e.key],
+            onTap: () {
+              if (title != context.l10n.assetTypes) {
+                // Varlıklarda detay yok (opsiyonel)
+                _showCategoryDetails(context, e.key, isExpense);
+              }
+            },
           );
         }),
       ],
