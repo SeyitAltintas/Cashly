@@ -404,6 +404,17 @@ class _AnalysisPageState extends State<AnalysisPage>
                     topCategoryAmount: CurrencyFormatter.format(topAmount),
                   ),
                   const SizedBox(height: 24),
+                  TrendInsightCard(
+                    title: 'Aylık Gidişat',
+                    currentAmount: totalAmount,
+                    previousAmount: _controller.previousMonthTotalExpense,
+                    isExpense: true,
+                    increaseText:
+                        'Geçen aya göre %{percent} daha fazla harcadınız.',
+                    decreaseText:
+                        'Geçen aya göre %{percent} daha az harcadınız. Harika!',
+                    noChangeText: 'Geçen ayla aynı oranda harcıyorsunuz.',
+                  ),
                   _buildChartArea(sections, totals, totalAmount, expenseColors),
                   const SizedBox(height: 24),
                   _buildCategoryList(
@@ -467,6 +478,17 @@ class _AnalysisPageState extends State<AnalysisPage>
                     topCategoryAmount: CurrencyFormatter.format(topAmount),
                   ),
                   const SizedBox(height: 24),
+                  TrendInsightCard(
+                    title: 'Aylık Gidişat',
+                    currentAmount: totalIncome,
+                    previousAmount: _controller.previousMonthTotalIncome,
+                    isExpense: false,
+                    increaseText:
+                        'Geçen aya göre %{percent} daha fazla kazandınız. Harika!',
+                    decreaseText:
+                        'Geçen aya göre %{percent} daha az kazandınız.',
+                    noChangeText: 'Geçen ayla aynı oranda kazanıyorsunuz.',
+                  ),
                   _buildChartArea(sections, totals, totalIncome, incomeColors),
                   const SizedBox(height: 24),
                   _buildCategoryList(

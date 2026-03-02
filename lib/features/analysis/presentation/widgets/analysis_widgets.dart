@@ -77,6 +77,112 @@ class AnalysisEmptyState extends StatelessWidget {
   }
 }
 
+/// Akıllı Trend ve Kıyaslama Kartı
+/// Önceki aya göre kıyaslama yapar ve gösterir.
+class TrendInsightCard extends StatelessWidget {
+  final double currentAmount;
+  final double previousAmount;
+  final String title;
+  final bool isExpense;
+  final String increaseText;
+  final String decreaseText;
+  final String noChangeText;
+
+  const TrendInsightCard({
+    super.key,
+    required this.currentAmount,
+    required this.previousAmount,
+    required this.title,
+    this.isExpense = true,
+    required this.increaseText,
+    required this.decreaseText,
+    required this.noChangeText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (previousAmount == 0) {
+      return const SizedBox.shrink(); // Geçen aydan veri yoksa gösterme
+    }
+
+    final double diff = currentAmount - previousAmount;
+    final double percent = (diff / previousAmount).abs() * 100;
+
+    // Yön tespiti
+    final bool isIncreased = diff > 0;
+    final bool isDecreased = diff < 0;
+
+    // Renk ve ikonlar harcama/gelir durumuna göre değişir
+    // Harcama artarsa kötü (kırmızı), Gelir artarsa iyi (yeşil)
+    Color iconColor = Colors.grey;
+    IconData icon = Icons.trending_flat;
+    String message = noChangeText;
+
+    if (isIncreased) {
+      iconColor = isExpense ? Colors.red.shade400 : Colors.green.shade400;
+      icon = Icons.trending_up;
+      message = increaseText.replaceAll(
+        '{percent}',
+        percent.toStringAsFixed(1),
+      );
+    } else if (isDecreased) {
+      iconColor = isExpense ? Colors.green.shade400 : Colors.red.shade400;
+      icon = Icons.trending_down;
+      message = decreaseText.replaceAll(
+        '{percent}',
+        percent.toStringAsFixed(1),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: iconColor.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: iconColor),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Kategori Legend Item Widget'ı
 /// Pasta grafiği altında kategori listesi için kullanılır
 class LegendItem extends StatelessWidget {

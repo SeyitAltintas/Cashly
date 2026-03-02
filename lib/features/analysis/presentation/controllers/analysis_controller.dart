@@ -117,6 +117,25 @@ class AnalysisController extends ChangeNotifier {
     });
   }
 
+  /// Bir önceki ayın toplam harcaması
+  double get previousMonthTotalExpense {
+    final cur = getIt<CurrencyService>();
+    final prevMonth = DateTime(_secilenAy.year, _secilenAy.month - 1);
+
+    final prevHarcamalar = _harcamalar.where((h) {
+      if (h['silindi'] == true) return false;
+      DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
+      if (tarih == null) return false;
+      return tarih.year == prevMonth.year && tarih.month == prevMonth.month;
+    });
+
+    return prevHarcamalar.fold(0.0, (sum, h) {
+      final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
+      final pb = h['paraBirimi']?.toString() ?? 'TRY';
+      return sum + cur.convert(tutar, pb, cur.currentCurrency);
+    });
+  }
+
   /// Kategori bazlı harcama toplamları
   Map<String, double> get expenseCategoryTotals {
     final cur = getIt<CurrencyService>();
@@ -167,6 +186,21 @@ class AnalysisController extends ChangeNotifier {
   double get totalMonthlyIncome {
     final cur = getIt<CurrencyService>();
     return monthlyIncomes.fold(0.0, (sum, g) {
+      return sum + cur.convert(g.amount, g.paraBirimi, cur.currentCurrency);
+    });
+  }
+
+  /// Bir önceki ayın toplam geliri
+  double get previousMonthTotalIncome {
+    final cur = getIt<CurrencyService>();
+    final prevMonth = DateTime(_secilenAy.year, _secilenAy.month - 1);
+
+    final prevGelirler = _gelirler.where((g) {
+      if (g.isDeleted) return false;
+      return g.date.year == prevMonth.year && g.date.month == prevMonth.month;
+    });
+
+    return prevGelirler.fold(0.0, (sum, g) {
       return sum + cur.convert(g.amount, g.paraBirimi, cur.currentCurrency);
     });
   }
