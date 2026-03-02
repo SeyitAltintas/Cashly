@@ -109,8 +109,11 @@ class TrendInsightCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (previousAmount == 0) {
-      return const SizedBox.shrink(); // Geçen aydan veri yoksa gösterme
+    final bool hasPreviousData = previousAmount > 0;
+
+    // Geçen aydan veri yoksa ve top kategoriler de verilmemişse hiçbir şey gösterme
+    if (!hasPreviousData && topCategoryLabel == null) {
+      return const SizedBox.shrink();
     }
 
     final double diff = currentAmount - previousAmount;
@@ -142,6 +145,11 @@ class TrendInsightCard extends StatelessWidget {
       );
     }
 
+    if (!hasPreviousData) {
+      message = "Geçen aya ait veri yok";
+      iconColor = Colors.grey;
+    }
+
     return Container(
       height: 120, // Liste kaydırma için sabit yükseklik
       margin: const EdgeInsets.only(bottom: 24),
@@ -149,61 +157,63 @@ class TrendInsightCard extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         clipBehavior: Clip.none,
         children: [
-          // Gidişat Kartı (Mevcut olan)
-          Container(
-            width:
-                MediaQuery.of(context).size.width * 0.75, // Ekranın %75'i kadar
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surface.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: iconColor.withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+          // Gidişat Kartı (Mevcut olan - Yalnızca öneki ay varsa gösterilir)
+          if (hasPreviousData) ...[
+            Container(
+              width:
+                  MediaQuery.of(context).size.width *
+                  0.75, // Ekranın %75'i kadar
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.surface.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: iconColor.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: iconColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, color: iconColor),
                   ),
-                  child: Icon(icon, color: iconColor),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        message,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.w500,
+                        const SizedBox(height: 4),
+                        Text(
+                          message,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            const SizedBox(width: 16),
+          ],
 
-          const SizedBox(width: 16),
-
-          // En Çok Harcama / Gelir Kartı (Sağa Kaydırılabilir)
+          // En Çok Harcama / Gelir Kartı (Sağa Kaydırılabilir veya Tek)
           if (topCategoryLabel != null &&
               topCategoryName != null &&
               topCategoryAmount != null)
