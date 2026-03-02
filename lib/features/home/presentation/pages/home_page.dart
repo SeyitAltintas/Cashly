@@ -540,6 +540,8 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                 widget.authController.currentUser?.name ?? context.l10n.user,
             paymentMethods: tumOdemeYontemleri,
             categoryBudgets: categoryBudgets,
+            expenseCategoryIcons: kategoriIkonlari,
+            incomeCategoryIcons: gelirKategoriIkonlari,
           ),
         ),
       ),

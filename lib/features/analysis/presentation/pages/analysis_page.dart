@@ -21,6 +21,8 @@ class AnalysisPage extends StatefulWidget {
   final String userId;
   final String userName;
   final Map<String, double>? categoryBudgets; // Kategori bütçeleri
+  final Map<String, IconData>? expenseCategoryIcons;
+  final Map<String, IconData>? incomeCategoryIcons;
 
   const AnalysisPage({
     super.key,
@@ -32,6 +34,8 @@ class AnalysisPage extends StatefulWidget {
     required this.userName,
     this.paymentMethods = const [],
     this.categoryBudgets,
+    this.expenseCategoryIcons,
+    this.incomeCategoryIcons,
   });
 
   @override
@@ -323,7 +327,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             primaryColor: Colors.red.shade300,
             icon: Icons.trending_down,
             topCategoryLabel: context.l10n.highestExpense,
-            topCategoryName: topCategory,
+            topCategoryName: context.translateDbName(topCategory),
             topCategoryAmount: CurrencyFormatter.format(topAmount),
           ),
           const SizedBox(height: 24),
@@ -335,6 +339,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             totalAmount,
             expenseColors,
             categoryBudgets: widget.categoryBudgets,
+            categoryIcons: widget.expenseCategoryIcons,
           ),
           if (widget.paymentMethods.isNotEmpty) ...[
             const SizedBox(height: 32),
@@ -377,7 +382,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             primaryColor: Colors.green.shade300,
             icon: Icons.trending_up,
             topCategoryLabel: context.l10n.highestIncome,
-            topCategoryName: topCategory,
+            topCategoryName: context.translateDbName(topCategory),
             topCategoryAmount: CurrencyFormatter.format(topAmount),
           ),
           const SizedBox(height: 24),
@@ -388,6 +393,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             totals,
             totalIncome,
             incomeColors,
+            categoryIcons: widget.incomeCategoryIcons,
           ),
         ],
       ),
@@ -424,7 +430,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             primaryColor: Colors.blue.shade600,
             icon: Icons.diamond_outlined,
             topCategoryLabel: context.l10n.mostValuableType,
-            topCategoryName: topType,
+            topCategoryName: context.translateDbName(topType),
             topCategoryAmount: CurrencyFormatter.format(topAmount),
           ),
           const SizedBox(height: 24),
@@ -572,6 +578,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     double total,
     List<Color> colors, {
     Map<String, double>? categoryBudgets,
+    Map<String, IconData>? categoryIcons,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -588,11 +595,12 @@ class _AnalysisPageState extends State<AnalysisPage>
         ...totals.entries.toList().map((e) {
           final color = _getColorForCategory(e.key, colors);
           return LegendItem(
-            title: e.key,
+            title: context.translateDbName(e.key),
             value: e.value,
             color: color,
             total: total,
             budgetLimit: categoryBudgets?[e.key],
+            icon: categoryIcons?[e.key],
           );
         }),
       ],

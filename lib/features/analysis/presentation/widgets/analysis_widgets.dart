@@ -85,6 +85,7 @@ class LegendItem extends StatelessWidget {
   final Color color;
   final double total;
   final double? budgetLimit; // Opsiyonel limit
+  final IconData? icon; // Kategori için isteğe bağlı ikon
 
   const LegendItem({
     super.key,
@@ -93,6 +94,7 @@ class LegendItem extends StatelessWidget {
     required this.color,
     required this.total,
     this.budgetLimit,
+    this.icon,
   });
 
   @override
@@ -108,11 +110,19 @@ class LegendItem extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: color.withValues(alpha: 0.3)),
+                ),
+                child: Icon(
+                  icon ?? Icons.category_outlined,
+                  color: color,
+                  size: 20,
+                ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
