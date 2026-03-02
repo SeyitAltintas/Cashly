@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
+import '../../../income/data/models/income_model.dart';
+import '../../../assets/data/models/asset_model.dart';
 
 /// Analysis Controller
 /// Analiz sayfası için ChangeNotifier tabanlı state yönetimi sağlar.
@@ -44,11 +46,11 @@ class AnalysisController extends ChangeNotifier {
   List<Map<String, dynamic>> _harcamalar = [];
   List<Map<String, dynamic>> get harcamalar => _harcamalar;
 
-  List<Map<String, dynamic>> _gelirler = [];
-  List<Map<String, dynamic>> get gelirler => _gelirler;
+  List<Income> _gelirler = [];
+  List<Income> get gelirler => _gelirler;
 
-  List<Map<String, dynamic>> _varliklar = [];
-  List<Map<String, dynamic>> get varliklar => _varliklar;
+  List<Asset> _varliklar = [];
+  List<Asset> get varliklar => _varliklar;
 
   List<PaymentMethod> _odemeYontemleri = [];
   List<PaymentMethod> get odemeYontemleri => _odemeYontemleri;
@@ -64,8 +66,8 @@ class AnalysisController extends ChangeNotifier {
   /// Verileri güncelle
   void updateData({
     required List<Map<String, dynamic>> harcamalar,
-    required List<Map<String, dynamic>> gelirler,
-    required List<Map<String, dynamic>> varliklar,
+    required List<Income> gelirler,
+    required List<Asset> varliklar,
     required List<PaymentMethod> odemeYontemleri,
     required DateTime secilenAy,
   }) {
@@ -154,17 +156,10 @@ class AnalysisController extends ChangeNotifier {
   // ===== GELİR ANALİZİ =====
 
   /// Seçilen aya göre gelirleri filtrele
-  List<Map<String, dynamic>> get monthlyIncomes {
+  List<Income> get monthlyIncomes {
     return _gelirler.where((g) {
-      if (g['isDeleted'] == true) return false;
-      DateTime? tarih;
-      if (g['date'] is DateTime) {
-        tarih = g['date'] as DateTime;
-      } else {
-        tarih = DateTime.tryParse(g['date'].toString());
-      }
-      if (tarih == null) return false;
-      return tarih.year == _secilenAy.year && tarih.month == _secilenAy.month;
+      if (g.isDeleted) return false;
+      return g.date.year == _secilenAy.year && g.date.month == _secilenAy.month;
     }).toList();
   }
 
@@ -172,9 +167,7 @@ class AnalysisController extends ChangeNotifier {
   double get totalMonthlyIncome {
     final cur = getIt<CurrencyService>();
     return monthlyIncomes.fold(0.0, (sum, g) {
-      final amount = (g['amount'] as num?)?.toDouble() ?? 0;
-      final pb = g['paraBirimi']?.toString() ?? 'TRY';
-      return sum + cur.convert(amount, pb, cur.currentCurrency);
+      return sum + cur.convert(g.amount, g.paraBirimi, cur.currentCurrency);
     });
   }
 
@@ -183,11 +176,10 @@ class AnalysisController extends ChangeNotifier {
     final cur = getIt<CurrencyService>();
     final totals = <String, double>{};
     for (var g in monthlyIncomes) {
-      final kategori = g['category']?.toString() ?? 'Diğer';
-      final tutar = (g['amount'] as num?)?.toDouble() ?? 0;
-      final pb = g['paraBirimi']?.toString() ?? 'TRY';
+      final kategori = g.category.isEmpty ? 'Diğer' : g.category;
       totals[kategori] =
-          (totals[kategori] ?? 0) + cur.convert(tutar, pb, cur.currentCurrency);
+          (totals[kategori] ?? 0) +
+          cur.convert(g.amount, g.paraBirimi, cur.currentCurrency);
     }
     return totals;
   }
@@ -203,20 +195,15 @@ class AnalysisController extends ChangeNotifier {
   // ===== VARLIK ANALİZİ =====
 
   /// Aktif varlıkları getir
-  List<Map<String, dynamic>> get activeAssets {
-    return _varliklar.where((v) => v['isDeleted'] != true).toList();
+  List<Asset> get activeAssets {
+    return _varliklar.where((v) => !v.isDeleted).toList();
   }
 
   /// Toplam varlık değeri
   double get totalAssetValue {
     final cur = getIt<CurrencyService>();
     return activeAssets.fold(0.0, (sum, v) {
-      final am =
-          (v['amount'] as num?)?.toDouble() ??
-          0; // Wait, is it amount or currentValue? The previous code used currentValue but later it might be amount. Wait, let me check the previous code for activeAssets
-      final val = (v['currentValue'] as num?)?.toDouble() ?? am;
-      final pb = v['paraBirimi']?.toString() ?? 'TRY';
-      return sum + cur.convert(val, pb, cur.currentCurrency);
+      return sum + cur.convert(v.amount, v.paraBirimi, cur.currentCurrency);
     });
   }
 
@@ -225,12 +212,10 @@ class AnalysisController extends ChangeNotifier {
     final cur = getIt<CurrencyService>();
     final totals = <String, double>{};
     for (var v in activeAssets) {
-      final tip = v['type']?.toString() ?? 'Diğer';
-      final am = (v['amount'] as num?)?.toDouble() ?? 0;
-      final deger = (v['currentValue'] as num?)?.toDouble() ?? am;
-      final pb = v['paraBirimi']?.toString() ?? 'TRY';
+      final tip = v.type ?? 'Diğer';
       totals[tip] =
-          (totals[tip] ?? 0) + cur.convert(deger, pb, cur.currentCurrency);
+          (totals[tip] ?? 0) +
+          cur.convert(v.amount, v.paraBirimi, cur.currentCurrency);
     }
     return totals;
   }

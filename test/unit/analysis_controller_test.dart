@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/features/analysis/presentation/controllers/analysis_controller.dart';
 import 'package:cashly/core/services/currency_service.dart';
+import 'package:cashly/features/income/data/models/income_model.dart';
 import 'package:get_it/get_it.dart';
 
 void main() {
@@ -63,16 +64,24 @@ void main() {
       controller.updateData(
         harcamalar: [],
         gelirler: [
-          {
-            'category': 'Maaş',
-            'amount': 10000.0,
-            'date': DateTime(2025, 1, 10).toIso8601String(),
-          },
-          {
-            'category': 'Yatırım',
-            'amount': 2000.0,
-            'date': DateTime(2025, 1, 12).toIso8601String(),
-          },
+          Income(
+            id: '1',
+            name: 'Maaş Geliri',
+            category: 'Maaş',
+            amount: 10000.0,
+            date: DateTime(2025, 1, 10),
+            paraBirimi: 'TRY',
+            isDeleted: false,
+          ),
+          Income(
+            id: '2',
+            name: 'Hisse Senedi',
+            category: 'Yatırım',
+            amount: 2000.0,
+            date: DateTime(2025, 1, 12),
+            paraBirimi: 'TRY',
+            isDeleted: false,
+          ),
         ],
         varliklar: [],
         odemeYontemleri: [],

@@ -3,7 +3,6 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/di/injection_container.dart';
-import '../../../../core/services/currency_service.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -91,12 +90,41 @@ class _AnalysisPageState extends State<AnalysisPage>
     _controller = getIt<AnalysisController>();
     _controller.addListener(_onStateChanged);
     _tabController = TabController(length: 3, vsync: this);
+
+    // Verileri Controller'a push et
+    _controller.updateData(
+      harcamalar: widget.expenses,
+      gelirler: widget.incomes,
+      varliklar: widget.assets,
+      odemeYontemleri: widget.paymentMethods,
+      secilenAy: widget.selectedDate,
+    );
+
     // Sekme değiştiğinde touchedIndex'i sıfırla
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         _controller.resetTouchedIndex();
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(AnalysisPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.expenses != oldWidget.expenses ||
+        widget.incomes != oldWidget.incomes ||
+        widget.assets != oldWidget.assets ||
+        widget.paymentMethods != oldWidget.paymentMethods ||
+        widget.selectedDate != oldWidget.selectedDate) {
+      // Değişen yeni verileri kontrolcüye bildir
+      _controller.updateData(
+        harcamalar: widget.expenses,
+        gelirler: widget.incomes,
+        varliklar: widget.assets,
+        odemeYontemleri: widget.paymentMethods,
+        secilenAy: widget.selectedDate,
+      );
+    }
   }
 
   void _onStateChanged() {
@@ -265,13 +293,7 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   /// Harcama Analizi
   Widget _buildExpenseAnalysis() {
-    final monthlyExpenses = widget.expenses.where((h) {
-      if (h['silindi'] == true) return false;
-      DateTime date =
-          DateTime.tryParse(h['tarih'].toString()) ?? DateTime.now();
-      return date.year == widget.selectedDate.year &&
-          date.month == widget.selectedDate.month;
-    }).toList();
+    final monthlyExpenses = _controller.monthlyExpenses;
 
     if (monthlyExpenses.isEmpty) {
       return AnalysisEmptyState(
@@ -282,9 +304,12 @@ class _AnalysisPageState extends State<AnalysisPage>
       );
     }
 
-    // Kategori toplamları
-    final (totals, totalAmount) = _calculateCategoryTotals(monthlyExpenses);
-    final (topCategory, topAmount) = _findTopCategory(totals);
+    final totals = _controller.expenseCategoryTotals;
+    final totalAmount = _controller.totalMonthlyExpense;
+    final topEntry = _controller.topExpenseCategory;
+    final topCategory = topEntry?.key ?? '';
+    final topAmount = topEntry?.value ?? 0.0;
+
     final sections = _buildPieChartSections(totals, totalAmount, expenseColors);
 
     return SingleChildScrollView(
@@ -313,7 +338,7 @@ class _AnalysisPageState extends State<AnalysisPage>
           ),
           if (widget.paymentMethods.isNotEmpty) ...[
             const SizedBox(height: 32),
-            _buildPaymentMethodDistribution(monthlyExpenses),
+            _buildPaymentMethodDistribution(),
           ],
         ],
       ),
@@ -322,11 +347,7 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   /// Gelir Analizi
   Widget _buildIncomeAnalysis() {
-    final monthlyIncomes = widget.incomes.where((i) {
-      if (i.isDeleted) return false;
-      return i.date.year == widget.selectedDate.year &&
-          i.date.month == widget.selectedDate.month;
-    }).toList();
+    final monthlyIncomes = _controller.monthlyIncomes;
 
     if (monthlyIncomes.isEmpty) {
       return AnalysisEmptyState(
@@ -337,21 +358,12 @@ class _AnalysisPageState extends State<AnalysisPage>
       );
     }
 
-    // Kategori toplamları
-    Map<String, double> totals = {};
-    double totalIncome = 0;
-    final cur = getIt<CurrencyService>();
-    for (var income in monthlyIncomes) {
-      double amount = cur.convert(
-        income.amount,
-        income.paraBirimi,
-        cur.currentCurrency,
-      );
-      totals[income.category] = (totals[income.category] ?? 0) + amount;
-      totalIncome += amount;
-    }
+    final totals = _controller.incomeCategoryTotals;
+    final totalIncome = _controller.totalMonthlyIncome;
+    final topEntry = _controller.topIncomeCategory;
+    final topCategory = topEntry?.key ?? '';
+    final topAmount = topEntry?.value ?? 0.0;
 
-    final (topCategory, topAmount) = _findTopCategory(totals);
     final sections = _buildPieChartSections(totals, totalIncome, incomeColors);
 
     return SingleChildScrollView(
@@ -384,7 +396,7 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   /// Varlık Analizi
   Widget _buildAssetAnalysis() {
-    final activeAssets = widget.assets.where((a) => !a.isDeleted).toList();
+    final activeAssets = _controller.activeAssets;
 
     if (activeAssets.isEmpty) {
       return AnalysisEmptyState(
@@ -395,22 +407,10 @@ class _AnalysisPageState extends State<AnalysisPage>
       );
     }
 
-    Map<String, double> totals = {};
-    double totalValue = 0;
-    final cur = getIt<CurrencyService>();
-    for (var asset in activeAssets) {
-      String type = asset.type ?? context.l10n.otherStr;
-      // amount zaten toplam değeri içeriyor, quantity ile çarpmaya gerek yok
-      double value = cur.convert(
-        asset.amount,
-        asset.paraBirimi,
-        cur.currentCurrency,
-      );
-      totals[type] = (totals[type] ?? 0) + value;
-      totalValue += value;
-    }
-
+    final totals = _controller.assetTypeTotals;
+    final totalValue = _controller.totalAssetValue;
     final (topType, topAmount) = _findTopCategory(totals);
+
     final sections = _buildPieChartSections(totals, totalValue, assetColors);
 
     return SingleChildScrollView(
@@ -442,24 +442,6 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   // ========== YARDIMCI METODLAR ==========
-
-  /// Kategori toplamlarını hesaplar
-  (Map<String, double>, double) _calculateCategoryTotals(
-    List<Map<String, dynamic>> expenses,
-  ) {
-    Map<String, double> totals = {};
-    double totalAmount = 0;
-    final cur = getIt<CurrencyService>();
-    for (var h in expenses) {
-      String cat = context.translateDbName(h['kategori'] ?? 'Diğer');
-      double t = double.tryParse(h['tutar'].toString()) ?? 0;
-      String pb = h['paraBirimi']?.toString() ?? 'TRY';
-      double amount = cur.convert(t, pb, cur.currentCurrency);
-      totals[cat] = (totals[cat] ?? 0) + amount;
-      totalAmount += amount;
-    }
-    return (totals, totalAmount);
-  }
 
   /// En yüksek kategoriyi bulur
   (String, double) _findTopCategory(Map<String, double> totals) {
@@ -607,21 +589,9 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   /// Ödeme yöntemine göre dağılım
-  Widget _buildPaymentMethodDistribution(
-    List<Map<String, dynamic>> monthlyExpenses,
-  ) {
-    Map<String, double> pmTotals = {};
-    double pmTotal = 0;
-    final cur = getIt<CurrencyService>();
-
-    for (var h in monthlyExpenses) {
-      String pmId = h['odemeYontemiId'] ?? 'unknown';
-      double t = double.tryParse(h['tutar'].toString()) ?? 0;
-      String pb = h['paraBirimi']?.toString() ?? 'TRY';
-      double amount = cur.convert(t, pb, cur.currentCurrency);
-      pmTotals[pmId] = (pmTotals[pmId] ?? 0) + amount;
-      pmTotal += amount;
-    }
+  Widget _buildPaymentMethodDistribution() {
+    final Map<String, double> pmTotals = _controller.expensePaymentMethodTotals;
+    final double pmTotal = _controller.totalMonthlyExpense;
 
     if (pmTotals.isEmpty || pmTotal == 0) return const SizedBox.shrink();
 
