@@ -3744,4 +3744,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noTransactionsForThisMonth => 'No transactions for this month';
+
+  @override
+  String get monthlyInsight => 'Monthly Insight';
+
+  @override
+  String spentMoreThanLastMonth(String percent) {
+    return 'You spent $percent% more than last month.';
+  }
+
+  @override
+  String spentLessThanLastMonth(String percent) {
+    return 'You spent $percent% less than last month. Great!';
+  }
+
+  @override
+  String get spentSameAsLastMonth =>
+      'You are spending at the same rate as last month.';
+
+  @override
+  String earnedMoreThanLastMonth(String percent) {
+    return 'You earned $percent% more than last month. Great!';
+  }
+
+  @override
+  String earnedLessThanLastMonth(String percent) {
+    return 'You earned $percent% less than last month.';
+  }
+
+  @override
+  String get earnedSameAsLastMonth =>
+      'You are earning at the same rate as last month.';
+
+  @override
+  String get noDetailsFound => 'No details found.';
 }

@@ -7031,6 +7031,54 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Bu ay için işlem bulunmuyor'**
   String get noTransactionsForThisMonth;
+
+  /// No description provided for @monthlyInsight.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık Gidişat'**
+  String get monthlyInsight;
+
+  /// No description provided for @spentMoreThanLastMonth.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçen aya göre %{percent} daha fazla harcadınız.'**
+  String spentMoreThanLastMonth(String percent);
+
+  /// No description provided for @spentLessThanLastMonth.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçen aya göre %{percent} daha az harcadınız. Harika!'**
+  String spentLessThanLastMonth(String percent);
+
+  /// No description provided for @spentSameAsLastMonth.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçen ayla aynı oranda harcıyorsunuz.'**
+  String get spentSameAsLastMonth;
+
+  /// No description provided for @earnedMoreThanLastMonth.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçen aya göre %{percent} daha fazla kazandınız. Harika!'**
+  String earnedMoreThanLastMonth(String percent);
+
+  /// No description provided for @earnedLessThanLastMonth.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçen aya göre %{percent} daha az kazandınız.'**
+  String earnedLessThanLastMonth(String percent);
+
+  /// No description provided for @earnedSameAsLastMonth.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçen ayla aynı oranda kazanıyorsunuz.'**
+  String get earnedSameAsLastMonth;
+
+  /// No description provided for @noDetailsFound.
+  ///
+  /// In tr, this message translates to:
+  /// **'Detay bulunamadı.'**
+  String get noDetailsFound;
 }
 
 class _AppLocalizationsDelegate

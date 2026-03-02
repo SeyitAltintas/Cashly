@@ -1752,5 +1752,41 @@
   "startByAddingFirstExpense": "İlk harcamanızı ekleyerek başlayın",
   "startByAddingFirstIncome": "İlk gelirinizi ekleyerek başlayın",
   "startTrackingYourAssets": "Varlıklarınızı takip etmeye başlayın",
-  "noTransactionsForThisMonth": "Bu ay için işlem bulunmuyor"
+  "noTransactionsForThisMonth": "Bu ay için işlem bulunmuyor",
+  "monthlyInsight": "Aylık Gidişat",
+  "spentMoreThanLastMonth": "Geçen aya göre %{percent} daha fazla harcadınız.",
+  "@spentMoreThanLastMonth": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "spentLessThanLastMonth": "Geçen aya göre %{percent} daha az harcadınız. Harika!",
+  "@spentLessThanLastMonth": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "spentSameAsLastMonth": "Geçen ayla aynı oranda harcıyorsunuz.",
+  "earnedMoreThanLastMonth": "Geçen aya göre %{percent} daha fazla kazandınız. Harika!",
+  "@earnedMoreThanLastMonth": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "earnedLessThanLastMonth": "Geçen aya göre %{percent} daha az kazandınız.",
+  "@earnedLessThanLastMonth": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "earnedSameAsLastMonth": "Geçen ayla aynı oranda kazanıyorsunuz.",
+  "noDetailsFound": "Detay bulunamadı."
 }

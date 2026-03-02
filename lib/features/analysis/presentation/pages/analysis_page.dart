@@ -405,15 +405,17 @@ class _AnalysisPageState extends State<AnalysisPage>
                   ),
                   const SizedBox(height: 24),
                   TrendInsightCard(
-                    title: 'Aylık Gidişat',
+                    title: context.l10n.monthlyInsight,
                     currentAmount: totalAmount,
                     previousAmount: _controller.previousMonthTotalExpense,
                     isExpense: true,
-                    increaseText:
-                        'Geçen aya göre %{percent} daha fazla harcadınız.',
-                    decreaseText:
-                        'Geçen aya göre %{percent} daha az harcadınız. Harika!',
-                    noChangeText: 'Geçen ayla aynı oranda harcıyorsunuz.',
+                    increaseText: context.l10n.spentMoreThanLastMonth(
+                      '{percent}',
+                    ),
+                    decreaseText: context.l10n.spentLessThanLastMonth(
+                      '{percent}',
+                    ),
+                    noChangeText: context.l10n.spentSameAsLastMonth,
                   ),
                   _buildChartArea(sections, totals, totalAmount, expenseColors),
                   const SizedBox(height: 24),
@@ -480,15 +482,17 @@ class _AnalysisPageState extends State<AnalysisPage>
                   ),
                   const SizedBox(height: 24),
                   TrendInsightCard(
-                    title: 'Aylık Gidişat',
+                    title: context.l10n.monthlyInsight,
                     currentAmount: totalIncome,
                     previousAmount: _controller.previousMonthTotalIncome,
                     isExpense: false,
-                    increaseText:
-                        'Geçen aya göre %{percent} daha fazla kazandınız. Harika!',
-                    decreaseText:
-                        'Geçen aya göre %{percent} daha az kazandınız.',
-                    noChangeText: 'Geçen ayla aynı oranda kazanıyorsunuz.',
+                    increaseText: context.l10n.earnedMoreThanLastMonth(
+                      '{percent}',
+                    ),
+                    decreaseText: context.l10n.earnedLessThanLastMonth(
+                      '{percent}',
+                    ),
+                    noChangeText: context.l10n.earnedSameAsLastMonth,
                   ),
                   _buildChartArea(sections, totals, totalIncome, incomeColors),
                   const SizedBox(height: 24),
@@ -975,7 +979,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                 child: items.isEmpty
                     ? Center(
                         child: Text(
-                          'Detay bulunamadı.',
+                          context.l10n.noDetailsFound,
                           style: TextStyle(color: Colors.grey.shade500),
                         ),
                       )

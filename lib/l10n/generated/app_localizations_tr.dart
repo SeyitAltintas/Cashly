@@ -3745,4 +3745,36 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get noTransactionsForThisMonth => 'Bu ay için işlem bulunmuyor';
+
+  @override
+  String get monthlyInsight => 'Aylık Gidişat';
+
+  @override
+  String spentMoreThanLastMonth(String percent) {
+    return 'Geçen aya göre %$percent daha fazla harcadınız.';
+  }
+
+  @override
+  String spentLessThanLastMonth(String percent) {
+    return 'Geçen aya göre %$percent daha az harcadınız. Harika!';
+  }
+
+  @override
+  String get spentSameAsLastMonth => 'Geçen ayla aynı oranda harcıyorsunuz.';
+
+  @override
+  String earnedMoreThanLastMonth(String percent) {
+    return 'Geçen aya göre %$percent daha fazla kazandınız. Harika!';
+  }
+
+  @override
+  String earnedLessThanLastMonth(String percent) {
+    return 'Geçen aya göre %$percent daha az kazandınız.';
+  }
+
+  @override
+  String get earnedSameAsLastMonth => 'Geçen ayla aynı oranda kazanıyorsunuz.';
+
+  @override
+  String get noDetailsFound => 'Detay bulunamadı.';
 }

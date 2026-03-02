@@ -1752,5 +1752,41 @@
   "startByAddingFirstExpense": "Start by adding your first expense",
   "startByAddingFirstIncome": "Start by adding your first income",
   "startTrackingYourAssets": "Start tracking your assets",
-  "noTransactionsForThisMonth": "No transactions for this month"
+  "noTransactionsForThisMonth": "No transactions for this month",
+  "monthlyInsight": "Monthly Insight",
+  "spentMoreThanLastMonth": "You spent {percent}% more than last month.",
+  "@spentMoreThanLastMonth": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "spentLessThanLastMonth": "You spent {percent}% less than last month. Great!",
+  "@spentLessThanLastMonth": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "spentSameAsLastMonth": "You are spending at the same rate as last month.",
+  "earnedMoreThanLastMonth": "You earned {percent}% more than last month. Great!",
+  "@earnedMoreThanLastMonth": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "earnedLessThanLastMonth": "You earned {percent}% less than last month.",
+  "@earnedLessThanLastMonth": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "earnedSameAsLastMonth": "You are earning at the same rate as last month.",
+  "noDetailsFound": "No details found."
 }
