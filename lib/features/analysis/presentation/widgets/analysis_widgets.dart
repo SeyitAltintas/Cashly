@@ -88,6 +88,11 @@ class TrendInsightCard extends StatelessWidget {
   final String decreaseText;
   final String noChangeText;
 
+  // Eklenen Yeni Alanlar (En Çok Kategoriler vs)
+  final String? topCategoryLabel;
+  final String? topCategoryName;
+  final String? topCategoryAmount;
+
   const TrendInsightCard({
     super.key,
     required this.currentAmount,
@@ -97,6 +102,9 @@ class TrendInsightCard extends StatelessWidget {
     required this.increaseText,
     required this.decreaseText,
     required this.noChangeText,
+    this.topCategoryLabel,
+    this.topCategoryName,
+    this.topCategoryAmount,
   });
 
   @override
@@ -135,48 +143,149 @@ class TrendInsightCard extends StatelessWidget {
     }
 
     return Container(
+      height: 120, // Liste kaydırma için sabit yükseklik
       margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: iconColor.withValues(alpha: 0.3)),
-      ),
-      child: Row(
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
         children: [
+          // Gidişat Kartı (Mevcut olan)
           Container(
-            padding: const EdgeInsets.all(12),
+            width:
+                MediaQuery.of(context).size.width * 0.75, // Ekranın %75'i kadar
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+              color: Theme.of(
+                context,
+              ).colorScheme.surface.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: iconColor.withValues(alpha: 0.3)),
             ),
-            child: Icon(icon, color: iconColor),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey,
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: iconColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
+                  child: Icon(icon, color: iconColor),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  message,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w500,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        message,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
+
+          const SizedBox(width: 16),
+
+          // En Çok Harcama / Gelir Kartı (Sağa Kaydırılabilir)
+          if (topCategoryLabel != null &&
+              topCategoryName != null &&
+              topCategoryAmount != null)
+            Container(
+              width:
+                  MediaQuery.of(context).size.width *
+                  0.65, // Ekranın %65'i kadar
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.surface.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color:
+                      (isExpense ? Colors.red.shade400 : Colors.green.shade400)
+                          .withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color:
+                          (isExpense
+                                  ? Colors.red.shade400
+                                  : Colors.green.shade400)
+                              .withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isExpense ? Icons.emoji_events : Icons.star,
+                      color: isExpense
+                          ? Colors.red.shade400
+                          : Colors.green.shade400,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          topCategoryLabel!,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          topCategoryName!,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          topCategoryAmount!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -330,9 +439,6 @@ class AnalysisHeaderCard extends StatelessWidget {
   final String totalAmount;
   final Color primaryColor;
   final IconData icon;
-  final String topCategoryLabel;
-  final String topCategoryName;
-  final String topCategoryAmount;
 
   const AnalysisHeaderCard({
     super.key,
@@ -340,9 +446,6 @@ class AnalysisHeaderCard extends StatelessWidget {
     required this.totalAmount,
     required this.primaryColor,
     required this.icon,
-    required this.topCategoryLabel,
-    required this.topCategoryName,
-    required this.topCategoryAmount,
   });
 
   @override
@@ -405,51 +508,6 @@ class AnalysisHeaderCard extends StatelessWidget {
                 child: Icon(icon, color: primaryColor, size: 28),
               ),
             ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surface.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  icon == Icons.trending_up ? Icons.emoji_events : Icons.star,
-                  color: primaryColor,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: RichText(
-                    text: TextSpan(
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 13,
-                      ),
-                      children: [
-                        TextSpan(text: "$topCategoryLabel: "),
-                        TextSpan(
-                          text: topCategoryName,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        TextSpan(
-                          text: " ($topCategoryAmount)",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
