@@ -276,6 +276,9 @@ class _AnalysisPageState extends State<AnalysisPage>
     if (monthlyExpenses.isEmpty) {
       return AnalysisEmptyState(
         message: context.l10n.noExpenseDataForThisMonth,
+        actionText: context.l10n.addExpense,
+        icon: Icons.receipt_long_outlined,
+        onActionPressed: () => Navigator.pop(context),
       );
     }
 
@@ -326,7 +329,12 @@ class _AnalysisPageState extends State<AnalysisPage>
     }).toList();
 
     if (monthlyIncomes.isEmpty) {
-      return AnalysisEmptyState(message: context.l10n.noIncomeDataForThisMonth);
+      return AnalysisEmptyState(
+        message: context.l10n.noIncomeDataForThisMonth,
+        actionText: context.l10n.addIncome,
+        icon: Icons.account_balance_wallet_outlined,
+        onActionPressed: () => Navigator.pop(context),
+      );
     }
 
     // Kategori toplamları
@@ -379,7 +387,12 @@ class _AnalysisPageState extends State<AnalysisPage>
     final activeAssets = widget.assets.where((a) => !a.isDeleted).toList();
 
     if (activeAssets.isEmpty) {
-      return AnalysisEmptyState(message: context.l10n.noAssetsAddedYet);
+      return AnalysisEmptyState(
+        message: context.l10n.noAssetsAddedYet,
+        actionText: context.l10n.addAsset,
+        icon: Icons.diamond_outlined,
+        onActionPressed: () => Navigator.pop(context),
+      );
     }
 
     Map<String, double> totals = {};

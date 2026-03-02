@@ -5,8 +5,17 @@ import '../../../../core/utils/currency_formatter.dart';
 /// Veri yokken gösterilir
 class AnalysisEmptyState extends StatelessWidget {
   final String message;
+  final String? actionText;
+  final VoidCallback? onActionPressed;
+  final IconData? icon;
 
-  const AnalysisEmptyState({super.key, required this.message});
+  const AnalysisEmptyState({
+    super.key,
+    required this.message,
+    this.actionText,
+    this.onActionPressed,
+    this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,23 +23,54 @@ class AnalysisEmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.bar_chart,
-            size: 80,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.12),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
               color: Theme.of(
                 context,
-              ).colorScheme.onSurface.withValues(alpha: 0.54),
-              fontSize: 16,
+              ).colorScheme.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon ?? Icons.bar_chart_rounded,
+              size: 70,
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.7),
             ),
           ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          if (actionText != null && onActionPressed != null) ...[
+            const SizedBox(height: 28),
+            FilledButton.icon(
+              onPressed: onActionPressed,
+              icon: const Icon(Icons.add_circle_outline, size: 20),
+              label: Text(actionText!),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
