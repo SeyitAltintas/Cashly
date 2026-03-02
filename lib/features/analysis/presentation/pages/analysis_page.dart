@@ -158,6 +158,7 @@ class _AnalysisPageState extends State<AnalysisPage>
           _buildAssetAnalysis(),
         ],
       ),
+      bottomNavigationBar: _buildBottomBar(context),
     );
   }
 
@@ -178,16 +179,29 @@ class _AnalysisPageState extends State<AnalysisPage>
           onPressed: _showExportSheet,
         ),
       ],
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(
-          110,
-        ), // Artırılmış yükseklik (Tabs + Month selector)
+    );
+  }
+
+  /// Alt Bar (Ay Seçici ve TabBar)
+  Widget _buildBottomBar(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildMonthSelector(context),
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              margin: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: Theme.of(
@@ -290,7 +304,10 @@ class _AnalysisPageState extends State<AnalysisPage>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: const Icon(Icons.chevron_left, color: Colors.white),
+            icon: Icon(
+              Icons.chevron_left,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             onPressed: () {
               final current = _controller.secilenAy;
               _controller.setSecilenAy(
@@ -300,18 +317,20 @@ class _AnalysisPageState extends State<AnalysisPage>
           ),
           Text(
             _formatMonthYear(_controller.secilenAy),
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.chevron_right, color: Colors.white),
+            icon: Icon(
+              Icons.chevron_right,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             onPressed: () {
               final current = _controller.secilenAy;
               final next = DateTime(current.year, current.month + 1);
-              // Geleceği seçmeyi engellemek istersek diye kontrol konulabilir, şimdilik serbest
               _controller.setSecilenAy(next);
             },
           ),
@@ -394,13 +413,6 @@ class _AnalysisPageState extends State<AnalysisPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
             [
-                  AnalysisHeaderCard(
-                    title: context.l10n.totalExpenseLabel,
-                    totalAmount: CurrencyFormatter.format(totalAmount),
-                    primaryColor: Colors.red.shade300,
-                    icon: Icons.trending_down,
-                  ),
-                  const SizedBox(height: 24),
                   TrendInsightCard(
                     title: context.l10n.monthlyInsight,
                     currentAmount: totalAmount,
@@ -471,13 +483,6 @@ class _AnalysisPageState extends State<AnalysisPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
             [
-                  AnalysisHeaderCard(
-                    title: context.l10n.totalIncomeLabel,
-                    totalAmount: CurrencyFormatter.format(totalIncome),
-                    primaryColor: Colors.green.shade300,
-                    icon: Icons.trending_up,
-                  ),
-                  const SizedBox(height: 24),
                   TrendInsightCard(
                     title: context.l10n.monthlyInsight,
                     currentAmount: totalIncome,
@@ -541,13 +546,6 @@ class _AnalysisPageState extends State<AnalysisPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
             [
-                  AnalysisHeaderCard(
-                    title: context.l10n.totalAssetLabel,
-                    totalAmount: CurrencyFormatter.format(totalValue),
-                    primaryColor: Colors.blue.shade600,
-                    icon: Icons.diamond_outlined,
-                  ),
-                  const SizedBox(height: 24),
                   // Varlıklar için önceki ay hesabımız yok. Fakat sağa kaydırılaablir kart gösterimi için boş veriyle destekleyebiliriz:
                   TrendInsightCard(
                     title: context.l10n.monthlyInsight,
