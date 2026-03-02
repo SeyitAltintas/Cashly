@@ -302,7 +302,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             topCategoryAmount: CurrencyFormatter.format(topAmount),
           ),
           const SizedBox(height: 24),
-          _buildPieChart(sections),
+          _buildPieChart(sections, totalAmount),
           const SizedBox(height: 24),
           _buildCategoryList(
             context.l10n.categoryDistribution,
@@ -369,7 +369,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             topCategoryAmount: CurrencyFormatter.format(topAmount),
           ),
           const SizedBox(height: 24),
-          _buildPieChart(sections),
+          _buildPieChart(sections, totalIncome),
           const SizedBox(height: 24),
           _buildCategoryList(
             context.l10n.incomeCategories,
@@ -428,7 +428,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             topCategoryAmount: CurrencyFormatter.format(topAmount),
           ),
           const SizedBox(height: 24),
-          _buildPieChart(sections),
+          _buildPieChart(sections, totalValue),
           const SizedBox(height: 24),
           _buildCategoryList(
             context.l10n.assetTypes,
@@ -497,9 +497,9 @@ class _AnalysisPageState extends State<AnalysisPage>
           color: color,
           value: value,
           title: '${(value / total * 100).toStringAsFixed(0)}%',
-          radius: isTouched ? 90.0 : 80.0,
+          radius: isTouched ? 35.0 : 25.0,
           titleStyle: TextStyle(
-            fontSize: isTouched ? 18.0 : 14.0,
+            fontSize: isTouched ? 14.0 : 12.0,
             fontWeight: FontWeight.bold,
             color: Colors.white,
             shadows: const [Shadow(color: Colors.black, blurRadius: 2)],
@@ -512,30 +512,61 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   /// Pasta grafiği widget'ı
-  Widget _buildPieChart(List<PieChartSectionData> sections) {
+  Widget _buildPieChart(
+    List<PieChartSectionData> sections,
+    double totalAmount,
+  ) {
     return Center(
       child: SizedBox(
-        height: 220,
-        child: PieChart(
-          PieChartData(
-            pieTouchData: PieTouchData(
-              touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                if (!event.isInterestedForInteractions ||
-                    pieTouchResponse == null ||
-                    pieTouchResponse.touchedSection == null) {
-                  _controller.setTouchedIndex(-1);
-                  return;
-                }
-                _controller.setTouchedIndex(
-                  pieTouchResponse.touchedSection!.touchedSectionIndex,
-                );
-              },
+        height: 240,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  context.l10n.total,
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  CurrencyFormatter.format(totalAmount),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            borderData: FlBorderData(show: false),
-            sectionsSpace: 2,
-            centerSpaceRadius: 40,
-            sections: sections,
-          ),
+            PieChart(
+              PieChartData(
+                pieTouchData: PieTouchData(
+                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                    if (!event.isInterestedForInteractions ||
+                        pieTouchResponse == null ||
+                        pieTouchResponse.touchedSection == null) {
+                      _controller.setTouchedIndex(-1);
+                      return;
+                    }
+                    _controller.setTouchedIndex(
+                      pieTouchResponse.touchedSection!.touchedSectionIndex,
+                    );
+                  },
+                ),
+                borderData: FlBorderData(show: false),
+                sectionsSpace: 4,
+                centerSpaceRadius: 75,
+                sections: sections,
+              ),
+            ),
+          ],
         ),
       ),
     );
