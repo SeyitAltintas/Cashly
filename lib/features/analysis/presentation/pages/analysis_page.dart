@@ -177,95 +177,165 @@ class _AnalysisPageState extends State<AnalysisPage>
         ),
       ],
       bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.5),
-              width: 1.5,
-            ),
-          ),
-          child: AnimatedBuilder(
-            animation: _tabController.animation!,
-            builder: (context, child) {
-              final double animValue = _tabController.animation!.value;
-              final int currentIndex = animValue.round();
-              final (tabColor, tabColorDark) = _getTabColors(currentIndex);
-
-              return TabBar(
-                controller: _tabController,
-                indicator: BoxDecoration(
-                  gradient: LinearGradient(colors: [tabColor, tabColorDark]),
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: tabColor.withValues(alpha: 0.4),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                dividerColor: Colors.transparent,
-                labelColor: Colors.white,
-                unselectedLabelColor: Theme.of(
+        preferredSize: const Size.fromHeight(
+          110,
+        ), // Artırılmış yükseklik (Tabs + Month selector)
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildMonthSelector(context),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Theme.of(
                   context,
-                ).colorScheme.onSurface.withValues(alpha: 0.6),
-                labelStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
+                ).colorScheme.surface.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.5),
+                  width: 1.5,
                 ),
-                unselectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 13,
-                ),
-                tabs: [
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.shopping_cart_outlined, size: 18),
-                        const SizedBox(width: 6),
-                        Text(context.l10n.expenseTab),
-                      ],
-                    ),
-                  ),
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.trending_up, size: 18),
-                        const SizedBox(width: 6),
-                        Text(context.l10n.incomeTab),
-                      ],
-                    ),
-                  ),
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.account_balance_wallet_outlined,
-                          size: 18,
+              ),
+              child: AnimatedBuilder(
+                animation: _tabController.animation!,
+                builder: (context, child) {
+                  final double animValue = _tabController.animation!.value;
+                  final int currentIndex = animValue.round();
+                  final (tabColor, tabColorDark) = _getTabColors(currentIndex);
+
+                  return TabBar(
+                    controller: _tabController,
+                    indicator: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [tabColor, tabColorDark],
+                      ),
+                      borderRadius: BorderRadius.circular(25),
+                      boxShadow: [
+                        BoxShadow(
+                          color: tabColor.withValues(alpha: 0.4),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
-                        const SizedBox(width: 6),
-                        Text(context.l10n.assetTab),
                       ],
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    dividerColor: Colors.transparent,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
+                    labelStyle: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontSize: 13,
+                    ),
+                    tabs: [
+                      Tab(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.shopping_cart_outlined, size: 18),
+                            const SizedBox(width: 6),
+                            Text(context.l10n.expenseTab),
+                          ],
+                        ),
+                      ),
+                      Tab(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.trending_up, size: 18),
+                            const SizedBox(width: 6),
+                            Text(context.l10n.incomeTab),
+                          ],
+                        ),
+                      ),
+                      Tab(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.account_balance_wallet_outlined,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(context.l10n.assetTab),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  /// Ay Değiştirici Widget'ı
+  Widget _buildMonthSelector(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left, color: Colors.white),
+            onPressed: () {
+              final current = _controller.secilenAy;
+              _controller.setSecilenAy(
+                DateTime(current.year, current.month - 1),
+              );
+            },
+          ),
+          Text(
+            _formatMonthYear(_controller.secilenAy),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right, color: Colors.white),
+            onPressed: () {
+              final current = _controller.secilenAy;
+              final next = DateTime(current.year, current.month + 1);
+              // Geleceği seçmeyi engellemek istersek diye kontrol konulabilir, şimdilik serbest
+              _controller.setSecilenAy(next);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatMonthYear(DateTime date) {
+    // Sadece ay ve yıl döndürelim
+    final months = [
+      '',
+      context.l10n.january,
+      context.l10n.february,
+      context.l10n.march,
+      context.l10n.april,
+      context.l10n.may,
+      context.l10n.june,
+      context.l10n.july,
+      context.l10n.august,
+      context.l10n.september,
+      context.l10n.october,
+      context.l10n.november,
+      context.l10n.december,
+    ];
+    return '${months[date.month]} ${date.year}';
   }
 
   /// PDF export sayfasina git
