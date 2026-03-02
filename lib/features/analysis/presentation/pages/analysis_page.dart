@@ -474,12 +474,15 @@ class _AnalysisPageState extends State<AnalysisPage>
     totals.forEach((key, value) {
       final isTouched = index == _touchedIndex;
       final color = _getColorForCategory(key, colors);
+      final percentage = (value / total * 100);
       sections.add(
         PieChartSectionData(
           color: color,
           value: value,
-          title: '${(value / total * 100).toStringAsFixed(0)}%',
+          title: '${percentage.toStringAsFixed(0)}%',
+          showTitle: percentage >= 5.0 || isTouched,
           radius: isTouched ? 35.0 : 25.0,
+          titlePositionPercentageOffset: 0.55,
           titleStyle: TextStyle(
             fontSize: isTouched ? 14.0 : 12.0,
             fontWeight: FontWeight.bold,
@@ -504,28 +507,36 @@ class _AnalysisPageState extends State<AnalysisPage>
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  context.l10n.total,
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
-                    fontSize: 14,
+            // Ortadaki yazıyı grafiğin içine taşırmamak için width ile sınırlandırıyoruz
+            SizedBox(
+              width: 130, // 75 merkez boşluk yarıçapı * 2 den biraz küçük
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    context.l10n.total,
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  CurrencyFormatter.format(totalAmount),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 4),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      CurrencyFormatter.format(totalAmount),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             PieChart(
               PieChartData(
