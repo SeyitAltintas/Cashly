@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../assets/data/models/asset_model.dart';
@@ -390,32 +391,40 @@ class _AnalysisPageState extends State<AnalysisPage>
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AnalysisHeaderCard(
-            title: context.l10n.totalExpenseLabel,
-            totalAmount: CurrencyFormatter.format(totalAmount),
-            primaryColor: Colors.red.shade300,
-            icon: Icons.trending_down,
-            topCategoryLabel: context.l10n.highestExpense,
-            topCategoryName: context.translateDbName(topCategory),
-            topCategoryAmount: CurrencyFormatter.format(topAmount),
-          ),
-          const SizedBox(height: 24),
-          _buildPieChart(sections, totalAmount),
-          const SizedBox(height: 24),
-          _buildCategoryList(
-            context.l10n.categoryDistribution,
-            totals,
-            totalAmount,
-            expenseColors,
-            categoryBudgets: widget.categoryBudgets,
-            categoryIcons: widget.expenseCategoryIcons,
-          ),
-          if (widget.paymentMethods.isNotEmpty) ...[
-            const SizedBox(height: 32),
-            _buildPaymentMethodDistribution(),
-          ],
-        ],
+        children:
+            [
+                  AnalysisHeaderCard(
+                    title: context.l10n.totalExpenseLabel,
+                    totalAmount: CurrencyFormatter.format(totalAmount),
+                    primaryColor: Colors.red.shade300,
+                    icon: Icons.trending_down,
+                    topCategoryLabel: context.l10n.highestExpense,
+                    topCategoryName: context.translateDbName(topCategory),
+                    topCategoryAmount: CurrencyFormatter.format(topAmount),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildPieChart(sections, totalAmount),
+                  const SizedBox(height: 24),
+                  _buildCategoryList(
+                    context.l10n.categoryDistribution,
+                    totals,
+                    totalAmount,
+                    expenseColors,
+                    categoryBudgets: widget.categoryBudgets,
+                    categoryIcons: widget.expenseCategoryIcons,
+                  ),
+                  if (widget.paymentMethods.isNotEmpty) ...[
+                    const SizedBox(height: 32),
+                    _buildPaymentMethodDistribution(),
+                  ],
+                ]
+                .animate(interval: 50.ms)
+                .fade(duration: 400.ms)
+                .slideY(
+                  begin: 0.1,
+                  duration: 400.ms,
+                  curve: Curves.easeOutQuad,
+                ),
       ),
     );
   }
@@ -445,27 +454,35 @@ class _AnalysisPageState extends State<AnalysisPage>
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AnalysisHeaderCard(
-            title: context.l10n.totalIncomeLabel,
-            totalAmount: CurrencyFormatter.format(totalIncome),
-            primaryColor: Colors.green.shade300,
-            icon: Icons.trending_up,
-            topCategoryLabel: context.l10n.highestIncome,
-            topCategoryName: context.translateDbName(topCategory),
-            topCategoryAmount: CurrencyFormatter.format(topAmount),
-          ),
-          const SizedBox(height: 24),
-          _buildPieChart(sections, totalIncome),
-          const SizedBox(height: 24),
-          _buildCategoryList(
-            context.l10n.incomeCategories,
-            totals,
-            totalIncome,
-            incomeColors,
-            categoryIcons: widget.incomeCategoryIcons,
-          ),
-        ],
+        children:
+            [
+                  AnalysisHeaderCard(
+                    title: context.l10n.totalIncomeLabel,
+                    totalAmount: CurrencyFormatter.format(totalIncome),
+                    primaryColor: Colors.green.shade300,
+                    icon: Icons.trending_up,
+                    topCategoryLabel: context.l10n.highestIncome,
+                    topCategoryName: context.translateDbName(topCategory),
+                    topCategoryAmount: CurrencyFormatter.format(topAmount),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildPieChart(sections, totalIncome),
+                  const SizedBox(height: 24),
+                  _buildCategoryList(
+                    context.l10n.incomeCategories,
+                    totals,
+                    totalIncome,
+                    incomeColors,
+                    categoryIcons: widget.incomeCategoryIcons,
+                  ),
+                ]
+                .animate(interval: 50.ms)
+                .fade(duration: 400.ms)
+                .slideY(
+                  begin: 0.1,
+                  duration: 400.ms,
+                  curve: Curves.easeOutQuad,
+                ),
       ),
     );
   }
@@ -493,26 +510,34 @@ class _AnalysisPageState extends State<AnalysisPage>
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AnalysisHeaderCard(
-            title: context.l10n.totalAssetLabel,
-            totalAmount: CurrencyFormatter.format(totalValue),
-            primaryColor: Colors.blue.shade600,
-            icon: Icons.diamond_outlined,
-            topCategoryLabel: context.l10n.mostValuableType,
-            topCategoryName: context.translateDbName(topType),
-            topCategoryAmount: CurrencyFormatter.format(topAmount),
-          ),
-          const SizedBox(height: 24),
-          _buildPieChart(sections, totalValue),
-          const SizedBox(height: 24),
-          _buildCategoryList(
-            context.l10n.assetTypes,
-            totals,
-            totalValue,
-            assetColors,
-          ),
-        ],
+        children:
+            [
+                  AnalysisHeaderCard(
+                    title: context.l10n.totalAssetLabel,
+                    totalAmount: CurrencyFormatter.format(totalValue),
+                    primaryColor: Colors.blue.shade600,
+                    icon: Icons.diamond_outlined,
+                    topCategoryLabel: context.l10n.mostValuableType,
+                    topCategoryName: context.translateDbName(topType),
+                    topCategoryAmount: CurrencyFormatter.format(topAmount),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildPieChart(sections, totalValue),
+                  const SizedBox(height: 24),
+                  _buildCategoryList(
+                    context.l10n.assetTypes,
+                    totals,
+                    totalValue,
+                    assetColors,
+                  ),
+                ]
+                .animate(interval: 50.ms)
+                .fade(duration: 400.ms)
+                .slideY(
+                  begin: 0.1,
+                  duration: 400.ms,
+                  curve: Curves.easeOutQuad,
+                ),
       ),
     );
   }
@@ -634,6 +659,10 @@ class _AnalysisPageState extends State<AnalysisPage>
                 centerSpaceRadius: 75,
                 sections: sections,
               ),
+            ).animate().scale(
+              duration: 500.ms,
+              curve: Curves.easeOutBack,
+              delay: 100.ms,
             ),
           ],
         ),
