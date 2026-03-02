@@ -1748,5 +1748,9 @@
   "customCryptoHint": "e.g. DOGE, SHIB",
   "bankNameHint": "e.g. N26, Revolut",
   "quantityHint": "e.g. 1.0",
-  "quickCurrencyChangeInfo": "Tip: You can also quickly switch between currencies by tapping on the Total Balance amount on the Dashboard."
+  "quickCurrencyChangeInfo": "Tip: You can also quickly switch between currencies by tapping on the Total Balance amount on the Dashboard.",
+  "startByAddingFirstExpense": "Start by adding your first expense",
+  "startByAddingFirstIncome": "Start by adding your first income",
+  "startTrackingYourAssets": "Start tracking your assets",
+  "noTransactionsForThisMonth": "No transactions for this month"
 }

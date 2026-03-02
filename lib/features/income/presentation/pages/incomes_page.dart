@@ -444,7 +444,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                                 title: context.l10n.noResultsFound,
                                 subtitle: context.l10n.tryDifferentSearchTerm,
                               )
-                            : EmptyStateWidget.noIncomes()
+                            : EmptyStateWidget.noIncomes(context)
                       : RefreshIndicator(
                           onRefresh: () async {
                             // State'i yenile

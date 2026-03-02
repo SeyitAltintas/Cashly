@@ -421,7 +421,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                                 title: context.l10n.noResultsFound,
                                 subtitle: context.l10n.tryDifferentSearchTerm,
                               )
-                            : EmptyStateWidget.noExpenses()
+                            : EmptyStateWidget.noExpenses(context)
                       : RefreshIndicator(
                           onRefresh: () async {
                             // Verileri yeniden filtrele ve göster

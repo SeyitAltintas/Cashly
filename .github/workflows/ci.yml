@@ -5,6 +5,11 @@ on:
     branches: [ main, master, develop ]
   pull_request:
     branches: [ main, master, develop ]
+  workflow_dispatch: # Manuel tetikleme için
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # 1. Aşama: Kod Kalitesi, Format ve Unit/Widget Testler
@@ -21,6 +26,7 @@ jobs:
         with:
           channel: 'stable'
           cache: true
+          flutter-version: '3.24.0' # Sabit versiyon önerilir
 
       - name: 📦 Install Dependencies
         run: flutter pub get
@@ -32,13 +38,14 @@ jobs:
         run: flutter analyze --no-fatal-infos
 
       - name: 🧪 Unit & Widget Tests
-        run: flutter test --coverage
+        run: flutter test --coverage --reporter=github
 
       - name: 🌍 Upload Test Coverage
         uses: codecov/codecov-action@v4
         with:
           file: coverage/lcov.info
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
         continue-on-error: true
 
   # 2. Aşama: Derleme (Sadece commit mesajı "build" içeriyorsa)
@@ -46,7 +53,7 @@ jobs:
     name: Build Android APK
     runs-on: ubuntu-latest
     needs: analyze-and-test
-    if: contains(github.event.head_commit.message, 'build')
+    if: contains(github.event.head_commit.message, 'build') || github.event_name == 'workflow_dispatch'
     
     steps:
       - name: 📥 Checkout Code
@@ -55,7 +62,7 @@ jobs:
       - name: ☕ Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin' # Zulu yerine Temurin (Adoptium) daha yaygın ama Zulu da olur.
+          distribution: 'temurin'
           java-version: '17'
           cache: 'gradle'
 
@@ -64,12 +71,13 @@ jobs:
         with:
           channel: 'stable'
           cache: true
+          flutter-version: '3.24.0'
 
       - name: 📦 Install Dependencies
         run: flutter pub get
 
       - name: 🚀 Build Release APK
-        run: flutter build apk --release
+        run: flutter build apk --release --no-web-init
 
       - name: 📦 Upload APK Artifact
         uses: actions/upload-artifact@v4
@@ -78,13 +86,12 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 14
 
-  # 3. Aşama: E2E Testleri (Linux + KVM ile Optimize Edildi)
+  # 3. Aşama: E2E Testleri (Tamamen Optimize Edildi)
   integration-test:
     name: E2E Lifecycle & UI Tests
-    runs-on: ubuntu-latest # 🚀 macOS yerine Linux (KVM destekli) daha hızlı ve ucuz.
+    runs-on: ubuntu-latest
     needs: analyze-and-test
-    # Sadece PR'larda veya özel tetikleyici varsa çalışır.
-    if: github.event_name == 'pull_request' || contains(github.event.head_commit.message, 'run-e2e')
+    if: github.event_name == 'pull_request' || contains(github.event.head_commit.message, 'run-e2e') || github.event_name == 'workflow_dispatch'
     
     steps:
       - name: 📥 Checkout Code
@@ -102,21 +109,101 @@ jobs:
         with:
           channel: 'stable'
           cache: true
+          flutter-version: '3.24.0'
 
       - name: 📦 Install Dependencies
         run: flutter pub get
 
-      - name: 🤖 Android Emulator Runner
+      - name: 🤖 Android Emulator Runner (E2E Tests)
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29 # 🚀 API 33 yerine 29 (Android 10) çok daha stabil ve hafiftir.
-          target: default # 🚀 Google Play servislerine muhtaç değilsen 'default' kullan.
-          arch: x86_64 # 🚀 Linux runner için x86_64 şart.
-          profile: Nexus 6 # Düşük çözünürlüklü cihaz = daha az GPU yükü.
-          ram-size: 2048M
-          disk-size: 4G # 8GB CI için çok fazla olabilir, 4GB genelde yeter.
-          emulator-boot-timeout: 600 # 10 dakika boot için yeterli, fazlası israf.
-          disable-animations: true # 🚀 Testlerin "flaky" olmasını engeller.
-          script: flutter test integration_test/ --timeout 3600s
-          # -gpu swiftshader_indirect: Headless modda grafik hatalarını önler.
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          api-level: 31 # API 29 yerine 31 (Android 12) - daha stabil
+          target: google_apis # Google Play Servislerini içerir
+          arch: x86_64 # Linux runner için zorunlu
+          profile: Nexus 6P # Orta boy cihaz
+          cores: 4 # CPU cores sınırla
+          ram-size: 2048M # RAM sınırla
+          disk-size: 4G # Disk boyutu
+          emulator-boot-timeout: 600 # 10 dakika boot süresi
+          disable-animations: true # Animasyonları devre dışı bırak (flaky testleri önler)
+          script: |
+            flutter test integration_test/ \
+              --timeout 3600s \
+              --reporter=github \
+              --verbose
+          emulator-options: |
+            -no-snapshot-save
+            -no-window
+            -gpu swiftshaker_indirect
+            -noaudio
+            -no-boot-anim
+            -camera-back none
+            -accel on
+
+      - name: 📊 Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: |
+            test-results/
+            build/
+          retention-days: 7
+
+  # 4. Aşama: Golden Tests (Opsiyonel - UI Snapshot Testleri)
+  golden-tests:
+    name: Golden Image Tests
+    runs-on: ubuntu-latest
+    needs: analyze-and-test
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          flutter-version: '3.24.0'
+
+      - name: 📦 Install Dependencies
+        run: flutter pub get
+
+      - name: 🎨 Run Golden Tests
+        run: flutter test --tags golden --update-goldens=false
+
+      - name: 📤 Upload Golden Diffs (Başarısız olursa)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-diffs
+          path: test/goldens/
+          retention-days: 7
+
+  # 5. Aşama: Status Check (Tüm Testlerin Tamamlanmasını Bekle)
+  final-status-check:
+    name: ✅ Final Status Check
+    runs-on: ubuntu-latest
+    needs: [analyze-and-test, build-android, integration-test]
+    if: always()
+    
+    steps:
+      - name: Check Job Status
+        run: |
+          if [ "${{ needs.analyze-and-test.result }}" != "success" ]; then
+            echo "❌ Code Quality & Unit Tests başarısız!"
+            exit 1
+          fi
+          
+          if [ "${{ needs.build-android.result }}" == "failure" ]; then
+            echo "⚠️ Build başarısız (tetiklenmemiş olabilir)"
+          fi
+          
+          if [ "${{ needs.integration-test.result }}" == "failure" ]; then
+            echo "❌ E2E Testleri başarısız!"
+            exit 1
+          fi
+          
+          echo "✅ Tüm görevler başarılı!"

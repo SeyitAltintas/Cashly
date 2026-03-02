@@ -1748,5 +1748,9 @@
   "customCryptoHint": "Örn. DOGE, SHIB",
   "bankNameHint": "Örn. Garanti, Ziraat",
   "quantityHint": "Örn. 1.0",
-  "quickCurrencyChangeInfo": "İpucu: Anasayfadaki Toplam Bakiye tutarının üzerine dokunarak da para birimleri arasında hızlıca geçiş yapabilirsiniz."
+  "quickCurrencyChangeInfo": "İpucu: Anasayfadaki Toplam Bakiye tutarının üzerine dokunarak da para birimleri arasında hızlıca geçiş yapabilirsiniz.",
+  "startByAddingFirstExpense": "İlk harcamanızı ekleyerek başlayın",
+  "startByAddingFirstIncome": "İlk gelirinizi ekleyerek başlayın",
+  "startTrackingYourAssets": "Varlıklarınızı takip etmeye başlayın",
+  "noTransactionsForThisMonth": "Bu ay için işlem bulunmuyor"
 }

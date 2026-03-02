@@ -7007,6 +7007,30 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'İpucu: Anasayfadaki Toplam Bakiye tutarının üzerine dokunarak da para birimleri arasında hızlıca geçiş yapabilirsiniz.'**
   String get quickCurrencyChangeInfo;
+
+  /// No description provided for @startByAddingFirstExpense.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk harcamanızı ekleyerek başlayın'**
+  String get startByAddingFirstExpense;
+
+  /// No description provided for @startByAddingFirstIncome.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk gelirinizi ekleyerek başlayın'**
+  String get startByAddingFirstIncome;
+
+  /// No description provided for @startTrackingYourAssets.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlıklarınızı takip etmeye başlayın'**
+  String get startTrackingYourAssets;
+
+  /// No description provided for @noTransactionsForThisMonth.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu ay için işlem bulunmuyor'**
+  String get noTransactionsForThisMonth;
 }
 
 class _AppLocalizationsDelegate

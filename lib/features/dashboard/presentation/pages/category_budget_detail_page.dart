@@ -22,7 +22,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Kategorileri kullanım oranına göre sırala
-    final sortedCategories = _getSortedCategories();
+    final sortedCategories = _getSortedCategories(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -54,7 +54,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
             ...sortedCategories.map((cat) => _buildCategoryCard(context, cat)),
 
             // Limitsiz kategoriler
-            if (_getUnlimitedCategories().isNotEmpty) ...[
+            if (_getUnlimitedCategories(context).isNotEmpty) ...[
               const SizedBox(height: 24),
               Text(
                 context.l10n.unlimitedCategories,
@@ -67,9 +67,9 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              ..._getUnlimitedCategories().map(
-                (cat) => _buildUnlimitedCategoryCard(context, cat),
-              ),
+              ..._getUnlimitedCategories(
+                context,
+              ).map((cat) => _buildUnlimitedCategoryCard(context, cat)),
             ],
 
             const SizedBox(height: 32),
@@ -345,12 +345,26 @@ class CategoryBudgetDetailPage extends StatelessWidget {
     );
   }
 
-  List<_CategoryData> _getSortedCategories() {
+  List<_CategoryData> _getSortedCategories(BuildContext context) {
     final categories = <_CategoryData>[];
 
+    // Normalize expenses by translated name so English and Turkish keys merge
+    final normalizedExpenses = <String, double>{};
+    for (final entry in categoryExpenses.entries) {
+      final key = context.translateDbName(entry.key);
+      normalizedExpenses[key] = (normalizedExpenses[key] ?? 0.0) + entry.value;
+    }
+
+    // Normalize budgets
+    final normalizedBudgets = <String, double>{};
     for (final entry in categoryBudgets.entries) {
+      final key = context.translateDbName(entry.key);
+      normalizedBudgets[key] = (normalizedBudgets[key] ?? 0.0) + entry.value;
+    }
+
+    for (final entry in normalizedBudgets.entries) {
       if (entry.value <= 0) continue;
-      final expense = categoryExpenses[entry.key] ?? 0.0;
+      final expense = normalizedExpenses[entry.key] ?? 0.0;
       final usage = expense / entry.value;
       categories.add(
         _CategoryData(
@@ -367,13 +381,24 @@ class CategoryBudgetDetailPage extends StatelessWidget {
     return categories;
   }
 
-  List<MapEntry<String, double>> _getUnlimitedCategories() {
+  List<MapEntry<String, double>> _getUnlimitedCategories(BuildContext context) {
     final unlimited = <MapEntry<String, double>>[];
 
+    final normalizedBudgets = <String, double>{};
+    for (final entry in categoryBudgets.entries) {
+      normalizedBudgets[context.translateDbName(entry.key)] = entry.value;
+    }
+
+    final normalizedExpenses = <String, double>{};
     for (final entry in categoryExpenses.entries) {
+      final key = context.translateDbName(entry.key);
+      normalizedExpenses[key] = (normalizedExpenses[key] ?? 0.0) + entry.value;
+    }
+
+    for (final entry in normalizedExpenses.entries) {
       final hasLimit =
-          categoryBudgets.containsKey(entry.key) &&
-          categoryBudgets[entry.key]! > 0;
+          normalizedBudgets.containsKey(entry.key) &&
+          normalizedBudgets[entry.key]! > 0;
       if (!hasLimit && entry.value > 0) {
         unlimited.add(entry);
       }

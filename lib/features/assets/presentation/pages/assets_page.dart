@@ -287,7 +287,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
               title: context.l10n.noResultsFound,
               subtitle: context.l10n.tryDifferentSearchTerm,
             )
-          : EmptyStateWidget.noAssets();
+          : EmptyStateWidget.noAssets(context);
     }
     return RefreshIndicator(
       onRefresh: () async {

@@ -3732,4 +3732,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get quickCurrencyChangeInfo =>
       'Tip: You can also quickly switch between currencies by tapping on the Total Balance amount on the Dashboard.';
+
+  @override
+  String get startByAddingFirstExpense => 'Start by adding your first expense';
+
+  @override
+  String get startByAddingFirstIncome => 'Start by adding your first income';
+
+  @override
+  String get startTrackingYourAssets => 'Start tracking your assets';
+
+  @override
+  String get noTransactionsForThisMonth => 'No transactions for this month';
 }

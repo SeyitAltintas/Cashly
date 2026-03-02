@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/services/haptic_service.dart';
+import '../../core/extensions/l10n_extensions.dart';
 
 /// Boş durum widget'ı
 /// Veri olmadığında gösterilir
@@ -99,41 +100,41 @@ class EmptyStateWidget extends StatelessWidget {
   }
 
   /// Harcama yok durumu
-  factory EmptyStateWidget.noExpenses() {
-    return const EmptyStateWidget(
+  factory EmptyStateWidget.noExpenses(BuildContext context) {
+    return EmptyStateWidget(
       icon: Icons.receipt_long_outlined,
-      title: 'Henüz harcama yok',
-      subtitle: 'İlk harcamanızı ekleyerek başlayın',
+      title: context.l10n.noExpenses,
+      subtitle: context.l10n.startByAddingFirstExpense,
       iconColor: Colors.red,
     );
   }
 
   /// Gelir yok durumu
-  factory EmptyStateWidget.noIncomes() {
-    return const EmptyStateWidget(
+  factory EmptyStateWidget.noIncomes(BuildContext context) {
+    return EmptyStateWidget(
       icon: Icons.trending_up,
-      title: 'Henüz gelir yok',
-      subtitle: 'İlk gelirinizi ekleyerek başlayın',
+      title: context.l10n.noIncomes,
+      subtitle: context.l10n.startByAddingFirstIncome,
       iconColor: Colors.green,
     );
   }
 
   /// Varlık yok durumu
-  factory EmptyStateWidget.noAssets() {
-    return const EmptyStateWidget(
+  factory EmptyStateWidget.noAssets(BuildContext context) {
+    return EmptyStateWidget(
       icon: Icons.account_balance_wallet_outlined,
-      title: 'Henüz varlık yok',
-      subtitle: 'Varlıklarınızı takip etmeye başlayın',
+      title: context.l10n.noAssets,
+      subtitle: context.l10n.startTrackingYourAssets,
       iconColor: Colors.blue,
     );
   }
 
   /// İşlem yok durumu
-  factory EmptyStateWidget.noTransactions() {
-    return const EmptyStateWidget(
+  factory EmptyStateWidget.noTransactions(BuildContext context) {
+    return EmptyStateWidget(
       icon: Icons.swap_horiz,
-      title: 'Henüz işlem yok',
-      subtitle: 'Bu ay için işlem bulunmuyor',
+      title: context.l10n.noRecentTransactions,
+      subtitle: context.l10n.noTransactionsForThisMonth,
       iconColor: Colors.orange,
     );
   }

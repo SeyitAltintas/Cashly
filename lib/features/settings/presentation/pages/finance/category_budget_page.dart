@@ -78,7 +78,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                kategori,
+                context.translateDbName(kategori),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -188,7 +188,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                 navigator.pop();
                 AppSnackBar.success(
                   context,
-                  context.l10n.limitRemoved(kategori),
+                  context.l10n.limitRemoved(context.translateDbName(kategori)),
                 );
               },
               icon: const Icon(Icons.delete_outline, size: 18),
@@ -216,7 +216,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                 AppSnackBar.success(
                   context,
                   context.l10n.limitSet(
-                    kategori,
+                    context.translateDbName(kategori),
                     _formatWithThousandSeparator(value.toStringAsFixed(0)),
                   ),
                 );
@@ -408,7 +408,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      isim,
+                                      context.translateDbName(isim),
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,

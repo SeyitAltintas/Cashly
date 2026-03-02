@@ -3733,4 +3733,16 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get quickCurrencyChangeInfo =>
       'İpucu: Anasayfadaki Toplam Bakiye tutarının üzerine dokunarak da para birimleri arasında hızlıca geçiş yapabilirsiniz.';
+
+  @override
+  String get startByAddingFirstExpense => 'İlk harcamanızı ekleyerek başlayın';
+
+  @override
+  String get startByAddingFirstIncome => 'İlk gelirinizi ekleyerek başlayın';
+
+  @override
+  String get startTrackingYourAssets => 'Varlıklarınızı takip etmeye başlayın';
+
+  @override
+  String get noTransactionsForThisMonth => 'Bu ay için işlem bulunmuyor';
 }

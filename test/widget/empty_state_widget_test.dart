@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/core/widgets/empty_state_widget.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:cashly/l10n/generated/app_localizations.dart';
 
 void main() {
   group('EmptyStateWidget Testleri', () {
@@ -48,8 +50,22 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(home: Scaffold(body: EmptyStateWidget.noExpenses())),
+        MaterialApp(
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('tr')],
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => EmptyStateWidget.noExpenses(context),
+            ),
+          ),
+        ),
       );
+      await tester.pumpAndSettle();
 
       // Widget'ın oluşturulduğunu kontrol et
       expect(find.byType(EmptyStateWidget), findsOneWidget);
@@ -65,8 +81,22 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(home: Scaffold(body: EmptyStateWidget.noIncomes())),
+        MaterialApp(
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('tr')],
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => EmptyStateWidget.noIncomes(context),
+            ),
+          ),
+        ),
       );
+      await tester.pumpAndSettle();
 
       // Gelir yok mesajı görünür mü
       expect(find.text('Henüz gelir yok'), findsOneWidget);
@@ -79,8 +109,22 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(home: Scaffold(body: EmptyStateWidget.noAssets())),
+        MaterialApp(
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('tr')],
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => EmptyStateWidget.noAssets(context),
+            ),
+          ),
+        ),
       );
+      await tester.pumpAndSettle();
 
       // Varlık yok mesajı görünür mü
       expect(find.text('Henüz varlık yok'), findsOneWidget);
@@ -96,8 +140,22 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(home: Scaffold(body: EmptyStateWidget.noTransactions())),
+        MaterialApp(
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('tr')],
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => EmptyStateWidget.noTransactions(context),
+            ),
+          ),
+        ),
       );
+      await tester.pumpAndSettle();
 
       // İşlem yok mesajı görünür mü
       expect(find.text('Henüz işlem yok'), findsOneWidget);
