@@ -47,6 +47,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late final AnalysisController _controller;
+  bool _isBarChart = false;
 
   int get _touchedIndex => _controller.touchedIndex;
 
@@ -403,7 +404,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                     topCategoryAmount: CurrencyFormatter.format(topAmount),
                   ),
                   const SizedBox(height: 24),
-                  _buildPieChart(sections, totalAmount),
+                  _buildChartArea(sections, totals, totalAmount, expenseColors),
                   const SizedBox(height: 24),
                   _buildCategoryList(
                     context.l10n.categoryDistribution,
@@ -466,7 +467,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                     topCategoryAmount: CurrencyFormatter.format(topAmount),
                   ),
                   const SizedBox(height: 24),
-                  _buildPieChart(sections, totalIncome),
+                  _buildChartArea(sections, totals, totalIncome, incomeColors),
                   const SizedBox(height: 24),
                   _buildCategoryList(
                     context.l10n.incomeCategories,
@@ -522,7 +523,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                     topCategoryAmount: CurrencyFormatter.format(topAmount),
                   ),
                   const SizedBox(height: 24),
-                  _buildPieChart(sections, totalValue),
+                  _buildChartArea(sections, totals, totalValue, assetColors),
                   const SizedBox(height: 24),
                   _buildCategoryList(
                     context.l10n.assetTypes,
@@ -600,9 +601,11 @@ class _AnalysisPageState extends State<AnalysisPage>
   /// Pasta grafiği widget'ı
   Widget _buildPieChart(
     List<PieChartSectionData> sections,
-    double totalAmount,
-  ) {
+    double totalAmount, {
+    Key? key,
+  }) {
     return Center(
+      key: key,
       child: SizedBox(
         height: 240,
         child: Stack(
@@ -665,6 +668,206 @@ class _AnalysisPageState extends State<AnalysisPage>
               delay: 100.ms,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Ortak chart wrapper (Toggle + Chart)
+  Widget _buildChartArea(
+    List<PieChartSectionData> pieSections,
+    Map<String, double> totals,
+    double totalAmount,
+    List<Color> colors,
+  ) {
+    if (totals.isEmpty || totalAmount == 0) {
+      return const SizedBox(height: 240);
+    }
+
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              height: 36,
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.surface.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: ToggleButtons(
+                borderRadius: BorderRadius.circular(18),
+                constraints: const BoxConstraints(minHeight: 36, minWidth: 46),
+                renderBorder: false,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.2),
+                selectedColor: Theme.of(context).colorScheme.primary,
+                color: Colors.white70,
+                isSelected: [!_isBarChart, _isBarChart],
+                onPressed: (index) {
+                  setState(() {
+                    _isBarChart = index == 1;
+                  });
+                },
+                children: const [
+                  Icon(Icons.pie_chart_outline, size: 20),
+                  Icon(Icons.bar_chart, size: 20),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(scale: animation, child: child),
+            );
+          },
+          child: _isBarChart
+              ? _buildBarChart(
+                  totals,
+                  totalAmount,
+                  colors,
+                  key: const ValueKey('bar'),
+                )
+              : _buildPieChart(
+                  pieSections,
+                  totalAmount,
+                  key: const ValueKey('pie'),
+                ),
+        ),
+      ],
+    );
+  }
+
+  /// Çubuk (Bar) Grafik widget'ı
+  Widget _buildBarChart(
+    Map<String, double> totals,
+    double totalAmount,
+    List<Color> colors, {
+    Key? key,
+  }) {
+    final data = totals.entries.toList()
+      ..sort(
+        (a, b) => b.value.compareTo(a.value),
+      ); // büyükten küçüğe sıralayalım
+
+    // Çok fazla bar varsa biraz kırpalım (ilk 7 yeterli geri kalanı ufak kalır)
+    final topData = data.take(7).toList();
+
+    double maxVal = topData.isNotEmpty ? topData.first.value : 0;
+
+    return Center(
+      key: key,
+      child: SizedBox(
+        height: 240,
+        child: BarChart(
+          BarChartData(
+            alignment: BarChartAlignment.spaceAround,
+            maxY: maxVal * 1.2,
+            barTouchData: BarTouchData(
+              enabled: true,
+              touchTooltipData: BarTouchTooltipData(
+                tooltipBgColor: Theme.of(context).colorScheme.surface,
+                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                  return BarTooltipItem(
+                    '${context.translateDbName(topData[groupIndex].key)}\n',
+                    TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: CurrencyFormatter.format(rod.toY),
+                        style: TextStyle(
+                          color: _getColorForCategory(
+                            topData[groupIndex].key,
+                            colors,
+                          ),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            titlesData: FlTitlesData(
+              show: true,
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  reservedSize: 32,
+                  showTitles: true,
+                  getTitlesWidget: (double value, TitleMeta meta) {
+                    if (value.toInt() < 0 || value.toInt() >= topData.length) {
+                      return const SizedBox.shrink();
+                    }
+                    String rawTitle = topData[value.toInt()].key;
+                    String translated = context.translateDbName(rawTitle);
+                    // Kırpma işlemi uzun kelimeler için
+                    String shortTitle = translated.length > 6
+                        ? '${translated.substring(0, 6)}.'
+                        : translated;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        shortTitle,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              leftTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+            ),
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              horizontalInterval: maxVal > 0 ? maxVal / 4 : 1,
+              getDrawingHorizontalLine: (value) => FlLine(
+                color: Colors.white.withValues(alpha: 0.1),
+                strokeWidth: 1,
+                dashArray: [4, 4],
+              ),
+            ),
+            borderData: FlBorderData(show: false),
+            barGroups: topData.asMap().entries.map((entry) {
+              final index = entry.key;
+              final entryData = entry.value;
+              return BarChartGroupData(
+                x: index,
+                barRods: [
+                  BarChartRodData(
+                    toY: entryData.value,
+                    color: _getColorForCategory(entryData.key, colors),
+                    width: 18,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(4),
+                      topRight: Radius.circular(4),
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
         ),
       ),
     );
