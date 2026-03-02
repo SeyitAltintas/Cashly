@@ -988,7 +988,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                           if (isExpense) {
                             title = item['aciklama']?.toString() ?? '';
                           } else {
-                            title = item.description ?? '';
+                            title = item.name ?? '';
                           }
                           double amount = isExpense
                               ? ((item['tutar'] as num?)?.toDouble() ?? 0.0)
