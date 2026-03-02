@@ -474,6 +474,13 @@ class _AnalysisPageState extends State<AnalysisPage>
     return (topCategory, topAmount);
   }
 
+  /// Kategori adına göre sabit bir renk üretir
+  Color _getColorForCategory(String categoryName, List<Color> colors) {
+    if (colors.isEmpty) return Colors.grey;
+    int hash = categoryName.hashCode.abs();
+    return colors[hash % colors.length];
+  }
+
   /// Pasta grafiği için sections oluşturur
   List<PieChartSectionData> _buildPieChartSections(
     Map<String, double> totals,
@@ -484,7 +491,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     int index = 0;
     totals.forEach((key, value) {
       final isTouched = index == _touchedIndex;
-      final color = colors[index % colors.length];
+      final color = _getColorForCategory(key, colors);
       sections.add(
         PieChartSectionData(
           color: color,
@@ -554,10 +561,8 @@ class _AnalysisPageState extends State<AnalysisPage>
           ),
         ),
         const SizedBox(height: 12),
-        ...totals.entries.toList().asMap().entries.map((entry) {
-          int idx = entry.key;
-          var e = entry.value;
-          final color = colors[idx % colors.length];
+        ...totals.entries.toList().map((e) {
+          final color = _getColorForCategory(e.key, colors);
           return LegendItem(
             title: e.key,
             value: e.value,
