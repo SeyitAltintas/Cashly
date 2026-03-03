@@ -24,6 +24,9 @@ class AnalysisPage extends StatefulWidget {
   final Map<String, double>? categoryBudgets; // Kategori bütçeleri
   final Map<String, IconData>? expenseCategoryIcons;
   final Map<String, IconData>? incomeCategoryIcons;
+  final VoidCallback? onAddExpensePressed;
+  final VoidCallback? onAddIncomePressed;
+  final VoidCallback? onAddAssetPressed;
 
   const AnalysisPage({
     super.key,
@@ -37,6 +40,9 @@ class AnalysisPage extends StatefulWidget {
     this.categoryBudgets,
     this.expenseCategoryIcons,
     this.incomeCategoryIcons,
+    this.onAddExpensePressed,
+    this.onAddIncomePressed,
+    this.onAddAssetPressed,
   });
 
   @override
@@ -106,10 +112,13 @@ class _AnalysisPageState extends State<AnalysisPage>
       secilenAy: widget.selectedDate,
     );
 
-    // Sekme değiştiğinde touchedIndex'i sıfırla
+    // Sekme değiştiğinde touchedIndex'i sıfırla ve UI'yi (örn. AppBar) güncelle
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         _controller.resetTouchedIndex();
+      }
+      if (mounted) {
+        setState(() {}); // appBar durumlarının güncellenmesi için
       }
     });
   }
@@ -162,6 +171,19 @@ class _AnalysisPageState extends State<AnalysisPage>
     );
   }
 
+  bool get _isCurrentTabEmpty {
+    switch (_tabController.index) {
+      case 0:
+        return _controller.monthlyExpenses.isEmpty;
+      case 1:
+        return _controller.monthlyIncomes.isEmpty;
+      case 2:
+        return _controller.varliklar.where((a) => !a.isDeleted).isEmpty;
+      default:
+        return true;
+    }
+  }
+
   /// AppBar ve TabBar oluşturur
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
@@ -173,11 +195,12 @@ class _AnalysisPageState extends State<AnalysisPage>
       ),
       title: Text(context.l10n.analysisAndReports),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.file_download_outlined, color: Colors.white),
-          tooltip: context.l10n.downloadReportTooltip,
-          onPressed: _showExportSheet,
-        ),
+        if (!_isCurrentTabEmpty)
+          IconButton(
+            icon: const Icon(Icons.file_download_outlined, color: Colors.white),
+            tooltip: context.l10n.downloadReportTooltip,
+            onPressed: _showExportSheet,
+          ),
       ],
     );
   }
@@ -395,7 +418,9 @@ class _AnalysisPageState extends State<AnalysisPage>
         message: context.l10n.noExpenseDataForThisMonth,
         actionText: context.l10n.addExpense,
         icon: Icons.receipt_long_outlined,
-        onActionPressed: () => Navigator.pop(context),
+        buttonColor: Colors.red.shade400,
+        onActionPressed:
+            widget.onAddExpensePressed ?? () => Navigator.pop(context),
       );
     }
 
@@ -465,7 +490,9 @@ class _AnalysisPageState extends State<AnalysisPage>
         message: context.l10n.noIncomeDataForThisMonth,
         actionText: context.l10n.addIncome,
         icon: Icons.account_balance_wallet_outlined,
-        onActionPressed: () => Navigator.pop(context),
+        buttonColor: Colors.green.shade400,
+        onActionPressed:
+            widget.onAddIncomePressed ?? () => Navigator.pop(context),
       );
     }
 
@@ -530,7 +557,9 @@ class _AnalysisPageState extends State<AnalysisPage>
         message: context.l10n.noAssetsAddedYet,
         actionText: context.l10n.addAsset,
         icon: Icons.diamond_outlined,
-        onActionPressed: () => Navigator.pop(context),
+        buttonColor: Colors.blue.shade500,
+        onActionPressed:
+            widget.onAddAssetPressed ?? () => Navigator.pop(context),
       );
     }
 

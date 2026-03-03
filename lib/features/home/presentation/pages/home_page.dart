@@ -459,69 +459,72 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
   // ===== NAVİGASYON METODLARI =====
 
-  void _navigateToAssets() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PageErrorBoundary(
-          pageName: context.l10n.assets,
-          child: AssetsPage(
-            assets: varliklar.where((a) => !a.isDeleted).toList(),
-            deletedAssets: varliklar.where((a) => a.isDeleted).toList(),
-            onDelete: (asset) {
-              final index = varliklar.indexWhere((a) => a.id == asset.id);
-              if (index != -1) {
-                varliklar[index] = varliklar[index].copyWith(isDeleted: true);
-              }
-              _homeState.varliklar = List.from(varliklar);
-              _varliklariKaydet();
-            },
-            onEdit: (asset) {
-              final index = varliklar.indexWhere((a) => a.id == asset.id);
-              if (index != -1) {
-                varliklar[index] = asset;
-              }
-              _homeState.varliklar = List.from(varliklar);
-              _varliklariKaydet();
-            },
-            onRestore: (asset) {
-              final index = varliklar.indexWhere((a) => a.id == asset.id);
-              if (index != -1) {
-                varliklar[index] = varliklar[index].copyWith(isDeleted: false);
-              }
-              _homeState.varliklar = List.from(varliklar);
-              _varliklariKaydet();
-            },
-            onPermanentDelete: (asset) {
-              varliklar.removeWhere((a) => a.id == asset.id);
-              _homeState.varliklar = List.from(varliklar);
-              _varliklariKaydet();
-            },
-            onEmptyBin: () {
-              varliklar.removeWhere((a) => a.isDeleted);
-              _homeState.varliklar = List.from(varliklar);
-              _varliklariKaydet();
-            },
-            onAdd: (name, amount, quantity, category, type) {
-              varliklar.add(
-                Asset(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: name,
-                  amount: amount,
-                  quantity: quantity,
-                  category: category,
-                  type: type,
-                  lastUpdated: DateTime.now(),
-                  isDeleted: false,
-                ),
-              );
-              _homeState.varliklar = List.from(varliklar);
-              _varliklariKaydet();
-            },
-          ),
+  void _navigateToAssets({bool replace = false}) {
+    final route = MaterialPageRoute(
+      builder: (context) => PageErrorBoundary(
+        pageName: context.l10n.assets,
+        child: AssetsPage(
+          assets: varliklar.where((a) => !a.isDeleted).toList(),
+          deletedAssets: varliklar.where((a) => a.isDeleted).toList(),
+          onDelete: (asset) {
+            final index = varliklar.indexWhere((a) => a.id == asset.id);
+            if (index != -1) {
+              varliklar[index] = varliklar[index].copyWith(isDeleted: true);
+            }
+            _homeState.varliklar = List.from(varliklar);
+            _varliklariKaydet();
+          },
+          onEdit: (asset) {
+            final index = varliklar.indexWhere((a) => a.id == asset.id);
+            if (index != -1) {
+              varliklar[index] = asset;
+            }
+            _homeState.varliklar = List.from(varliklar);
+            _varliklariKaydet();
+          },
+          onRestore: (asset) {
+            final index = varliklar.indexWhere((a) => a.id == asset.id);
+            if (index != -1) {
+              varliklar[index] = varliklar[index].copyWith(isDeleted: false);
+            }
+            _homeState.varliklar = List.from(varliklar);
+            _varliklariKaydet();
+          },
+          onPermanentDelete: (asset) {
+            varliklar.removeWhere((a) => a.id == asset.id);
+            _homeState.varliklar = List.from(varliklar);
+            _varliklariKaydet();
+          },
+          onEmptyBin: () {
+            varliklar.removeWhere((a) => a.isDeleted);
+            _homeState.varliklar = List.from(varliklar);
+            _varliklariKaydet();
+          },
+          onAdd: (name, amount, quantity, category, type) {
+            varliklar.add(
+              Asset(
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                name: name,
+                amount: amount,
+                quantity: quantity,
+                category: category,
+                type: type,
+                lastUpdated: DateTime.now(),
+                isDeleted: false,
+              ),
+            );
+            _homeState.varliklar = List.from(varliklar);
+            _varliklariKaydet();
+          },
         ),
       ),
-    ).then((_) => _showCelebrationIfPending());
+    );
+
+    final future = replace
+        ? Navigator.pushReplacement(context, route)
+        : Navigator.push(context, route);
+
+    future.then((_) => _showCelebrationIfPending());
   }
 
   void _navigateToAnalysis() {
@@ -542,6 +545,15 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             categoryBudgets: categoryBudgets,
             expenseCategoryIcons: kategoriIkonlari,
             incomeCategoryIcons: gelirKategoriIkonlari,
+            onAddExpensePressed: () {
+              _navigateToExpenses(replace: true);
+            },
+            onAddIncomePressed: () {
+              _navigateToIncomes(replace: true);
+            },
+            onAddAssetPressed: () {
+              _navigateToAssets(replace: true);
+            },
           ),
         ),
       ),
@@ -703,61 +715,67 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     ).then((_) => _showCelebrationIfPending());
   }
 
-  void _navigateToExpenses() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PageErrorBoundary(
-          pageName: context.l10n.expenses,
-          child: ExpensesPage(
-            tumHarcamalar: tumHarcamalar,
-            tumOdemeYontemleri: tumOdemeYontemleri,
-            kategoriIkonlari: kategoriIkonlari,
-            butceLimiti: butceLimiti,
-            secilenAy: secilenAy,
-            userId: widget.authController.currentUser?.id,
-            varsayilanOdemeYontemiId: varsayilanOdemeYontemiId,
-            onHarcamalarChanged: (harcamalar) {
-              _homeState.tumHarcamalar = harcamalar;
-              _harcamalariKaydet();
-            },
-            onOdemeYontemleriChanged: (odemeYontemleri) {
-              _homeState.tumOdemeYontemleri = odemeYontemleri;
-              _odemeYontemleriKaydet();
-            },
-          ),
+  void _navigateToExpenses({bool replace = false}) {
+    final route = MaterialPageRoute(
+      builder: (context) => PageErrorBoundary(
+        pageName: context.l10n.expenses,
+        child: ExpensesPage(
+          tumHarcamalar: tumHarcamalar,
+          tumOdemeYontemleri: tumOdemeYontemleri,
+          kategoriIkonlari: kategoriIkonlari,
+          butceLimiti: butceLimiti,
+          secilenAy: secilenAy,
+          userId: widget.authController.currentUser?.id,
+          varsayilanOdemeYontemiId: varsayilanOdemeYontemiId,
+          onHarcamalarChanged: (harcamalar) {
+            _homeState.tumHarcamalar = harcamalar;
+            _harcamalariKaydet();
+          },
+          onOdemeYontemleriChanged: (odemeYontemleri) {
+            _homeState.tumOdemeYontemleri = odemeYontemleri;
+            _odemeYontemleriKaydet();
+          },
         ),
       ),
-    ).then((_) {
+    );
+
+    final future = replace
+        ? Navigator.pushReplacement(context, route)
+        : Navigator.push(context, route);
+
+    future.then((_) {
       _verileriOku();
       _showCelebrationIfPending();
     });
   }
 
-  void _navigateToIncomes() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PageErrorBoundary(
-          pageName: context.l10n.incomes,
-          child: IncomesPage(
-            tumGelirler: tumGelirler,
-            tumOdemeYontemleri: tumOdemeYontemleri,
-            gelirKategoriIkonlari: gelirKategoriIkonlari,
-            secilenAy: secilenAy,
-            userId: widget.authController.currentUser?.id,
-            onGelirlerChanged: (gelirler) {
-              _homeState.tumGelirler = gelirler;
-              _gelirleriKaydet();
-            },
-            onOdemeYontemleriChanged: (odemeYontemleri) {
-              _homeState.tumOdemeYontemleri = odemeYontemleri;
-              _odemeYontemleriKaydet();
-            },
-          ),
+  void _navigateToIncomes({bool replace = false}) {
+    final route = MaterialPageRoute(
+      builder: (context) => PageErrorBoundary(
+        pageName: context.l10n.incomes,
+        child: IncomesPage(
+          tumGelirler: tumGelirler,
+          tumOdemeYontemleri: tumOdemeYontemleri,
+          gelirKategoriIkonlari: gelirKategoriIkonlari,
+          secilenAy: secilenAy,
+          userId: widget.authController.currentUser?.id,
+          onGelirlerChanged: (gelirler) {
+            _homeState.tumGelirler = gelirler;
+            _gelirleriKaydet();
+          },
+          onOdemeYontemleriChanged: (odemeYontemleri) {
+            _homeState.tumOdemeYontemleri = odemeYontemleri;
+            _odemeYontemleriKaydet();
+          },
         ),
       ),
-    ).then((_) {
+    );
+
+    final future = replace
+        ? Navigator.pushReplacement(context, route)
+        : Navigator.push(context, route);
+
+    future.then((_) {
       _verileriOku();
       _showCelebrationIfPending();
     });

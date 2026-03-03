@@ -8,6 +8,7 @@ class AnalysisEmptyState extends StatelessWidget {
   final String? actionText;
   final VoidCallback? onActionPressed;
   final IconData? icon;
+  final Color? buttonColor;
 
   const AnalysisEmptyState({
     super.key,
@@ -15,6 +16,7 @@ class AnalysisEmptyState extends StatelessWidget {
     this.actionText,
     this.onActionPressed,
     this.icon,
+    this.buttonColor,
   });
 
   @override
@@ -61,6 +63,9 @@ class AnalysisEmptyState extends StatelessWidget {
               icon: const Icon(Icons.add_circle_outline, size: 20),
               label: Text(actionText!),
               style: FilledButton.styleFrom(
+                backgroundColor:
+                    buttonColor ?? Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 14,
