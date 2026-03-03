@@ -727,7 +727,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                 ),
                 borderData: FlBorderData(show: false),
                 sectionsSpace: 4,
-                centerSpaceRadius: 100,
+                centerSpaceRadius: 120,
                 sections: sections,
               ),
             ).animate().scale(
@@ -1034,7 +1034,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                           dynamic item = items[index];
                           String title = '';
                           if (isExpense) {
-                            title = item['aciklama']?.toString() ?? '';
+                            title = item['isim']?.toString() ?? '';
                           } else {
                             title = item.name ?? '';
                           }
