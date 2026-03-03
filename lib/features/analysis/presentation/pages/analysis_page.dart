@@ -651,7 +651,7 @@ class _AnalysisPageState extends State<AnalysisPage>
           value: value,
           title: '${percentage.toStringAsFixed(0)}%',
           showTitle: percentage >= 5.0 || isTouched,
-          radius: isTouched ? 35.0 : 25.0,
+          radius: isTouched ? 50.0 : 40.0,
           titlePositionPercentageOffset: 0.55,
           titleStyle: TextStyle(
             fontSize: isTouched ? 14.0 : 12.0,
@@ -675,13 +675,13 @@ class _AnalysisPageState extends State<AnalysisPage>
     return Center(
       key: key,
       child: SizedBox(
-        height: 240,
+        height: 320,
         child: Stack(
           alignment: Alignment.center,
           children: [
             // Ortadaki yazıyı grafiğin içine taşırmamak için width ile sınırlandırıyoruz
             SizedBox(
-              width: 130, // 75 merkez boşluk yarıçapı * 2 den biraz küçük
+              width: 170, // centerSpaceRadius * 2 den biraz küçük
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -727,7 +727,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                 ),
                 borderData: FlBorderData(show: false),
                 sectionsSpace: 4,
-                centerSpaceRadius: 75,
+                centerSpaceRadius: 100,
                 sections: sections,
               ),
             ).animate().scale(
@@ -749,7 +749,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     List<Color> colors,
   ) {
     if (totals.isEmpty || totalAmount == 0) {
-      return const SizedBox(height: 240);
+      return const SizedBox(height: 320);
     }
 
     return Column(
@@ -834,7 +834,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     return Center(
       key: key,
       child: SizedBox(
-        height: 240,
+        height: 320,
         child: BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
@@ -926,10 +926,16 @@ class _AnalysisPageState extends State<AnalysisPage>
                   BarChartRodData(
                     toY: entryData.value,
                     color: _getColorForCategory(entryData.key, colors),
-                    width: 18,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(4),
-                      topRight: Radius.circular(4),
+                    width: 26, // Bar kalınlığını artırdık
+                    borderRadius: BorderRadius.circular(
+                      6,
+                    ), // Tüm kenarları yuvarlak
+                    backDrawRodData: BackgroundBarChartRodData(
+                      show: true,
+                      toY: maxVal * 1.2, // Track yığını tepeye kadar çıksın
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surface, // Arkaplanla bütünleşik olsun
                     ),
                   ),
                 ],
