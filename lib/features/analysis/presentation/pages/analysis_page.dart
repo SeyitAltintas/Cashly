@@ -967,57 +967,152 @@ class _AnalysisPageState extends State<AnalysisPage>
               )
               .toList();
 
+    double totalAmount = items.fold(0.0, (sum, item) {
+      final dynamic dItem = item;
+      if (isExpense) {
+        return sum + ((dItem['tutar'] as num?)?.toDouble() ?? 0.0);
+      } else {
+        return sum + (dItem.amount as double);
+      }
+    });
+
+    final currency = items.isNotEmpty
+        ? (isExpense
+              ? ((items.first as dynamic)['paraBirimi']?.toString() ?? 'TRY')
+              : (items.first as dynamic).paraBirimi)
+        : 'TRY';
+
+    final categoryColor = isExpense
+        ? Colors.red.shade400
+        : Colors.green.shade400;
+
+    final IconData categoryIcon;
+    if (isExpense) {
+      categoryIcon =
+          widget.expenseCategoryIcons?[categoryKey] ??
+          Icons.shopping_bag_outlined;
+    } else {
+      categoryIcon =
+          widget.incomeCategoryIcons?[categoryKey] ??
+          Icons.account_balance_wallet_outlined;
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          height:
-              MediaQuery.of(context).size.height *
-              0.75, // Yüksekliği ekrana göre ayarladık
+          height: MediaQuery.of(context).size.height * 0.75,
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
           ),
           child: Column(
             children: [
-              // Çekme çubuğu
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  height: 4,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(2),
+              // Üst Kısım: Sürükleme Çubuğu ve Başlık Alanı
+              Container(
+                padding: const EdgeInsets.only(
+                  top: 12,
+                  bottom: 20,
+                  left: 24,
+                  right: 24,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(32),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
                 ),
-              ),
-              // Başlık
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 8,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
                   children: [
-                    Text(
-                      context.translateDbName(categoryKey),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                    // Çekme çubuğu
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 24),
+                      height: 5,
+                      width: 48,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(3),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: categoryColor.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            categoryIcon,
+                            color: categoryColor,
+                            size: 32,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.translateDbName(categoryKey),
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                '${items.length} ${context.l10n.total}',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.pop(context),
+                              style: IconButton.styleFrom(
+                                backgroundColor: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                    .withValues(alpha: 0.5),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "${isExpense ? '-' : '+'}${CurrencyFormatter.format(totalAmount, currency: currency)}",
+                              style: TextStyle(
+                                color: categoryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              const Divider(),
               // İçerik Listesi
               Expanded(
                 child: items.isEmpty
@@ -1028,7 +1123,11 @@ class _AnalysisPageState extends State<AnalysisPage>
                         ),
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                        physics: const BouncingScrollPhysics(),
                         itemCount: items.length,
                         itemBuilder: (context, index) {
                           dynamic item = items[index];
@@ -1041,7 +1140,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                           double amount = isExpense
                               ? ((item['tutar'] as num?)?.toDouble() ?? 0.0)
                               : item.amount;
-                          String currency = isExpense
+                          String itemCurrency = isExpense
                               ? (item['paraBirimi']?.toString() ?? 'TRY')
                               : item.paraBirimi;
 
@@ -1051,8 +1150,26 @@ class _AnalysisPageState extends State<AnalysisPage>
                                     DateTime.now())
                               : item.date;
 
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant
+                                    .withValues(alpha: 0.3),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.02),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
                             child: Row(
                               children: [
                                 Container(
@@ -1060,8 +1177,8 @@ class _AnalysisPageState extends State<AnalysisPage>
                                   decoration: BoxDecoration(
                                     color:
                                         (isExpense ? Colors.red : Colors.green)
-                                            .withValues(alpha: 0.1),
-                                    shape: BoxShape.circle,
+                                            .withValues(alpha: 0.08),
+                                    borderRadius: BorderRadius.circular(14),
                                   ),
                                   child: Icon(
                                     isExpense
@@ -1084,7 +1201,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                                             ? title
                                             : context.translateDbName(
                                                 categoryKey,
-                                              ), // Açıklama yoksa kategori adını yaz
+                                              ),
                                         style: const TextStyle(
                                           fontWeight: FontWeight.w600,
                                           fontSize: 15,
@@ -1092,24 +1209,35 @@ class _AnalysisPageState extends State<AnalysisPage>
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        "${date.day}.${date.month}.${date.year}",
-                                        style: const TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 12,
-                                        ),
+                                      const SizedBox(height: 6),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.calendar_today_outlined,
+                                            size: 14,
+                                            color: Colors.grey.shade500,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            "${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}",
+                                            style: TextStyle(
+                                              color: Colors.grey.shade500,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ),
                                 Text(
-                                  "${isExpense ? '-' : '+'}${CurrencyFormatter.format(amount, currency: currency)}",
+                                  "${isExpense ? '-' : '+'}${CurrencyFormatter.format(amount, currency: itemCurrency)}",
                                   style: TextStyle(
                                     color: isExpense
                                         ? Colors.red.shade400
                                         : Colors.green.shade400,
                                     fontWeight: FontWeight.bold,
+                                    fontSize: 15,
                                   ),
                                 ),
                               ],
