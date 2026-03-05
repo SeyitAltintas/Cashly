@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Varsayılan tema için sayfa bazlı renkler
 class PageThemeColors {
@@ -58,18 +59,40 @@ class PageThemeColors {
 /// Uygulama teması için merkezi sınıf
 /// Tek tema: Varsayılan koyu tema
 class AppTheme {
-  // Private constructor - statik metodlarla kullanılacak
   AppTheme._();
 
-  // Inter font ailesi - Yerel assets'ten yükleniyor
   static const String _fontFamily = 'Inter';
 
-  /// Varsayılan Tema - Koyu gri / açık gri renk şeması
+  /// GoogleFonts ile Inter text theme oluştur
+  static TextTheme _interTextTheme(TextTheme base) {
+    return GoogleFonts.interTextTheme(base);
+  }
+
   static ThemeData get defaultTheme {
-    return ThemeData.dark().copyWith(
+    // 1. M3 dark tema bazını oluştur
+    final base = ThemeData(useMaterial3: true, brightness: Brightness.dark);
+
+    // 2. Typography seviyesinde Inter fontu zorla
+    final m2021 = Typography.material2021(platform: TargetPlatform.android);
+    final interTypography = m2021.copyWith(
+      black: _interTextTheme(m2021.black),
+      white: _interTextTheme(m2021.white),
+      dense: _interTextTheme(m2021.dense),
+      tall: _interTextTheme(m2021.tall),
+    );
+
+    // 3. textTheme ve primaryTextTheme'e de GoogleFonts ile uygula
+    final interTextTheme = _interTextTheme(base.textTheme);
+    final interPrimaryTextTheme = _interTextTheme(base.primaryTextTheme);
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      fontFamily: _fontFamily,
+      typography: interTypography,
+      textTheme: interTextTheme,
+      primaryTextTheme: interPrimaryTextTheme,
       scaffoldBackgroundColor: const Color(0xFF000000),
-      // Yerel Inter fontu ile TextTheme
-      textTheme: ThemeData.dark().textTheme.apply(fontFamily: _fontFamily),
       colorScheme: const ColorScheme.dark(
         primary: PageThemeColors.darkGray,
         secondary: PageThemeColors.lightGray,
@@ -79,21 +102,89 @@ class AppTheme {
       ),
       // TextField imleç ve seçim tutamakları için renkler
       textSelectionTheme: TextSelectionThemeData(
-        cursorColor: Colors.white, // İmleç rengi
-        selectionColor: Colors.white.withValues(alpha: 0.4), // Seçim arka planı
-        selectionHandleColor: Colors.white, // Su damlası tutamakları
+        cursorColor: Colors.white,
+        selectionColor: Colors.white.withValues(alpha: 0.4),
+        selectionHandleColor: Colors.white,
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF000000),
+        foregroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
+        toolbarHeight: kToolbarHeight,
+        titleTextStyle: TextStyle(
+          fontFamily: _fontFamily,
+          fontSize: 20,
+          fontWeight: FontWeight.w500,
+          color: Colors.white,
+        ),
         iconTheme: IconThemeData(color: PageThemeColors.lightGray),
+      ),
+      // M3 BottomNavigationBar — eski M2 boyutlarına yakın tut
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Color(0xFF000000),
+        elevation: 0,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Color(0xFF757575),
+        type: BottomNavigationBarType.fixed,
+        selectedLabelStyle: TextStyle(fontFamily: _fontFamily, fontSize: 12),
+        unselectedLabelStyle: TextStyle(fontFamily: _fontFamily, fontSize: 12),
+      ),
+      // M3 NavigationBar (yeni stil bottom nav)
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: const Color(0xFF000000),
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: Colors.white.withValues(alpha: 0.1),
+        elevation: 0,
+        height: 65,
+        labelTextStyle: WidgetStateProperty.all(
+          const TextStyle(fontFamily: _fontFamily, fontSize: 12),
+        ),
       ),
       cardTheme: const CardThemeData(
         color: Color(0xFF121212),
         elevation: 4,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+      // Dialog — M3 surfaceTint kapatma
+      dialogTheme: const DialogThemeData(
+        backgroundColor: Color(0xFF1A1A1A),
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: TextStyle(
+          fontFamily: _fontFamily,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+        contentTextStyle: TextStyle(
+          fontFamily: _fontFamily,
+          fontSize: 14,
+          color: Colors.white70,
+        ),
+      ),
+      // BottomSheet — M3 surfaceTint kapatma
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Color(0xFF121212),
+        surfaceTintColor: Colors.transparent,
+        modalBackgroundColor: Color(0xFF121212),
+      ),
+      // ListTile — M3 yoğunluk ayarı
+      listTileTheme: const ListTileThemeData(
+        dense: false,
+        titleTextStyle: TextStyle(
+          fontFamily: _fontFamily,
+          fontSize: 16,
+          color: Colors.white,
+        ),
+        subtitleTextStyle: TextStyle(
+          fontFamily: _fontFamily,
+          fontSize: 13,
+          color: Colors.white70,
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
@@ -102,11 +193,9 @@ class AppTheme {
       ),
       // Tarih seçici teması - Dark mode uyumlu
       datePickerTheme: DatePickerThemeData(
-        // Arka plan renkleri
         backgroundColor: const Color(0xFF1A1A1A),
         headerBackgroundColor: const Color(0xFF2A2A2A),
         headerForegroundColor: Colors.white,
-        // Başlık stili
         headerHeadlineStyle: const TextStyle(
           fontFamily: _fontFamily,
           fontSize: 28,
@@ -119,7 +208,6 @@ class AppTheme {
           fontWeight: FontWeight.w500,
           color: Colors.white.withValues(alpha: 0.7),
         ),
-        // Gün renkleri
         dayForegroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return Colors.black;
@@ -129,20 +217,17 @@ class AppTheme {
           }
           return Colors.white.withValues(alpha: 0.9);
         }),
-        // Seçili gün vurgusu
         dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return Colors.white;
           }
           return Colors.transparent;
         }),
-        // Bugün vurgusu
         todayForegroundColor: WidgetStateProperty.all(Colors.white),
         todayBackgroundColor: WidgetStateProperty.all(
           Colors.white.withValues(alpha: 0.15),
         ),
         todayBorder: const BorderSide(color: Colors.white, width: 1.5),
-        // Yıl seçici
         yearForegroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return Colors.black;
@@ -158,26 +243,20 @@ class AppTheme {
         yearOverlayColor: WidgetStateProperty.all(
           Colors.white.withValues(alpha: 0.1),
         ),
-        // Hafta günleri stili
         weekdayStyle: TextStyle(
           fontFamily: _fontFamily,
           color: Colors.white.withValues(alpha: 0.6),
           fontWeight: FontWeight.w600,
           fontSize: 13,
         ),
-        // Gün stili
         dayStyle: const TextStyle(
           fontFamily: _fontFamily,
           color: Colors.white,
           fontWeight: FontWeight.w500,
         ),
-        // Divider rengi
         dividerColor: Colors.white.withValues(alpha: 0.1),
-        // Yüzey rengi
         surfaceTintColor: Colors.transparent,
-        // Dialog şekli
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        // İptal ve Tamam butonları
         cancelButtonStyle: TextButton.styleFrom(
           foregroundColor: Colors.white60,
           textStyle: const TextStyle(
@@ -194,7 +273,6 @@ class AppTheme {
             fontSize: 15,
           ),
         ),
-        // Giriş dekoratör teması
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.white.withValues(alpha: 0.1),
@@ -207,6 +285,92 @@ class AppTheme {
             borderSide: const BorderSide(color: Colors.white),
           ),
         ),
+      ),
+      // M3 Button tema ayarları — basıklık sorununu önle
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: PageThemeColors.darkGray,
+          textStyle: const TextStyle(
+            fontFamily: _fontFamily,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          minimumSize: const Size(64, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.white70,
+          textStyle: const TextStyle(
+            fontFamily: _fontFamily,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          minimumSize: const Size(48, 40),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.white,
+          textStyle: const TextStyle(
+            fontFamily: _fontFamily,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          minimumSize: const Size(64, 44),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      // Input alanları — M3 varsayılan yoğunluğu normalize et
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white.withValues(alpha: 0.06),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.white54),
+        ),
+        labelStyle: const TextStyle(
+          fontFamily: _fontFamily,
+          color: Colors.white54,
+        ),
+        hintStyle: const TextStyle(
+          fontFamily: _fontFamily,
+          color: Colors.white30,
+        ),
+      ),
+      // Chip tema — M3 padding düzeltmesi
+      chipTheme: ChipThemeData(
+        backgroundColor: Colors.white.withValues(alpha: 0.08),
+        selectedColor: Colors.white.withValues(alpha: 0.2),
+        labelStyle: const TextStyle(
+          fontFamily: _fontFamily,
+          fontSize: 13,
+          color: Colors.white,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -227,7 +391,7 @@ class AppTheme {
 
   /// Temaya ripple/splash kaldırma uygula
   static ThemeData _applyNoSplash(ThemeData theme) {
-    return theme.copyWith(
+    final noSplash = theme.copyWith(
       splashFactory: NoSplash.splashFactory,
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -252,6 +416,11 @@ class AppTheme {
           splashFactory: NoSplash.splashFactory,
         ).merge(theme.iconButtonTheme.style),
       ),
+    );
+    // copyWith sonrası font korunması
+    return noSplash.copyWith(
+      textTheme: _interTextTheme(noSplash.textTheme),
+      primaryTextTheme: _interTextTheme(noSplash.primaryTextTheme),
     );
   }
 

@@ -20,12 +20,16 @@ import 'core/services/price_cache_service.dart';
 import 'core/services/currency_service.dart';
 import 'core/services/network_service.dart';
 import 'core/router/app_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-void main() async {
-  // Global error handling - tüm beklenmedik hataları yakala
-  runZonedGuarded<Future<void>>(
+void main() {
+  runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+
+      // Google Fonts: İnternetten font indirmeyi kapat
+      // Fontlar assets/google_fonts/ klasöründen yüklenir (offline çalışır)
+      GoogleFonts.config.allowRuntimeFetching = false;
 
       // Flutter framework hatalarını yakala
       FlutterError.onError = (FlutterErrorDetails details) {
@@ -47,11 +51,8 @@ void main() async {
 
       try {
         await Hive.initFlutter();
-        // Ayarlar için kullanılan Hive kutusunu önceden açarak asenkron problemleri çöz (flicker önler)
         await Hive.openBox('settings');
-        // DI container'ı başlat
         await initializeDependencies();
-        // Görsel cache servisini başlat
         await ImageCacheService().initialize();
         runApp(
           MultiProvider(
@@ -74,7 +75,6 @@ void main() async {
       }
     },
     (error, stackTrace) {
-      // Zone dışı hatalar (async hatalar)
       debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       debugPrint('❌ UNCAUGHT ERROR');
       debugPrint('Error: $error');
@@ -111,50 +111,32 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Bildirim servisine uygulama durumunu bildir
     final notificationService = getIt<NotificationService>();
     notificationService.setAppInForeground(state == AppLifecycleState.resumed);
   }
 
   Future<void> _initializeApp() async {
     try {
-      // Veritabanını başlat
       await DatabaseHelper.baslat();
-
-      // Haptic service ayarlarını başlat
       await HapticService.init();
-
-      // Streak service'ı başlat
       await StreakService.initialize();
-
-      // Fiyat cache service'ı başlat (offline fallback için)
       await PriceCacheService().init();
 
-      // Para Birimi servisini başlat
       final currencyService = getIt<CurrencyService>();
       await currencyService.init();
 
-      // Network durumu izleme servisini başlat
       await NetworkService().initialize();
 
-      // Bildirim servisini başlat
       final notificationService = getIt<NotificationService>();
       await notificationService.initialize();
-
-      // Bildirim izni iste (ilk açılışta)
       await notificationService.requestPermission();
 
-      // Bildirim tıklama navigasyonu ayarla
       NotificationService.onNotificationNavigate =
           _handleNotificationNavigation;
 
-      // Varsayılan test kullanıcısını oluştur (geçici)
       await initializeDefaultUser();
 
-      // Auth controller'ı DI container'dan al
       final authController = getIt<AuthController>();
-
-      // Auth durumunu kontrol et
       await authController.checkAuth();
 
       if (mounted) {
@@ -168,14 +150,12 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
       if (mounted) {
         setState(() {
           _initError = e.toString();
-          _isInitialized =
-              true; // Hata olsa bile initialized sayalım ki hata ekranını gösterebilelim
+          _isInitialized = true;
         });
       }
     }
   }
 
-  /// Bildirim tıklandığında navigasyon işlemlerini yönetir
   void _handleNotificationNavigation(String payload) {
     debugPrint('Handling notification navigation: $payload');
 
@@ -185,18 +165,11 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
       return;
     }
 
-    // Payload'a göre yönlendirme
     if (payload == 'monthly_summary') {
-      // Aylık özet → Ana sayfaya git (raporlar için)
-      // Not: Bu uygulama tab-based, bu yüzden ana sayfaya yönlendiriyoruz
       debugPrint('Monthly summary notification - navigating to home');
-      // Router zaten ana sayfada ise bir şey yapmaya gerek yok
     } else if (payload.startsWith('recurring_')) {
-      // Tekrarlayan işlem bildirimi
       final transactionId = payload.replaceFirst('recurring_', '');
       debugPrint('Recurring transaction notification: $transactionId');
-      // Not: İşlem detay sayfası için transaction ID ile navigasyon
-      // Bu özellik gelecekte eklenebilir
     }
   }
 
@@ -204,7 +177,6 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Consumer2<ThemeManager, LocaleManager>(
       builder: (context, themeManager, localeManager, child) {
-        // Henüz başlatılmadıysa siyah ekran göster (splash ile tutarlı)
         if (!_isInitialized) {
           return const MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -215,7 +187,6 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
           );
         }
 
-        // Başlatma sırasında hata olduysa
         if (_initError != null) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -273,7 +244,6 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
           );
         }
 
-        // Başarılı başlatma - go_router ile deklaratif navigasyon
         return MaterialApp.router(
           title: 'Cashly',
           debugShowCheckedModeBanner: false,
@@ -285,6 +255,14 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: LocaleManager.supportedLocales,
+          localeResolutionCallback: (deviceLocale, supportedLocales) {
+            for (final locale in supportedLocales) {
+              if (locale.languageCode == deviceLocale?.languageCode) {
+                return locale;
+              }
+            }
+            return supportedLocales.first;
+          },
           theme: themeManager.currentTheme,
           routerConfig: _appRouter!.router,
         );
@@ -292,8 +270,3 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
     );
   }
 }
-
-// Not: AuthWrapper artık gerekli değil.
-// go_router'ın redirect mekanizması auth kontrolünü yapıyor.
-// Eski AuthWrapper kodu referans için yorum olarak bırakılmıştır:
-// class AuthWrapper extends StatelessWidget { ... }

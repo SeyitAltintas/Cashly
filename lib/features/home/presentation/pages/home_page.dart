@@ -87,6 +87,19 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     _seriKontrol();
   }
 
+  bool _transferKontrolYapildi = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Localization ancak didChangeDependencies'te hazır olur
+    // initState'te context.l10n kullanılamaz (Flutter 3.41+)
+    if (!_transferKontrolYapildi) {
+      _transferKontrolYapildi = true;
+      _zamanlanmisTransferleriKontrolEt();
+    }
+  }
+
   void _onHomeStateChanged() {
     if (mounted) setState(() {});
   }
@@ -155,9 +168,6 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
     // Varlık fiyatlarını arka planda güncelle
     _updateAssetPrices();
-
-    // Zamanlanmış transferleri kontrol et
-    _zamanlanmisTransferleriKontrolEt();
   }
 
   /// Zamanlanmış transferleri kontrol eder ve tarihi gelenleri uygular
@@ -395,17 +405,8 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   /// AppBar için ValueListenableBuilder wrapper
   /// Sadece sayfa değişikliğinde rebuild olur
   PreferredSizeWidget _buildAppBarWithNotifier() {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(kToolbarHeight),
-      child: ValueListenableBuilder<int>(
-        valueListenable: _selectedIndexNotifier,
-        builder: (context, selectedIndex, _) {
-          if (selectedIndex == 0) return const ToolsAppBar();
-          if (selectedIndex == 1) return const DashboardAppBar();
-          return const ProfileAppBar();
-        },
-      ),
-    );
+    // M3 uyumlu: çocuk AppBar'ın kendi preferredSize'ını kullan
+    return _DynamicAppBar(selectedIndexNotifier: _selectedIndexNotifier);
   }
 
   Widget _buildToolsPage() {
@@ -779,5 +780,28 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       _verileriOku();
       _showCelebrationIfPending();
     });
+  }
+}
+
+/// M3 uyumlu dinamik AppBar
+/// PreferredSize ile sabit yükseklik yerine, çocuk AppBar'ın kendi yüksekliğini kullanır
+class _DynamicAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final ValueNotifier<int> selectedIndexNotifier;
+
+  const _DynamicAppBar({required this.selectedIndexNotifier});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: selectedIndexNotifier,
+      builder: (context, selectedIndex, _) {
+        if (selectedIndex == 0) return const ToolsAppBar();
+        if (selectedIndex == 1) return const DashboardAppBar();
+        return const ProfileAppBar();
+      },
+    );
   }
 }

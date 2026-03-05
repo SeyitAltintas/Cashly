@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/generated/app_localizations.dart';
+import 'package:cashly/l10n/generated/app_localizations_tr.dart';
 
 /// BuildContext'ten AppLocalizations'a kolay erişim sağlar.
 ///
@@ -9,7 +10,8 @@ import 'package:cashly/l10n/generated/app_localizations.dart';
 /// Text(l10n.settings);
 /// ```
 extension AppLocalizationsX on BuildContext {
-  AppLocalizations get l10n => AppLocalizations.of(this);
+  AppLocalizations get l10n =>
+      AppLocalizations.of(this) ?? AppLocalizationsTr();
 
   /// Veritabanındaki varsayılan Türkçe kelimeleri, kullanıcının seçtiği dile göre
   /// dinamik olarak eşleştirip döndürür. (Nakit, Yemek ve Kafe vb.)

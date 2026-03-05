@@ -6,12 +6,9 @@ class LocaleManager extends ChangeNotifier {
   static const String _boxName = 'settings';
   static const String _keyLocale = 'app_locale';
 
-  static const Locale defaultLocale = Locale('tr', 'TR');
+  static const Locale defaultLocale = Locale('tr');
 
-  static const List<Locale> supportedLocales = [
-    Locale('tr', 'TR'),
-    Locale('en', 'US'),
-  ];
+  static const List<Locale> supportedLocales = [Locale('tr'), Locale('en')];
 
   Locale _locale = defaultLocale;
   late Box _box;
@@ -41,10 +38,10 @@ class LocaleManager extends ChangeNotifier {
   Locale _localeFromCode(String code) {
     switch (code) {
       case 'en':
-        return const Locale('en', 'US');
+        return const Locale('en');
       case 'tr':
       default:
-        return const Locale('tr', 'TR');
+        return const Locale('tr');
     }
   }
 

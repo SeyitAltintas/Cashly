@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cashly/core/services/locale_manager.dart';
 import 'package:cashly/core/services/haptic_service.dart';
-import 'package:cashly/l10n/generated/app_localizations.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 class LanguageSettingsPage extends StatefulWidget {
   const LanguageSettingsPage({super.key});
@@ -17,7 +17,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final localeManager = Provider.of<LocaleManager>(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
