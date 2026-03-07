@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../../../../core/services/haptic_service.dart';
@@ -28,7 +29,13 @@ class StreakCelebrationDialog extends StatefulWidget {
           streakCount: streakCount,
           onDismiss: () {
             if (dialogContext.mounted) {
-              Navigator.of(dialogContext, rootNavigator: true).pop();
+              final route = ModalRoute.of(dialogContext);
+              if (route != null && route.isCurrent) {
+                final nav = Navigator.of(dialogContext, rootNavigator: true);
+                if (nav.canPop()) {
+                  nav.pop();
+                }
+              }
             }
           },
         );
@@ -52,6 +59,7 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _textAnimation;
+  Timer? _dismissTimer;
 
   @override
   void initState() {
@@ -81,7 +89,7 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
     _startCelebrationHaptics();
 
     // 3 saniye sonra otomatik kapat
-    Future.delayed(const Duration(seconds: 3), () {
+    _dismissTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) {
         widget.onDismiss?.call();
       }
@@ -113,6 +121,7 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
 
   @override
   void dispose() {
+    _dismissTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }

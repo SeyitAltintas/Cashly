@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Analiz Boş Durumu Widget'ı
 /// Veri yokken gösterilir
@@ -335,110 +336,112 @@ class LegendItem extends StatelessWidget {
     final isOverBudget = hasLimit && value > budgetLimit!;
     final usagePercent = hasLimit ? (value / budgetLimit! * 100) : 0.0;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
         child: Column(
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // İkon Alanı (Dairesel ve Yumuşak)
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: color.withValues(alpha: 0.3)),
+                    shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    icon ?? Icons.category_outlined,
-                    color: color,
-                    size: 20,
-                  ),
+                  child: Icon(icon ?? Icons.circle, color: color, size: 24),
                 ),
                 const SizedBox(width: 16),
+
+                // Metin Alanı
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 16,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Text(
+                            CurrencyFormatter.format(value),
+                            style: TextStyle(
+                              color: isOverBudget
+                                  ? Colors.red.shade400
+                                  : Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "${(value / total * 100).toStringAsFixed(1)}%",
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.5),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (hasLimit)
+                            Text(
+                              '${context.l10n.total} ${CurrencyFormatter.format(budgetLimit!)}',
+                              style: TextStyle(
+                                color: isOverBudget
+                                    ? Colors.red.shade400
+                                    : Theme.of(context).colorScheme.onSurface
+                                          .withValues(alpha: 0.5),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      CurrencyFormatter.format(value),
-                      style: TextStyle(
-                        color: isOverBudget
-                            ? Colors.red.shade400
-                            : Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      "%${(value / total * 100).toStringAsFixed(1)}",
-                      style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.54),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: hasLimit
-                          ? (value / budgetLimit!).clamp(0.0, 1.0)
-                          : (total > 0 ? (value / total).clamp(0.0, 1.0) : 0.0),
-                      minHeight: 6,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.1),
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        hasLimit
-                            ? (isOverBudget
-                                  ? Colors.red.shade400
-                                  : usagePercent > 80
-                                  ? Colors.orange.shade400
-                                  : Colors.green.shade400)
-                            : color, // Limit yoksa kendi kategorisinin rengini kullan
-                      ),
-                    ),
-                  ),
+            const SizedBox(height: 14),
+            // İnce ve Şık Progress Bar (Track/Ayraç görevi görüyor)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: hasLimit
+                    ? (value / budgetLimit!).clamp(0.0, 1.0)
+                    : (total > 0 ? (value / total).clamp(0.0, 1.0) : 0.0),
+                minHeight: 6,
+                backgroundColor: color.withValues(alpha: 0.1),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  hasLimit
+                      ? (isOverBudget
+                            ? Colors.red.shade400
+                            : usagePercent > 80
+                            ? Colors.orange.shade400
+                            : color)
+                      : color,
                 ),
-                if (hasLimit) ...[
-                  const SizedBox(width: 8),
-                  Text(
-                    '${usagePercent.toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: isOverBudget
-                          ? Colors.red.shade400
-                          : usagePercent > 80
-                          ? Colors.orange.shade400
-                          : Colors.green.shade400,
-                    ),
-                  ),
-                ],
-              ],
+              ),
             ),
           ],
         ),

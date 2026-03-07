@@ -900,6 +900,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get thisYear => 'Bu Yıl';
 
   @override
+  String get last1Year => 'Son 1 Yıl';
+
+  @override
   String get customRange => 'Özel Aralık';
 
   @override

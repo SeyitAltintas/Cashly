@@ -55,8 +55,11 @@ class AnalysisController extends ChangeNotifier {
   List<PaymentMethod> _odemeYontemleri = [];
   List<PaymentMethod> get odemeYontemleri => _odemeYontemleri;
 
-  DateTime _secilenAy = DateTime.now();
-  DateTime get secilenAy => _secilenAy;
+  int _historyLimit = 30; // 7, 30, 90, 180, 365, -1 for Month Selection
+  int get historyLimit => _historyLimit;
+
+  DateTime _selectedMonth = DateTime.now();
+  DateTime get selectedMonth => _selectedMonth;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -75,8 +78,114 @@ class AnalysisController extends ChangeNotifier {
     _gelirler = gelirler;
     _varliklar = varliklar;
     _odemeYontemleri = odemeYontemleri;
-    _secilenAy = secilenAy;
+
+    // Eğer anasayfadan farklı bir ay geldiyse (ya da ilk yükleme) ve historyLimit -1 listesinde değilsek
+    // UI güncellemelerinde anasayfadaki seçimi dikkate alıp "Özel Ay" filtresine geçirmeliyiz
+    if (_selectedMonth.year != secilenAy.year ||
+        _selectedMonth.month != secilenAy.month) {
+      _selectedMonth = secilenAy;
+      _historyLimit = -1; // Ay seçim moduna atla
+    }
+
     notifyListeners();
+  }
+
+  void setHistoryLimit(int limit) {
+    if (_historyLimit != limit) {
+      _historyLimit = limit;
+      _touchedIndex = -1;
+      notifyListeners();
+    }
+  }
+
+  void setSelectedMonth(DateTime month) {
+    _selectedMonth = month;
+    if (_historyLimit != -1) {
+      _historyLimit = -1;
+    }
+    _touchedIndex = -1;
+    notifyListeners();
+  }
+
+  bool _isWithinLimit(DateTime date) {
+    if (_historyLimit == -1) {
+      return date.year == _selectedMonth.year &&
+          date.month == _selectedMonth.month;
+    }
+
+    final today = DateTime.now();
+    final todayStart = DateTime(today.year, today.month, today.day);
+    final tomorrow = todayStart.add(const Duration(days: 1));
+
+    if (_historyLimit == 30) {
+      // Bu Ay (This Calendar Month) - tüm ayı dahil et
+      return date.year == today.year && date.month == today.month;
+    } else if (_historyLimit == 366) {
+      // Bu Yıl (This Calendar Year) - tüm yılı dahil et
+      return date.year == today.year;
+    } else {
+      // 7 (Son 7 Gün), 90 (Son 3 Ay), 180 (Son 6 Ay), 365 (Son 1 Yıl)
+      DateTime thresholdDate;
+      if (_historyLimit == 7) {
+        thresholdDate = todayStart.subtract(const Duration(days: 7));
+      } else if (_historyLimit == 90) {
+        thresholdDate = DateTime(today.year, today.month - 3, today.day);
+      } else if (_historyLimit == 180) {
+        thresholdDate = DateTime(today.year, today.month - 6, today.day);
+      } else if (_historyLimit == 365) {
+        thresholdDate = DateTime(today.year - 1, today.month, today.day);
+      } else {
+        thresholdDate = todayStart.subtract(Duration(days: _historyLimit));
+      }
+      return (date.isAfter(thresholdDate) ||
+              date.isAtSameMomentAs(thresholdDate)) &&
+          date.isBefore(tomorrow);
+    }
+  }
+
+  bool _isWithinPreviousLimit(DateTime date) {
+    if (_historyLimit == -1) {
+      final prevMonth = DateTime(_selectedMonth.year, _selectedMonth.month - 1);
+      return date.year == prevMonth.year && date.month == prevMonth.month;
+    }
+
+    final today = DateTime.now();
+    final todayStart = DateTime(today.year, today.month, today.day);
+
+    if (_historyLimit == 30) {
+      // Önceki Ay (Previous Calendar Month)
+      final prevMonth = DateTime(today.year, today.month - 1);
+      return date.year == prevMonth.year && date.month == prevMonth.month;
+    } else if (_historyLimit == 366) {
+      // Önceki Yıl (Previous Calendar Year)
+      final prevYear = today.year - 1;
+      return date.year == prevYear;
+    } else {
+      DateTime currentThreshold;
+      DateTime previousThreshold;
+      if (_historyLimit == 7) {
+        currentThreshold = todayStart.subtract(const Duration(days: 7));
+        previousThreshold = currentThreshold.subtract(const Duration(days: 7));
+      } else if (_historyLimit == 90) {
+        currentThreshold = DateTime(today.year, today.month - 3, today.day);
+        previousThreshold = DateTime(today.year, today.month - 6, today.day);
+      } else if (_historyLimit == 180) {
+        currentThreshold = DateTime(today.year, today.month - 6, today.day);
+        previousThreshold = DateTime(today.year, today.month - 12, today.day);
+      } else if (_historyLimit == 365) {
+        currentThreshold = DateTime(today.year - 1, today.month, today.day);
+        previousThreshold = DateTime(today.year - 2, today.month, today.day);
+      } else {
+        currentThreshold = todayStart.subtract(Duration(days: _historyLimit));
+        previousThreshold = currentThreshold.subtract(
+          Duration(days: _historyLimit),
+        );
+      }
+
+      return (date.isAfter(previousThreshold) ||
+              date.isAtSameMomentAs(previousThreshold)) &&
+          date.isBefore(currentThreshold);
+    }
   }
 
   /// Loading durumunu güncelle
@@ -87,46 +196,39 @@ class AnalysisController extends ChangeNotifier {
     }
   }
 
-  /// Seçilen ayı güncelle
-  void setSecilenAy(DateTime ay) {
-    if (_secilenAy != ay) {
-      _secilenAy = ay;
-      notifyListeners();
-    }
-  }
+  // Seçilen ayı Legacy olarak tutmuyoruz artık. Gerekirse eklenebilir.
 
   // ===== HARCAMA ANALİZİ =====
 
-  /// Seçilen aya göre harcamaları filtrele
-  List<Map<String, dynamic>> get monthlyExpenses {
+  /// Seçilen limitlere göre harcamaları filtrele
+  List<Map<String, dynamic>> get currentExpenses {
     return _harcamalar.where((h) {
       if (h['silindi'] == true) return false;
       DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
       if (tarih == null) return false;
-      return tarih.year == _secilenAy.year && tarih.month == _secilenAy.month;
+      return _isWithinLimit(tarih);
     }).toList();
   }
 
-  /// Toplam aylık harcama
+  /// Toplam filtreli harcama
   double get totalMonthlyExpense {
     final cur = getIt<CurrencyService>();
-    return monthlyExpenses.fold(0.0, (sum, h) {
+    return currentExpenses.fold(0.0, (sum, h) {
       final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
       final pb = h['paraBirimi']?.toString() ?? 'TRY';
       return sum + cur.convert(tutar, pb, cur.currentCurrency);
     });
   }
 
-  /// Bir önceki ayın toplam harcaması
+  /// Bir önceki dönemin toplam harcaması
   double get previousMonthTotalExpense {
     final cur = getIt<CurrencyService>();
-    final prevMonth = DateTime(_secilenAy.year, _secilenAy.month - 1);
 
     final prevHarcamalar = _harcamalar.where((h) {
       if (h['silindi'] == true) return false;
       DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
       if (tarih == null) return false;
-      return tarih.year == prevMonth.year && tarih.month == prevMonth.month;
+      return _isWithinPreviousLimit(tarih);
     });
 
     return prevHarcamalar.fold(0.0, (sum, h) {
@@ -140,7 +242,7 @@ class AnalysisController extends ChangeNotifier {
   Map<String, double> get expenseCategoryTotals {
     final cur = getIt<CurrencyService>();
     final totals = <String, double>{};
-    for (var h in monthlyExpenses) {
+    for (var h in currentExpenses) {
       final kategori = h['kategori']?.toString() ?? 'Diğer';
       final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
       final pb = h['paraBirimi']?.toString() ?? 'TRY';
@@ -154,7 +256,7 @@ class AnalysisController extends ChangeNotifier {
   Map<String, double> get expensePaymentMethodTotals {
     final cur = getIt<CurrencyService>();
     final totals = <String, double>{};
-    for (var h in monthlyExpenses) {
+    for (var h in currentExpenses) {
       final pmId = h['odemeYontemiId']?.toString() ?? 'nakit';
       final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
       final pb = h['paraBirimi']?.toString() ?? 'TRY';
@@ -174,30 +276,29 @@ class AnalysisController extends ChangeNotifier {
 
   // ===== GELİR ANALİZİ =====
 
-  /// Seçilen aya göre gelirleri filtrele
-  List<Income> get monthlyIncomes {
+  /// Seçilen limite göre gelirleri filtrele
+  List<Income> get currentIncomes {
     return _gelirler.where((g) {
       if (g.isDeleted) return false;
-      return g.date.year == _secilenAy.year && g.date.month == _secilenAy.month;
+      return _isWithinLimit(g.date);
     }).toList();
   }
 
-  /// Toplam aylık gelir
+  /// Toplam filtreli gelir
   double get totalMonthlyIncome {
     final cur = getIt<CurrencyService>();
-    return monthlyIncomes.fold(0.0, (sum, g) {
+    return currentIncomes.fold(0.0, (sum, g) {
       return sum + cur.convert(g.amount, g.paraBirimi, cur.currentCurrency);
     });
   }
 
-  /// Bir önceki ayın toplam geliri
+  /// Bir önceki dönemin toplam geliri
   double get previousMonthTotalIncome {
     final cur = getIt<CurrencyService>();
-    final prevMonth = DateTime(_secilenAy.year, _secilenAy.month - 1);
 
     final prevGelirler = _gelirler.where((g) {
       if (g.isDeleted) return false;
-      return g.date.year == prevMonth.year && g.date.month == prevMonth.month;
+      return _isWithinPreviousLimit(g.date);
     });
 
     return prevGelirler.fold(0.0, (sum, g) {
@@ -209,7 +310,7 @@ class AnalysisController extends ChangeNotifier {
   Map<String, double> get incomeCategoryTotals {
     final cur = getIt<CurrencyService>();
     final totals = <String, double>{};
-    for (var g in monthlyIncomes) {
+    for (var g in currentIncomes) {
       final kategori = g.category.isEmpty ? 'Diğer' : g.category;
       totals[kategori] =
           (totals[kategori] ?? 0) +

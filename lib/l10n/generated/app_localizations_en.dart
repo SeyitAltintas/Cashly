@@ -900,6 +900,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get thisYear => 'This Year';
 
   @override
+  String get last1Year => 'Last 1 Year';
+
+  @override
   String get customRange => 'Custom Range';
 
   @override

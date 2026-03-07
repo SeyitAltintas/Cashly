@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -57,42 +58,46 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   int get _touchedIndex => _controller.touchedIndex;
 
-  // Harcama için kırmızı tonları renk paleti
+  // Harcamalar için birbirine zıt, okunabilir ve canlı "Sıcak" tonlar
   static const List<Color> expenseColors = [
-    Color(0xFFEF5350), // red.shade400
-    Color(0xFFE53935), // red.shade600
-    Color(0xFFE57373), // red.shade300
-    Color(0xFFD32F2F), // red.shade700
-    Color(0xFFFF8A80), // redAccent.shade200
-    Color(0xFFF44336), // red.shade500
-    Color(0xFFFF5252), // redAccent.shade400
-    Color(0xFFC62828), // red.shade800
-    Color(0xFFEF9A9A), // red.shade200
-    Color(0xFFFF8A80), // redAccent.shade100
+    Color(0xFFE53935), // Kırmızı (red.shade600)
+    Color(0xFFFB8C00), // Turuncu (orange.shade600)
+    Color(0xFFD81B60), // Pembe (pink.shade600)
+    Color(0xFF8E24AA), // Mor (purple.shade600)
+    Color(0xFFFFB300), // Kehribar (amber.shade600)
+    Color(0xFFF4511E), // Koyu Turuncu (deepOrange.shade600)
+    Color(0xFF5E35B1), // Koyu Mor (deepPurple.shade600)
+    Color(0xFFEF5350), // Pastel Kırmızı
+    Color(0xFFFFA726), // Pastel Turuncu
+    Color(0xFFAB47BC), // Pastel Mor
   ];
 
-  // Gelir için yeşil tonları renk paleti
+  // Gelirler için birbirine zıt, tazeleyici "Doğa / Yeşil" tabanlı tonlar
   static const List<Color> incomeColors = [
-    Color(0xFF66BB6A), // green.shade400
-    Color(0xFF43A047), // green.shade600
-    Color(0xFF81C784), // green.shade300
-    Color(0xFF388E3C), // green.shade700
-    Color(0xFF69F0AE), // greenAccent.shade400
-    Color(0xFF4CAF50), // green.shade500
-    Color(0xFF26A69A), // teal.shade400
-    Color(0xFF2E7D32), // green.shade800
+    Color(0xFF43A047), // Yeşil (green.shade600)
+    Color(0xFF00897B), // Petrol Yeşili / Teal (teal.shade600)
+    Color(0xFF7CB342), // Açık Yeşil (lightGreen.shade600)
+    Color(0xFF00ACC1), // Camgöbeği (cyan.shade600)
+    Color(0xFF2E7D32), // Orman Yeşili (green.shade800)
+    Color(0xFFCDDC39), // Limon Yeşili (lime)
+    Color(0xFF009688), // Standart Teal
+    Color(0xFF81C784), // Pastel Yeşil
+    Color(0xFF4DD0E1), // Pastel Camgöbeği
+    Color(0xFFAED581), // Pastel Açık Yeşil
   ];
 
-  // Varlık için mavi tonları renk paleti (koyu mavi)
+  // Varlıklar için birbirine zıt, güven veren "Deniz / Gökyüzü" tabanlı tonlar
   static const List<Color> assetColors = [
-    Color(0xFF1E88E5), // blue.shade600
-    Color(0xFF1976D2), // blue.shade700
-    Color(0xFF42A5F5), // blue.shade400
-    Color(0xFF1565C0), // blue.shade800
-    Color(0xFF0D47A1), // blue.shade900
-    Color(0xFF2196F3), // blue.shade500
-    Color(0xFF1976D2), // blue.shade700
-    Color(0xFF0D47A1), // blue.shade900
+    Color(0xFF1E88E5), // Mavi (blue.shade600)
+    Color(0xFF3949AB), // Çivit Mavisi (indigo.shade600)
+    Color(0xFF039BE5), // Açık Mavi (lightBlue.shade600)
+    Color(0xFF00ACC1), // Camgöbeği (cyan.shade600)
+    Color(0xFF5E35B1), // Koyu Mor (deepPurple.shade600)
+    Color(0xFF42A5F5), // Pastel Mavi
+    Color(0xFF26C6DA), // Pastel Camgöbeği
+    Color(0xFF5C6BC0), // Pastel İndigo
+    Color(0xFF7E57C2), // Pastel Mor
+    Color(0xFF29B6F6), // Pastel Açık Mavi
   ];
 
   @override
@@ -174,9 +179,9 @@ class _AnalysisPageState extends State<AnalysisPage>
   bool get _isCurrentTabEmpty {
     switch (_tabController.index) {
       case 0:
-        return _controller.monthlyExpenses.isEmpty;
+        return _controller.currentExpenses.isEmpty;
       case 1:
-        return _controller.monthlyIncomes.isEmpty;
+        return _controller.currentIncomes.isEmpty;
       case 2:
         return _controller.varliklar.where((a) => !a.isDeleted).isEmpty;
       default:
@@ -222,7 +227,6 @@ class _AnalysisPageState extends State<AnalysisPage>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildMonthSelector(context),
             Container(
               margin: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
               padding: const EdgeInsets.all(4),
@@ -319,67 +323,163 @@ class _AnalysisPageState extends State<AnalysisPage>
     );
   }
 
-  /// Ay Değiştirici Widget'ı
-  Widget _buildMonthSelector(BuildContext context) {
+  /// Zaman Filtresi Seçici Widget'ı
+  Widget _buildTimeFilterSelector(BuildContext context) {
+    String formatMonth(DateTime date) {
+      final months = [
+        '',
+        context.l10n.january,
+        context.l10n.february,
+        context.l10n.march,
+        context.l10n.april,
+        context.l10n.may,
+        context.l10n.june,
+        context.l10n.july,
+        context.l10n.august,
+        context.l10n.september,
+        context.l10n.october,
+        context.l10n.november,
+        context.l10n.december,
+      ];
+      return '${months[date.month]} ${date.year}';
+    }
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 0.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          IconButton(
-            icon: Icon(
-              Icons.chevron_left,
-              color: Theme.of(context).colorScheme.onSurface,
+          if (_controller.historyLimit == -1) // Özel ay modu ok tuşu
+            IconButton(
+              icon: Icon(Icons.chevron_left, color: Colors.white),
+              onPressed: () {
+                final current = _controller.selectedMonth;
+                _controller.setSelectedMonth(
+                  DateTime(current.year, current.month - 1),
+                );
+              },
             ),
-            onPressed: () {
-              final current = _controller.secilenAy;
-              _controller.setSecilenAy(
-                DateTime(current.year, current.month - 1),
-              );
-            },
-          ),
-          Text(
-            _formatMonthYear(_controller.secilenAy),
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.surface.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<int>(
+                  value: _controller.historyLimit,
+                  isDense: true,
+                  isExpanded: true,
+                  dropdownColor: Theme.of(context).colorScheme.surface,
+                  icon: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: Colors.white.withValues(alpha: 0.9),
+                  ),
+                  items: [
+                    DropdownMenuItem(
+                      value: 7,
+                      child: Text(
+                        context.l10n.thisWeek,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 30,
+                      child: Text(
+                        context.l10n.thisMonth,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 90,
+                      child: Text(
+                        context.l10n.last3Months,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 180,
+                      child: Text(
+                        context.l10n.last6Months,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 366,
+                      child: Text(
+                        context.l10n.thisYear,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 365,
+                      child: Text(
+                        context.l10n.last1Year,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: -1,
+                      child: Text(
+                        _controller.historyLimit == -1
+                            ? formatMonth(_controller.selectedMonth)
+                            : context.l10n.selectMonth,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      _controller.setHistoryLimit(value);
+                    }
+                  },
+                  selectedItemBuilder: (BuildContext context) {
+                    return [7, 30, 90, 180, 366, 365, -1].map<Widget>((
+                      int item,
+                    ) {
+                      return Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          item == -1
+                              ? formatMonth(_controller.selectedMonth)
+                              : [
+                                  context.l10n.thisWeek,
+                                  context.l10n.thisMonth,
+                                  context.l10n.last3Months,
+                                  context.l10n.last6Months,
+                                  context.l10n.thisYear,
+                                  context.l10n.last1Year,
+                                  "",
+                                ][[7, 30, 90, 180, 366, 365, -1].indexOf(item)],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }).toList();
+                  },
+                ),
+              ),
             ),
           ),
-          IconButton(
-            icon: Icon(
-              Icons.chevron_right,
-              color: Theme.of(context).colorScheme.onSurface,
+
+          if (_controller.historyLimit == -1) // Özel ay modu ok tuşu
+            IconButton(
+              icon: const Icon(Icons.chevron_right, color: Colors.white),
+              onPressed: () {
+                final current = _controller.selectedMonth;
+                _controller.setSelectedMonth(
+                  DateTime(current.year, current.month + 1),
+                );
+              },
             ),
-            onPressed: () {
-              final current = _controller.secilenAy;
-              final next = DateTime(current.year, current.month + 1);
-              _controller.setSecilenAy(next);
-            },
-          ),
         ],
       ),
     );
-  }
-
-  String _formatMonthYear(DateTime date) {
-    // Sadece ay ve yıl döndürelim
-    final months = [
-      '',
-      context.l10n.january,
-      context.l10n.february,
-      context.l10n.march,
-      context.l10n.april,
-      context.l10n.may,
-      context.l10n.june,
-      context.l10n.july,
-      context.l10n.august,
-      context.l10n.september,
-      context.l10n.october,
-      context.l10n.november,
-      context.l10n.december,
-    ];
-    return '${months[date.month]} ${date.year}';
   }
 
   /// PDF export sayfasina git
@@ -411,16 +511,26 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   /// Harcama Analizi
   Widget _buildExpenseAnalysis() {
-    final monthlyExpenses = _controller.monthlyExpenses;
+    final currentExpenses = _controller.currentExpenses;
 
-    if (monthlyExpenses.isEmpty) {
-      return AnalysisEmptyState(
-        message: context.l10n.noExpenseDataForThisMonth,
-        actionText: context.l10n.addExpense,
-        icon: Icons.receipt_long_outlined,
-        buttonColor: Colors.red.shade400,
-        onActionPressed:
-            widget.onAddExpensePressed ?? () => Navigator.pop(context),
+    if (currentExpenses.isEmpty) {
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+            child: _buildTimeFilterSelector(context),
+          ),
+          Expanded(
+            child: AnalysisEmptyState(
+              message: context.l10n.noExpenseDataForThisMonth,
+              actionText: context.l10n.addExpense,
+              icon: Icons.receipt_long_outlined,
+              buttonColor: Colors.red.shade400,
+              onActionPressed:
+                  widget.onAddExpensePressed ?? () => Navigator.pop(context),
+            ),
+          ),
+        ],
       );
     }
 
@@ -483,16 +593,26 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   /// Gelir Analizi
   Widget _buildIncomeAnalysis() {
-    final monthlyIncomes = _controller.monthlyIncomes;
+    final currentIncomes = _controller.currentIncomes;
 
-    if (monthlyIncomes.isEmpty) {
-      return AnalysisEmptyState(
-        message: context.l10n.noIncomeDataForThisMonth,
-        actionText: context.l10n.addIncome,
-        icon: Icons.account_balance_wallet_outlined,
-        buttonColor: Colors.green.shade400,
-        onActionPressed:
-            widget.onAddIncomePressed ?? () => Navigator.pop(context),
+    if (currentIncomes.isEmpty) {
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+            child: _buildTimeFilterSelector(context),
+          ),
+          Expanded(
+            child: AnalysisEmptyState(
+              message: context.l10n.noIncomeDataForThisMonth,
+              actionText: context.l10n.addIncome,
+              icon: Icons.account_balance_wallet_outlined,
+              buttonColor: Colors.green.shade400,
+              onActionPressed:
+                  widget.onAddIncomePressed ?? () => Navigator.pop(context),
+            ),
+          ),
+        ],
       );
     }
 
@@ -553,13 +673,23 @@ class _AnalysisPageState extends State<AnalysisPage>
     final activeAssets = _controller.activeAssets;
 
     if (activeAssets.isEmpty) {
-      return AnalysisEmptyState(
-        message: context.l10n.noAssetsAddedYet,
-        actionText: context.l10n.addAsset,
-        icon: Icons.diamond_outlined,
-        buttonColor: Colors.blue.shade500,
-        onActionPressed:
-            widget.onAddAssetPressed ?? () => Navigator.pop(context),
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+            child: _buildTimeFilterSelector(context),
+          ),
+          Expanded(
+            child: AnalysisEmptyState(
+              message: context.l10n.noAssetsAddedYet,
+              actionText: context.l10n.addAsset,
+              icon: Icons.diamond_outlined,
+              buttonColor: Colors.blue.shade500,
+              onActionPressed:
+                  widget.onAddAssetPressed ?? () => Navigator.pop(context),
+            ),
+          ),
+        ],
       );
     }
 
@@ -626,24 +756,25 @@ class _AnalysisPageState extends State<AnalysisPage>
     return (topCategory, topAmount);
   }
 
-  /// Kategori adına göre sabit bir renk üretir
-  Color _getColorForCategory(String categoryName, List<Color> colors) {
+  /// Kategori sırasına göre değerine orantılı renk üretir (Koyu -> Açık)
+  Color _getColorForIndex(int index, List<Color> colors) {
     if (colors.isEmpty) return Colors.grey;
-    int hash = categoryName.hashCode.abs();
-    return colors[hash % colors.length];
+    return colors[index % colors.length];
   }
 
-  /// Pasta grafiği için sections oluşturur
   List<PieChartSectionData> _buildPieChartSections(
     Map<String, double> totals,
     double total,
     List<Color> colors,
   ) {
     List<PieChartSectionData> sections = [];
-    int index = 0;
-    totals.forEach((key, value) {
+    final sortedEntries = totals.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    for (int index = 0; index < sortedEntries.length; index++) {
+      final value = sortedEntries[index].value;
       final isTouched = index == _touchedIndex;
-      final color = _getColorForCategory(key, colors);
+      final color = _getColorForIndex(index, colors);
       final percentage = (value / total * 100);
       sections.add(
         PieChartSectionData(
@@ -661,17 +792,35 @@ class _AnalysisPageState extends State<AnalysisPage>
           ),
         ),
       );
-      index++;
-    });
+    }
     return sections;
   }
 
   /// Pasta grafiği widget'ı
   Widget _buildPieChart(
     List<PieChartSectionData> sections,
+    Map<String, double> totals,
     double totalAmount, {
     Key? key,
   }) {
+    String centerTitle = context.l10n.total;
+    double centerValue = totalAmount;
+    String? centerPercentage;
+
+    int safeIndex = _touchedIndex;
+    if (safeIndex >= totals.length || safeIndex < 0) {
+      safeIndex = -1;
+    }
+
+    if (safeIndex != -1) {
+      final entries = totals.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      final entry = entries[safeIndex];
+      centerTitle = context.translateDbName(entry.key);
+      centerValue = entry.value;
+      centerPercentage =
+          '${(centerValue / totalAmount * 100).toStringAsFixed(1)}%';
+    }
     return Center(
       key: key,
       child: SizedBox(
@@ -686,27 +835,60 @@ class _AnalysisPageState extends State<AnalysisPage>
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    context.l10n.total,
-                    style: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.5),
-                      fontSize: 14,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: Text(
+                      centerTitle,
+                      key: ValueKey<String>(centerTitle),
+                      style: TextStyle(
+                        color: _touchedIndex != -1
+                            ? Colors.white
+                            : Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.5),
+                        fontSize: 14,
+                        fontWeight: _touchedIndex != -1
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      CurrencyFormatter.format(totalAmount),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: FittedBox(
+                      key: ValueKey<double>(centerValue),
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        CurrencyFormatter.format(centerValue),
+                        style: TextStyle(
+                          color: _touchedIndex != -1
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.onSurface,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
+                  if (centerPercentage != null) ...[
+                    const SizedBox(height: 4),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: Text(
+                        centerPercentage,
+                        key: ValueKey<String>(centerPercentage),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -714,15 +896,29 @@ class _AnalysisPageState extends State<AnalysisPage>
               PieChartData(
                 pieTouchData: PieTouchData(
                   touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                    if (!event.isInterestedForInteractions ||
-                        pieTouchResponse == null ||
+                    // ANR Çözümü: Yalnızca tıkladıktan sonra parmak kalktığında işlemi algıla.
+                    // Ekranda gezinme (Pan/Move) saniyede yüzlerce duruma (setState) yol açıp ana thread'i çökertir.
+                    final type = event.runtimeType.toString();
+                    if (!type.contains('TapUp') && !type.contains('TapDown')) {
+                      return; // İlgili olmayan eylemleri (scroll, pan) yok say
+                    }
+
+                    if (pieTouchResponse == null ||
                         pieTouchResponse.touchedSection == null) {
+                      _controller.setTouchedIndex(
+                        -1,
+                      ); // Boşluğa tıklanırsa sıfırla
+                      return;
+                    }
+
+                    int idx =
+                        pieTouchResponse.touchedSection!.touchedSectionIndex;
+                    if (idx < 0 || idx >= sections.length) {
                       _controller.setTouchedIndex(-1);
                       return;
                     }
-                    _controller.setTouchedIndex(
-                      pieTouchResponse.touchedSection!.touchedSectionIndex,
-                    );
+
+                    _controller.setTouchedIndex(idx);
                   },
                 ),
                 borderData: FlBorderData(show: false),
@@ -755,34 +951,93 @@ class _AnalysisPageState extends State<AnalysisPage>
     return Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Expanded(child: _buildTimeFilterSelector(context)),
+            const SizedBox(width: 8),
             Container(
-              height: 36,
+              height: 44,
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
                 ).colorScheme.surface.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
               ),
-              child: ToggleButtons(
-                borderRadius: BorderRadius.circular(18),
-                constraints: const BoxConstraints(minHeight: 36, minWidth: 46),
-                renderBorder: false,
-                fillColor: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.2),
-                selectedColor: Theme.of(context).colorScheme.primary,
-                color: Colors.white70,
-                isSelected: [!_isBarChart, _isBarChart],
-                onPressed: (index) {
-                  setState(() {
-                    _isBarChart = index == 1;
-                  });
-                },
-                children: const [
-                  Icon(Icons.pie_chart_outline, size: 20),
-                  Icon(Icons.bar_chart, size: 20),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: () => setState(() => _isBarChart = false),
+                    behavior: HitTestBehavior.opaque,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: !_isBarChart
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: !_isBarChart
+                            ? [
+                                BoxShadow(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ]
+                            : [],
+                      ),
+                      child: Icon(
+                        Icons.pie_chart_rounded,
+                        size: 20,
+                        color: !_isBarChart
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => setState(() => _isBarChart = true),
+                    behavior: HitTestBehavior.opaque,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _isBarChart
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: _isBarChart
+                            ? [
+                                BoxShadow(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ]
+                            : [],
+                      ),
+                      child: Icon(
+                        Icons.bar_chart_rounded,
+                        size: 20,
+                        color: _isBarChart
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -806,6 +1061,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                 )
               : _buildPieChart(
                   pieSections,
+                  totals,
                   totalAmount,
                   key: const ValueKey('pie'),
                 ),
@@ -840,28 +1096,21 @@ class _AnalysisPageState extends State<AnalysisPage>
             alignment: BarChartAlignment.spaceAround,
             maxY: maxVal * 1.2,
             barTouchData: BarTouchData(
-              enabled: true,
+              enabled: false, // Dokunma kapatıldı, tooltip sürekliliği sağlandı
               touchTooltipData: BarTouchTooltipData(
-                tooltipBgColor: Theme.of(context).colorScheme.surface,
+                tooltipBgColor: Colors.transparent, // Arkaplan siliyoruz
+                tooltipPadding: EdgeInsets.zero,
+                tooltipMargin: 2,
                 getTooltipItem: (group, groupIndex, rod, rodIndex) {
                   return BarTooltipItem(
-                    '${context.translateDbName(topData[groupIndex].key)}\n',
+                    CurrencyFormatter.format(
+                      rod.toY,
+                    ).split(',')[0], // Küsuratı at ki çok uzun durmasın
                     TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: _getColorForIndex(groupIndex, colors),
+                      fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: CurrencyFormatter.format(rod.toY),
-                        style: TextStyle(
-                          color: _getColorForCategory(
-                            topData[groupIndex].key,
-                            colors,
-                          ),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
                   );
                 },
               ),
@@ -911,7 +1160,7 @@ class _AnalysisPageState extends State<AnalysisPage>
               drawVerticalLine: false,
               horizontalInterval: maxVal > 0 ? maxVal / 4 : 1,
               getDrawingHorizontalLine: (value) => FlLine(
-                color: Colors.white.withValues(alpha: 0.1),
+                color: Colors.white.withValues(alpha: 0.3),
                 strokeWidth: 1,
                 dashArray: [4, 4],
               ),
@@ -922,10 +1171,13 @@ class _AnalysisPageState extends State<AnalysisPage>
               final entryData = entry.value;
               return BarChartGroupData(
                 x: index,
+                showingTooltipIndicators: [
+                  0,
+                ], // Her zaman ilk rod (tek rod var zaten) tooltipi gösterilecek
                 barRods: [
                   BarChartRodData(
                     toY: entryData.value,
-                    color: _getColorForCategory(entryData.key, colors),
+                    color: _getColorForIndex(index, colors),
                     width: 26, // Bar kalınlığını artırdık
                     borderRadius: BorderRadius.circular(
                       6,
@@ -933,9 +1185,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                     backDrawRodData: BackgroundBarChartRodData(
                       show: true,
                       toY: maxVal * 1.2, // Track yığını tepeye kadar çıksın
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surface, // Arkaplanla bütünleşik olsun
+                      color: Colors.white.withValues(alpha: 0.1),
                     ),
                   ),
                 ],
@@ -955,24 +1205,31 @@ class _AnalysisPageState extends State<AnalysisPage>
   ) {
     // Sadece Harcama ve Gelirler için detay gösterebiliriz
     final items = isExpense
-        ? _controller.monthlyExpenses
+        ? _controller.currentExpenses
               .where(
                 (e) => (e['kategori']?.toString() ?? 'Diğer') == categoryKey,
               )
               .toList()
-        : _controller.monthlyIncomes
+        : _controller.currentIncomes
               .where(
                 (g) =>
                     (g.category.isEmpty ? 'Diğer' : g.category) == categoryKey,
               )
               .toList();
 
+    final currencyService = getIt<CurrencyService>();
+    final currentCurrency = currencyService.currentCurrency;
+
     double totalAmount = items.fold(0.0, (sum, item) {
       final dynamic dItem = item;
       if (isExpense) {
-        return sum + ((dItem['tutar'] as num?)?.toDouble() ?? 0.0);
+        final tutar = ((dItem['tutar'] as num?)?.toDouble() ?? 0.0);
+        final pb = dItem['paraBirimi']?.toString() ?? 'TRY';
+        return sum + currencyService.convert(tutar, pb, currentCurrency);
       } else {
-        return sum + (dItem.amount as double);
+        final tutar = dItem.amount as double;
+        final pb = dItem.paraBirimi as String;
+        return sum + currencyService.convert(tutar, pb, currentCurrency);
       }
     });
 
@@ -1275,23 +1532,28 @@ class _AnalysisPageState extends State<AnalysisPage>
           ),
         ),
         const SizedBox(height: 12),
-        ...totals.entries.toList().map((e) {
-          final color = _getColorForCategory(e.key, colors);
-          return LegendItem(
-            title: context.translateDbName(e.key),
-            value: e.value,
-            color: color,
-            total: total,
-            budgetLimit: categoryBudgets?[e.key],
-            icon: categoryIcons?[e.key],
-            onTap: () {
-              if (title != context.l10n.assetTypes) {
-                // Varlıklarda detay yok (opsiyonel)
-                _showCategoryDetails(context, e.key, isExpense);
-              }
-            },
-          );
-        }),
+        ...(totals.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
+            .asMap()
+            .entries
+            .map((mapEntry) {
+              final index = mapEntry.key;
+              final e = mapEntry.value;
+              final color = _getColorForIndex(index, colors);
+              return LegendItem(
+                title: context.translateDbName(e.key),
+                value: e.value,
+                color: color,
+                total: total,
+                budgetLimit: categoryBudgets?[e.key],
+                icon: categoryIcons?[e.key],
+                onTap: () {
+                  if (title != context.l10n.assetTypes) {
+                    // Varlıklarda detay yok (opsiyonel)
+                    _showCategoryDetails(context, e.key, isExpense);
+                  }
+                },
+              );
+            }),
       ],
     );
   }
@@ -1323,18 +1585,30 @@ class _AnalysisPageState extends State<AnalysisPage>
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 16),
-        ...pmTotals.entries.toList().asMap().entries.map((entry) {
-          int idx = entry.key;
-          var e = entry.value;
-          final color = pmColors[idx % pmColors.length];
-          return _buildPaymentMethodItem(e.key, e.value, pmTotal, color);
-        }),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 110,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: pmTotals.length,
+            clipBehavior: Clip.none,
+            itemBuilder: (context, index) {
+              final entry = pmTotals.entries.elementAt(index);
+              final color = pmColors[index % pmColors.length];
+              return _buildPaymentMethodCard(
+                entry.key,
+                entry.value,
+                pmTotal,
+                color,
+              );
+            },
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildPaymentMethodItem(
+  Widget _buildPaymentMethodCard(
     String pmId,
     double value,
     double total,
@@ -1358,49 +1632,63 @@ class _AnalysisPageState extends State<AnalysisPage>
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      width: 170,
+      margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(pmIcon, color: color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(pmIcon, color: color, size: 16),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
                   pmName,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w500,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  '${(value / total * 100).toStringAsFixed(1)}%',
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.6),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
+          const Spacer(),
           Text(
             CurrencyFormatter.format(value),
-            style: TextStyle(color: color, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            '${(value / total * 100).toStringAsFixed(1)}%',
+            style: TextStyle(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

@@ -453,7 +453,7 @@ class _TransferPageState extends State<TransferPage> {
     }
 
     // Eski limit değeri farklı geldiyse 30'a (Bu Ay) ayarla
-    if (![7, 30, 90, 180, 365, -1].contains(historyLimit)) {
+    if (![7, 30, 90, 180, 366, 365, -1].contains(historyLimit)) {
       historyLimit = 30;
     }
 
@@ -463,12 +463,18 @@ class _TransferPageState extends State<TransferPage> {
       recentTransfers = sortedTransfers;
     } else {
       final now = DateTime.now();
-      // Yalnızca seçilen gün sayısı kadar geriye git,
-      final thresholdDate = DateTime(
-        now.year,
-        now.month,
-        now.day,
-      ).subtract(Duration(days: historyLimit));
+      DateTime thresholdDate;
+      if (historyLimit == 30) {
+        thresholdDate = DateTime(now.year, now.month, 1);
+      } else if (historyLimit == 366) {
+        thresholdDate = DateTime(now.year, 1, 1);
+      } else {
+        thresholdDate = DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).subtract(Duration(days: historyLimit));
+      }
       recentTransfers = sortedTransfers
           .where((t) => t.date.isAfter(thresholdDate))
           .toList();
@@ -1233,7 +1239,7 @@ class _TransferPageState extends State<TransferPage> {
   ) {
     if (widget.userId == null) return const SizedBox.shrink();
 
-    final limits = [7, 30, 90, 180, 365];
+    final limits = [7, 30, 90, 180, 366, 365];
     if (!limits.contains(currentLimit) && currentLimit != -1) {
       currentLimit = 30;
     }
@@ -1248,8 +1254,10 @@ class _TransferPageState extends State<TransferPage> {
           return context.l10n.last3Months;
         case 180:
           return context.l10n.last6Months;
-        case 365:
+        case 366:
           return context.l10n.thisYear;
+        case 365:
+          return context.l10n.last1Year;
         case -1:
           return context.l10n.allTransactions;
         default:

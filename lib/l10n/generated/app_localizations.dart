@@ -1850,6 +1850,12 @@ abstract class AppLocalizations {
   /// **'Bu Yıl'**
   String get thisYear;
 
+  /// No description provided for @last1Year.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son 1 Yıl'**
+  String get last1Year;
+
   /// No description provided for @customRange.
   ///
   /// In tr, this message translates to:

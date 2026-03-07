@@ -24,43 +24,55 @@ void main() {
       controller = AnalysisController();
     });
 
-    test('Ocak ayındaki harcamalar sadece o ayı listeler', () {
-      controller.setSecilenAy(DateTime(2025, 1, 15));
+    test('Zaman limitine göre (Son 30 gün) harcamalar listelenir', () {
+      final now = DateTime.now();
+      final validDate = now.subtract(
+        const Duration(days: 10),
+      ); // Son 30 gün içinde
+      final invalidDate = now.subtract(
+        const Duration(days: 40),
+      ); // Son 30 gün dışında
+      final anotherValidDate = now.subtract(
+        const Duration(days: 5),
+      ); // Silinmiş
+
+      controller.setHistoryLimit(30);
       controller.updateData(
         harcamalar: [
           {
             'kategori': 'Market',
             'tutar': 500.0,
-            'tarih': DateTime(2025, 1, 10).toIso8601String(),
+            'tarih': validDate.toIso8601String(),
           },
           {
             'kategori': 'Ulaşım',
             'tutar': 150.0,
-            'tarih': DateTime(2024, 12, 5).toIso8601String(),
+            'tarih': invalidDate.toIso8601String(),
           }, // Başka ay
           {
             'kategori': 'Giyim',
             'silindi': true,
             'tutar': 200.0,
-            'tarih': DateTime(2025, 1, 20).toIso8601String(),
+            'tarih': anotherValidDate.toIso8601String(),
           }, // Silinmiş
         ],
         gelirler: [],
         varliklar: [],
         odemeYontemleri: [],
-        secilenAy: DateTime(2025, 1, 15),
+        secilenAy: now,
       );
 
-      final monthlyExp = controller.monthlyExpenses;
-      expect(monthlyExp.length, equals(1));
-      expect(monthlyExp.first['kategori'], equals('Market'));
+      final currentExp = controller.currentExpenses;
+      expect(currentExp.length, equals(1));
+      expect(currentExp.first['kategori'], equals('Market'));
 
       expect(controller.totalMonthlyExpense, equals(500.0));
       expect(controller.expenseCategoryTotals['Market'], equals(500.0));
     });
 
     test('Gelir oranları ve toplamı doğru hesaplanır', () {
-      controller.setSecilenAy(DateTime(2025, 1, 15));
+      final now = DateTime.now();
+      controller.setHistoryLimit(30);
       controller.updateData(
         harcamalar: [],
         gelirler: [
@@ -69,7 +81,7 @@ void main() {
             name: 'Maaş Geliri',
             category: 'Maaş',
             amount: 10000.0,
-            date: DateTime(2025, 1, 10),
+            date: now.subtract(const Duration(days: 2)),
             paraBirimi: 'TRY',
             isDeleted: false,
           ),
@@ -78,14 +90,14 @@ void main() {
             name: 'Hisse Senedi',
             category: 'Yatırım',
             amount: 2000.0,
-            date: DateTime(2025, 1, 12),
+            date: now.subtract(const Duration(days: 5)),
             paraBirimi: 'TRY',
             isDeleted: false,
           ),
         ],
         varliklar: [],
         odemeYontemleri: [],
-        secilenAy: DateTime(2025, 1, 15),
+        secilenAy: now,
       );
 
       expect(controller.totalMonthlyIncome, equals(12000.0));
@@ -97,7 +109,7 @@ void main() {
     test(
       'Boş veri setlerinde Exception fırlatmaz, sıfır değerler döndürür',
       () {
-        controller.setSecilenAy(DateTime.now());
+        controller.setHistoryLimit(30);
         // Boş array ve listeler
         controller.updateData(
           harcamalar: [],
