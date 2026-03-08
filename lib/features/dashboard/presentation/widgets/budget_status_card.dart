@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
-import '../controllers/dashboard_controller.dart';
 
 /// Bütçe Durumu Kartı Widget'ı
 /// Bütçe limiti, kullanım oranını ve kategori bazlı limitleri gösterir
@@ -22,12 +20,13 @@ class BudgetStatusCard extends StatelessWidget {
     this.categoryBudgets,
     this.categoryExpenses,
     this.onTap,
+    this.isObscured = false,
   });
+
+  final bool isObscured;
 
   @override
   Widget build(BuildContext context) {
-    final isObscured = context.select((DashboardController c) => c.isObscured);
-
     final budgetUsed = butceLimiti > 0 ? (monthlyExpense / butceLimiti) : 0.0;
 
     return GestureDetector(

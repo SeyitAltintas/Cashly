@@ -3749,8 +3749,38 @@ abstract class AppLocalizations {
   /// No description provided for @assetValuesLastKnown.
   ///
   /// In tr, this message translates to:
-  /// **'Varlık değerleri son bilinen fiyatlarla gösterilir'**
+  /// **'Varlık değerleri bilinen son fiyatlarla gösterilir'**
   String get assetValuesLastKnown;
+
+  /// No description provided for @assetInsightTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Net Varlık Gelişimi'**
+  String get assetInsightTitle;
+
+  /// No description provided for @assetIncrease.
+  ///
+  /// In tr, this message translates to:
+  /// **'%{percent} Kur/Piyasa artışı'**
+  String assetIncrease(Object percent);
+
+  /// No description provided for @assetDecrease.
+  ///
+  /// In tr, this message translates to:
+  /// **'%{percent} Kur/Piyasa azalışı'**
+  String assetDecrease(Object percent);
+
+  /// No description provided for @assetNoChange.
+  ///
+  /// In tr, this message translates to:
+  /// **'Değer değişmedi'**
+  String get assetNoChange;
+
+  /// No description provided for @fxImpactNotice.
+  ///
+  /// In tr, this message translates to:
+  /// **'Piyasa ve kur farkı'**
+  String get fxImpactNotice;
 
   /// No description provided for @fullyWorkingFeatures.
   ///
@@ -3761,7 +3791,7 @@ abstract class AppLocalizations {
   /// No description provided for @addEditIncomeExpense.
   ///
   /// In tr, this message translates to:
-  /// **'Gelir/gider ekleme ve düzenleme'**
+  /// **'Gelir/Gider ekleme ve düzenleme'**
   String get addEditIncomeExpense;
 
   /// No description provided for @backupAndRestore.
@@ -5765,6 +5795,12 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'En değerli tür'**
   String get mostValuableType;
+
+  /// No description provided for @searchTransactions.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlemlerde ara...'**
+  String get searchTransactions;
 
   /// No description provided for @assetTypes.
   ///

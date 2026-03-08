@@ -4,13 +4,14 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/di/injection_container.dart';
-import '../../../../core/services/currency_service.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../widgets/analysis_widgets.dart';
 import 'pdf_export_page.dart';
 import '../controllers/analysis_controller.dart';
+import '../../../dashboard/presentation/widgets/budget_status_card.dart';
+import '../../../dashboard/presentation/pages/category_budget_detail_page.dart';
 
 /// Analiz ve Raporlar Sayfası
 /// Harcama, Gelir ve Varlık analizlerini gösterir
@@ -23,6 +24,7 @@ class AnalysisPage extends StatefulWidget {
   final String userId;
   final String userName;
   final Map<String, double>? categoryBudgets; // Kategori bütçeleri
+  final double totalBudget; // Genel butce limiti
   final Map<String, IconData>? expenseCategoryIcons;
   final Map<String, IconData>? incomeCategoryIcons;
   final VoidCallback? onAddExpensePressed;
@@ -39,6 +41,7 @@ class AnalysisPage extends StatefulWidget {
     required this.userName,
     this.paymentMethods = const [],
     this.categoryBudgets,
+    this.totalBudget = 0.0,
     this.expenseCategoryIcons,
     this.incomeCategoryIcons,
     this.onAddExpensePressed,
@@ -50,11 +53,13 @@ class AnalysisPage extends StatefulWidget {
   State<AnalysisPage> createState() => _AnalysisPageState();
 }
 
+enum ChartViewType { pie, bar, line }
+
 class _AnalysisPageState extends State<AnalysisPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late final AnalysisController _controller;
-  bool _isBarChart = false;
+  ChartViewType _chartType = ChartViewType.pie;
 
   int get _touchedIndex => _controller.touchedIndex;
 
@@ -164,12 +169,19 @@ class _AnalysisPageState extends State<AnalysisPage>
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: _buildAppBar(context),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          _buildExpenseAnalysis(),
-          _buildIncomeAnalysis(),
-          _buildAssetAnalysis(),
+          _buildStickyHeader(context),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildExpenseAnalysis(),
+                _buildIncomeAnalysis(),
+                _buildAssetAnalysis(),
+              ],
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: _buildBottomBar(context),
@@ -318,6 +330,73 @@ class _AnalysisPageState extends State<AnalysisPage>
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Sticky Header (Filtre + Toggle)
+  Widget _buildStickyHeader(BuildContext context) {
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(child: _buildTimeFilterSelector(context)),
+          const SizedBox(width: 8),
+          if (!_isCurrentTabEmpty &&
+              _tabController.index !=
+                  2) // Varlıklar sekmesinde bar/line chart anlamlı olmayabilir ama isterseniz line eklenebilir. Şimdilik harcama/gelir var.
+            Container(
+              height: 44,
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface.withAlpha(128),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: Colors.white.withAlpha(25)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildToggleBtn(ChartViewType.pie, Icons.pie_chart_rounded),
+                  _buildToggleBtn(ChartViewType.bar, Icons.bar_chart_rounded),
+                  _buildToggleBtn(ChartViewType.line, Icons.show_chart_rounded),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleBtn(ChartViewType type, IconData icon) {
+    final isSelected = _chartType == type;
+    return GestureDetector(
+      onTap: () => setState(() => _chartType = type),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.primary.withAlpha(76),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [],
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: isSelected ? Colors.white : Colors.white.withAlpha(128),
         ),
       ),
     );
@@ -516,10 +595,6 @@ class _AnalysisPageState extends State<AnalysisPage>
     if (currentExpenses.isEmpty) {
       return Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
-            child: _buildTimeFilterSelector(context),
-          ),
           Expanded(
             child: AnalysisEmptyState(
               message: context.l10n.noExpenseDataForThisMonth,
@@ -565,16 +640,30 @@ class _AnalysisPageState extends State<AnalysisPage>
                     topCategoryAmount: CurrencyFormatter.format(topAmount),
                   ),
                   _buildChartArea(sections, totals, totalAmount, expenseColors),
-                  const SizedBox(height: 24),
-                  _buildCategoryList(
-                    context.l10n.categoryDistribution,
-                    totals,
-                    totalAmount,
-                    expenseColors,
-                    isExpense: true,
-                    categoryBudgets: widget.categoryBudgets,
-                    categoryIcons: widget.expenseCategoryIcons,
-                  ),
+                  if (_controller.historyLimit == 30 ||
+                      _controller.historyLimit == -1) ...[
+                    const SizedBox(height: 24),
+                    BudgetStatusCard(
+                      monthlyExpense: totalAmount,
+                      butceLimiti: widget.totalBudget,
+                      categoryBudgets: widget.categoryBudgets,
+                      categoryExpenses: totals,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CategoryBudgetDetailPage(
+                              categoryBudgets: widget.categoryBudgets ?? {},
+                              categoryExpenses: totals,
+                              totalBudget: widget.totalBudget,
+                              totalExpense: totalAmount,
+                              rawExpenses: _controller.currentExpenses.toList(),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                   if (widget.paymentMethods.isNotEmpty) ...[
                     const SizedBox(height: 32),
                     _buildPaymentMethodDistribution(),
@@ -598,10 +687,6 @@ class _AnalysisPageState extends State<AnalysisPage>
     if (currentIncomes.isEmpty) {
       return Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
-            child: _buildTimeFilterSelector(context),
-          ),
           Expanded(
             child: AnalysisEmptyState(
               message: context.l10n.noIncomeDataForThisMonth,
@@ -647,15 +732,6 @@ class _AnalysisPageState extends State<AnalysisPage>
                     topCategoryAmount: CurrencyFormatter.format(topAmount),
                   ),
                   _buildChartArea(sections, totals, totalIncome, incomeColors),
-                  const SizedBox(height: 24),
-                  _buildCategoryList(
-                    context.l10n.incomeCategories,
-                    totals,
-                    totalIncome,
-                    incomeColors,
-                    isExpense: false,
-                    categoryIcons: widget.incomeCategoryIcons,
-                  ),
                 ]
                 .animate(interval: 50.ms)
                 .fade(duration: 400.ms)
@@ -675,10 +751,6 @@ class _AnalysisPageState extends State<AnalysisPage>
     if (activeAssets.isEmpty) {
       return Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
-            child: _buildTimeFilterSelector(context),
-          ),
           Expanded(
             child: AnalysisEmptyState(
               message: context.l10n.noAssetsAddedYet,
@@ -705,30 +777,21 @@ class _AnalysisPageState extends State<AnalysisPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
             [
-                  // Varlıklar için önceki ay hesabımız yok. Fakat sağa kaydırılaablir kart gösterimi için boş veriyle destekleyebiliriz:
                   TrendInsightCard(
-                    title: context.l10n.monthlyInsight,
+                    title: context.l10n.assetInsightTitle,
                     currentAmount: totalValue,
-                    previousAmount: 0, // Varlık kıyaslaması yapılmıyor
+                    previousAmount: _controller.totalAssetPurchaseValue,
                     isExpense: false,
-                    increaseText: '',
-                    decreaseText: '',
-                    noChangeText: '',
+                    increaseText: context.l10n.assetIncrease('{percent}'),
+                    decreaseText: context.l10n.assetDecrease('{percent}'),
+                    noChangeText: context.l10n.assetNoChange,
+                    noteText: context.l10n.fxImpactNotice,
                     topCategoryLabel: context.l10n.mostValuableType,
                     topCategoryName: context.translateDbName(topType),
                     topCategoryAmount: CurrencyFormatter.format(topAmount),
                   ),
                   const SizedBox(height: 24),
                   _buildChartArea(sections, totals, totalValue, assetColors),
-                  const SizedBox(height: 24),
-                  _buildCategoryList(
-                    context.l10n.assetTypes,
-                    totals,
-                    totalValue,
-                    assetColors,
-                    isExpense:
-                        false, // Varlıklar harcama değildir, detaya girmeyeceğiz fakat parametre gerekli.
-                  ),
                 ]
                 .animate(interval: 50.ms)
                 .fade(duration: 400.ms)
@@ -950,100 +1013,6 @@ class _AnalysisPageState extends State<AnalysisPage>
 
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(child: _buildTimeFilterSelector(context)),
-            const SizedBox(width: 8),
-            Container(
-              height: 44,
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.surface.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  GestureDetector(
-                    onTap: () => setState(() => _isBarChart = false),
-                    behavior: HitTestBehavior.opaque,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: !_isBarChart
-                            ? Theme.of(context).colorScheme.primary
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: !_isBarChart
-                            ? [
-                                BoxShadow(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: 0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ]
-                            : [],
-                      ),
-                      child: Icon(
-                        Icons.pie_chart_rounded,
-                        size: 20,
-                        color: !_isBarChart
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => setState(() => _isBarChart = true),
-                    behavior: HitTestBehavior.opaque,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _isBarChart
-                            ? Theme.of(context).colorScheme.primary
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: _isBarChart
-                            ? [
-                                BoxShadow(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: 0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ]
-                            : [],
-                      ),
-                      child: Icon(
-                        Icons.bar_chart_rounded,
-                        size: 20,
-                        color: _isBarChart
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           transitionBuilder: (Widget child, Animation<double> animation) {
@@ -1052,13 +1021,22 @@ class _AnalysisPageState extends State<AnalysisPage>
               child: ScaleTransition(scale: animation, child: child),
             );
           },
-          child: _isBarChart
+          child: _tabController.index == 2
+              ? _buildPieChart(
+                  pieSections,
+                  totals,
+                  totalAmount,
+                  key: const ValueKey('pie'),
+                )
+              : _chartType == ChartViewType.bar
               ? _buildBarChart(
                   totals,
                   totalAmount,
                   colors,
                   key: const ValueKey('bar'),
                 )
+              : _chartType == ChartViewType.line
+              ? _buildLineChart(key: const ValueKey('line'))
               : _buildPieChart(
                   pieSections,
                   totals,
@@ -1067,6 +1045,140 @@ class _AnalysisPageState extends State<AnalysisPage>
                 ),
         ),
       ],
+    );
+  }
+
+  /// Çizgi (Line) Grafik widget'ı
+  Widget _buildLineChart({Key? key}) {
+    final isExpense = _tabController.index == 0;
+    final dailyData = isExpense
+        ? _controller.dailyExpenseTotals
+        : _controller.dailyIncomeTotals;
+
+    if (dailyData.isEmpty) {
+      return SizedBox(key: key, height: 320);
+    }
+
+    // Sort by date
+    final sortedEntries = dailyData.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    double maxY = 0;
+    List<FlSpot> spots = [];
+
+    for (int i = 0; i < sortedEntries.length; i++) {
+      final entry = sortedEntries[i];
+      if (entry.value > maxY) maxY = entry.value;
+      spots.add(FlSpot(i.toDouble(), entry.value));
+    }
+
+    return Center(
+      key: key,
+      child: SizedBox(
+        height: 320,
+        child: LineChart(
+          LineChartData(
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              horizontalInterval: maxY > 0 ? maxY / 4 : 1,
+              getDrawingHorizontalLine: (value) => FlLine(
+                color: Colors.white.withValues(alpha: 0.1),
+                strokeWidth: 1,
+                dashArray: [4, 4],
+              ),
+            ),
+            titlesData: FlTitlesData(
+              show: true,
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              leftTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 32,
+                  interval: (sortedEntries.length / 5).ceilToDouble().clamp(
+                    1.0,
+                    31.0,
+                  ),
+                  getTitlesWidget: (value, meta) {
+                    final index = value.toInt();
+                    if (index < 0 || index >= sortedEntries.length) {
+                      return const SizedBox.shrink();
+                    }
+                    final date = sortedEntries[index].key;
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        '${date.day}/${date.month}',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            borderData: FlBorderData(show: false),
+            minX: 0,
+            maxX: (sortedEntries.length - 1).toDouble(),
+            minY: 0,
+            maxY: maxY * 1.2,
+            lineBarsData: [
+              LineChartBarData(
+                spots: spots,
+                isCurved: true,
+                color: isExpense ? Colors.red.shade400 : Colors.green.shade400,
+                barWidth: 3,
+                isStrokeCapRound: true,
+                dotData: const FlDotData(show: false),
+                belowBarData: BarAreaData(
+                  show: true,
+                  gradient: LinearGradient(
+                    colors: [
+                      (isExpense ? Colors.red.shade400 : Colors.green.shade400)
+                          .withValues(alpha: 0.3),
+                      (isExpense ? Colors.red.shade400 : Colors.green.shade400)
+                          .withValues(alpha: 0.0),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ],
+            lineTouchData: LineTouchData(
+              touchTooltipData: LineTouchTooltipData(
+                tooltipBgColor: Theme.of(
+                  context,
+                ).colorScheme.surface.withAlpha(200),
+                getTooltipItems: (touchedSpots) {
+                  return touchedSpots.map((spot) {
+                    return LineTooltipItem(
+                      CurrencyFormatter.format(spot.y),
+                      TextStyle(
+                        color: isExpense
+                            ? Colors.red.shade400
+                            : Colors.green.shade400,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    );
+                  }).toList();
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -1194,367 +1306,6 @@ class _AnalysisPageState extends State<AnalysisPage>
           ),
         ),
       ),
-    );
-  }
-
-  /// Kategori Detaylarını Bottom Sheet ile Gösterir
-  void _showCategoryDetails(
-    BuildContext context,
-    String categoryKey,
-    bool isExpense,
-  ) {
-    // Sadece Harcama ve Gelirler için detay gösterebiliriz
-    final items = isExpense
-        ? _controller.currentExpenses
-              .where(
-                (e) => (e['kategori']?.toString() ?? 'Diğer') == categoryKey,
-              )
-              .toList()
-        : _controller.currentIncomes
-              .where(
-                (g) =>
-                    (g.category.isEmpty ? 'Diğer' : g.category) == categoryKey,
-              )
-              .toList();
-
-    final currencyService = getIt<CurrencyService>();
-    final currentCurrency = currencyService.currentCurrency;
-
-    double totalAmount = items.fold(0.0, (sum, item) {
-      final dynamic dItem = item;
-      if (isExpense) {
-        final tutar = ((dItem['tutar'] as num?)?.toDouble() ?? 0.0);
-        final pb = dItem['paraBirimi']?.toString() ?? 'TRY';
-        return sum + currencyService.convert(tutar, pb, currentCurrency);
-      } else {
-        final tutar = dItem.amount as double;
-        final pb = dItem.paraBirimi as String;
-        return sum + currencyService.convert(tutar, pb, currentCurrency);
-      }
-    });
-
-    final currency = items.isNotEmpty
-        ? (isExpense
-              ? ((items.first as dynamic)['paraBirimi']?.toString() ?? 'TRY')
-              : (items.first as dynamic).paraBirimi)
-        : 'TRY';
-
-    final categoryColor = isExpense
-        ? Colors.red.shade400
-        : Colors.green.shade400;
-
-    final IconData categoryIcon;
-    if (isExpense) {
-      categoryIcon =
-          widget.expenseCategoryIcons?[categoryKey] ??
-          Icons.shopping_bag_outlined;
-    } else {
-      categoryIcon =
-          widget.incomeCategoryIcons?[categoryKey] ??
-          Icons.account_balance_wallet_outlined;
-    }
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.75,
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          ),
-          child: Column(
-            children: [
-              // Üst Kısım: Sürükleme Çubuğu ve Başlık Alanı
-              Container(
-                padding: const EdgeInsets.only(
-                  top: 12,
-                  bottom: 20,
-                  left: 24,
-                  right: 24,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(32),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // Çekme çubuğu
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 24),
-                      height: 5,
-                      width: 48,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: categoryColor.withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            categoryIcon,
-                            color: categoryColor,
-                            size: 32,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                context.translateDbName(categoryKey),
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                '${items.length} ${context.l10n.total}',
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.6),
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () => Navigator.pop(context),
-                              style: IconButton.styleFrom(
-                                backgroundColor: Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest
-                                    .withValues(alpha: 0.5),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "${isExpense ? '-' : '+'}${CurrencyFormatter.format(totalAmount, currency: currency)}",
-                              style: TextStyle(
-                                color: categoryColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // İçerik Listesi
-              Expanded(
-                child: items.isEmpty
-                    ? Center(
-                        child: Text(
-                          context.l10n.noDetailsFound,
-                          style: TextStyle(color: Colors.grey.shade500),
-                        ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          dynamic item = items[index];
-                          String title = '';
-                          if (isExpense) {
-                            title = item['isim']?.toString() ?? '';
-                          } else {
-                            title = item.name ?? '';
-                          }
-                          double amount = isExpense
-                              ? ((item['tutar'] as num?)?.toDouble() ?? 0.0)
-                              : item.amount;
-                          String itemCurrency = isExpense
-                              ? (item['paraBirimi']?.toString() ?? 'TRY')
-                              : item.paraBirimi;
-
-                          // Tarih formatı için
-                          DateTime date = isExpense
-                              ? (DateTime.tryParse(item['tarih'].toString()) ??
-                                    DateTime.now())
-                              : item.date;
-
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .outlineVariant
-                                    .withValues(alpha: 0.3),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.02),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        (isExpense ? Colors.red : Colors.green)
-                                            .withValues(alpha: 0.08),
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                  child: Icon(
-                                    isExpense
-                                        ? Icons.shopping_bag_outlined
-                                        : Icons.account_balance_wallet_outlined,
-                                    color: isExpense
-                                        ? Colors.red.shade400
-                                        : Colors.green.shade400,
-                                    size: 20,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        title.isNotEmpty
-                                            ? title
-                                            : context.translateDbName(
-                                                categoryKey,
-                                              ),
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 15,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.calendar_today_outlined,
-                                            size: 14,
-                                            color: Colors.grey.shade500,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            "${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}",
-                                            style: TextStyle(
-                                              color: Colors.grey.shade500,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Text(
-                                  "${isExpense ? '-' : '+'}${CurrencyFormatter.format(amount, currency: itemCurrency)}",
-                                  style: TextStyle(
-                                    color: isExpense
-                                        ? Colors.red.shade400
-                                        : Colors.green.shade400,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  /// Kategori listesi widget'ı
-  Widget _buildCategoryList(
-    String title,
-    Map<String, double> totals,
-    double total,
-    List<Color> colors, {
-    required bool isExpense,
-    Map<String, double>? categoryBudgets,
-    Map<String, IconData>? categoryIcons,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        ...(totals.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
-            .asMap()
-            .entries
-            .map((mapEntry) {
-              final index = mapEntry.key;
-              final e = mapEntry.value;
-              final color = _getColorForIndex(index, colors);
-              return LegendItem(
-                title: context.translateDbName(e.key),
-                value: e.value,
-                color: color,
-                total: total,
-                budgetLimit: categoryBudgets?[e.key],
-                icon: categoryIcons?[e.key],
-                onTap: () {
-                  if (title != context.l10n.assetTypes) {
-                    // Varlıklarda detay yok (opsiyonel)
-                    _showCategoryDetails(context, e.key, isExpense);
-                  }
-                },
-              );
-            }),
-      ],
     );
   }
 

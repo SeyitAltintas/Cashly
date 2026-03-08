@@ -1954,13 +1954,32 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get assetValuesLastKnown =>
-      'Varlık değerleri son bilinen fiyatlarla gösterilir';
+      'Varlık değerleri bilinen son fiyatlarla gösterilir';
+
+  @override
+  String get assetInsightTitle => 'Net Varlık Gelişimi';
+
+  @override
+  String assetIncrease(Object percent) {
+    return '%$percent Kur/Piyasa artışı';
+  }
+
+  @override
+  String assetDecrease(Object percent) {
+    return '%$percent Kur/Piyasa azalışı';
+  }
+
+  @override
+  String get assetNoChange => 'Değer değişmedi';
+
+  @override
+  String get fxImpactNotice => 'Piyasa ve kur farkı';
 
   @override
   String get fullyWorkingFeatures => 'Tam Çalışan Özellikler';
 
   @override
-  String get addEditIncomeExpense => 'Gelir/gider ekleme ve düzenleme';
+  String get addEditIncomeExpense => 'Gelir/Gider ekleme ve düzenleme';
 
   @override
   String get backupAndRestore => 'Yedekleme ve geri yükleme';
@@ -3077,6 +3096,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get mostValuableType => 'En değerli tür';
+
+  @override
+  String get searchTransactions => 'İşlemlerde ara...';
 
   @override
   String get assetTypes => 'Varlık Türleri';

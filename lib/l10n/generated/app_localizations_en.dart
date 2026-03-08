@@ -1954,6 +1954,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Asset values are shown with last known prices';
 
   @override
+  String get assetInsightTitle => 'Net Asset Growth';
+
+  @override
+  String assetIncrease(Object percent) {
+    return '$percent% Market growth';
+  }
+
+  @override
+  String assetDecrease(Object percent) {
+    return '$percent% Market decrease';
+  }
+
+  @override
+  String get assetNoChange => 'No value change';
+
+  @override
+  String get fxImpactNotice => 'Market and FX impact';
+
+  @override
   String get fullyWorkingFeatures => 'Fully Working Features';
 
   @override
@@ -3080,7 +3099,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mostValuableType => 'Most valuable type';
 
   @override
-  String get assetTypes => 'Asset Types';
+  String get searchTransactions => 'Search transactions...';
+
+  @override
+  String get assetTypes => 'Varlık Türleri';
 
   @override
   String get distributionByPaymentMethod => 'Distribution By Payment Method';

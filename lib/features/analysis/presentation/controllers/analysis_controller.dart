@@ -274,6 +274,22 @@ class AnalysisController extends ChangeNotifier {
     );
   }
 
+  /// Günlük harcama toplamları (Line chart için)
+  Map<DateTime, double> get dailyExpenseTotals {
+    final cur = getIt<CurrencyService>();
+    final totals = <DateTime, double>{};
+    for (var h in currentExpenses) {
+      DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
+      if (tarih == null) continue;
+      final dateOnly = DateTime(tarih.year, tarih.month, tarih.day);
+      final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
+      final pb = h['paraBirimi']?.toString() ?? 'TRY';
+      final deger = cur.convert(tutar, pb, cur.currentCurrency);
+      totals[dateOnly] = (totals[dateOnly] ?? 0) + deger;
+    }
+    return totals;
+  }
+
   // ===== GELİR ANALİZİ =====
 
   /// Seçilen limite göre gelirleri filtrele
@@ -327,6 +343,20 @@ class AnalysisController extends ChangeNotifier {
     );
   }
 
+  /// Günlük gelir toplamları (Line chart için)
+  Map<DateTime, double> get dailyIncomeTotals {
+    final cur = getIt<CurrencyService>();
+    final totals = <DateTime, double>{};
+    for (var g in currentIncomes) {
+      final dateOnly = DateTime(g.date.year, g.date.month, g.date.day);
+      final tutar = g.amount;
+      final pb = g.paraBirimi;
+      final deger = cur.convert(tutar, pb, cur.currentCurrency);
+      totals[dateOnly] = (totals[dateOnly] ?? 0) + deger;
+    }
+    return totals;
+  }
+
   // ===== VARLIK ANALİZİ =====
 
   /// Aktif varlıkları getir
@@ -339,6 +369,15 @@ class AnalysisController extends ChangeNotifier {
     final cur = getIt<CurrencyService>();
     return activeAssets.fold(0.0, (sum, v) {
       return sum + cur.convert(v.amount, v.paraBirimi, cur.currentCurrency);
+    });
+  }
+
+  /// Toplam varlık alış değeri (Net Worth growth/FX Impact için)
+  double get totalAssetPurchaseValue {
+    final cur = getIt<CurrencyService>();
+    return activeAssets.fold(0.0, (sum, v) {
+      return sum +
+          cur.convert(v.purchasePrice, v.paraBirimi, cur.currentCurrency);
     });
   }
 

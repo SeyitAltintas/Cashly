@@ -265,6 +265,7 @@ class _BudgetStatusSection extends StatelessWidget {
           butceLimiti: controller.butceLimiti,
           categoryBudgets: controller.categoryBudgets,
           categoryExpenses: controller.categoryExpenses,
+          isObscured: controller.isObscured,
           onTap: () {
             Navigator.push(
               context,
@@ -274,6 +275,13 @@ class _BudgetStatusSection extends StatelessWidget {
                   categoryExpenses: controller.categoryExpenses,
                   totalBudget: controller.butceLimiti,
                   totalExpense: controller.monthlyExpense,
+                  rawExpenses: controller.harcamalar.where((h) {
+                    if (h['silindi'] == true) return false;
+                    DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
+                    if (tarih == null) return false;
+                    return tarih.year == controller.secilenAy.year &&
+                        tarih.month == controller.secilenAy.month;
+                  }).toList(),
                 ),
               ),
             );

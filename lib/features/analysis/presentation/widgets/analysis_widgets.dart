@@ -98,6 +98,7 @@ class TrendInsightCard extends StatelessWidget {
   final String? topCategoryLabel;
   final String? topCategoryName;
   final String? topCategoryAmount;
+  final String? noteText;
 
   const TrendInsightCard({
     super.key,
@@ -111,6 +112,7 @@ class TrendInsightCard extends StatelessWidget {
     this.topCategoryLabel,
     this.topCategoryName,
     this.topCategoryAmount,
+    this.noteText,
   });
 
   @override
@@ -210,6 +212,18 @@ class TrendInsightCard extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
+                        if (noteText != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            noteText!,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -318,6 +332,7 @@ class LegendItem extends StatelessWidget {
   final double? budgetLimit; // Opsiyonel limit
   final IconData? icon; // Kategori için isteğe bağlı ikon
   final VoidCallback? onTap;
+  final bool isExpense; // Harcama durumu
 
   const LegendItem({
     super.key,
@@ -328,6 +343,7 @@ class LegendItem extends StatelessWidget {
     this.budgetLimit,
     this.icon,
     this.onTap,
+    this.isExpense = false,
   });
 
   @override
@@ -335,6 +351,30 @@ class LegendItem extends StatelessWidget {
     final hasLimit = budgetLimit != null && budgetLimit! > 0;
     final isOverBudget = hasLimit && value > budgetLimit!;
     final usagePercent = hasLimit ? (value / budgetLimit! * 100) : 0.0;
+    final ratio = total > 0 ? (value / total).clamp(0.0, 1.0) : 0.0;
+
+    Color progressColor = color;
+    if (isExpense) {
+      if (hasLimit) {
+        progressColor = isOverBudget
+            ? Colors.red.shade400
+            : usagePercent > 80
+            ? Colors.orange.shade400
+            : Colors.green.shade400;
+      } else {
+        if (ratio < 0.15) {
+          progressColor = Colors.green.shade400;
+        } else if (ratio < 0.40) {
+          progressColor = Colors.yellow.shade600;
+        } else if (ratio < 0.70) {
+          progressColor = Colors.orange.shade400;
+        } else {
+          progressColor = Colors.red.shade400;
+        }
+      }
+    } else {
+      progressColor = color;
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -394,7 +434,7 @@ class LegendItem extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "${(value / total * 100).toStringAsFixed(1)}%",
+                            "${(ratio * 100).toStringAsFixed(1)}%",
                             style: TextStyle(
                               color: Theme.of(
                                 context,
@@ -429,18 +469,10 @@ class LegendItem extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: hasLimit
                     ? (value / budgetLimit!).clamp(0.0, 1.0)
-                    : (total > 0 ? (value / total).clamp(0.0, 1.0) : 0.0),
+                    : ratio,
                 minHeight: 6,
                 backgroundColor: color.withValues(alpha: 0.1),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  hasLimit
-                      ? (isOverBudget
-                            ? Colors.red.shade400
-                            : usagePercent > 80
-                            ? Colors.orange.shade400
-                            : color)
-                      : color,
-                ),
+                valueColor: AlwaysStoppedAnimation<Color>(progressColor),
               ),
             ),
           ],

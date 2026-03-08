@@ -1483,7 +1483,7 @@
   "highestIncome": "Highest income",
   "noAssetsAddedYet": "No assets added yet.",
   "mostValuableType": "Most valuable type",
-  "assetTypes": "Asset Types",
+  "searchTransactions": "Search transactions...",
   "distributionByPaymentMethod": "Distribution By Payment Method",
   "otherStr": "Other",
   "pdfReportTitle": "PDF Report",
@@ -1789,5 +1789,10 @@
     }
   },
   "earnedSameAsLastMonth": "You are earning at the same rate as last month.",
-  "noDetailsFound": "No details found."
+  "noDetailsFound": "No details found.",
+  "assetInsightTitle": "Net Asset Growth",
+  "assetIncrease": "{percent}% Market growth",
+  "assetDecrease": "{percent}% Market decrease",
+  "assetNoChange": "No value change",
+  "fxImpactNotice": "Market and FX impact"
 }
