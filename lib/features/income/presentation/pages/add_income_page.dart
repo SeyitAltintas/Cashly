@@ -28,6 +28,7 @@ class AddIncomePage extends StatefulWidget {
   final Map<String, IconData> categories;
   final List<PaymentMethod> paymentMethods;
   final IncomesController? controller;
+  final DateTime? initialDate;
 
   const AddIncomePage({
     super.key,
@@ -36,6 +37,7 @@ class AddIncomePage extends StatefulWidget {
     required this.categories,
     this.paymentMethods = const [],
     this.controller,
+    this.initialDate,
   });
 
   @override
@@ -118,10 +120,14 @@ class _AddIncomePageState extends State<AddIncomePage> {
         _controller!.initializeFormState(
           defaultCategory: defaultCategory,
           defaultPaymentMethodId: defaultPmId,
+          editDate: widget.initialDate,
         );
       } else {
         _localSelectedCategory = defaultCategory;
         _localSelectedPaymentMethodId = defaultPmId;
+        if (widget.initialDate != null) {
+          _localSelectedDate = widget.initialDate!;
+        }
       }
     }
   }

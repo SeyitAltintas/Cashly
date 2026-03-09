@@ -38,6 +38,7 @@ class AssetsPage extends StatefulWidget {
     String? type,
   )
   onAdd;
+  final DateTime? initialDate;
 
   const AssetsPage({
     super.key,
@@ -49,6 +50,7 @@ class AssetsPage extends StatefulWidget {
     required this.onPermanentDelete,
     required this.onEmptyBin,
     required this.onAdd,
+    this.initialDate,
   });
 
   @override
@@ -240,6 +242,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
       context,
       MaterialPageRoute(
         builder: (context) => AddAssetPage(
+          initialDate: widget.initialDate,
           onSave:
               (
                 name,

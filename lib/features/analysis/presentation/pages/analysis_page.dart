@@ -27,9 +27,9 @@ class AnalysisPage extends StatefulWidget {
   final double totalBudget; // Genel butce limiti
   final Map<String, IconData>? expenseCategoryIcons;
   final Map<String, IconData>? incomeCategoryIcons;
-  final VoidCallback? onAddExpensePressed;
-  final VoidCallback? onAddIncomePressed;
-  final VoidCallback? onAddAssetPressed;
+  final void Function(DateTime)? onAddExpensePressed;
+  final void Function(DateTime)? onAddIncomePressed;
+  final void Function(DateTime)? onAddAssetPressed;
 
   const AnalysisPage({
     super.key,
@@ -603,8 +603,9 @@ class _AnalysisPageState extends State<AnalysisPage>
               actionText: context.l10n.addExpense,
               icon: Icons.receipt_long_outlined,
               buttonColor: Colors.red.shade400,
-              onActionPressed:
-                  widget.onAddExpensePressed ?? () => Navigator.pop(context),
+              onActionPressed: widget.onAddExpensePressed != null
+                  ? () => widget.onAddExpensePressed!(_controller.selectedMonth)
+                  : () => Navigator.pop(context),
             ),
           ),
         ],
@@ -695,8 +696,9 @@ class _AnalysisPageState extends State<AnalysisPage>
               actionText: context.l10n.addIncome,
               icon: Icons.account_balance_wallet_outlined,
               buttonColor: Colors.green.shade400,
-              onActionPressed:
-                  widget.onAddIncomePressed ?? () => Navigator.pop(context),
+              onActionPressed: widget.onAddIncomePressed != null
+                  ? () => widget.onAddIncomePressed!(_controller.selectedMonth)
+                  : () => Navigator.pop(context),
             ),
           ),
         ],
@@ -759,8 +761,9 @@ class _AnalysisPageState extends State<AnalysisPage>
               actionText: context.l10n.addAsset,
               icon: Icons.diamond_outlined,
               buttonColor: Colors.blue.shade500,
-              onActionPressed:
-                  widget.onAddAssetPressed ?? () => Navigator.pop(context),
+              onActionPressed: widget.onAddAssetPressed != null
+                  ? () => widget.onAddAssetPressed!(_controller.selectedMonth)
+                  : () => Navigator.pop(context),
             ),
           ),
         ],
@@ -857,13 +860,15 @@ class _AnalysisPageState extends State<AnalysisPage>
 
     for (int index = 0; index < sortedEntries.length; index++) {
       final value = sortedEntries[index].value;
+      // fl_chart crashes if value is negative. Safety net:
+      final safeValue = value > 0 ? value : 0.0;
       final isTouched = index == _touchedIndex;
       final color = _getColorForIndex(index, colors);
-      final percentage = (value / total * 100);
+      final percentage = total > 0 ? (safeValue / total * 100) : 0.0;
       sections.add(
         PieChartSectionData(
           color: color,
-          value: value,
+          value: safeValue,
           title: '${percentage.toStringAsFixed(0)}%',
           showTitle: percentage >= 5.0 || isTouched,
           radius: isTouched ? 50.0 : 40.0,
@@ -902,119 +907,192 @@ class _AnalysisPageState extends State<AnalysisPage>
       final entry = entries[safeIndex];
       centerTitle = context.translateDbName(entry.key);
       centerValue = entry.value;
-      centerPercentage =
-          '${(centerValue / totalAmount * 100).toStringAsFixed(1)}%';
+      centerPercentage = totalAmount > 0
+          ? '${(centerValue / totalAmount * 100).toStringAsFixed(1)}%'
+          : '0.0%';
     }
     return Center(
       key: key,
       child: SizedBox(
         height: 320,
-        child: Stack(
-          alignment: Alignment.center,
+        child: Row(
           children: [
-            // Ortadaki yazıyı grafiğin içine taşırmamak için width ile sınırlandırıyoruz
-            SizedBox(
-              width: 170, // centerSpaceRadius * 2 den biraz küçük
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
+            Expanded(
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: Text(
-                      centerTitle,
-                      key: ValueKey<String>(centerTitle),
-                      style: TextStyle(
-                        color: _touchedIndex != -1
-                            ? Colors.white
-                            : Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        fontSize: 14,
-                        fontWeight: _touchedIndex != -1
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  // Ortadaki yazıyı grafiğin içine taşırmamak için width ile sınırlandırıyoruz
+                  SizedBox(
+                    width: 170, // centerSpaceRadius * 2 den biraz küçük
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          child: Text(
+                            centerTitle,
+                            key: ValueKey<String>(centerTitle),
+                            style: TextStyle(
+                              color: _touchedIndex != -1
+                                  ? Colors.white
+                                  : Theme.of(context).colorScheme.onSurface
+                                        .withValues(alpha: 0.5),
+                              fontSize: 14,
+                              fontWeight: _touchedIndex != -1
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          child: FittedBox(
+                            key: ValueKey<double>(centerValue),
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              CurrencyFormatter.format(centerValue),
+                              style: TextStyle(
+                                color: _touchedIndex != -1
+                                    ? Colors.white
+                                    : Theme.of(context).colorScheme.onSurface,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (centerPercentage != null) ...[
+                          const SizedBox(height: 4),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: Text(
+                              centerPercentage,
+                              key: ValueKey<String>(centerPercentage),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: FittedBox(
-                      key: ValueKey<double>(centerValue),
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        CurrencyFormatter.format(centerValue),
-                        style: TextStyle(
-                          color: _touchedIndex != -1
-                              ? Colors.white
-                              : Theme.of(context).colorScheme.onSurface,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  PieChart(
+                    PieChartData(
+                      pieTouchData: PieTouchData(
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          // ANR Çözümü: Yalnızca tıkladıktan sonra parmak kalktığında işlemi algıla.
+                          // Ekranda gezinme (Pan/Move) saniyede yüzlerce duruma (setState) yol açıp ana thread'i çökertir.
+                          final type = event.runtimeType.toString();
+                          if (!type.contains('TapUp') &&
+                              !type.contains('TapDown')) {
+                            return; // İlgili olmayan eylemleri (scroll, pan) yok say
+                          }
+
+                          if (pieTouchResponse == null ||
+                              pieTouchResponse.touchedSection == null) {
+                            _controller.setTouchedIndex(
+                              -1,
+                            ); // Boşluğa tıklanırsa sıfırla
+                            return;
+                          }
+
+                          int idx = pieTouchResponse
+                              .touchedSection!
+                              .touchedSectionIndex;
+                          if (idx < 0 || idx >= sections.length) {
+                            _controller.setTouchedIndex(-1);
+                            return;
+                          }
+
+                          _controller.setTouchedIndex(idx);
+                        },
                       ),
+                      borderData: FlBorderData(show: false),
+                      sectionsSpace: 4,
+                      centerSpaceRadius:
+                          100, // oklar için biraz daha küçültebiliriz ya da böyle kalabilir. Oklara yer açmak için.
+                      sections: sections,
                     ),
+                  ).animate().scale(
+                    duration: 500.ms,
+                    curve: Curves.easeOutBack,
+                    delay: 100.ms,
                   ),
-                  if (centerPercentage != null) ...[
-                    const SizedBox(height: 4),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: Text(
-                        centerPercentage,
-                        key: ValueKey<String>(centerPercentage),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
-            PieChart(
-              PieChartData(
-                pieTouchData: PieTouchData(
-                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                    // ANR Çözümü: Yalnızca tıkladıktan sonra parmak kalktığında işlemi algıla.
-                    // Ekranda gezinme (Pan/Move) saniyede yüzlerce duruma (setState) yol açıp ana thread'i çökertir.
-                    final type = event.runtimeType.toString();
-                    if (!type.contains('TapUp') && !type.contains('TapDown')) {
-                      return; // İlgili olmayan eylemleri (scroll, pan) yok say
-                    }
-
-                    if (pieTouchResponse == null ||
-                        pieTouchResponse.touchedSection == null) {
-                      _controller.setTouchedIndex(
-                        -1,
-                      ); // Boşluğa tıklanırsa sıfırla
-                      return;
-                    }
-
-                    int idx =
-                        pieTouchResponse.touchedSection!.touchedSectionIndex;
-                    if (idx < 0 || idx >= sections.length) {
-                      _controller.setTouchedIndex(-1);
-                      return;
-                    }
-
-                    _controller.setTouchedIndex(idx);
-                  },
+            if (sections.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        int currentIndex = _touchedIndex <= 0
+                            ? sections.length
+                            : _touchedIndex;
+                        int newIndex = currentIndex - 1;
+                        if (newIndex < 0) newIndex = sections.length - 1;
+                        _controller.setTouchedIndex(newIndex);
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        width: 44,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surface.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.outline.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: const Icon(Icons.keyboard_arrow_up, size: 28),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    InkWell(
+                      onTap: () {
+                        int currentIndex = _touchedIndex == -1
+                            ? -1
+                            : _touchedIndex;
+                        int newIndex = currentIndex + 1;
+                        if (newIndex >= sections.length) newIndex = 0;
+                        _controller.setTouchedIndex(newIndex);
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        width: 44,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surface.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.outline.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: const Icon(Icons.keyboard_arrow_down, size: 28),
+                      ),
+                    ),
+                  ],
                 ),
-                borderData: FlBorderData(show: false),
-                sectionsSpace: 4,
-                centerSpaceRadius: 120,
-                sections: sections,
               ),
-            ).animate().scale(
-              duration: 500.ms,
-              curve: Curves.easeOutBack,
-              delay: 100.ms,
-            ),
           ],
         ),
       ),
@@ -1028,7 +1106,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     double totalAmount,
     List<Color> colors,
   ) {
-    if (totals.isEmpty || totalAmount == 0) {
+    if (totals.isEmpty || totalAmount <= 0) {
       return const SizedBox(height: 320);
     }
 
@@ -1183,7 +1261,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
-                  horizontalInterval: maxY > 0 ? maxY / 4 : 1,
+                  horizontalInterval: maxY > 0
+                      ? (maxY / 4).clamp(0.1, double.infinity)
+                      : 1,
                   getDrawingHorizontalLine: (value) => FlLine(
                     color: Theme.of(
                       context,
@@ -1273,9 +1353,11 @@ class _AnalysisPageState extends State<AnalysisPage>
                 ),
                 borderData: FlBorderData(show: false),
                 minX: 0,
-                maxX: (sortedEntries.length - 1).toDouble(),
+                maxX: sortedEntries.length > 1
+                    ? (sortedEntries.length - 1).toDouble()
+                    : 1.0,
                 minY: 0,
-                maxY: maxY * 1.2,
+                maxY: maxY > 0 ? maxY * 1.2 : 1.0,
                 lineBarsData: [
                   LineChartBarData(
                     spots: spots,
@@ -1439,7 +1521,7 @@ class _AnalysisPageState extends State<AnalysisPage>
         child: BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
-            maxY: maxVal * 1.2,
+            maxY: maxVal > 0 ? maxVal * 1.2 : 1.0,
             barTouchData: BarTouchData(
               enabled: false, // Dokunma kapatıldı, tooltip sürekliliği sağlandı
               touchTooltipData: BarTouchTooltipData(
@@ -1447,10 +1529,16 @@ class _AnalysisPageState extends State<AnalysisPage>
                 tooltipPadding: EdgeInsets.zero,
                 tooltipMargin: 2,
                 getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                  // split(',') was causing bugs in English locales (e.g. "1,000.00 $" -> "1")
+                  String formattedText = CurrencyFormatter.format(rod.toY);
+                  // Optionally remove decimal trailing zeros if possible, but safely.
+                  formattedText = formattedText.replaceAll(
+                    RegExp(r'[,.]00(?=\D*$)'),
+                    '',
+                  );
+
                   return BarTooltipItem(
-                    CurrencyFormatter.format(
-                      rod.toY,
-                    ).split(',')[0], // Küsuratı at ki çok uzun durmasın
+                    formattedText,
                     TextStyle(
                       color: _getColorForIndex(groupIndex, colors),
                       fontSize: 10,
@@ -1472,9 +1560,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                     }
                     String rawTitle = topData[value.toInt()].key;
                     String translated = context.translateDbName(rawTitle);
-                    // Kırpma işlemi uzun kelimeler için
-                    String shortTitle = translated.length > 6
-                        ? '${translated.substring(0, 6)}.'
+                    // Kırpma işlemi uzun kelimeler ve emojiler için (surrogate pair çökmesini önler)
+                    String shortTitle = translated.runes.length > 6
+                        ? '${String.fromCharCodes(translated.runes.take(6))}.'
                         : translated;
 
                     return Padding(

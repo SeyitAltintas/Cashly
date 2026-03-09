@@ -27,12 +27,14 @@ class AddAssetPage extends StatefulWidget {
   onSave;
   final Asset? asset;
   final AssetsController? controller;
+  final DateTime? initialDate;
 
   const AddAssetPage({
     super.key,
     required this.onSave,
     this.asset,
     this.controller,
+    this.initialDate,
   });
 
   @override
@@ -175,9 +177,11 @@ class _AddAssetPageState extends State<AddAssetPage> {
       _localSelectedCurrency = getIt<CurrencyService>().currentCurrency;
       _quantityController.text = "1";
       if (_controller != null) {
-        _controller!.initializeFormState(editPurchaseDate: DateTime.now());
+        _controller!.initializeFormState(
+          editPurchaseDate: widget.initialDate ?? DateTime.now(),
+        );
       } else {
-        _localPurchaseDate = DateTime.now();
+        _localPurchaseDate = widget.initialDate ?? DateTime.now();
       }
     }
   }

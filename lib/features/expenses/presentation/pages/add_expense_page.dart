@@ -31,6 +31,7 @@ class AddExpensePage extends StatefulWidget {
   final String? defaultPaymentMethodId;
   final ExpensesController?
   controller; // Opsiyonel controller - varsa formState için kullanılır
+  final DateTime? initialDate;
 
   const AddExpensePage({
     super.key,
@@ -40,6 +41,7 @@ class AddExpensePage extends StatefulWidget {
     this.paymentMethods = const [],
     this.defaultPaymentMethodId,
     this.controller,
+    this.initialDate,
   });
 
   @override
@@ -138,10 +140,14 @@ class _AddExpensePageState extends State<AddExpensePage> {
         _controller!.initializeFormState(
           defaultCategory: defaultCategory,
           defaultPaymentMethodId: defaultPmId,
+          editDate: widget.initialDate,
         );
       } else {
         _localSelectedCategory = defaultCategory;
         _localSelectedPaymentMethodId = defaultPmId;
+        if (widget.initialDate != null) {
+          _localSelectedDate = widget.initialDate!;
+        }
       }
     }
   }

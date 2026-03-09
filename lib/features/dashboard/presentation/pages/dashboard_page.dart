@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/network_status_icon.dart';
 import '../../../income/data/models/income_model.dart';
@@ -224,6 +225,10 @@ class _BalanceSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final balance = context.select((DashboardController c) => c.totalBalance);
+    // Para birimi değiştiğinde bakiye 0 olsa bile kartın rebuild olmasını sağla
+    // (select sadece değer değişince tetiklenir, 0.0 == 0.0 olduğu için
+    // CurrencyService'i de dinlemek gerekir)
+    context.select((CurrencyService c) => c.currentCurrency);
     return BalanceCard(totalBalance: balance);
   }
 }
@@ -233,6 +238,7 @@ class _CreditDebtSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final debt = context.select((DashboardController c) => c.totalCreditDebt);
+    context.select((CurrencyService c) => c.currentCurrency);
     return CreditDebtCard(totalDebt: debt);
   }
 }
@@ -244,6 +250,7 @@ class _MonthlySummarySection extends StatelessWidget {
     final expense = context.select((DashboardController c) => c.monthlyExpense);
     final income = context.select((DashboardController c) => c.monthlyIncome);
     final netDiff = context.select((DashboardController c) => c.netDiff);
+    context.select((CurrencyService c) => c.currentCurrency);
     return MonthlySummaryCard(
       monthlyExpense: expense,
       monthlyIncome: income,
@@ -300,6 +307,7 @@ class _AssetSummarySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final assets = context.select((DashboardController c) => c.totalAssets);
+    context.select((CurrencyService c) => c.currentCurrency);
     return AssetSummaryCard(totalAssets: assets, onTap: onTap);
   }
 }

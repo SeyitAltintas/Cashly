@@ -460,13 +460,14 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
   // ===== NAVİGASYON METODLARI =====
 
-  void _navigateToAssets({bool replace = false}) {
+  void _navigateToAssets({bool replace = false, DateTime? initialDate}) {
     final route = MaterialPageRoute(
       builder: (context) => PageErrorBoundary(
         pageName: context.l10n.assets,
         child: AssetsPage(
           assets: varliklar.where((a) => !a.isDeleted).toList(),
           deletedAssets: varliklar.where((a) => a.isDeleted).toList(),
+          initialDate: initialDate ?? secilenAy,
           onDelete: (asset) {
             final index = varliklar.indexWhere((a) => a.id == asset.id);
             if (index != -1) {
@@ -547,14 +548,14 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             totalBudget: butceLimiti,
             expenseCategoryIcons: kategoriIkonlari,
             incomeCategoryIcons: gelirKategoriIkonlari,
-            onAddExpensePressed: () {
-              _navigateToExpenses(replace: true);
+            onAddExpensePressed: (DateTime date) {
+              _navigateToExpenses(replace: true, initialDate: date);
             },
-            onAddIncomePressed: () {
-              _navigateToIncomes(replace: true);
+            onAddIncomePressed: (DateTime date) {
+              _navigateToIncomes(replace: true, initialDate: date);
             },
-            onAddAssetPressed: () {
-              _navigateToAssets(replace: true);
+            onAddAssetPressed: (DateTime date) {
+              _navigateToAssets(replace: true, initialDate: date);
             },
           ),
         ),
@@ -717,7 +718,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     ).then((_) => _showCelebrationIfPending());
   }
 
-  void _navigateToExpenses({bool replace = false}) {
+  void _navigateToExpenses({bool replace = false, DateTime? initialDate}) {
     final route = MaterialPageRoute(
       builder: (context) => PageErrorBoundary(
         pageName: context.l10n.expenses,
@@ -726,7 +727,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           tumOdemeYontemleri: tumOdemeYontemleri,
           kategoriIkonlari: kategoriIkonlari,
           butceLimiti: butceLimiti,
-          secilenAy: secilenAy,
+          secilenAy: initialDate ?? secilenAy,
           userId: widget.authController.currentUser?.id,
           varsayilanOdemeYontemiId: varsayilanOdemeYontemiId,
           onHarcamalarChanged: (harcamalar) {
@@ -751,7 +752,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     });
   }
 
-  void _navigateToIncomes({bool replace = false}) {
+  void _navigateToIncomes({bool replace = false, DateTime? initialDate}) {
     final route = MaterialPageRoute(
       builder: (context) => PageErrorBoundary(
         pageName: context.l10n.incomes,
@@ -759,7 +760,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           tumGelirler: tumGelirler,
           tumOdemeYontemleri: tumOdemeYontemleri,
           gelirKategoriIkonlari: gelirKategoriIkonlari,
-          secilenAy: secilenAy,
+          secilenAy: initialDate ?? secilenAy,
           userId: widget.authController.currentUser?.id,
           onGelirlerChanged: (gelirler) {
             _homeState.tumGelirler = gelirler;

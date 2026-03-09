@@ -125,11 +125,13 @@ class TrendInsightCard extends StatelessWidget {
     }
 
     final double diff = currentAmount - previousAmount;
-    final double percent = (diff / previousAmount).abs() * 100;
+    final double percent = previousAmount > 0
+        ? (diff / previousAmount).abs() * 100
+        : 100.0; // If there was no previous amount, it is a 100% increase (or N/A)
 
     // Yön tespiti
-    final bool isIncreased = diff > 0;
-    final bool isDecreased = diff < 0;
+    final bool isIncreased = diff > 0 && previousAmount > 0;
+    final bool isDecreased = diff < 0 && previousAmount > 0;
 
     // Renk ve ikonlar harcama/gelir durumuna göre değişir
     // Harcama artarsa kötü (kırmızı), Gelir artarsa iyi (yeşil)
@@ -154,13 +156,16 @@ class TrendInsightCard extends StatelessWidget {
     }
 
     if (!hasPreviousData) {
-      message = "Geçen aya ait veri yok";
+      // Instead of hardcoding, we use a generic string or simply noChangeText with a specific modifier context
+      message = context
+          .l10n
+          .noData; // using localized string if "noData" is available or handle gracefully
       iconColor = Colors.grey;
     }
 
     return Container(
-      height: 120, // Liste kaydırma için sabit yükseklik
-      margin: const EdgeInsets.only(bottom: 24),
+      height: 86, // Liste kaydırma için sabit yükseklik (Minimal tasarım)
+      margin: const EdgeInsets.only(bottom: 16),
       child: ListView(
         scrollDirection: Axis.horizontal,
         clipBehavior: Clip.none,
@@ -171,25 +176,25 @@ class TrendInsightCard extends StatelessWidget {
               width:
                   MediaQuery.of(context).size.width *
                   0.75, // Ekranın %75'i kadar
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
                 ).colorScheme.surface.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: iconColor.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: iconColor.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(icon, color: iconColor),
+                    child: Icon(icon, color: iconColor, size: 20),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,22 +203,24 @@ class TrendInsightCard extends StatelessWidget {
                         Text(
                           title,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         Text(
                           message,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 13,
                             color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         if (noteText != null) ...[
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
                             noteText!,
                             style: TextStyle(
@@ -241,12 +248,12 @@ class TrendInsightCard extends StatelessWidget {
               width:
                   MediaQuery.of(context).size.width *
                   0.65, // Ekranın %65'i kadar
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
                 ).colorScheme.surface.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color:
                       (isExpense ? Colors.red.shade400 : Colors.green.shade400)
@@ -256,7 +263,7 @@ class TrendInsightCard extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color:
                           (isExpense
@@ -270,9 +277,10 @@ class TrendInsightCard extends StatelessWidget {
                       color: isExpense
                           ? Colors.red.shade400
                           : Colors.green.shade400,
+                      size: 20,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,31 +289,31 @@ class TrendInsightCard extends StatelessWidget {
                         Text(
                           topCategoryLabel!,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         Text(
                           topCategoryName!,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 13,
                             color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w600,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         Text(
                           topCategoryAmount!,
                           style: TextStyle(
-                            fontSize: 13,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.7),
-                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                            color: isExpense
+                                ? Colors.red.shade400
+                                : Colors.green.shade400,
+                            fontWeight: FontWeight.bold,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
