@@ -55,6 +55,7 @@ class AnalysisPage extends StatefulWidget {
 
 enum ChartViewType { pie, bar, line }
 
+
 class _AnalysisPageState extends State<AnalysisPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
