@@ -60,6 +60,7 @@ class _AnalysisPageState extends State<AnalysisPage>
   late TabController _tabController;
   late final AnalysisController _controller;
   ChartViewType _chartType = ChartViewType.pie;
+  bool _isCumulative = false;
 
   int get _touchedIndex => _controller.touchedIndex;
 
@@ -175,6 +176,7 @@ class _AnalysisPageState extends State<AnalysisPage>
           Expanded(
             child: TabBarView(
               controller: _tabController,
+              physics: const NeverScrollableScrollPhysics(),
               children: [
                 _buildExpenseAnalysis(),
                 _buildIncomeAnalysis(),
@@ -430,7 +432,7 @@ class _AnalysisPageState extends State<AnalysisPage>
         children: [
           if (_controller.historyLimit == -1) // Özel ay modu ok tuşu
             IconButton(
-              icon: Icon(Icons.chevron_left, color: Colors.white),
+              icon: const Icon(Icons.chevron_left, color: Colors.white),
               onPressed: () {
                 final current = _controller.selectedMonth;
                 _controller.setSelectedMonth(
@@ -806,6 +808,25 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   // ========== YARDIMCI METODLAR ==========
 
+  String _getShortMonthName(int month) {
+    const months = [
+      'Oca',
+      'Şub',
+      'Mar',
+      'Nis',
+      'May',
+      'Haz',
+      'Tem',
+      'Ağu',
+      'Eyl',
+      'Eki',
+      'Kas',
+      'Ara',
+    ];
+    if (month >= 1 && month <= 12) return months[month - 1];
+    return '';
+  }
+
   /// En yüksek kategoriyi bulur
   (String, double) _findTopCategory(Map<String, double> totals) {
     String topCategory = '';
@@ -1065,119 +1086,331 @@ class _AnalysisPageState extends State<AnalysisPage>
 
     double maxY = 0;
     List<FlSpot> spots = [];
+    double cumulativeTotal = 0.0;
 
     for (int i = 0; i < sortedEntries.length; i++) {
       final entry = sortedEntries[i];
-      if (entry.value > maxY) maxY = entry.value;
-      spots.add(FlSpot(i.toDouble(), entry.value));
+      cumulativeTotal += entry.value;
+
+      final yValue = _isCumulative ? cumulativeTotal : entry.value;
+      if (yValue > maxY) maxY = yValue;
+      spots.add(FlSpot(i.toDouble(), yValue));
+    }
+
+    // Eğer birikimli (cumulative) ve Gider sekmesinde ise limit çizgisi tüm bütçeyi göstersin
+    // Ancak sadece "Bu Ay" (30) veya "Özel Ay" (-1) filtresi seçiliyken aktif olsun.
+    final bool isMonthlyView =
+        _controller.historyLimit == 30 || _controller.historyLimit == -1;
+    final showLimit =
+        isExpense && _isCumulative && widget.totalBudget > 0 && isMonthlyView;
+    if (showLimit && widget.totalBudget > maxY) {
+      maxY = widget.totalBudget * 1.2;
+    }
+
+    Widget buildCumulativeToggle(
+      bool isCumulativeMode,
+      String label,
+      IconData icon,
+    ) {
+      final isSelected = _isCumulative == isCumulativeMode;
+      return GestureDetector(
+        onTap: () {
+          if (_isCumulative != isCumulativeMode) {
+            setState(() {
+              _isCumulative = isCumulativeMode;
+            });
+          }
+        },
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : [],
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 14,
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected
+                      ? Colors.white
+                      : Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     return Center(
       key: key,
-      child: SizedBox(
-        height: 320,
-        child: LineChart(
-          LineChartData(
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              horizontalInterval: maxY > 0 ? maxY / 4 : 1,
-              getDrawingHorizontalLine: (value) => FlLine(
-                color: Colors.white.withValues(alpha: 0.1),
-                strokeWidth: 1,
-                dashArray: [4, 4],
-              ),
-            ),
-            titlesData: FlTitlesData(
-              show: true,
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              leftTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 32,
-                  interval: (sortedEntries.length / 5).ceilToDouble().clamp(
-                    1.0,
-                    31.0,
-                  ),
-                  getTitlesWidget: (value, meta) {
-                    final index = value.toInt();
-                    if (index < 0 || index >= sortedEntries.length) {
-                      return const SizedBox.shrink();
-                    }
-                    final date = sortedEntries[index].key;
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        '${date.day}/${date.month}',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            borderData: FlBorderData(show: false),
-            minX: 0,
-            maxX: (sortedEntries.length - 1).toDouble(),
-            minY: 0,
-            maxY: maxY * 1.2,
-            lineBarsData: [
-              LineChartBarData(
-                spots: spots,
-                isCurved: true,
-                color: isExpense ? Colors.red.shade400 : Colors.green.shade400,
-                barWidth: 3,
-                isStrokeCapRound: true,
-                dotData: const FlDotData(show: false),
-                belowBarData: BarAreaData(
+      child: Stack(
+        children: [
+          SizedBox(
+            height: 320,
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(
                   show: true,
-                  gradient: LinearGradient(
-                    colors: [
-                      (isExpense ? Colors.red.shade400 : Colors.green.shade400)
-                          .withValues(alpha: 0.3),
-                      (isExpense ? Colors.red.shade400 : Colors.green.shade400)
-                          .withValues(alpha: 0.0),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
+                  drawVerticalLine: false,
+                  horizontalInterval: maxY > 0 ? maxY / 4 : 1,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
+                    strokeWidth: 1,
+                    dashArray: [4, 4],
                   ),
                 ),
-              ),
-            ],
-            lineTouchData: LineTouchData(
-              touchTooltipData: LineTouchTooltipData(
-                tooltipBgColor: Theme.of(
-                  context,
-                ).colorScheme.surface.withAlpha(200),
-                getTooltipItems: (touchedSpots) {
-                  return touchedSpots.map((spot) {
-                    return LineTooltipItem(
-                      CurrencyFormatter.format(spot.y),
-                      TextStyle(
-                        color: isExpense
-                            ? Colors.red.shade400
-                            : Colors.green.shade400,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                extraLinesData: ExtraLinesData(
+                  horizontalLines: showLimit
+                      ? [
+                          HorizontalLine(
+                            y: widget.totalBudget,
+                            color: Colors.orange.withValues(alpha: 0.5),
+                            strokeWidth: 2,
+                            dashArray: [8, 4],
+                            label: HorizontalLineLabel(
+                              show: true,
+                              alignment: Alignment.topRight,
+                              padding: const EdgeInsets.only(
+                                right: 5,
+                                bottom: 5,
+                              ),
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange.withValues(alpha: 0.8),
+                              ),
+                              labelResolver: (line) =>
+                                  'Limit: ${CurrencyFormatter.format(widget.totalBudget)}',
+                            ),
+                          ),
+                        ]
+                      : [],
+                ),
+                titlesData: FlTitlesData(
+                  show: true,
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 32,
+                      interval: (sortedEntries.length / 5).ceilToDouble().clamp(
+                        1.0,
+                        31.0,
                       ),
-                    );
-                  }).toList();
-                },
+                      getTitlesWidget: (value, meta) {
+                        final index = value.toInt();
+                        if (index < 0 || index >= sortedEntries.length) {
+                          return const SizedBox.shrink();
+                        }
+
+                        // X ekseninde çakışan tarihleri engellemek için sadece meta'nın önerdiği grid hizalarında metni göster
+                        if (value != meta.min &&
+                            value != meta.max &&
+                            value % (sortedEntries.length / 5).ceil() != 0) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final date = sortedEntries[index].key;
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            '${date.day}',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.5),
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.visible,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                minX: 0,
+                maxX: (sortedEntries.length - 1).toDouble(),
+                minY: 0,
+                maxY: maxY * 1.2,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: spots,
+                    isCurved: true,
+                    color: isExpense
+                        ? Colors.red.shade400
+                        : Colors.green.shade400,
+                    barWidth: 4,
+                    isStrokeCapRound: true,
+                    shadow: Shadow(
+                      color:
+                          (isExpense
+                                  ? Colors.red.shade400
+                                  : Colors.green.shade400)
+                              .withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: [
+                          (isExpense
+                                  ? Colors.red.shade400
+                                  : Colors.green.shade400)
+                              .withValues(alpha: 0.3),
+                          (isExpense
+                                  ? Colors.red.shade400
+                                  : Colors.green.shade400)
+                              .withValues(alpha: 0.0),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ],
+                lineTouchData: LineTouchData(
+                  handleBuiltInTouches: true,
+                  getTouchedSpotIndicator:
+                      (LineChartBarData barData, List<int> spotIndexes) {
+                        return spotIndexes.map((index) {
+                          return TouchedSpotIndicatorData(
+                            FlLine(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.2),
+                              strokeWidth: 2,
+                              dashArray: [4, 4],
+                            ),
+                            FlDotData(
+                              show: true,
+                              getDotPainter: (spot, percent, barData, index) {
+                                return FlDotCirclePainter(
+                                  radius: 5,
+                                  color: isExpense
+                                      ? Colors.red.shade400
+                                      : Colors.green.shade400,
+                                  strokeWidth: 3,
+                                  strokeColor: Theme.of(
+                                    context,
+                                  ).colorScheme.surface,
+                                );
+                              },
+                            ),
+                          );
+                        }).toList();
+                      },
+                  touchTooltipData: LineTouchTooltipData(
+                    tooltipBgColor: Theme.of(context).colorScheme.surface,
+                    tooltipRoundedRadius: 16,
+                    fitInsideHorizontally: true,
+                    fitInsideVertically: true,
+                    getTooltipItems: (touchedSpots) {
+                      return touchedSpots.map((spot) {
+                        final date = sortedEntries[spot.spotIndex].key;
+
+                        return LineTooltipItem(
+                          '${date.day} ${_getShortMonthName(date.month)}\n',
+                          TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: CurrencyFormatter.format(spot.y),
+                              style: TextStyle(
+                                color: isExpense
+                                    ? Colors.red.shade400
+                                    : Colors.green.shade400,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+          Positioned(
+            top: 2,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  buildCumulativeToggle(
+                    false,
+                    'Günlük',
+                    Icons.bar_chart_rounded,
+                  ),
+                  buildCumulativeToggle(
+                    true,
+                    'Birikimli',
+                    Icons.show_chart_rounded,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

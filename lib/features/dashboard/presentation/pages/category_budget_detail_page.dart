@@ -430,9 +430,14 @@ class CategoryBudgetDetailPage extends StatelessWidget {
   void _showCategoryDetails(BuildContext context, String categoryKey) {
     if (rawExpenses == null || rawExpenses!.isEmpty) return;
 
-    final items = rawExpenses!
-        .where((e) => (e['kategori']?.toString() ?? 'Diğer') == categoryKey)
-        .toList();
+    final items = rawExpenses!.where((e) {
+      final rawCat = e['kategori']?.toString() ?? 'Diğer';
+      final translatedRaw = context.translateDbName(rawCat);
+      final translatedTarget = context.translateDbName(categoryKey);
+
+      return translatedRaw == translatedTarget || rawCat == categoryKey;
+    }).toList();
+
     if (items.isEmpty) return;
 
     final currencyService = getIt<CurrencyService>();
