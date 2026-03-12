@@ -3,6 +3,7 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/services/currency_service.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
@@ -12,7 +13,7 @@ import 'pdf_export_page.dart';
 import '../controllers/analysis_controller.dart';
 import '../../../dashboard/presentation/widgets/budget_status_card.dart';
 import '../../../dashboard/presentation/pages/category_budget_detail_page.dart';
-
+import 'package:intl/intl.dart';
 /// Analiz ve Raporlar Sayfası
 /// Harcama, Gelir ve Varlık analizlerini gösterir
 class AnalysisPage extends StatefulWidget {
@@ -668,10 +669,10 @@ class _AnalysisPageState extends State<AnalysisPage>
                       },
                     ),
                   ],
-                  if (widget.paymentMethods.isNotEmpty) ...[
-                    const SizedBox(height: 32),
+                  if (currentExpenses.isNotEmpty)
+                    _buildTopExpenses(currentExpenses, _controller.totalMonthlyExpense),
+                  if (widget.paymentMethods.isNotEmpty)
                     _buildPaymentMethodDistribution(),
-                  ],
                 ]
                 .animate(interval: 50.ms)
                 .fade(duration: 400.ms)
@@ -737,6 +738,16 @@ class _AnalysisPageState extends State<AnalysisPage>
                     topCategoryAmount: CurrencyFormatter.format(topAmount),
                   ),
                   _buildChartArea(sections, totals, totalIncome, incomeColors),
+                  if (currentIncomes.isNotEmpty)
+                    _buildTopIncomes(currentIncomes, totalIncome),
+                  if (currentIncomes.isNotEmpty && totalIncome > 0)
+                    _buildIncomeStability(currentIncomes, totalIncome),
+                  if (totalIncome > 0) ...[
+                    _buildDailyEarningRate(totalIncome),
+                    _buildSavingsPotential(totalIncome, _controller.totalMonthlyExpense),
+                  ],
+                  if (widget.paymentMethods.isNotEmpty)
+                    _buildPaymentMethodDistribution(isExpense: false),
                 ]
                 .animate(interval: 50.ms)
                 .fade(duration: 400.ms)
@@ -798,6 +809,16 @@ class _AnalysisPageState extends State<AnalysisPage>
                   ),
                   const SizedBox(height: 24),
                   _buildChartArea(sections, totals, totalValue, assetColors),
+                  if (activeAssets.any((a) => a.purchasePrice > 0)) ...[
+                    const SizedBox(height: 24),
+                    _buildTopPerformers(activeAssets),
+                  ],
+                  if (activeAssets.isNotEmpty && totalValue > 0) ...[
+                    const SizedBox(height: 24),
+                    _buildPortfolioDiversification(totals, totalValue),
+                    const SizedBox(height: 24),
+                    _buildLiquidityCheck(activeAssets, totalValue),
+                  ],
                 ]
                 .animate(interval: 50.ms)
                 .fade(duration: 400.ms)
@@ -812,22 +833,15 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   // ========== YARDIMCI METODLAR ==========
 
-  String _getShortMonthName(int month) {
-    const months = [
-      'Oca',
-      'Şub',
-      'Mar',
-      'Nis',
-      'May',
-      'Haz',
-      'Tem',
-      'Ağu',
-      'Eyl',
-      'Eki',
-      'Kas',
-      'Ara',
-    ];
-    if (month >= 1 && month <= 12) return months[month - 1];
+  String _getShortMonthName(BuildContext context, int month) {
+    if (month >= 1 && month <= 12) {
+      try {
+        final locale = Localizations.localeOf(context).languageCode;
+        return DateFormat.MMM(locale).format(DateTime(2024, month, 1));
+      } catch (_) {
+         // Fallback works natively internally or below
+      }
+    }
     return '';
   }
 
@@ -1438,7 +1452,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                         final date = sortedEntries[spot.spotIndex].key;
 
                         return LineTooltipItem(
-                          '${date.day} ${_getShortMonthName(date.month)}\n',
+                          '${date.day} ${_getShortMonthName(context, date.month)}\n',
                           TextStyle(
                             color: Theme.of(
                               context,
@@ -1632,9 +1646,11 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   /// Ödeme yöntemine göre dağılım
-  Widget _buildPaymentMethodDistribution() {
-    final Map<String, double> pmTotals = _controller.expensePaymentMethodTotals;
-    final double pmTotal = _controller.totalMonthlyExpense;
+  Widget _buildPaymentMethodDistribution({bool isExpense = true}) {
+    final Map<String, double> pmTotals =
+        isExpense ? _controller.expensePaymentMethodTotals : _controller.incomePaymentMethodTotals;
+    final double pmTotal =
+        isExpense ? _controller.totalMonthlyExpense : _controller.totalMonthlyIncome;
 
     if (pmTotals.isEmpty || pmTotal == 0) return const SizedBox.shrink();
 
@@ -1647,11 +1663,15 @@ class _AnalysisPageState extends State<AnalysisPage>
       Colors.cyan.shade400,
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+    return Padding(
+      padding: const EdgeInsets.only(top: 32.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
         Text(
-          context.l10n.distributionByPaymentMethod,
+          isExpense
+              ? context.l10n.distributionByPaymentMethod
+              : context.l10n.distributionByAccount,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
             fontSize: 16,
@@ -1678,6 +1698,1484 @@ class _AnalysisPageState extends State<AnalysisPage>
           ),
         ),
       ],
+      ),
+    );
+  }
+
+  /// En yüksek 3 harcamayı gösteren widget
+  Widget _buildTopExpenses(List<Map<String, dynamic>> currentExpenses, double totalMonthlyExpense) {
+    if (currentExpenses.isEmpty) return const SizedBox.shrink();
+
+    // "Sabit Giderler" / "Fixed Expenses" kategorisini hariç tut
+    final filteredExpenses = currentExpenses.where((h) {
+      final cat = h['kategori']?.toString() ?? '';
+      final catLower = cat.toLowerCase();
+      return catLower != 'sabit giderler' && catLower != 'fixed expenses';
+    }).toList();
+
+    // Döviz dönüştürülmüş tutara göre en yüksek 3 işlemi bul
+    final curService = getIt<CurrencyService>();
+    final sortedExpenses = List<Map<String, dynamic>>.from(filteredExpenses)
+      ..sort((a, b) {
+        final double valA = (a['tutar'] as num?)?.toDouble() ?? 0.0;
+        final double valB = (b['tutar'] as num?)?.toDouble() ?? 0.0;
+        final pbA = a['paraBirimi']?.toString() ?? 'TRY';
+        final pbB = b['paraBirimi']?.toString() ?? 'TRY';
+        final convertedA = curService.convert(valA, pbA, curService.currentCurrency);
+        final convertedB = curService.convert(valB, pbB, curService.currentCurrency);
+        return convertedB.compareTo(convertedA);
+      });
+
+    final top3 = sortedExpenses.take(3).toList();
+    if (top3.isEmpty || top3.every((e) => (e['tutar'] as num? ?? 0.0) == 0.0)) {
+       return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              context.l10n.topExpenses,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Container(
+               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+               decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+               ),
+               child: Icon(Icons.warning_rounded, size: 16, color: Colors.red.shade400),
+            )
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          context.l10n.topExpensesDescription,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+            ),
+          ),
+          child: Column(
+            children: List.generate(top3.length, (index) {
+              final expense = top3[index];
+              final category = expense['kategori']?.toString() ?? context.l10n.notSpecified;
+              final expenseName = expense['isim']?.toString() ?? context.translateDbName(category);
+              final amount = (expense['tutar'] as num?)?.toDouble() ?? 0.0;
+              final currency = expense['paraBirimi']?.toString() ?? 'TRY';
+              final note = expense['ikinciAciklama']?.toString() ?? expense['kategoriAyrinti']?.toString() ?? '';
+              
+              // Orijinal tutarı base currency'e çevir
+              final curService = getIt<CurrencyService>();
+              final convertedAmount = curService.convert(amount, currency, curService.currentCurrency);
+              
+              // Tarih bilgisini al ve formatla
+              final tarihStr = expense['tarih']?.toString();
+              String dateText = '';
+              if (tarihStr != null) {
+                final date = DateTime.tryParse(tarihStr);
+                if (date != null) {
+                  dateText = '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+                }
+              }
+
+              // İkonu bul
+              IconData categoryIcon = widget.expenseCategoryIcons?[category] ?? Icons.category_rounded;
+              
+              // Her işlem için o harcama paletindeki zıt renklerden birini seç
+              final Color iconColor = expenseColors[index % expenseColors.length];
+
+              return Column(
+                children: [
+                   ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    leading: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: iconColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(categoryIcon, color: iconColor, size: 24),
+                    ),
+                    title: Text(
+                      expenseName,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (note.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            note,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                        if (dateText.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Row(
+                             children: [
+                                Icon(Icons.calendar_today_outlined, size: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  dateText,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                             ],
+                          ),
+                        ],
+                      ],
+                    ),
+                    trailing: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          CurrencyFormatter.format(amount, currency: currency),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.red,
+                          ),
+                        ),
+                        if (currency != curService.currentCurrency) ...[
+                           Text(
+                             '~${CurrencyFormatter.format(convertedAmount)}',
+                             style: TextStyle(
+                               fontSize: 11,
+                               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                             ),
+                           )
+                        ],
+                      ],
+                    ),
+                  ),
+                  // Son eleman değilse araya çizgi koy
+                  if (index != top3.length - 1)
+                    Divider(
+                      height: 1,
+                      indent: 72,
+                      endIndent: 16,
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                    ),
+                ],
+              );
+            }),
+          ),
+        ),
+      ],
+      ),
+    );
+  }
+  // ========== VARLIK ANALİZİ WİDGET'LARI ==========
+
+  /// Özellik 1: Kârlılık Liderleri - ROI en yüksek 3 varlık
+  Widget _buildTopPerformers(List<Asset> activeAssets) {
+    if (activeAssets.isEmpty) return const SizedBox.shrink();
+
+    final curService = getIt<CurrencyService>();
+
+    // purchasePrice == 0 ise ROI hesaplanamaz → hariç tut
+    final assetsWithRoi = activeAssets.where((a) => a.purchasePrice > 0).toList();
+    if (assetsWithRoi.isEmpty) return const SizedBox.shrink();
+
+    // ROI'ye göre sırala (en yüksek başta)
+    assetsWithRoi.sort((a, b) => b.profitLossPercentage.compareTo(a.profitLossPercentage));
+
+    // Sadece kârda olanları göster
+    final profitable = assetsWithRoi.where((a) => a.profitLoss > 0).toList();
+
+    if (profitable.isEmpty) {
+      return _buildInfoCard(
+        icon: Icons.trending_up_rounded,
+        iconColor: Colors.blue,
+        title: context.l10n.topPerformers,
+        message: context.l10n.topPerformersAllLoss,
+      );
+    }
+
+    final top3 = profitable.take(3).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(
+                  context.l10n.topPerformers,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                GestureDetector(
+                  onTap: () => _showDetailBottomSheet(
+                    title: context.l10n.topPerformersDetailTitle,
+                    body: context.l10n.topPerformersDetailBody,
+                    icon: Icons.trending_up_rounded,
+                    iconColor: Colors.blue,
+                  ),
+                  child: Icon(
+                    Icons.info_outline_rounded,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          context.l10n.topPerformersDesc,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+            ),
+          ),
+          child: Column(
+            children: List.generate(top3.length, (index) {
+              final asset = top3[index];
+              final roi = asset.profitLossPercentage;
+              final profitAmount = curService.convert(
+                asset.profitLoss, asset.paraBirimi, curService.currentCurrency,
+              );
+              final isProfit = profitAmount >= 0;
+              final Color roiColor = isProfit ? Colors.green : Colors.red;
+
+              return Column(
+                children: [
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    leading: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: assetColors[index % assetColors.length].withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.show_chart_rounded,
+                        color: assetColors[index % assetColors.length],
+                        size: 24,
+                      ),
+                    ),
+                    title: Text(
+                      asset.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      context.translateDbName(asset.category),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                    trailing: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: roiColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '${isProfit ? '+' : ''}${roi.toStringAsFixed(1)}%',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: roiColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${isProfit ? '+' : ''}${CurrencyFormatter.format(profitAmount)}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (index != top3.length - 1)
+                    Divider(
+                      height: 1,
+                      indent: 72,
+                      endIndent: 16,
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                    ),
+                ],
+              );
+            }),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Özellik 2: Portföy Çeşitliliği
+  Widget _buildPortfolioDiversification(Map<String, double> typeTotals, double totalValue) {
+    if (typeTotals.isEmpty || totalValue <= 0) return const SizedBox.shrink();
+
+    final typeCount = typeTotals.length;
+
+    // En büyük dilimi bul
+    String dominantType = '';
+    double dominantPercent = 0;
+    for (var entry in typeTotals.entries) {
+      final pct = entry.value / totalValue * 100;
+      if (pct > dominantPercent) {
+        dominantPercent = pct;
+        dominantType = entry.key;
+      }
+    }
+
+    // Durum tespiti
+    final bool isSingleType = typeCount == 1;
+    final bool isConcentrated = !isSingleType && dominantPercent >= 70;
+
+    final String statusTitle;
+    final String statusDesc;
+    final Color statusColor;
+    final IconData statusIcon;
+
+    if (isSingleType) {
+      statusTitle = context.l10n.singleAssetType;
+      statusDesc = context.l10n.singleAssetTypeDesc;
+      statusColor = Colors.orange;
+      statusIcon = Icons.warning_amber_rounded;
+    } else if (isConcentrated) {
+      statusTitle = context.l10n.concentratedPortfolio;
+      statusDesc = context.l10n.concentratedPortfolioDesc(
+        context.translateDbName(dominantType),
+        dominantPercent.toStringAsFixed(0),
+      );
+      statusColor = Colors.orange;
+      statusIcon = Icons.pie_chart_rounded;
+    } else {
+      statusTitle = context.l10n.diversifiedPortfolio;
+      statusDesc = context.l10n.diversifiedPortfolioDesc;
+      statusColor = Colors.green;
+      statusIcon = Icons.check_circle_outline_rounded;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              context.l10n.portfolioDiversification,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: () => _showDetailBottomSheet(
+                title: context.l10n.portfolioDiversificationDetailTitle,
+                body: context.l10n.portfolioDiversificationDetailBody,
+                icon: Icons.pie_chart_rounded,
+                iconColor: Colors.blue,
+              ),
+              child: Icon(
+                Icons.info_outline_rounded,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+            ),
+          ),
+          child: Column(
+            children: [
+              // Progress bars for each type
+              ...typeTotals.entries.map((entry) {
+                final pct = entry.value / totalValue;
+                final color = assetColors[typeTotals.keys.toList().indexOf(entry.key) % assetColors.length];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            context.translateDbName(entry.key),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                          Text(
+                            '%${(pct * 100).toStringAsFixed(0)}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: color,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: pct.clamp(0.0, 1.0),
+                          backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+                          valueColor: AlwaysStoppedAnimation(color),
+                          minHeight: 6,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              const SizedBox(height: 8),
+              // Status message
+              _buildInfoCard(
+                icon: statusIcon,
+                iconColor: statusColor,
+                title: statusTitle,
+                message: statusDesc,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Özellik 3: Likidite Durumu
+  Widget _buildLiquidityCheck(List<Asset> activeAssets, double totalValue) {
+    if (activeAssets.isEmpty || totalValue <= 0) return const SizedBox.shrink();
+
+    final curService = getIt<CurrencyService>();
+
+    // Yüksek likidite: Altın, Döviz, Kripto, Banka
+    // Düşük likidite: Hisse Senedi, Diğer, ve kullanıcı tanımlı bilinmeyen türler
+    const highLiquidityCategories = {
+      'altın', 'gold',
+      'döviz', 'forex', 'currency',
+      'kripto', 'crypto',
+      'banka', 'bank',
+    };
+
+    double highLiquidTotal = 0;
+    double lowLiquidTotal = 0;
+
+    for (var asset in activeAssets) {
+      final converted = curService.convert(asset.amount, asset.paraBirimi, curService.currentCurrency);
+      if (highLiquidityCategories.contains(asset.category.toLowerCase())) {
+        highLiquidTotal += converted;
+      } else {
+        lowLiquidTotal += converted;
+      }
+    }
+
+    final highPct = (highLiquidTotal / totalValue * 100).clamp(0.0, 100.0);
+    final lowPct = (lowLiquidTotal / totalValue * 100).clamp(0.0, 100.0);
+    final isHealthy = highPct >= 30; // %30+ likit = sağlıklı
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              context.l10n.liquidityCheck,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: () => _showDetailBottomSheet(
+                title: context.l10n.liquidityDetailTitle,
+                body: context.l10n.liquidityDetailBody,
+                icon: Icons.water_drop_rounded,
+                iconColor: Colors.cyan,
+              ),
+              child: Icon(
+                Icons.info_outline_rounded,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+            ),
+          ),
+          child: Column(
+            children: [
+              // Two bars side by side
+              Row(
+                children: [
+                  // High Liquidity
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Icon(Icons.flash_on_rounded, color: Colors.cyan, size: 28),
+                        const SizedBox(height: 8),
+                        Text(
+                          context.l10n.highLiquidity,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '%${highPct.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.cyan,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: (highPct / 100).clamp(0.0, 1.0),
+                            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+                            valueColor: const AlwaysStoppedAnimation(Colors.cyan),
+                            minHeight: 6,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  // Low Liquidity
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Icon(Icons.hourglass_bottom_rounded, color: Colors.orange, size: 28),
+                        const SizedBox(height: 8),
+                        Text(
+                          context.l10n.lowLiquidity,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '%${lowPct.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: (lowPct / 100).clamp(0.0, 1.0),
+                            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+                            valueColor: const AlwaysStoppedAnimation(Colors.orange),
+                            minHeight: 6,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Status message
+              _buildInfoCard(
+                icon: isHealthy ? Icons.check_circle_outline_rounded : Icons.warning_amber_rounded,
+                iconColor: isHealthy ? Colors.green : Colors.orange,
+                title: isHealthy ? context.l10n.highLiquidity : context.l10n.lowLiquidity,
+                message: isHealthy
+                    ? context.l10n.liquidityHealthy(highPct.toStringAsFixed(0))
+                    : context.l10n.liquidityWarning,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ========== GELİR ANALİZİ WİDGET'LARI ==========
+
+
+  /// Özellik 1: En Büyük 3 Gelir (Düzenli gelirler hariç)
+  /// Controller üzerinden tüm tarihsel veriye bakarak düzenli kategorileri tespit eder.
+  /// Farklı aylarda 2+ kez görünen kategoriler "düzenli" sayılır.
+  Widget _buildTopIncomes(List<Income> currentIncomes, double totalIncome) {
+    if (currentIncomes.isEmpty) return const SizedBox.shrink();
+
+    // Controller'dan tüm geçmişe bakarak düzenli kategorileri al
+    final regularCategories = _controller.regularIncomeCategories;
+
+    final filtered = currentIncomes.where((g) {
+      return !regularCategories.contains(g.category);
+    }).toList();
+
+    // Eğer filtreleme sonrası boşsa (tüm gelirler düzenli) özel mesaj göster
+    if (filtered.isEmpty) {
+      return _buildInfoCard(
+        icon: Icons.emoji_events_outlined,
+        iconColor: Colors.amber,
+        title: context.l10n.topIncomes,
+        message: context.l10n.topIncomesAllSalary,
+      );
+    }
+
+    final curService = getIt<CurrencyService>();
+    final sorted = List<Income>.from(filtered)
+      ..sort((a, b) {
+        final va = curService.convert(a.amount, a.paraBirimi, curService.currentCurrency);
+        final vb = curService.convert(b.amount, b.paraBirimi, curService.currentCurrency);
+        return vb.compareTo(va);
+      });
+
+    final top3 = sorted.take(3).toList();
+    if (top3.isEmpty || top3.every((e) => e.amount == 0.0)) {
+       return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(
+                  context.l10n.topIncomes,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                GestureDetector(
+                  onTap: () => _showDetailBottomSheet(
+                    title: context.l10n.topIncomesDetailTitle,
+                    body: context.l10n.topIncomesDetailBody,
+                    icon: Icons.emoji_events_rounded,
+                    iconColor: Colors.amber,
+                  ),
+                  child: Icon(
+                    Icons.info_outline_rounded,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                  ),
+                ),
+              ],
+            ),
+            Container(
+               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+               decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+               ),
+               child: Icon(Icons.emoji_events_rounded, size: 16, color: Colors.green.shade400),
+            )
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          context.l10n.topIncomesDescription,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+            ),
+          ),
+          child: Column(
+            children: List.generate(top3.length, (index) {
+              final income = top3[index];
+              final amount = income.amount;
+              final currency = income.paraBirimi;
+              final convertedAmount = curService.convert(amount, currency, curService.currentCurrency);
+              final Color iconColor = incomeColors[index % incomeColors.length];
+              final incomeCatIcon = widget.incomeCategoryIcons?[income.category] ?? Icons.attach_money_rounded;
+
+              // Tarih
+              final date = income.date;
+              final dateText = '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+
+              return Column(
+                children: [
+                   ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    leading: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: iconColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(incomeCatIcon, color: iconColor, size: 24),
+                    ),
+                    title: Text(
+                      income.name.isNotEmpty ? income.name : context.translateDbName(income.category),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today_outlined, size: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+                            const SizedBox(width: 4),
+                            Text(
+                              dateText,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    trailing: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          CurrencyFormatter.format(amount, currency: currency),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.green.shade600,
+                          ),
+                        ),
+                        if (currency != curService.currentCurrency)
+                           Text(
+                             '~${CurrencyFormatter.format(convertedAmount)}',
+                             style: TextStyle(
+                               fontSize: 11,
+                               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                             ),
+                           ),
+                      ],
+                    ),
+                  ),
+                  if (index != top3.length - 1)
+                    Divider(
+                      height: 1,
+                      indent: 72,
+                      endIndent: 16,
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                    ),
+                ],
+              );
+            }),
+          ),
+        ),
+      ],
+      ),
+    );
+  }
+
+  /// Özellik 2: Gelir Kararlılığı (Düzenli vs Değişken)
+  Widget _buildIncomeStability(List<Income> currentIncomes, double totalIncome) {
+    if (currentIncomes.isEmpty || totalIncome <= 0) return const SizedBox.shrink();
+
+    // Controller'ın tüm geçmişe bakarak hesapladığı düzenli kategorileri al
+    final regularCategories = _controller.regularIncomeCategories;
+    final curService = getIt<CurrencyService>();
+    final categoryAmounts = <String, double>{};
+
+    for (var g in currentIncomes) {
+      final val = curService.convert(g.amount, g.paraBirimi, curService.currentCurrency);
+      categoryAmounts[g.category] = (categoryAmounts[g.category] ?? 0) + val;
+    }
+
+    double regularTotal = 0;
+    double variableTotal = 0;
+
+    for (var entry in categoryAmounts.entries) {
+      if (regularCategories.contains(entry.key)) {
+        regularTotal += entry.value;
+      } else {
+        variableTotal += entry.value;
+      }
+    }
+    final uniqueCategories = categoryAmounts.length;
+
+    final regularPercent = (regularTotal / totalIncome * 100).clamp(0.0, 100.0);
+    final variablePercent = (variableTotal / totalIncome * 100).clamp(0.0, 100.0);
+
+    // Tek kaynak uyarısı vs çeşitli gelir
+    final bool isSingleSource = uniqueCategories == 1;
+    final String adviceText = isSingleSource
+        ? context.l10n.singleSourceWarning
+        : context.l10n.stableIncomeNote;
+    final Color adviceColor = isSingleSource ? Colors.orange : Colors.green;
+    final IconData adviceIcon = isSingleSource ? Icons.warning_amber_rounded : Icons.check_circle_outline_rounded;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+        Row(
+          children: [
+            Text(
+              context.l10n.incomeStability,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: () => _showDetailBottomSheet(
+                title: context.l10n.incomeStabilityDetailTitle,
+                body: context.l10n.incomeStabilityDetailBody,
+                icon: Icons.balance_rounded,
+                iconColor: Colors.blue,
+              ),
+              child: Icon(
+                Icons.info_outline_rounded,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+            ),
+          ),
+          child: Column(
+            children: [
+              // Progress bar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  height: 12,
+                  child: Row(
+                    children: [
+                      if (regularPercent > 0)
+                        Expanded(
+                          flex: regularPercent.round(),
+                          child: Container(color: Colors.green.shade400),
+                        ),
+                      if (variablePercent > 0)
+                        Expanded(
+                          flex: variablePercent.round(),
+                          child: Container(color: Colors.orange.shade400),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Legend
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 10, height: 10,
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade400,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${context.l10n.regularIncome} %${regularPercent.toStringAsFixed(0)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 10, height: 10,
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade400,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${context.l10n.variableIncome} %${variablePercent.toStringAsFixed(0)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Tavsiye notu
+              Row(
+                children: [
+                  Icon(adviceIcon, size: 16, color: adviceColor),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      adviceText,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+      ),
+    );
+  }
+
+  /// Özellik 3: Günlük Kazanç Hızı
+  /// Her zaman dönemin TOPLAM gün sayısına böler (geçen gün sayısına değil).
+  /// Böylece maaş gibi toplu ödemeler ayın 10'unda girse bile
+  /// günlük oran yapay şekilde şişirilmez.
+  Widget _buildDailyEarningRate(double totalIncome) {
+    if (totalIncome <= 0) return const SizedBox.shrink();
+
+    final now = DateTime.now();
+    final selected = _controller.selectedMonth;
+    final limit = _controller.historyLimit;
+
+    // Dönemin toplam gün sayısını hesapla (geçen gün sayısı DEĞİL)
+    int totalDays;
+    if (limit == -1) {
+      // Belirli bir ay seçildi → o ayın toplam gün sayısı
+      totalDays = DateTime(selected.year, selected.month + 1, 0).day;
+    } else if (limit == 30) {
+      // Bu Ay (This Calendar Month) → bu ayın toplam gün sayısı
+      totalDays = DateTime(now.year, now.month + 1, 0).day;
+    } else if (limit == 366) {
+      // Bu Yıl (This Calendar Year) → yılın toplam gün sayısı
+      final isLeap = (now.year % 4 == 0 && now.year % 100 != 0) || (now.year % 400 == 0);
+      totalDays = isLeap ? 366 : 365;
+    } else {
+      // 7, 90, 180, 365 → doğrudan kullan
+      totalDays = limit;
+    }
+    if (totalDays <= 0) totalDays = 1;
+
+    final dailyAvg = totalIncome / totalDays;
+    final incomeCount = _controller.currentIncomes.length;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+        Row(
+          children: [
+            Text(
+              context.l10n.dailyEarningRate,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: () => _showDetailBottomSheet(
+                title: context.l10n.dailyEarningRateDetailTitle,
+                body: context.l10n.dailyEarningRateDetailBody,
+                icon: Icons.speed_rounded,
+                iconColor: Colors.green,
+              ),
+              child: Icon(
+                Icons.info_outline_rounded,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.speed_rounded, color: Colors.green.shade400, size: 28),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      CurrencyFormatter.format(dailyAvg),
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      context.l10n.dailyAverage,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '$totalDays ${context.l10n.daysElapsed}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$incomeCount ${context.l10n.incomeTransactions}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+      ),
+    );
+  }
+
+  /// Özellik 5: Tasarruf Potansiyeli
+  Widget _buildSavingsPotential(double totalIncome, double totalExpense) {
+    if (totalIncome <= 0) return const SizedBox.shrink();
+
+    final savings = totalIncome - totalExpense;
+    final savingsPercent = (savings / totalIncome * 100).clamp(-999.0, 100.0);
+
+    String message;
+    Color statusColor;
+    IconData statusIcon;
+
+    if (totalExpense <= 0) {
+      // Hiç harcama yok
+      message = context.l10n.savingsPotentialNoExpense;
+      statusColor = Colors.green;
+      statusIcon = Icons.celebration_rounded;
+    } else if (savings >= 0) {
+      // Pozitif tasarruf
+      message = context.l10n.savingsPotentialPositive('%${savingsPercent.toStringAsFixed(0)}');
+      statusColor = Colors.green;
+      statusIcon = Icons.savings_rounded;
+    } else {
+      // Negatif (açık)
+      message = context.l10n.savingsPotentialNegative;
+      statusColor = Colors.red;
+      statusIcon = Icons.warning_rounded;
+    }
+
+    // Progress bar: 0-1 arası (ne kadar tasarruf?)
+    final progressValue = savingsPercent > 0 ? savingsPercent / 100.0 : 0.0;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+        Row(
+          children: [
+            Text(
+              context.l10n.savingsPotential,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: () => _showDetailBottomSheet(
+                title: context.l10n.savingsPotentialDetailTitle,
+                body: context.l10n.savingsPotentialDetailBody,
+                icon: Icons.savings_rounded,
+                iconColor: Colors.green,
+              ),
+              child: Icon(
+                Icons.info_outline_rounded,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+            ),
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    CurrencyFormatter.format(savings.abs()),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: statusColor,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: statusColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(statusIcon, color: statusColor, size: 24),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Progress bar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value: progressValue.clamp(0.0, 1.0),
+                  minHeight: 8,
+                  backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                  valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Icon(statusIcon, size: 14, color: statusColor.withValues(alpha: 0.7)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      message,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+      ),
+    );
+  }
+
+  /// Bilgi kartı (boş durumlar için yeniden kullanılabilir)
+  Widget _buildInfoCard({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String message,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: iconColor, size: 24),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Detaylı bilgi bottom sheet'i göster
+  void _showDetailBottomSheet({
+    required String title,
+    required String body,
+    required IconData icon,
+    required Color iconColor,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.6,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              // Icon
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: iconColor, size: 32),
+              ),
+              const SizedBox(height: 16),
+              // Title
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              // Body
+              Text(
+                body,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.6,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Close button
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    context.l10n.close,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

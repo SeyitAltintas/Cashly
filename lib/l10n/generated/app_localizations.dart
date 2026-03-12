@@ -1538,6 +1538,312 @@ abstract class AppLocalizations {
   /// **'Gelir Dağılımı'**
   String get incomeDistribution;
 
+  /// No description provided for @distributionByAccount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesaba Göre Dağılım'**
+  String get distributionByAccount;
+
+  /// No description provided for @topExpenses.
+  ///
+  /// In tr, this message translates to:
+  /// **'En Büyük Harcamalar'**
+  String get topExpenses;
+
+  /// No description provided for @topExpensesDescription.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu ay tek seferde yaptığınız en yüksek 3 harcama (Sabit giderler hariç).'**
+  String get topExpensesDescription;
+
+  /// No description provided for @topIncomes.
+  ///
+  /// In tr, this message translates to:
+  /// **'En Büyük Gelirler'**
+  String get topIncomes;
+
+  /// No description provided for @topIncomesDescription.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu dönemde elde ettiğiniz en yüksek 3 gelir (Düzenli gelirler hariç).'**
+  String get topIncomesDescription;
+
+  /// No description provided for @topIncomesAllSalary.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu dönemde tüm gelirleriniz düzenli kaynaklardan oluşuyor.'**
+  String get topIncomesAllSalary;
+
+  /// No description provided for @incomeStability.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir Kararlılığı'**
+  String get incomeStability;
+
+  /// No description provided for @regularIncome.
+  ///
+  /// In tr, this message translates to:
+  /// **'Düzenli'**
+  String get regularIncome;
+
+  /// No description provided for @variableIncome.
+  ///
+  /// In tr, this message translates to:
+  /// **'Değişken'**
+  String get variableIncome;
+
+  /// No description provided for @singleSourceWarning.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelirinizin tamamı tek bir kaynağa bağlı. Ek gelir kaynakları finansal güvenliğinizi artırır.'**
+  String get singleSourceWarning;
+
+  /// No description provided for @stableIncomeNote.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geliriniz çeşitlendirilmiş ve kararlı görünüyor.'**
+  String get stableIncomeNote;
+
+  /// No description provided for @dailyEarningRate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günlük Kazanç Hızı'**
+  String get dailyEarningRate;
+
+  /// No description provided for @daysElapsed.
+  ///
+  /// In tr, this message translates to:
+  /// **'gün'**
+  String get daysElapsed;
+
+  /// No description provided for @incomeTransactions.
+  ///
+  /// In tr, this message translates to:
+  /// **'gelir kaydı'**
+  String get incomeTransactions;
+
+  /// No description provided for @savingsPotential.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tasarruf Potansiyeli'**
+  String get savingsPotential;
+
+  /// No description provided for @savingsPotentialPositive.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelirinizin {percent}\'i hâlâ duruyor. Harika gidiyorsunuz!'**
+  String savingsPotentialPositive(String percent);
+
+  /// No description provided for @savingsPotentialNegative.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcamalarınız gelirinizi aştı. Bütçenizi gözden geçirmelisiniz.'**
+  String get savingsPotentialNegative;
+
+  /// No description provided for @savingsPotentialNoExpense.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu dönemde henüz harcama kaydınız yok. Tüm geliriniz elinizde!'**
+  String get savingsPotentialNoExpense;
+
+  /// No description provided for @detailInfoTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Detaylı Bilgi'**
+  String get detailInfoTitle;
+
+  /// No description provided for @topIncomesDetailTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'En Büyük Gelirler Nedir?'**
+  String get topIncomesDetailTitle;
+
+  /// No description provided for @topIncomesDetailBody.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu kart, seçili dönemde elde ettiğiniz en yüksek 3 geliri gösterir. Dönem içinde 2 veya daha fazla kez tekrarlayan gelir kategorileri (maaş, kira geliri gibi düzenli kaynaklar) bu listeden otomatik olarak hariç tutulur. Böylece prim, ikramiye, freelance ödeme gibi ekstra gelirlerinizi net görebilirsiniz. Eğer tüm gelirleriniz düzenli kaynaklardan oluşuyorsa, size bunu bildiren özel bir mesaj gösterilir.'**
+  String get topIncomesDetailBody;
+
+  /// No description provided for @incomeStabilityDetailTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir Kararlılığı Nedir?'**
+  String get incomeStabilityDetailTitle;
+
+  /// No description provided for @incomeStabilityDetailBody.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir kararlılığı, gelirlerinizin ne kadarının düzenli ve ne kadarının değişken olduğunu gösterir. Dönem içinde aynı kategoride 2 veya daha fazla işlem varsa o kategori \'düzenli\', tek seferlik işlemler ise \'değişken\' olarak sınıflandırılır.\n\nNeden önemli? Gelirinizin tamamı tek bir kaynağa bağlıysa, o kaynak kesildiğinde finansal güvenceniz riske girer. Gelir kaynaklarınızı çeşitlendirmek finansal güvenliğinizi artırır.'**
+  String get incomeStabilityDetailBody;
+
+  /// No description provided for @dailyEarningRateDetailTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günlük Kazanç Hızı Nedir?'**
+  String get dailyEarningRateDetailTitle;
+
+  /// No description provided for @dailyEarningRateDetailBody.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu kart, seçili dönemdeki toplam gelirinizi dönemin toplam gün sayısına bölerek günlük ortalama kazanç hızınızı hesaplar.\n\nÖrneğin: Bu ay toplam 30.000₺ kazandıysanız ve ay 31 günse, günlük ortalamanız yaklaşık 968₺ olur. Bu hesaplama, maaşınızı ayın hangi günü aldığınızdan bağımsız olarak doğru sonuç verir.'**
+  String get dailyEarningRateDetailBody;
+
+  /// No description provided for @savingsPotentialDetailTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tasarruf Potansiyeli Nedir?'**
+  String get savingsPotentialDetailTitle;
+
+  /// No description provided for @savingsPotentialDetailBody.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu kart, seçili dönemdeki toplam gelirinizden toplam harcamanızı çıkararak elinizde ne kadar para kaldığını gösterir.\n\nÜç durum vardır:\n• Yeşil: Geliriniz harcamalarınızdan fazla, harika gidiyorsunuz!\n• Kırmızı: Harcamalarınız gelirinizi aştı, bütçenizi gözden geçirin.\n• Henüz harcama yoksa: Tüm geliriniz elinizde!'**
+  String get savingsPotentialDetailBody;
+
+  /// No description provided for @topPerformers.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kârlılık Liderleri'**
+  String get topPerformers;
+
+  /// No description provided for @topPerformersDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yatırım getirisi (ROI) en yüksek varlıklarınız.'**
+  String get topPerformersDesc;
+
+  /// No description provided for @topPerformersAllLoss.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şu an kârdaki varlığınız bulunmuyor.'**
+  String get topPerformersAllLoss;
+
+  /// No description provided for @topPerformersDetailTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kârlılık Liderleri Nedir?'**
+  String get topPerformersDetailTitle;
+
+  /// No description provided for @topPerformersDetailBody.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu kart, varlıklarınız arasında yatırım getirisi (ROI) en yüksek olan 3 tanesini gösterir.\n\nHesaplama: (Güncel Değer - Alış Değeri) / Alış Değeri × 100\n\nÖrneğin 1.000₺\'ye aldığınız altın şu an 1.500₺ değerindeyse, ROI oranı %50\'dir.'**
+  String get topPerformersDetailBody;
+
+  /// No description provided for @roi.
+  ///
+  /// In tr, this message translates to:
+  /// **'ROI'**
+  String get roi;
+
+  /// No description provided for @profit.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kâr'**
+  String get profit;
+
+  /// No description provided for @loss.
+  ///
+  /// In tr, this message translates to:
+  /// **'Zarar'**
+  String get loss;
+
+  /// No description provided for @portfolioDiversification.
+  ///
+  /// In tr, this message translates to:
+  /// **'Portföy Çeşitliliği'**
+  String get portfolioDiversification;
+
+  /// No description provided for @diversifiedPortfolio.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çeşitlendirilmiş Portföy'**
+  String get diversifiedPortfolio;
+
+  /// No description provided for @diversifiedPortfolioDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlıklarınız farklı türlere dağılmış durumda. Bu, riskinizi azaltır.'**
+  String get diversifiedPortfolioDesc;
+
+  /// No description provided for @concentratedPortfolio.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yoğunlaşmış Portföy'**
+  String get concentratedPortfolio;
+
+  /// No description provided for @concentratedPortfolioDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'{category} toplam portföyünüzün %{percent}\'ini oluşturuyor. Riskinizi dağıtmak için çeşitlendirmeyi düşünebilirsiniz.'**
+  String concentratedPortfolioDesc(String category, String percent);
+
+  /// No description provided for @singleAssetType.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tek Tür Portföy'**
+  String get singleAssetType;
+
+  /// No description provided for @singleAssetTypeDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm varlıklarınız tek bir türde. Farklı varlık türlerine yatırım yaparak riskinizi dağıtabilirsiniz.'**
+  String get singleAssetTypeDesc;
+
+  /// No description provided for @portfolioDiversificationDetailTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Portföy Çeşitliliği Nedir?'**
+  String get portfolioDiversificationDetailTitle;
+
+  /// No description provided for @portfolioDiversificationDetailBody.
+  ///
+  /// In tr, this message translates to:
+  /// **'Portföy çeşitliliği, yatırımlarınızın farklı varlık türlerine ne kadar dengeli dağıldığını gösterir.\n\nİdeal durum: Hiçbir varlık türü toplam portföyün %70\'inden fazlasını oluşturmamalıdır.'**
+  String get portfolioDiversificationDetailBody;
+
+  /// No description provided for @liquidityCheck.
+  ///
+  /// In tr, this message translates to:
+  /// **'Likidite Durumu'**
+  String get liquidityCheck;
+
+  /// No description provided for @highLiquidity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yüksek Likidite'**
+  String get highLiquidity;
+
+  /// No description provided for @lowLiquidity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Düşük Likidite'**
+  String get lowLiquidity;
+
+  /// No description provided for @liquidityHealthy.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlıklarınızın %{percent}\'i hızlıca nakde çevrilebilir durumda.'**
+  String liquidityHealthy(String percent);
+
+  /// No description provided for @liquidityWarning.
+  ///
+  /// In tr, this message translates to:
+  /// **'Varlıklarınızın büyük kısmı düşük likiditeli. Acil durumda nakde çevirmek zor olabilir.'**
+  String get liquidityWarning;
+
+  /// No description provided for @liquidityDetailTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Likidite Durumu Nedir?'**
+  String get liquidityDetailTitle;
+
+  /// No description provided for @liquidityDetailBody.
+  ///
+  /// In tr, this message translates to:
+  /// **'Likidite, bir varlığın ne kadar hızlı nakde çevrilebileceğini gösterir.\n\nYüksek: Altın, Döviz, Kripto, Banka.\nDüşük: Gayrimenkul, Araç, Hisse Senedi.\n\nAcil durumda erişebileceğiniz varlıkların oranını bilmek önemlidir.'**
+  String get liquidityDetailBody;
+
   /// No description provided for @financialReport.
   ///
   /// In tr, this message translates to:
@@ -3762,13 +4068,13 @@ abstract class AppLocalizations {
   ///
   /// In tr, this message translates to:
   /// **'%{percent} Kur/Piyasa artışı'**
-  String assetIncrease(Object percent);
+  String assetIncrease(String percent);
 
   /// No description provided for @assetDecrease.
   ///
   /// In tr, this message translates to:
   /// **'%{percent} Kur/Piyasa azalışı'**
-  String assetDecrease(Object percent);
+  String assetDecrease(String percent);
 
   /// No description provided for @assetNoChange.
   ///

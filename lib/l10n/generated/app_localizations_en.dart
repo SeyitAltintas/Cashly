@@ -743,6 +743,184 @@ class AppLocalizationsEn extends AppLocalizations {
   String get incomeDistribution => 'Income Distribution';
 
   @override
+  String get distributionByAccount => 'Distribution by Account';
+
+  @override
+  String get topExpenses => 'Top Expenses';
+
+  @override
+  String get topExpensesDescription =>
+      'Your top 3 largest single expenses this month (excluding fixed expenses).';
+
+  @override
+  String get topIncomes => 'Top Incomes';
+
+  @override
+  String get topIncomesDescription =>
+      'Your top 3 largest incomes this period (excluding regular incomes).';
+
+  @override
+  String get topIncomesAllSalary =>
+      'All your incomes this period come from regular sources.';
+
+  @override
+  String get incomeStability => 'Income Stability';
+
+  @override
+  String get regularIncome => 'Regular';
+
+  @override
+  String get variableIncome => 'Variable';
+
+  @override
+  String get singleSourceWarning =>
+      'All your income comes from a single source. Diversifying can increase your financial security.';
+
+  @override
+  String get stableIncomeNote => 'Your income is diversified and looks stable.';
+
+  @override
+  String get dailyEarningRate => 'Daily Earning Rate';
+
+  @override
+  String get daysElapsed => 'days';
+
+  @override
+  String get incomeTransactions => 'income records';
+
+  @override
+  String get savingsPotential => 'Savings Potential';
+
+  @override
+  String savingsPotentialPositive(String percent) {
+    return '$percent of your income is still untouched. Great job!';
+  }
+
+  @override
+  String get savingsPotentialNegative =>
+      'Your expenses exceeded your income. Review your budget.';
+
+  @override
+  String get savingsPotentialNoExpense =>
+      'No expenses recorded this period. All your income is in hand!';
+
+  @override
+  String get detailInfoTitle => 'Detailed Info';
+
+  @override
+  String get topIncomesDetailTitle => 'What is Top Incomes?';
+
+  @override
+  String get topIncomesDetailBody =>
+      'This card shows your top 3 highest incomes in the selected period. Categories that appear 2 or more times in the period (regular sources like salary, rental income) are automatically excluded. This lets you clearly see your extra income like bonuses, freelance payments, etc. If all your income comes from regular sources, a special message will be shown.';
+
+  @override
+  String get incomeStabilityDetailTitle => 'What is Income Stability?';
+
+  @override
+  String get incomeStabilityDetailBody =>
+      'Income stability shows how much of your income is regular versus variable. If a category has 2 or more transactions in the period, it\'s classified as \'regular\'. One-time transactions are classified as \'variable\'.\n\nWhy does it matter? If all your income depends on a single source, your financial security is at risk if that source stops. Diversifying your income sources increases your financial safety.';
+
+  @override
+  String get dailyEarningRateDetailTitle => 'What is Daily Earning Rate?';
+
+  @override
+  String get dailyEarningRateDetailBody =>
+      'This card calculates your daily average earning rate by dividing your total income by the total number of days in the selected period.\n\nFor example: If you earned 30,000₺ this month and the month has 31 days, your daily average is approximately 968₺. This calculation gives accurate results regardless of which day you received your salary.';
+
+  @override
+  String get savingsPotentialDetailTitle => 'What is Savings Potential?';
+
+  @override
+  String get savingsPotentialDetailBody =>
+      'This card shows how much money you have left by subtracting your total expenses from your total income in the selected period.\n\nThere are three states:\n• Green: Your income exceeds your expenses, great job!\n• Red: Your expenses exceeded your income, review your budget.\n• No expenses yet: All your income is in hand!';
+
+  @override
+  String get topPerformers => 'Top Performers';
+
+  @override
+  String get topPerformersDesc =>
+      'Your assets with the highest return on investment (ROI).';
+
+  @override
+  String get topPerformersAllLoss =>
+      'None of your assets are currently in profit.';
+
+  @override
+  String get topPerformersDetailTitle => 'What is Top Performers?';
+
+  @override
+  String get topPerformersDetailBody =>
+      'This card shows your top 3 assets with the highest return on investment (ROI).\n\nFormula: (Current Value - Purchase Price) / Purchase Price × 100\n\nFor example, if you bought gold for 1,000₺ and it\'s now worth 1,500₺, your ROI is 50%.';
+
+  @override
+  String get roi => 'ROI';
+
+  @override
+  String get profit => 'Profit';
+
+  @override
+  String get loss => 'Loss';
+
+  @override
+  String get portfolioDiversification => 'Portfolio Diversification';
+
+  @override
+  String get diversifiedPortfolio => 'Diversified Portfolio';
+
+  @override
+  String get diversifiedPortfolioDesc =>
+      'Your assets are spread across different types. This reduces your risk.';
+
+  @override
+  String get concentratedPortfolio => 'Concentrated Portfolio';
+
+  @override
+  String concentratedPortfolioDesc(String category, String percent) {
+    return '$category makes up $percent% of your portfolio. Consider diversifying to spread your risk.';
+  }
+
+  @override
+  String get singleAssetType => 'Single Type Portfolio';
+
+  @override
+  String get singleAssetTypeDesc =>
+      'All your assets are in one type. Consider diversifying into different asset types.';
+
+  @override
+  String get portfolioDiversificationDetailTitle =>
+      'What is Portfolio Diversification?';
+
+  @override
+  String get portfolioDiversificationDetailBody =>
+      'Portfolio diversification shows how evenly your investments are distributed across different asset types (gold, forex, crypto, stocks, etc.).\n\nIdeal: No single asset type should make up more than 70% of your total portfolio.';
+
+  @override
+  String get liquidityCheck => 'Liquidity Check';
+
+  @override
+  String get highLiquidity => 'High Liquidity';
+
+  @override
+  String get lowLiquidity => 'Low Liquidity';
+
+  @override
+  String liquidityHealthy(String percent) {
+    return '$percent% of your assets can be quickly converted to cash.';
+  }
+
+  @override
+  String get liquidityWarning =>
+      'Most of your assets have low liquidity. Converting to cash in emergencies may be difficult.';
+
+  @override
+  String get liquidityDetailTitle => 'What is Liquidity?';
+
+  @override
+  String get liquidityDetailBody =>
+      'Liquidity shows how quickly an asset can be converted to cash.\n\nHigh: Gold, Forex, Crypto, Bank accounts.\nLow: Real estate, Vehicles, Stocks.\n\nKnowing your liquid asset ratio is important for financial security.';
+
+  @override
   String get financialReport => 'Financial Report';
 
   @override
@@ -1957,12 +2135,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetInsightTitle => 'Net Asset Growth';
 
   @override
-  String assetIncrease(Object percent) {
+  String assetIncrease(String percent) {
     return '$percent% Market growth';
   }
 
   @override
-  String assetDecrease(Object percent) {
+  String assetDecrease(String percent) {
     return '$percent% Market decrease';
   }
 

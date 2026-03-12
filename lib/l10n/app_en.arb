@@ -268,6 +268,60 @@
   "monthlyTrend": "Monthly Trend",
   "expenseDistribution": "Expense Distribution",
   "incomeDistribution": "Income Distribution",
+  "distributionByAccount": "Distribution by Account",
+  "topExpenses": "Top Expenses",
+  "topExpensesDescription": "Your top 3 largest single expenses this month (excluding fixed expenses).",
+  "topIncomes": "Top Incomes",
+  "topIncomesDescription": "Your top 3 largest incomes this period (excluding regular incomes).",
+  "topIncomesAllSalary": "All your incomes this period come from regular sources.",
+  "incomeStability": "Income Stability",
+  "regularIncome": "Regular",
+  "variableIncome": "Variable",
+  "singleSourceWarning": "All your income comes from a single source. Diversifying can increase your financial security.",
+  "stableIncomeNote": "Your income is diversified and looks stable.",
+  "dailyEarningRate": "Daily Earning Rate",
+  "daysElapsed": "days",
+  "incomeTransactions": "income records",
+  "savingsPotential": "Savings Potential",
+  "savingsPotentialPositive": "{percent} of your income is still untouched. Great job!",
+  "@savingsPotentialPositive": { "placeholders": { "percent": { "type": "String" } } },
+  "savingsPotentialNegative": "Your expenses exceeded your income. Review your budget.",
+  "savingsPotentialNoExpense": "No expenses recorded this period. All your income is in hand!",
+  "detailInfoTitle": "Detailed Info",
+  "topIncomesDetailTitle": "What is Top Incomes?",
+  "topIncomesDetailBody": "This card shows your top 3 highest incomes in the selected period. Categories that appear 2 or more times in the period (regular sources like salary, rental income) are automatically excluded. This lets you clearly see your extra income like bonuses, freelance payments, etc. If all your income comes from regular sources, a special message will be shown.",
+  "incomeStabilityDetailTitle": "What is Income Stability?",
+  "incomeStabilityDetailBody": "Income stability shows how much of your income is regular versus variable. If a category has 2 or more transactions in the period, it's classified as 'regular'. One-time transactions are classified as 'variable'.\n\nWhy does it matter? If all your income depends on a single source, your financial security is at risk if that source stops. Diversifying your income sources increases your financial safety.",
+  "dailyEarningRateDetailTitle": "What is Daily Earning Rate?",
+  "dailyEarningRateDetailBody": "This card calculates your daily average earning rate by dividing your total income by the total number of days in the selected period.\n\nFor example: If you earned 30,000\u20ba this month and the month has 31 days, your daily average is approximately 968\u20ba. This calculation gives accurate results regardless of which day you received your salary.",
+  "savingsPotentialDetailTitle": "What is Savings Potential?",
+  "savingsPotentialDetailBody": "This card shows how much money you have left by subtracting your total expenses from your total income in the selected period.\n\nThere are three states:\n\u2022 Green: Your income exceeds your expenses, great job!\n\u2022 Red: Your expenses exceeded your income, review your budget.\n\u2022 No expenses yet: All your income is in hand!",
+  "topPerformers": "Top Performers",
+  "topPerformersDesc": "Your assets with the highest return on investment (ROI).",
+  "topPerformersAllLoss": "None of your assets are currently in profit.",
+  "topPerformersDetailTitle": "What is Top Performers?",
+  "topPerformersDetailBody": "This card shows your top 3 assets with the highest return on investment (ROI).\n\nFormula: (Current Value - Purchase Price) / Purchase Price \u00d7 100\n\nFor example, if you bought gold for 1,000\u20ba and it's now worth 1,500\u20ba, your ROI is 50%.",
+  "roi": "ROI",
+  "profit": "Profit",
+  "loss": "Loss",
+  "portfolioDiversification": "Portfolio Diversification",
+  "diversifiedPortfolio": "Diversified Portfolio",
+  "diversifiedPortfolioDesc": "Your assets are spread across different types. This reduces your risk.",
+  "concentratedPortfolio": "Concentrated Portfolio",
+  "concentratedPortfolioDesc": "{category} makes up {percent}% of your portfolio. Consider diversifying to spread your risk.",
+  "@concentratedPortfolioDesc": { "placeholders": { "category": { "type": "String" }, "percent": { "type": "String" } } },
+  "singleAssetType": "Single Type Portfolio",
+  "singleAssetTypeDesc": "All your assets are in one type. Consider diversifying into different asset types.",
+  "portfolioDiversificationDetailTitle": "What is Portfolio Diversification?",
+  "portfolioDiversificationDetailBody": "Portfolio diversification shows how evenly your investments are distributed across different asset types (gold, forex, crypto, stocks, etc.).\n\nIdeal: No single asset type should make up more than 70% of your total portfolio.",
+  "liquidityCheck": "Liquidity Check",
+  "highLiquidity": "High Liquidity",
+  "lowLiquidity": "Low Liquidity",
+  "liquidityHealthy": "{percent}% of your assets can be quickly converted to cash.",
+  "@liquidityHealthy": { "placeholders": { "percent": { "type": "String" } } },
+  "liquidityWarning": "Most of your assets have low liquidity. Converting to cash in emergencies may be difficult.",
+  "liquidityDetailTitle": "What is Liquidity?",
+  "liquidityDetailBody": "Liquidity shows how quickly an asset can be converted to cash.\n\nHigh: Gold, Forex, Crypto, Bank accounts.\nLow: Real estate, Vehicles, Stocks.\n\nKnowing your liquid asset ratio is important for financial security.",
   "financialReport": "Financial Report",
   "exportPdf": "Export as PDF",
   "exportCsv": "Export as CSV",
@@ -1792,7 +1846,21 @@
   "noDetailsFound": "No details found.",
   "assetInsightTitle": "Net Asset Growth",
   "assetIncrease": "{percent}% Market growth",
+  "@assetIncrease": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "assetDecrease": "{percent}% Market decrease",
+  "@assetDecrease": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "assetNoChange": "No value change",
   "fxImpactNotice": "Market and FX impact"
 }

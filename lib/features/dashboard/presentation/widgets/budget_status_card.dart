@@ -52,13 +52,25 @@ class BudgetStatusCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    context.l10n.budgetStatus,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        context.l10n.budgetStatus,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      if (onTap != null) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 20,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                        ),
+                      ],
+                    ],
                   ),
                   Text(
                     "${(budgetUsed * 100).toStringAsFixed(0)}%",

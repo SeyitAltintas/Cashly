@@ -742,6 +742,184 @@ class AppLocalizationsTr extends AppLocalizations {
   String get incomeDistribution => 'Gelir Dağılımı';
 
   @override
+  String get distributionByAccount => 'Hesaba Göre Dağılım';
+
+  @override
+  String get topExpenses => 'En Büyük Harcamalar';
+
+  @override
+  String get topExpensesDescription =>
+      'Bu ay tek seferde yaptığınız en yüksek 3 harcama (Sabit giderler hariç).';
+
+  @override
+  String get topIncomes => 'En Büyük Gelirler';
+
+  @override
+  String get topIncomesDescription =>
+      'Bu dönemde elde ettiğiniz en yüksek 3 gelir (Düzenli gelirler hariç).';
+
+  @override
+  String get topIncomesAllSalary =>
+      'Bu dönemde tüm gelirleriniz düzenli kaynaklardan oluşuyor.';
+
+  @override
+  String get incomeStability => 'Gelir Kararlılığı';
+
+  @override
+  String get regularIncome => 'Düzenli';
+
+  @override
+  String get variableIncome => 'Değişken';
+
+  @override
+  String get singleSourceWarning =>
+      'Gelirinizin tamamı tek bir kaynağa bağlı. Ek gelir kaynakları finansal güvenliğinizi artırır.';
+
+  @override
+  String get stableIncomeNote =>
+      'Geliriniz çeşitlendirilmiş ve kararlı görünüyor.';
+
+  @override
+  String get dailyEarningRate => 'Günlük Kazanç Hızı';
+
+  @override
+  String get daysElapsed => 'gün';
+
+  @override
+  String get incomeTransactions => 'gelir kaydı';
+
+  @override
+  String get savingsPotential => 'Tasarruf Potansiyeli';
+
+  @override
+  String savingsPotentialPositive(String percent) {
+    return 'Gelirinizin $percent\'i hâlâ duruyor. Harika gidiyorsunuz!';
+  }
+
+  @override
+  String get savingsPotentialNegative =>
+      'Harcamalarınız gelirinizi aştı. Bütçenizi gözden geçirmelisiniz.';
+
+  @override
+  String get savingsPotentialNoExpense =>
+      'Bu dönemde henüz harcama kaydınız yok. Tüm geliriniz elinizde!';
+
+  @override
+  String get detailInfoTitle => 'Detaylı Bilgi';
+
+  @override
+  String get topIncomesDetailTitle => 'En Büyük Gelirler Nedir?';
+
+  @override
+  String get topIncomesDetailBody =>
+      'Bu kart, seçili dönemde elde ettiğiniz en yüksek 3 geliri gösterir. Dönem içinde 2 veya daha fazla kez tekrarlayan gelir kategorileri (maaş, kira geliri gibi düzenli kaynaklar) bu listeden otomatik olarak hariç tutulur. Böylece prim, ikramiye, freelance ödeme gibi ekstra gelirlerinizi net görebilirsiniz. Eğer tüm gelirleriniz düzenli kaynaklardan oluşuyorsa, size bunu bildiren özel bir mesaj gösterilir.';
+
+  @override
+  String get incomeStabilityDetailTitle => 'Gelir Kararlılığı Nedir?';
+
+  @override
+  String get incomeStabilityDetailBody =>
+      'Gelir kararlılığı, gelirlerinizin ne kadarının düzenli ve ne kadarının değişken olduğunu gösterir. Dönem içinde aynı kategoride 2 veya daha fazla işlem varsa o kategori \'düzenli\', tek seferlik işlemler ise \'değişken\' olarak sınıflandırılır.\n\nNeden önemli? Gelirinizin tamamı tek bir kaynağa bağlıysa, o kaynak kesildiğinde finansal güvenceniz riske girer. Gelir kaynaklarınızı çeşitlendirmek finansal güvenliğinizi artırır.';
+
+  @override
+  String get dailyEarningRateDetailTitle => 'Günlük Kazanç Hızı Nedir?';
+
+  @override
+  String get dailyEarningRateDetailBody =>
+      'Bu kart, seçili dönemdeki toplam gelirinizi dönemin toplam gün sayısına bölerek günlük ortalama kazanç hızınızı hesaplar.\n\nÖrneğin: Bu ay toplam 30.000₺ kazandıysanız ve ay 31 günse, günlük ortalamanız yaklaşık 968₺ olur. Bu hesaplama, maaşınızı ayın hangi günü aldığınızdan bağımsız olarak doğru sonuç verir.';
+
+  @override
+  String get savingsPotentialDetailTitle => 'Tasarruf Potansiyeli Nedir?';
+
+  @override
+  String get savingsPotentialDetailBody =>
+      'Bu kart, seçili dönemdeki toplam gelirinizden toplam harcamanızı çıkararak elinizde ne kadar para kaldığını gösterir.\n\nÜç durum vardır:\n• Yeşil: Geliriniz harcamalarınızdan fazla, harika gidiyorsunuz!\n• Kırmızı: Harcamalarınız gelirinizi aştı, bütçenizi gözden geçirin.\n• Henüz harcama yoksa: Tüm geliriniz elinizde!';
+
+  @override
+  String get topPerformers => 'Kârlılık Liderleri';
+
+  @override
+  String get topPerformersDesc =>
+      'Yatırım getirisi (ROI) en yüksek varlıklarınız.';
+
+  @override
+  String get topPerformersAllLoss => 'Şu an kârdaki varlığınız bulunmuyor.';
+
+  @override
+  String get topPerformersDetailTitle => 'Kârlılık Liderleri Nedir?';
+
+  @override
+  String get topPerformersDetailBody =>
+      'Bu kart, varlıklarınız arasında yatırım getirisi (ROI) en yüksek olan 3 tanesini gösterir.\n\nHesaplama: (Güncel Değer - Alış Değeri) / Alış Değeri × 100\n\nÖrneğin 1.000₺\'ye aldığınız altın şu an 1.500₺ değerindeyse, ROI oranı %50\'dir.';
+
+  @override
+  String get roi => 'ROI';
+
+  @override
+  String get profit => 'Kâr';
+
+  @override
+  String get loss => 'Zarar';
+
+  @override
+  String get portfolioDiversification => 'Portföy Çeşitliliği';
+
+  @override
+  String get diversifiedPortfolio => 'Çeşitlendirilmiş Portföy';
+
+  @override
+  String get diversifiedPortfolioDesc =>
+      'Varlıklarınız farklı türlere dağılmış durumda. Bu, riskinizi azaltır.';
+
+  @override
+  String get concentratedPortfolio => 'Yoğunlaşmış Portföy';
+
+  @override
+  String concentratedPortfolioDesc(String category, String percent) {
+    return '$category toplam portföyünüzün %$percent\'ini oluşturuyor. Riskinizi dağıtmak için çeşitlendirmeyi düşünebilirsiniz.';
+  }
+
+  @override
+  String get singleAssetType => 'Tek Tür Portföy';
+
+  @override
+  String get singleAssetTypeDesc =>
+      'Tüm varlıklarınız tek bir türde. Farklı varlık türlerine yatırım yaparak riskinizi dağıtabilirsiniz.';
+
+  @override
+  String get portfolioDiversificationDetailTitle =>
+      'Portföy Çeşitliliği Nedir?';
+
+  @override
+  String get portfolioDiversificationDetailBody =>
+      'Portföy çeşitliliği, yatırımlarınızın farklı varlık türlerine ne kadar dengeli dağıldığını gösterir.\n\nİdeal durum: Hiçbir varlık türü toplam portföyün %70\'inden fazlasını oluşturmamalıdır.';
+
+  @override
+  String get liquidityCheck => 'Likidite Durumu';
+
+  @override
+  String get highLiquidity => 'Yüksek Likidite';
+
+  @override
+  String get lowLiquidity => 'Düşük Likidite';
+
+  @override
+  String liquidityHealthy(String percent) {
+    return 'Varlıklarınızın %$percent\'i hızlıca nakde çevrilebilir durumda.';
+  }
+
+  @override
+  String get liquidityWarning =>
+      'Varlıklarınızın büyük kısmı düşük likiditeli. Acil durumda nakde çevirmek zor olabilir.';
+
+  @override
+  String get liquidityDetailTitle => 'Likidite Durumu Nedir?';
+
+  @override
+  String get liquidityDetailBody =>
+      'Likidite, bir varlığın ne kadar hızlı nakde çevrilebileceğini gösterir.\n\nYüksek: Altın, Döviz, Kripto, Banka.\nDüşük: Gayrimenkul, Araç, Hisse Senedi.\n\nAcil durumda erişebileceğiniz varlıkların oranını bilmek önemlidir.';
+
+  @override
   String get financialReport => 'Finansal Rapor';
 
   @override
@@ -1960,12 +2138,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get assetInsightTitle => 'Net Varlık Gelişimi';
 
   @override
-  String assetIncrease(Object percent) {
+  String assetIncrease(String percent) {
     return '%$percent Kur/Piyasa artışı';
   }
 
   @override
-  String assetDecrease(Object percent) {
+  String assetDecrease(String percent) {
     return '%$percent Kur/Piyasa azalışı';
   }
 

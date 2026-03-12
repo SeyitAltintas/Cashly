@@ -343,6 +343,41 @@ class AnalysisController extends ChangeNotifier {
     );
   }
 
+  /// Ödeme yöntemi / hesaba göre gelir toplamları
+  Map<String, double> get incomePaymentMethodTotals {
+    final cur = getIt<CurrencyService>();
+    final totals = <String, double>{};
+    for (var g in currentIncomes) {
+      // paymentMethodId nullable if not selected (e.g. legacy data) we can default to 'unknown' or 'nakit'
+      // The expense logic defaults to 'nakit' when odemeYontemiId is null, let's use 'unknown' or 'nakit'
+      final pmId = (g.paymentMethodId == null || g.paymentMethodId!.isEmpty) ? 'unknown' : g.paymentMethodId!;
+      final tutar = g.amount;
+      final pb = g.paraBirimi;
+      totals[pmId] =
+          (totals[pmId] ?? 0) + cur.convert(tutar, pb, cur.currentCurrency);
+    }
+    return totals;
+  }
+
+  /// Düzenli gelir kategorilerini tespit et (tüm tarihsel veriye bakarak).
+  /// Bir kategori farklı aylarda 2+ kez görünüyorsa "düzenli" kabul edilir.
+  /// Bu hesaplama seçili dönemden bağımsızdır, tüm gelir geçmişini kullanır.
+  Set<String> get regularIncomeCategories {
+    // Kategori başına hangi aylarda gelir girişi yapıldığını izle
+    final categoryMonths = <String, Set<String>>{};
+    for (var g in _gelirler) {
+      if (g.isDeleted) continue;
+      final monthKey = '${g.date.year}-${g.date.month}';
+      categoryMonths.putIfAbsent(g.category, () => <String>{});
+      categoryMonths[g.category]!.add(monthKey);
+    }
+    // 2+ farklı ayda görünen kategoriler "düzenli"
+    return categoryMonths.entries
+        .where((e) => e.value.length >= 2)
+        .map((e) => e.key)
+        .toSet();
+  }
+
   /// Günlük gelir toplamları (Line chart için)
   Map<DateTime, double> get dailyIncomeTotals {
     final cur = getIt<CurrencyService>();

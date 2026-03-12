@@ -268,6 +268,66 @@
   "monthlyTrend": "Aylık Trend",
   "expenseDistribution": "Harcama Dağılımı",
   "incomeDistribution": "Gelir Dağılımı",
+  "distributionByAccount": "Hesaba Göre Dağılım",
+  "topExpenses": "En Büyük Harcamalar",
+  "topExpensesDescription": "Bu ay tek seferde yaptığınız en yüksek 3 harcama (Sabit giderler hariç).",
+  "topIncomes": "En Büyük Gelirler",
+  "topIncomesDescription": "Bu dönemde elde ettiğiniz en yüksek 3 gelir (Düzenli gelirler hariç).",
+  "topIncomesAllSalary": "Bu dönemde tüm gelirleriniz düzenli kaynaklardan oluşuyor.",
+  "incomeStability": "Gelir Kararlılığı",
+  "regularIncome": "Düzenli",
+  "variableIncome": "Değişken",
+  "singleSourceWarning": "Gelirinizin tamamı tek bir kaynağa bağlı. Ek gelir kaynakları finansal güvenliğinizi artırır.",
+  "stableIncomeNote": "Geliriniz çeşitlendirilmiş ve kararlı görünüyor.",
+  "dailyEarningRate": "Günlük Kazanç Hızı",
+  "daysElapsed": "gün",
+  "incomeTransactions": "gelir kaydı",
+  "savingsPotential": "Tasarruf Potansiyeli",
+  "savingsPotentialPositive": "Gelirinizin {percent}'i hâlâ duruyor. Harika gidiyorsunuz!",
+  "@savingsPotentialPositive": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "savingsPotentialNegative": "Harcamalarınız gelirinizi aştı. Bütçenizi gözden geçirmelisiniz.",
+  "savingsPotentialNoExpense": "Bu dönemde henüz harcama kaydınız yok. Tüm geliriniz elinizde!",
+  "detailInfoTitle": "Detaylı Bilgi",
+  "topIncomesDetailTitle": "En Büyük Gelirler Nedir?",
+  "topIncomesDetailBody": "Bu kart, seçili dönemde elde ettiğiniz en yüksek 3 geliri gösterir. Dönem içinde 2 veya daha fazla kez tekrarlayan gelir kategorileri (maaş, kira geliri gibi düzenli kaynaklar) bu listeden otomatik olarak hariç tutulur. Böylece prim, ikramiye, freelance ödeme gibi ekstra gelirlerinizi net görebilirsiniz. Eğer tüm gelirleriniz düzenli kaynaklardan oluşuyorsa, size bunu bildiren özel bir mesaj gösterilir.",
+  "incomeStabilityDetailTitle": "Gelir Kararlılığı Nedir?",
+  "incomeStabilityDetailBody": "Gelir kararlılığı, gelirlerinizin ne kadarının düzenli ve ne kadarının değişken olduğunu gösterir. Dönem içinde aynı kategoride 2 veya daha fazla işlem varsa o kategori 'düzenli', tek seferlik işlemler ise 'değişken' olarak sınıflandırılır.\n\nNeden önemli? Gelirinizin tamamı tek bir kaynağa bağlıysa, o kaynak kesildiğinde finansal güvenceniz riske girer. Gelir kaynaklarınızı çeşitlendirmek finansal güvenliğinizi artırır.",
+  "dailyEarningRateDetailTitle": "Günlük Kazanç Hızı Nedir?",
+  "dailyEarningRateDetailBody": "Bu kart, seçili dönemdeki toplam gelirinizi dönemin toplam gün sayısına bölerek günlük ortalama kazanç hızınızı hesaplar.\n\nÖrneğin: Bu ay toplam 30.000₺ kazandıysanız ve ay 31 günse, günlük ortalamanız yaklaşık 968₺ olur. Bu hesaplama, maaşınızı ayın hangi günü aldığınızdan bağımsız olarak doğru sonuç verir.",
+  "savingsPotentialDetailTitle": "Tasarruf Potansiyeli Nedir?",
+  "savingsPotentialDetailBody": "Bu kart, seçili dönemdeki toplam gelirinizden toplam harcamanızı çıkararak elinizde ne kadar para kaldığını gösterir.\n\nÜç durum vardır:\n• Yeşil: Geliriniz harcamalarınızdan fazla, harika gidiyorsunuz!\n• Kırmızı: Harcamalarınız gelirinizi aştı, bütçenizi gözden geçirin.\n• Henüz harcama yoksa: Tüm geliriniz elinizde!",
+  "topPerformers": "K\u00e2rl\u0131l\u0131k Liderleri",
+  "topPerformersDesc": "Yat\u0131r\u0131m getirisi (ROI) en y\u00fcksek varl\u0131klar\u0131n\u0131z.",
+  "topPerformersAllLoss": "\u015eu an k\u00e2rdaki varl\u0131\u011f\u0131n\u0131z bulunmuyor.",
+  "topPerformersDetailTitle": "K\u00e2rl\u0131l\u0131k Liderleri Nedir?",
+  "topPerformersDetailBody": "Bu kart, varl\u0131klar\u0131n\u0131z aras\u0131nda yat\u0131r\u0131m getirisi (ROI) en y\u00fcksek olan 3 tanesini g\u00f6sterir.\n\nHesaplama: (G\u00fcncel De\u011fer - Al\u0131\u015f De\u011feri) / Al\u0131\u015f De\u011feri \u00d7 100\n\n\u00d6rne\u011fin 1.000\u20ba'ye ald\u0131\u011f\u0131n\u0131z alt\u0131n \u015fu an 1.500\u20ba de\u011ferindeyse, ROI oran\u0131 %50'dir.",
+  "roi": "ROI",
+  "profit": "K\u00e2r",
+  "loss": "Zarar",
+  "portfolioDiversification": "Portf\u00f6y \u00c7e\u015fitlili\u011fi",
+  "diversifiedPortfolio": "\u00c7e\u015fitlendirilmi\u015f Portf\u00f6y",
+  "diversifiedPortfolioDesc": "Varl\u0131klar\u0131n\u0131z farkl\u0131 t\u00fcrlere da\u011f\u0131lm\u0131\u015f durumda. Bu, riskinizi azalt\u0131r.",
+  "concentratedPortfolio": "Yo\u011funla\u015fm\u0131\u015f Portf\u00f6y",
+  "concentratedPortfolioDesc": "{category} toplam portf\u00f6y\u00fcn\u00fczün %{percent}'ini olu\u015fturuyor. Riskinizi da\u011f\u0131tmak i\u00e7in \u00e7e\u015fitlendirmeyi d\u00fc\u015f\u00fcnebilirsiniz.",
+  "@concentratedPortfolioDesc": { "placeholders": { "category": { "type": "String" }, "percent": { "type": "String" } } },
+  "singleAssetType": "Tek T\u00fcr Portf\u00f6y",
+  "singleAssetTypeDesc": "T\u00fcm varl\u0131klar\u0131n\u0131z tek bir t\u00fcrde. Farkl\u0131 varl\u0131k t\u00fcrlerine yat\u0131r\u0131m yaparak riskinizi da\u011f\u0131tabilirsiniz.",
+  "portfolioDiversificationDetailTitle": "Portf\u00f6y \u00c7e\u015fitlili\u011fi Nedir?",
+  "portfolioDiversificationDetailBody": "Portf\u00f6y \u00e7e\u015fitlili\u011fi, yat\u0131r\u0131mlar\u0131n\u0131z\u0131n farkl\u0131 varl\u0131k t\u00fcrlerine ne kadar dengeli da\u011f\u0131ld\u0131\u011f\u0131n\u0131 g\u00f6sterir.\n\n\u0130deal durum: Hi\u00e7bir varl\u0131k t\u00fcr\u00fc toplam portf\u00f6y\u00fcn %70'inden fazlas\u0131n\u0131 olu\u015fturmamal\u0131d\u0131r.",
+  "liquidityCheck": "Likidite Durumu",
+  "highLiquidity": "Y\u00fcksek Likidite",
+  "lowLiquidity": "D\u00fc\u015f\u00fck Likidite",
+  "liquidityHealthy": "Varl\u0131klar\u0131n\u0131z\u0131n %{percent}'i h\u0131zlıca nakde \u00e7evrilebilir durumda.",
+  "@liquidityHealthy": { "placeholders": { "percent": { "type": "String" } } },
+  "liquidityWarning": "Varl\u0131klar\u0131n\u0131z\u0131n b\u00fcy\u00fck k\u0131sm\u0131 d\u00fc\u015f\u00fck likiditeli. Acil durumda nakde \u00e7evirmek zor olabilir.",
+  "liquidityDetailTitle": "Likidite Durumu Nedir?",
+  "liquidityDetailBody": "Likidite, bir varl\u0131\u011f\u0131n ne kadar h\u0131zl\u0131 nakde \u00e7evrilebilece\u011fini g\u00f6sterir.\n\nY\u00fcksek: Alt\u0131n, D\u00f6viz, Kripto, Banka.\nD\u00fc\u015f\u00fck: Gayrimenkul, Ara\u00e7, Hisse Senedi.\n\nAcil durumda eri\u015febilece\u011finiz varl\u0131klar\u0131n oran\u0131n\u0131 bilmek \u00f6nemlidir.",
   "financialReport": "Finansal Rapor",
   "exportPdf": "PDF Olarak Dışa Aktar",
   "exportCsv": "CSV Olarak Dışa Aktar",
@@ -799,7 +859,21 @@
   "assetValuesLastKnown": "Varlık değerleri bilinen son fiyatlarla gösterilir",
   "assetInsightTitle": "Net Varlık Gelişimi",
   "assetIncrease": "%{percent} Kur/Piyasa artışı",
+  "@assetIncrease": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "assetDecrease": "%{percent} Kur/Piyasa azalışı",
+  "@assetDecrease": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "assetNoChange": "Değer değişmedi",
   "fxImpactNotice": "Piyasa ve kur farkı",
   "fullyWorkingFeatures": "Tam Çalışan Özellikler",
