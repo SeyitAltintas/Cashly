@@ -706,6 +706,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get daily => 'Günlük';
 
   @override
+  String get cumulativeLabel => 'Birikimli';
+
+  @override
   String get weekly => 'Haftalık';
 
   @override

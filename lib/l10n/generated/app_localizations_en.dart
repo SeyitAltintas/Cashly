@@ -707,6 +707,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get daily => 'Daily';
 
   @override
+  String get cumulativeLabel => 'Cumulative';
+
+  @override
   String get weekly => 'Weekly';
 
   @override

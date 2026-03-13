@@ -1449,6 +1449,10 @@ class _AnalysisPageState extends State<AnalysisPage>
                     fitInsideVertically: true,
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((spot) {
+                        // Bounds check to prevent RangeError
+                        if (spot.spotIndex < 0 || spot.spotIndex >= sortedEntries.length) {
+                          return null;
+                        }
                         final date = sortedEntries[spot.spotIndex].key;
 
                         return LineTooltipItem(
@@ -1495,12 +1499,12 @@ class _AnalysisPageState extends State<AnalysisPage>
                 children: [
                   buildCumulativeToggle(
                     false,
-                    'Günlük',
+                    context.l10n.daily,
                     Icons.bar_chart_rounded,
                   ),
                   buildCumulativeToggle(
                     true,
-                    'Birikimli',
+                    context.l10n.cumulativeLabel,
                     Icons.show_chart_rounded,
                   ),
                 ],
@@ -1606,7 +1610,7 @@ class _AnalysisPageState extends State<AnalysisPage>
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
-              horizontalInterval: maxVal > 0 ? maxVal / 4 : 1,
+              horizontalInterval: maxVal > 0 ? (maxVal / 4).clamp(0.1, double.infinity) : 1,
               getDrawingHorizontalLine: (value) => FlLine(
                 color: Colors.white.withValues(alpha: 0.3),
                 strokeWidth: 1,
@@ -2675,12 +2679,12 @@ class _AnalysisPageState extends State<AnalysisPage>
                     children: [
                       if (regularPercent > 0)
                         Expanded(
-                          flex: regularPercent.round(),
+                          flex: (regularPercent * 100).ceil(),
                           child: Container(color: Colors.green.shade400),
                         ),
                       if (variablePercent > 0)
                         Expanded(
-                          flex: variablePercent.round(),
+                          flex: (variablePercent * 100).ceil(),
                           child: Container(color: Colors.orange.shade400),
                         ),
                     ],
@@ -3252,7 +3256,7 @@ class _AnalysisPageState extends State<AnalysisPage>
           ),
           const SizedBox(height: 2),
           Text(
-            '${(value / total * 100).toStringAsFixed(1)}%',
+            total > 0 ? '${(value / total * 100).toStringAsFixed(1)}%' : '0.0%',
             style: TextStyle(
               color: Theme.of(
                 context,

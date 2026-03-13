@@ -129,9 +129,10 @@ class AnalysisController extends ChangeNotifier {
       if (_historyLimit == 7) {
         thresholdDate = todayStart.subtract(const Duration(days: 7));
       } else if (_historyLimit == 90) {
-        thresholdDate = DateTime(today.year, today.month - 3, today.day);
+        // Ay çıkarma: gün taşmasını önlemek için day=1 kullan
+        thresholdDate = DateTime(today.year, today.month - 3, 1);
       } else if (_historyLimit == 180) {
-        thresholdDate = DateTime(today.year, today.month - 6, today.day);
+        thresholdDate = DateTime(today.year, today.month - 6, 1);
       } else if (_historyLimit == 365) {
         thresholdDate = DateTime(today.year - 1, today.month, today.day);
       } else {
@@ -167,11 +168,12 @@ class AnalysisController extends ChangeNotifier {
         currentThreshold = todayStart.subtract(const Duration(days: 7));
         previousThreshold = currentThreshold.subtract(const Duration(days: 7));
       } else if (_historyLimit == 90) {
-        currentThreshold = DateTime(today.year, today.month - 3, today.day);
-        previousThreshold = DateTime(today.year, today.month - 6, today.day);
+        // Ay çıkarma: gün taşmasını önlemek için day=1 kullan
+        currentThreshold = DateTime(today.year, today.month - 3, 1);
+        previousThreshold = DateTime(today.year, today.month - 6, 1);
       } else if (_historyLimit == 180) {
-        currentThreshold = DateTime(today.year, today.month - 6, today.day);
-        previousThreshold = DateTime(today.year, today.month - 12, today.day);
+        currentThreshold = DateTime(today.year, today.month - 6, 1);
+        previousThreshold = DateTime(today.year, today.month - 12, 1);
       } else if (_historyLimit == 365) {
         currentThreshold = DateTime(today.year - 1, today.month, today.day);
         previousThreshold = DateTime(today.year - 2, today.month, today.day);

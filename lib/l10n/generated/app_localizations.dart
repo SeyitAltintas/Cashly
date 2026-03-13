@@ -1466,6 +1466,12 @@ abstract class AppLocalizations {
   /// **'Günlük'**
   String get daily;
 
+  /// No description provided for @cumulativeLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Birikimli'**
+  String get cumulativeLabel;
+
   /// No description provided for @weekly.
   ///
   /// In tr, this message translates to:

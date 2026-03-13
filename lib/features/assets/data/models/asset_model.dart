@@ -28,10 +28,10 @@ class Asset {
        purchasePrice = purchasePrice ?? amount;
 
   /// Birim alış fiyatını hesaplar
-  double get unitPurchasePrice => purchasePrice / quantity;
+  double get unitPurchasePrice => quantity > 0 ? purchasePrice / quantity : 0;
 
   /// Birim güncel fiyatı hesaplar
-  double get unitCurrentPrice => amount / quantity;
+  double get unitCurrentPrice => quantity > 0 ? amount / quantity : 0;
 
   /// Kar/Zarar tutarını hesaplar
   double get profitLoss => amount - purchasePrice;

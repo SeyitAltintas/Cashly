@@ -256,6 +256,7 @@
   "editRecurringExpense": "Edit Recurring Expense",
   "frequency": "Frequency",
   "daily": "Daily",
+  "cumulativeLabel": "Cumulative",
   "weekly": "Weekly",
   "monthly": "Monthly",
   "yearly": "Yearly",

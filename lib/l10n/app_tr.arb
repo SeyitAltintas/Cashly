@@ -256,6 +256,7 @@
   "editRecurringExpense": "Sabit Gideri Düzenle",
   "frequency": "Sıklık",
   "daily": "Günlük",
+  "cumulativeLabel": "Birikimli",
   "weekly": "Haftalık",
   "monthly": "Aylık",
   "yearly": "Yıllık",
