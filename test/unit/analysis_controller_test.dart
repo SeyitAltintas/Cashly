@@ -24,7 +24,7 @@ void main() {
       controller = AnalysisController();
     });
 
-    test('Zaman limitine göre (Son 30 gün) harcamalar listelenir', () {
+    test('Zaman limitine göre (Son 30 gün) harcamalar listelenir', () async {
       final now = DateTime.now();
       final validDate = now.subtract(
         const Duration(days: 10),
@@ -36,8 +36,8 @@ void main() {
         const Duration(days: 5),
       ); // Silinmiş
 
-      controller.setHistoryLimit(30);
-      controller.updateData(
+      await controller.setHistoryLimit(30);
+      await controller.updateData(
         harcamalar: [
           {
             'kategori': 'Market',
@@ -70,10 +70,10 @@ void main() {
       expect(controller.expenseCategoryTotals['Market'], equals(500.0));
     });
 
-    test('Gelir oranları ve toplamı doğru hesaplanır', () {
+    test('Gelir oranları ve toplamı doğru hesaplanır', () async {
       final now = DateTime.now();
-      controller.setHistoryLimit(30);
-      controller.updateData(
+      await controller.setHistoryLimit(30);
+      await controller.updateData(
         harcamalar: [],
         gelirler: [
           Income(
@@ -108,10 +108,10 @@ void main() {
 
     test(
       'Boş veri setlerinde Exception fırlatmaz, sıfır değerler döndürür',
-      () {
-        controller.setHistoryLimit(30);
+      () async {
+        await controller.setHistoryLimit(30);
         // Boş array ve listeler
-        controller.updateData(
+        await controller.updateData(
           harcamalar: [],
           gelirler: [],
           varliklar: [],

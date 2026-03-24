@@ -25,6 +25,7 @@ class CurrencyService extends ChangeNotifier {
   String get currentCurrency => _currentCurrency;
   String get currentSymbol => supportedCurrencies[_currentCurrency] ?? '₺';
   bool get isLoading => _isLoading;
+  Map<String, double> get rates => _rates;
 
   Future<void> init() async {
     _box = await Hive.openBox(_boxName);
