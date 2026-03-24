@@ -25,7 +25,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VERSION: "3.32.0"  # Dart SDK ^3.10.0 ile uyumlu
   JAVA_VERSION: "17"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -44,7 +43,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
@@ -55,7 +53,7 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --no-example
 
       - name: Generate l10n
         run: flutter gen-l10n
@@ -227,7 +225,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
@@ -238,7 +235,7 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --no-example
 
       - name: Generate l10n
         run: flutter gen-l10n
@@ -357,7 +354,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
@@ -368,7 +364,7 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --no-example
 
       - name: Generate l10n
         run: flutter gen-l10n
