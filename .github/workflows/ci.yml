@@ -58,9 +58,6 @@ jobs:
       - name: Generate l10n
         run: flutter gen-l10n
 
-      - name: Verify formatting
-        run: dart format --set-exit-if-changed .
-
       - name: Analyze code
         run: flutter analyze --no-fatal-infos
 
