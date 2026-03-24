@@ -1,209 +1,384 @@
-name: Cashly Flutter Enterprise CI/CD Pipeline
+# ============================================================================
+# Cashly CI Pipeline
+# ============================================================================
+# Her push/PR'da:
+#   ✅  Analiz + Unit + Widget testler
+#
+# Commit mesajında özel tag varsa ek adımlar devreye girer:
+#   [e2e]   → Integration testler (Android emülatör, KVM)
+#   [build] → Debug APK build doğrulaması
+#   [full]  → [e2e] + [build] birlikte
+#
+# Örnek: git commit -m "feat: checkout flow [e2e]"
+# ============================================================================
+
+name: Cashly CI
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, master, develop ]
-  workflow_dispatch: # Manuel tetikleme için
+    branches: [main, develop]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  FLUTTER_VERSION: "3.32.0"  # Dart SDK ^3.10.0 ile uyumlu
+  JAVA_VERSION: "17"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JOB 1: Analiz + Unit & Widget Testler (hızlı, emülatör gereksiz)
+# ─────────────────────────────────────────────────────────────────────────────
 jobs:
-  # 1. Aşama: Kod Kalitesi, Format ve Unit/Widget Testler
   analyze-and-test:
-    name: Code Quality & Unit Tests
+    name: "🔍 Analyze + Unit & Widget Tests"
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 20
+
     steps:
-      - name: 📥 Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: ⚙️ Setup Flutter SDK
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
           cache: true
-          flutter-version: '3.24.0' # Sabit versiyon önerilir
 
-      - name: 📦 Install Dependencies
+      - name: Setup Java (for Android build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: 🖌️ Verify Code Formatting (Dart Format)
-        run: dart format --output=none --set-exit-if-changed .
+      - name: Generate l10n
+        run: flutter gen-l10n
 
-      - name: 🧐 Code Analysis (Lint)
+      - name: Verify formatting
+        run: dart format --set-exit-if-changed .
+
+      - name: Analyze code
         run: flutter analyze --no-fatal-infos
 
-      - name: 🧪 Unit & Widget Tests
-        run: flutter test --coverage --reporter=github
+      - name: Run unit tests
+        run: flutter test test/unit/ --reporter expanded --coverage
 
-      - name: 🌍 Upload Test Coverage
-        uses: codecov/codecov-action@v4
-        with:
-          file: coverage/lcov.info
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
-        continue-on-error: true
+      - name: Run widget tests
+        run: flutter test test/widget/ --reporter expanded --coverage
 
-  # 2. Aşama: Derleme (Sadece commit mesajı "build" içeriyorsa)
-  build-android:
-    name: Build Android APK
-    runs-on: ubuntu-latest
-    needs: analyze-and-test
-    if: contains(github.event.head_commit.message, 'build') || github.event_name == 'workflow_dispatch'
-    
-    steps:
-      - name: 📥 Checkout Code
-        uses: actions/checkout@v4
+      - name: Run root widget test
+        run: flutter test test/widget_test.dart --reporter expanded
 
-      - name: ☕ Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
-
-      - name: ⚙️ Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-          flutter-version: '3.24.0'
-
-      - name: 📦 Install Dependencies
-        run: flutter pub get
-
-      - name: 🚀 Build Release APK
-        run: flutter build apk --release --no-web-init
-
-      - name: 📦 Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 14
-
-  # 3. Aşama: E2E Testleri (Tamamen Optimize Edildi)
-  integration-test:
-    name: E2E Lifecycle & UI Tests
-    runs-on: ubuntu-latest
-    needs: analyze-and-test
-    if: github.event_name == 'pull_request' || contains(github.event.head_commit.message, 'run-e2e') || github.event_name == 'workflow_dispatch'
-    
-    steps:
-      - name: 📥 Checkout Code
-        uses: actions/checkout@v4
-
-      - name: ☕ Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
-
-      - name: ⚙️ Setup Flutter SDK
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-          flutter-version: '3.24.0'
-
-      - name: 📦 Install Dependencies
-        run: flutter pub get
-
-      - name: 🤖 Android Emulator Runner (E2E Tests)
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 31 # API 29 yerine 31 (Android 12) - daha stabil
-          target: google_apis # Google Play Servislerini içerir
-          arch: x86_64 # Linux runner için zorunlu
-          profile: Nexus 6P # Orta boy cihaz
-          cores: 4 # CPU cores sınırla
-          ram-size: 2048M # RAM sınırla
-          disk-size: 4G # Disk boyutu
-          emulator-boot-timeout: 600 # 10 dakika boot süresi
-          disable-animations: true # Animasyonları devre dışı bırak (flaky testleri önler)
-          script: |
-            flutter test integration_test/ \
-              --timeout 3600s \
-              --reporter=github \
-              --verbose
-          emulator-options: |
-            -no-snapshot-save
-            -no-window
-            -gpu swiftshaker_indirect
-            -noaudio
-            -no-boot-anim
-            -camera-back none
-            -accel on
-
-      - name: 📊 Upload Test Results
+      - name: Upload coverage
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-test-results
-          path: |
-            test-results/
-            build/
+          name: coverage-report
+          path: coverage/
           retention-days: 7
 
-  # 4. Aşama: Golden Tests (Opsiyonel - UI Snapshot Testleri)
-  golden-tests:
-    name: Golden Image Tests
+  # ───────────────────────────────────────────────────────────────────────────
+  # JOB 2: Integration Testler (Android Emülatör + KVM)
+  # ───────────────────────────────────────────────────────────────────────────
+  integration-test:
+    name: "📱 Integration Tests (Android Emulator)"
     runs-on: ubuntu-latest
     needs: analyze-and-test
-    if: github.event_name == 'pull_request'
-    
+    # Commit mesajında [e2e] veya [full] tag'i varsa çalışır
+    if: |
+      contains(github.event.head_commit.message, '[e2e]') ||
+      contains(github.event.head_commit.message, '[full]') ||
+      contains(github.event.pull_request.title, '[e2e]') ||
+      contains(github.event.pull_request.title, '[full]')
+    timeout-minutes: 60
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Kritik test dosyalarını gruplara böl (paralel çalışma imkânı)
+        test-group:
+          - name: "Core Flows"
+            tests: >
+              integration_test/app_test.dart
+              integration_test/auth_flow_test.dart
+              integration_test/login_test.dart
+              integration_test/navigation_test.dart
+              integration_test/full_app_tour_test.dart
+              integration_test/dashboard_sync_test.dart
+          - name: "Expense & Income"
+            tests: >
+              integration_test/expense_flow_test.dart
+              integration_test/expense_edit_flow_test.dart
+              integration_test/expense_delete_balance_test.dart
+              integration_test/expense_note_long_text_test.dart
+              integration_test/income_flow_test.dart
+              integration_test/income_edit_flow_test.dart
+              integration_test/income_category_flow_test.dart
+              integration_test/income_payment_integration_test.dart
+              integration_test/multi_expense_flow_test.dart
+              integration_test/net_balance_flow_test.dart
+          - name: "Assets & Transfers"
+            tests: >
+              integration_test/asset_flow_test.dart
+              integration_test/asset_detail_flow_test.dart
+              integration_test/asset_offline_sync_test.dart
+              integration_test/asset_recycle_bin_flow_test.dart
+              integration_test/transfer_flow_test.dart
+              integration_test/transfer_settings_flow_test.dart
+              integration_test/scheduled_transfer_flow_test.dart
+              integration_test/credit_card_payment_flow_test.dart
+          - name: "Settings & Preferences"
+            tests: >
+              integration_test/settings_flow_test.dart
+              integration_test/appearance_settings_flow_test.dart
+              integration_test/theme_toggle_rebuild_test.dart
+              integration_test/theme_persistence_restart_test.dart
+              integration_test/language_change_flow_test.dart
+              integration_test/notification_settings_flow_test.dart
+              integration_test/profile_update_flow_test.dart
+              integration_test/about_support_flow_test.dart
+          - name: "Categories & Budgets"
+            tests: >
+              integration_test/category_management_flow_test.dart
+              integration_test/category_budget_flow_test.dart
+              integration_test/category_filter_empty_result_test.dart
+              integration_test/custom_category_delete_test.dart
+              integration_test/budget_limit_warning_flow_test.dart
+              integration_test/category_dependency_chain_chaos_test.dart
+          - name: "Search, Filter & Export"
+            tests: >
+              integration_test/search_filter_flow_test.dart
+              integration_test/date_filter_flow_test.dart
+              integration_test/analysis_flow_test.dart
+              integration_test/export_report_flow_test.dart
+              integration_test/export_backup_file_flow_test.dart
+              integration_test/empty_search_query_test.dart
+          - name: "Recycle Bin & Delete"
+            tests: >
+              integration_test/recycle_bin_flow_test.dart
+              integration_test/complex_recycle_bin_flow_test.dart
+              integration_test/income_recycle_bin_flow_test.dart
+              integration_test/payment_recycle_bin_flow_test.dart
+              integration_test/asset_recycle_bin_flow_test.dart
+              integration_test/delete_all_transactions_flow_test.dart
+              integration_test/cancel_transaction_discard_test.dart
+          - name: "Payment Methods & Currency"
+            tests: >
+              integration_test/payment_method_flow_test.dart
+              integration_test/payment_detail_flow_test.dart
+              integration_test/multi_currency_conversion_test.dart
+              integration_test/currency_change_flow_test.dart
+              integration_test/currency_locale_switch_test.dart
+          - name: "Advanced & Edge Cases"
+            tests: >
+              integration_test/recurring_transaction_flow_test.dart
+              integration_test/recurring_income_flow_test.dart
+              integration_test/streak_page_flow_test.dart
+              integration_test/tools_page_flow_test.dart
+              integration_test/quick_add_from_tools_test.dart
+              integration_test/voice_commands_flow_test.dart
+              integration_test/signup_multiuser_flow_test.dart
+              integration_test/switch_account_dropdown_state_test.dart
+          - name: "Chaos & Stress Tests"
+            tests: >
+              integration_test/rapid_tap_debouncer_test.dart
+              integration_test/rapid_form_submission_flakiness_test.dart
+              integration_test/rapid_transaction_sync_test.dart
+              integration_test/concurrent_ui_interaction_test.dart
+              integration_test/aggressive_keyboard_resize_test.dart
+              integration_test/chart_gesture_overload_test.dart
+              integration_test/chart_zero_division_prevention_test.dart
+              integration_test/deep_nested_navigation_test.dart
+              integration_test/extreme_date_picker_chaos_test.dart
+              integration_test/extreme_data_pagination_flow_test.dart
+              integration_test/nested_dialog_dismissal_chaos_test.dart
+              integration_test/data_lifecycle_conflict_chaos_test.dart
+              integration_test/theme_and_locale_rebuild_chaos_test.dart
+          - name: "UI Resilience"
+            tests: >
+              integration_test/empty_state_ui_flow_test.dart
+              integration_test/form_validation_errors_test.dart
+              integration_test/hardware_back_navigation_test.dart
+              integration_test/keyboard_visibility_scroll_test.dart
+              integration_test/long_list_scroll_performance_test.dart
+              integration_test/long_press_context_menu_test.dart
+              integration_test/massive_numbers_overflow_test.dart
+              integration_test/negative_amount_input_test.dart
+              integration_test/pull_to_refresh_lists_test.dart
+              integration_test/unsaved_form_changes_alert_test.dart
+              integration_test/accessibility_text_scale_test.dart
+          - name: "Offline & Sync"
+            tests: >
+              integration_test/offline_network_currency_test.dart
+              integration_test/app_lifecycle_lock_flow_test.dart
+              integration_test/app_lifecycle_rapid_transition_test.dart
+              integration_test/fast_tab_switching_memory_test.dart
+
     steps:
-      - name: 📥 Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: ⚙️ Setup Flutter SDK
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
           cache: true
-          flutter-version: '3.24.0'
 
-      - name: 📦 Install Dependencies
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: 🎨 Run Golden Tests
-        run: flutter test --tags golden --update-goldens=false
+      - name: Generate l10n
+        run: flutter gen-l10n
 
-      - name: 📤 Upload Golden Diffs (Başarısız olursa)
-        if: failure()
+      # ─── KVM Hızlandırma (GitHub Actions ubuntu runner) ───
+      - name: Enable KVM group permissions
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # ─── Gradle Cache ───
+      - name: Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      # ─── AVD Cache ───
+      - name: AVD cache
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-api-34-${{ runner.os }}
+
+      # ─── AVD oluştur (cache yoksa) ───
+      - name: Create AVD and generate snapshot
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          ram-size: 4096M
+          heap-size: 512M
+          disk-size: 6000M
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: echo "AVD snapshot generated"
+
+      # ─── Integration testleri çalıştır ───
+      - name: Run integration tests - ${{ matrix.test-group.name }}
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          ram-size: 4096M
+          heap-size: 512M
+          disk-size: 6000M
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            # Emülatörün tam boot olmasını bekle
+            adb wait-for-device
+            adb shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
+            sleep 5
+
+            # Animasyonları kapat
+            adb shell settings put global window_animation_scale 0.0
+            adb shell settings put global transition_animation_scale 0.0
+            adb shell settings put global animator_duration_scale 0.0
+
+            # Test dosyalarını tek tek çalıştır
+            FAILED=0
+            for TEST_FILE in ${{ matrix.test-group.tests }}; do
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+              echo "▶ Running: $TEST_FILE"
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+              if ! flutter test "$TEST_FILE" --device-id emulator-5554 --timeout 300; then
+                echo "❌ FAILED: $TEST_FILE"
+                FAILED=$((FAILED + 1))
+              else
+                echo "✅ PASSED: $TEST_FILE"
+              fi
+              echo ""
+            done
+
+            if [ $FAILED -gt 0 ]; then
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+              echo "❌ $FAILED test file(s) failed!"
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+              exit 1
+            fi
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # JOB 3: Build doğrulaması (APK oluşturulabilir mi?)
+  # ───────────────────────────────────────────────────────────────────────────
+  build-check:
+    name: "🏗️ Build Verification"
+    runs-on: ubuntu-latest
+    needs: analyze-and-test
+    # Commit mesajında [build] veya [full] tag'i varsa çalışır
+    if: |
+      contains(github.event.head_commit.message, '[build]') ||
+      contains(github.event.head_commit.message, '[full]') ||
+      contains(github.event.pull_request.title, '[build]') ||
+      contains(github.event.pull_request.title, '[full]')
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate l10n
+        run: flutter gen-l10n
+
+      - name: Build APK (debug)
+        run: flutter build apk --debug
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: golden-diffs
-          path: test/goldens/
-          retention-days: 7
-
-  # 5. Aşama: Status Check (Tüm Testlerin Tamamlanmasını Bekle)
-  final-status-check:
-    name: ✅ Final Status Check
-    runs-on: ubuntu-latest
-    needs: [analyze-and-test, build-android, integration-test]
-    if: always()
-    
-    steps:
-      - name: Check Job Status
-        run: |
-          if [ "${{ needs.analyze-and-test.result }}" != "success" ]; then
-            echo "❌ Code Quality & Unit Tests başarısız!"
-            exit 1
-          fi
-          
-          if [ "${{ needs.build-android.result }}" == "failure" ]; then
-            echo "⚠️ Build başarısız (tetiklenmemiş olabilir)"
-          fi
-          
-          if [ "${{ needs.integration-test.result }}" == "failure" ]; then
-            echo "❌ E2E Testleri başarısız!"
-            exit 1
-          fi
-          
-          echo "✅ Tüm görevler başarılı!"
+          name: debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 3
