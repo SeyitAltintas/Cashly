@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/analysis_colors.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -14,6 +15,10 @@ import '../controllers/analysis_controller.dart';
 import '../../../dashboard/presentation/widgets/budget_status_card.dart';
 import '../../../dashboard/presentation/pages/category_budget_detail_page.dart';
 import 'package:intl/intl.dart';
+part '../views/expense_analysis_view.part.dart';
+part '../views/income_analysis_view.part.dart';
+part '../views/asset_analysis_view.part.dart';
+
 /// Analiz ve Raporlar Sayfası
 /// Harcama, Gelir ve Varlık analizlerini gösterir
 class AnalysisPage extends StatefulWidget {
@@ -67,46 +72,13 @@ class _AnalysisPageState extends State<AnalysisPage>
   int get _touchedIndex => _controller.touchedIndex;
 
   // Harcamalar için birbirine zıt, okunabilir ve canlı "Sıcak" tonlar
-  static const List<Color> expenseColors = [
-    Color(0xFFE53935), // Kırmızı (red.shade600)
-    Color(0xFFFB8C00), // Turuncu (orange.shade600)
-    Color(0xFFD81B60), // Pembe (pink.shade600)
-    Color(0xFF8E24AA), // Mor (purple.shade600)
-    Color(0xFFFFB300), // Kehribar (amber.shade600)
-    Color(0xFFF4511E), // Koyu Turuncu (deepOrange.shade600)
-    Color(0xFF5E35B1), // Koyu Mor (deepPurple.shade600)
-    Color(0xFFEF5350), // Pastel Kırmızı
-    Color(0xFFFFA726), // Pastel Turuncu
-    Color(0xFFAB47BC), // Pastel Mor
-  ];
+  
 
   // Gelirler için birbirine zıt, tazeleyici "Doğa / Yeşil" tabanlı tonlar
-  static const List<Color> incomeColors = [
-    Color(0xFF43A047), // Yeşil (green.shade600)
-    Color(0xFF00897B), // Petrol Yeşili / Teal (teal.shade600)
-    Color(0xFF7CB342), // Açık Yeşil (lightGreen.shade600)
-    Color(0xFF00ACC1), // Camgöbeği (cyan.shade600)
-    Color(0xFF2E7D32), // Orman Yeşili (green.shade800)
-    Color(0xFFCDDC39), // Limon Yeşili (lime)
-    Color(0xFF009688), // Standart Teal
-    Color(0xFF81C784), // Pastel Yeşil
-    Color(0xFF4DD0E1), // Pastel Camgöbeği
-    Color(0xFFAED581), // Pastel Açık Yeşil
-  ];
+  
 
   // Varlıklar için birbirine zıt, güven veren "Deniz / Gökyüzü" tabanlı tonlar
-  static const List<Color> assetColors = [
-    Color(0xFF1E88E5), // Mavi (blue.shade600)
-    Color(0xFF3949AB), // Çivit Mavisi (indigo.shade600)
-    Color(0xFF039BE5), // Açık Mavi (lightBlue.shade600)
-    Color(0xFF00ACC1), // Camgöbeği (cyan.shade600)
-    Color(0xFF5E35B1), // Koyu Mor (deepPurple.shade600)
-    Color(0xFF42A5F5), // Pastel Mavi
-    Color(0xFF26C6DA), // Pastel Camgöbeği
-    Color(0xFF5C6BC0), // Pastel İndigo
-    Color(0xFF7E57C2), // Pastel Mor
-    Color(0xFF29B6F6), // Pastel Açık Mavi
-  ];
+  
 
   @override
   void initState() {
@@ -156,7 +128,7 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   void _onStateChanged() {
-    if (mounted) setState(() {});
+    // Removed empty setState. UI uses ListenableBuilder now.
   }
 
   @override
@@ -593,243 +565,13 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   /// Harcama Analizi
-  Widget _buildExpenseAnalysis() {
-    final currentExpenses = _controller.currentExpenses;
-
-    if (currentExpenses.isEmpty) {
-      return Column(
-        children: [
-          Expanded(
-            child: AnalysisEmptyState(
-              message: context.l10n.noExpenseDataForThisMonth,
-              actionText: context.l10n.addExpense,
-              icon: Icons.receipt_long_outlined,
-              buttonColor: Colors.red.shade400,
-              onActionPressed: widget.onAddExpensePressed != null
-                  ? () => widget.onAddExpensePressed!(_controller.selectedMonth)
-                  : () => Navigator.pop(context),
-            ),
-          ),
-        ],
-      );
-    }
-
-    final totals = _controller.expenseCategoryTotals;
-    final totalAmount = _controller.totalMonthlyExpense;
-    final topEntry = _controller.topExpenseCategory;
-    final topCategory = topEntry?.key ?? '';
-    final topAmount = topEntry?.value ?? 0.0;
-
-    final sections = _buildPieChartSections(totals, totalAmount, expenseColors);
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children:
-            [
-                  TrendInsightCard(
-                    title: context.l10n.monthlyInsight,
-                    currentAmount: totalAmount,
-                    previousAmount: _controller.previousMonthTotalExpense,
-                    isExpense: true,
-                    increaseText: context.l10n.spentMoreThanLastMonth(
-                      '{percent}',
-                    ),
-                    decreaseText: context.l10n.spentLessThanLastMonth(
-                      '{percent}',
-                    ),
-                    noChangeText: context.l10n.spentSameAsLastMonth,
-                    topCategoryLabel: context.l10n.highestExpense,
-                    topCategoryName: context.translateDbName(topCategory),
-                    topCategoryAmount: CurrencyFormatter.format(topAmount),
-                  ),
-                  _buildChartArea(sections, totals, totalAmount, expenseColors),
-                  if (_controller.historyLimit == 30 ||
-                      _controller.historyLimit == -1) ...[
-                    const SizedBox(height: 24),
-                    BudgetStatusCard(
-                      monthlyExpense: totalAmount,
-                      butceLimiti: widget.totalBudget,
-                      categoryBudgets: widget.categoryBudgets,
-                      categoryExpenses: totals,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CategoryBudgetDetailPage(
-                              categoryBudgets: widget.categoryBudgets ?? {},
-                              categoryExpenses: totals,
-                              totalBudget: widget.totalBudget,
-                              totalExpense: totalAmount,
-                              rawExpenses: _controller.currentExpenses.toList(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                  if (currentExpenses.isNotEmpty)
-                    _buildTopExpenses(currentExpenses, _controller.totalMonthlyExpense),
-                  if (widget.paymentMethods.isNotEmpty)
-                    _buildPaymentMethodDistribution(),
-                ]
-                .animate(interval: 50.ms)
-                .fade(duration: 400.ms)
-                .slideY(
-                  begin: 0.1,
-                  duration: 400.ms,
-                  curve: Curves.easeOutQuad,
-                ),
-      ),
-    );
-  }
+  
 
   /// Gelir Analizi
-  Widget _buildIncomeAnalysis() {
-    final currentIncomes = _controller.currentIncomes;
-
-    if (currentIncomes.isEmpty) {
-      return Column(
-        children: [
-          Expanded(
-            child: AnalysisEmptyState(
-              message: context.l10n.noIncomeDataForThisMonth,
-              actionText: context.l10n.addIncome,
-              icon: Icons.account_balance_wallet_outlined,
-              buttonColor: Colors.green.shade400,
-              onActionPressed: widget.onAddIncomePressed != null
-                  ? () => widget.onAddIncomePressed!(_controller.selectedMonth)
-                  : () => Navigator.pop(context),
-            ),
-          ),
-        ],
-      );
-    }
-
-    final totals = _controller.incomeCategoryTotals;
-    final totalIncome = _controller.totalMonthlyIncome;
-    final topEntry = _controller.topIncomeCategory;
-    final topCategory = topEntry?.key ?? '';
-    final topAmount = topEntry?.value ?? 0.0;
-
-    final sections = _buildPieChartSections(totals, totalIncome, incomeColors);
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children:
-            [
-                  TrendInsightCard(
-                    title: context.l10n.monthlyInsight,
-                    currentAmount: totalIncome,
-                    previousAmount: _controller.previousMonthTotalIncome,
-                    isExpense: false,
-                    increaseText: context.l10n.earnedMoreThanLastMonth(
-                      '{percent}',
-                    ),
-                    decreaseText: context.l10n.earnedLessThanLastMonth(
-                      '{percent}',
-                    ),
-                    noChangeText: context.l10n.earnedSameAsLastMonth,
-                    topCategoryLabel: context.l10n.highestIncome,
-                    topCategoryName: context.translateDbName(topCategory),
-                    topCategoryAmount: CurrencyFormatter.format(topAmount),
-                  ),
-                  _buildChartArea(sections, totals, totalIncome, incomeColors),
-                  if (currentIncomes.isNotEmpty)
-                    _buildTopIncomes(currentIncomes, totalIncome),
-                  if (currentIncomes.isNotEmpty && totalIncome > 0)
-                    _buildIncomeStability(currentIncomes, totalIncome),
-                  if (totalIncome > 0) ...[
-                    _buildDailyEarningRate(totalIncome),
-                    _buildSavingsPotential(totalIncome, _controller.totalMonthlyExpense),
-                  ],
-                  if (widget.paymentMethods.isNotEmpty)
-                    _buildPaymentMethodDistribution(isExpense: false),
-                ]
-                .animate(interval: 50.ms)
-                .fade(duration: 400.ms)
-                .slideY(
-                  begin: 0.1,
-                  duration: 400.ms,
-                  curve: Curves.easeOutQuad,
-                ),
-      ),
-    );
-  }
+  
 
   /// Varlık Analizi
-  Widget _buildAssetAnalysis() {
-    final activeAssets = _controller.activeAssets;
-
-    if (activeAssets.isEmpty) {
-      return Column(
-        children: [
-          Expanded(
-            child: AnalysisEmptyState(
-              message: context.l10n.noAssetsAddedYet,
-              actionText: context.l10n.addAsset,
-              icon: Icons.diamond_outlined,
-              buttonColor: Colors.blue.shade500,
-              onActionPressed: widget.onAddAssetPressed != null
-                  ? () => widget.onAddAssetPressed!(_controller.selectedMonth)
-                  : () => Navigator.pop(context),
-            ),
-          ),
-        ],
-      );
-    }
-
-    final totals = _controller.assetTypeTotals;
-    final totalValue = _controller.totalAssetValue;
-    final (topType, topAmount) = _findTopCategory(totals);
-
-    final sections = _buildPieChartSections(totals, totalValue, assetColors);
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children:
-            [
-                  TrendInsightCard(
-                    title: context.l10n.assetInsightTitle,
-                    currentAmount: totalValue,
-                    previousAmount: _controller.totalAssetPurchaseValue,
-                    isExpense: false,
-                    increaseText: context.l10n.assetIncrease('{percent}'),
-                    decreaseText: context.l10n.assetDecrease('{percent}'),
-                    noChangeText: context.l10n.assetNoChange,
-                    noteText: context.l10n.fxImpactNotice,
-                    topCategoryLabel: context.l10n.mostValuableType,
-                    topCategoryName: context.translateDbName(topType),
-                    topCategoryAmount: CurrencyFormatter.format(topAmount),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildChartArea(sections, totals, totalValue, assetColors),
-                  if (activeAssets.any((a) => a.purchasePrice > 0)) ...[
-                    const SizedBox(height: 24),
-                    _buildTopPerformers(activeAssets),
-                  ],
-                  if (activeAssets.isNotEmpty && totalValue > 0) ...[
-                    const SizedBox(height: 24),
-                    _buildPortfolioDiversification(totals, totalValue),
-                    const SizedBox(height: 24),
-                    _buildLiquidityCheck(activeAssets, totalValue),
-                  ],
-                ]
-                .animate(interval: 50.ms)
-                .fade(duration: 400.ms)
-                .slideY(
-                  begin: 0.1,
-                  duration: 400.ms,
-                  curve: Curves.easeOutQuad,
-                ),
-      ),
-    );
-  }
+  
 
   // ========== YARDIMCI METODLAR ==========
 
@@ -1812,7 +1554,7 @@ class _AnalysisPageState extends State<AnalysisPage>
               IconData categoryIcon = widget.expenseCategoryIcons?[category] ?? Icons.category_rounded;
               
               // Her işlem için o harcama paletindeki zıt renklerden birini seç
-              final Color iconColor = expenseColors[index % expenseColors.length];
+              final Color iconColor = AnalysisColors.expenseColors[index % AnalysisColors.expenseColors.length];
 
               return Column(
                 children: [
@@ -2011,12 +1753,12 @@ class _AnalysisPageState extends State<AnalysisPage>
                     leading: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: assetColors[index % assetColors.length].withValues(alpha: 0.1),
+                        color: AnalysisColors.assetColors[index % AnalysisColors.assetColors.length].withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.show_chart_rounded,
-                        color: assetColors[index % assetColors.length],
+                        color: AnalysisColors.assetColors[index % AnalysisColors.assetColors.length],
                         size: 24,
                       ),
                     ),
@@ -2169,7 +1911,7 @@ class _AnalysisPageState extends State<AnalysisPage>
               // Progress bars for each type
               ...typeTotals.entries.map((entry) {
                 final pct = entry.value / totalValue;
-                final color = assetColors[typeTotals.keys.toList().indexOf(entry.key) % assetColors.length];
+                final color = AnalysisColors.assetColors[typeTotals.keys.toList().indexOf(entry.key) % AnalysisColors.assetColors.length];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Column(
@@ -2505,7 +2247,7 @@ class _AnalysisPageState extends State<AnalysisPage>
               final amount = income.amount;
               final currency = income.paraBirimi;
               final convertedAmount = curService.convert(amount, currency, curService.currentCurrency);
-              final Color iconColor = incomeColors[index % incomeColors.length];
+              final Color iconColor = AnalysisColors.incomeColors[index % AnalysisColors.incomeColors.length];
               final incomeCatIcon = widget.incomeCategoryIcons?[income.category] ?? Icons.attach_money_rounded;
 
               // Tarih
