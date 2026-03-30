@@ -199,9 +199,7 @@ class _GreetingSection extends StatelessWidget {
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              StreakWidget(streakData: streakData),
-            ],
+            children: [StreakWidget(streakData: streakData)],
           ),
         ],
       ),

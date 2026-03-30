@@ -4,7 +4,7 @@ import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/theme/app_theme.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../domain/repositories/expense_repository.dart';
-import '../../data/repositories/expense_repository_impl.dart';
+import '../../data/repositories/expense_repository_firestore.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../controllers/expenses_controller.dart';
 
@@ -339,11 +339,11 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
             onPressed: () {
               if (_controller != null) {
                 _controller!.resetCatMgmtToDefault(
-                  ExpenseRepositoryImpl.defaultCategories,
+                  ExpenseRepositoryFirestore.defaultCategories,
                 );
               } else {
                 _localKategoriler = List.from(
-                  ExpenseRepositoryImpl.defaultCategories,
+                  ExpenseRepositoryFirestore.defaultCategories,
                 );
                 setState(() {});
               }

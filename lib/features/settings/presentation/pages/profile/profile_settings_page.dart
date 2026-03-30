@@ -3,7 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/utils/error_handler.dart';
 import '../../../../../core/services/biometric_service.dart';
-import '../../../../auth/data/repositories/auth_repository_impl.dart';
+import '../../../../../core/di/injection_container.dart';
+import '../../../../auth/domain/repositories/auth_repository.dart';
 import '../../../../auth/domain/entities/user_entity.dart';
 import '../../../../auth/presentation/controllers/auth_controller.dart';
 
@@ -27,7 +28,7 @@ class ProfileSettingsPage extends StatefulWidget {
 }
 
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
-  final _authRepository = AuthRepositoryImpl();
+  final _authRepository = getIt<AuthRepository>();
   final BiometricService _biometricService = BiometricService();
   late final ProfileSettingsState _profileState;
 

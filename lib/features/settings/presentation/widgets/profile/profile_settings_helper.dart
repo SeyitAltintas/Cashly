@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../auth/domain/entities/user_entity.dart';
 import '../../../../auth/presentation/controllers/auth_controller.dart';
-import '../../../../auth/data/repositories/auth_repository_impl.dart';
+import '../../../../auth/domain/repositories/auth_repository.dart';
 import '../../../../auth/presentation/pages/login_page.dart';
 import '../../../../../core/di/injection_container.dart';
 import '../../../../settings/domain/repositories/settings_repository.dart';
@@ -21,7 +21,7 @@ class ProfileSettingsHelper {
   final BuildContext context;
   final AuthController authController;
   final UserEntity currentUser;
-  final AuthRepositoryImpl authRepository;
+  final AuthRepository authRepository;
   final VoidCallback onUserUpdated;
 
   ProfileSettingsHelper({
