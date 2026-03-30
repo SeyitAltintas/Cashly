@@ -29,7 +29,7 @@ import 'core/router/app_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'core/services/secure_storage_service.dart';
-import 'core/services/migration_flags.dart';
+
 import 'core/widgets/fallback_error_widget.dart';
 import 'core/widgets/offline_sensor.dart';
 
@@ -89,9 +89,7 @@ void main() {
         await Hive.initFlutter();
         await SecureStorageService.openSecureBox('settings');
         
-        // Migrasyon durumunu kontrol et → Repository seçimi buna göre yapılır
-        final useFirestore = await MigrationFlags.useFirestore;
-        await initializeDependencies(useFirestore: useFirestore);
+        await initializeDependencies();
         await ImageCacheService().initialize();
         runApp(
           MultiProvider(

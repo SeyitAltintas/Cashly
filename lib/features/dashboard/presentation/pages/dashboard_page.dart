@@ -4,7 +4,6 @@ import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/widgets/animated_card.dart';
-import '../../../../core/widgets/network_status_icon.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -201,8 +200,6 @@ class _GreetingSection extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const NetworkStatusIcon(),
-              const SizedBox(width: 8),
               StreakWidget(streakData: streakData),
             ],
           ),

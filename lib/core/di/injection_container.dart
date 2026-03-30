@@ -11,16 +11,7 @@ import '../../features/settings/domain/repositories/settings_repository.dart';
 import '../domain/repositories/category_repository.dart';
 import '../domain/repositories/recurring_repository.dart';
 
-// Repository Implementations (Data - Hive)
-import '../../features/auth/data/repositories/auth_repository_impl.dart';
-import '../../features/expenses/data/repositories/expense_repository_impl.dart';
-import '../../features/income/data/repositories/income_repository_impl.dart';
-import '../../features/assets/data/repositories/asset_repository_impl.dart';
-import '../../features/payment_methods/data/repositories/payment_method_repository_impl.dart';
-import '../../features/streak/data/repositories/streak_repository_impl.dart';
-import '../../features/settings/data/repositories/settings_repository_impl.dart';
-import '../data/repositories/category_repository_impl.dart';
-import '../data/repositories/recurring_repository_impl.dart';
+
 
 // Repository Implementations (Data - Firestore)
 import '../../features/auth/data/repositories/auth_repository_firestore.dart';
@@ -67,9 +58,8 @@ final getIt = GetIt.instance;
 bool _dependenciesInitialized = false;
 
 /// Tüm bağımlılıkları kaydeder
-/// [useFirestore] - true ise Firestore repository'ler kullanılır, false ise Hive
 /// Bu fonksiyon uygulama başlatılırken main.dart'ta çağrılır
-Future<void> initializeDependencies({bool useFirestore = false}) async {
+Future<void> initializeDependencies() async {
   // Zaten kayıtlıysa tekrar kaydetme (integration testler için)
   if (_dependenciesInitialized) {
     return;
@@ -94,11 +84,11 @@ Future<void> initializeDependencies({bool useFirestore = false}) async {
   // Currency Service
   getIt.registerLazySingleton<CurrencyService>(() => CurrencyService());
 
-  // ===== REPOSITORIES (Flag-based seçim) =====
+  // ===== REPOSITORIES =====
 
   // Auth Repository
   getIt.registerLazySingleton<AuthRepository>(
-    () => useFirestore ? AuthRepositoryFirestore() : AuthRepositoryImpl(),
+    () => AuthRepositoryFirestore(),
   );
 
   // Auth Controller
@@ -108,46 +98,43 @@ Future<void> initializeDependencies({bool useFirestore = false}) async {
 
   // Expense Repository
   getIt.registerLazySingleton<ExpenseRepository>(
-    () => useFirestore ? ExpenseRepositoryFirestore() : ExpenseRepositoryImpl(),
+    () => ExpenseRepositoryFirestore(),
   );
 
   // Income Repository
   getIt.registerLazySingleton<IncomeRepository>(
-    () => useFirestore ? IncomeRepositoryFirestore() : IncomeRepositoryImpl(),
+    () => IncomeRepositoryFirestore(),
   );
 
   // Asset Repository
   getIt.registerLazySingleton<AssetRepository>(
-    () => useFirestore ? AssetRepositoryFirestore() : AssetRepositoryImpl(),
+    () => AssetRepositoryFirestore(),
   );
 
   // Payment Method Repository
   getIt.registerLazySingleton<PaymentMethodRepository>(
-    () => useFirestore
-        ? PaymentMethodRepositoryFirestore()
-        : PaymentMethodRepositoryImpl(),
+    () => PaymentMethodRepositoryFirestore(),
   );
 
   // Streak Repository
   getIt.registerLazySingleton<StreakRepository>(
-    () => useFirestore ? StreakRepositoryFirestore() : StreakRepositoryImpl(),
+    () => StreakRepositoryFirestore(),
   );
 
   // Settings Repository
-  // voiceFeedback + transferHistoryLimit buluta yedeklenir
-  // tema/dil/haptic/bildirim lokal kaldığı için Hive impl hep kayıtlı olur
+  // Ses geribildirimi ve transfer log limiti buluta senkronize olmalı
   getIt.registerLazySingleton<SettingsRepository>(
-    () => useFirestore ? SettingsRepositoryFirestore() : SettingsRepositoryImpl(),
+    () => SettingsRepositoryFirestore(),
   );
 
   // Category Repository
   getIt.registerLazySingleton<CategoryRepository>(
-    () => useFirestore ? CategoryRepositoryFirestore() : CategoryRepositoryImpl(),
+    () => CategoryRepositoryFirestore(),
   );
 
   // Recurring Repository
   getIt.registerLazySingleton<RecurringRepository>(
-    () => useFirestore ? RecurringRepositoryFirestore() : RecurringRepositoryImpl(),
+    () => RecurringRepositoryFirestore(),
   );
 
   // ===== USE CASES =====
