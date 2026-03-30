@@ -8,6 +8,7 @@ import 'package:cashly/features/auth/presentation/pages/login_page.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/services/haptic_service.dart';
+import 'package:cashly/core/utils/image_utils.dart';
 
 class ProfilSayfasi extends StatelessWidget {
   final AuthController authController;
@@ -75,21 +76,7 @@ class ProfilSayfasi extends StatelessWidget {
                     ).colorScheme.surfaceContainerHighest,
                     backgroundImage:
                         authController.currentUser?.profileImage != null
-                        ? ((authController.currentUser!.profileImage!
-                                          .startsWith('lib/') ||
-                                      authController.currentUser!.profileImage!
-                                          .startsWith('assets/'))
-                                  ? AssetImage(
-                                      authController.currentUser!.profileImage!,
-                                    )
-                                  : FileImage(
-                                      File(
-                                        authController
-                                            .currentUser!
-                                            .profileImage!,
-                                      ),
-                                    ))
-                              as ImageProvider
+                        ? ImageUtils.getProfileImageProvider(authController.currentUser!.profileImage)
                         : null,
                     child: authController.currentUser?.profileImage == null
                         ? Icon(

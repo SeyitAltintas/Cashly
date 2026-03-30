@@ -32,6 +32,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'core/services/secure_storage_service.dart';
 import 'core/services/migration_flags.dart';
 import 'core/widgets/fallback_error_widget.dart';
+import 'core/widgets/offline_sensor.dart';
 
 void main() {
   runZonedGuarded(
@@ -311,6 +312,11 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
           },
           theme: themeManager.currentTheme,
           routerConfig: _appRouter!.router,
+          builder: (context, child) {
+            return OfflineSensor(
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
         );
       },
     );

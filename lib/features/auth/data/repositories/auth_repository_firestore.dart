@@ -7,16 +7,16 @@ import '../models/user_model.dart';
 import 'auth_repository_impl.dart';
 
 /// Firebase Authentication kullanan Auth Repository implementasyonu
-/// 
+///
 /// NOT: Cashly UI'da girişler 4-6 haneli PIN ile yapıldığı için
 /// Firebase Auth'ta mecburi olan güçlü şifre kuralını atlamak adına
 /// PIN'in arkasına statik bir "padding" eklenerek güçlü bir şifre elde ediliyor.
-/// Böylece "Hesap Oluştur / E-mail + PIN ile bulut senkronize" deneyimi 
+/// Böylece "Hesap Oluştur / E-mail + PIN ile bulut senkronize" deneyimi
 /// tamamen şeffaf çalışıyor ve AuthRules da "request.auth.uid" ile korunuyor.
 class AuthRepositoryFirestore implements AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final AuthRepositoryImpl _localHiveRepo = AuthRepositoryImpl(); 
+  final AuthRepositoryImpl _localHiveRepo = AuthRepositoryImpl();
 
   String _generateFirebasePassword(String pin) {
     return 'CASHLY_${pin}_SECURE_2026';
@@ -47,8 +47,13 @@ class AuthRepositoryFirestore implements AuthRepository {
       );
 
       final model = UserModel.fromEntity(finalUser);
-      await _firestore.collection('users').doc(firebaseUser.uid).collection('profile').doc('info').set(model.toMap());
-      
+      await _firestore
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .collection('profile')
+          .doc('info')
+          .set(model.toMap());
+
       // Çoklu hesap desteği ve offline kullanım için cihazın lokal Hive'ına da kaydediyoruz
       await _localHiveRepo.registerUser(finalUser);
       return finalUser;
@@ -66,11 +71,11 @@ class AuthRepositoryFirestore implements AuthRepository {
   Future<UserEntity?> loginUser(String id, String pin) async {
     final localUsers = await _localHiveRepo.getAllUsers();
     final localUserIndex = localUsers.indexWhere((u) => u.id == id);
-    
+
     if (localUserIndex == -1) {
       throw Exception("Kullanıcı bulunamadı");
     }
-    
+
     final localUser = localUsers[localUserIndex];
 
     try {
@@ -78,7 +83,7 @@ class AuthRepositoryFirestore implements AuthRepository {
         email: localUser.email,
         password: _generateFirebasePassword(pin),
       );
-      
+
       return await _localHiveRepo.loginUser(id, pin);
     } on FirebaseAuthException catch (e) {
       debugPrint("Firebase Login Error: ${e.message}");
@@ -94,17 +99,24 @@ class AuthRepositoryFirestore implements AuthRepository {
         email: email,
         password: _generateFirebasePassword(pin),
       );
-      
+
       final firebaseUser = credential.user;
       if (firebaseUser != null) {
         // Cihaz değiştiğinde profili buluttan çek ve lokale yaz
-        final doc = await _firestore.collection('users').doc(firebaseUser.uid).collection('profile').doc('info').get();
+        final doc = await _firestore
+            .collection('users')
+            .doc(firebaseUser.uid)
+            .collection('profile')
+            .doc('info')
+            .get();
         if (doc.exists && doc.data() != null) {
           final userModel = UserModel.fromMap(doc.data()!);
-          
-          await _localHiveRepo.registerUser(userModel); // create or update on device
+
+          await _localHiveRepo.registerUser(
+            userModel,
+          ); // create or update on device
           await _localHiveRepo.setCurrentUser(userModel.id);
-          
+
           return userModel;
         }
       }
@@ -119,10 +131,12 @@ class AuthRepositoryFirestore implements AuthRepository {
   Future<void> updateUser(UserEntity user) async {
     await _localHiveRepo.updateUser(user);
     final model = UserModel.fromEntity(user);
-    await _firestore.collection('users').doc(user.id).collection('profile').doc('info').set(
-      model.toMap(), 
-      SetOptions(merge: true),
-    );
+    await _firestore
+        .collection('users')
+        .doc(user.id)
+        .collection('profile')
+        .doc('info')
+        .set(model.toMap(), SetOptions(merge: true));
   }
 
   @override
@@ -176,7 +190,7 @@ class AuthRepositoryFirestore implements AuthRepository {
     final firebaseUser = _firebaseAuth.currentUser;
     // Eğer firebase session açıksa direkt biyometrik okut
     if (firebaseUser != null && firebaseUser.uid == userId) {
-       return await _localHiveRepo.loginWithBiometric(userId);
+      return await _localHiveRepo.loginWithBiometric(userId);
     }
     // Değilse, Firebase oturumu arka planda düşmüş olabilir. PIN istenmesi daha güvenlidir.
     // Ancak offline akışı kesmemek için Hive'a devrediyoruz.
@@ -186,10 +200,12 @@ class AuthRepositoryFirestore implements AuthRepository {
   @override
   Future<void> updateBiometricPreference(String userId, bool enabled) async {
     await _localHiveRepo.updateBiometricPreference(userId, enabled);
-    await _firestore.collection('users').doc(userId).collection('profile').doc('info').set(
-      {'biometricEnabled': enabled}, 
-      SetOptions(merge: true),
-    );
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('profile')
+        .doc('info')
+        .set({'biometricEnabled': enabled}, SetOptions(merge: true));
   }
 
   @override
@@ -205,10 +221,12 @@ class AuthRepositoryFirestore implements AuthRepository {
         await user.updatePassword(_generateFirebasePassword(newPin));
       }
       await _localHiveRepo.updateUserPin(userId, newPin);
-      await _firestore.collection('users').doc(userId).collection('profile').doc('info').set(
-        {'pin': newPin}, 
-        SetOptions(merge: true),
-      );
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('profile')
+          .doc('info')
+          .set({'pin': newPin}, SetOptions(merge: true));
     } catch (e) {
       throw Exception("PIN güncellenemedi: ${e.toString()}");
     }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cashly/core/utils/currency_formatter.dart';
 import 'package:cashly/core/widgets/cached_image.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/core/utils/image_utils.dart';
 
 /// Carousel Sayfa 1: Toplam Bakiye + Profil
 /// Premium banka kartı tasarımıyla toplam bakiye ve kullanıcı bilgilerini gösterir
@@ -404,18 +405,15 @@ class BalanceCardPage extends StatelessWidget {
           errorWidget: _buildDefaultAvatar(userName),
         );
       } else {
-        final file = File(userProfileUrl!);
-        if (file.existsSync()) {
-          return Image.file(
-            file,
-            fit: BoxFit.cover,
-            width: 100,
-            height: 100,
-            errorBuilder: (context, error, stackTrace) {
-              return _buildDefaultAvatar(userName);
-            },
-          );
-        }
+        return Image(
+          image: ImageUtils.getProfileImageProvider(userProfileUrl),
+          fit: BoxFit.cover,
+          width: 100,
+          height: 100,
+          errorBuilder: (context, error, stackTrace) {
+            return _buildDefaultAvatar(userName);
+          },
+        );
       }
     }
     return _buildDefaultAvatar(userName);

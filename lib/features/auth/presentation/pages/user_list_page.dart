@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
+import '../../../../core/utils/image_utils.dart';
 import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
 import 'login_page.dart';
@@ -101,13 +103,7 @@ class _UserListPageState extends State<UserListPage> {
                         context,
                       ).colorScheme.primary.withValues(alpha: 0.2),
                       backgroundImage: user.profileImage != null
-                          ? ((user.profileImage!.startsWith('lib/') ||
-                                        user.profileImage!.startsWith(
-                                          'assets/',
-                                        ))
-                                    ? AssetImage(user.profileImage!)
-                                    : FileImage(File(user.profileImage!)))
-                                as ImageProvider
+                          ? ImageUtils.getProfileImageProvider(user.profileImage)
                           : null,
                       child: user.profileImage == null
                           ? Text(

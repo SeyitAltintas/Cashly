@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../../auth/domain/entities/user_entity.dart';
+import '../../../../../core/utils/image_utils.dart';
 
 /// Profil fotoğrafı bölümü widget'ı
 /// Profil resmini gösterir ve düzenleme butonu içerir
@@ -85,30 +86,12 @@ class ProfilePhotoSection extends StatelessWidget {
       return _buildDefaultIcon(context);
     }
 
-    // Asset mi yoksa dosya mı kontrol et
-    if (user.profileImage!.startsWith('lib/') ||
-        user.profileImage!.startsWith('assets/')) {
-      return Image.asset(
-        user.profileImage!,
-        fit: BoxFit.cover,
-        width: 120,
-        height: 120,
-        errorBuilder: (context, error, stackTrace) =>
-            _buildDefaultIcon(context),
-      );
-    }
-
-    // Dosya resmi - error handling ile
-    final file = File(user.profileImage!);
-    return Image.file(
-      file,
+    return Image(
+      image: ImageUtils.getProfileImageProvider(user.profileImage!),
       fit: BoxFit.cover,
       width: 120,
       height: 120,
-      errorBuilder: (context, error, stackTrace) {
-        // Bozuk resim dosyası - varsayılan ikon göster
-        return _buildDefaultIcon(context);
-      },
+      errorBuilder: (context, error, stackTrace) => _buildDefaultIcon(context),
     );
   }
 

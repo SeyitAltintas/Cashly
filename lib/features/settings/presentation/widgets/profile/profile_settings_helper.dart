@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
@@ -11,7 +12,9 @@ import '../../../../settings/domain/repositories/settings_repository.dart';
 import '../../../../../core/widgets/app_snackbar.dart';
 import '../../../../../core/services/image_compression_service.dart';
 import 'image_crop_screen.dart';
+import 'image_crop_screen.dart';
 import 'advanced_image_editor.dart';
+import '../../../../../core/utils/image_utils.dart';
 
 /// Profil ayarları dialog/sheet yardımcı sınıfı
 /// Avatar seçimi, isim değiştirme, PIN değiştirme, hesap silme akışlarını yönetir
@@ -30,13 +33,8 @@ class ProfileSettingsHelper {
     required this.onUserUpdated,
   });
 
-  /// Yerel dosya veya asset'ten image provider oluştur
   ImageProvider _getImageProvider(String path) {
-    if (path.startsWith('lib/') || path.startsWith('assets/')) {
-      return AssetImage(path);
-    } else {
-      return FileImage(File(path));
-    }
+    return ImageUtils.getProfileImageProvider(path);
   }
 
   Future<void> _updateUser({
@@ -105,8 +103,12 @@ class ProfileSettingsHelper {
 
     if (!context.mounted) return;
 
+    final finalFile = File(compressedPath ?? editedFile.path);
+    final bytes = await finalFile.readAsBytes();
+    final base64String = "data:image/jpeg;base64,${base64Encode(bytes)}";
+
     _updateUser(
-      profileImage: compressedPath ?? editedFile.path,
+      profileImage: base64String, // Kayıt artık lokal path değil, buluta gidecek Base64 string!
       successMessage: context.l10n.profilePhotoUpdated,
     );
     Navigator.pop(context);

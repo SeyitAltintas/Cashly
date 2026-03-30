@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../../domain/entities/user_entity.dart';
+import '../../../auth/domain/entities/user_entity.dart';
+import '../../../../core/utils/image_utils.dart';
 import '../controllers/auth_controller.dart';
 import '../../../../core/services/biometric_service.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -192,11 +193,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
       radius: 50,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       backgroundImage: widget.targetUser.profileImage != null
-          ? ((widget.targetUser.profileImage!.startsWith('lib/') ||
-                        widget.targetUser.profileImage!.startsWith('assets/'))
-                    ? AssetImage(widget.targetUser.profileImage!)
-                    : FileImage(File(widget.targetUser.profileImage!)))
-                as ImageProvider
+          ? ImageUtils.getProfileImageProvider(widget.targetUser.profileImage)
           : null,
       child: widget.targetUser.profileImage == null
           ? Icon(
