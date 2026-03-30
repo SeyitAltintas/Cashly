@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:vibration/vibration.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'secure_storage_service.dart';
 
 /// Haptic (dokunsal) geri bildirim servisi
 /// Önemli işlemlerde kullanıcıya fiziksel geri bildirim sağlar
@@ -23,7 +24,7 @@ class HapticService {
   /// Hive box'ı başlat
   static Future<void> init() async {
     if (_box != null && _box!.isOpen) return; // Zaten açıksa tekrar açma
-    _box = await Hive.openBox(_boxName);
+    _box = await SecureStorageService.openSecureBox(_boxName);
   }
 
   /// Box'a erişim

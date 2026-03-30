@@ -1,5 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:developer' as developer;
+import 'package:cashly/core/services/secure_storage_service.dart';
 import '../models/streak_model.dart';
 import '../constants/streak_badges.dart';
 
@@ -206,7 +207,7 @@ class StreakService {
   /// Streak box'ını başlat
   static Future<void> initialize() async {
     if (!Hive.isBoxOpen(_boxName)) {
-      await Hive.openBox(_boxName);
+      await SecureStorageService.openSecureBox(_boxName);
     }
   }
 }

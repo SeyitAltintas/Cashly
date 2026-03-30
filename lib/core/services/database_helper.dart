@@ -1,5 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/foundation.dart';
+import 'secure_storage_service.dart';
 
 /// Veritabanı Yardımcı Sınıfı
 ///
@@ -15,7 +16,7 @@ class DatabaseHelper {
   static Future<void> baslat() async {
     try {
       await Hive.initFlutter();
-      await Hive.openBox(_boxName);
+      await SecureStorageService.openSecureBox(_boxName);
     } catch (e) {
       debugPrint('Database initialization error: $e');
       rethrow;

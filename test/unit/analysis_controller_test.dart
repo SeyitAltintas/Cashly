@@ -142,5 +142,60 @@ void main() {
       controller.setTabIndex(0);
       expect(controller.touchedIndex, equals(-1));
     });
+
+    test(
+      'Edge Case: Bozuk tarih formatı, eksik veri ve extreme tutarlar (Hata Toleransı)',
+      () async {
+        await controller.setHistoryLimit(30);
+        await controller.updateData(
+          harcamalar: [
+            {
+              // Eksik kategori, eksik tutar, geçerli tarih
+              'tarih': DateTime.now().toIso8601String(),
+            },
+            {
+              // Bozuk tarih formatı
+              'kategori': 'Market',
+              'tarih': 'b0zUk-TaR1H-formati',
+              'tutar': 100.0,
+            },
+            {
+              // Negatif tutar
+              'kategori': 'Fatura',
+              'tarih': DateTime.now().toIso8601String(),
+              'tutar': -50.0,
+            },
+            {
+              // Çok büyük tutar (overflow & precision loss check)
+              'kategori': 'Araba',
+              'tarih': DateTime.now().toIso8601String(),
+              'tutar': 999999999999.0,
+            },
+          ],
+          gelirler: [],
+          varliklar: [],
+          odemeYontemleri: [],
+          secilenAy: DateTime.now(),
+        );
+
+        // Bozuk tarihli harcama listeye alınmamalı ("invalid-date-format"), diğer 3 harcama alınmalı
+        expect(controller.currentExpenses.length, equals(3));
+
+        // Eksik kategorili harcama "Diğer" olarak atanmalı, eksik tutar 0.0 kabul edilmeli
+        expect(controller.expenseCategoryTotals['Diğer'], equals(0.0));
+
+        // Negatif tutar crash vermeden işlenebilir olmalı
+        expect(controller.expenseCategoryTotals['Fatura'], equals(-50.0));
+
+        // Büyük tutar başarılı şekilde işlenmeli
+        expect(
+          controller.expenseCategoryTotals['Araba'],
+          equals(999999999999.0),
+        );
+
+        // Toplam aylık harcama hesabı (0 - 50 + 999999999999)
+        expect(controller.totalMonthlyExpense, equals(999999999949.0));
+      },
+    );
   });
 }

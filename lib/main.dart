@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'core/services/database_helper.dart';
+import 'core/services/error_logger_service.dart';
 import 'core/services/haptic_service.dart';
 import 'core/services/image_cache_service.dart';
 import 'core/services/notification_service.dart';
@@ -22,6 +23,9 @@ import 'core/services/network_service.dart';
 import 'core/router/app_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'core/services/secure_storage_service.dart';
+import 'core/widgets/fallback_error_widget.dart';
+
 void main() {
   runZonedGuarded(
     () async {
@@ -34,6 +38,12 @@ void main() {
       // Flutter framework hatalarını yakala
       FlutterError.onError = (FlutterErrorDetails details) {
         FlutterError.presentError(details);
+        
+        ErrorLoggerService.logError(
+          'FlutterError: ${details.exceptionAsString()}',
+          stackTrace: details.stack?.toString(),
+        );
+
         debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         debugPrint('❌ FLUTTER ERROR');
         debugPrint('Exception: ${details.exceptionAsString()}');
@@ -41,17 +51,14 @@ void main() {
         debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       };
 
-      // Widget render hatalarında ErrorScreen göster
+      // Widget render hatalarında (örn: fl_chart vs çökmelerinde) FallbackErrorWidget göster
       ErrorWidget.builder = (FlutterErrorDetails details) {
-        return ErrorScreen(
-          errorDetails: details,
-          errorMessage: 'Widget oluşturulurken bir hata oluştu.',
-        );
+        return FallbackErrorWidget(details: details);
       };
 
       try {
         await Hive.initFlutter();
-        await Hive.openBox('settings');
+        await SecureStorageService.openSecureBox('settings');
         await initializeDependencies();
         await ImageCacheService().initialize();
         runApp(
@@ -65,6 +72,8 @@ void main() {
           ),
         );
       } catch (e, stackTrace) {
+        await ErrorLoggerService.logError('Main Initialization Error: $e', stackTrace: stackTrace.toString());
+        
         debugPrint('HATA: Uygulama başlatılırken bir sorun oluştu: $e');
         debugPrint('Stack Trace: $stackTrace');
         runApp(
@@ -75,6 +84,8 @@ void main() {
       }
     },
     (error, stackTrace) {
+      ErrorLoggerService.logError('Uncaught RunZonedGuarded Error: $error', stackTrace: stackTrace.toString());
+      
       debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       debugPrint('❌ UNCAUGHT ERROR');
       debugPrint('Error: $error');
