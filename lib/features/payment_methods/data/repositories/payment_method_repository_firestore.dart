@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/payment_method_repository.dart';
 
 /// Ödeme yöntemi repository implementasyonu (Firestore)
 class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
   final _firestore = FirebaseFirestore.instance;
 
-  static List<Map<String, dynamic>> get defaultPaymentMethods => [
+  static List<Map<String, dynamic>> get _defaultPaymentMethods => [
     {
       'id': 'nakit_default',
       'name': 'Nakit',
@@ -25,12 +26,8 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
 
   @override
   List<Map<String, dynamic>> getPaymentMethods(String userId) {
-    try {
-      return defaultPaymentMethods;
-    } catch (e) {
-      debugPrint('Ödeme yöntemleri getirilirken hata: $e');
-      return defaultPaymentMethods;
-    }
+    return CacheService.get<List<Map<String, dynamic>>>('payment_methods_$userId')
+        ?? _defaultPaymentMethods;
   }
 
   Stream<List<Map<String, dynamic>>> watchPaymentMethods(String userId) {
@@ -38,8 +35,11 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         .collection('paymentMethods')
         .snapshots()
         .map((snapshot) {
-      if (snapshot.docs.isEmpty) return defaultPaymentMethods;
-      return snapshot.docs.map((doc) => doc.data()).toList();
+      final methods = snapshot.docs.isEmpty
+          ? _defaultPaymentMethods
+          : snapshot.docs.map((doc) => doc.data()).toList();
+      CacheService.set('payment_methods_$userId', methods);
+      return methods;
     });
   }
 
@@ -64,6 +64,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
 
       await batch.commit();
+      CacheService.set('payment_methods_$userId', methods);
     } catch (e) {
       debugPrint('Ödeme yöntemleri kaydedilirken hata: $e');
       rethrow;
@@ -72,7 +73,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
 
   @override
   List<Map<String, dynamic>> getDeletedPaymentMethods(String userId) {
-    return [];
+    return CacheService.get<List<Map<String, dynamic>>>('deleted_payment_methods_$userId') ?? [];
   }
 
   @override
@@ -96,6 +97,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
 
       await batch.commit();
+      CacheService.set('deleted_payment_methods_$userId', methods);
     } catch (e) {
       debugPrint('Silinen ödeme yöntemleri kaydedilirken hata: $e');
       rethrow;
@@ -104,7 +106,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
 
   @override
   String? getDefaultPaymentMethod(String userId) {
-    return 'nakit_default';
+    return CacheService.get<String>('default_payment_method_$userId');
   }
 
   @override
@@ -114,6 +116,9 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         {'defaultPaymentMethod': methodId},
         SetOptions(merge: true),
       );
+      if (methodId != null) {
+        CacheService.set('default_payment_method_$userId', methodId);
+      }
     } catch (e) {
       debugPrint('Varsayılan ödeme yöntemi kaydedilirken hata: $e');
       rethrow;
@@ -122,7 +127,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
 
   @override
   List<Map<String, dynamic>> getTransfers(String userId) {
-    return [];
+    return CacheService.get<List<Map<String, dynamic>>>('transfers_$userId') ?? [];
   }
 
   Stream<List<Map<String, dynamic>>> watchTransfers(String userId) {
@@ -130,8 +135,11 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         .collection('transfers')
         .orderBy('tarih', descending: true)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => doc.data()).toList());
+        .map((snapshot) {
+      final transfers = snapshot.docs.map((doc) => doc.data()).toList();
+      CacheService.set('transfers_$userId', transfers);
+      return transfers;
+    });
   }
 
   @override
@@ -155,6 +163,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
 
       await batch.commit();
+      CacheService.set('transfers_$userId', transfers);
     } catch (e) {
       debugPrint('Transferler kaydedilirken hata: $e');
       rethrow;

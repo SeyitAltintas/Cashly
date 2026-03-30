@@ -23,11 +23,13 @@ import '../data/repositories/category_repository_impl.dart';
 import '../data/repositories/recurring_repository_impl.dart';
 
 // Repository Implementations (Data - Firestore)
+import '../../features/auth/data/repositories/auth_repository_firestore.dart';
 import '../../features/expenses/data/repositories/expense_repository_firestore.dart';
 import '../../features/income/data/repositories/income_repository_firestore.dart';
 import '../../features/assets/data/repositories/asset_repository_firestore.dart';
 import '../../features/payment_methods/data/repositories/payment_method_repository_firestore.dart';
 import '../../features/streak/data/repositories/streak_repository_firestore.dart';
+import '../../features/settings/data/repositories/settings_repository_firestore.dart';
 import '../data/repositories/category_repository_firestore.dart';
 import '../data/repositories/recurring_repository_firestore.dart';
 
@@ -94,8 +96,15 @@ Future<void> initializeDependencies({bool useFirestore = false}) async {
 
   // ===== REPOSITORIES (Flag-based seçim) =====
 
-  // Auth Repository (her zaman Hive - lokal PIN sistemi)
-  getIt.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl());
+  // Auth Repository
+  getIt.registerLazySingleton<AuthRepository>(
+    () => useFirestore ? AuthRepositoryFirestore() : AuthRepositoryImpl(),
+  );
+
+  // Auth Controller
+  getIt.registerLazySingleton(
+    () => AuthController(getIt<AuthRepository>()),
+  );
 
   // Expense Repository
   getIt.registerLazySingleton<ExpenseRepository>(
@@ -124,9 +133,11 @@ Future<void> initializeDependencies({bool useFirestore = false}) async {
     () => useFirestore ? StreakRepositoryFirestore() : StreakRepositoryImpl(),
   );
 
-  // Settings Repository (lokal kalır — cihaz tercihleri)
+  // Settings Repository
+  // voiceFeedback + transferHistoryLimit buluta yedeklenir
+  // tema/dil/haptic/bildirim lokal kaldığı için Hive impl hep kayıtlı olur
   getIt.registerLazySingleton<SettingsRepository>(
-    () => SettingsRepositoryImpl(),
+    () => useFirestore ? SettingsRepositoryFirestore() : SettingsRepositoryImpl(),
   );
 
   // Category Repository

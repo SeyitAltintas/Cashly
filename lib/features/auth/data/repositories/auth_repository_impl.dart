@@ -23,11 +23,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> registerUser(UserEntity user) async {
+  Future<UserEntity> registerUser(UserEntity user) async {
     final box = await _getUsersBox();
     final userModel = UserModel.fromEntity(user);
     await box.put(user.id, userModel.toMap());
     await setCurrentUser(user.id);
+    return user;
   }
 
   @override
@@ -82,6 +83,21 @@ class AuthRepositoryImpl implements AuthRepository {
         await box.put(id, updatedUser.toMap());
         await setCurrentUser(user.id);
         return updatedUser;
+      }
+    }
+    return null;
+  }
+
+  @override
+  Future<UserEntity?> loginByEmail(String email, String pin) async {
+    final box = await _getUsersBox();
+    for (var key in box.keys) {
+      final userData = box.get(key);
+      if (userData != null) {
+        final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
+        if (user.email.toLowerCase() == email.toLowerCase() && user.pin == pin) {
+          return await loginUser(user.id, pin);
+        }
       }
     }
     return null;

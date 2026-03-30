@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/asset_repository.dart';
 
 /// Varlık repository implementasyonu (Firestore)
@@ -11,21 +12,18 @@ class AssetRepositoryFirestore implements AssetRepository {
 
   @override
   List<Map<String, dynamic>> getAssets(String userId) {
-    try {
-      // Senkron cache'den oku (Stream ile doldurulur)
-      return [];
-    } catch (e) {
-      debugPrint('Varlıklar getirilirken hata: $e');
-      return [];
-    }
+    return CacheService.get<List<Map<String, dynamic>>>('assets_$userId') ?? [];
   }
 
   Stream<List<Map<String, dynamic>>> watchAssets(String userId) {
     return _userDoc(userId)
         .collection('assets')
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => doc.data()).toList());
+        .map((snapshot) {
+      final assets = snapshot.docs.map((doc) => doc.data()).toList();
+      CacheService.set('assets_$userId', assets);
+      return assets;
+    });
   }
 
   @override
@@ -45,10 +43,13 @@ class AssetRepositoryFirestore implements AssetRepository {
       for (final asset in assets) {
         final id = asset['id'] as String? ?? '';
         if (id.isEmpty) continue;
-        batch.set(colRef.doc(id), asset);
+        final data = Map<String, dynamic>.from(asset);
+        data['updatedAt'] = FieldValue.serverTimestamp();
+        batch.set(colRef.doc(id), data);
       }
 
       await batch.commit();
+      CacheService.set('assets_$userId', assets);
     } catch (e) {
       debugPrint('Varlıklar kaydedilirken hata: $e');
       rethrow;
@@ -57,12 +58,7 @@ class AssetRepositoryFirestore implements AssetRepository {
 
   @override
   List<Map<String, dynamic>> getDeletedAssets(String userId) {
-    try {
-      return [];
-    } catch (e) {
-      debugPrint('Silinen varlıklar getirilirken hata: $e');
-      return [];
-    }
+    return CacheService.get<List<Map<String, dynamic>>>('deleted_assets_$userId') ?? [];
   }
 
   @override
@@ -86,6 +82,7 @@ class AssetRepositoryFirestore implements AssetRepository {
       }
 
       await batch.commit();
+      CacheService.set('deleted_assets_$userId', assets);
     } catch (e) {
       debugPrint('Silinen varlıklar kaydedilirken hata: $e');
       rethrow;

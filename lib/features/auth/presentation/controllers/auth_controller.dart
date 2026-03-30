@@ -66,8 +66,8 @@ class AuthController extends ChangeNotifier {
         securityQuestion: securityQuestion,
         securityAnswer: securityAnswer?.trim().toLowerCase(),
       );
-      await _authRepository.registerUser(newUser);
-      _currentUser = newUser;
+      final registeredUser = await _authRepository.registerUser(newUser);
+      _currentUser = registeredUser;
       return true;
     } catch (e) {
       _error = e.toString();
@@ -92,21 +92,13 @@ class AuthController extends ChangeNotifier {
     _error = null;
 
     try {
-      final users = await _authRepository.getAllUsers();
-      final userIndex = users.indexWhere((u) => u.email == email);
-
-      if (userIndex == -1) {
-        _error = "Kullanıcı bulunamadı";
-        return false;
-      }
-
-      final user = users[userIndex];
-      if (user.pin == pin) {
-        await _authRepository.loginUser(user.id, pin);
+      final user = await _authRepository.loginByEmail(email, pin);
+      
+      if (user != null) {
         _currentUser = user;
         return true;
       } else {
-        _error = "Hatalı PIN";
+        _error = "Hatalı e-posta veya PIN";
         return false;
       }
     } catch (e) {

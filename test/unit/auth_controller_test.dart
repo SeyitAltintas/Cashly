@@ -10,10 +10,22 @@ class MockAuthRepository implements AuthRepository {
   String? _lastUserId;
 
   @override
-  Future<void> registerUser(UserEntity user) async {
+  Future<UserEntity> registerUser(UserEntity user) async {
     _users.add(user);
     _currentUserId = user.id;
     _lastUserId = user.id;
+    return user;
+  }
+
+  @override
+  Future<UserEntity?> loginByEmail(String email, String pin) async {
+    try {
+      final user = _users.firstWhere((u) => u.email.toLowerCase() == email.toLowerCase() && u.pin == pin);
+      _currentUserId = user.id;
+      return user;
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
