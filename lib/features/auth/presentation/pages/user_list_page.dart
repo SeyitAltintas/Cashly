@@ -1,10 +1,8 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
 import '../../../../core/utils/image_utils.dart';
 import '../../domain/entities/user_entity.dart';
-import '../controllers/auth_controller.dart';
 import 'login_page.dart';
 import 'signup_page.dart';
 import '../state/user_list_state.dart';

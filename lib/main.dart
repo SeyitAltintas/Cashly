@@ -17,7 +17,6 @@ import 'core/services/image_cache_service.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/locale_manager.dart';
 import 'features/streak/data/services/streak_service.dart';
-import 'features/auth/data/initialize_default_user.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/theme_manager.dart';
@@ -180,8 +179,6 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
 
       NotificationService.onNotificationNavigate =
           _handleNotificationNavigation;
-
-      await initializeDefaultUser();
 
       final authController = getIt<AuthController>();
       await authController.checkAuth();

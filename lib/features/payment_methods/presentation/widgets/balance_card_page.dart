@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:cashly/core/utils/currency_formatter.dart';
 import 'package:cashly/core/widgets/cached_image.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';

@@ -65,12 +65,12 @@ class _OfflineSensorState extends State<OfflineSensor> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                   color: Colors.redAccent.withValues(alpha: 0.9),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.cloud_off, color: Colors.white, size: 14),
-                      const SizedBox(width: 8),
-                      const Text(
+                      Icon(Icons.cloud_off, color: Colors.white, size: 14),
+                      SizedBox(width: 8),
+                      Text(
                         "Çevrimdışı (Offline) Mod - Değişiklikler kaydediliyor",
                         style: TextStyle(
                           color: Colors.white,
