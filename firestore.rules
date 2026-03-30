@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Kullanıcı kendi verisine erişebilir
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Alt koleksiyonlar (expenses, incomes, assets, paymentMethods vb.)
+      match /{subcollection}/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Settings alt koleksiyonu
+      match /settings/{settingDoc} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Error logs - sadece authenticated kullanıcılar yazabilir
+    match /errorLogs/{logId} {
+      allow create: if request.auth != null;
+      allow read, delete: if false; // Admin SDK ile okunur
+    }
+
+    // Diğer tüm yollar kapalı
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -11,7 +11,7 @@ import '../../features/settings/domain/repositories/settings_repository.dart';
 import '../domain/repositories/category_repository.dart';
 import '../domain/repositories/recurring_repository.dart';
 
-// Repository Implementations (Data)
+// Repository Implementations (Data - Hive)
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/expenses/data/repositories/expense_repository_impl.dart';
 import '../../features/income/data/repositories/income_repository_impl.dart';
@@ -21,6 +21,15 @@ import '../../features/streak/data/repositories/streak_repository_impl.dart';
 import '../../features/settings/data/repositories/settings_repository_impl.dart';
 import '../data/repositories/category_repository_impl.dart';
 import '../data/repositories/recurring_repository_impl.dart';
+
+// Repository Implementations (Data - Firestore)
+import '../../features/expenses/data/repositories/expense_repository_firestore.dart';
+import '../../features/income/data/repositories/income_repository_firestore.dart';
+import '../../features/assets/data/repositories/asset_repository_firestore.dart';
+import '../../features/payment_methods/data/repositories/payment_method_repository_firestore.dart';
+import '../../features/streak/data/repositories/streak_repository_firestore.dart';
+import '../data/repositories/category_repository_firestore.dart';
+import '../data/repositories/recurring_repository_firestore.dart';
 
 // Notification Services
 import '../services/notification_service.dart';
@@ -56,8 +65,9 @@ final getIt = GetIt.instance;
 bool _dependenciesInitialized = false;
 
 /// Tüm bağımlılıkları kaydeder
+/// [useFirestore] - true ise Firestore repository'ler kullanılır, false ise Hive
 /// Bu fonksiyon uygulama başlatılırken main.dart'ta çağrılır
-Future<void> initializeDependencies() async {
+Future<void> initializeDependencies({bool useFirestore = false}) async {
   // Zaten kayıtlıysa tekrar kaydetme (integration testler için)
   if (_dependenciesInitialized) {
     return;
@@ -82,41 +92,51 @@ Future<void> initializeDependencies() async {
   // Currency Service
   getIt.registerLazySingleton<CurrencyService>(() => CurrencyService());
 
-  // ===== REPOSITORIES =====
+  // ===== REPOSITORIES (Flag-based seçim) =====
 
-  // Auth Repository
+  // Auth Repository (her zaman Hive - lokal PIN sistemi)
   getIt.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl());
 
   // Expense Repository
-  getIt.registerLazySingleton<ExpenseRepository>(() => ExpenseRepositoryImpl());
+  getIt.registerLazySingleton<ExpenseRepository>(
+    () => useFirestore ? ExpenseRepositoryFirestore() : ExpenseRepositoryImpl(),
+  );
 
   // Income Repository
-  getIt.registerLazySingleton<IncomeRepository>(() => IncomeRepositoryImpl());
+  getIt.registerLazySingleton<IncomeRepository>(
+    () => useFirestore ? IncomeRepositoryFirestore() : IncomeRepositoryImpl(),
+  );
 
   // Asset Repository
-  getIt.registerLazySingleton<AssetRepository>(() => AssetRepositoryImpl());
+  getIt.registerLazySingleton<AssetRepository>(
+    () => useFirestore ? AssetRepositoryFirestore() : AssetRepositoryImpl(),
+  );
 
   // Payment Method Repository
   getIt.registerLazySingleton<PaymentMethodRepository>(
-    () => PaymentMethodRepositoryImpl(),
+    () => useFirestore
+        ? PaymentMethodRepositoryFirestore()
+        : PaymentMethodRepositoryImpl(),
   );
 
   // Streak Repository
-  getIt.registerLazySingleton<StreakRepository>(() => StreakRepositoryImpl());
+  getIt.registerLazySingleton<StreakRepository>(
+    () => useFirestore ? StreakRepositoryFirestore() : StreakRepositoryImpl(),
+  );
 
-  // Settings Repository
+  // Settings Repository (lokal kalır — cihaz tercihleri)
   getIt.registerLazySingleton<SettingsRepository>(
     () => SettingsRepositoryImpl(),
   );
 
-  // Category Repository (Merkezi kategori yönetimi)
+  // Category Repository
   getIt.registerLazySingleton<CategoryRepository>(
-    () => CategoryRepositoryImpl(),
+    () => useFirestore ? CategoryRepositoryFirestore() : CategoryRepositoryImpl(),
   );
 
-  // Recurring Repository (Tekrarlayan işlemler)
+  // Recurring Repository
   getIt.registerLazySingleton<RecurringRepository>(
-    () => RecurringRepositoryImpl(),
+    () => useFirestore ? RecurringRepositoryFirestore() : RecurringRepositoryImpl(),
   );
 
   // ===== USE CASES =====

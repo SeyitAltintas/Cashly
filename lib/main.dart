@@ -1,6 +1,12 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firebase_options.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/generated/app_localizations.dart';
@@ -24,6 +30,7 @@ import 'core/router/app_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'core/services/secure_storage_service.dart';
+import 'core/services/migration_flags.dart';
 import 'core/widgets/fallback_error_widget.dart';
 
 void main() {
@@ -31,12 +38,28 @@ void main() {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
+      // ====== FIREBASE BAŞLATMA ======
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+
+      // Crashlytics'i etkinleştir
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+
+      // Firestore offline persistence (internetsiz çalışma desteği)
+      FirebaseFirestore.instance.settings = const Settings(
+        persistenceEnabled: true,
+        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+      );
+
       // Google Fonts: İnternetten font indirmeyi kapat
-      // Fontlar assets/google_fonts/ klasöründen yüklenir (offline çalışır)
       GoogleFonts.config.allowRuntimeFetching = false;
 
-      // Flutter framework hatalarını yakala
+      // Flutter framework hatalarını yakala → Crashlytics + ErrorLogger
       FlutterError.onError = (FlutterErrorDetails details) {
+        // Crashlytics'e gönder (fatal Flutter error)
+        FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+        
         FlutterError.presentError(details);
         
         ErrorLoggerService.logError(
@@ -51,7 +74,13 @@ void main() {
         debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       };
 
-      // Widget render hatalarında (örn: fl_chart vs çökmelerinde) FallbackErrorWidget göster
+      // Platform hataları (Dart async, isolate vb.) → Crashlytics
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+
+      // Widget render hatalarında FallbackErrorWidget göster
       ErrorWidget.builder = (FlutterErrorDetails details) {
         return FallbackErrorWidget(details: details);
       };
@@ -59,7 +88,10 @@ void main() {
       try {
         await Hive.initFlutter();
         await SecureStorageService.openSecureBox('settings');
-        await initializeDependencies();
+        
+        // Migrasyon durumunu kontrol et → Repository seçimi buna göre yapılır
+        final useFirestore = await MigrationFlags.useFirestore;
+        await initializeDependencies(useFirestore: useFirestore);
         await ImageCacheService().initialize();
         runApp(
           MultiProvider(
@@ -84,6 +116,9 @@ void main() {
       }
     },
     (error, stackTrace) {
+      // Crashlytics'e gönder (runZonedGuarded yakaladı)
+      FirebaseCrashlytics.instance.recordError(error, stackTrace, fatal: true);
+      
       ErrorLoggerService.logError('Uncaught RunZonedGuarded Error: $error', stackTrace: stackTrace.toString());
       
       debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

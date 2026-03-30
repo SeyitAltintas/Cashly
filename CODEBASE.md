@@ -14,7 +14,8 @@
 | Architecture | Clean Architecture + Feature-First |
 | State Management | Provider + ChangeNotifier |
 | Dependency Injection | GetIt (get_it) |
-| Database | Hive (NoSQL, key-value, local) |
+| Database | **Hive (local) + Firebase Firestore (cloud)** — flag-based switch |
+| Cloud Backend | Firebase (Firestore, Auth, Crashlytics) |
 | Navigation | go_router v14 |
 | Localization | gen-l10n ARB (TR, EN) |
 | Dart SDK | ^3.10.0 |
@@ -26,17 +27,24 @@
 ## 📍 Critical Paths (Quick Lookup)
 
 ```
-lib/main.dart                              → App entry, Hive init, DI init
-lib/core/di/injection_container.dart       → ALL GetIt registrations (~300 lines)
+lib/main.dart                              → App entry, Firebase init, Hive init, DI init
+lib/firebase_options.dart                  → FlutterFire CLI generated config
+lib/core/di/injection_container.dart       → ALL GetIt registrations (~310 lines, flag-based repo selection)
 lib/core/router/app_router.dart            → GoRouter config, auth guard
 lib/core/router/route_names.dart           → Type-safe route constants
 lib/core/theme/app_theme.dart              → Dark theme, colors, typography
 lib/core/services/database_helper.dart     → Hive box operations
+lib/core/services/migration_flags.dart     → Hive↔Firestore feature flag
+lib/core/services/hive_to_firestore_migration.dart → One-time data migration
+lib/core/services/error_logger_service.dart → Hybrid error logger (Hive + Crashlytics)
+lib/core/services/crashlytics_test_helper.dart → Crashlytics test utilities
 lib/core/domain/usecases/base_usecase.dart → UseCase<O,P>, Result<T>, NoParams
 lib/core/exceptions/app_exceptions.dart    → 8 exception classes
 lib/l10n/app_tr.arb                        → Turkish strings (~500 keys)
 lib/l10n/app_en.arb                        → English strings (~500 keys)
-pubspec.yaml                               → 27 runtime + 5 dev dependencies
+pubspec.yaml                               → 30+ runtime + 5 dev dependencies
+firestore.rules                            → Security rules (user isolation)
+android/app/google-services.json           → Firebase Android config
 ```
 
 ---
@@ -49,9 +57,9 @@ pubspec.yaml                               → 27 runtime + 5 dev dependencies
 Presentation → Domain → Data
      ↓             ↓         ↓
   Pages          Entities   Models/DTOs
-  Controllers    UseCases   Repository Impl
-  State          Repo IF    DataSources (Hive)
-  Widgets
+  Controllers    UseCases   Repository Impl (Hive)
+  State          Repo IF    Repository Firestore (Cloud)
+  Widgets                   DataSources (Hive / Firestore)
 ```
 
 **Dependency Rule:** Outer layers depend on inner layers. NEVER import `data/` from `domain/`.
@@ -65,10 +73,11 @@ Every feature under `lib/features/{name}/` SHOULD have:
 ├── index.dart                          # Barrel export
 ├── data/
 │   ├── models/        → {name}_model.dart
-│   └── repositories/  → {name}_repository_impl.dart
+│   └── repositories/  → {name}_repository_impl.dart      (Hive)
+│                        {name}_repository_firestore.dart  (Firestore)
 ├── domain/
 │   ├── entities/      → {name}_entity.dart (optional)
-│   └── repositories/  → {name}_repository.dart (abstract)
+│   └── repositories/  → {name}_repository.dart (abstract interface)
 └── presentation/
     ├── controllers/   → {name}_controller.dart (ChangeNotifier)
     ├── pages/         → {name}_page.dart
@@ -89,19 +98,19 @@ Every feature under `lib/features/{name}/` SHOULD have:
 
 ## 📦 Feature Registry (11 modules)
 
-| Feature | Purpose | Key Files |
-|---|---|---|
-| `auth` | Login, signup, multi-user, biometric | `auth_controller`, `user_model`, `user_entity` |
-| `dashboard` | Overview cards, budget status, recent txns | `dashboard_controller`, 6 card widgets |
-| `expenses` | CRUD, categories, filters, recycle bin | `expenses_controller`, `expense_repository_impl` |
-| `income` | CRUD, categories, recurring, recycle bin | `incomes_controller`, `income_repository_impl` |
-| `assets` | Gold/forex/crypto tracking, live prices | `assets_controller`, `asset_model`, API prices |
-| `payment_methods` | Cards, cash, transfers, scheduled transfers | `payment_methods_controller`, `transfer_model` |
-| `analysis` | Charts (fl_chart), PDF export | `analysis_controller`, `pdf_export_page` |
-| `streak` | Gamification, daily streaks, badges | `streak_controller`, `streak_service`, celebration dialog |
-| `settings` | 6 sub-modules (appearance, finance, voice, profile, notifications, support) | ~42 files |
-| `tools` | Quick access menu | `tools_controller`, `tools_page` |
-| `home` | 3-tab bottom nav (Tools, Dashboard, Profile) | `home_page` (763 lines — refactor candidate) |
+| Feature | Purpose | Key Files | Firestore |
+|---|---|---|---|
+| `auth` | Login, signup, multi-user, biometric | `auth_controller`, `user_model`, `user_entity` | ❌ (lokal PIN) |
+| `dashboard` | Overview cards, budget status, recent txns | `dashboard_controller`, 6 card widgets | — |
+| `expenses` | CRUD, categories, filters, recycle bin | `expenses_controller`, `expense_repository_impl` | ✅ `expense_repository_firestore` |
+| `income` | CRUD, categories, recurring, recycle bin | `incomes_controller`, `income_repository_impl` | ✅ `income_repository_firestore` |
+| `assets` | Gold/forex/crypto tracking, live prices | `assets_controller`, `asset_model`, API prices | ✅ `asset_repository_firestore` |
+| `payment_methods` | Cards, cash, transfers, scheduled transfers | `payment_methods_controller`, `transfer_model` | ✅ `payment_method_repository_firestore` |
+| `analysis` | Charts (fl_chart), PDF export | `analysis_controller`, `pdf_export_page` | — |
+| `streak` | Gamification, daily streaks, badges | `streak_controller`, `streak_service`, celebration dialog | ❌ |
+| `settings` | 6 sub-modules (appearance, finance, voice, profile, notifications, support) | ~42 files | ❌ |
+| `tools` | Quick access menu | `tools_controller`, `tools_page` | — |
+| `home` | 3-tab bottom nav (Tools, Dashboard, Profile) | `home_page` (763 lines — refactor candidate) | — |
 
 ---
 
@@ -114,6 +123,10 @@ When modifying these core files, check ALL listed dependents:
 | Core File | Dependent Features |
 |---|---|
 | `injection_container.dart` | **ALL** — every controller/repo is registered here |
+| `main.dart` | Firebase init, Crashlytics handlers, MigrationFlags check |
+| `migration_flags.dart` | `injection_container.dart` (determines Hive vs Firestore) |
+| `hive_to_firestore_migration.dart` | All Hive repositories (reads data for migration) |
+| `error_logger_service.dart` | **ALL** — hybrid Hive + Crashlytics error logging |
 | `app_router.dart` | `auth`, `home` |
 | `route_names.dart` | `home` (navigation), all feature pages |
 | `app_theme.dart` | **ALL** — every UI file uses theme |
@@ -152,14 +165,43 @@ When modifying these core files, check ALL listed dependents:
 
 ## 🗄️ Data Layer Details
 
+### Database Strategy (Dual-mode)
+
+```
+┌──────────────────────────────────────────────────────┐
+│  MigrationFlags.useFirestore == false (default)      │
+│  → Hive repositories (offline, local-only)           │
+│                                                      │
+│  MigrationFlags.useFirestore == true                 │
+│  → Firestore repositories (cloud, offline-cached)    │
+└──────────────────────────────────────────────────────┘
+```
+
+**Switch mechanism:** `injection_container.dart` receives `useFirestore` flag → registers Hive or Firestore repos.
+
 ### Hive Box Schema
 
 | Box Name | Purpose |
 |---|---|
 | `cashly_box` | Main data (expenses, incomes, assets, payment methods, settings per user) |
 | `settings` | App-level settings (theme, currency, animation toggles) |
+| `error_logs` | Local error log buffer (hybrid with Crashlytics) |
+| `migration_flags` | Migration status flag |
 
-### Key Naming Convention (User-scoped)
+### Firestore Collection Schema
+
+| Collection Path | Purpose | Security |
+|---|---|---|
+| `users/{uid}/expenses/{docId}` | Expense documents | Owner-only |
+| `users/{uid}/incomes/{docId}` | Income documents | Owner-only |
+| `users/{uid}/assets/{docId}` | Asset documents | Owner-only |
+| `users/{uid}/payment_methods/{docId}` | Payment method documents | Owner-only |
+
+**Date handling:** Hive stores dates as `String`, Firestore uses `Timestamp` for query performance.
+**Batch limit:** Migration uses 450-doc batches (Firestore max is 500).
+**Offline:** `persistenceEnabled: true`, `cacheSizeBytes: UNLIMITED`.
+
+### Key Naming Convention (User-scoped, Hive)
 
 All user data keys follow: `{data_type}_{userId}`
 
@@ -191,7 +233,8 @@ sesli_geri_bildirim_{userId} → Voice feedback toggle
 - **Pages:** `{name}_page.dart` or `{action}_{name}_page.dart`
 - **State:** `{name}_state.dart` or `{page_name}_state.dart`
 - **Repository Interface:** `{name}_repository.dart` (abstract)
-- **Repository Impl:** `{name}_repository_impl.dart`
+- **Repository Impl (Hive):** `{name}_repository_impl.dart`
+- **Repository Impl (Firestore):** `{name}_repository_firestore.dart`
 - **Barrel Exports:** `index.dart` in each feature root
 
 ### Code Language
@@ -554,6 +597,8 @@ integration_test/      → 80 dosya (E2E kullanıcı akışları)
 | Repository overlap (core vs feature) | MEDIUM | `core/repositories/` duplicates some feature repo interfaces |
 | 4 features missing data/domain layers | MEDIUM | `analysis`, `dashboard`, `tools`, `home` |
 | Mixed TR/EN naming in code | LOW | Legacy files use Turkish variable names |
+| Streak/Settings/Category repos not on Firestore | MEDIUM | Only 4 main repos migrated |
+| FirebaseAuthService not yet implemented | LOW | Auth still uses local PIN only |
 
 ---
 
@@ -562,9 +607,11 @@ integration_test/      → 80 dosya (E2E kullanıcı akışları)
 When adding a new feature, register in `injection_container.dart`:
 
 ```dart
-// 1. Repository (lazy singleton)
+// 1. Repository (lazy singleton — flag-based Hive/Firestore switch)
 getIt.registerLazySingleton<FeatureRepository>(
-  () => FeatureRepositoryImpl(),
+  () => useFirestore
+      ? FeatureRepositoryFirestore()
+      : FeatureRepositoryImpl(),
 );
 
 // 2. Controller (factory - new instance each time)
@@ -573,6 +620,8 @@ getIt.registerFactory<FeatureController>(
 );
 ```
 
+> **Note:** `useFirestore` is determined by `MigrationFlags.useFirestore` at app startup.
+
 ---
 
 ## 📐 Architecture Decision Records
@@ -580,7 +629,12 @@ getIt.registerFactory<FeatureController>(
 | Decision | Choice | Rationale |
 |---|---|---|
 | State Management | Provider (not Riverpod/Bloc) | Simplicity, lower learning curve |
-| Database | Hive (not SQLite/Drift) | No-schema flexibility, fast reads |
+| Database (Local) | Hive (not SQLite/Drift) | No-schema flexibility, fast reads |
+| Database (Cloud) | Firebase Firestore | Offline persistence, real-time sync, serverless |
+| Error Tracking | Firebase Crashlytics | Hybrid mode (local Hive + cloud), automatic crash reporting |
+| Auth (Local) | PIN + Biometric | Offline-first, no internet required |
+| Auth (Cloud) | Firebase Auth (planned) | Email/password, user isolation via UID |
+| Migration Strategy | Feature flags (`MigrationFlags`) | Zero-downtime switch, rollback capability |
 | Navigation | go_router (not Navigator 2.0) | Declarative, auth guard support |
 | DI | GetIt (not Injectable) | Manual control, no code generation |
 | Localization | gen-l10n ARB | Official Flutter approach |
