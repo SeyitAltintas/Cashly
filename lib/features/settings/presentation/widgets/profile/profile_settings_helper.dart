@@ -106,11 +106,14 @@ class ProfileSettingsHelper {
     final bytes = await finalFile.readAsBytes();
     final base64String = "data:image/jpeg;base64,${base64Encode(bytes)}";
 
+    if (!context.mounted) return;
     _updateUser(
       profileImage: base64String, // Kayıt artık lokal path değil, buluta gidecek Base64 string!
       successMessage: context.l10n.profilePhotoUpdated,
     );
-    Navigator.pop(context);
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
   }
 
   Future<void> _pickImageFromGallery() async {
