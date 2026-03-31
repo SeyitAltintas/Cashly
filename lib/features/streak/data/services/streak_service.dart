@@ -1,4 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:developer' as developer;
 import 'package:cashly/core/services/secure_storage_service.dart';
 import '../models/streak_model.dart';
@@ -50,11 +52,26 @@ class StreakService {
     }
   }
 
-  /// Seri verisini kaydet
+  /// Seri verisini kaydet (Hive + Firestore)
   static Future<void> saveStreakData(String userId, StreakData data) async {
     try {
+      // 1. Hive'a hizli yaz (UI aninda guncellenir)
       final box = Hive.box(_boxName);
       await box.put('streak_$userId', data.toMap());
+
+      // 2. Firebase oturumu varsa buluta da yaz (fire-and-forget)
+      if (FirebaseAuth.instance.currentUser != null) {
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('streak')
+            .doc('data')
+            .set(data.toMap())
+            .catchError((e) {
+          developer.log('Streak Firestore yazilamadi: $e', name: _logName);
+        });
+      }
+
       developer.log(
         'Seri verisi kaydedildi: streak=${data.currentStreak}, userId=$userId',
         name: _logName,
@@ -66,6 +83,39 @@ class StreakService {
         error: e,
         stackTrace: stackTrace,
       );
+    }
+  }
+
+  /// Firestore'dan streak verisini cek ve Hive'a yaz
+  /// Giris yapildiginda cagirilir - cihaz degisiminde streak'i geri yukler
+  static Future<void> syncFromCloud(String userId) async {
+    if (userId.isEmpty) return;
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('streak')
+          .doc('data')
+          .get()
+          .timeout(const Duration(seconds: 10));
+
+      if (doc.exists && doc.data() != null) {
+        final cloudData = StreakData.fromMap(doc.data()!);
+        final localData = getStreakData(userId);
+
+        // Buluttaki streak daha yuksekse veya local bos ise buluttakini al
+        if (cloudData.currentStreak > localData.currentStreak ||
+            localData.lastLoginDate.isEmpty) {
+          final box = Hive.box(_boxName);
+          await box.put('streak_$userId', cloudData.toMap());
+          developer.log(
+            'Streak buluttan yuklendi: ${cloudData.currentStreak} gun',
+            name: _logName,
+          );
+        }
+      }
+    } catch (e) {
+      developer.log('Streak sync hatasi (offline?): $e', name: _logName);
     }
   }
 

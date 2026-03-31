@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/services/cloud_sync_service.dart';
+import '../../../../features/streak/data/services/streak_service.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
@@ -135,9 +136,8 @@ class AuthRepositoryFirestore implements AuthRepository {
 
       final loggedInUser = await _localHiveRepo.loginUser(id, pin);
       if (loggedInUser != null) {
-        // Normal PIN girişinde de her zaman buluttan senkronize et,
-        // aksi hâlde CacheService boş kalır ve ana sayfa veriyi göstermez.
         await CloudSyncService.syncAllUserData(loggedInUser.id);
+        StreakService.syncFromCloud(loggedInUser.id); // fire-and-forget
       }
       return loggedInUser;
     } on FirebaseAuthException catch (e) {
@@ -170,10 +170,8 @@ class AuthRepositoryFirestore implements AuthRepository {
             userModel,
           ); // create or update on device
           await _localHiveRepo.setCurrentUser(userModel.id);
-
-          // Buluttan giriş yapıldığına göre tüm verileri de Local Cache'e çek.
           await CloudSyncService.syncAllUserData(userModel.id);
-
+          StreakService.syncFromCloud(userModel.id); // fire-and-forget
           return userModel;
         }
       }
@@ -226,9 +224,9 @@ class AuthRepositoryFirestore implements AuthRepository {
       try {
         await CloudSyncService.syncAllUserData(user.id)
             .timeout(const Duration(seconds: 15));
+        StreakService.syncFromCloud(user.id); // fire-and-forget
       } catch (e) {
-        debugPrint(
-            "getCurrentUser CloudSync Hatası: Uygulama internetsiz veya çok yavaş açıldı: $e");
+        debugPrint('getCurrentUser CloudSync Hatasi: $e');
       }
     }
     
@@ -263,6 +261,7 @@ class AuthRepositoryFirestore implements AuthRepository {
       final user = await _localHiveRepo.loginWithBiometric(userId);
       if (user != null) {
         await CloudSyncService.syncAllUserData(user.id);
+        StreakService.syncFromCloud(user.id); // fire-and-forget
       }
       return user;
     }
@@ -270,6 +269,7 @@ class AuthRepositoryFirestore implements AuthRepository {
     final user = await _localHiveRepo.loginWithBiometric(userId);
     if (user != null) {
       await CloudSyncService.syncAllUserData(user.id);
+      StreakService.syncFromCloud(user.id); // fire-and-forget
     }
     return user;
   }
