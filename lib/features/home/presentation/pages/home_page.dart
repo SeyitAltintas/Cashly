@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
+import 'package:cashly/core/services/cloud_sync_service.dart';
 
 import 'package:cashly/features/settings/presentation/pages/profile/profile_page.dart';
 import 'package:cashly/core/di/injection_container.dart';
@@ -57,6 +59,11 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
   // ChangeNotifier state yöneticisi
   late final HomePageState _homeState;
+
+  /// Rate limiting: son Firestore refresh zamanı
+  /// Kullanıcı arka arkaya pull-to-refresh yaparsa Firebase kotası korunur.
+  DateTime? _lastCloudRefreshTime;
+  static const _refreshCooldown = Duration(seconds: 60);
 
   // Getter'lar
   bool get _isLoading => _homeState.isLoading;
@@ -420,15 +427,65 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     );
   }
 
-  /// Pull-to-refresh için verileri yeniden okur
+  /// Pull-to-refresh: Firebase'den guncel veri ceker
+  /// Rate limiting + offline fallback + quota koruma icerir.
   Future<void> _yenile() async {
-    _verileriOku();
-    // Animasyonun düzgün görünmesi için kısa bir bekleme
-    await Future.delayed(const Duration(milliseconds: 500));
+    final userId = widget.authController.currentUser?.id;
+    if (userId == null) return;
 
-    // Kullanıcıya verilerin güncellendiğini bildir
-    if (mounted) {
-      AppSnackBar.info(context, context.l10n.allDataUpToDate);
+    final now = DateTime.now();
+    final lastRefresh = _lastCloudRefreshTime;
+
+    // --- RATE LIMIT: 60 saniye cooldown ---
+    if (lastRefresh != null &&
+        now.difference(lastRefresh) < _refreshCooldown) {
+      final saniyeKaldi =
+          (_refreshCooldown - now.difference(lastRefresh)).inSeconds;
+      if (mounted) {
+        AppSnackBar.info(
+          context,
+          '${context.l10n.allDataUpToDate} ($saniyeKaldi sn sonra yenilenebilir)',
+        );
+      }
+      return;
+    }
+
+    // --- FIRESTORE SYNC ---
+    try {
+      await CloudSyncService.syncAllUserData(userId)
+          .timeout(const Duration(seconds: 15));
+
+      _lastCloudRefreshTime = DateTime.now();
+
+      // Cache guncellendi, UI'yi yeniden oku
+      _verileriOku();
+
+      if (mounted) {
+        AppSnackBar.success(
+          context,
+          context.l10n.allDataUpToDate,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } on TimeoutException {
+      // --- OFFLINE / COK YAVAS ---
+      // Mevcut cache korunur, kullaniciya bilgi verilir
+      _verileriOku(); // cache'deki veriyi goster
+      if (mounted) {
+        AppSnackBar.warning(
+          context,
+          'Baglanti yok — son kaydedilen veriler gosteriliyor',
+        );
+      }
+    } catch (e) {
+      // Diger hatalar (permission-denied vb.)
+      _verileriOku();
+      if (mounted) {
+        AppSnackBar.warning(
+          context,
+          'Veriler yenilenemedi — cache kullaniliyor',
+        );
+      }
     }
   }
 
