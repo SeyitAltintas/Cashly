@@ -18,7 +18,9 @@ class AuthController extends ChangeNotifier {
     FirebaseAuth.instance.userChanges().listen((User? user) async {
       // Bulutta kullanıcı silinmiş veya token reddedilmişse ve lokalde biri açıksa
       if (user == null && _currentUser != null) {
-        debugPrint("Bulut kaynaklı çıkış (Force Logout) algılandı, lokal oturum temizleniyor.");
+        debugPrint(
+          "Bulut kaynaklı çıkış (Force Logout) algılandı, lokal oturum temizleniyor.",
+        );
         await logout(); // Bu çağrı _currentUser'ı null yapıp notifyListeners() çağıracaktır.
       }
     });
@@ -106,7 +108,7 @@ class AuthController extends ChangeNotifier {
 
     try {
       final user = await _authRepository.loginByEmail(email, pin);
-      
+
       if (user != null) {
         _currentUser = user;
         return true;
