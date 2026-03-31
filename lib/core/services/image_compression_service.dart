@@ -50,11 +50,10 @@ class ImageCompressionService {
         return bytes;
       }
 
-      // Resmi decode et
+      // Resmi decode et (Sadece genişliğe göre orantılı küçültüp yapısını bozmasın diye)
       final codec = await ui.instantiateImageCodec(
         bytes,
         targetWidth: maxWidth,
-        targetHeight: maxHeight,
       );
       final frame = await codec.getNextFrame();
       final image = frame.image;
@@ -104,14 +103,14 @@ class ImageCompressionService {
   }
 
   /// Profil resmi için optimize et
-  /// Yüksek kaliteli kare formata sıkıştırır (800x800, %95 kalite)
+  /// Firestore doküman limiti (1MB) aşılmaması için 300x300 ebatlarına orantılı sıkıştırır
   Future<Uint8List?> optimizeProfileImage(File imageFile) async {
-    return compressImage(imageFile, maxWidth: 800, maxHeight: 800, quality: 95);
+    return compressImage(imageFile, maxWidth: 300, maxHeight: 300, quality: 80);
   }
 
   /// Varlık görseli için optimize et
   Future<Uint8List?> optimizeAssetImage(File imageFile) async {
-    return compressImage(imageFile, maxWidth: 600, maxHeight: 600, quality: 80);
+    return compressImage(imageFile, maxWidth: 300, maxHeight: 300, quality: 80);
   }
 
   /// Profil resmini optimize et ve dosyaya kaydet
