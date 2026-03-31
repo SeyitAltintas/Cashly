@@ -23,9 +23,9 @@ class CloudSyncService {
           }
           return data;
         }).toList();
-        CacheService.set('incomes_$userId', incomes);
+        CacheService.set('incomes_$userId', incomes, ttl: _cloudSyncTtl);
       } else {
-        CacheService.set('incomes_$userId', <Map<String, dynamic>>[]);
+        CacheService.set('incomes_$userId', <Map<String, dynamic>>[], ttl: _cloudSyncTtl);
       }
 
       // 2. Giderler
@@ -38,9 +38,9 @@ class CloudSyncService {
           }
           return data;
         }).toList();
-        CacheService.set('expenses_$userId', expenses);
+        CacheService.set('expenses_$userId', expenses, ttl: _cloudSyncTtl);
       } else {
-        CacheService.set('expenses_$userId', <Map<String, dynamic>>[]);
+        CacheService.set('expenses_$userId', <Map<String, dynamic>>[], ttl: _cloudSyncTtl);
       }
 
       // 3. Varlıklar
@@ -53,9 +53,9 @@ class CloudSyncService {
           }
           return data;
         }).toList();
-        CacheService.set('assets_$userId', assets);
+        CacheService.set('assets_$userId', assets, ttl: _cloudSyncTtl);
       } else {
-        CacheService.set('assets_$userId', <Map<String, dynamic>>[]);
+        CacheService.set('assets_$userId', <Map<String, dynamic>>[], ttl: _cloudSyncTtl);
       }
 
       // 4. Ödeme Yöntemleri
@@ -68,9 +68,9 @@ class CloudSyncService {
           }
           return data;
         }).toList();
-        CacheService.set('payment_methods_$userId', methods);
+        CacheService.set('payment_methods_$userId', methods, ttl: _cloudSyncTtl);
       } else {
-        CacheService.set('payment_methods_$userId', <Map<String, dynamic>>[]);
+        CacheService.set('payment_methods_$userId', <Map<String, dynamic>>[], ttl: _cloudSyncTtl);
       }
 
       // 5. Transferler
@@ -83,23 +83,23 @@ class CloudSyncService {
           }
           return data;
         }).toList();
-        CacheService.set('transfers_$userId', transfers);
+        CacheService.set('transfers_$userId', transfers, ttl: _cloudSyncTtl);
       } else {
-        CacheService.set('transfers_$userId', <Map<String, dynamic>>[]);
+        CacheService.set('transfers_$userId', <Map<String, dynamic>>[], ttl: _cloudSyncTtl);
       }
 
       // 6. Gider Kategorileri
       final eCategorySnap = await userDoc.collection('expenseCategories').get();
       if (eCategorySnap.docs.isNotEmpty) {
         final cats = eCategorySnap.docs.map((d) => d.data()).toList();
-        CacheService.set('expense_categories_$userId', cats);
+        CacheService.set('expense_categories_$userId', cats, ttl: _cloudSyncTtl);
       }
 
       // 7. Gelir Kategorileri
       final iCategorySnap = await userDoc.collection('incomeCategories').get();
       if (iCategorySnap.docs.isNotEmpty) {
         final cats = iCategorySnap.docs.map((d) => d.data()).toList();
-        CacheService.set('income_categories_$userId', cats);
+        CacheService.set('income_categories_$userId', cats, ttl: _cloudSyncTtl);
       }
 
       debugPrint("CloudSyncService: Senkronizasyon BASARILI!");
@@ -108,3 +108,8 @@ class CloudSyncService {
     }
   }
 }
+
+/// Buluttan gelen verilerin cache'de 24 saat boyunca canlı kalmasını sağlar.
+/// Böylece kullanıcı uygulama içinde dolaşırken 5 dakikalık TTL nedeniyle
+/// veri kaybolmaz. Veri, bir sonraki girişte veya uygulama yeniden başlatıldığında yenilenir.
+const _cloudSyncTtl = Duration(hours: 24);

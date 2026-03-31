@@ -113,7 +113,6 @@ class AuthRepositoryFirestore implements AuthRepository {
         debugPrint(
           "loginUser: Hive UID ('${localUser.id}') != Firebase UID ('$firebaseUid'). Güncelleniyor..."
         );
-        // Firebase UID'si ile yeni bir kullanıcı kaydı oluştur.
         final correctedUser = UserEntity(
           id: firebaseUid,
           name: localUser.name,
@@ -127,12 +126,20 @@ class AuthRepositoryFirestore implements AuthRepository {
         );
         await _localHiveRepo.registerUser(correctedUser);
         await _localHiveRepo.setCurrentUser(firebaseUid);
-        // Eski UUID'li kaydı temizle (varsa)
         try { await _localHiveRepo.deleteUser(localUser.id); } catch (_) {}
+
+        // UID düzeltmesinin ardından bulut verisini hemen çek
+        await CloudSyncService.syncAllUserData(firebaseUid);
         return correctedUser;
       }
 
-      return await _localHiveRepo.loginUser(id, pin);
+      final loggedInUser = await _localHiveRepo.loginUser(id, pin);
+      if (loggedInUser != null) {
+        // Normal PIN girişinde de her zaman buluttan senkronize et,
+        // aksi hâlde CacheService boş kalır ve ana sayfa veriyi göstermez.
+        await CloudSyncService.syncAllUserData(loggedInUser.id);
+      }
+      return loggedInUser;
     } on FirebaseAuthException catch (e) {
       debugPrint("Firebase Login Error: ${e.message}");
       return null;
