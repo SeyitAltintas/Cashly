@@ -99,15 +99,42 @@ class AuthRepositoryFirestore implements AuthRepository {
     final localUser = localUsers[localUserIndex];
 
     try {
-      await _firebaseAuth.signInWithEmailAndPassword(
+      final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: localUser.email,
         password: _generateFirebasePassword(pin),
       );
 
+      // Firebase'in gerçek UID'sini alıyoruz.
+      // Hive'daki eski UUID bununla eşleşmiyorsa, Firestore'un kural denetimi
+      // request.auth.uid != userId nedeniyle permission-denied fırlatacaktır.
+      // Cözüm: Hive kaydını her giriste Firebase UID ile eşitleyelim.
+      final firebaseUid = credential.user?.uid;
+      if (firebaseUid != null && firebaseUid != localUser.id) {
+        debugPrint(
+          "loginUser: Hive UID ('${localUser.id}') != Firebase UID ('$firebaseUid'). Güncelleniyor..."
+        );
+        // Firebase UID'si ile yeni bir kullanıcı kaydı oluştur.
+        final correctedUser = UserEntity(
+          id: firebaseUid,
+          name: localUser.name,
+          email: localUser.email,
+          pin: localUser.pin,
+          profileImage: localUser.profileImage,
+          createdAt: localUser.createdAt,
+          biometricEnabled: localUser.biometricEnabled,
+          securityQuestion: localUser.securityQuestion,
+          securityAnswer: localUser.securityAnswer,
+        );
+        await _localHiveRepo.registerUser(correctedUser);
+        await _localHiveRepo.setCurrentUser(firebaseUid);
+        // Eski UUID'li kaydı temizle (varsa)
+        try { await _localHiveRepo.deleteUser(localUser.id); } catch (_) {}
+        return correctedUser;
+      }
+
       return await _localHiveRepo.loginUser(id, pin);
     } on FirebaseAuthException catch (e) {
       debugPrint("Firebase Login Error: ${e.message}");
-      // Hive PIN verify hatası gibi davransın
       return null;
     }
   }
