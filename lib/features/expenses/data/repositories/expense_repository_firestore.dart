@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/services/cache_service.dart';
@@ -53,7 +54,7 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
       final colRef = _userDoc(userId).collection('expenses');
 
       // Mevcut dokümanları sil (tam üzerine yazma)
-      final existing = await colRef.get();
+      final existing = await colRef.get().timeout(const Duration(seconds: 10));
       final batch = _firestore.batch();
       for (final doc in existing.docs) {
         batch.delete(doc.reference);
@@ -61,14 +62,17 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
 
       // Yenilerini ekle
       for (final expense in expenses) {
-        final id = expense['id'] as String? ?? '';
+        final id = expense['id']?.toString() ?? '';
         if (id.isEmpty) continue;
         final data = _convertStringToTimestamp(expense);
         batch.set(colRef.doc(id), data);
       }
 
-      await batch.commit();
+      await batch.commit().timeout(const Duration(seconds: 10));
       CacheService.set('expenses_$userId', expenses);
+    } on TimeoutException {
+      debugPrint('Firestore harcama kaydetme zaman aşımına uğradı, yerel cache korundu.');
+      // Timeout'ta exception fırlatmıyoruz, UI donmuyor
     } catch (e) {
       debugPrint('Firestore harcama kaydetme hatası: $e');
       rethrow;
@@ -171,7 +175,7 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
       final batch = _firestore.batch();
 
       // Mevcut dokümanları sil
-      final existing = await colRef.get();
+      final existing = await colRef.get().timeout(const Duration(seconds: 10));
       for (final doc in existing.docs) {
         batch.delete(doc.reference);
       }
@@ -187,8 +191,10 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         batch.set(colRef.doc(catId), categories[i]);
       }
 
-      await batch.commit();
+      await batch.commit().timeout(const Duration(seconds: 10));
       CacheService.set('expense_categories_$userId', categories);
+    } on TimeoutException {
+      debugPrint('Kategori kaydetme zaman aşımına uğradı.');
     } catch (e) {
       debugPrint('Kategoriler kaydedilirken hata: $e');
       rethrow;

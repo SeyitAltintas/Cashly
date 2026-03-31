@@ -62,25 +62,25 @@ class Asset {
   /// lastUpdated ve amount varsayılan olarak kullanılır
   factory Asset.fromMap(Map<String, dynamic> map) {
     final lastUpdated = map['lastUpdated'] != null
-        ? DateTime.parse(map['lastUpdated'] as String)
+        ? DateTime.tryParse(map['lastUpdated'].toString()) ?? DateTime.now()
         : DateTime.now();
-    final amount = (map['amount'] as num).toDouble();
+    final amount = (map['amount'] as num?)?.toDouble() ?? 0.0;
 
     return Asset(
-      id: map['id'] as String,
-      name: map['name'] as String,
+      id: map['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      name: map['name']?.toString() ?? 'İsimsiz Varlık',
       amount: amount,
       quantity: (map['quantity'] as num?)?.toDouble() ?? 1.0,
-      category: map['category'] as String,
-      type: map['type'] as String?,
+      category: map['category']?.toString() ?? 'Diğer',
+      type: map['type']?.toString(),
       lastUpdated: lastUpdated,
       purchaseDate: map['purchaseDate'] != null
-          ? DateTime.parse(map['purchaseDate'] as String)
+          ? DateTime.tryParse(map['purchaseDate'].toString()) ?? lastUpdated
           : lastUpdated, // Geriye dönük uyumluluk
       purchasePrice:
           (map['purchasePrice'] as num?)?.toDouble() ??
           amount, // Geriye dönük uyumluluk
-      paraBirimi: map['paraBirimi'] as String? ?? 'TRY',
+      paraBirimi: map['paraBirimi']?.toString() ?? 'TRY',
       isDeleted: map['isDeleted'] as bool? ?? false,
     );
   }

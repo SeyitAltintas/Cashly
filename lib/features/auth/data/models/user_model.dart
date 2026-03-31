@@ -16,20 +16,20 @@ class UserModel extends UserEntity {
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      email: map['email'] as String,
-      pin: map['pin'] as String,
-      profileImage: map['profileImage'] as String?,
+      id: map['id']?.toString() ?? '',
+      name: map['name']?.toString() ?? 'Kullanıcı',
+      email: map['email']?.toString() ?? '',
+      pin: map['pin']?.toString() ?? '',
+      profileImage: map['profileImage']?.toString(),
       createdAt: map['createdAt'] != null
-          ? DateTime.parse(map['createdAt'] as String)
+          ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
           : DateTime.now(), // Fallback for existing users
       lastLoginAt: map['lastLoginAt'] != null
-          ? DateTime.parse(map['lastLoginAt'] as String)
+          ? DateTime.tryParse(map['lastLoginAt'].toString())
           : null,
       biometricEnabled: map['biometricEnabled'] as bool? ?? false,
-      securityQuestion: map['securityQuestion'] as String?,
-      securityAnswer: map['securityAnswer'] as String?,
+      securityQuestion: map['securityQuestion']?.toString(),
+      securityAnswer: map['securityAnswer']?.toString(),
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 
@@ -9,7 +10,19 @@ class AuthController extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  AuthController(this._authRepository);
+  AuthController(this._authRepository) {
+    _initAuthListener();
+  }
+
+  void _initAuthListener() {
+    FirebaseAuth.instance.userChanges().listen((User? user) async {
+      // Bulutta kullanıcı silinmiş veya token reddedilmişse ve lokalde biri açıksa
+      if (user == null && _currentUser != null) {
+        debugPrint("Bulut kaynaklı çıkış (Force Logout) algılandı, lokal oturum temizleniyor.");
+        await logout(); // Bu çağrı _currentUser'ı null yapıp notifyListeners() çağıracaktır.
+      }
+    });
+  }
 
   UserEntity? get currentUser => _currentUser;
   bool get isLoading => _isLoading;

@@ -72,7 +72,11 @@ class AuthRepositoryFirestore implements AuthRepository {
       }
       throw Exception("Kayıt hatası: ${e.message}");
     } catch (e) {
-      throw Exception("Bir hata oluştu: $e. Lütfen tekrar deneyin.");
+      final errorStr = e.toString().toLowerCase();
+      if (errorStr.contains('configuration_not_found') || errorStr.contains('recaptcha') || errorStr.contains('internal error')) {
+        throw Exception("Cihaz güvenliği doğrulanamadı. (Lütfen ağ bağlantınızı ve Firebase API konfigürasyonunuzu kontrol edin.)");
+      }
+      throw Exception("Bir hata oluştu: $e");
     }
   }
 

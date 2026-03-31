@@ -43,17 +43,17 @@ class PaymentMethod {
   /// Map'ten PaymentMethod oluştur (veritabanından okuma için)
   factory PaymentMethod.fromMap(Map<String, dynamic> map) {
     return PaymentMethod(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      type: map['type'] as String,
-      lastFourDigits: map['lastFourDigits'] as String?,
-      balance: (map['balance'] as num).toDouble(),
+      id: map['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      name: map['name']?.toString() ?? 'İsimsiz Yöntem',
+      type: map['type']?.toString() ?? 'banka',
+      lastFourDigits: map['lastFourDigits']?.toString(),
+      balance: (map['balance'] as num?)?.toDouble() ?? 0.0,
       limit: (map['limit'] as num?)?.toDouble(),
       colorIndex: map['colorIndex'] as int? ?? 0,
       createdAt: map['createdAt'] != null
-          ? DateTime.parse(map['createdAt'] as String)
+          ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
           : DateTime.now(),
-      paraBirimi: map['paraBirimi'] as String? ?? 'TRY',
+      paraBirimi: map['paraBirimi']?.toString() ?? 'TRY',
       isDeleted: map['isDeleted'] as bool? ?? false,
     );
   }
