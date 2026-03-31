@@ -437,14 +437,13 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     final lastRefresh = _lastCloudRefreshTime;
 
     // --- RATE LIMIT: 60 saniye cooldown ---
-    if (lastRefresh != null &&
-        now.difference(lastRefresh) < _refreshCooldown) {
+    if (lastRefresh != null && now.difference(lastRefresh) < _refreshCooldown) {
       final saniyeKaldi =
           (_refreshCooldown - now.difference(lastRefresh)).inSeconds;
       if (mounted) {
         AppSnackBar.info(
           context,
-          '${context.l10n.allDataUpToDate} ($saniyeKaldi sn sonra yenilenebilir)',
+          context.l10n.canRefreshIn(saniyeKaldi),
         );
       }
       return;
@@ -452,8 +451,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
     // --- FIRESTORE SYNC ---
     try {
-      await CloudSyncService.syncAllUserData(userId)
-          .timeout(const Duration(seconds: 15));
+      await CloudSyncService.syncAllUserData(
+        userId,
+      ).timeout(const Duration(seconds: 15));
 
       _lastCloudRefreshTime = DateTime.now();
 

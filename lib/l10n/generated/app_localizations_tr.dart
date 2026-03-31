@@ -1576,6 +1576,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get allDataUpToDate => 'Tüm veriler güncel';
 
   @override
+  String canRefreshIn(int seconds) {
+    return '$seconds sn sonra yenilenebilir';
+  }
+
+  @override
   String get user => 'Kullanıcı';
 
   @override

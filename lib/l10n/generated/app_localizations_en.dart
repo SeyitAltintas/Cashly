@@ -1575,6 +1575,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allDataUpToDate => 'All data is up to date';
 
   @override
+  String canRefreshIn(int seconds) {
+    return 'Can refresh in ${seconds}s';
+  }
+
+  @override
   String get user => 'User';
 
   @override

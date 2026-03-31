@@ -585,6 +585,14 @@
   "year": "Yıl",
   "month": "Ay",
   "allDataUpToDate": "Tüm veriler güncel",
+  "canRefreshIn": "{seconds} sn sonra yenilenebilir",
+  "@canRefreshIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "user": "Kullanıcı",
   "account": "Hesap",
   "userInfo": "Kullanıcı Bilgileri",

@@ -3092,6 +3092,12 @@ abstract class AppLocalizations {
   /// **'Tüm veriler güncel'**
   String get allDataUpToDate;
 
+  /// No description provided for @canRefreshIn.
+  ///
+  /// In tr, this message translates to:
+  /// **'{seconds} sn sonra yenilenebilir'**
+  String canRefreshIn(int seconds);
+
   /// No description provided for @user.
   ///
   /// In tr, this message translates to:

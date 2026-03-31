@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../../domain/repositories/streak_repository.dart';
 import '../models/streak_model.dart';
+import '../services/streak_service.dart';
 
 /// Streak repository - Firestore implementasyonu
 ///
@@ -18,8 +19,9 @@ class StreakRepositoryFirestore implements StreakRepository {
 
   @override
   StreakData getStreakData(String userId) {
-    // Sync interface — cache için, gerçek veri için fetchStreakData kullan
-    return StreakData.empty();
+    // Hive'daki güncel streak'i döndür (StreakService kaynak of truth'tur).
+    // Eski implementasyon daima StreakData.empty() döndürüyordu → 0 gün hatası.
+    return StreakService.getStreakData(userId);
   }
 
   /// Firestore'dan streak verisini çeker
