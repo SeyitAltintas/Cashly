@@ -38,10 +38,24 @@ void main() {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
+      // ====== BAŞLATMA SIRALAMASI ======
+      // Önce Hive'ı başlatıyoruz, çünkü erken fırlatılan bir hatada 
+      // ErrorLoggerService loglamak için Hive'ı kullanacaktır.
+      await Hive.initFlutter();
+      await SecureStorageService.openSecureBox('settings');
+
       // ====== FIREBASE BAŞLATMA ======
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+      try {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      } catch (e) {
+        if (e is FirebaseException && e.code == 'duplicate-app') {
+          debugPrint('Firebase [DEFAULT] zaten arka planda başlatılmış, devam ediliyor...');
+        } else {
+          rethrow;
+        }
+      }
 
       // Crashlytics'i etkinleştir
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
@@ -86,8 +100,6 @@ void main() {
       };
 
       try {
-        await Hive.initFlutter();
-        await SecureStorageService.openSecureBox('settings');
         
         await initializeDependencies();
         await ImageCacheService().initialize();

@@ -91,10 +91,6 @@ Future<void> initializeDependencies() async {
     () => AuthRepositoryFirestore(),
   );
 
-  // Auth Controller
-  getIt.registerLazySingleton(
-    () => AuthController(getIt<AuthRepository>()),
-  );
 
   // Expense Repository
   getIt.registerLazySingleton<ExpenseRepository>(

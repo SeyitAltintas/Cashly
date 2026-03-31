@@ -34,14 +34,14 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         .orderBy('tarih', descending: true)
         .snapshots()
         .map((snapshot) {
-      final expenses = snapshot.docs.map((doc) {
-        final data = doc.data();
-        _convertTimestampToString(data);
-        return data;
-      }).toList();
-      CacheService.set('expenses_$userId', expenses);
-      return expenses;
-    });
+          final expenses = snapshot.docs.map((doc) {
+            final data = doc.data();
+            _convertTimestampToString(data);
+            return data;
+          }).toList();
+          CacheService.set('expenses_$userId', expenses);
+          return expenses;
+        });
   }
 
   @override
@@ -51,14 +51,14 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   ) async {
     try {
       final colRef = _userDoc(userId).collection('expenses');
-      
+
       // Mevcut dokümanları sil (tam üzerine yazma)
       final existing = await colRef.get();
       final batch = _firestore.batch();
       for (final doc in existing.docs) {
         batch.delete(doc.reference);
       }
-      
+
       // Yenilerini ekle
       for (final expense in expenses) {
         final id = expense['id'] as String? ?? '';
@@ -66,7 +66,7 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         final data = _convertStringToTimestamp(expense);
         batch.set(colRef.doc(id), data);
       }
-      
+
       await batch.commit();
       CacheService.set('expenses_$userId', expenses);
     } catch (e) {
@@ -84,11 +84,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   }
 
   Stream<double> watchBudget(String userId) {
-    return _userDoc(userId)
-        .collection('settings')
-        .doc('general')
-        .snapshots()
-        .map((doc) {
+    return _userDoc(
+      userId,
+    ).collection('settings').doc('general').snapshots().map((doc) {
       final budget = (doc.data()?['budget'] as num?)?.toDouble() ?? 8000.0;
       CacheService.set('budget_$userId', budget);
       return budget;
@@ -98,10 +96,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   @override
   Future<void> saveBudget(String userId, double limit) async {
     try {
-      await _userDoc(userId).collection('settings').doc('general').set(
-        {'budget': limit},
-        SetOptions(merge: true),
-      );
+      await _userDoc(userId).collection('settings').doc('general').set({
+        'budget': limit,
+      }, SetOptions(merge: true));
       CacheService.set('budget_$userId', limit);
     } catch (e) {
       debugPrint('Firestore bütçe kaydetme hatası: $e');
@@ -113,7 +110,8 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   List<Map<String, dynamic>> getFixedExpenseTemplates(String userId) {
     try {
       return CacheService.get<List<Map<String, dynamic>>>(
-              'fixed_templates_$userId') ??
+            'fixed_templates_$userId',
+          ) ??
           [];
     } catch (e) {
       debugPrint('Sabit gider şablonları getirilirken hata: $e');
@@ -127,10 +125,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
     List<Map<String, dynamic>> templates,
   ) async {
     try {
-      await _userDoc(userId).collection('settings').doc('general').set(
-        {'fixedExpenseTemplates': templates},
-        SetOptions(merge: true),
-      );
+      await _userDoc(userId).collection('settings').doc('general').set({
+        'fixedExpenseTemplates': templates,
+      }, SetOptions(merge: true));
       CacheService.set('fixed_templates_$userId', templates);
     } catch (e) {
       debugPrint('Sabit gider şablonları kaydedilirken hata: $e');
@@ -142,7 +139,8 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   List<Map<String, dynamic>> getCategories(String userId) {
     try {
       final cached = CacheService.get<List<Map<String, dynamic>>>(
-          'expense_categories_$userId');
+        'expense_categories_$userId',
+      );
       if (cached != null) return cached;
       saveCategories(userId, defaultCategories);
       return defaultCategories;
@@ -153,13 +151,11 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   }
 
   Stream<List<Map<String, dynamic>>> watchCategories(String userId) {
-    return _userDoc(userId)
-        .collection('expenseCategories')
-        .snapshots()
-        .map((snapshot) {
+    return _userDoc(userId).collection('expenseCategories').snapshots().map((
+      snapshot,
+    ) {
       if (snapshot.docs.isEmpty) return defaultCategories;
-      final categories =
-          snapshot.docs.map((doc) => doc.data()).toList();
+      final categories = snapshot.docs.map((doc) => doc.data()).toList();
       CacheService.set('expense_categories_$userId', categories);
       return categories;
     });
@@ -182,7 +178,12 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
 
       // Yenilerini ekle
       for (int i = 0; i < categories.length; i++) {
-        final catId = categories[i]['isim']?.toString().toLowerCase().replaceAll(' ', '_') ?? 'cat_$i';
+        final catId =
+            categories[i]['isim']?.toString().toLowerCase().replaceAll(
+              ' ',
+              '_',
+            ) ??
+            'cat_$i';
         batch.set(colRef.doc(catId), categories[i]);
       }
 
@@ -208,10 +209,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
     Map<String, double> budgets,
   ) async {
     try {
-      await _userDoc(userId).collection('settings').doc('general').set(
-        {'categoryBudgets': budgets},
-        SetOptions(merge: true),
-      );
+      await _userDoc(userId).collection('settings').doc('general').set({
+        'categoryBudgets': budgets,
+      }, SetOptions(merge: true));
       CacheService.set('category_budgets_$userId', budgets);
     } catch (e) {
       debugPrint('Kategori bütçeleri kaydedilirken hata: $e');

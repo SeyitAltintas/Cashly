@@ -47,23 +47,32 @@ class AuthRepositoryFirestore implements AuthRepository {
       );
 
       final model = UserModel.fromEntity(finalUser);
-      await _firestore
-          .collection('users')
-          .doc(firebaseUser.uid)
-          .collection('profile')
-          .doc('info')
-          .set(model.toMap());
+      try {
+        await _firestore
+            .collection('users')
+            .doc(firebaseUser.uid)
+            .collection('profile')
+            .doc('info')
+            .set(model.toMap())
+            .timeout(const Duration(seconds: 5));
+      } catch (e) {
+        debugPrint("Firestore'a kullanıcı profili yazılamadı: $e");
+        // Firestore'a yazılamasa da kullanıcı Firebase Auth ve Hive'da oluşturulmuş kabul edilsin.
+        // Hata fırlatmıyoruz ki kayıt işlemi offline modda iptal olmasın.
+      }
 
       // Çoklu hesap desteği ve offline kullanım için cihazın lokal Hive'ına da kaydediyoruz
       await _localHiveRepo.registerUser(finalUser);
       return finalUser;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
-        throw Exception("Bu e-posta adresi zaten kullanılıyor.");
+        throw Exception("Bu e-posta adresi zaten kullanılıyor. Lütfen farklı bir tane seçin veya giriş yapın.");
       } else if (e.code == 'invalid-email') {
         throw Exception("Geçersiz e-posta adresi.");
       }
       throw Exception("Kayıt hatası: ${e.message}");
+    } catch (e) {
+      throw Exception("Bir hata oluştu: $e. Lütfen tekrar deneyin.");
     }
   }
 

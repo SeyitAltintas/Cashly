@@ -1,0 +1,321 @@
+﻿> Task :gradle:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle:compileKotlin UP-TO-DATE
+> Task :gradle:compileJava NO-SOURCE
+> Task :gradle:compileGroovy NO-SOURCE
+> Task :gradle:pluginDescriptors UP-TO-DATE
+> Task :gradle:processResources UP-TO-DATE
+> Task :gradle:classes UP-TO-DATE
+> Task :gradle:jar UP-TO-DATE
+
+> Task :device_info_plus:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :cloud_firestore:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :app_settings:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :connectivity_plus:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :file_picker:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :firebase_auth:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :emoji_picker_flutter:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :flutter_native_splash:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :firebase_core:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :flutter_secure_storage:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :flutter_local_notifications:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :flutter_plugin_android_lifecycle:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :firebase_crashlytics:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :image_picker_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :image_cropper:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :flutter_tts:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :local_auth_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :package_info_plus:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :integration_test:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :path_provider_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :speech_to_text:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :shared_preferences_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :share_plus:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :app:signingReport
+Variant: debug
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+Variant: release
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+Variant: profile
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+> Task :vibration:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\seyit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 96:6A:AA:66:05:41:F1:FB:61:D3:9F:E8:4D:58:E0:AE
+SHA1: 3D:7C:52:E7:1C:DC:FB:32:62:E0:6E:D5:EA:D3:0C:53:6F:05:D7:22
+SHA-256: AC:C6:E2:ED:9B:45:82:06:90:15:D2:C5:50:83:F7:16:B9:2D:46:5C:F2:27:00:BA:81:1A:F8:C4:80:42:47:59
+Valid until: 12 Ocak 2056 ├çar┼şamba
+----------
+
+[Incubating] Problems report is available at: file:///C:/Users/seyit/OneDrive/Desktop/MobilProje/cashly/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 5s
+29 actionable tasks: 25 executed, 4 up-to-date
