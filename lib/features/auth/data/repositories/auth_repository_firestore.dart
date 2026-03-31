@@ -67,15 +67,21 @@ class AuthRepositoryFirestore implements AuthRepository {
       return finalUser;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
-        throw Exception("Bu e-posta adresi zaten kullanılıyor. Lütfen farklı bir tane seçin veya giriş yapın.");
+        throw Exception(
+          "Bu e-posta adresi zaten kullanılıyor. Lütfen farklı bir tane seçin veya giriş yapın.",
+        );
       } else if (e.code == 'invalid-email') {
         throw Exception("Geçersiz e-posta adresi.");
       }
       throw Exception("Kayıt hatası: ${e.message}");
     } catch (e) {
       final errorStr = e.toString().toLowerCase();
-      if (errorStr.contains('configuration_not_found') || errorStr.contains('recaptcha') || errorStr.contains('internal error')) {
-        throw Exception("Cihaz güvenliği doğrulanamadı. (Lütfen ağ bağlantınızı ve Firebase API konfigürasyonunuzu kontrol edin.)");
+      if (errorStr.contains('configuration_not_found') ||
+          errorStr.contains('recaptcha') ||
+          errorStr.contains('internal error')) {
+        throw Exception(
+          "Cihaz güvenliği doğrulanamadı. (Lütfen ağ bağlantınızı ve Firebase API konfigürasyonunuzu kontrol edin.)",
+        );
       }
       throw Exception("Bir hata oluştu: $e");
     }
@@ -177,8 +183,22 @@ class AuthRepositoryFirestore implements AuthRepository {
 
   @override
   Future<UserEntity?> getCurrentUser() async {
-    // Bulut yapısında bile offline session cache çalışsın
-    return await _localHiveRepo.getCurrentUser();
+    // Bulut yapısında bile offline session auth cache çalışsın
+    final user = await _localHiveRepo.getCurrentUser();
+    
+    // Eğer ortada geçerli bir kullanıcı varsa, in-memory cache olan 
+    // CacheService'in uygulama açılır açılmaz Firestore'dan dolması ŞARTTIR.
+    if (user != null) {
+      try {
+        await CloudSyncService.syncAllUserData(user.id)
+            .timeout(const Duration(seconds: 15));
+      } catch (e) {
+        debugPrint(
+            "getCurrentUser CloudSync Hatası: Uygulama internetsiz veya çok yavaş açıldı: $e");
+      }
+    }
+    
+    return user;
   }
 
   @override
