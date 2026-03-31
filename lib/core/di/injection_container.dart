@@ -261,8 +261,8 @@ Future<void> initializeDependencies() async {
 
   // ===== CONTROLLERS =====
 
-  // Auth Controller - her seferinde yeni instance oluştur
-  getIt.registerFactory<AuthController>(
+  // Auth Controller - her yerden tekil (singleton) olarak erişilmeli
+  getIt.registerLazySingleton<AuthController>(
     () => AuthController(getIt<AuthRepository>()),
   );
 
