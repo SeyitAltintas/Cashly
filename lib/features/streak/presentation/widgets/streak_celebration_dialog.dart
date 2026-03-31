@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/services/haptic_service.dart';
 
 /// Seri yükseldiğinde gösterilen kutlama dialog'u
@@ -21,7 +22,7 @@ class StreakCelebrationDialog extends StatefulWidget {
       context: context,
       useRootNavigator: true,
       barrierDismissible: true,
-      barrierLabel: 'Seri Kutlama',
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black.withValues(alpha: 0.8),
       transitionDuration: const Duration(milliseconds: 400),
       pageBuilder: (dialogContext, animation, secondaryAnimation) {
@@ -126,19 +127,20 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
     super.dispose();
   }
 
-  String _getCelebrationMessage() {
+  String _getCelebrationMessage(BuildContext context) {
+    final l = context.l10n;
     final streak = widget.streakCount;
-    if (streak == 1) return 'Yeni bir başlangıç!';
-    if (streak == 3) return 'Harika gidiyorsun!';
-    if (streak == 7) return 'Bir haftalık seri!';
-    if (streak == 14) return 'İki haftalık şampiyon!';
-    if (streak == 30) return 'Bir aylık efsane!';
-    if (streak == 100) return 'Yüz günlük destan!';
-    if (streak == 365) return 'Bir yıllık efsane!';
-    if (streak % 100 == 0) return 'İnanılmaz başarı!';
-    if (streak % 30 == 0) return 'Muhteşem devam!';
-    if (streak % 7 == 0) return 'Haftalık hedef tamam!';
-    return 'Seri devam ediyor!';
+    if (streak == 1) return l.streakMsg1;
+    if (streak == 3) return l.streakMsg3;
+    if (streak == 7) return l.streakMsg7;
+    if (streak == 14) return l.streakMsg14;
+    if (streak == 30) return l.streakMsg30;
+    if (streak == 100) return l.streakMsg100;
+    if (streak == 365) return l.streakMsg365;
+    if (streak % 100 == 0) return l.streakMsgMultiple100;
+    if (streak % 30 == 0) return l.streakMsgMultiple30;
+    if (streak % 7 == 0) return l.streakMsgMultiple7;
+    return l.streakMsgDefault;
   }
 
   @override
@@ -196,11 +198,11 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 12),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
                             child: Text(
-                              'GÜN',
-                              style: TextStyle(
+                              context.l10n.streakCelebrationDayLabel,
+                              style: const TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white70,
@@ -217,7 +219,7 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
                   Opacity(
                     opacity: _textAnimation.value,
                     child: Text(
-                      _getCelebrationMessage(),
+                      _getCelebrationMessage(context),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 24,

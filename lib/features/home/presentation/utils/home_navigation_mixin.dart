@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../assets/presentation/pages/assets_page.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../analysis/presentation/pages/analysis_page.dart';
@@ -121,7 +122,7 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
           incomes: tumGelirler,
           selectedDate: secilenAy,
           userId: userId ?? '',
-          userName: userName ?? 'Kullanici',
+          userName: userName ?? context.l10n.unknownUser,
           paymentMethods: tumOdemeYontemleri,
           categoryBudgets: categoryBudgets,
         ),

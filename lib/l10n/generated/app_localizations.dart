@@ -3098,6 +3098,150 @@ abstract class AppLocalizations {
   /// **'{seconds} sn sonra yenilenebilir'**
   String canRefreshIn(int seconds);
 
+  /// No description provided for @offlineDataShown.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bağlantı yok — son kaydedilen veriler gösteriliyor'**
+  String get offlineDataShown;
+
+  /// No description provided for @dataRefreshFailed.
+  ///
+  /// In tr, this message translates to:
+  /// **'Veriler yenilenemedi — önbelleğ kullanılıyor'**
+  String get dataRefreshFailed;
+
+  /// No description provided for @streakCelebrationBarrierLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri Kutlama'**
+  String get streakCelebrationBarrierLabel;
+
+  /// No description provided for @streakCelebrationDayLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'GÜN'**
+  String get streakCelebrationDayLabel;
+
+  /// No description provided for @streakMsg1.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni bir başlangıç!'**
+  String get streakMsg1;
+
+  /// No description provided for @streakMsg3.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harika gidiyorsun!'**
+  String get streakMsg3;
+
+  /// No description provided for @streakMsg7.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir haftalık seri!'**
+  String get streakMsg7;
+
+  /// No description provided for @streakMsg14.
+  ///
+  /// In tr, this message translates to:
+  /// **'İki haftalık şampiyon!'**
+  String get streakMsg14;
+
+  /// No description provided for @streakMsg30.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir aylık efsane!'**
+  String get streakMsg30;
+
+  /// No description provided for @streakMsg100.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yüz günlük destan!'**
+  String get streakMsg100;
+
+  /// No description provided for @streakMsg365.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir yıllık efsane!'**
+  String get streakMsg365;
+
+  /// No description provided for @streakMsgMultiple100.
+  ///
+  /// In tr, this message translates to:
+  /// **'İnanılmaz başarı!'**
+  String get streakMsgMultiple100;
+
+  /// No description provided for @streakMsgMultiple30.
+  ///
+  /// In tr, this message translates to:
+  /// **'Muhteşem devam!'**
+  String get streakMsgMultiple30;
+
+  /// No description provided for @streakMsgMultiple7.
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftalık hedef tamam!'**
+  String get streakMsgMultiple7;
+
+  /// No description provided for @streakMsgDefault.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri devam ediyor!'**
+  String get streakMsgDefault;
+
+  /// No description provided for @securityQuestionPet.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk evcil hayvanının adı nedir?'**
+  String get securityQuestionPet;
+
+  /// No description provided for @securityQuestionTeacher.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlkokul öğretmeninin adı nedir?'**
+  String get securityQuestionTeacher;
+
+  /// No description provided for @securityQuestionCity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Doğduğun şehir neresi?'**
+  String get securityQuestionCity;
+
+  /// No description provided for @securityQuestionBook.
+  ///
+  /// In tr, this message translates to:
+  /// **'En sevdiğin kitap hangisi?'**
+  String get securityQuestionBook;
+
+  /// No description provided for @securityQuestionMaiden.
+  ///
+  /// In tr, this message translates to:
+  /// **'Annenin kızlık soyadı nedir?'**
+  String get securityQuestionMaiden;
+
+  /// No description provided for @securityQuestionFriend.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çocukluk arkadaşının adı nedir?'**
+  String get securityQuestionFriend;
+
+  /// No description provided for @pleaseSelectSecurityQuestion.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen bir güvenlik sorusu seçin'**
+  String get pleaseSelectSecurityQuestion;
+
+  /// No description provided for @pleaseEnterSecurityAnswer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen güvenlik sorusunun cevabını girin'**
+  String get pleaseEnterSecurityAnswer;
+
+  /// No description provided for @unknownUser.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kullanıcı'**
+  String get unknownUser;
+
   /// No description provided for @user.
   ///
   /// In tr, this message translates to:

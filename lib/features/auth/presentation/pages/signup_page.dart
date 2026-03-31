@@ -30,15 +30,15 @@ class _SignUpPageState extends State<SignUpPage> {
   String? get _selectedSecurityQuestion =>
       _signupState.selectedSecurityQuestion;
 
-  // Önceden tanımlı güvenlik soruları
-  final List<String> _securityQuestions = [
-    'İlk evcil hayvanının adı nedir?',
-    'İlkokul öğretmeninin adı nedir?',
-    'Doğduğun şehir neresi?',
-    'En sevdiğin kitap hangisi?',
-    'Annenin kızlık soyadı nedir?',
-    'Çocukluk arkadaşının adı nedir?',
-  ];
+  // Güvenlik soruları build zamanında l10n ile doldurulur
+  List<String> get _securityQuestions => [
+        context.l10n.securityQuestionPet,
+        context.l10n.securityQuestionTeacher,
+        context.l10n.securityQuestionCity,
+        context.l10n.securityQuestionBook,
+        context.l10n.securityQuestionMaiden,
+        context.l10n.securityQuestionFriend,
+      ];
 
   @override
   void initState() {
@@ -328,7 +328,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Lütfen bir güvenlik sorusu seçin';
+                      return context.l10n.pleaseSelectSecurityQuestion;
                     }
                     return null;
                   },
@@ -381,7 +381,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Lütfen güvenlik sorusunun cevabını girin';
+                      return context.l10n.pleaseEnterSecurityAnswer;
                     }
                     return null;
                   },

@@ -1581,6 +1581,81 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get offlineDataShown =>
+      'Bağlantı yok — son kaydedilen veriler gösteriliyor';
+
+  @override
+  String get dataRefreshFailed =>
+      'Veriler yenilenemedi — önbelleğ kullanılıyor';
+
+  @override
+  String get streakCelebrationBarrierLabel => 'Seri Kutlama';
+
+  @override
+  String get streakCelebrationDayLabel => 'GÜN';
+
+  @override
+  String get streakMsg1 => 'Yeni bir başlangıç!';
+
+  @override
+  String get streakMsg3 => 'Harika gidiyorsun!';
+
+  @override
+  String get streakMsg7 => 'Bir haftalık seri!';
+
+  @override
+  String get streakMsg14 => 'İki haftalık şampiyon!';
+
+  @override
+  String get streakMsg30 => 'Bir aylık efsane!';
+
+  @override
+  String get streakMsg100 => 'Yüz günlük destan!';
+
+  @override
+  String get streakMsg365 => 'Bir yıllık efsane!';
+
+  @override
+  String get streakMsgMultiple100 => 'İnanılmaz başarı!';
+
+  @override
+  String get streakMsgMultiple30 => 'Muhteşem devam!';
+
+  @override
+  String get streakMsgMultiple7 => 'Haftalık hedef tamam!';
+
+  @override
+  String get streakMsgDefault => 'Seri devam ediyor!';
+
+  @override
+  String get securityQuestionPet => 'İlk evcil hayvanının adı nedir?';
+
+  @override
+  String get securityQuestionTeacher => 'İlkokul öğretmeninin adı nedir?';
+
+  @override
+  String get securityQuestionCity => 'Doğduğun şehir neresi?';
+
+  @override
+  String get securityQuestionBook => 'En sevdiğin kitap hangisi?';
+
+  @override
+  String get securityQuestionMaiden => 'Annenin kızlık soyadı nedir?';
+
+  @override
+  String get securityQuestionFriend => 'Çocukluk arkadaşının adı nedir?';
+
+  @override
+  String get pleaseSelectSecurityQuestion => 'Lütfen bir güvenlik sorusu seçin';
+
+  @override
+  String get pleaseEnterSecurityAnswer =>
+      'Lütfen güvenlik sorusunun cevabını girin';
+
+  @override
+  String get unknownUser => 'Kullanıcı';
+
+  @override
   String get user => 'Kullanıcı';
 
   @override

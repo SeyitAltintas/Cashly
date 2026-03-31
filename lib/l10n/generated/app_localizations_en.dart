@@ -1580,6 +1580,82 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get offlineDataShown => 'No connection — showing last saved data';
+
+  @override
+  String get dataRefreshFailed => 'Could not refresh — using cached data';
+
+  @override
+  String get streakCelebrationBarrierLabel => 'Streak Celebration';
+
+  @override
+  String get streakCelebrationDayLabel => 'DAY';
+
+  @override
+  String get streakMsg1 => 'A new beginning!';
+
+  @override
+  String get streakMsg3 => 'You\'re doing great!';
+
+  @override
+  String get streakMsg7 => 'One week streak!';
+
+  @override
+  String get streakMsg14 => 'Two-week champion!';
+
+  @override
+  String get streakMsg30 => 'One month legend!';
+
+  @override
+  String get streakMsg100 => 'Hundred-day epic!';
+
+  @override
+  String get streakMsg365 => 'One year legend!';
+
+  @override
+  String get streakMsgMultiple100 => 'Incredible achievement!';
+
+  @override
+  String get streakMsgMultiple30 => 'Magnificent progress!';
+
+  @override
+  String get streakMsgMultiple7 => 'Weekly goal done!';
+
+  @override
+  String get streakMsgDefault => 'Streak continues!';
+
+  @override
+  String get securityQuestionPet => 'What is the name of your first pet?';
+
+  @override
+  String get securityQuestionTeacher =>
+      'What is the name of your primary school teacher?';
+
+  @override
+  String get securityQuestionCity => 'What city were you born in?';
+
+  @override
+  String get securityQuestionBook => 'What is your favorite book?';
+
+  @override
+  String get securityQuestionMaiden => 'What is your mother\'s maiden name?';
+
+  @override
+  String get securityQuestionFriend =>
+      'What is the name of your childhood friend?';
+
+  @override
+  String get pleaseSelectSecurityQuestion =>
+      'Please select a security question';
+
+  @override
+  String get pleaseEnterSecurityAnswer =>
+      'Please enter the answer to the security question';
+
+  @override
+  String get unknownUser => 'User';
+
+  @override
   String get user => 'User';
 
   @override

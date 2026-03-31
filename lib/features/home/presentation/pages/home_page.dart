@@ -474,7 +474,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       if (mounted) {
         AppSnackBar.warning(
           context,
-          'Baglanti yok — son kaydedilen veriler gosteriliyor',
+          context.l10n.offlineDataShown,
         );
       }
     } catch (e) {
@@ -483,7 +483,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       if (mounted) {
         AppSnackBar.warning(
           context,
-          'Veriler yenilenemedi — cache kullaniliyor',
+          context.l10n.dataRefreshFailed,
         );
       }
     }
