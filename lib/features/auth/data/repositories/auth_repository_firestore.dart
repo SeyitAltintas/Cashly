@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import '../../../../core/services/cloud_sync_service.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
@@ -129,6 +130,9 @@ class AuthRepositoryFirestore implements AuthRepository {
             userModel,
           ); // create or update on device
           await _localHiveRepo.setCurrentUser(userModel.id);
+
+          // Buluttan giriş yapıldığına göre tüm verileri de Local Cache'e çek.
+          await CloudSyncService.syncAllUserData(userModel.id);
 
           return userModel;
         }
