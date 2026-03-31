@@ -259,13 +259,19 @@ class AuthRepositoryFirestore implements AuthRepository {
   @override
   Future<UserEntity?> loginWithBiometric(String userId) async {
     final firebaseUser = _firebaseAuth.currentUser;
-    // Eğer firebase session açıksa direkt biyometrik okut
     if (firebaseUser != null && firebaseUser.uid == userId) {
-      return await _localHiveRepo.loginWithBiometric(userId);
+      final user = await _localHiveRepo.loginWithBiometric(userId);
+      if (user != null) {
+        await CloudSyncService.syncAllUserData(user.id);
+      }
+      return user;
     }
-    // Değilse, Firebase oturumu arka planda düşmüş olabilir. PIN istenmesi daha güvenlidir.
-    // Ancak offline akışı kesmemek için Hive'a devrediyoruz.
-    return await _localHiveRepo.loginWithBiometric(userId);
+    // Firebase oturumu düşmüşse Hive'dan döndür ve yine de sync dene
+    final user = await _localHiveRepo.loginWithBiometric(userId);
+    if (user != null) {
+      await CloudSyncService.syncAllUserData(user.id);
+    }
+    return user;
   }
 
   @override
