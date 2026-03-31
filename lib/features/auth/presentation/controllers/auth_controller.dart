@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,19 +10,18 @@ class AuthController extends ChangeNotifier {
   UserEntity? _currentUser;
   bool _isLoading = false;
   String? _error;
+  // EC-3: Subscription sakla, dispose'da cancel et (memory leak önleme)
+  StreamSubscription<User?>? _authListenerSub;
 
   AuthController(this._authRepository) {
     _initAuthListener();
   }
 
   void _initAuthListener() {
-    FirebaseAuth.instance.userChanges().listen((User? user) async {
-      // Bulutta kullanıcı silinmiş veya token reddedilmişse ve lokalde biri açıksa
+    _authListenerSub = FirebaseAuth.instance.userChanges().listen((User? user) async {
       if (user == null && _currentUser != null) {
-        debugPrint(
-          "Bulut kaynaklı çıkış (Force Logout) algılandı, lokal oturum temizleniyor.",
-        );
-        await logout(); // Bu çağrı _currentUser'ı null yapıp notifyListeners() çağıracaktır.
+        debugPrint('Bulut kaynaklı çıkış (Force Logout) algılandı, lokal oturum temizleniyor.');
+        await logout();
       }
     });
   }
@@ -90,6 +90,12 @@ class AuthController extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+
+  @override
+  void dispose() {
+    _authListenerSub?.cancel(); // EC-3: Memory leak önleme
+    super.dispose();
   }
 
   Future<void> logout() async {

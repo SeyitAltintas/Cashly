@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/expense_repository.dart';
@@ -146,7 +147,12 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         'expense_categories_$userId',
       );
       if (cached != null) return cached;
-      saveCategories(userId, defaultCategories);
+      // EC-2: Sadece Firebase oturumu varken Firestore'a yaz (döngü/crash önleme)
+      if (FirebaseAuth.instance.currentUser != null) {
+        saveCategories(userId, defaultCategories).catchError((e) {
+          debugPrint('Varsayılan gider kategorileri yazılamadı: $e');
+        });
+      }
       return defaultCategories;
     } catch (e) {
       debugPrint('Kategoriler getirilirken hata: $e');

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/services/cache_service.dart';
@@ -63,8 +64,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         batch.set(colRef.doc(id), method);
       }
 
-      await batch.commit();
+      await batch.commit().timeout(const Duration(seconds: 10)); // EC-6
       CacheService.set('payment_methods_$userId', methods);
+    } on TimeoutException {
+      debugPrint('Ödeme yöntemleri kaydedilirken zaman aşımı (10s). Cache korundu.');
     } catch (e) {
       debugPrint('Ödeme yöntemleri kaydedilirken hata: $e');
       rethrow;
@@ -96,8 +99,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         batch.set(colRef.doc(id), method);
       }
 
-      await batch.commit();
+      await batch.commit().timeout(const Duration(seconds: 10)); // EC-6
       CacheService.set('deleted_payment_methods_$userId', methods);
+    } on TimeoutException {
+      debugPrint('Silinen ödeme yöntemleri kaydedilirken zaman aşımı (10s). Cache korundu.');
     } catch (e) {
       debugPrint('Silinen ödeme yöntemleri kaydedilirken hata: $e');
       rethrow;
@@ -162,8 +167,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         batch.set(colRef.doc(id), transfer);
       }
 
-      await batch.commit();
+      await batch.commit().timeout(const Duration(seconds: 10)); // EC-6
       CacheService.set('transfers_$userId', transfers);
+    } on TimeoutException {
+      debugPrint('Transferler kaydedilirken zaman aşımı (10s). Cache korundu.');
     } catch (e) {
       debugPrint('Transferler kaydedilirken hata: $e');
       rethrow;

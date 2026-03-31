@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/income_repository.dart';
@@ -84,7 +86,12 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       final cached = CacheService.get<List<Map<String, dynamic>>>(
           'income_categories_$userId');
       if (cached != null) return cached;
-      saveCategories(userId, defaultCategories);
+      // EC-2: Sadece Firebase oturumu varken Firestore'a yaz (döngü/crash önleme)
+      if (FirebaseAuth.instance.currentUser != null) {
+        saveCategories(userId, defaultCategories).catchError((e) {
+          debugPrint('Varsayılan gelir kategorileri yazılamadı: $e');
+        });
+      }
       return defaultCategories;
     } catch (e) {
       return defaultCategories;
@@ -98,22 +105,37 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   ) async {
     try {
       final colRef = _userDoc(userId).collection('incomeCategories');
-      final batch = _firestore.batch();
-
       final existing = await colRef.get();
-      for (final doc in existing.docs) {
-        batch.delete(doc.reference);
-      }
-
-      for (int i = 0; i < categories.length; i++) {
-        final catId = categories[i]['isim']?.toString().toLowerCase().replaceAll(' ', '_') ?? 'cat_$i';
-        batch.set(colRef.doc(catId), categories[i]);
-      }
-
-      await batch.commit();
+      // EC-1: Batch 500 limit için chunk'lara böl
+      await _commitInChunks([
+        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
+        ...List.generate(categories.length, (i) {
+          final catId = categories[i]['isim']?.toString().toLowerCase().replaceAll(' ', '_') ?? 'cat_$i';
+          return _BatchOp(colRef.doc(catId), categories[i]);
+        }),
+      ]);
+    } on TimeoutException {
+      debugPrint('Gelir kategorileri zaman aşımı.');
     } catch (e) {
       debugPrint('Gelir kategorileri kaydedilirken hata: $e');
       rethrow;
+    }
+  }
+
+  /// EC-1: Firestore batch 500 döküman limitini aşmamak için işlemleri bölümlere ayır
+  Future<void> _commitInChunks(List<_BatchOp> ops) async {
+    const chunkSize = 450;
+    for (int i = 0; i < ops.length; i += chunkSize) {
+      final chunk = ops.sublist(i, (i + chunkSize).clamp(0, ops.length));
+      final batch = _firestore.batch();
+      for (final op in chunk) {
+        if (op.data == null) {
+          batch.delete(op.ref);
+        } else {
+          batch.set(op.ref, op.data!);
+        }
+      }
+      await batch.commit().timeout(const Duration(seconds: 10));
     }
   }
 
@@ -154,4 +176,11 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       rethrow;
     }
   }
+}
+
+/// EC-1 yardimci sinif: Batch islemini temsil eder (set veya delete)
+class _BatchOp {
+  final DocumentReference ref;
+  final Map<String, dynamic>? data;
+  const _BatchOp(this.ref, this.data);
 }
