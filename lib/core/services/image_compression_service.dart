@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
+import 'package:image/image.dart' as img;
 
 /// Image Compression Service
 /// Profil resmi ve varlık görselleri için sıkıştırma ve boyutlandırma servisi.
@@ -50,23 +51,17 @@ class ImageCompressionService {
         return bytes;
       }
 
-      // Resmi decode et (Sadece genişliğe göre orantılı küçültüp yapısını bozmasın diye)
-      final codec = await ui.instantiateImageCodec(
-        bytes,
-        targetWidth: maxWidth,
-      );
-      final frame = await codec.getNextFrame();
-      final image = frame.image;
+      // Isolate (Arka plan iş parçacığı) kullanarak UI'yi dondurmadan resmi JPEG olarak sıkıştır
+      final compressedBytes = await compute(_compressWithImagePackage, {
+        'bytes': bytes,
+        'width': maxWidth,
+        'quality': quality,
+      });
 
-      // PNG olarak encode et (Flutter'da JPEG encode yok, PNG kullanıyoruz)
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-
-      if (byteData == null) {
+      if (compressedBytes == null) {
         debugPrint('ImageCompressionService: Resim encode edilemedi');
         return bytes; // Orijinali döndür
       }
-
-      final compressedBytes = byteData.buffer.asUint8List();
 
       debugPrint(
         'ImageCompressionService: Sıkıştırma tamamlandı - '
@@ -103,14 +98,14 @@ class ImageCompressionService {
   }
 
   /// Profil resmi için optimize et
-  /// Firestore doküman limiti (1MB) aşılmaması için 300x300 ebatlarına orantılı sıkıştırır
+  /// JPEG sıkıştırma kullanıldığı için çözünürlüğü yüksek (800x800) tutarak 1MB limitini BAZ ALIR
   Future<Uint8List?> optimizeProfileImage(File imageFile) async {
-    return compressImage(imageFile, maxWidth: 300, maxHeight: 300, quality: 80);
+    return compressImage(imageFile, maxWidth: 800, maxHeight: 800, quality: 75);
   }
 
   /// Varlık görseli için optimize et
   Future<Uint8List?> optimizeAssetImage(File imageFile) async {
-    return compressImage(imageFile, maxWidth: 300, maxHeight: 300, quality: 80);
+    return compressImage(imageFile, maxWidth: 800, maxHeight: 800, quality: 75);
   }
 
   /// Profil resmini optimize et ve dosyaya kaydet
@@ -191,6 +186,41 @@ class ImageCompressionService {
     } catch (e) {
       return false;
     }
+  }
+
+  Future<bool> deleteDirectoryIfExists(Directory dir) async {
+    try {
+      if (await dir.exists()) {
+        await dir.delete(recursive: true);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Klasör silme hatası: $e');
+      return false;
+    }
+  }
+}
+
+/// En dişarıya eklenen Top-Level Fonksiyon (Isolate'te çalışmak zorundadır)
+/// Verilen raw byte dizisini 'image' paketini kullanarak JPEG olarak kodlar.
+Uint8List? _compressWithImagePackage(Map<String, dynamic> args) {
+  try {
+    final Uint8List bytes = args['bytes'];
+    final int width = args['width'];
+    final int quality = args['quality'];
+
+    final img.Image? original = img.decodeImage(bytes);
+    if (original == null) return null;
+
+    final img.Image resized = img.copyResize(original, width: width, maintainAspect: true);
+    // Resmi hızlı ve kayıplı JPEG formatına dönüştürüyoruz, böylece 1MB sınırına ASLA yaklaşmaz:
+    final List<int> jpegBytes = img.encodeJpg(resized, quality: quality);
+
+    return Uint8List.fromList(jpegBytes);
+  } catch (e) {
+    debugPrint('Isolate sıkıştırma hatası: $e');
+    return null;
   }
 }
 
