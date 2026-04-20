@@ -287,55 +287,25 @@ class AuthRepositoryFirestore implements AuthRepository {
 
   @override
   Future<UserEntity?> getUserByEmail(String email) async {
-    // Önce lokal Hive'da ara (hızlı, offline)
-    final localUser = await _localHiveRepo.getUserByEmail(email);
-    if (localUser != null) return localUser;
-
-    // Hive'da bulunamadıysa Firestore'dan ara (yeni cihaz / yeniden kurulum)
-    try {
-      final snapshot = await _firestore
-          .collection('users')
-          .get()
-          .timeout(const Duration(seconds: 10));
-
-      for (final userDoc in snapshot.docs) {
-        final profileSnap = await userDoc.reference
-            .collection('profile')
-            .doc('info')
-            .get()
-            .timeout(const Duration(seconds: 5));
-
-        if (profileSnap.exists && profileSnap.data() != null) {
-          final data = profileSnap.data()!;
-          if ((data['email'] as String?)?.toLowerCase() ==
-              email.toLowerCase()) {
-            final userModel = UserModel.fromMap(data);
-            // Lokale kaydet ki bir sonraki seferde Hive'dan hızlı gelsin
-            await _localHiveRepo.registerUser(userModel);
-            return userModel;
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('getUserByEmail Firestore fallback hatası: $e');
-    }
-    return null;
+    // Lokal Hive cache'de ara (aynı cihaz / offline).
+    // NOT: Farklı cihazda "Şifremi Unuttum" Firestore rules nedeniyle desteklenemiyor
+    // (giriş yapılmamış kullanıcı kendi UID'si dışında hiçbir dokümanı okuyamaz).
+    // Uzun vadeli çözüm: Firebase Auth e-posta sıfırlama akışı veya Cloud Function.
+    return await _localHiveRepo.getUserByEmail(email);
   }
 
   @override
   Future<void> updateUserPin(String userId, String newPin) async {
     try {
+      // 1. Firebase Auth şifresi güncelle (PIN Firestore'a düz metin yazılmaz)
       final user = _firebaseAuth.currentUser;
       if (user != null && user.uid == userId) {
         await user.updatePassword(_generateFirebasePassword(newPin));
       }
+      // 2. Lokal Hive güncelle
       await _localHiveRepo.updateUserPin(userId, newPin);
-      await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('profile')
-          .doc('info')
-          .set({'pin': newPin}, SetOptions(merge: true));
+      // NOT: newPin Firestore'a kasıtlı olarak yazılmıyor.
+      // PIN Firebase Auth şifresine encode edilmiş durumda, ayrıca saklamak güvenlik riski.
     } catch (e) {
       throw Exception("PIN güncellenemedi: ${e.toString()}");
     }

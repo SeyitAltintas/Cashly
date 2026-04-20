@@ -110,24 +110,32 @@ class SettingsRepositoryFirestore implements SettingsRepository {
     try {
       final userDoc = _firestore.collection('users').doc(userId);
 
-      // Alt koleksiyonları sırayla sil
+      // Tüm alt koleksiyonlar (profile ve recurringIncomes de dahil)
       final collections = [
-        'expenses', 'incomes', 'assets', 'deletedAssets',
+        'expenses', 'incomes', 'recurringIncomes', 'assets', 'deletedAssets',
         'paymentMethods', 'deletedPaymentMethods', 'transfers',
         'expenseCategories', 'incomeCategories', 'categories',
-        'recurring', 'streak', 'settings',
+        'recurring', 'streak', 'settings', 'profile',
       ];
 
       for (final col in collections) {
         final snapshot = await userDoc.collection(col).get();
-        final batch = _firestore.batch();
-        for (final doc in snapshot.docs) {
-          batch.delete(doc.reference);
+        if (snapshot.docs.isEmpty) continue;
+
+        // Batch 500-op limitini aşmamak için chunk'lara böl
+        const chunkSize = 450;
+        final docs = snapshot.docs;
+        for (int i = 0; i < docs.length; i += chunkSize) {
+          final chunk = docs.sublist(i, (i + chunkSize).clamp(0, docs.length));
+          final batch = _firestore.batch();
+          for (final doc in chunk) {
+            batch.delete(doc.reference);
+          }
+          await batch.commit();
         }
-        if (snapshot.docs.isNotEmpty) await batch.commit();
       }
 
-      // Kullanıcı dokümanını sil
+      // Ana kullanıcı dokümanını sil
       await userDoc.delete();
 
       // Cache temizle
