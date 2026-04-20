@@ -55,24 +55,22 @@ class IncomeRepositoryFirestore implements IncomeRepository {
     try {
       final colRef = _userDoc(userId).collection('incomes');
       final existing = await colRef.get();
-      final batch = _firestore.batch();
 
-      for (final doc in existing.docs) {
-        batch.delete(doc.reference);
-      }
-
-      for (final income in incomes) {
-        final id = income['id'] as String? ?? '';
-        if (id.isEmpty) continue;
-        final data = Map<String, dynamic>.from(income);
-        if (data['tarih'] is String) {
-          data['tarih'] = Timestamp.fromDate(DateTime.parse(data['tarih']));
-        }
-        data['updatedAt'] = FieldValue.serverTimestamp();
-        batch.set(colRef.doc(id), data);
-      }
-
-      await batch.commit();
+      final ops = [
+        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
+        ...incomes
+            .where((i) => (i['id'] as String? ?? '').isNotEmpty)
+            .map((i) {
+          final data = Map<String, dynamic>.from(i);
+          if (data['tarih'] is String) {
+            data['tarih'] =
+                Timestamp.fromDate(DateTime.parse(data['tarih']));
+          }
+          data['updatedAt'] = FieldValue.serverTimestamp();
+          return _BatchOp(colRef.doc(i['id'] as String), data);
+        }),
+      ];
+      await _commitInChunks(ops);
       CacheService.set('incomes_$userId', incomes);
     } catch (e) {
       debugPrint('Firestore gelir kaydetme hatası: $e');
@@ -157,19 +155,17 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   ) async {
     try {
       final colRef = _userDoc(userId).collection('recurringIncomes');
-      final batch = _firestore.batch();
-
       final existing = await colRef.get();
-      for (final doc in existing.docs) {
-        batch.delete(doc.reference);
-      }
 
-      for (final income in incomes) {
-        final id = income['id'] as String? ?? 'recurring_${incomes.indexOf(income)}';
-        batch.set(colRef.doc(id), income);
-      }
-
-      await batch.commit();
+      final ops = [
+        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
+        ...incomes.asMap().entries.map((e) {
+          final id =
+              e.value['id'] as String? ?? 'recurring_${e.key}';
+          return _BatchOp(colRef.doc(id), e.value);
+        }),
+      ];
+      await _commitInChunks(ops);
       CacheService.set('recurring_incomes_$userId', incomes);
     } catch (e) {
       debugPrint('Tekrarlayan gelirler kaydedilirken hata: $e');

@@ -53,27 +53,22 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   ) async {
     try {
       final colRef = _userDoc(userId).collection('expenses');
+      final existing =
+          await colRef.get().timeout(const Duration(seconds: 10));
 
-      // Mevcut dokümanları sil (tam üzerine yazma)
-      final existing = await colRef.get().timeout(const Duration(seconds: 10));
-      final batch = _firestore.batch();
-      for (final doc in existing.docs) {
-        batch.delete(doc.reference);
-      }
-
-      // Yenilerini ekle
-      for (final expense in expenses) {
-        final id = expense['id']?.toString() ?? '';
-        if (id.isEmpty) continue;
-        final data = _convertStringToTimestamp(expense);
-        batch.set(colRef.doc(id), data);
-      }
-
-      await batch.commit().timeout(const Duration(seconds: 10));
+      final ops = [
+        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
+        ...expenses
+            .where((e) => (e['id']?.toString() ?? '').isNotEmpty)
+            .map((e) {
+          final data = _convertStringToTimestamp(e);
+          return _BatchOp(colRef.doc(e['id'].toString()), data);
+        }),
+      ];
+      await _commitInChunks(ops);
       CacheService.set('expenses_$userId', expenses);
     } on TimeoutException {
       debugPrint('Firestore harcama kaydetme zaman aşımına uğradı, yerel cache korundu.');
-      // Timeout'ta exception fırlatmıyoruz, UI donmuyor
     } catch (e) {
       debugPrint('Firestore harcama kaydetme hatası: $e');
       rethrow;
@@ -247,4 +242,28 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
     data['updatedAt'] = FieldValue.serverTimestamp();
     return data;
   }
+
+  /// Firestore WriteBatch 500-op limitini aşmamak için 450'şerlik chunk'lara böler.
+  Future<void> _commitInChunks(List<_BatchOp> ops) async {
+    const chunkSize = 450;
+    for (int i = 0; i < ops.length; i += chunkSize) {
+      final chunk = ops.sublist(i, (i + chunkSize).clamp(0, ops.length));
+      final batch = _firestore.batch();
+      for (final op in chunk) {
+        if (op.data == null) {
+          batch.delete(op.ref);
+        } else {
+          batch.set(op.ref, op.data!);
+        }
+      }
+      await batch.commit().timeout(const Duration(seconds: 10));
+    }
+  }
+}
+
+/// Batch işlemini temsil eden yardımcı sınıf (set veya delete)
+class _BatchOp {
+  final DocumentReference ref;
+  final Map<String, dynamic>? data;
+  const _BatchOp(this.ref, this.data);
 }

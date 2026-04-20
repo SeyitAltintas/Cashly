@@ -27,15 +27,16 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
 
   @override
   List<Map<String, dynamic>> getPaymentMethods(String userId) {
-    return CacheService.get<List<Map<String, dynamic>>>('payment_methods_$userId')
-        ?? _defaultPaymentMethods;
+    return CacheService.get<List<Map<String, dynamic>>>(
+          'payment_methods_$userId',
+        ) ??
+        _defaultPaymentMethods;
   }
 
   Stream<List<Map<String, dynamic>>> watchPaymentMethods(String userId) {
-    return _userDoc(userId)
-        .collection('paymentMethods')
-        .snapshots()
-        .map((snapshot) {
+    return _userDoc(userId).collection('paymentMethods').snapshots().map((
+      snapshot,
+    ) {
       final methods = snapshot.docs.isEmpty
           ? _defaultPaymentMethods
           : snapshot.docs.map((doc) => doc.data()).toList();
@@ -51,23 +52,17 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
   ) async {
     try {
       final colRef = _userDoc(userId).collection('paymentMethods');
-      final batch = _firestore.batch();
-
       final existing = await colRef.get();
-      for (final doc in existing.docs) {
-        batch.delete(doc.reference);
-      }
-
-      for (final method in methods) {
-        final id = method['id'] as String? ?? '';
-        if (id.isEmpty) continue;
-        batch.set(colRef.doc(id), method);
-      }
-
-      await batch.commit().timeout(const Duration(seconds: 10)); // EC-6
+      final ops = [
+        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
+        ...methods
+            .where((m) => (m['id'] as String? ?? '').isNotEmpty)
+            .map((m) => _BatchOp(colRef.doc(m['id'] as String), m)),
+      ];
+      await _commitInChunks(ops);
       CacheService.set('payment_methods_$userId', methods);
     } on TimeoutException {
-      debugPrint('Ödeme yöntemleri kaydedilirken zaman aşımı (10s). Cache korundu.');
+      debugPrint('Ödeme yöntemleri kaydedilirken zaman aşımı. Cache korundu.');
     } catch (e) {
       debugPrint('Ödeme yöntemleri kaydedilirken hata: $e');
       rethrow;
@@ -76,7 +71,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
 
   @override
   List<Map<String, dynamic>> getDeletedPaymentMethods(String userId) {
-    return CacheService.get<List<Map<String, dynamic>>>('deleted_payment_methods_$userId') ?? [];
+    return CacheService.get<List<Map<String, dynamic>>>(
+          'deleted_payment_methods_$userId',
+        ) ??
+        [];
   }
 
   @override
@@ -86,23 +84,19 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
   ) async {
     try {
       final colRef = _userDoc(userId).collection('deletedPaymentMethods');
-      final batch = _firestore.batch();
-
       final existing = await colRef.get();
-      for (final doc in existing.docs) {
-        batch.delete(doc.reference);
-      }
-
-      for (final method in methods) {
-        final id = method['id'] as String? ?? '';
-        if (id.isEmpty) continue;
-        batch.set(colRef.doc(id), method);
-      }
-
-      await batch.commit().timeout(const Duration(seconds: 10)); // EC-6
+      final ops = [
+        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
+        ...methods
+            .where((m) => (m['id'] as String? ?? '').isNotEmpty)
+            .map((m) => _BatchOp(colRef.doc(m['id'] as String), m)),
+      ];
+      await _commitInChunks(ops);
       CacheService.set('deleted_payment_methods_$userId', methods);
     } on TimeoutException {
-      debugPrint('Silinen ödeme yöntemleri kaydedilirken zaman aşımı (10s). Cache korundu.');
+      debugPrint(
+        'Silinen ödeme yöntemleri kaydedilirken zaman aşımı. Cache korundu.',
+      );
     } catch (e) {
       debugPrint('Silinen ödeme yöntemleri kaydedilirken hata: $e');
       rethrow;
@@ -117,10 +111,9 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
   @override
   Future<void> saveDefaultPaymentMethod(String userId, String? methodId) async {
     try {
-      await _userDoc(userId).collection('settings').doc('general').set(
-        {'defaultPaymentMethod': methodId},
-        SetOptions(merge: true),
-      );
+      await _userDoc(userId).collection('settings').doc('general').set({
+        'defaultPaymentMethod': methodId,
+      }, SetOptions(merge: true));
       if (methodId != null) {
         CacheService.set('default_payment_method_$userId', methodId);
       }
@@ -132,7 +125,8 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
 
   @override
   List<Map<String, dynamic>> getTransfers(String userId) {
-    return CacheService.get<List<Map<String, dynamic>>>('transfers_$userId') ?? [];
+    return CacheService.get<List<Map<String, dynamic>>>('transfers_$userId') ??
+        [];
   }
 
   Stream<List<Map<String, dynamic>>> watchTransfers(String userId) {
@@ -141,10 +135,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         .orderBy('tarih', descending: true)
         .snapshots()
         .map((snapshot) {
-      final transfers = snapshot.docs.map((doc) => doc.data()).toList();
-      CacheService.set('transfers_$userId', transfers);
-      return transfers;
-    });
+          final transfers = snapshot.docs.map((doc) => doc.data()).toList();
+          CacheService.set('transfers_$userId', transfers);
+          return transfers;
+        });
   }
 
   @override
@@ -154,26 +148,44 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
   ) async {
     try {
       final colRef = _userDoc(userId).collection('transfers');
-      final batch = _firestore.batch();
-
       final existing = await colRef.get();
-      for (final doc in existing.docs) {
-        batch.delete(doc.reference);
-      }
-
-      for (final transfer in transfers) {
-        final id = transfer['id'] as String? ?? '';
-        if (id.isEmpty) continue;
-        batch.set(colRef.doc(id), transfer);
-      }
-
-      await batch.commit().timeout(const Duration(seconds: 10)); // EC-6
+      final ops = [
+        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
+        ...transfers
+            .where((t) => (t['id'] as String? ?? '').isNotEmpty)
+            .map((t) => _BatchOp(colRef.doc(t['id'] as String), t)),
+      ];
+      await _commitInChunks(ops);
       CacheService.set('transfers_$userId', transfers);
     } on TimeoutException {
-      debugPrint('Transferler kaydedilirken zaman aşımı (10s). Cache korundu.');
+      debugPrint('Transferler kaydedilirken zaman aşımı. Cache korundu.');
     } catch (e) {
       debugPrint('Transferler kaydedilirken hata: $e');
       rethrow;
     }
   }
+
+  /// Firestore WriteBatch 500-op limitini aşmamak için 450'şerlik chunk'lara böler.
+  Future<void> _commitInChunks(List<_BatchOp> ops) async {
+    const chunkSize = 450;
+    for (int i = 0; i < ops.length; i += chunkSize) {
+      final chunk = ops.sublist(i, (i + chunkSize).clamp(0, ops.length));
+      final batch = _firestore.batch();
+      for (final op in chunk) {
+        if (op.data == null) {
+          batch.delete(op.ref);
+        } else {
+          batch.set(op.ref, op.data!);
+        }
+      }
+      await batch.commit().timeout(const Duration(seconds: 10));
+    }
+  }
+}
+
+/// Batch işlemini temsil eden yardımcı sınıf (set veya delete)
+class _BatchOp {
+  final DocumentReference ref;
+  final Map<String, dynamic>? data;
+  const _BatchOp(this.ref, this.data);
 }

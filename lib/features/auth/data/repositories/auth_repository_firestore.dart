@@ -287,7 +287,39 @@ class AuthRepositoryFirestore implements AuthRepository {
 
   @override
   Future<UserEntity?> getUserByEmail(String email) async {
-    return await _localHiveRepo.getUserByEmail(email);
+    // Önce lokal Hive'da ara (hızlı, offline)
+    final localUser = await _localHiveRepo.getUserByEmail(email);
+    if (localUser != null) return localUser;
+
+    // Hive'da bulunamadıysa Firestore'dan ara (yeni cihaz / yeniden kurulum)
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .get()
+          .timeout(const Duration(seconds: 10));
+
+      for (final userDoc in snapshot.docs) {
+        final profileSnap = await userDoc.reference
+            .collection('profile')
+            .doc('info')
+            .get()
+            .timeout(const Duration(seconds: 5));
+
+        if (profileSnap.exists && profileSnap.data() != null) {
+          final data = profileSnap.data()!;
+          if ((data['email'] as String?)?.toLowerCase() ==
+              email.toLowerCase()) {
+            final userModel = UserModel.fromMap(data);
+            // Lokale kaydet ki bir sonraki seferde Hive'dan hızlı gelsin
+            await _localHiveRepo.registerUser(userModel);
+            return userModel;
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('getUserByEmail Firestore fallback hatası: $e');
+    }
+    return null;
   }
 
   @override
