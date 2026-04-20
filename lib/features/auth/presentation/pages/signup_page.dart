@@ -25,6 +25,9 @@ class _SignUpPageState extends State<SignUpPage> {
 
   late final SignupPageState _signupState;
 
+  // Kullanıcı formu bir kez submit etmeye çalıştığında gerçek zamanlı validasyonu aktif et
+  bool _submitted = false;
+
   bool get _isPinVisible => _signupState.isPinVisible;
   bool get _isLoading => _signupState.isLoading;
   String? get _selectedSecurityQuestion =>
@@ -71,6 +74,9 @@ class _SignUpPageState extends State<SignUpPage> {
           padding: const EdgeInsets.all(24.0),
           child: Form(
             key: _formKey,
+            autovalidateMode: _submitted
+                ? AutovalidateMode.onUserInteraction
+                : AutovalidateMode.disabled,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -396,6 +402,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     onPressed: _isLoading
                         ? null
                         : () async {
+                            setState(() => _submitted = true);
                             if (!_formKey.currentState!.validate()) {
                               return;
                             }

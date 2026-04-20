@@ -27,6 +27,7 @@ class AppFormField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final String? initialValue;
   final Color? accentColor;
+  final AutovalidateMode? autovalidateMode;
 
   const AppFormField({
     super.key,
@@ -50,6 +51,7 @@ class AppFormField extends StatelessWidget {
     this.textInputAction,
     this.initialValue,
     this.accentColor,
+    this.autovalidateMode,
   });
 
   @override
@@ -58,6 +60,7 @@ class AppFormField extends StatelessWidget {
     final color = accentColor ?? ColorConstants.kirmiziVurgu;
 
     return TextFormField(
+      autovalidateMode: autovalidateMode,
       controller: controller,
       initialValue: controller == null ? initialValue : null,
       validator: validator,

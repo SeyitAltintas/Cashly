@@ -39,6 +39,7 @@ import 'package:cashly/features/payment_methods/domain/repositories/payment_meth
 import 'package:cashly/features/streak/data/services/streak_service.dart';
 import 'package:cashly/core/widgets/error_boundary.dart';
 import '../state/home_page_state.dart';
+import 'package:cashly/core/widgets/skeleton_widget.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
 /// Araçlar (0), Dashboard (1), Profil (2)
@@ -490,7 +491,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   }
 
   Widget _buildDashboardPage(String userName) {
-    if (_isLoading) return const Center(child: CircularProgressIndicator());
+    if (_isLoading) return const DashboardPageSkeleton();
 
     // Mor-mavi ton (varsayılan tema için)
     const refreshColor = Color(0xFF6C63FF);

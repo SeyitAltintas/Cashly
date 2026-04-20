@@ -137,7 +137,7 @@ class AuthRepositoryFirestore implements AuthRepository {
       final loggedInUser = await _localHiveRepo.loginUser(id, pin);
       if (loggedInUser != null) {
         await CloudSyncService.syncAllUserData(loggedInUser.id);
-        StreakService.syncFromCloud(loggedInUser.id); // fire-and-forget
+        await StreakService.syncFromCloud(loggedInUser.id);
       }
       return loggedInUser;
     } on FirebaseAuthException catch (e) {
@@ -171,7 +171,7 @@ class AuthRepositoryFirestore implements AuthRepository {
           ); // create or update on device
           await _localHiveRepo.setCurrentUser(userModel.id);
           await CloudSyncService.syncAllUserData(userModel.id);
-          StreakService.syncFromCloud(userModel.id); // fire-and-forget
+          await StreakService.syncFromCloud(userModel.id);
           return userModel;
         }
       }
@@ -224,7 +224,7 @@ class AuthRepositoryFirestore implements AuthRepository {
       try {
         await CloudSyncService.syncAllUserData(user.id)
             .timeout(const Duration(seconds: 15));
-        StreakService.syncFromCloud(user.id); // fire-and-forget
+        await StreakService.syncFromCloud(user.id);
       } catch (e) {
         debugPrint('getCurrentUser CloudSync Hatasi: $e');
       }
@@ -261,7 +261,7 @@ class AuthRepositoryFirestore implements AuthRepository {
       final user = await _localHiveRepo.loginWithBiometric(userId);
       if (user != null) {
         await CloudSyncService.syncAllUserData(user.id);
-        StreakService.syncFromCloud(user.id); // fire-and-forget
+        await StreakService.syncFromCloud(user.id);
       }
       return user;
     }
@@ -269,7 +269,7 @@ class AuthRepositoryFirestore implements AuthRepository {
     final user = await _localHiveRepo.loginWithBiometric(userId);
     if (user != null) {
       await CloudSyncService.syncAllUserData(user.id);
-      StreakService.syncFromCloud(user.id); // fire-and-forget
+      await StreakService.syncFromCloud(user.id);
     }
     return user;
   }

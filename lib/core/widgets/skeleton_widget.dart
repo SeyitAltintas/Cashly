@@ -529,3 +529,47 @@ class AssetsPageSkeleton extends StatelessWidget {
     );
   }
 }
+
+/// Dashboard sayfasi tam skeleton
+class DashboardPageSkeleton extends StatelessWidget {
+  const DashboardPageSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SingleChildScrollView(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Greeting
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SkeletonWidget(width: 120, height: 16, borderRadius: 4),
+                  SizedBox(height: 8),
+                  SkeletonWidget(width: 180, height: 28, borderRadius: 6),
+                ],
+              ),
+              SkeletonWidget(width: 50, height: 50, borderRadius: 25),
+            ],
+          ),
+          SizedBox(height: 24),
+          // Balance Card
+          SkeletonWidget(height: 140, borderRadius: 24),
+          SizedBox(height: 12),
+          // Credit Debt Card
+          SkeletonWidget(height: 80, borderRadius: 20),
+          SizedBox(height: 20),
+          // Monthly Summary Card
+          SkeletonWidget(height: 120, borderRadius: 20),
+          SizedBox(height: 20),
+          // Budget Status Card
+          SkeletonWidget(height: 180, borderRadius: 20),
+        ],
+      ),
+    );
+  }
+}
