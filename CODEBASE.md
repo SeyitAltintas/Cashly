@@ -37,6 +37,7 @@ lib/core/services/database_helper.dart     → Hive box operations
 lib/core/services/migration_flags.dart     → Hive↔Firestore feature flag
 lib/core/services/hive_to_firestore_migration.dart → One-time data migration
 lib/core/services/error_logger_service.dart → Hybrid error logger (Hive + Crashlytics)
+lib/core/services/cloud_sync_service.dart  → Cloud data sync on login & refresh
 lib/core/services/crashlytics_test_helper.dart → Crashlytics test utilities
 lib/core/domain/usecases/base_usecase.dart → UseCase<O,P>, Result<T>, NoParams
 lib/core/exceptions/app_exceptions.dart    → 8 exception classes
@@ -100,14 +101,14 @@ Every feature under `lib/features/{name}/` SHOULD have:
 
 | Feature | Purpose | Key Files | Firestore |
 |---|---|---|---|
-| `auth` | Login, signup, multi-user, biometric | `auth_controller`, `user_model`, `user_entity` | ❌ (lokal PIN) |
+| `auth` | Login, signup, multi-user, biometric | `auth_controller`, `user_model`, `user_entity` | ✅ CloudSync (UID) |
 | `dashboard` | Overview cards, budget status, recent txns | `dashboard_controller`, 6 card widgets | — |
 | `expenses` | CRUD, categories, filters, recycle bin | `expenses_controller`, `expense_repository_impl` | ✅ `expense_repository_firestore` |
 | `income` | CRUD, categories, recurring, recycle bin | `incomes_controller`, `income_repository_impl` | ✅ `income_repository_firestore` |
 | `assets` | Gold/forex/crypto tracking, live prices | `assets_controller`, `asset_model`, API prices | ✅ `asset_repository_firestore` |
 | `payment_methods` | Cards, cash, transfers, scheduled transfers | `payment_methods_controller`, `transfer_model` | ✅ `payment_method_repository_firestore` |
 | `analysis` | Charts (fl_chart), PDF export | `analysis_controller`, `pdf_export_page` | — |
-| `streak` | Gamification, daily streaks, badges | `streak_controller`, `streak_service`, celebration dialog | ❌ |
+| `streak` | Gamification, daily streaks, badges | `streak_controller`, `streak_service`, celebration dialog | ✅ `streak_repository_firestore` |
 | `settings` | 6 sub-modules (appearance, finance, voice, profile, notifications, support) | ~42 files | ❌ |
 | `tools` | Quick access menu | `tools_controller`, `tools_page` | — |
 | `home` | 3-tab bottom nav (Tools, Dashboard, Profile) | `home_page` (763 lines — refactor candidate) | — |
@@ -597,8 +598,8 @@ integration_test/      → 80 dosya (E2E kullanıcı akışları)
 | Repository overlap (core vs feature) | MEDIUM | `core/repositories/` duplicates some feature repo interfaces |
 | 4 features missing data/domain layers | MEDIUM | `analysis`, `dashboard`, `tools`, `home` |
 | Mixed TR/EN naming in code | LOW | Legacy files use Turkish variable names |
-| Streak/Settings/Category repos not on Firestore | MEDIUM | Only 4 main repos migrated |
-| FirebaseAuthService not yet implemented | LOW | Auth still uses local PIN only |
+| Settings/Category repos not on Firestore | MEDIUM | Streak migrated, Settings remain local |
+| FirebaseAuthService not yet implemented | LOW | Auth uses local PIN + CloudSync via UID |
 
 ---
 
