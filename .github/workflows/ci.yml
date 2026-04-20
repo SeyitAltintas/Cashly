@@ -58,6 +58,11 @@ jobs:
       - name: Generate l10n
         run: flutter gen-l10n
 
+      - name: Generate Firebase Options Stub
+        run: |
+          echo "import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;" > lib/firebase_options.dart
+          echo "class DefaultFirebaseOptions { static FirebaseOptions get currentPlatform => const FirebaseOptions(apiKey: 'dummy', appId: 'dummy', messagingSenderId: 'dummy', projectId: 'dummy'); }" >> lib/firebase_options.dart
+
       - name: Analyze code
         run: flutter analyze --no-fatal-infos
 
@@ -237,6 +242,11 @@ jobs:
       - name: Generate l10n
         run: flutter gen-l10n
 
+      - name: Generate Firebase Options Stub
+        run: |
+          echo "import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;" > lib/firebase_options.dart
+          echo "class DefaultFirebaseOptions { static FirebaseOptions get currentPlatform => const FirebaseOptions(apiKey: 'dummy', appId: 'dummy', messagingSenderId: 'dummy', projectId: 'dummy'); }" >> lib/firebase_options.dart
+
       # ─── KVM Hızlandırma (GitHub Actions ubuntu runner) ───
       - name: Enable KVM group permissions
         run: |
@@ -365,6 +375,11 @@ jobs:
 
       - name: Generate l10n
         run: flutter gen-l10n
+
+      - name: Generate Firebase Options Stub
+        run: |
+          echo "import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;" > lib/firebase_options.dart
+          echo "class DefaultFirebaseOptions { static FirebaseOptions get currentPlatform => const FirebaseOptions(apiKey: 'dummy', appId: 'dummy', messagingSenderId: 'dummy', projectId: 'dummy'); }" >> lib/firebase_options.dart
 
       - name: Build APK (debug)
         run: flutter build apk --debug
