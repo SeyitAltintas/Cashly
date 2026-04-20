@@ -247,8 +247,9 @@ void main() {
         );
 
         expect(result, isFalse);
-        expect(authController.error, contains('bulunamadı'));
+        expect(authController.error, contains('Hatalı'));
       });
+
 
       test('yanlış PIN ile giriş başarısız olur', () async {
         final result = await authController.loginByEmail(

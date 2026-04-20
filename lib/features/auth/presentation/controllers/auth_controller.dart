@@ -18,12 +18,16 @@ class AuthController extends ChangeNotifier {
   }
 
   void _initAuthListener() {
-    _authListenerSub = FirebaseAuth.instance.userChanges().listen((User? user) async {
-      if (user == null && _currentUser != null) {
-        debugPrint('Bulut kaynaklı çıkış (Force Logout) algılandı, lokal oturum temizleniyor.');
-        await logout();
-      }
-    });
+    try {
+      _authListenerSub = FirebaseAuth.instance.userChanges().listen((User? user) async {
+        if (user == null && _currentUser != null) {
+          debugPrint('Bulut kaynaklı çıkış (Force Logout) algılandı, lokal oturum temizleniyor.');
+          await logout();
+        }
+      });
+    } catch (e) {
+      debugPrint('Firebase Auth Listener başlatılamadı (Test ortamı olabilir): $e');
+    }
   }
 
   UserEntity? get currentUser => _currentUser;
