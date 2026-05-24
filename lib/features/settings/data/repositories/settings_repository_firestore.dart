@@ -34,7 +34,9 @@ class SettingsRepositoryFirestore implements SettingsRepository {
   Future<bool> fetchVoiceFeedbackEnabled(String userId) async {
     try {
       final doc = await _settingsDoc(userId).get();
-      final value = (doc.data() as Map<String, dynamic>?)?['voiceFeedback'] as bool? ?? true;
+      final value =
+          (doc.data() as Map<String, dynamic>?)?['voiceFeedback'] as bool? ??
+          true;
       CacheService.set('voice_feedback_$userId', value);
       return value;
     } catch (e) {
@@ -46,10 +48,9 @@ class SettingsRepositoryFirestore implements SettingsRepository {
   @override
   Future<void> saveVoiceFeedbackEnabled(String userId, bool enabled) async {
     try {
-      await _settingsDoc(userId).set(
-        {'voiceFeedback': enabled},
-        SetOptions(merge: true),
-      );
+      await _settingsDoc(
+        userId,
+      ).set({'voiceFeedback': enabled}, SetOptions(merge: true));
       CacheService.set('voice_feedback_$userId', enabled);
     } catch (e) {
       debugPrint('Firestore sesli geri bildirim ayarı kaydedilirken hata: $e');
@@ -68,7 +69,8 @@ class SettingsRepositoryFirestore implements SettingsRepository {
   Future<int> fetchTransferHistoryLimit(String userId) async {
     try {
       final doc = await _settingsDoc(userId).get();
-      final raw = (doc.data() as Map<String, dynamic>?)?['transferHistoryLimit'];
+      final raw =
+          (doc.data() as Map<String, dynamic>?)?['transferHistoryLimit'];
       int limit = 30;
       if (raw is int) {
         if (raw < -1 || raw == 0) {
@@ -92,10 +94,9 @@ class SettingsRepositoryFirestore implements SettingsRepository {
       int safeLimit = limit;
       if (limit < -1 || limit == 0) safeLimit = 30;
 
-      await _settingsDoc(userId).set(
-        {'transferHistoryLimit': safeLimit},
-        SetOptions(merge: true),
-      );
+      await _settingsDoc(
+        userId,
+      ).set({'transferHistoryLimit': safeLimit}, SetOptions(merge: true));
       CacheService.set('transfer_limit_$userId', safeLimit);
     } catch (e) {
       debugPrint('Firestore transfer geçmişi limiti kaydedilirken hata: $e');
@@ -112,10 +113,21 @@ class SettingsRepositoryFirestore implements SettingsRepository {
 
       // Tüm alt koleksiyonlar (profile ve recurringIncomes de dahil)
       final collections = [
-        'expenses', 'incomes', 'recurringIncomes', 'assets', 'deletedAssets',
-        'paymentMethods', 'deletedPaymentMethods', 'transfers',
-        'expenseCategories', 'incomeCategories', 'categories',
-        'recurring', 'streak', 'settings', 'profile',
+        'expenses',
+        'incomes',
+        'recurringIncomes',
+        'assets',
+        'deletedAssets',
+        'paymentMethods',
+        'deletedPaymentMethods',
+        'transfers',
+        'expenseCategories',
+        'incomeCategories',
+        'categories',
+        'recurring',
+        'streak',
+        'settings',
+        'profile',
       ];
 
       for (final col in collections) {
