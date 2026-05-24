@@ -3,6 +3,7 @@ import 'package:cashly/features/expenses/domain/repositories/expense_repository.
 import 'package:cashly/features/income/domain/repositories/income_repository.dart';
 import 'package:cashly/features/income/data/models/income_model.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
+import 'package:uuid/uuid.dart';
 
 /// Tekrarlayan harcama ve gelir işlemlerini kontrol eden servis.
 /// Her ay belirli günlerde otomatik olarak harcama/gelir ekler.
@@ -57,14 +58,17 @@ class RecurringTransactionService {
 
         // Harcama ekle - tarih belirlenen güne göre ayarlanır
         final islemTarihi = DateTime(bugun.year, bugun.month, gun);
-        tumHarcamalar.add({
+        final yeniHarcama = {
+          'id': const Uuid().v4(),
           'isim': isim,
           'tutar': tutar,
           'kategori': 'Tekrarlayan İşlemler',
           'tarih': islemTarihi.toString(),
           'silindi': false,
           'odemeYontemiId': odemeYontemiId,
-        });
+        };
+        tumHarcamalar.add(yeniHarcama);
+        expenseRepo.addExpense(userId, yeniHarcama);
 
         // Ödeme yönteminden düş
         if (odemeYontemiId != null) {
@@ -99,7 +103,10 @@ class RecurringTransactionService {
 
     if (eklenenHarcamaAdet > 0) {
       // Verileri kaydet
-      getIt<ExpenseRepository>().saveExpenses(userId, tumHarcamalar);
+      for (var sablon in tekrarlayanIslemler) {
+        // Sablonlari guncelle (son islem tarihi degisti)
+        // Sabit giderleri ayrica guncelleyen metod kullanilmali
+      }
       getIt<ExpenseRepository>().saveFixedExpenseTemplates(
         userId,
         tekrarlayanIslemler,
@@ -139,7 +146,7 @@ class RecurringTransactionService {
         // Gelir ekle - tarih belirlenen güne göre ayarlanır
         final islemTarihi = DateTime(bugun.year, bugun.month, gun);
         final yeniGelir = Income(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          id: const Uuid().v4(),
           name: isim,
           amount: tutar,
           category: 'Tekrarlayan Gelirler',
@@ -147,6 +154,7 @@ class RecurringTransactionService {
           paymentMethodId: odemeYontemiId,
         );
         tumGelirler.add(yeniGelir);
+        incomeRepo.addIncome(userId, yeniGelir.toMap());
 
         // Ödeme yöntemine ekle (bakiye artar)
         if (odemeYontemiId != null) {
@@ -176,10 +184,6 @@ class RecurringTransactionService {
     if (eklenenGelirAdet > 0) {
       // Gelirleri kaydet
       final incomeRepo = getIt<IncomeRepository>();
-      List<Map<String, dynamic>> gelirMapleri = tumGelirler
-          .map((income) => income.toMap())
-          .toList();
-      incomeRepo.saveIncomes(userId, gelirMapleri);
       incomeRepo.saveRecurringIncomes(userId, tekrarlayanGelirler);
     }
   }

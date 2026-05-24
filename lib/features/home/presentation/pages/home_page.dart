@@ -290,8 +290,8 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     }
 
     if (transferDegisti) {
-      _odemeYontemleriKaydet();
-      _transferleriKaydet();
+      // _odemeYontemleriKaydet(); // İptal edildi
+      // _transferleriKaydet(); // İptal edildi
 
       // UI'ı güncelle - ChangeNotifier ile
       _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
@@ -324,7 +324,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
       if (mounted) {
         _homeState.varliklar = updatedAssets;
-        _varliklariKaydet();
+        for (var asset in updatedAssets) {
+          getIt<AssetRepository>().updateAsset(widget.authController.currentUser!.id, asset.toMap());
+        }
       }
     } catch (e) {
       // Sessizce geç, kullanıcıyı rahatsız etme
@@ -733,18 +735,16 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             // İleri tarihli transfer - bakiye değişmez, zamanlanmış olarak kaydedilir
 
             // Transfer kaydını oluştur
-            tumTransferler.insert(
-              0,
-              Transfer(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                fromAccountId: fromId,
-                toAccountId: toId,
-                amount: amount,
-                date: date,
-                isScheduled: isScheduled,
-                isExecuted: !isScheduled, // Anında transfer zaten uygulandı
-                paraBirimi: getIt<CurrencyService>().currentCurrency,
-              );
+            final newTransfer = Transfer(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              fromAccountId: fromId,
+              toAccountId: toId,
+              amount: amount,
+              date: date,
+              isScheduled: isScheduled,
+              isExecuted: !isScheduled, // Anında transfer zaten uygulandı
+              paraBirimi: getIt<CurrencyService>().currentCurrency,
+            );
             tumTransferler.insert(
               0,
               newTransfer

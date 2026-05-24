@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 import '../../../../core/services/speech/speech_service.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../../payment_methods/domain/repositories/payment_method_repository.dart';

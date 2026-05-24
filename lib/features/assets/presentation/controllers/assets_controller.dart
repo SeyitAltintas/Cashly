@@ -189,25 +189,25 @@ class AssetsController extends ChangeNotifier {
     }
   }
 
-  Future<void> saveAssets() async {
-    try {
-      final data = _assets.map((a) => a.toMap()).toList();
-      await _assetRepository.saveAssets(userId, data);
-    } catch (e, s) {
-      ErrorHandler.logError('AssetsController.saveAssets', e, s);
-      throw DatabaseException.writeFailed(e);
-    }
-  }
+  // Future<void> saveAssets() async {
+  //   try {
+  //     final data = _assets.map((a) => a.toMap()).toList();
+  //     await _assetRepository.saveAssets(userId, data);
+  //   } catch (e, s) {
+  //     ErrorHandler.logError('AssetsController.saveAssets', e, s);
+  //     throw DatabaseException.writeFailed(e);
+  //   }
+  // }
 
-  Future<void> saveDeletedAssets() async {
-    try {
-      final data = _deletedAssets.map((a) => a.toMap()).toList();
-      await _assetRepository.saveDeletedAssets(userId, data);
-    } catch (e, s) {
-      ErrorHandler.logError('AssetsController.saveDeletedAssets', e, s);
-      throw DatabaseException.writeFailed(e);
-    }
-  }
+  // Future<void> saveDeletedAssets() async {
+  //   try {
+  //     final data = _deletedAssets.map((a) => a.toMap()).toList();
+  //     await _assetRepository.saveDeletedAssets(userId, data);
+  //   } catch (e, s) {
+  //     ErrorHandler.logError('AssetsController.saveDeletedAssets', e, s);
+  //     throw DatabaseException.writeFailed(e);
+  //   }
+  // }
 
   // ===== FİLTRELEME =====
 
