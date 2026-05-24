@@ -22,6 +22,7 @@ class ForgotPasswordHelper {
     String? errorMessage;
     String? successMessage;
     bool isSending = false;
+    bool isSent = false; // Başarılı gönderimlerde butonu kilitle
 
     showModalBottomSheet(
       context: context,
@@ -62,7 +63,7 @@ class ForgotPasswordHelper {
                         fontSize: 14,
                         color: Theme.of(
                           sheetContext,
-                        ).colorScheme.onSurface.withAlpha(180),
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -78,44 +79,51 @@ class ForgotPasswordHelper {
                       _buildMessageBox(
                           builderContext, successMessage, errorMessage),
                     const SizedBox(height: 24),
-                    isSending 
-                      ? const Center(child: CircularProgressIndicator()) 
+                    // FIX-1: isSending VEYA isSent iken spinner/disabled göster
+                    isSending
+                      ? const Center(child: CircularProgressIndicator())
                       : _buildContinueButton(
-                      sheetContext,
-                      onPressed: () async {
-                        if (!formKey.currentState!.validate()) return;
+                        sheetContext,
+                        // FIX-2: Başarılı gönderi sonrası buton kilitleniyor
+                        enabled: !isSent,
+                        onPressed: () async {
+                          if (!formKey.currentState!.validate()) return;
 
-                        final email = emailController.text.trim();
-                        final user = await authController.getUserByEmail(email);
+                          final email = emailController.text.trim();
 
-                        if (!context.mounted) return;
+                          // FIX-1: Race condition önleme — önce gönderiliyor bayrağını kıl,
+                          // getUserByEmail async bekleme süresinde ikinci tap mümkün olmasın.
+                          setSheetState(() => isSending = true);
 
-                        if (user == null) {
-                          setSheetState(() {
-                            errorMessage = context.l10n.userNotFoundWithEmail;
-                          });
-                          return;
-                        }
+                          final user = await authController.getUserByEmail(email);
 
-                        setSheetState(() => isSending = true);
-                        
-                        final sent = await authController.sendPinResetEmailLink(email);
-                        
-                        if (!context.mounted) return;
+                          if (!context.mounted) return;
 
-                        setSheetState(() {
-                          isSending = false;
-                          if (sent) {
-                            successMessage = "Bağlantı e-posta adresinize gönderildi. Lütfen e-postanızı kontrol edin.";
-                            errorMessage = null;
-                          } else {
-                            errorMessage = authController.error ?? "Bağlantı gönderilemedi.";
-                            successMessage = null;
+                          if (user == null) {
+                            setSheetState(() {
+                              isSending = false;
+                              errorMessage = context.l10n.userNotFoundWithEmail;
+                            });
+                            return;
                           }
-                        });
-                        
-                      },
-                    ),
+
+                          final sent = await authController.sendPinResetEmailLink(email);
+
+                          if (!context.mounted) return;
+
+                          setSheetState(() {
+                            isSending = false;
+                            if (sent) {
+                              isSent = true; // FIX-2: Butonu kilitle
+                              successMessage = "Bağlantı e-posta adresinize gönderildi. Lütfen e-postasınızı kontrol edin.";
+                              errorMessage = null;
+                            } else {
+                              errorMessage = authController.error ?? "Bağlantı gönderilemedi.";
+                              successMessage = null;
+                            }
+                          });
+                        },
+                      ),
                     const SizedBox(height: 12),
                   ],
                 ),
@@ -181,7 +189,7 @@ class ForgotPasswordHelper {
                           fontSize: 14,
                           color: Theme.of(
                             builderContext,
-                          ).colorScheme.onSurface.withAlpha(180),
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -217,28 +225,32 @@ class ForgotPasswordHelper {
                         context,
                         onPressed: () async {
                           if (!formKey.currentState!.validate()) return;
-  
+
                           final newPin = pinController.text;
                           
                           setSheetState(() => isSaving = true);
-  
+
                           final success = await authController.verifyEmailLinkAndSetPin(email, emailLink, newPin);
                           
                           if (!context.mounted) return;
                           
                           setSheetState(() => isSaving = false);
-  
+
                           if (success) {
                             setSheetState(() {
                               successMessage = context.l10n.pinUpdatedSuccess;
                               errorMessage = null;
                             });
-  
+
                             await Future.delayed(
                               const Duration(milliseconds: 1500),
                             );
                             if (!context.mounted) return;
-                            Navigator.pop(sheetContext);
+
+                            // FIX-5: Sheet kapatılıp login sayfasına yönlendir.
+                            // Kullanıcı yeni PIN ile giriş yapmalı (verifyEmailLink zaten oturum açtı
+                            // ama AuthController'da checkAuth yapılması için route sıfırlanır).
+                            Navigator.of(context).popUntil((route) => route.isFirst);
                           } else {
                             setSheetState(
                               () => errorMessage = authController.error ?? "Güncelleme başarısız oldu.",
@@ -307,7 +319,9 @@ class ForgotPasswordHelper {
         if (value == null || value.trim().isEmpty) {
           return context.l10n.pleaseEnterEmail;
         }
-        if (!value.contains('@')) {
+        // FIX-3: Gerçek e-posta formatı kontrolü
+        final emailRegex = RegExp(r'^[\w.+\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}');
+        if (!emailRegex.hasMatch(value.trim())) {
           return context.l10n.enterValidEmail;
         }
         return null;
@@ -513,24 +527,27 @@ class ForgotPasswordHelper {
   Widget _buildContinueButton(
     BuildContext ctx, {
     required VoidCallback onPressed,
+    bool enabled = true, // FIX-2: enabled parametresi eklendi
   }) {
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: enabled ? onPressed : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(ctx).colorScheme.primary,
+          backgroundColor: enabled
+              ? Theme.of(ctx).colorScheme.primary
+              : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(50),
           ),
         ),
         child: Text(
           context.l10n.continueButton,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: enabled ? Colors.white : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.38),
           ),
         ),
       ),

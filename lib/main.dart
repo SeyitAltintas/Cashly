@@ -256,7 +256,6 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
     if (uri.path.contains('/__/auth/action') || uri.path.contains('/__/auth/links')) {
       String? email = uri.queryParameters['email'];
       
-      // Eğer email parametresi direkt URL'de yoksa, continueUrl içinde arayalım (Firebase yapısı)
       if (email == null || email.isEmpty) {
         final continueUrlStr = uri.queryParameters['continueUrl'];
         if (continueUrlStr != null && continueUrlStr.isNotEmpty) {
@@ -267,24 +266,43 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
         }
       }
 
-      debugPrint('Uygulama linki alındı: ${uri.path}. Bulunan Email: $email');
+      debugPrint('Deep link alındı: ${uri.path}. Bulunan Email: $email');
+
       if (email != null && email.isNotEmpty) {
-        // AppRouter vs yüklenmesi için biraz bekle
-        Future.delayed(const Duration(milliseconds: 1500), () {
-          final context = AppRouter.navigatorKey.currentContext;
-          if (context != null && context.mounted) {
-            ForgotPasswordHelper.showSetNewPinSheet(
-              context,
-              getIt<AuthController>(),
-              email!,
-              uri.toString(),
-            );
-          } else {
-            debugPrint('Deep Link işlenemedi: Navigator context bulunamadı.');
-          }
-        });
+        final capturedEmail = email;
+        final capturedUri = uri.toString();
+
+        // FIX-4: Hardcoded 1500ms yerine retry loop.
+        // AppRouter hazır olana kadar (max 5 saniye) context'i bekle.
+        _waitForContextAndShowSheet(capturedEmail, capturedUri);
       }
     }
+  }
+
+  /// Navigator context hazır olana kadar 200ms aralıklarla tekrar dener (max 25 kez = 5 sn).
+  void _waitForContextAndShowSheet(String email, String emailLink, {int attempt = 0}) {
+    const maxAttempts = 25;
+    const retryDelay = Duration(milliseconds: 200);
+
+    final context = AppRouter.navigatorKey.currentContext;
+    if (context != null && context.mounted) {
+      ForgotPasswordHelper.showSetNewPinSheet(
+        context,
+        getIt<AuthController>(),
+        email,
+        emailLink,
+      );
+      return;
+    }
+
+    if (attempt >= maxAttempts) {
+      debugPrint('Deep Link işlenemedi: Navigator context $maxAttempts denemede hazır olmadı.');
+      return;
+    }
+
+    Future.delayed(retryDelay, () {
+      _waitForContextAndShowSheet(email, emailLink, attempt: attempt + 1);
+    });
   }
 
   @override
