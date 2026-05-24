@@ -451,6 +451,9 @@ class AuthRepositoryFirestore implements AuthRepository {
       final lastSync = await _localHiveRepo.getLastOnlineSync(user.id);
       if (lastSync != null) {
         final diff = DateTime.now().difference(lastSync);
+        if (diff.isNegative) { // FIX: Saat manipülasyonu / Time Travel kontrolü
+           throw SessionExpiredException('Güvenlik nedeniyle (cihaz saati hatalı) lütfen internete bağlanarak giriş yapın.');
+        }
         if (diff.inHours > 48) { // 48 saat sınırı (Offline kullanım süresi dolmuş)
            throw SessionExpiredException('Güvenlik nedeniyle (uzun süredir çevrimdışı) lütfen internete bağlanarak veya PIN kodunuzu girerek tekrar giriş yapın.');
         }
