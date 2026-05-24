@@ -406,11 +406,40 @@ class ProfileSettingsHelper {
                         if (step == 1) {
                           setStateBottomSheet(() => step = 2);
                         } else {
-                          _updateUser(
-                            pin: newPinController.text,
-                            successMessage: context.l10n.pinUpdated,
-                          );
-                          Navigator.pop(ctx);
+                          // FIX-8: PIN değişimi sadece profil güncellemesi değildir.
+                          // Firebase Auth şifresi de güncellenmelidir. Bu yüzden _updateUser
+                          // yerine özel updateUserPin çağrılmalıdır.
+                          try {
+                            authController
+                                .updateUserPin(
+                                  currentUser.id,
+                                  newPinController.text,
+                                )
+                                .then((_) {
+                              if (ctx.mounted) {
+                                AppSnackBar.success(
+                                  ctx,
+                                  context.l10n.pinUpdated,
+                                );
+                                Navigator.pop(ctx);
+                              }
+                            }).catchError((e) {
+                              if (ctx.mounted) {
+                                final isRecentLoginRequired =
+                                    e.toString().contains(
+                                      'requires-recent-login',
+                                    );
+                                AppSnackBar.error(
+                                  ctx,
+                                  isRecentLoginRequired
+                                      ? 'Güvenlik doğrulaması gerekiyor. Lütfen çıkış yapıp tekrar giriş yapın ve ardından PIN kodunuzu güncelleyin.'
+                                      : context.l10n.updateFailed(e.toString()),
+                                );
+                              }
+                            });
+                          } catch (e) {
+                            debugPrint('PIN Change Error: $e');
+                          }
                         }
                       }
                     },

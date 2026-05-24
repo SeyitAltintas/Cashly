@@ -189,7 +189,21 @@ class AuthRepositoryFirestore implements AuthRepository {
             .doc('info')
             .get();
         if (doc.exists && doc.data() != null) {
-          final userModel = UserModel.fromMap(doc.data()!);
+          final userModelFromFirestore = UserModel.fromMap(doc.data()!);
+
+          // FIX-7: Firestore'da PIN güvenli tutulmadığı (olmadığı) için
+          // inen profilde PIN boştur. Cihaza kaydetmeden önce başarılı olan
+          // gerçek PIN'i enjekte ediyoruz ki sonraki girişlerde kilitlenmesin.
+          final userModel = UserModel(
+            id: userModelFromFirestore.id,
+            name: userModelFromFirestore.name,
+            email: userModelFromFirestore.email,
+            pin: pin,
+            profileImage: userModelFromFirestore.profileImage,
+            createdAt: userModelFromFirestore.createdAt,
+            lastLoginAt: userModelFromFirestore.lastLoginAt,
+            biometricEnabled: userModelFromFirestore.biometricEnabled,
+          );
 
           await _localHiveRepo.registerUser(
             userModel,
