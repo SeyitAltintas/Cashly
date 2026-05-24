@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import '../../../../core/services/secure_storage_service.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
@@ -10,14 +11,16 @@ class AuthRepositoryImpl implements AuthRepository {
 
   Future<Box> _getUsersBox() async {
     if (!Hive.isBoxOpen(_usersBoxName)) {
-      return await Hive.openBox(_usersBoxName);
+      // FIX-9: Yerel hafızadaki PIN sızıntısını kapatmak için AES şifreli kutu kullanıyoruz
+      return await SecureStorageService.openSecureBox(_usersBoxName);
     }
     return Hive.box(_usersBoxName);
   }
 
   Future<Box> _getSessionBox() async {
     if (!Hive.isBoxOpen(_sessionBoxName)) {
-      return await Hive.openBox(_sessionBoxName);
+      // FIX-9: Session bilgileri de güvenli kutuda tutulmalı
+      return await SecureStorageService.openSecureBox(_sessionBoxName);
     }
     return Hive.box(_sessionBoxName);
   }
