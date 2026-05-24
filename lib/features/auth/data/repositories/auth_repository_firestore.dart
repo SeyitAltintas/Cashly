@@ -318,24 +318,29 @@ class AuthRepositoryFirestore implements AuthRepository {
   @override
   Future<UserEntity?> loginWithBiometric(String userId) async {
     final firebaseUser = _firebaseAuth.currentUser;
+
+    // FIX-10: Firebase oturumu (token) iptal olmuşsa, Biyometrik ile giriş yapılamaz
+    // çünkü arka planda Firebase Auth ile tekrar giriş yapamayız (PIN elimizde yok).
+    // Kullanıcıyı PIN girmeye zorlamalıyız ki Firebase Auth signIn tekrar çalışsın.
+    if (firebaseUser == null || firebaseUser.uid != userId) {
+      throw Exception(
+        'Güvenlik nedeniyle (oturum süresi doldu) lütfen PIN kodunuz ile giriş yapın.',
+      );
+    }
+
     final user = await _localHiveRepo.loginWithBiometric(userId);
 
     if (user == null) return null;
 
-    // FIX-4: Firebase oturumu açıksa sync yap, yoksa sessizce geç.
-    // Oturum kapalıyken Firestore'a erişim permission-denied fırlatır.
-    if (firebaseUser != null && firebaseUser.uid == userId) {
-      try {
-        await CloudSyncService.syncAllUserData(user.id);
-        await StreakService.syncFromCloud(user.id);
-      } catch (e) {
-        debugPrint('Biyometrik giriş sonrası sync hatası (offline?): $e');
-      }
-    } else {
-      debugPrint(
-        'loginWithBiometric: Firebase oturumu yok, sync atlandı (offline mod).',
-      );
+    // firebaseUser null kontrolü yukarıda (FIX-10) yapıldığı için, 
+    // buraya ulaşıldığında oturum kesinlikle aktiftir. Sync işlemini direkt yapabiliriz.
+    try {
+      await CloudSyncService.syncAllUserData(user.id);
+      await StreakService.syncFromCloud(user.id);
+    } catch (e) {
+      debugPrint('Biyometrik giriş sonrası sync hatası (offline?): $e');
     }
+
     return user;
   }
 
