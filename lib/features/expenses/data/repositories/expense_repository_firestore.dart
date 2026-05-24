@@ -47,30 +47,66 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   }
 
   @override
-  Future<void> saveExpenses(
-    String userId,
-    List<Map<String, dynamic>> expenses,
-  ) async {
+  Future<void> addExpense(String userId, Map<String, dynamic> expense) async {
     try {
-      final colRef = _userDoc(userId).collection('expenses');
-      final existing =
-          await colRef.get().timeout(const Duration(seconds: 10));
+      if ((expense['id']?.toString() ?? '').isEmpty) {
+        throw Exception('Harcama eklenirken ID eksik!');
+      }
+      final docRef = _userDoc(userId).collection('expenses').doc(expense['id'].toString());
+      final data = _convertStringToTimestamp(expense);
+      await docRef.set(data);
 
-      final ops = [
-        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
-        ...expenses
-            .where((e) => (e['id']?.toString() ?? '').isNotEmpty)
-            .map((e) {
-          final data = _convertStringToTimestamp(e);
-          return _BatchOp(colRef.doc(e['id'].toString()), data);
-        }),
-      ];
-      await _commitInChunks(ops);
-      CacheService.set('expenses_$userId', expenses);
-    } on TimeoutException {
-      debugPrint('Firestore harcama kaydetme zaman aşımına uğradı, yerel cache korundu.');
+      // Cache'i güncelle
+      final cacheKey = 'expenses_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      // Aynı ID'de veri varsa ekleme
+      if (!cached.any((e) => e['id'] == expense['id'])) {
+        cached.add(expense);
+        CacheService.set(cacheKey, cached);
+      }
     } catch (e) {
-      debugPrint('Firestore harcama kaydetme hatası: $e');
+      debugPrint('Firestore harcama ekleme hatası: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateExpense(String userId, Map<String, dynamic> expense) async {
+    try {
+      if ((expense['id']?.toString() ?? '').isEmpty) {
+        throw Exception('Harcama güncellenirken ID eksik!');
+      }
+      final docRef = _userDoc(userId).collection('expenses').doc(expense['id'].toString());
+      final data = _convertStringToTimestamp(expense);
+      await docRef.update(data);
+
+      // Cache'i güncelle
+      final cacheKey = 'expenses_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final index = cached.indexWhere((e) => e['id'] == expense['id']);
+      if (index != -1) {
+        cached[index] = expense;
+        CacheService.set(cacheKey, cached);
+      }
+    } catch (e) {
+      debugPrint('Firestore harcama güncelleme hatası: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteExpense(String userId, String expenseId) async {
+    try {
+      final docRef = _userDoc(userId).collection('expenses').doc(expenseId);
+      await docRef.delete();
+
+      // Cache'i güncelle
+      final cacheKey = 'expenses_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      cached.removeWhere((e) => e['id'] == expenseId);
+      CacheService.set(cacheKey, cached);
+    } catch (e) {
+      debugPrint('Firestore harcama silme hatası: $e');
       rethrow;
     }
   }
@@ -243,27 +279,4 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
     return data;
   }
 
-  /// Firestore WriteBatch 500-op limitini aşmamak için 450'şerlik chunk'lara böler.
-  Future<void> _commitInChunks(List<_BatchOp> ops) async {
-    const chunkSize = 450;
-    for (int i = 0; i < ops.length; i += chunkSize) {
-      final chunk = ops.sublist(i, (i + chunkSize).clamp(0, ops.length));
-      final batch = _firestore.batch();
-      for (final op in chunk) {
-        if (op.data == null) {
-          batch.delete(op.ref);
-        } else {
-          batch.set(op.ref, op.data!);
-        }
-      }
-      await batch.commit().timeout(const Duration(seconds: 10));
-    }
-  }
-}
-
-/// Batch işlemini temsil eden yardımcı sınıf (set veya delete)
-class _BatchOp {
-  final DocumentReference ref;
-  final Map<String, dynamic>? data;
-  const _BatchOp(this.ref, this.data);
 }

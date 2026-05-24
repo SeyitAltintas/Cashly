@@ -29,7 +29,7 @@ class SaveIncomes implements UseCase<void, SaveIncomesParams> {
 
   @override
   Future<void> call(SaveIncomesParams params) async {
-    await repository.saveIncomes(params.userId, params.incomes);
+    throw UnimplementedError('saveIncomes is deprecated. Use add/update/delete Income instead.');
   }
 }
 
@@ -47,9 +47,7 @@ class AddIncome implements UseCase<void, AddIncomeParams> {
 
   @override
   Future<void> call(AddIncomeParams params) async {
-    final incomes = repository.getIncomes(params.userId);
-    incomes.add(params.income);
-    await repository.saveIncomes(params.userId, incomes);
+    await repository.addIncome(params.userId, params.income);
   }
 }
 
@@ -67,12 +65,7 @@ class UpdateIncome implements UseCase<void, UpdateIncomeParams> {
 
   @override
   Future<void> call(UpdateIncomeParams params) async {
-    final incomes = repository.getIncomes(params.userId);
-    final index = incomes.indexWhere((i) => i['id'] == params.income['id']);
-    if (index != -1) {
-      incomes[index] = params.income;
-      await repository.saveIncomes(params.userId, incomes);
-    }
+    await repository.updateIncome(params.userId, params.income);
   }
 }
 
@@ -90,12 +83,7 @@ class DeleteIncome implements UseCase<void, DeleteIncomeParams> {
 
   @override
   Future<void> call(DeleteIncomeParams params) async {
-    final incomes = repository.getIncomes(params.userId);
-    final index = incomes.indexWhere((i) => i['id'] == params.incomeId);
-    if (index != -1) {
-      incomes[index]['isDeleted'] = true;
-      await repository.saveIncomes(params.userId, incomes);
-    }
+    await repository.deleteIncome(params.userId, params.incomeId);
   }
 }
 

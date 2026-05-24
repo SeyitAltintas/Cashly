@@ -120,6 +120,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
     );
 
     if (onay == true) {
+      final _silinenlerKopya = List<Map<String, dynamic>>.from(silinenHarcamalar);
       if (_controller != null) {
         _controller!.binEmptyBin();
       } else {
@@ -127,7 +128,9 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
         _localSilinenHarcamalar.clear();
         setState(() {});
       }
-      getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
+      for (var harcama in _silinenlerKopya) {
+        await getIt<ExpenseRepository>().deleteExpense(widget.userId, harcama['id']);
+      }
       if (mounted) {
         AppSnackBar.deleted(context, context.l10n.trashBinEmptied);
       }
@@ -142,15 +145,8 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
       _localSilinenHarcamalar.remove(harcama);
       setState(() {});
     }
-    getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
-    // Ödeme yöntemlerini kaydet
-    List<Map<String, dynamic>> pmMapleri = odemeYontemleri
-        .map((pm) => pm.toMap())
-        .toList();
-    getIt<PaymentMethodRepository>().savePaymentMethods(
-      widget.userId,
-      pmMapleri,
-    );
+    await getIt<ExpenseRepository>().updateExpense(widget.userId, harcama);
+    // Payment methods have been updated locally, they will be synced when their balances change
 
     if (mounted) {
       AppSnackBar.success(context, context.l10n.expenseRestored);
@@ -165,7 +161,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
       _localSilinenHarcamalar.remove(harcama);
       setState(() {});
     }
-    getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
+    await getIt<ExpenseRepository>().deleteExpense(widget.userId, harcama['id']);
     if (mounted) {
       AppSnackBar.deleted(context, context.l10n.expensePermanentlyDeleted);
     }
@@ -214,6 +210,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
     );
 
     if (onay == true) {
+      final _silinenlerKopya = List<Map<String, dynamic>>.from(silinenHarcamalar);
       // State metoduyla tüm harcamaları geri yükle (bakiye güncelleme dahil)
       if (_controller != null) {
         _controller!.binRestoreAll();
@@ -226,14 +223,10 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
       }
 
       // Verileri kaydet
-      getIt<ExpenseRepository>().saveExpenses(widget.userId, tumHarcamalarHam);
-      List<Map<String, dynamic>> pmMapleri = odemeYontemleri
-          .map((pm) => pm.toMap())
-          .toList();
-      getIt<PaymentMethodRepository>().savePaymentMethods(
-        widget.userId,
-        pmMapleri,
-      );
+      for (var harcama in _silinenlerKopya) {
+          await getIt<ExpenseRepository>().updateExpense(widget.userId, harcama);
+      }
+      // Payment methods have been updated locally, they will be synced when their balances change
 
       if (mounted) {
         AppSnackBar.success(context, context.l10n.allExpensesRestored);

@@ -4,8 +4,14 @@ abstract class IncomeRepository {
   /// Kullanıcının tüm gelirlerini getirir
   List<Map<String, dynamic>> getIncomes(String userId);
 
-  /// Kullanıcının gelirlerini kaydeder
-  Future<void> saveIncomes(String userId, List<Map<String, dynamic>> incomes);
+  /// Yeni bir gelir ekler
+  Future<void> addIncome(String userId, Map<String, dynamic> income);
+
+  /// Mevcut bir geliri günceller
+  Future<void> updateIncome(String userId, Map<String, dynamic> income);
+
+  /// Bir geliri siler
+  Future<void> deleteIncome(String userId, String incomeId);
 
   /// Gelir kategorilerini getirir
   /// Not: CategoryRepository.getIncomeCategories alternatif olarak kullanılabilir

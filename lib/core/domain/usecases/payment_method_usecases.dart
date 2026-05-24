@@ -30,7 +30,8 @@ class SavePaymentMethods implements UseCase<void, SavePaymentMethodsParams> {
 
   @override
   Future<void> call(SavePaymentMethodsParams params) async {
-    await repository.savePaymentMethods(params.userId, params.paymentMethods);
+    // Deprecated: Batch save is no longer supported. 
+    // This is left here to not break DI.
   }
 }
 
@@ -51,9 +52,7 @@ class AddPaymentMethod implements UseCase<void, AddPaymentMethodParams> {
 
   @override
   Future<void> call(AddPaymentMethodParams params) async {
-    final paymentMethods = repository.getPaymentMethods(params.userId);
-    paymentMethods.add(params.paymentMethod);
-    await repository.savePaymentMethods(params.userId, paymentMethods);
+    await repository.addPaymentMethod(params.userId, params.paymentMethod);
   }
 }
 
@@ -74,14 +73,7 @@ class UpdatePaymentMethod implements UseCase<void, UpdatePaymentMethodParams> {
 
   @override
   Future<void> call(UpdatePaymentMethodParams params) async {
-    final paymentMethods = repository.getPaymentMethods(params.userId);
-    final index = paymentMethods.indexWhere(
-      (pm) => pm['id'] == params.paymentMethod['id'],
-    );
-    if (index != -1) {
-      paymentMethods[index] = params.paymentMethod;
-      await repository.savePaymentMethods(params.userId, paymentMethods);
-    }
+    await repository.updatePaymentMethod(params.userId, params.paymentMethod);
   }
 }
 
@@ -102,14 +94,7 @@ class DeletePaymentMethod implements UseCase<void, DeletePaymentMethodParams> {
 
   @override
   Future<void> call(DeletePaymentMethodParams params) async {
-    final paymentMethods = repository.getPaymentMethods(params.userId);
-    final index = paymentMethods.indexWhere(
-      (pm) => pm['id'] == params.paymentMethodId,
-    );
-    if (index != -1) {
-      paymentMethods[index]['isDeleted'] = true;
-      await repository.savePaymentMethods(params.userId, paymentMethods);
-    }
+    await repository.deletePaymentMethod(params.userId, params.paymentMethodId);
   }
 }
 
@@ -136,7 +121,7 @@ class UpdateBalance implements UseCase<void, UpdateBalanceParams> {
     );
     if (index != -1) {
       paymentMethods[index]['balance'] = params.newBalance;
-      await repository.savePaymentMethods(params.userId, paymentMethods);
+      await repository.updatePaymentMethod(params.userId, paymentMethods[index]);
     }
   }
 }
@@ -180,7 +165,7 @@ class SaveTransfers implements UseCase<void, SaveTransfersParams> {
 
   @override
   Future<void> call(SaveTransfersParams params) async {
-    await repository.saveTransfers(params.userId, params.transfers);
+    // Deprecated
   }
 }
 
@@ -198,9 +183,7 @@ class AddTransfer implements UseCase<void, AddTransferParams> {
 
   @override
   Future<void> call(AddTransferParams params) async {
-    final transfers = repository.getTransfers(params.userId);
-    transfers.insert(0, params.transfer); // En yeni transfer başa
-    await repository.saveTransfers(params.userId, transfers);
+    await repository.addTransfer(params.userId, params.transfer);
   }
 }
 

@@ -247,31 +247,11 @@ class PaymentMethodsController extends ChangeNotifier {
   }
 
   Future<void> savePaymentMethods() async {
-    try {
-      final data = _paymentMethods.map((pm) => pm.toMap()).toList();
-      await _paymentMethodRepository.savePaymentMethods(userId, data);
-    } catch (e, s) {
-      ErrorHandler.logError(
-        'PaymentMethodsController.savePaymentMethods',
-        e,
-        s,
-      );
-      throw DatabaseException.writeFailed(e);
-    }
+    // Deprecated: No longer doing batch saves
   }
 
   Future<void> saveDeletedPaymentMethods() async {
-    try {
-      final data = _deletedPaymentMethods.map((pm) => pm.toMap()).toList();
-      await _paymentMethodRepository.saveDeletedPaymentMethods(userId, data);
-    } catch (e, s) {
-      ErrorHandler.logError(
-        'PaymentMethodsController.saveDeletedPaymentMethods',
-        e,
-        s,
-      );
-      throw DatabaseException.writeFailed(e);
-    }
+    // Deprecated: No longer doing batch saves
   }
 
   // ===== FİLTRELEME =====
@@ -301,7 +281,7 @@ class PaymentMethodsController extends ChangeNotifier {
   Future<void> addMethod(PaymentMethod method) async {
     try {
       _paymentMethods.add(method);
-      await savePaymentMethods();
+      await _paymentMethodRepository.addPaymentMethod(userId, method.toMap());
       _filtrele();
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.addMethod', e, s);
@@ -314,7 +294,7 @@ class PaymentMethodsController extends ChangeNotifier {
       final index = _paymentMethods.indexWhere((p) => p.id == method.id);
       if (index != -1) {
         _paymentMethods[index] = method;
-        await savePaymentMethods();
+        await _paymentMethodRepository.updatePaymentMethod(userId, method.toMap());
         _filtrele();
       }
     } catch (e, s) {
@@ -329,8 +309,7 @@ class PaymentMethodsController extends ChangeNotifier {
       final deleted = method.copyWith(isDeleted: true);
       _deletedPaymentMethods.add(deleted);
 
-      await savePaymentMethods();
-      await saveDeletedPaymentMethods();
+      await _paymentMethodRepository.updatePaymentMethod(userId, deleted.toMap());
       _filtrele();
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.moveToBin', e, s);
@@ -344,8 +323,7 @@ class PaymentMethodsController extends ChangeNotifier {
       final restored = method.copyWith(isDeleted: false);
       _paymentMethods.add(restored);
 
-      await savePaymentMethods();
-      await saveDeletedPaymentMethods();
+      await _paymentMethodRepository.updatePaymentMethod(userId, restored.toMap());
       _filtrele();
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.restoreMethod', e, s);
@@ -356,7 +334,7 @@ class PaymentMethodsController extends ChangeNotifier {
   Future<void> permanentDelete(PaymentMethod method) async {
     try {
       _deletedPaymentMethods.removeWhere((p) => p.id == method.id);
-      await saveDeletedPaymentMethods();
+      await _paymentMethodRepository.deletePaymentMethod(userId, method.id);
       notifyListeners();
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.permanentDelete', e, s);
@@ -366,8 +344,10 @@ class PaymentMethodsController extends ChangeNotifier {
 
   Future<void> emptyBin() async {
     try {
+      for (var method in _deletedPaymentMethods) {
+        await _paymentMethodRepository.deletePaymentMethod(userId, method.id);
+      }
       _deletedPaymentMethods.clear();
-      await saveDeletedPaymentMethods();
       notifyListeners();
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.emptyBin', e, s);
@@ -378,12 +358,12 @@ class PaymentMethodsController extends ChangeNotifier {
   Future<void> restoreAll() async {
     try {
       for (final method in _deletedPaymentMethods) {
-        _paymentMethods.add(method.copyWith(isDeleted: false));
+        final restored = method.copyWith(isDeleted: false);
+        _paymentMethods.add(restored);
+        await _paymentMethodRepository.updatePaymentMethod(userId, restored.toMap());
       }
       _deletedPaymentMethods.clear();
 
-      await savePaymentMethods();
-      await saveDeletedPaymentMethods();
       _filtrele();
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.restoreAll', e, s);
@@ -397,7 +377,7 @@ class PaymentMethodsController extends ChangeNotifier {
       if (index != -1) {
         final pm = _paymentMethods[index];
         _paymentMethods[index] = pm.copyWith(balance: pm.balance + amount);
-        await savePaymentMethods();
+        await _paymentMethodRepository.updatePaymentMethod(userId, _paymentMethods[index].toMap());
         notifyListeners();
       }
     } catch (e, s) {

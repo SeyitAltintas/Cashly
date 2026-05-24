@@ -48,32 +48,73 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   }
 
   @override
-  Future<void> saveIncomes(
-    String userId,
-    List<Map<String, dynamic>> incomes,
-  ) async {
+  Future<void> addIncome(String userId, Map<String, dynamic> income) async {
     try {
-      final colRef = _userDoc(userId).collection('incomes');
-      final existing = await colRef.get();
+      if ((income['id']?.toString() ?? '').isEmpty) {
+        throw Exception('Gelir eklenirken ID eksik!');
+      }
+      final docRef = _userDoc(userId).collection('incomes').doc(income['id'].toString());
+      final data = Map<String, dynamic>.from(income);
+      if (data['tarih'] is String) {
+        data['tarih'] = Timestamp.fromDate(DateTime.parse(data['tarih']));
+      }
+      data['updatedAt'] = FieldValue.serverTimestamp();
+      await docRef.set(data);
 
-      final ops = [
-        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
-        ...incomes
-            .where((i) => (i['id'] as String? ?? '').isNotEmpty)
-            .map((i) {
-          final data = Map<String, dynamic>.from(i);
-          if (data['tarih'] is String) {
-            data['tarih'] =
-                Timestamp.fromDate(DateTime.parse(data['tarih']));
-          }
-          data['updatedAt'] = FieldValue.serverTimestamp();
-          return _BatchOp(colRef.doc(i['id'] as String), data);
-        }),
-      ];
-      await _commitInChunks(ops);
-      CacheService.set('incomes_$userId', incomes);
+      // Cache'i güncelle
+      final cacheKey = 'incomes_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      if (!cached.any((i) => i['id'] == income['id'])) {
+        cached.add(income);
+        CacheService.set(cacheKey, cached);
+      }
     } catch (e) {
-      debugPrint('Firestore gelir kaydetme hatası: $e');
+      debugPrint('Firestore gelir ekleme hatası: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateIncome(String userId, Map<String, dynamic> income) async {
+    try {
+      if ((income['id']?.toString() ?? '').isEmpty) {
+        throw Exception('Gelir güncellenirken ID eksik!');
+      }
+      final docRef = _userDoc(userId).collection('incomes').doc(income['id'].toString());
+      final data = Map<String, dynamic>.from(income);
+      if (data['tarih'] is String) {
+        data['tarih'] = Timestamp.fromDate(DateTime.parse(data['tarih']));
+      }
+      data['updatedAt'] = FieldValue.serverTimestamp();
+      await docRef.update(data);
+
+      // Cache'i güncelle
+      final cacheKey = 'incomes_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final index = cached.indexWhere((i) => i['id'] == income['id']);
+      if (index != -1) {
+        cached[index] = income;
+        CacheService.set(cacheKey, cached);
+      }
+    } catch (e) {
+      debugPrint('Firestore gelir güncelleme hatası: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteIncome(String userId, String incomeId) async {
+    try {
+      final docRef = _userDoc(userId).collection('incomes').doc(incomeId);
+      await docRef.delete();
+
+      // Cache'i güncelle
+      final cacheKey = 'incomes_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      cached.removeWhere((i) => i['id'] == incomeId);
+      CacheService.set(cacheKey, cached);
+    } catch (e) {
+      debugPrint('Firestore gelir silme hatası: $e');
       rethrow;
     }
   }

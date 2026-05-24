@@ -237,24 +237,10 @@ class IncomesController extends ChangeNotifier {
     }
   }
 
-  Future<void> saveIncomes() async {
-    try {
-      final data = _tumGelirler.map((g) => g.toMap()).toList();
-      await _incomeRepository.saveIncomes(userId, data);
-    } catch (e, s) {
-      ErrorHandler.logError('IncomesController.saveIncomes', e, s);
-      throw DatabaseException.writeFailed(e);
-    }
-  }
+  // saveIncomes metodu deprecate edildi, tekil işlemler kullanılıyor
 
   Future<void> savePaymentMethods() async {
-    try {
-      final pmData = _tumOdemeYontemleri.map((pm) => pm.toMap()).toList();
-      await _paymentMethodRepository.savePaymentMethods(userId, pmData);
-    } catch (e, s) {
-      ErrorHandler.logError('IncomesController.savePaymentMethods', e, s);
-      throw DatabaseException.writeFailed(e);
-    }
+    // Deprecated: Handled by individual CRUD operations
   }
 
   // ===== AY GEÇİŞLERİ =====
@@ -291,7 +277,7 @@ class IncomesController extends ChangeNotifier {
         _updateBalance(gelir.paymentMethodId!, gelir.amount, isIncome: true);
       }
 
-      await saveIncomes();
+      await _incomeRepository.addIncome(userId, gelir.toMap());
       await savePaymentMethods();
       notifyListeners();
     } catch (e, s) {
@@ -318,7 +304,7 @@ class IncomesController extends ChangeNotifier {
           );
         }
 
-        await saveIncomes();
+        await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
         await savePaymentMethods();
         notifyListeners();
       }
@@ -346,7 +332,7 @@ class IncomesController extends ChangeNotifier {
           );
         }
 
-        await saveIncomes();
+        await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
         await savePaymentMethods();
         notifyListeners();
       }
@@ -386,9 +372,10 @@ class IncomesController extends ChangeNotifier {
           paraBirimi: paraBirimi ?? income.paraBirimi,
           isDeleted: false,
         );
+        await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
       }
 
-      await saveIncomes();
+      // await saveIncomes();
       await savePaymentMethods();
       notifyListeners();
     } catch (e, s) {

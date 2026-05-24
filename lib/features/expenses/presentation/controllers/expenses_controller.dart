@@ -425,23 +425,12 @@ class ExpensesController extends ChangeNotifier {
 
   /// Harcamaları kaydet
   Future<void> saveExpenses() async {
-    try {
-      await _expenseRepository.saveExpenses(userId, _tumHarcamalar);
-    } catch (e, s) {
-      ErrorHandler.logError('ExpensesController.saveExpenses', e, s);
-      throw DatabaseException.writeFailed(e);
-    }
+    // Deprecated: Handled by individual CRUD operations
   }
 
   /// Ödeme yöntemlerini kaydet
   Future<void> savePaymentMethods() async {
-    try {
-      final pmData = _tumOdemeYontemleri.map((pm) => pm.toMap()).toList();
-      await _paymentMethodRepository.savePaymentMethods(userId, pmData);
-    } catch (e, s) {
-      ErrorHandler.logError('ExpensesController.savePaymentMethods', e, s);
-      throw DatabaseException.writeFailed(e);
-    }
+    // Deprecated: Handled by individual CRUD operations
   }
 
   // ===== FİLTRELEME =====
@@ -555,7 +544,9 @@ class ExpensesController extends ChangeNotifier {
         }
       }
 
-      await saveExpenses();
+      await _expenseRepository.updateExpense(userId, harcama); // Soft delete
+      // await saveExpenses();
+
       await savePaymentMethods();
       filtreleVeGoster(
         aramaMetni: aramaMetni ?? '',
@@ -590,7 +581,9 @@ class ExpensesController extends ChangeNotifier {
         tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex];
       }
 
-      await saveExpenses();
+      await _expenseRepository.updateExpense(userId, harcama); // Restore
+      // await saveExpenses();
+
       await savePaymentMethods();
       filtreleVeGoster(
         aramaMetni: aramaMetni ?? '',
@@ -664,13 +657,15 @@ class ExpensesController extends ChangeNotifier {
                 duzenlenecekHarcama['paraBirimi'] ??
                 getIt<CurrencyService>().currentCurrency,
           };
+          await _expenseRepository.updateExpense(userId, _tumHarcamalar[index]);
         }
       } else {
         if (paymentMethodId != null) {
           updateBalance(paymentMethodId, amount);
         }
 
-        _tumHarcamalar.add({
+        final newExpense = {
+          "id": const Uuid().v4(),
           "isim": name,
           "tutar": amount,
           "kategori": category,
@@ -678,7 +673,9 @@ class ExpensesController extends ChangeNotifier {
           "silindi": false,
           "odemeYontemiId": paymentMethodId,
           "paraBirimi": paraBirimi ?? getIt<CurrencyService>().currentCurrency,
-        });
+        };
+        _tumHarcamalar.add(newExpense);
+        await _expenseRepository.addExpense(userId, newExpense);
       }
 
       _tumHarcamalar.sort((a, b) {
@@ -689,7 +686,7 @@ class ExpensesController extends ChangeNotifier {
         return tarihB.compareTo(tarihA);
       });
 
-      await saveExpenses();
+      // await saveExpenses(); -> Gerek yok, yukarıda tekil kaydettik
       await savePaymentMethods();
       filtreleVeGoster(
         aramaMetni: aramaMetni ?? '',
@@ -744,7 +741,8 @@ class ExpensesController extends ChangeNotifier {
       }
 
       // Kaydet ve filtrele
-      await saveExpenses();
+      await _expenseRepository.updateExpense(userId, harcama); // Soft delete
+      // await saveExpenses();
       await savePaymentMethods();
       filtreleVeGoster(
         aramaMetni: aramaMetni,
@@ -773,7 +771,8 @@ class ExpensesController extends ChangeNotifier {
         );
       }
 
-      await saveExpenses();
+      await _expenseRepository.updateExpense(userId, harcama); // Restore
+      // await saveExpenses();
       await savePaymentMethods();
       filtreleVeGoster(
         aramaMetni: aramaMetni,
@@ -824,7 +823,7 @@ class ExpensesController extends ChangeNotifier {
 
         int index = _tumHarcamalar.indexOf(duzenlenecekHarcama);
         if (index != -1) {
-          _tumHarcamalar[index] = {
+        _tumHarcamalar[index] = {
             "isim": name,
             "tutar": amount,
             "kategori": category,
@@ -835,13 +834,15 @@ class ExpensesController extends ChangeNotifier {
                 duzenlenecekHarcama['paraBirimi'] ??
                 getIt<CurrencyService>().currentCurrency,
           };
+          await _expenseRepository.updateExpense(userId, _tumHarcamalar[index]);
         }
       } else {
         if (paymentMethodId != null) {
           updateBalance(paymentMethodId, amount);
         }
 
-        _tumHarcamalar.add({
+        final newExpense = {
+          "id": const Uuid().v4(),
           "isim": name,
           "tutar": amount,
           "kategori": category,
@@ -849,7 +850,9 @@ class ExpensesController extends ChangeNotifier {
           "silindi": false,
           "odemeYontemiId": paymentMethodId,
           "paraBirimi": getIt<CurrencyService>().currentCurrency,
-        });
+        };
+        _tumHarcamalar.add(newExpense);
+        await _expenseRepository.addExpense(userId, newExpense);
       }
 
       _tumHarcamalar.sort((a, b) {
@@ -860,7 +863,7 @@ class ExpensesController extends ChangeNotifier {
         return tarihB.compareTo(tarihA);
       });
 
-      await saveExpenses();
+      // await saveExpenses(); -> Tekil işlemlerle halledildi
       await savePaymentMethods();
       filtreleVeGoster(
         aramaMetni: aramaMetni,

@@ -4,20 +4,23 @@ abstract class PaymentMethodRepository {
   /// Kullanıcının tüm ödeme yöntemlerini getirir
   List<Map<String, dynamic>> getPaymentMethods(String userId);
 
-  /// Kullanıcının ödeme yöntemlerini kaydeder
-  Future<void> savePaymentMethods(
-    String userId,
-    List<Map<String, dynamic>> methods,
-  );
+  /// Yeni bir ödeme yöntemi ekler
+  Future<void> addPaymentMethod(String userId, Map<String, dynamic> method);
+
+  /// Mevcut bir ödeme yöntemini günceller
+  Future<void> updatePaymentMethod(String userId, Map<String, dynamic> method);
+
+  /// Bir ödeme yöntemini siler
+  Future<void> deletePaymentMethod(String userId, String methodId);
 
   /// Silinen ödeme yöntemlerini getirir
   List<Map<String, dynamic>> getDeletedPaymentMethods(String userId);
 
-  /// Silinen ödeme yöntemlerini kaydeder
-  Future<void> saveDeletedPaymentMethods(
-    String userId,
-    List<Map<String, dynamic>> methods,
-  );
+  /// Geri dönüşüm kutusuna ödeme yöntemi ekler
+  Future<void> addDeletedPaymentMethod(String userId, Map<String, dynamic> method);
+
+  /// Geri dönüşüm kutusundan ödeme yöntemini tamamen siler
+  Future<void> removeDeletedPaymentMethod(String userId, String methodId);
 
   /// Varsayılan ödeme yöntemini getirir
   String? getDefaultPaymentMethod(String userId);
@@ -28,9 +31,12 @@ abstract class PaymentMethodRepository {
   /// Kullanıcının transferlerini getirir
   List<Map<String, dynamic>> getTransfers(String userId);
 
-  /// Kullanıcının transferlerini kaydeder
-  Future<void> saveTransfers(
-    String userId,
-    List<Map<String, dynamic>> transfers,
-  );
+  /// Yeni bir transfer ekler
+  Future<void> addTransfer(String userId, Map<String, dynamic> transfer);
+
+  /// Mevcut bir transferi günceller
+  Future<void> updateTransfer(String userId, Map<String, dynamic> transfer);
+
+  /// Bir transferi siler
+  Future<void> deleteTransfer(String userId, String transferId);
 }

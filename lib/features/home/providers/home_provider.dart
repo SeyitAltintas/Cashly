@@ -193,39 +193,27 @@ class HomeProvider extends ChangeNotifier {
 
   /// Harcamaları veritabanına kaydeder
   void verileriKaydet() {
-    getIt<ExpenseRepository>().saveExpenses(userId, tumHarcamalar);
+    // Deprecated: Handled by individual CRUD operations
   }
 
   /// Gelirleri veritabanına kaydeder
   void gelirleriKaydet() {
-    List<Map<String, dynamic>> gelirMapleri = tumGelirler
-        .map((income) => income.toMap())
-        .toList();
-    getIt<IncomeRepository>().saveIncomes(userId, gelirMapleri);
+    // Deprecated: Handled by individual CRUD operations
   }
 
   /// Varlıkları veritabanına kaydeder
   void varliklariKaydet() {
-    List<Map<String, dynamic>> varlikMapleri = varliklar
-        .map((asset) => asset.toMap())
-        .toList();
-    getIt<AssetRepository>().saveAssets(userId, varlikMapleri);
+    // Deprecated: Handled by individual CRUD operations
   }
 
   /// Ödeme yöntemlerini veritabanına kaydeder
   void odemeYontemleriKaydet() {
-    List<Map<String, dynamic>> yontemMapleri = tumOdemeYontemleri
-        .map((pm) => pm.toMap())
-        .toList();
-    getIt<PaymentMethodRepository>().savePaymentMethods(userId, yontemMapleri);
+    // Deprecated: Handled by individual CRUD operations
   }
 
   /// Transferleri veritabanına kaydeder
   void transferleriKaydet() {
-    List<Map<String, dynamic>> transferMapleri = tumTransferler
-        .map((t) => t.toMap())
-        .toList();
-    getIt<PaymentMethodRepository>().saveTransfers(userId, transferMapleri);
+    // Deprecated: Handled by individual CRUD operations
   }
 
   // ===== FİLTRELEME VE TAKVİM =====

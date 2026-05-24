@@ -29,7 +29,7 @@ class SaveAssets implements UseCase<void, SaveAssetsParams> {
 
   @override
   Future<void> call(SaveAssetsParams params) async {
-    await repository.saveAssets(params.userId, params.assets);
+    throw UnimplementedError('saveAssets is deprecated. Use add/update/delete Asset instead.');
   }
 }
 
@@ -47,9 +47,7 @@ class AddAsset implements UseCase<void, AddAssetParams> {
 
   @override
   Future<void> call(AddAssetParams params) async {
-    final assets = repository.getAssets(params.userId);
-    assets.add(params.asset);
-    await repository.saveAssets(params.userId, assets);
+    await repository.addAsset(params.userId, params.asset);
   }
 }
 
@@ -67,12 +65,7 @@ class UpdateAsset implements UseCase<void, UpdateAssetParams> {
 
   @override
   Future<void> call(UpdateAssetParams params) async {
-    final assets = repository.getAssets(params.userId);
-    final index = assets.indexWhere((a) => a['id'] == params.asset['id']);
-    if (index != -1) {
-      assets[index] = params.asset;
-      await repository.saveAssets(params.userId, assets);
-    }
+    await repository.updateAsset(params.userId, params.asset);
   }
 }
 
@@ -90,12 +83,7 @@ class DeleteAsset implements UseCase<void, DeleteAssetParams> {
 
   @override
   Future<void> call(DeleteAssetParams params) async {
-    final assets = repository.getAssets(params.userId);
-    final index = assets.indexWhere((a) => a['id'] == params.assetId);
-    if (index != -1) {
-      assets[index]['isDeleted'] = true;
-      await repository.saveAssets(params.userId, assets);
-    }
+    await repository.deleteAsset(params.userId, params.assetId); // Or update with isDeleted = true depending on app logic
   }
 }
 
@@ -114,9 +102,7 @@ class PermanentDeleteAsset
 
   @override
   Future<void> call(PermanentDeleteAssetParams params) async {
-    final assets = repository.getAssets(params.userId);
-    assets.removeWhere((a) => a['id'] == params.assetId);
-    await repository.saveAssets(params.userId, assets);
+    await repository.deleteAsset(params.userId, params.assetId);
   }
 }
 
@@ -141,7 +127,7 @@ class RestoreAsset implements UseCase<void, RestoreAssetParams> {
     final index = assets.indexWhere((a) => a['id'] == params.assetId);
     if (index != -1) {
       assets[index]['isDeleted'] = false;
-      await repository.saveAssets(params.userId, assets);
+      await repository.updateAsset(params.userId, assets[index]);
     }
   }
 }

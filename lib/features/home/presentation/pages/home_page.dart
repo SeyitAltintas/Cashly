@@ -333,47 +333,15 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
   // ===== KAYIT METODLARI =====
 
-  void _harcamalariKaydet() {
-    final userId = widget.authController.currentUser?.id;
-    if (userId == null) return;
-    getIt<ExpenseRepository>().saveExpenses(userId, tumHarcamalar);
-  }
+  // _harcamalariKaydet iptal edildi, tekil işlemler yapılıyor
+  
+  // _gelirleriKaydet iptal edildi, tekil işlemler yapılıyor
 
-  void _gelirleriKaydet() {
-    final userId = widget.authController.currentUser?.id;
-    if (userId == null) return;
-    getIt<IncomeRepository>().saveIncomes(
-      userId,
-      tumGelirler.map((g) => g.toMap()).toList(),
-    );
-  }
+  // _varliklariKaydet iptal edildi, tekil işlemler yapılıyor
 
-  void _varliklariKaydet() {
-    final userId = widget.authController.currentUser?.id;
-    if (userId == null) return;
-    getIt<AssetRepository>().saveAssets(
-      userId,
-      varliklar.map((a) => a.toMap()).toList(),
-    );
-  }
+  // _odemeYontemleriKaydet iptal edildi, tekil işlemler yapılıyor
 
-  void _odemeYontemleriKaydet() {
-    final userId = widget.authController.currentUser?.id;
-    if (userId == null) return;
-    getIt<PaymentMethodRepository>().savePaymentMethods(
-      userId,
-      tumOdemeYontemleri.map((pm) => pm.toMap()).toList(),
-    );
-  }
-
-  void _transferleriKaydet() {
-    final userId = widget.authController.currentUser?.id;
-    if (userId == null) return;
-    getIt<PaymentMethodRepository>().saveTransfers(
-      userId,
-      tumTransferler.map((t) => t.toMap()).toList(),
-    );
-  }
+  // _transferleriKaydet iptal edildi, tekil işlemler yapılıyor
 
   @override
   Widget build(BuildContext context) {
@@ -529,52 +497,56 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           onDelete: (asset) {
             final index = varliklar.indexWhere((a) => a.id == asset.id);
             if (index != -1) {
-              varliklar[index] = varliklar[index].copyWith(isDeleted: true);
+              final deletedAsset = varliklar[index].copyWith(isDeleted: true);
+              varliklar[index] = deletedAsset;
+              getIt<AssetRepository>().updateAsset(widget.authController.currentUser!.id, deletedAsset.toMap());
             }
             _homeState.varliklar = List.from(varliklar);
-            _varliklariKaydet();
           },
           onEdit: (asset) {
             final index = varliklar.indexWhere((a) => a.id == asset.id);
             if (index != -1) {
               varliklar[index] = asset;
+              getIt<AssetRepository>().updateAsset(widget.authController.currentUser!.id, asset.toMap());
             }
             _homeState.varliklar = List.from(varliklar);
-            _varliklariKaydet();
           },
           onRestore: (asset) {
             final index = varliklar.indexWhere((a) => a.id == asset.id);
             if (index != -1) {
-              varliklar[index] = varliklar[index].copyWith(isDeleted: false);
+              final restoredAsset = varliklar[index].copyWith(isDeleted: false);
+              varliklar[index] = restoredAsset;
+              getIt<AssetRepository>().updateAsset(widget.authController.currentUser!.id, restoredAsset.toMap());
             }
             _homeState.varliklar = List.from(varliklar);
-            _varliklariKaydet();
           },
           onPermanentDelete: (asset) {
             varliklar.removeWhere((a) => a.id == asset.id);
             _homeState.varliklar = List.from(varliklar);
-            _varliklariKaydet();
+            getIt<AssetRepository>().deleteAsset(widget.authController.currentUser!.id, asset.id);
           },
           onEmptyBin: () {
+            final deletedAssets = varliklar.where((a) => a.isDeleted).toList();
+            for (var asset in deletedAssets) {
+              getIt<AssetRepository>().deleteAsset(widget.authController.currentUser!.id, asset.id);
+            }
             varliklar.removeWhere((a) => a.isDeleted);
             _homeState.varliklar = List.from(varliklar);
-            _varliklariKaydet();
           },
           onAdd: (name, amount, quantity, category, type) {
-            varliklar.add(
-              Asset(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                name: name,
-                amount: amount,
-                quantity: quantity,
-                category: category,
-                type: type,
-                lastUpdated: DateTime.now(),
-                isDeleted: false,
-              ),
+            final newAsset = Asset(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              name: name,
+              amount: amount,
+              quantity: quantity,
+              category: category,
+              type: type,
+              lastUpdated: DateTime.now(),
+              isDeleted: false,
             );
+            varliklar.add(newAsset);
             _homeState.varliklar = List.from(varliklar);
-            _varliklariKaydet();
+            getIt<AssetRepository>().addAsset(widget.authController.currentUser!.id, newAsset.toMap());
           },
         ),
       ),
@@ -639,53 +611,57 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             onDelete: (pm) {
               final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
               if (i != -1) {
-                tumOdemeYontemleri[i] = pm.copyWith(isDeleted: true);
+                final deletedPm = pm.copyWith(isDeleted: true);
+                tumOdemeYontemleri[i] = deletedPm;
                 _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+                getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, deletedPm.toMap());
               }
-              _odemeYontemleriKaydet();
             },
             onEdit: (pm) {
               final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
               if (i != -1) {
                 tumOdemeYontemleri[i] = pm;
                 _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+                getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, pm.toMap());
               }
-              _odemeYontemleriKaydet();
             },
             onRestore: (pm) {
               final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
               if (i != -1) {
-                tumOdemeYontemleri[i] = pm.copyWith(isDeleted: false);
+                final restoredPm = pm.copyWith(isDeleted: false);
+                tumOdemeYontemleri[i] = restoredPm;
                 _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
+                getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, restoredPm.toMap());
               }
-              _odemeYontemleriKaydet();
             },
             onPermanentDelete: (pm) {
               tumOdemeYontemleri.removeWhere((p) => p.id == pm.id);
               _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-              _odemeYontemleriKaydet();
+              getIt<PaymentMethodRepository>().deletePaymentMethod(widget.authController.currentUser!.id, pm.id);
             },
             onEmptyBin: () {
+              final deletedMethods = tumOdemeYontemleri.where((p) => p.isDeleted).toList();
+              for (var delPm in deletedMethods) {
+                getIt<PaymentMethodRepository>().deletePaymentMethod(widget.authController.currentUser!.id, delPm.id);
+              }
               tumOdemeYontemleri.removeWhere((p) => p.isDeleted);
               _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-              _odemeYontemleriKaydet();
             },
             onAdd: (name, type, lastFourDigits, balance, limit, colorIndex) {
-              tumOdemeYontemleri.add(
-                PaymentMethod(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: name,
-                  type: type,
-                  lastFourDigits: lastFourDigits,
-                  balance: balance,
-                  limit: limit,
-                  colorIndex: colorIndex,
-                  createdAt: DateTime.now(),
-                  isDeleted: false,
-                ),
+              final newPm = PaymentMethod(
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                name: name,
+                type: type,
+                lastFourDigits: lastFourDigits,
+                balance: balance,
+                limit: limit,
+                colorIndex: colorIndex,
+                createdAt: DateTime.now(),
+                isDeleted: false,
               );
+              tumOdemeYontemleri.add(newPm);
               _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-              _odemeYontemleriKaydet();
+              getIt<PaymentMethodRepository>().addPaymentMethod(widget.authController.currentUser!.id, newPm.toMap());
             },
             onCardTap: (pm) {
               Navigator.push(
@@ -737,6 +713,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                 tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
                   balance: yeniBakiye,
                 );
+                getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, tumOdemeYontemleri[fromIndex].toMap());
               }
               final toIndex = tumOdemeYontemleri.indexWhere(
                 (pm) => pm.id == toId,
@@ -749,9 +726,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                 tumOdemeYontemleri[toIndex] = toPm.copyWith(
                   balance: yeniBakiye,
                 );
+                getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, tumOdemeYontemleri[toIndex].toMap());
               }
               _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-              _odemeYontemleriKaydet();
             }
             // İleri tarihli transfer - bakiye değişmez, zamanlanmış olarak kaydedilir
 
@@ -767,9 +744,12 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                 isScheduled: isScheduled,
                 isExecuted: !isScheduled, // Anında transfer zaten uygulandı
                 paraBirimi: getIt<CurrencyService>().currentCurrency,
-              ),
+              );
+            tumTransferler.insert(
+              0,
+              newTransfer
             );
-            _transferleriKaydet();
+            getIt<PaymentMethodRepository>().addTransfer(widget.authController.currentUser!.id, newTransfer.toMap());
           },
         ),
       ),
@@ -790,11 +770,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           varsayilanOdemeYontemiId: varsayilanOdemeYontemiId,
           onHarcamalarChanged: (harcamalar) {
             _homeState.tumHarcamalar = harcamalar;
-            _harcamalariKaydet();
           },
           onOdemeYontemleriChanged: (odemeYontemleri) {
             _homeState.tumOdemeYontemleri = odemeYontemleri;
-            _odemeYontemleriKaydet();
           },
         ),
       ),
@@ -822,11 +800,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           userId: widget.authController.currentUser?.id,
           onGelirlerChanged: (gelirler) {
             _homeState.tumGelirler = gelirler;
-            _gelirleriKaydet();
           },
           onOdemeYontemleriChanged: (odemeYontemleri) {
             _homeState.tumOdemeYontemleri = odemeYontemleri;
-            _odemeYontemleriKaydet();
           },
         ),
       ),

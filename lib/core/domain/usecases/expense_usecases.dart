@@ -21,7 +21,7 @@ class GetExpensesParams {
   const GetExpensesParams({required this.userId});
 }
 
-/// Harcamaları kaydet
+/// Harcamaları kaydet (Deprecated: Artık tekil işlemler kullanılıyor)
 class SaveExpenses implements UseCase<void, SaveExpensesParams> {
   final ExpenseRepository repository;
 
@@ -29,7 +29,8 @@ class SaveExpenses implements UseCase<void, SaveExpensesParams> {
 
   @override
   Future<void> call(SaveExpensesParams params) async {
-    await repository.saveExpenses(params.userId, params.expenses);
+    // Deprecated, no-op or throw error. Keeping for interface compatibility temporarily
+    throw UnimplementedError('saveExpenses is deprecated. Use add/update/delete Expense instead.');
   }
 }
 
@@ -47,9 +48,7 @@ class AddExpense implements UseCase<void, AddExpenseParams> {
 
   @override
   Future<void> call(AddExpenseParams params) async {
-    final expenses = repository.getExpenses(params.userId);
-    expenses.add(params.expense);
-    await repository.saveExpenses(params.userId, expenses);
+    await repository.addExpense(params.userId, params.expense);
   }
 }
 
@@ -67,12 +66,7 @@ class UpdateExpense implements UseCase<void, UpdateExpenseParams> {
 
   @override
   Future<void> call(UpdateExpenseParams params) async {
-    final expenses = repository.getExpenses(params.userId);
-    final index = expenses.indexWhere((e) => e['id'] == params.expense['id']);
-    if (index != -1) {
-      expenses[index] = params.expense;
-      await repository.saveExpenses(params.userId, expenses);
-    }
+    await repository.updateExpense(params.userId, params.expense);
   }
 }
 
@@ -90,12 +84,7 @@ class DeleteExpense implements UseCase<void, DeleteExpenseParams> {
 
   @override
   Future<void> call(DeleteExpenseParams params) async {
-    final expenses = repository.getExpenses(params.userId);
-    final index = expenses.indexWhere((e) => e['id'] == params.expenseId);
-    if (index != -1) {
-      expenses[index]['isDeleted'] = true;
-      await repository.saveExpenses(params.userId, expenses);
-    }
+    await repository.deleteExpense(params.userId, params.expenseId);
   }
 }
 

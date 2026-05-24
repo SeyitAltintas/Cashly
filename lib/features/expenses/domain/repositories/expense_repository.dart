@@ -7,10 +7,20 @@ abstract class ExpenseRepository {
   /// Döndürür: Harcama listesi (Map formatında)
   List<Map<String, dynamic>> getExpenses(String userId);
 
-  /// Kullanıcının harcamalarını kaydeder
+  /// Yeni bir harcama ekler
   /// [userId] - Kullanıcı ID'si
-  /// [expenses] - Kaydedilecek harcama listesi
-  Future<void> saveExpenses(String userId, List<Map<String, dynamic>> expenses);
+  /// [expense] - Eklenecek harcama verisi
+  Future<void> addExpense(String userId, Map<String, dynamic> expense);
+
+  /// Mevcut bir harcamayı günceller
+  /// [userId] - Kullanıcı ID'si
+  /// [expense] - Güncellenecek harcama verisi
+  Future<void> updateExpense(String userId, Map<String, dynamic> expense);
+
+  /// Bir harcamayı siler
+  /// [userId] - Kullanıcı ID'si
+  /// [expenseId] - Silinecek harcama ID'si
+  Future<void> deleteExpense(String userId, String expenseId);
 
   /// Kullanıcının bütçe limitini getirir
   /// [userId] - Kullanıcı ID'si

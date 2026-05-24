@@ -78,17 +78,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
     }
   }
 
-  void kaydet() {
-    try {
-      List<Map<String, dynamic>> gelirMapleri = tumGelirler
-          .map((income) => income.toMap())
-          .toList();
-      getIt<IncomeRepository>().saveIncomes(widget.userId, gelirMapleri);
-    } catch (e) {
-      ErrorHandler.handleDatabaseError(context, e);
-      ErrorHandler.logError('Gelirler kaydedilirken hata', e);
-    }
-  }
+  // kaydet() metodu iptal edildi, tekil işlemler kullanılıyor
 
   Future<void> copuBosalt() async {
     if (silinenGelirler.isEmpty) return;
@@ -132,6 +122,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
     );
 
     if (onay == true) {
+      final _silinenlerKopya = List<Income>.from(silinenGelirler);
       if (_controller != null) {
         _controller!.binEmptyBin();
       } else {
@@ -139,7 +130,9 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         _localSilinenGelirler.clear();
         setState(() {});
       }
-      kaydet();
+      for (var gelir in _silinenlerKopya) {
+        await getIt<IncomeRepository>().deleteIncome(widget.userId, gelir.id);
+      }
       if (mounted) {
         AppSnackBar.deleted(context, context.l10n.trashBinEmptied);
       }
@@ -157,7 +150,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
       _localSilinenGelirler.removeWhere((g) => g.id == gelir.id);
       setState(() {});
     }
-    kaydet();
+    await getIt<IncomeRepository>().updateIncome(widget.userId, gelir.toMap());
     if (mounted) {
       AppSnackBar.success(context, context.l10n.incomeRestored);
     }
@@ -171,7 +164,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
       _localSilinenGelirler.removeWhere((g) => g.id == gelir.id);
       setState(() {});
     }
-    kaydet();
+    await getIt<IncomeRepository>().deleteIncome(widget.userId, gelir.id);
     if (mounted) {
       AppSnackBar.deleted(context, context.l10n.incomePermanentlyDeleted);
     }
@@ -220,6 +213,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
     );
 
     if (onay == true) {
+      final _silinenlerKopya = List<Income>.from(silinenGelirler);
       if (_controller != null) {
         _controller!.binRestoreAll();
       } else {
@@ -232,7 +226,9 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         _localSilinenGelirler.clear();
         setState(() {});
       }
-      kaydet();
+      for (var gelir in _silinenlerKopya) {
+        await getIt<IncomeRepository>().updateIncome(widget.userId, gelir.toMap());
+      }
       if (mounted) {
         AppSnackBar.success(context, context.l10n.allIncomesRestored);
       }

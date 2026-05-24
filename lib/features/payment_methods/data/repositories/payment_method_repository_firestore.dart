@@ -46,59 +46,106 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
   }
 
   @override
-  Future<void> savePaymentMethods(
-    String userId,
-    List<Map<String, dynamic>> methods,
-  ) async {
+  Future<void> addPaymentMethod(String userId, Map<String, dynamic> method) async {
     try {
-      final colRef = _userDoc(userId).collection('paymentMethods');
-      final existing = await colRef.get();
-      final ops = [
-        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
-        ...methods
-            .where((m) => (m['id'] as String? ?? '').isNotEmpty)
-            .map((m) => _BatchOp(colRef.doc(m['id'] as String), m)),
-      ];
-      await _commitInChunks(ops);
-      CacheService.set('payment_methods_$userId', methods);
-    } on TimeoutException {
-      debugPrint('Ödeme yöntemleri kaydedilirken zaman aşımı. Cache korundu.');
+      if ((method['id']?.toString() ?? '').isEmpty) {
+        throw Exception('Ödeme yöntemi eklenirken ID eksik!');
+      }
+      final docRef = _userDoc(userId).collection('paymentMethods').doc(method['id'].toString());
+      final data = Map<String, dynamic>.from(method);
+      data['updatedAt'] = FieldValue.serverTimestamp();
+      await docRef.set(data);
+
+      final cacheKey = 'payment_methods_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? _defaultPaymentMethods;
+      if (!cached.any((m) => m['id'] == method['id'])) {
+        cached.add(method);
+        CacheService.set(cacheKey, cached);
+      }
     } catch (e) {
-      debugPrint('Ödeme yöntemleri kaydedilirken hata: $e');
+      debugPrint('Firestore ödeme yöntemi ekleme hatası: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updatePaymentMethod(String userId, Map<String, dynamic> method) async {
+    try {
+      if ((method['id']?.toString() ?? '').isEmpty) {
+        throw Exception('Ödeme yöntemi güncellenirken ID eksik!');
+      }
+      final docRef = _userDoc(userId).collection('paymentMethods').doc(method['id'].toString());
+      final data = Map<String, dynamic>.from(method);
+      data['updatedAt'] = FieldValue.serverTimestamp();
+      await docRef.update(data);
+
+      final cacheKey = 'payment_methods_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? _defaultPaymentMethods;
+      final index = cached.indexWhere((m) => m['id'] == method['id']);
+      if (index != -1) {
+        cached[index] = method;
+        CacheService.set(cacheKey, cached);
+      }
+    } catch (e) {
+      debugPrint('Firestore ödeme yöntemi güncelleme hatası: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deletePaymentMethod(String userId, String methodId) async {
+    try {
+      final docRef = _userDoc(userId).collection('paymentMethods').doc(methodId);
+      await docRef.delete();
+
+      final cacheKey = 'payment_methods_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? _defaultPaymentMethods;
+      cached.removeWhere((m) => m['id'] == methodId);
+      CacheService.set(cacheKey, cached);
+    } catch (e) {
+      debugPrint('Firestore ödeme yöntemi silme hatası: $e');
       rethrow;
     }
   }
 
   @override
   List<Map<String, dynamic>> getDeletedPaymentMethods(String userId) {
-    return CacheService.get<List<Map<String, dynamic>>>(
-          'deleted_payment_methods_$userId',
-        ) ??
-        [];
+    return CacheService.get<List<Map<String, dynamic>>>('deleted_payment_methods_$userId') ?? [];
   }
 
   @override
-  Future<void> saveDeletedPaymentMethods(
-    String userId,
-    List<Map<String, dynamic>> methods,
-  ) async {
+  Future<void> addDeletedPaymentMethod(String userId, Map<String, dynamic> method) async {
     try {
-      final colRef = _userDoc(userId).collection('deletedPaymentMethods');
-      final existing = await colRef.get();
-      final ops = [
-        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
-        ...methods
-            .where((m) => (m['id'] as String? ?? '').isNotEmpty)
-            .map((m) => _BatchOp(colRef.doc(m['id'] as String), m)),
-      ];
-      await _commitInChunks(ops);
-      CacheService.set('deleted_payment_methods_$userId', methods);
-    } on TimeoutException {
-      debugPrint(
-        'Silinen ödeme yöntemleri kaydedilirken zaman aşımı. Cache korundu.',
-      );
+      if ((method['id']?.toString() ?? '').isEmpty) {
+        throw Exception('Silinen ödeme yöntemi eklenirken ID eksik!');
+      }
+      final docRef = _userDoc(userId).collection('deletedPaymentMethods').doc(method['id'].toString());
+      await docRef.set(method);
+
+      final cacheKey = 'deleted_payment_methods_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      if (!cached.any((m) => m['id'] == method['id'])) {
+        cached.add(method);
+        CacheService.set(cacheKey, cached);
+      }
     } catch (e) {
-      debugPrint('Silinen ödeme yöntemleri kaydedilirken hata: $e');
+      debugPrint('Silinen ödeme yöntemi ekleme hatası: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> removeDeletedPaymentMethod(String userId, String methodId) async {
+    try {
+      final docRef = _userDoc(userId).collection('deletedPaymentMethods').doc(methodId);
+      await docRef.delete();
+
+      final cacheKey = 'deleted_payment_methods_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      cached.removeWhere((m) => m['id'] == methodId);
+      CacheService.set(cacheKey, cached);
+    } catch (e) {
+      debugPrint('Silinen ödeme yöntemi kalıcı silme hatası: $e');
       rethrow;
     }
   }
@@ -142,25 +189,64 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
   }
 
   @override
-  Future<void> saveTransfers(
-    String userId,
-    List<Map<String, dynamic>> transfers,
-  ) async {
+  Future<void> addTransfer(String userId, Map<String, dynamic> transfer) async {
     try {
-      final colRef = _userDoc(userId).collection('transfers');
-      final existing = await colRef.get();
-      final ops = [
-        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
-        ...transfers
-            .where((t) => (t['id'] as String? ?? '').isNotEmpty)
-            .map((t) => _BatchOp(colRef.doc(t['id'] as String), t)),
-      ];
-      await _commitInChunks(ops);
-      CacheService.set('transfers_$userId', transfers);
-    } on TimeoutException {
-      debugPrint('Transferler kaydedilirken zaman aşımı. Cache korundu.');
+      if ((transfer['id']?.toString() ?? '').isEmpty) {
+        throw Exception('Transfer eklenirken ID eksik!');
+      }
+      final docRef = _userDoc(userId).collection('transfers').doc(transfer['id'].toString());
+      final data = Map<String, dynamic>.from(transfer);
+      data['updatedAt'] = FieldValue.serverTimestamp();
+      await docRef.set(data);
+
+      final cacheKey = 'transfers_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      if (!cached.any((t) => t['id'] == transfer['id'])) {
+        cached.add(transfer);
+        CacheService.set(cacheKey, cached);
+      }
     } catch (e) {
-      debugPrint('Transferler kaydedilirken hata: $e');
+      debugPrint('Firestore transfer ekleme hatası: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateTransfer(String userId, Map<String, dynamic> transfer) async {
+    try {
+      if ((transfer['id']?.toString() ?? '').isEmpty) {
+        throw Exception('Transfer güncellenirken ID eksik!');
+      }
+      final docRef = _userDoc(userId).collection('transfers').doc(transfer['id'].toString());
+      final data = Map<String, dynamic>.from(transfer);
+      data['updatedAt'] = FieldValue.serverTimestamp();
+      await docRef.update(data);
+
+      final cacheKey = 'transfers_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final index = cached.indexWhere((t) => t['id'] == transfer['id']);
+      if (index != -1) {
+        cached[index] = transfer;
+        CacheService.set(cacheKey, cached);
+      }
+    } catch (e) {
+      debugPrint('Firestore transfer güncelleme hatası: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteTransfer(String userId, String transferId) async {
+    try {
+      final docRef = _userDoc(userId).collection('transfers').doc(transferId);
+      await docRef.delete();
+
+      final cacheKey = 'transfers_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      cached.removeWhere((t) => t['id'] == transferId);
+      CacheService.set(cacheKey, cached);
+    } catch (e) {
+      debugPrint('Firestore transfer silme hatası: $e');
       rethrow;
     }
   }

@@ -27,26 +27,64 @@ class AssetRepositoryFirestore implements AssetRepository {
   }
 
   @override
-  Future<void> saveAssets(
-    String userId,
-    List<Map<String, dynamic>> assets,
-  ) async {
+  Future<void> addAsset(String userId, Map<String, dynamic> asset) async {
     try {
-      final colRef = _userDoc(userId).collection('assets');
-      final existing = await colRef.get();
+      if ((asset['id']?.toString() ?? '').isEmpty) {
+        throw Exception('Varlık eklenirken ID eksik!');
+      }
+      final docRef = _userDoc(userId).collection('assets').doc(asset['id'].toString());
+      final data = Map<String, dynamic>.from(asset);
+      data['updatedAt'] = FieldValue.serverTimestamp();
+      await docRef.set(data);
 
-      final ops = [
-        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
-        ...assets.where((a) => (a['id'] as String? ?? '').isNotEmpty).map((a) {
-          final data = Map<String, dynamic>.from(a)
-            ..['updatedAt'] = FieldValue.serverTimestamp();
-          return _BatchOp(colRef.doc(a['id'] as String), data);
-        }),
-      ];
-      await _commitInChunks(ops);
-      CacheService.set('assets_$userId', assets);
+      final cacheKey = 'assets_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      if (!cached.any((a) => a['id'] == asset['id'])) {
+        cached.add(asset);
+        CacheService.set(cacheKey, cached);
+      }
     } catch (e) {
-      debugPrint('Varlıklar kaydedilirken hata: $e');
+      debugPrint('Firestore varlık ekleme hatası: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateAsset(String userId, Map<String, dynamic> asset) async {
+    try {
+      if ((asset['id']?.toString() ?? '').isEmpty) {
+        throw Exception('Varlık güncellenirken ID eksik!');
+      }
+      final docRef = _userDoc(userId).collection('assets').doc(asset['id'].toString());
+      final data = Map<String, dynamic>.from(asset);
+      data['updatedAt'] = FieldValue.serverTimestamp();
+      await docRef.update(data);
+
+      final cacheKey = 'assets_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final index = cached.indexWhere((a) => a['id'] == asset['id']);
+      if (index != -1) {
+        cached[index] = asset;
+        CacheService.set(cacheKey, cached);
+      }
+    } catch (e) {
+      debugPrint('Firestore varlık güncelleme hatası: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteAsset(String userId, String assetId) async {
+    try {
+      final docRef = _userDoc(userId).collection('assets').doc(assetId);
+      await docRef.delete();
+
+      final cacheKey = 'assets_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      cached.removeWhere((a) => a['id'] == assetId);
+      CacheService.set(cacheKey, cached);
+    } catch (e) {
+      debugPrint('Firestore varlık silme hatası: $e');
       rethrow;
     }
   }
@@ -57,24 +95,38 @@ class AssetRepositoryFirestore implements AssetRepository {
   }
 
   @override
-  Future<void> saveDeletedAssets(
-    String userId,
-    List<Map<String, dynamic>> assets,
-  ) async {
+  Future<void> addDeletedAsset(String userId, Map<String, dynamic> asset) async {
     try {
-      final colRef = _userDoc(userId).collection('deletedAssets');
-      final existing = await colRef.get();
+      if ((asset['id']?.toString() ?? '').isEmpty) {
+        throw Exception('Silinen varlık eklenirken ID eksik!');
+      }
+      final docRef = _userDoc(userId).collection('deletedAssets').doc(asset['id'].toString());
+      await docRef.set(asset);
 
-      final ops = [
-        ...existing.docs.map((d) => _BatchOp(d.reference, null)),
-        ...assets.where((a) => (a['id'] as String? ?? '').isNotEmpty).map(
-              (a) => _BatchOp(colRef.doc(a['id'] as String), a),
-            ),
-      ];
-      await _commitInChunks(ops);
-      CacheService.set('deleted_assets_$userId', assets);
+      final cacheKey = 'deleted_assets_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      if (!cached.any((a) => a['id'] == asset['id'])) {
+        cached.add(asset);
+        CacheService.set(cacheKey, cached);
+      }
     } catch (e) {
-      debugPrint('Silinen varlıklar kaydedilirken hata: $e');
+      debugPrint('Silinen varlık ekleme hatası: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> removeDeletedAsset(String userId, String assetId) async {
+    try {
+      final docRef = _userDoc(userId).collection('deletedAssets').doc(assetId);
+      await docRef.delete();
+
+      final cacheKey = 'deleted_assets_$userId';
+      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      cached.removeWhere((a) => a['id'] == assetId);
+      CacheService.set(cacheKey, cached);
+    } catch (e) {
+      debugPrint('Silinen varlık kalıcı silme hatası: $e');
       rethrow;
     }
   }
