@@ -311,12 +311,16 @@ class AuthRepositoryFirestore implements AuthRepository {
         }
         // Başka Firebase hataları (ör. ağ) → logla ama yerel temizliği yine de yap
         debugPrint('deleteUser Firebase hatası [${e.code}]: ${e.message}');
+        // FIX: Diğer tüm Firebase ağ hatalarında işlemi iptal et. Lokal temizliği durdur.
+        throw Exception('Hesabınız silinirken bir ağ hatası oluştu. Lütfen bağlantınızı kontrol edip tekrar deneyin.');
       } catch (e) {
         debugPrint('deleteUser beklenmedik hata: $e');
+        // FIX: Tüm beklenmedik hatalarda (Timeout, Socket) işlemi iptal et ki kullanıcı sildiğini sanmasın
+        throw Exception('Hesabınızı silerken beklenmedik bir hata oluştu. Lütfen tekrar deneyin.');
       }
     }
     // Firebase hesabı başarıyla silindiyse (veya zaten yoksa) lokal veriyi temizle.
-    // requires-recent-login durumunda buraya ulaşılmaz; exception yukarıda fırlatıldı.
+    // Hata fırlatılan durumlarda buraya ulaşılmaz.
     await _localHiveRepo.deleteUser(userId);
   }
 
