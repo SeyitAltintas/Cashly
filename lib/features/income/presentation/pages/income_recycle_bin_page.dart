@@ -122,7 +122,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
     );
 
     if (onay == true) {
-      final _silinenlerKopya = List<Income>.from(silinenGelirler);
+      final silinenlerKopya = List<Income>.from(silinenGelirler);
       if (_controller != null) {
         _controller!.binEmptyBin();
       } else {
@@ -130,7 +130,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         _localSilinenGelirler.clear();
         setState(() {});
       }
-      for (var gelir in _silinenlerKopya) {
+      for (var gelir in silinenlerKopya) {
         await getIt<IncomeRepository>().deleteIncome(widget.userId, gelir.id);
       }
       if (mounted) {
@@ -213,7 +213,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
     );
 
     if (onay == true) {
-      final _silinenlerKopya = List<Income>.from(silinenGelirler);
+      final silinenlerKopya = List<Income>.from(silinenGelirler);
       if (_controller != null) {
         _controller!.binRestoreAll();
       } else {
@@ -226,7 +226,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         _localSilinenGelirler.clear();
         setState(() {});
       }
-      for (var gelir in _silinenlerKopya) {
+      for (var gelir in silinenlerKopya) {
         await getIt<IncomeRepository>().updateIncome(widget.userId, gelir.toMap());
       }
       if (mounted) {

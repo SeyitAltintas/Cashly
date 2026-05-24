@@ -120,7 +120,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
     );
 
     if (onay == true) {
-      final _silinenlerKopya = List<Map<String, dynamic>>.from(silinenHarcamalar);
+      final silinenlerKopya = List<Map<String, dynamic>>.from(silinenHarcamalar);
       if (_controller != null) {
         _controller!.binEmptyBin();
       } else {
@@ -128,7 +128,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
         _localSilinenHarcamalar.clear();
         setState(() {});
       }
-      for (var harcama in _silinenlerKopya) {
+      for (var harcama in silinenlerKopya) {
         await getIt<ExpenseRepository>().deleteExpense(widget.userId, harcama['id']);
       }
       if (mounted) {
@@ -210,7 +210,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
     );
 
     if (onay == true) {
-      final _silinenlerKopya = List<Map<String, dynamic>>.from(silinenHarcamalar);
+      final silinenlerKopya = List<Map<String, dynamic>>.from(silinenHarcamalar);
       // State metoduyla tüm harcamaları geri yükle (bakiye güncelleme dahil)
       if (_controller != null) {
         _controller!.binRestoreAll();
@@ -223,7 +223,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
       }
 
       // Verileri kaydet
-      for (var harcama in _silinenlerKopya) {
+      for (var harcama in silinenlerKopya) {
           await getIt<ExpenseRepository>().updateExpense(widget.userId, harcama);
       }
       // Payment methods have been updated locally, they will be synced when their balances change

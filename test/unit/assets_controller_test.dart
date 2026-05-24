@@ -14,23 +14,20 @@ class MockAssetRepository implements AssetRepository {
   List<Map<String, dynamic>> getAssets(String userId) => _assets;
 
   @override
-  Future<void> saveAssets(
-    String userId,
-    List<Map<String, dynamic>> assets,
-  ) async {
-    _assets = List.from(assets);
-  }
+  Future<void> addAsset(String userId, Map<String, dynamic> asset) async {}
+  @override
+  Future<void> updateAsset(String userId, Map<String, dynamic> asset) async {}
+  @override
+  Future<void> deleteAsset(String userId, String assetId) async {}
+  @override
+  Future<void> addDeletedAsset(String userId, Map<String, dynamic> asset) async {}
+  @override
+  Future<void> removeDeletedAsset(String userId, String assetId) async {}
 
   @override
   List<Map<String, dynamic>> getDeletedAssets(String userId) => _deletedAssets;
 
-  @override
-  Future<void> saveDeletedAssets(
-    String userId,
-    List<Map<String, dynamic>> assets,
-  ) async {
-    _deletedAssets = List.from(assets);
-  }
+
 
   void setAssets(List<Map<String, dynamic>> assets) {
     _assets = assets;

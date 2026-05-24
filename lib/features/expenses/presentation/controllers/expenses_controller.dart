@@ -5,7 +5,6 @@ import '../../domain/repositories/expense_repository.dart';
 import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../../core/utils/error_handler.dart';
-import '../../../../core/exceptions/app_exceptions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
 

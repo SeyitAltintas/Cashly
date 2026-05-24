@@ -32,8 +32,6 @@ import 'package:cashly/features/streak/data/models/streak_model.dart';
 import 'package:cashly/features/streak/presentation/widgets/streak_celebration_dialog.dart';
 
 // Repository imports
-import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
-import 'package:cashly/features/income/domain/repositories/income_repository.dart';
 import 'package:cashly/features/assets/domain/repositories/asset_repository.dart';
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/streak/data/services/streak_service.dart';

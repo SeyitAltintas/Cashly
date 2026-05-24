@@ -130,29 +130,4 @@ class AssetRepositoryFirestore implements AssetRepository {
       rethrow;
     }
   }
-
-  /// Firestore WriteBatch 500-op limitini aşmamak için işlemleri 450'şerlik
-  /// parçalara bölerek sırayla commit eder.
-  Future<void> _commitInChunks(List<_BatchOp> ops) async {
-    const chunkSize = 450;
-    for (int i = 0; i < ops.length; i += chunkSize) {
-      final chunk = ops.sublist(i, (i + chunkSize).clamp(0, ops.length));
-      final batch = _firestore.batch();
-      for (final op in chunk) {
-        if (op.data == null) {
-          batch.delete(op.ref);
-        } else {
-          batch.set(op.ref, op.data!);
-        }
-      }
-      await batch.commit().timeout(const Duration(seconds: 10));
-    }
-  }
-}
-
-/// Batch işlemini temsil eden yardımcı sınıf (set veya delete)
-class _BatchOp {
-  final DocumentReference ref;
-  final Map<String, dynamic>? data;
-  const _BatchOp(this.ref, this.data);
 }

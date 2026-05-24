@@ -20,35 +20,22 @@ class MockIncomeRepository implements IncomeRepository {
   List<Map<String, dynamic>> getIncomes(String userId) => _incomes;
 
   @override
-  Future<void> saveIncomes(
-    String userId,
-    List<Map<String, dynamic>> incomes,
-  ) async {
-    _incomes = List.from(incomes);
-  }
+  Future<void> addIncome(String userId, Map<String, dynamic> income) async {}
+  @override
+  Future<void> updateIncome(String userId, Map<String, dynamic> income) async {}
+  @override
+  Future<void> deleteIncome(String userId, String incomeId) async {}
 
   @override
   List<Map<String, dynamic>> getCategories(String userId) => _categories;
 
-  @override
-  Future<void> saveCategories(
-    String userId,
-    List<Map<String, dynamic>> categories,
-  ) async {
-    _categories = List.from(categories);
-  }
+
 
   @override
   List<Map<String, dynamic>> getRecurringIncomes(String userId) =>
       _recurringIncomes;
 
-  @override
-  Future<void> saveRecurringIncomes(
-    String userId,
-    List<Map<String, dynamic>> incomes,
-  ) async {
-    _recurringIncomes = List.from(incomes);
-  }
+
 
   void setIncomes(List<Map<String, dynamic>> incomes) {
     _incomes = incomes;
@@ -66,24 +53,27 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
       _paymentMethods;
 
   @override
-  Future<void> savePaymentMethods(
-    String userId,
-    List<Map<String, dynamic>> methods,
-  ) async {
-    _paymentMethods = List.from(methods);
-  }
+  Future<void> addPaymentMethod(String userId, Map<String, dynamic> method) async {}
+  @override
+  Future<void> updatePaymentMethod(String userId, Map<String, dynamic> method) async {}
+  @override
+  Future<void> deletePaymentMethod(String userId, String id) async {}
+  @override
+  Future<void> addDeletedPaymentMethod(String userId, Map<String, dynamic> method) async {}
+  @override
+  Future<void> removeDeletedPaymentMethod(String userId, String id) async {}
+  @override
+  Future<void> addTransfer(String userId, Map<String, dynamic> transfer) async {}
+  @override
+  Future<void> updateTransfer(String userId, Map<String, dynamic> transfer) async {}
+  @override
+  Future<void> deleteTransfer(String userId, String transferId) async {}
 
   @override
   List<Map<String, dynamic>> getDeletedPaymentMethods(String userId) =>
       _deletedPaymentMethods;
 
-  @override
-  Future<void> saveDeletedPaymentMethods(
-    String userId,
-    List<Map<String, dynamic>> methods,
-  ) async {
-    _deletedPaymentMethods = List.from(methods);
-  }
+
 
   @override
   String? getDefaultPaymentMethod(String userId) => _defaultPaymentMethodId;
@@ -96,13 +86,7 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
   @override
   List<Map<String, dynamic>> getTransfers(String userId) => _transfers;
 
-  @override
-  Future<void> saveTransfers(
-    String userId,
-    List<Map<String, dynamic>> transfers,
-  ) async {
-    _transfers = List.from(transfers);
-  }
+
 
   void setPaymentMethods(List<Map<String, dynamic>> methods) {
     _paymentMethods = methods;

@@ -103,7 +103,7 @@ class RecurringTransactionService {
 
     if (eklenenHarcamaAdet > 0) {
       // Verileri kaydet
-      for (var sablon in tekrarlayanIslemler) {
+      for (var _ in tekrarlayanIslemler) {
         // Sablonlari guncelle (son islem tarihi degisti)
         // Sabit giderleri ayrica guncelleyen metod kullanilmali
       }
