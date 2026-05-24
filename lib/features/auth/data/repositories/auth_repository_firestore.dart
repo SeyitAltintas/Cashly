@@ -368,9 +368,33 @@ class AuthRepositoryFirestore implements AuthRepository {
     // firebaseUser null kontrolü yukarıda (FIX-10) yapıldığı için, 
     // buraya ulaşıldığında oturum kesinlikle aktiftir. Sync işlemini direkt yapabiliriz.
     try {
+      // FIX: Biometric Login Bypassing Single Device Policy (Edge Case)
+      // Biyometrik giriş, cihaz değişikliğini bypass edememeli.
+      final profileDoc = await _firestore
+          .collection('users')
+          .doc(user.id)
+          .collection('profile')
+          .doc('info')
+          .get()
+          .timeout(const Duration(seconds: 5));
+
+      if (profileDoc.exists) {
+        final firestoreSessionId =
+            profileDoc.data()?['activeSessionId'] as String?;
+        if (firestoreSessionId != null &&
+            user.activeSessionId != null &&
+            firestoreSessionId != user.activeSessionId) {
+          await logout();
+          throw SessionExpiredException(
+            'Hesabınıza başka bir cihazdan giriş yapıldığı için güvenlik nedeniyle bu cihazdaki oturumunuz sonlandırılmıştır. Lütfen tekrar PIN ile giriş yapın.',
+          );
+        }
+      }
+
       await CloudSyncService.syncAllUserData(user.id);
       await StreakService.syncFromCloud(user.id);
     } catch (e) {
+      if (e is SessionExpiredException) rethrow; // Hatayı UI'a ilet
       debugPrint('Biyometrik giriş sonrası sync hatası (offline?): $e');
     }
 
