@@ -17,7 +17,9 @@ abstract class AuthRepository {
   Future<UserEntity?> loginWithBiometric(String userId);
   Future<void> updateBiometricPreference(String userId, bool enabled);
 
-  // Şifremi Unuttum metodları
+  // Şifremi Unuttum (Magic Link) metodları
   Future<UserEntity?> getUserByEmail(String email);
+  Future<void> sendPinResetEmailLink(String email);
+  Future<bool> verifyEmailLinkAndSetPin(String email, String emailLink, String newPin);
   Future<void> updateUserPin(String userId, String newPin);
 }

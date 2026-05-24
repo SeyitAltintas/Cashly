@@ -112,8 +112,6 @@ class MockAuthRepository implements AuthRepository {
         pin: user.pin,
         createdAt: user.createdAt,
         biometricEnabled: enabled,
-        securityQuestion: user.securityQuestion,
-        securityAnswer: user.securityAnswer,
       );
     }
   }
@@ -141,10 +139,29 @@ class MockAuthRepository implements AuthRepository {
         pin: newPin,
         createdAt: user.createdAt,
         biometricEnabled: user.biometricEnabled,
-        securityQuestion: user.securityQuestion,
-        securityAnswer: user.securityAnswer,
       );
     }
+  }
+
+  @override
+  Future<void> sendPinResetEmailLink(String email) async {}
+
+  @override
+  Future<bool> verifyEmailLinkAndSetPin(String email, String emailLink, String newPin) async {
+    final index = _users.indexWhere((u) => u.email.toLowerCase() == email.toLowerCase());
+    if (index != -1) {
+      final user = _users[index];
+      _users[index] = UserEntity(
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        pin: newPin,
+        createdAt: user.createdAt,
+        biometricEnabled: user.biometricEnabled,
+      );
+      return true;
+    }
+    return false;
   }
 }
 
@@ -173,25 +190,7 @@ void main() {
         expect(authController.error, isNull);
       });
 
-      test('güvenlik sorusu ile kayıt başarılı olur', () async {
-        final result = await authController.register(
-          'Test Kullanıcı',
-          'test@example.com',
-          '1234',
-          securityQuestion: 'Evcil hayvanınızın adı?',
-          securityAnswer: 'Boncuk',
-        );
-
-        expect(result, isTrue);
-        expect(
-          authController.currentUser!.securityQuestion,
-          equals('Evcil hayvanınızın adı?'),
-        );
-        expect(
-          authController.currentUser!.securityAnswer,
-          equals('boncuk'),
-        ); // lowercase
-      });
+      // güvenlik sorusu testleri silindi
     });
 
     group('login', () {
@@ -290,22 +289,20 @@ void main() {
       });
     });
 
-    group('verifySecurityAnswerAndResetPin', () {
+    group('verifyEmailLinkAndSetPin', () {
       setUp(() async {
         await authController.register(
           'Güvenlik Testi',
           'guvenlik@example.com',
           '1234',
-          securityQuestion: 'Doğum yeriniz?',
-          securityAnswer: 'İstanbul',
         );
         await authController.logout();
       });
 
-      test('doğru cevap ile PIN sıfırlanır', () async {
-        final result = await authController.verifySecurityAnswerAndResetPin(
+      test('doğru link ile PIN sıfırlanır', () async {
+        final result = await authController.verifyEmailLinkAndSetPin(
           'guvenlik@example.com',
-          'İstanbul',
+          'https://test.com/link',
           '5678',
         );
 
@@ -319,10 +316,10 @@ void main() {
         expect(loginResult, isTrue);
       });
 
-      test('yanlış cevap ile PIN sıfırlanmaz', () async {
-        final result = await authController.verifySecurityAnswerAndResetPin(
-          'guvenlik@example.com',
-          'Ankara',
+      test('yanlış email ile PIN sıfırlanmaz', () async {
+        final result = await authController.verifyEmailLinkAndSetPin(
+          'farkli@email.com',
+          'https://test.com/link',
           '5678',
         );
 

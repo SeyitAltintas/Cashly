@@ -9,18 +9,14 @@ class TestHelpers {
     String? email,
     String? pin,
     bool biometricEnabled = false,
-    String? securityQuestion,
-    String? securityAnswer,
   }) {
     return UserEntity(
       id: id ?? 'test-user-id-123',
       name: name ?? 'Test Kullanıcı',
       email: email ?? 'test@example.com',
-      pin: pin ?? '1234',
+      pin: pin ?? '123456',
       createdAt: DateTime(2024, 1, 1),
       biometricEnabled: biometricEnabled,
-      securityQuestion: securityQuestion,
-      securityAnswer: securityAnswer,
     );
   }
 

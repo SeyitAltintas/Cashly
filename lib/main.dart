@@ -28,6 +28,9 @@ import 'core/services/network_service.dart';
 import 'core/router/app_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:app_links/app_links.dart';
+import 'features/auth/presentation/widgets/forgot_password_helper.dart';
+
 import 'core/services/secure_storage_service.dart';
 
 import 'core/widgets/fallback_error_widget.dart';
@@ -151,17 +154,24 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
   AppRouter? _appRouter;
   bool _isInitialized = false;
   String? _initError;
+  
+  late AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initializeApp();
+    
+    _appLinks = AppLinks();
+    _initAppLinks();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _linkSubscription?.cancel();
     super.dispose();
   }
 
@@ -224,6 +234,56 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
     } else if (payload.startsWith('recurring_')) {
       final transactionId = payload.replaceFirst('recurring_', '');
       debugPrint('Recurring transaction notification: $transactionId');
+    }
+  }
+
+  Future<void> _initAppLinks() async {
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      debugPrint('Uygulama linki alındı (stream): $uri');
+      _handleDeepLink(uri);
+    });
+
+    try {
+      final initialLink = await _appLinks.getInitialLink();
+      if (initialLink != null) {
+        debugPrint('Uygulama linki alındı (initial): $initialLink');
+        _handleDeepLink(initialLink);
+      }
+    } catch (_) {}
+  }
+
+  void _handleDeepLink(Uri uri) {
+    if (uri.path.contains('/__/auth/action') || uri.path.contains('/__/auth/links')) {
+      String? email = uri.queryParameters['email'];
+      
+      // Eğer email parametresi direkt URL'de yoksa, continueUrl içinde arayalım (Firebase yapısı)
+      if (email == null || email.isEmpty) {
+        final continueUrlStr = uri.queryParameters['continueUrl'];
+        if (continueUrlStr != null && continueUrlStr.isNotEmpty) {
+          try {
+            final continueUri = Uri.parse(continueUrlStr);
+            email = continueUri.queryParameters['email'];
+          } catch (_) {}
+        }
+      }
+
+      debugPrint('Uygulama linki alındı: ${uri.path}. Bulunan Email: $email');
+      if (email != null && email.isNotEmpty) {
+        // AppRouter vs yüklenmesi için biraz bekle
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          final context = AppRouter.navigatorKey.currentContext;
+          if (context != null && context.mounted) {
+            ForgotPasswordHelper.showSetNewPinSheet(
+              context,
+              getIt<AuthController>(),
+              email!,
+              uri.toString(),
+            );
+          } else {
+            debugPrint('Deep Link işlenemedi: Navigator context bulunamadı.');
+          }
+        });
+      }
     }
   }
 

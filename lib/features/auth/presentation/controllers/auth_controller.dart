@@ -68,10 +68,8 @@ class AuthController extends ChangeNotifier {
   Future<bool> register(
     String name,
     String email,
-    String pin, {
-    String? securityQuestion,
-    String? securityAnswer,
-  }) async {
+    String pin,
+  ) async {
     _setLoading(true);
     _error = null;
     try {
@@ -82,8 +80,6 @@ class AuthController extends ChangeNotifier {
         pin: pin,
         createdAt: DateTime.now(),
         biometricEnabled: false,
-        securityQuestion: securityQuestion,
-        securityAnswer: securityAnswer?.trim().toLowerCase(),
       );
       final registeredUser = await _authRepository.registerUser(newUser);
       _currentUser = registeredUser;
@@ -186,36 +182,27 @@ class AuthController extends ChangeNotifier {
     return await _authRepository.getUserByEmail(email);
   }
 
-  /// Güvenlik sorusu cevabını doğrula ve PIN'i sıfırla
-  Future<bool> verifySecurityAnswerAndResetPin(
-    String email,
-    String answer,
-    String newPin,
-  ) async {
+  /// E-posta doğrulama bağlantısı gönder (Şifremi Unuttum)
+  Future<bool> sendPinResetEmailLink(String email) async {
     _setLoading(true);
     _error = null;
     try {
-      final user = await _authRepository.getUserByEmail(email);
-      if (user == null) {
-        _error = "Kullanıcı bulunamadı";
-        return false;
-      }
-
-      if (user.securityAnswer == null) {
-        _error = "Bu kullanıcı için güvenlik sorusu tanımlanmamış";
-        return false;
-      }
-
-      // Cevabı normalize et ve karşılaştır
-      final normalizedAnswer = answer.trim().toLowerCase();
-      if (user.securityAnswer != normalizedAnswer) {
-        _error = "Yanlış cevap";
-        return false;
-      }
-
-      // PIN'i güncelle
-      await _authRepository.updateUserPin(user.id, newPin);
+      await _authRepository.sendPinResetEmailLink(email);
       return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// E-posta bağlantısını doğrula ve yeni PIN'i kaydet
+  Future<bool> verifyEmailLinkAndSetPin(String email, String emailLink, String newPin) async {
+    _setLoading(true);
+    _error = null;
+    try {
+      return await _authRepository.verifyEmailLinkAndSetPin(email, emailLink, newPin);
     } catch (e) {
       _error = e.toString();
       return false;

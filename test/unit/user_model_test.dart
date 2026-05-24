@@ -22,8 +22,6 @@ void main() {
       expect(entity.profileImage, isNull);
       expect(entity.lastLoginAt, isNull);
       expect(entity.biometricEnabled, isFalse);
-      expect(entity.securityQuestion, isNull);
-      expect(entity.securityAnswer, isNull);
     });
   });
 
@@ -38,13 +36,9 @@ void main() {
         profileImage: '/path/to/image.png',
         lastLoginAt: now,
         biometricEnabled: true,
-        securityQuestion: 'Soru?',
-        securityAnswer: 'Cevap',
       );
       expect(user.profileImage, '/path/to/image.png');
       expect(user.biometricEnabled, isTrue);
-      expect(user.securityQuestion, 'Soru?');
-      expect(user.securityAnswer, 'Cevap');
     });
   });
 
@@ -57,8 +51,6 @@ void main() {
         pin: '0000',
         createdAt: now,
         biometricEnabled: true,
-        securityQuestion: 'Hayvanın?',
-        securityAnswer: 'Kedi',
       );
       final map = original.toMap();
       final restored = UserModel.fromMap(map);
@@ -68,8 +60,6 @@ void main() {
       expect(restored.email, original.email);
       expect(restored.pin, original.pin);
       expect(restored.biometricEnabled, original.biometricEnabled);
-      expect(restored.securityQuestion, original.securityQuestion);
-      expect(restored.securityAnswer, original.securityAnswer);
     });
 
     test('toMap tüm anahtarları içerir', () {
@@ -98,7 +88,6 @@ void main() {
       };
       final user = UserModel.fromMap(map);
       expect(user.biometricEnabled, isFalse);
-      expect(user.securityQuestion, isNull);
       expect(user.lastLoginAt, isNull);
     });
 

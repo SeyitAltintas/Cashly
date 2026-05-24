@@ -1,7 +1,6 @@
 {
     "version": "0.2.0",
     "configurations": [
-        
         {
             "name": "Redmi Note 10 Pro",
             "request": "launch",
@@ -11,7 +10,7 @@
             "cwd": "${workspaceFolder}"
         },
         {
-            "name": "cashly (Chrome)",
+            "name": "(Chrome)",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
@@ -19,7 +18,7 @@
             "cwd": "${workspaceFolder}"
         },
         {
-            "name": "cashly (Emulator)",
+            "name": "(Emulator)",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",

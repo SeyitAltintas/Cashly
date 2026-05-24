@@ -25,17 +25,17 @@ class Validators {
     return null;
   }
 
-  /// PIN validasyonu (4-6 rakam arası)
+  /// PIN validasyonu (6 rakam)
   ///
-  /// Örnek: validatePIN("1234") -> null (geçerli)
-  ///        validatePIN("123") -> "PIN 4 ile 6 rakam arasında olmalıdır"
+  /// Örnek: validatePIN("123456") -> null (geçerli)
+  ///        validatePIN("123") -> "PIN 6 rakamdan oluşmalıdır"
   static String? validatePIN(String? value) {
     if (value == null || value.isEmpty) {
       return 'Lütfen bir PIN belirleyin';
     }
 
-    if (value.length < 4 || value.length > 6) {
-      return 'PIN 4 ile 6 rakam arasında olmalıdır';
+    if (value.length != 6) {
+      return 'PIN 6 rakamdan oluşmalıdır';
     }
 
     if (int.tryParse(value) == null) {

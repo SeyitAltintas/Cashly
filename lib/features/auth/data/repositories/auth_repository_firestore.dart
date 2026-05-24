@@ -8,28 +8,16 @@ import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
 import 'auth_repository_impl.dart';
 
-/// Firebase Authentication kullanan Auth Repository implementasyonu
-///
-/// NOT: Cashly UI'da girişler 4-6 haneli PIN ile yapıldığı için
-/// Firebase Auth'ta mecburi olan güçlü şifre kuralını atlamak adına
-/// PIN'in arkasına statik bir "padding" eklenerek güçlü bir şifre elde ediliyor.
-/// Böylece "Hesap Oluştur / E-mail + PIN ile bulut senkronize" deneyimi
-/// tamamen şeffaf çalışıyor ve AuthRules da "request.auth.uid" ile korunuyor.
 class AuthRepositoryFirestore implements AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final AuthRepositoryImpl _localHiveRepo = AuthRepositoryImpl();
-
-  String _generateFirebasePassword(String pin) {
-    return 'CASHLY_${pin}_SECURE_2026';
-  }
-
   @override
   Future<UserEntity> registerUser(UserEntity user) async {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: user.email,
-        password: _generateFirebasePassword(user.pin),
+        password: user.pin,
       );
 
       final firebaseUser = credential.user;
@@ -44,8 +32,6 @@ class AuthRepositoryFirestore implements AuthRepository {
         profileImage: user.profileImage,
         createdAt: user.createdAt,
         biometricEnabled: user.biometricEnabled,
-        securityQuestion: user.securityQuestion,
-        securityAnswer: user.securityAnswer,
       );
 
       final model = UserModel.fromEntity(finalUser);
@@ -102,7 +88,7 @@ class AuthRepositoryFirestore implements AuthRepository {
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: localUser.email,
-        password: _generateFirebasePassword(pin),
+        password: pin,
       );
 
       // Firebase'in gerçek UID'sini alıyoruz.
@@ -112,7 +98,7 @@ class AuthRepositoryFirestore implements AuthRepository {
       final firebaseUid = credential.user?.uid;
       if (firebaseUid != null && firebaseUid != localUser.id) {
         debugPrint(
-          "loginUser: Hive UID ('${localUser.id}') != Firebase UID ('$firebaseUid'). Güncelleniyor..."
+          "loginUser: Hive UID ('${localUser.id}') != Firebase UID ('$firebaseUid'). Güncelleniyor...",
         );
         final correctedUser = UserEntity(
           id: firebaseUid,
@@ -122,12 +108,12 @@ class AuthRepositoryFirestore implements AuthRepository {
           profileImage: localUser.profileImage,
           createdAt: localUser.createdAt,
           biometricEnabled: localUser.biometricEnabled,
-          securityQuestion: localUser.securityQuestion,
-          securityAnswer: localUser.securityAnswer,
         );
         await _localHiveRepo.registerUser(correctedUser);
         await _localHiveRepo.setCurrentUser(firebaseUid);
-        try { await _localHiveRepo.deleteUser(localUser.id); } catch (_) {}
+        try {
+          await _localHiveRepo.deleteUser(localUser.id);
+        } catch (_) {}
 
         // UID düzeltmesinin ardından bulut verisini hemen çek
         await CloudSyncService.syncAllUserData(firebaseUid);
@@ -151,7 +137,7 @@ class AuthRepositoryFirestore implements AuthRepository {
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
-        password: _generateFirebasePassword(pin),
+        password: pin,
       );
 
       final firebaseUser = credential.user;
@@ -217,19 +203,20 @@ class AuthRepositoryFirestore implements AuthRepository {
   Future<UserEntity?> getCurrentUser() async {
     // Bulut yapısında bile offline session auth cache çalışsın
     final user = await _localHiveRepo.getCurrentUser();
-    
-    // Eğer ortada geçerli bir kullanıcı varsa, in-memory cache olan 
+
+    // Eğer ortada geçerli bir kullanıcı varsa, in-memory cache olan
     // CacheService'in uygulama açılır açılmaz Firestore'dan dolması ŞARTTIR.
     if (user != null) {
       try {
-        await CloudSyncService.syncAllUserData(user.id)
-            .timeout(const Duration(seconds: 15));
+        await CloudSyncService.syncAllUserData(
+          user.id,
+        ).timeout(const Duration(seconds: 15));
         await StreakService.syncFromCloud(user.id);
       } catch (e) {
         debugPrint('getCurrentUser CloudSync Hatasi: $e');
       }
     }
-    
+
     return user;
   }
 
@@ -288,19 +275,66 @@ class AuthRepositoryFirestore implements AuthRepository {
   @override
   Future<UserEntity?> getUserByEmail(String email) async {
     // Lokal Hive cache'de ara (aynı cihaz / offline).
-    // NOT: Farklı cihazda "Şifremi Unuttum" Firestore rules nedeniyle desteklenemiyor
-    // (giriş yapılmamış kullanıcı kendi UID'si dışında hiçbir dokümanı okuyamaz).
-    // Uzun vadeli çözüm: Firebase Auth e-posta sıfırlama akışı veya Cloud Function.
     return await _localHiveRepo.getUserByEmail(email);
+  }
+
+  @override
+  Future<void> sendPinResetEmailLink(String email) async {
+    try {
+      final actionCodeSettings = ActionCodeSettings(
+        url: 'https://cashly-c0acc.firebaseapp.com/__/auth/action?email=$email',
+        handleCodeInApp: true,
+        androidPackageName: 'com.seyitaltintas.cashly',
+        androidInstallApp: true,
+        androidMinimumVersion: "1",
+      );
+
+      await _firebaseAuth.sendSignInLinkToEmail(
+        email: email,
+        actionCodeSettings: actionCodeSettings,
+      );
+    } catch (e) {
+      throw Exception("E-posta bağlantısı gönderilemedi: ${e.toString()}");
+    }
+  }
+
+  @override
+  Future<bool> verifyEmailLinkAndSetPin(
+    String email,
+    String emailLink,
+    String newPin,
+  ) async {
+    try {
+      if (_firebaseAuth.isSignInWithEmailLink(emailLink)) {
+        // Oturum aç
+        final credential = await _firebaseAuth.signInWithEmailLink(
+          email: email,
+          emailLink: emailLink,
+        );
+
+        final user = credential.user;
+        if (user != null) {
+          // Yeni şifreyi ayarla
+          await user.updatePassword(newPin);
+
+          // Locale kaydet
+          await _localHiveRepo.updateUserPin(user.uid, newPin);
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      throw Exception("E-posta bağlantısı doğrulanamadı: ${e.toString()}");
+    }
   }
 
   @override
   Future<void> updateUserPin(String userId, String newPin) async {
     try {
-      // 1. Firebase Auth şifresi güncelle (PIN Firestore'a düz metin yazılmaz)
+      // 1. Firebase Auth şifresi güncelle
       final user = _firebaseAuth.currentUser;
       if (user != null && user.uid == userId) {
-        await user.updatePassword(_generateFirebasePassword(newPin));
+        await user.updatePassword(newPin);
       }
       // 2. Lokal Hive güncelle
       await _localHiveRepo.updateUserPin(userId, newPin);

@@ -77,8 +77,6 @@ class AuthRepositoryImpl implements AuthRepository {
           createdAt: user.createdAt,
           lastLoginAt: DateTime.now(),
           biometricEnabled: user.biometricEnabled,
-          securityQuestion: user.securityQuestion,
-          securityAnswer: user.securityAnswer,
         );
         await box.put(id, updatedUser.toMap());
         await setCurrentUser(user.id);
@@ -176,8 +174,6 @@ class AuthRepositoryImpl implements AuthRepository {
           createdAt: user.createdAt,
           lastLoginAt: DateTime.now(),
           biometricEnabled: user.biometricEnabled,
-          securityQuestion: user.securityQuestion,
-          securityAnswer: user.securityAnswer,
         );
         await box.put(userId, updatedUser.toMap());
         await setCurrentUser(user.id);
@@ -203,8 +199,6 @@ class AuthRepositoryImpl implements AuthRepository {
         createdAt: user.createdAt,
         lastLoginAt: user.lastLoginAt,
         biometricEnabled: enabled,
-        securityQuestion: user.securityQuestion,
-        securityAnswer: user.securityAnswer,
       );
       await box.put(userId, updatedUser.toMap());
     }
@@ -241,10 +235,19 @@ class AuthRepositoryImpl implements AuthRepository {
         createdAt: user.createdAt,
         lastLoginAt: user.lastLoginAt,
         biometricEnabled: user.biometricEnabled,
-        securityQuestion: user.securityQuestion,
-        securityAnswer: user.securityAnswer,
       );
       await box.put(userId, updatedUser.toMap());
     }
+  }
+
+  @override
+  Future<void> sendPinResetEmailLink(String email) async {
+    // Sadece Firestore versiyonunda implemente edilir.
+  }
+
+  @override
+  Future<bool> verifyEmailLinkAndSetPin(String email, String emailLink, String newPin) async {
+    // Sadece Firestore versiyonunda implemente edilir.
+    return false;
   }
 }

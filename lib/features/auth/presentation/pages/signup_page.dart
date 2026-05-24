@@ -21,7 +21,6 @@ class _SignUpPageState extends State<SignUpPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _pinController = TextEditingController();
-  final _securityAnswerController = TextEditingController();
 
   late final SignupPageState _signupState;
 
@@ -30,18 +29,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
   bool get _isPinVisible => _signupState.isPinVisible;
   bool get _isLoading => _signupState.isLoading;
-  String? get _selectedSecurityQuestion =>
-      _signupState.selectedSecurityQuestion;
-
-  // Güvenlik soruları build zamanında l10n ile doldurulur
-  List<String> get _securityQuestions => [
-        context.l10n.securityQuestionPet,
-        context.l10n.securityQuestionTeacher,
-        context.l10n.securityQuestionCity,
-        context.l10n.securityQuestionBook,
-        context.l10n.securityQuestionMaiden,
-        context.l10n.securityQuestionFriend,
-      ];
 
   @override
   void initState() {
@@ -61,7 +48,6 @@ class _SignUpPageState extends State<SignUpPage> {
     _nameController.dispose();
     _emailController.dispose();
     _pinController.dispose();
-    _securityAnswerController.dispose();
     super.dispose();
   }
 
@@ -270,128 +256,6 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-
-                // Güvenlik Sorusu Dropdown
-                DropdownButtonFormField<String>(
-                  initialValue: _selectedSecurityQuestion,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  dropdownColor: Theme.of(context).colorScheme.surface,
-                  decoration: InputDecoration(
-                    labelText: context.l10n.securityQuestion,
-                    labelStyle: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.security,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.24),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                  items: _securityQuestions.map((question) {
-                    return DropdownMenuItem<String>(
-                      value: question,
-                      child: Text(
-                        question,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 14,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    _signupState.selectedSecurityQuestion = value;
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return context.l10n.pleaseSelectSecurityQuestion;
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                // Güvenlik Sorusu Cevabı
-                TextFormField(
-                  controller: _securityAnswerController,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: context.l10n.securityQuestionAnswer,
-                    labelStyle: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.question_answer_outlined,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.24),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return context.l10n.pleaseEnterSecurityAnswer;
-                    }
-                    return null;
-                  },
-                ),
                 const SizedBox(height: 40),
 
                 // Kayıt Ol Butonu
@@ -419,9 +283,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                     _nameController.text.trim(),
                                     _emailController.text.trim(),
                                     _pinController.text,
-                                    securityQuestion: _selectedSecurityQuestion,
-                                    securityAnswer:
-                                        _securityAnswerController.text,
                                   );
 
                               if (!context.mounted) return;
