@@ -216,11 +216,55 @@ class AuthRepositoryFirestore implements AuthRepository {
           await CloudSyncService.syncAllUserData(userWithSession.id);
           await StreakService.syncFromCloud(userWithSession.id);
           return userWithSession;
+        } else {
+          // FIX: Phantom Registration
+          // Eğer profil Firestore'da yoksa (kayıt esnasında internet kopmuşsa), yeni cihaza girişte kilitlenmeyi önler.
+          debugPrint("loginByEmail: Firestore profili bulunamadı. Yeniden oluşturuluyor...");
+          final userModel = UserModel(
+            id: firebaseUser.uid,
+            name: firebaseUser.displayName ?? 'Kullanıcı',
+            email: firebaseUser.email ?? email,
+            pin: pin,
+            createdAt: DateTime.now(),
+            lastLoginAt: DateTime.now(),
+            biometricEnabled: false,
+          );
+          
+          try {
+            await _firestore
+                .collection('users')
+                .doc(firebaseUser.uid)
+                .collection('profile')
+                .doc('info')
+                .set(userModel.toFirestoreMap())
+                .timeout(const Duration(seconds: 5));
+          } catch (e) {
+            debugPrint("loginByEmail: Phantom profili buluta yazılamadı (offline?): $e");
+          }
+          
+          await _localHiveRepo.registerUser(userModel);
+          final userWithSession = await _createAndSaveSession(userModel);
+          // Sync service will just create empty folders locally for new accounts
+          await CloudSyncService.syncAllUserData(userWithSession.id);
+          return userWithSession;
         }
       }
       return null;
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'network-request-failed') {
+        debugPrint('loginByEmail: Ağ bağlantısı yok, yerel PIN doğrulamasına geçiliyor...');
+        return await _localHiveRepo.loginByEmail(email, pin);
+      }
       debugPrint("Firebase loginByEmail Error: ${e.message}");
+      return null;
+    } catch (e) {
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('timeout') ||
+          msg.contains('socketexception') ||
+          msg.contains('failed host lookup')) {
+        debugPrint('loginByEmail: Bağlantı zaman aşımı, yerel PIN doğrulamasına geçiliyor...');
+        return await _localHiveRepo.loginByEmail(email, pin);
+      }
       return null;
     }
   }
@@ -396,6 +440,10 @@ class AuthRepositoryFirestore implements AuthRepository {
     } catch (e) {
       if (e is SessionExpiredException) rethrow; // Hatayı UI'a ilet
       debugPrint('Biyometrik giriş sonrası sync hatası (offline?): $e');
+      // FIX: Çevrimdışı durumlarda (TimeoutException vb.) biyometrik girişe izin verilir.
+      // Bu, offline-first mimarinin gereğidir. Kötü niyetli kullanımda dahi (uçak modu ile)
+      // Tek Cihaz Politikası (Single Device Policy) cihazın ilk çevrimiçi anında
+      // getCurrentUser() tarafından sağlanacaktır.
     }
 
     return user;
@@ -504,13 +552,45 @@ class AuthRepositoryFirestore implements AuthRepository {
               await _localHiveRepo.setCurrentUser(userWithSession.id);
             } else {
               // Firestore profili yok ama en azından Hive oturumunu aç
-              await _localHiveRepo.setCurrentUser(user.uid);
+              // FIX: Ghost Session - Kullanıcı lokalde yoksa ve Firestore'dan çekilemediyse çökmesini önle
+              final localUserCheck = await _localHiveRepo.loginUser(user.uid, newPin);
+              if (localUserCheck == null) {
+                final emergencyUser = UserEntity(
+                  id: user.uid,
+                  name: user.displayName ?? 'Kullanıcı',
+                  email: user.email ?? email,
+                  pin: newPin,
+                  createdAt: DateTime.now(),
+                  lastLoginAt: DateTime.now(),
+                  biometricEnabled: false,
+                );
+                final userWithSession = await _createAndSaveSession(emergencyUser);
+                await _localHiveRepo.setCurrentUser(userWithSession.id);
+              } else {
+                await _localHiveRepo.setCurrentUser(user.uid);
+              }
             }
           } catch (e) {
             debugPrint(
               'verifyEmailLinkAndSetPin: Profil sync hatası (offline?): $e',
             );
-            // Sync başarısız olsa bile PIN güncellemesi geçerliydi, true dön
+            // Sync başarısız olsa bile PIN güncellemesi geçerliydi, lokalde yoksa oluştur
+            final localUserCheck = await _localHiveRepo.loginUser(user.uid, newPin);
+            if (localUserCheck == null) {
+              final emergencyUser = UserEntity(
+                id: user.uid,
+                name: user.displayName ?? 'Kullanıcı',
+                email: user.email ?? email,
+                pin: newPin,
+                createdAt: DateTime.now(),
+                lastLoginAt: DateTime.now(),
+                biometricEnabled: false,
+              );
+              final userWithSession = await _createAndSaveSession(emergencyUser);
+              await _localHiveRepo.setCurrentUser(userWithSession.id);
+            } else {
+              await _localHiveRepo.setCurrentUser(user.uid);
+            }
           }
 
           return true;

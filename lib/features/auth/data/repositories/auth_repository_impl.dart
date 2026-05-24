@@ -112,7 +112,22 @@ class AuthRepositoryImpl implements AuthRepository {
     for (var key in box.keys) {
       final userData = box.get(key);
       if (userData != null) {
-        users.add(UserModel.fromMap(Map<String, dynamic>.from(userData)));
+        final userModel = UserModel.fromMap(Map<String, dynamic>.from(userData));
+        // FIX-11: PIN sızıntısını önlemek için, UI'a gönderilen liste hafızasında
+        // açık PIN kodlarını temizliyoruz.
+        users.add(
+          UserModel(
+            id: userModel.id,
+            name: userModel.name,
+            email: userModel.email,
+            pin: '', // PIN RAM'den gizleniyor
+            profileImage: userModel.profileImage,
+            createdAt: userModel.createdAt,
+            lastLoginAt: userModel.lastLoginAt,
+            biometricEnabled: userModel.biometricEnabled,
+            activeSessionId: userModel.activeSessionId,
+          ),
+        );
       }
     }
     return users;
