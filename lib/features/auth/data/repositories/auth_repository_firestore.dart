@@ -36,12 +36,13 @@ class AuthRepositoryFirestore implements AuthRepository {
 
       final model = UserModel.fromEntity(finalUser);
       try {
+        // FIX-1: toFirestoreMap() kullanılıyor — PIN asla Firestore'a yazılmaz.
         await _firestore
             .collection('users')
             .doc(firebaseUser.uid)
             .collection('profile')
             .doc('info')
-            .set(model.toMap())
+            .set(model.toFirestoreMap())
             .timeout(const Duration(seconds: 5));
       } catch (e) {
         debugPrint("Firestore'a kullanıcı profili yazılamadı: $e");
@@ -244,19 +245,23 @@ class AuthRepositoryFirestore implements AuthRepository {
   @override
   Future<UserEntity?> loginWithBiometric(String userId) async {
     final firebaseUser = _firebaseAuth.currentUser;
+    final user = await _localHiveRepo.loginWithBiometric(userId);
+
+    if (user == null) return null;
+
+    // FIX-4: Firebase oturumu açıksa sync yap, yoksa sessizce geç.
+    // Oturum kapalıyken Firestore'a erişim permission-denied fırlatır.
     if (firebaseUser != null && firebaseUser.uid == userId) {
-      final user = await _localHiveRepo.loginWithBiometric(userId);
-      if (user != null) {
+      try {
         await CloudSyncService.syncAllUserData(user.id);
         await StreakService.syncFromCloud(user.id);
+      } catch (e) {
+        debugPrint('Biyometrik giriş sonrası sync hatası (offline?): $e');
       }
-      return user;
-    }
-    // Firebase oturumu düşmüşse Hive'dan döndür ve yine de sync dene
-    final user = await _localHiveRepo.loginWithBiometric(userId);
-    if (user != null) {
-      await CloudSyncService.syncAllUserData(user.id);
-      await StreakService.syncFromCloud(user.id);
+    } else {
+      debugPrint(
+        'loginWithBiometric: Firebase oturumu yok, sync atlandı (offline mod).',
+      );
     }
     return user;
   }
@@ -275,7 +280,23 @@ class AuthRepositoryFirestore implements AuthRepository {
   @override
   Future<UserEntity?> getUserByEmail(String email) async {
     // Lokal Hive cache'de ara (aynı cihaz / offline).
-    return await _localHiveRepo.getUserByEmail(email);
+    final localUser = await _localHiveRepo.getUserByEmail(email);
+    if (localUser != null) return localUser;
+
+    // FIX-2: Yeni cihaz veya lokal cache yok.
+    // fetchSignInMethodsForEmail Firebase SDK'dan kaldırıldığı (gizlilik politikası) için
+    // stub entity döndürüyoruz ve akışın devam etmesine izin veriyoruz.
+    // Asıl e-posta doğrulaması sendSignInLinkToEmail adımında Firebase tarafından yapılır:
+    //   - E-posta yoksa → FirebaseAuthException fırlatır → UI hata gösterir.
+    //   - E-posta varsa  → Magic link gönderilir → akış tamamlanır.
+    return UserEntity(
+      id: '', // UID henüz bilinmiyor, yalnızca akışı açmak için
+      name: '',
+      email: email,
+      pin: '',
+      createdAt: DateTime.now(),
+      biometricEnabled: false,
+    );
   }
 
   @override
@@ -306,7 +327,6 @@ class AuthRepositoryFirestore implements AuthRepository {
   ) async {
     try {
       if (_firebaseAuth.isSignInWithEmailLink(emailLink)) {
-        // Oturum aç
         final credential = await _firebaseAuth.signInWithEmailLink(
           email: email,
           emailLink: emailLink,
@@ -314,11 +334,50 @@ class AuthRepositoryFirestore implements AuthRepository {
 
         final user = credential.user;
         if (user != null) {
-          // Yeni şifreyi ayarla
+          // Yeni şifreyi Firebase Auth'ta güncelle
           await user.updatePassword(newPin);
 
-          // Locale kaydet
+          // FIX-3: Lokal PIN güncelle
           await _localHiveRepo.updateUserPin(user.uid, newPin);
+
+          // FIX-3: Oturum state tutarlılığı — Firestore'dan profili çek ve
+          // lokal Hive'da aktif oturum aç. Böylece AuthController güncel kullanıcıyı
+          // checkAuth() sonrası doğru bulur.
+          try {
+            final doc = await _firestore
+                .collection('users')
+                .doc(user.uid)
+                .collection('profile')
+                .doc('info')
+                .get()
+                .timeout(const Duration(seconds: 5));
+
+            if (doc.exists && doc.data() != null) {
+              final profile = UserModel.fromMap(doc.data()!);
+              // PIN Firestore'da olmayabilir; updateUserPin zaten Hive'da güncel
+              final syncedUser = UserModel(
+                id: profile.id.isEmpty ? user.uid : profile.id,
+                name: profile.name,
+                email: profile.email,
+                pin: newPin,
+                profileImage: profile.profileImage,
+                createdAt: profile.createdAt,
+                lastLoginAt: DateTime.now(),
+                biometricEnabled: profile.biometricEnabled,
+              );
+              await _localHiveRepo.registerUser(syncedUser);
+              await _localHiveRepo.setCurrentUser(syncedUser.id);
+            } else {
+              // Firestore profili yok ama en azından Hive oturumunu aç
+              await _localHiveRepo.setCurrentUser(user.uid);
+            }
+          } catch (e) {
+            debugPrint(
+              'verifyEmailLinkAndSetPin: Profil sync hatası (offline?): $e',
+            );
+            // Sync başarısız olsa bile PIN güncellemesi geçerliydi, true dön
+          }
+
           return true;
         }
       }

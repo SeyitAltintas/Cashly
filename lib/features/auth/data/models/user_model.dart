@@ -42,6 +42,20 @@ class UserModel extends UserEntity {
     };
   }
 
+  /// Firestore'a yazılacak güvenli harita.
+  /// PIN asla buluta yazılmaz — Firebase Auth'ta encode edilmiş durumda.
+  Map<String, dynamic> toFirestoreMap() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'profileImage': profileImage,
+      'createdAt': createdAt.toIso8601String(),
+      'lastLoginAt': lastLoginAt?.toIso8601String(),
+      'biometricEnabled': biometricEnabled,
+    };
+  }
+
   factory UserModel.fromEntity(UserEntity entity) {
     return UserModel(
       id: entity.id,
