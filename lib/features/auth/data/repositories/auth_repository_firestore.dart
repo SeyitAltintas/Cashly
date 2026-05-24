@@ -362,6 +362,9 @@ class AuthRepositoryFirestore implements AuthRepository {
           user.id,
         ).timeout(const Duration(seconds: 15));
         await StreakService.syncFromCloud(user.id);
+        
+        // Başarılı online doğrulama sonrası TTL süresini güncelle
+        await _localHiveRepo.updateLastOnlineSync(user.id);
       } catch (e) {
         if (e is SessionExpiredException) rethrow; // Hatayı UI'a ilet
         debugPrint('getCurrentUser CloudSync Hatasi: $e');
@@ -437,13 +440,28 @@ class AuthRepositoryFirestore implements AuthRepository {
 
       await CloudSyncService.syncAllUserData(user.id);
       await StreakService.syncFromCloud(user.id);
+      
+      // Başarılı online doğrulama sonrası TTL süresini güncelle
+      await _localHiveRepo.updateLastOnlineSync(user.id);
     } catch (e) {
       if (e is SessionExpiredException) rethrow; // Hatayı UI'a ilet
       debugPrint('Biyometrik giriş sonrası sync hatası (offline?): $e');
+      
+      // ÇEVRİMDIŞI TTL KONTROLÜ (Offline TTL)
+      final lastSync = await _localHiveRepo.getLastOnlineSync(user.id);
+      if (lastSync != null) {
+        final diff = DateTime.now().difference(lastSync);
+        if (diff.inHours > 48) { // 48 saat sınırı (Offline kullanım süresi dolmuş)
+           throw SessionExpiredException('Güvenlik nedeniyle (uzun süredir çevrimdışı) lütfen internete bağlanarak veya PIN kodunuzu girerek tekrar giriş yapın.');
+        }
+      } else {
+        // Hiç sync olmamışsa biyometrik offline girişe izin verme
+        throw SessionExpiredException('Güvenlik nedeniyle ilk biyometrik girişinizde internet bağlantısı gereklidir.');
+      }
+
       // FIX: Çevrimdışı durumlarda (TimeoutException vb.) biyometrik girişe izin verilir.
       // Bu, offline-first mimarinin gereğidir. Kötü niyetli kullanımda dahi (uçak modu ile)
-      // Tek Cihaz Politikası (Single Device Policy) cihazın ilk çevrimiçi anında
-      // getCurrentUser() tarafından sağlanacaktır.
+      // Tek Cihaz Politikası (Single Device Policy) 48 saat ile sınırlandırılmıştır.
     }
 
     return user;
@@ -646,6 +664,9 @@ class AuthRepositoryFirestore implements AuthRepository {
           .doc('info')
           .set({'activeSessionId': sessionId}, SetOptions(merge: true))
           .timeout(const Duration(seconds: 5));
+          
+      // Firestore'a erişim başarılıysa online damgasını vur
+      await _localHiveRepo.updateLastOnlineSync(user.id);
     } catch (e) {
       debugPrint("Firestore activeSessionId update failed (offline?): $e");
     }

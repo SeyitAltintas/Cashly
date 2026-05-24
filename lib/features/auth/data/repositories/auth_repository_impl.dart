@@ -268,4 +268,20 @@ class AuthRepositoryImpl implements AuthRepository {
     // Sadece Firestore versiyonunda implemente edilir.
     return false;
   }
+
+  /// Çevrimdışı TTL kontrolü için son online doğrulama zamanını kaydeder
+  Future<void> updateLastOnlineSync(String userId) async {
+    final sessionBox = await _getSessionBox();
+    await sessionBox.put('last_online_sync_$userId', DateTime.now().toIso8601String());
+  }
+
+  /// Çevrimdışı TTL kontrolü için son online doğrulama zamanını getirir
+  Future<DateTime?> getLastOnlineSync(String userId) async {
+    final sessionBox = await _getSessionBox();
+    final dateStr = sessionBox.get('last_online_sync_$userId');
+    if (dateStr != null) {
+      return DateTime.tryParse(dateStr);
+    }
+    return null;
+  }
 }
