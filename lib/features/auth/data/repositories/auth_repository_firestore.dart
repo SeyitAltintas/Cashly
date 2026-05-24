@@ -211,26 +211,47 @@ class AuthRepositoryFirestore implements AuthRepository {
   Future<void> updateUser(UserEntity user) async {
     await _localHiveRepo.updateUser(user);
     final model = UserModel.fromEntity(user);
-    await _firestore
-        .collection('users')
-        .doc(user.id)
-        .collection('profile')
-        .doc('info')
-        .set(model.toMap(), SetOptions(merge: true));
+    // FIX-5: toFirestoreMap() kullanılıyor — profil güncellemesinde de PIN asla
+    // Firestore'a yazılmaz. toMap() kullanmak önceki PIN güvenlik yamasını deliyordu.
+    try {
+      await _firestore
+          .collection('users')
+          .doc(user.id)
+          .collection('profile')
+          .doc('info')
+          .set(model.toFirestoreMap(), SetOptions(merge: true))
+          .timeout(const Duration(seconds: 10));
+    } catch (e) {
+      debugPrint('updateUser: Firestore güncelleme başarısız (offline?): $e');
+      // Lokal güncelleme zaten yapıldı; bulut sync bir sonraki açılışta tekrar denenecek.
+    }
   }
 
   @override
   Future<void> deleteUser(String userId) async {
-    try {
-      final user = _firebaseAuth.currentUser;
-      if (user != null && user.uid == userId) {
-        // Veritabanı verilerinin silindiği varsayılır (SettingsRepository tarafında yapılıyor)
-        await user.delete();
+    final firebaseUser = _firebaseAuth.currentUser;
+    if (firebaseUser != null && firebaseUser.uid == userId) {
+      try {
+        await firebaseUser.delete();
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'requires-recent-login') {
+          // FIX-6: Oturum eskimiş — Firebase yeniden kimlik doğrulama istiyor.
+          // Lokal veriyi silmeden hata fırlat; UI kullanıcıyı yeniden giriş yapmaya yönlendirmeli.
+          // Aksi takdirde kullanıcı lokalde silinir ama Firebase'de "hayalet" hesap kalır;
+          // aynı e-posta ile tekrar kayıt olmaya çalışınca "e-posta zaten kullanımda" hatası alır.
+          throw Exception(
+            'requires-recent-login: Hesabı silmek için lütfen çıkış yapıp tekrar giriş yapın.',
+          );
+        }
+        // Başka Firebase hataları (ör. ağ) → logla ama yerel temizliği yine de yap
+        debugPrint('deleteUser Firebase hatası [${e.code}]: ${e.message}');
+      } catch (e) {
+        debugPrint('deleteUser beklenmedik hata: $e');
       }
-      await _localHiveRepo.deleteUser(userId);
-    } catch (e) {
-      debugPrint("Firebase Account Delete Error: $e");
     }
+    // Firebase hesabı başarıyla silindiyse (veya zaten yoksa) lokal veriyi temizle.
+    // requires-recent-login durumunda buraya ulaşılmaz; exception yukarıda fırlatıldı.
+    await _localHiveRepo.deleteUser(userId);
   }
 
   @override

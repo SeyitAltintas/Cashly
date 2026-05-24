@@ -696,9 +696,14 @@ class ProfileSettingsHelper {
                 );
               } catch (e) {
                 if (context.mounted) {
+                  // FIX-6: requires-recent-login → kullanıcıya anlaşılır yönlendirme
+                  final isRecentLoginRequired =
+                      e.toString().contains('requires-recent-login');
                   AppSnackBar.error(
                     context,
-                    context.l10n.accountDeleteFailed(e.toString()),
+                    isRecentLoginRequired
+                        ? 'Güvenlik doğrulaması gerekiyor. Lütfen çıkış yapıp tekrar giriş yapın ve ardından hesabı silin.'
+                        : context.l10n.accountDeleteFailed(e.toString()),
                   );
                 }
               }
