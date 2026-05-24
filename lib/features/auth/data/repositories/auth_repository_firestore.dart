@@ -87,15 +87,14 @@ class AuthRepositoryFirestore implements AuthRepository {
     final localUser = localUsers[localUserIndex];
 
     try {
-      final credential = await _firebaseAuth.signInWithEmailAndPassword(
-        email: localUser.email,
-        password: pin,
-      );
+      final credential = await _firebaseAuth
+          .signInWithEmailAndPassword(email: localUser.email, password: pin)
+          .timeout(const Duration(seconds: 10));
 
       // Firebase'in gerçek UID'sini alıyoruz.
       // Hive'daki eski UUID bununla eşleşmiyorsa, Firestore'un kural denetimi
       // request.auth.uid != userId nedeniyle permission-denied fırlatacaktır.
-      // Cözüm: Hive kaydını her giriste Firebase UID ile eşitleyelim.
+      // Çözüm: Hive kaydını her girişte Firebase UID ile eşitleyelim.
       final firebaseUid = credential.user?.uid;
       if (firebaseUid != null && firebaseUid != localUser.id) {
         debugPrint(
@@ -128,9 +127,48 @@ class AuthRepositoryFirestore implements AuthRepository {
       }
       return loggedInUser;
     } on FirebaseAuthException catch (e) {
-      debugPrint("Firebase Login Error: ${e.message}");
+      // OFFLINE FALLBACK: Ağ hatası veya bağlanamama durumunda yerel PIN ile doğrula.
+      // Bu sayede kullanıcı internetsiz ortamda da PIN ile giriş yapabilir.
+      if (e.code == 'network-request-failed') {
+        debugPrint(
+          'loginUser: Ağ bağlantısı yok, yerel PIN doğrulamasına geçiliyor...',
+        );
+        return _offlinePinFallback(localUser, pin);
+      }
+      debugPrint("Firebase Login Error [${e.code}]: ${e.message}");
       return null;
+    } catch (e) {
+      // Timeout veya diğer beklenmedik ağ hataları için de offline fallback.
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('timeout') ||
+          msg.contains('socketexception') ||
+          msg.contains('failed host lookup')) {
+        debugPrint(
+          'loginUser: Bağlantı zaman aşımı, yerel PIN doğrulamasına geçiliyor...',
+        );
+        return _offlinePinFallback(localUser, pin);
+      }
+      rethrow;
     }
+  }
+
+  /// İnternet erişimi olmadığında, daha önce bu cihaza kaydedilmiş PIN ile
+  /// doğrulama yapar. Cloud sync atlanır; uygulama bir sonraki açılışta senkronize eder.
+  Future<UserEntity?> _offlinePinFallback(
+    UserEntity localUser,
+    String pin,
+  ) async {
+    if (localUser.pin == pin) {
+      final loggedInUser = await _localHiveRepo.loginUser(localUser.id, pin);
+      if (loggedInUser != null) {
+        debugPrint(
+          'loginUser: Offline mod — "${localUser.email}" yerel PIN ile doğrulandı.',
+        );
+      }
+      return loggedInUser;
+    }
+    debugPrint('loginUser: Offline mod — PIN yanlış, giriş reddedildi.');
+    return null;
   }
 
   @override
