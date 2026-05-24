@@ -10,6 +10,7 @@ class UserModel extends UserEntity {
     required super.createdAt,
     super.lastLoginAt,
     super.biometricEnabled = false,
+    super.activeSessionId,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -26,6 +27,7 @@ class UserModel extends UserEntity {
           ? DateTime.tryParse(map['lastLoginAt'].toString())
           : null,
       biometricEnabled: map['biometricEnabled'] as bool? ?? false,
+      activeSessionId: map['activeSessionId']?.toString(),
     );
   }
 
@@ -39,6 +41,7 @@ class UserModel extends UserEntity {
       'createdAt': createdAt.toIso8601String(),
       'lastLoginAt': lastLoginAt?.toIso8601String(),
       'biometricEnabled': biometricEnabled,
+      'activeSessionId': activeSessionId,
     };
   }
 
@@ -53,6 +56,7 @@ class UserModel extends UserEntity {
       'createdAt': createdAt.toIso8601String(),
       'lastLoginAt': lastLoginAt?.toIso8601String(),
       'biometricEnabled': biometricEnabled,
+      'activeSessionId': activeSessionId,
     };
   }
 
@@ -66,6 +70,7 @@ class UserModel extends UserEntity {
       createdAt: entity.createdAt,
       lastLoginAt: entity.lastLoginAt,
       biometricEnabled: entity.biometricEnabled,
+      activeSessionId: entity.activeSessionId,
     );
   }
 }

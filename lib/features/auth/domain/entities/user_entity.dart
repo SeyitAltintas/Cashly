@@ -7,6 +7,7 @@ class UserEntity {
   final DateTime createdAt;
   final DateTime? lastLoginAt;
   final bool biometricEnabled;
+  final String? activeSessionId; // Tekil oturum kontrolü için
 
   UserEntity({
     required this.id,
@@ -17,5 +18,6 @@ class UserEntity {
     required this.createdAt,
     this.lastLoginAt,
     this.biometricEnabled = false,
+    this.activeSessionId,
   });
 }

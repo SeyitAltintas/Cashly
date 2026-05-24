@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../core/exceptions/session_expired_exception.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 
@@ -39,6 +40,9 @@ class AuthController extends ChangeNotifier {
     try {
       _currentUser = await _authRepository.getCurrentUser();
     } catch (e) {
+      if (e is SessionExpiredException) {
+        _currentUser = null; // Session expired, so clear current user
+      }
       _error = e.toString();
     } finally {
       _setLoading(false);

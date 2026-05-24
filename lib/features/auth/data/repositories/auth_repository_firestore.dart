@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 import '../../../../core/services/cloud_sync_service.dart';
 import '../../../../features/streak/data/services/streak_service.dart';
+import '../../../../core/exceptions/session_expired_exception.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
@@ -52,7 +54,7 @@ class AuthRepositoryFirestore implements AuthRepository {
 
       // Çoklu hesap desteği ve offline kullanım için cihazın lokal Hive'ına da kaydediyoruz
       await _localHiveRepo.registerUser(finalUser);
-      return finalUser;
+      return await _createAndSaveSession(finalUser);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         throw Exception(
@@ -117,15 +119,17 @@ class AuthRepositoryFirestore implements AuthRepository {
 
         // UID düzeltmesinin ardından bulut verisini hemen çek
         await CloudSyncService.syncAllUserData(firebaseUid);
-        return correctedUser;
+        return await _createAndSaveSession(correctedUser);
       }
 
       final loggedInUser = await _localHiveRepo.loginUser(id, pin);
       if (loggedInUser != null) {
-        await CloudSyncService.syncAllUserData(loggedInUser.id);
-        await StreakService.syncFromCloud(loggedInUser.id);
+        final userWithSession = await _createAndSaveSession(loggedInUser);
+        await CloudSyncService.syncAllUserData(userWithSession.id);
+        await StreakService.syncFromCloud(userWithSession.id);
+        return userWithSession;
       }
-      return loggedInUser;
+      return null;
     } on FirebaseAuthException catch (e) {
       // OFFLINE FALLBACK: Ağ hatası veya bağlanamama durumunda yerel PIN ile doğrula.
       // Bu sayede kullanıcı internetsiz ortamda da PIN ile giriş yapabilir.
@@ -208,10 +212,10 @@ class AuthRepositoryFirestore implements AuthRepository {
           await _localHiveRepo.registerUser(
             userModel,
           ); // create or update on device
-          await _localHiveRepo.setCurrentUser(userModel.id);
-          await CloudSyncService.syncAllUserData(userModel.id);
-          await StreakService.syncFromCloud(userModel.id);
-          return userModel;
+          final userWithSession = await _createAndSaveSession(userModel);
+          await CloudSyncService.syncAllUserData(userWithSession.id);
+          await StreakService.syncFromCloud(userWithSession.id);
+          return userWithSession;
         }
       }
       return null;
@@ -282,11 +286,36 @@ class AuthRepositoryFirestore implements AuthRepository {
     // CacheService'in uygulama açılır açılmaz Firestore'dan dolması ŞARTTIR.
     if (user != null) {
       try {
+        // FIX: Tekil oturum kontrolü (Single Device Policy)
+        // Kullanıcı internete bağlıysa Firestore'daki aktif oturum ID'sini kontrol et.
+        final profileDoc = await _firestore
+            .collection('users')
+            .doc(user.id)
+            .collection('profile')
+            .doc('info')
+            .get()
+            .timeout(const Duration(seconds: 5));
+
+        if (profileDoc.exists) {
+          final firestoreSessionId =
+              profileDoc.data()?['activeSessionId'] as String?;
+          if (firestoreSessionId != null &&
+              user.activeSessionId != null &&
+              firestoreSessionId != user.activeSessionId) {
+            // Başka cihazdan giriş yapılmış! Yerel oturumu temizle ve hata fırlat.
+            await logout();
+            throw SessionExpiredException(
+              'Hesabınıza başka bir cihazdan giriş yapıldığı için güvenlik nedeniyle bu cihazdaki oturumunuz sonlandırılmıştır.',
+            );
+          }
+        }
+
         await CloudSyncService.syncAllUserData(
           user.id,
         ).timeout(const Duration(seconds: 15));
         await StreakService.syncFromCloud(user.id);
       } catch (e) {
+        if (e is SessionExpiredException) rethrow; // Hatayı UI'a ilet
         debugPrint('getCurrentUser CloudSync Hatasi: $e');
       }
     }
@@ -432,19 +461,19 @@ class AuthRepositoryFirestore implements AuthRepository {
 
             if (doc.exists && doc.data() != null) {
               final profile = UserModel.fromMap(doc.data()!);
-              // PIN Firestore'da olmayabilir; updateUserPin zaten Hive'da güncel
-              final syncedUser = UserModel(
+              final syncedUser = UserEntity(
                 id: profile.id.isEmpty ? user.uid : profile.id,
                 name: profile.name,
                 email: profile.email,
-                pin: newPin,
+                pin: newPin, // Yeni PIN burada ekleniyor
                 profileImage: profile.profileImage,
                 createdAt: profile.createdAt,
                 lastLoginAt: DateTime.now(),
                 biometricEnabled: profile.biometricEnabled,
               );
-              await _localHiveRepo.registerUser(syncedUser);
-              await _localHiveRepo.setCurrentUser(syncedUser.id);
+              // Çoklu hesap senaryosu: lokal profile kaydet ve yeni oturum aç
+              final userWithSession = await _createAndSaveSession(syncedUser);
+              await _localHiveRepo.setCurrentUser(userWithSession.id);
             } else {
               // Firestore profili yok ama en azından Hive oturumunu aç
               await _localHiveRepo.setCurrentUser(user.uid);
@@ -480,5 +509,39 @@ class AuthRepositoryFirestore implements AuthRepository {
     } catch (e) {
       throw Exception("PIN güncellenemedi: ${e.toString()}");
     }
+  }
+
+  /// Session kimliği (UUID) üretir ve hem lokale hem Firestore'a yazar.
+  Future<UserEntity> _createAndSaveSession(UserEntity user) async {
+    final sessionId = const Uuid().v4();
+    final updatedUser = UserEntity(
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      pin: user.pin,
+      profileImage: user.profileImage,
+      createdAt: user.createdAt,
+      lastLoginAt: user.lastLoginAt,
+      biometricEnabled: user.biometricEnabled,
+      activeSessionId: sessionId,
+    );
+    
+    // Lokal güncelle
+    await _localHiveRepo.updateUser(updatedUser);
+    
+    // Firestore güncelle
+    try {
+      await _firestore
+          .collection('users')
+          .doc(user.id)
+          .collection('profile')
+          .doc('info')
+          .set({'activeSessionId': sessionId}, SetOptions(merge: true))
+          .timeout(const Duration(seconds: 5));
+    } catch (e) {
+      debugPrint("Firestore activeSessionId update failed (offline?): $e");
+    }
+    
+    return updatedUser;
   }
 }
