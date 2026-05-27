@@ -21,6 +21,8 @@ class _SignUpPageState extends State<SignUpPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _pinController = TextEditingController();
+  final _confirmPinController = TextEditingController();
+  bool _isConfirmPinVisible = false;
 
   late final SignupPageState _signupState;
 
@@ -48,6 +50,7 @@ class _SignUpPageState extends State<SignUpPage> {
     _nameController.dispose();
     _emailController.dispose();
     _pinController.dispose();
+    _confirmPinController.dispose();
     super.dispose();
   }
 
@@ -223,6 +226,80 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       onPressed: () {
                         _signupState.isPinVisible = !_isPinVisible;
+                      },
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.24),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    errorStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // PIN Doğrula
+                TextFormField(
+                  controller: _confirmPinController,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  keyboardType: TextInputType.number,
+                  obscureText: !_isConfirmPinVisible,
+                  maxLength: 6,
+                  validator: (value) {
+                    final pinValid = Validators.validatePIN(value);
+                    if (pinValid != null) return pinValid;
+                    if (value != _pinController.text) {
+                      return context.l10n.pinsDoNotMatch;
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: context.l10n.newPinRepeatLabel,
+                    labelStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.lock_outline,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isConfirmPinVisible ? Icons.visibility : Icons.visibility_off,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isConfirmPinVisible = !_isConfirmPinVisible;
+                        });
                       },
                     ),
                     enabledBorder: OutlineInputBorder(
