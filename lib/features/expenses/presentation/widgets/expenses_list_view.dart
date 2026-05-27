@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cashly/core/extensions/l10n_extensions.dart';
+
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/constants/icon_constants.dart';
 import '../../../../core/services/haptic_service.dart';

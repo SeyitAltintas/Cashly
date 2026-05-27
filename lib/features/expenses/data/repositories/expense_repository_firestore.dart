@@ -47,6 +47,26 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   }
 
   @override
+  Stream<List<Map<String, dynamic>>> watchExpensesByMonth(String userId, DateTime month) {
+    final startOfMonth = DateTime(month.year, month.month, 1);
+    final endOfMonth = DateTime(month.year, month.month + 1, 0, 23, 59, 59, 999);
+    
+    return _userDoc(userId)
+        .collection('expenses')
+        .where('tarih', isGreaterThanOrEqualTo: startOfMonth.toIso8601String())
+        .where('tarih', isLessThanOrEqualTo: endOfMonth.toIso8601String())
+        .orderBy('tarih', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            final data = doc.data();
+            _convertTimestampToString(data);
+            return data;
+          }).toList();
+        });
+  }
+
+  @override
   Future<void> addExpense(String userId, Map<String, dynamic> expense) async {
     try {
       if ((expense['id']?.toString() ?? '').isEmpty) {

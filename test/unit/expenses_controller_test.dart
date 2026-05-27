@@ -15,6 +15,11 @@ class MockExpenseRepository implements ExpenseRepository {
   List<Map<String, dynamic>> getExpenses(String userId) => _expenses;
 
   @override
+  Stream<List<Map<String, dynamic>>> watchExpensesByMonth(String userId, DateTime month) {
+    return Stream.value(_expenses);
+  }
+
+  @override
   Future<void> addExpense(String userId, Map<String, dynamic> expense) async {}
   @override
   Future<void> updateExpense(String userId, Map<String, dynamic> expense) async {}

@@ -6,6 +6,7 @@ import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/services/speech/speech_service.dart';
 import '../../../../core/di/injection_container.dart';
+import 'dart:async';
 import '../../../../core/services/currency_service.dart';
 
 /// Gelirler Controller
@@ -22,6 +23,8 @@ class IncomesController extends ChangeNotifier {
     required this.userId,
   }) : _incomeRepository = incomeRepository,
        _paymentMethodRepository = paymentMethodRepository;
+
+  StreamSubscription? _incomesSubscription;
 
   // ===== STATE =====
 
@@ -182,6 +185,7 @@ class IncomesController extends ChangeNotifier {
   set secilenAy(DateTime value) {
     if (_secilenAy != value) {
       _secilenAy = value;
+      _startIncomesStream();
       notifyListeners();
     }
   }
@@ -211,6 +215,22 @@ class IncomesController extends ChangeNotifier {
     );
   }
 
+  // ===== INIT VE DISPOSE =====
+
+  void _startIncomesStream() {
+    _incomesSubscription?.cancel();
+    _incomesSubscription = _incomeRepository.watchIncomesByMonth(userId, _secilenAy).listen((data) {
+      _tumGelirler = data.map((m) => Income.fromMap(m)).toList();
+      notifyListeners();
+    });
+  }
+
+  @override
+  void dispose() {
+    _incomesSubscription?.cancel();
+    super.dispose();
+  }
+
   // ===== REPOSITORY İŞLEMLERİ =====
 
   Future<void> loadData() async {
@@ -218,8 +238,7 @@ class IncomesController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final incomesData = _incomeRepository.getIncomes(userId);
-      _tumGelirler = incomesData.map((m) => Income.fromMap(m)).toList();
+      _startIncomesStream();
 
       _kategoriler = _incomeRepository.getCategories(userId);
 
@@ -248,11 +267,13 @@ class IncomesController extends ChangeNotifier {
 
   void oncekiAy() {
     _secilenAy = DateTime(_secilenAy.year, _secilenAy.month - 1);
+    _startIncomesStream();
     notifyListeners();
   }
 
   void sonrakiAy() {
     _secilenAy = DateTime(_secilenAy.year, _secilenAy.month + 1);
+    _startIncomesStream();
     notifyListeners();
   }
 
@@ -444,7 +465,9 @@ class IncomesController extends ChangeNotifier {
     List<Income> incomes,
     List<PaymentMethod> paymentMethods,
   ) {
-    _tumGelirler = List.from(incomes);
+    if (_incomesSubscription == null) {
+      _startIncomesStream();
+    }
     _tumOdemeYontemleri = List.from(paymentMethods);
   }
 

@@ -7,6 +7,12 @@ abstract class ExpenseRepository {
   /// Döndürür: Harcama listesi (Map formatında)
   List<Map<String, dynamic>> getExpenses(String userId);
 
+  /// Seçilen aya ait harcamaları gerçek zamanlı dinler
+  /// [userId] - Kullanıcı ID'si
+  /// [month] - Dinlenecek ay
+  /// Döndürür: Harcama listesi (Map formatında) Stream
+  Stream<List<Map<String, dynamic>>> watchExpensesByMonth(String userId, DateTime month);
+
   /// Yeni bir harcama ekler
   /// [userId] - Kullanıcı ID'si
   /// [expense] - Eklenecek harcama verisi

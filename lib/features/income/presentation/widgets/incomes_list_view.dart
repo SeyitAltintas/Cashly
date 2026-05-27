@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cashly/core/extensions/l10n_extensions.dart';
-import '../../../../core/services/haptic_service.dart';
+
 import '../../data/models/income_model.dart';
 import 'income_list_item.dart';
 

@@ -4,6 +4,9 @@ abstract class IncomeRepository {
   /// Kullanıcının tüm gelirlerini getirir
   List<Map<String, dynamic>> getIncomes(String userId);
 
+  /// Seçilen aya ait gelirleri gerçek zamanlı dinler
+  Stream<List<Map<String, dynamic>>> watchIncomesByMonth(String userId, DateTime month);
+
   /// Yeni bir gelir ekler
   Future<void> addIncome(String userId, Map<String, dynamic> income);
 

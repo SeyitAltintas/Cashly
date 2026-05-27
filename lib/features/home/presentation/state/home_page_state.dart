@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../expenses/domain/repositories/expense_repository.dart';
 import '../../../income/domain/repositories/income_repository.dart';
@@ -15,6 +16,10 @@ import '../../../../core/constants/icon_constants.dart';
 /// AnaSayfa için ChangeNotifier state yöneticisi
 /// Tüm veri state'lerini ve loading durumunu merkezi olarak yönetir
 class HomePageState extends ChangeNotifier {
+  String? _userId;
+  StreamSubscription? _expensesSubscription;
+  StreamSubscription? _incomesSubscription;
+
   // Loading durumu
   bool _isLoading = true;
   bool get isLoading => _isLoading;
@@ -87,8 +92,13 @@ class HomePageState extends ChangeNotifier {
   DateTime _secilenAy = DateTime.now();
   DateTime get secilenAy => _secilenAy;
   set secilenAy(DateTime value) {
-    _secilenAy = value;
-    notifyListeners();
+    if (_secilenAy != value) {
+      _secilenAy = value;
+      notifyListeners();
+      if (_userId != null) {
+        _startStreams(_userId!);
+      }
+    }
   }
 
   // Varsayılan ödeme yöntemi
@@ -123,16 +133,16 @@ class HomePageState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Tüm verileri yükler
   void loadData(String userId) {
+    _userId = userId;
     final expenseRepo = getIt<ExpenseRepository>();
     final incomeRepo = getIt<IncomeRepository>();
     final assetRepo = getIt<AssetRepository>();
     final paymentRepo = getIt<PaymentMethodRepository>();
     final streakRepo = getIt<StreakRepository>();
 
-    // Harcamalar
-    _tumHarcamalar = expenseRepo.getExpenses(userId);
+    _startStreams(userId);
+
     _butceLimiti = expenseRepo.getBudget(userId);
     _categoryBudgets = expenseRepo.getCategoryBudgets(userId);
 
@@ -157,10 +167,6 @@ class HomePageState extends ChangeNotifier {
     // Varlıklar
     final varlikVerileri = assetRepo.getAssets(userId);
     _varliklar = varlikVerileri.map((map) => Asset.fromMap(map)).toList();
-
-    // Gelirler
-    final gelirVerileri = incomeRepo.getIncomes(userId);
-    _tumGelirler = gelirVerileri.map((map) => Income.fromMap(map)).toList();
 
     // Ödeme yöntemleri
     final odemeVerileri = paymentRepo.getPaymentMethods(userId);
@@ -202,4 +208,29 @@ class HomePageState extends ChangeNotifier {
 
   /// Tüm değişiklikleri bildir
   void notifyAll() => notifyListeners();
+
+  void _startStreams(String userId) {
+    _expensesSubscription?.cancel();
+    _incomesSubscription?.cancel();
+
+    final expenseRepo = getIt<ExpenseRepository>();
+    final incomeRepo = getIt<IncomeRepository>();
+
+    _expensesSubscription = expenseRepo.watchExpensesByMonth(userId, _secilenAy).listen((expenses) {
+      _tumHarcamalar = expenses;
+      notifyListeners();
+    });
+
+    _incomesSubscription = incomeRepo.watchIncomesByMonth(userId, _secilenAy).listen((incomesMap) {
+      _tumGelirler = incomesMap.map((map) => Income.fromMap(map)).toList();
+      notifyListeners();
+    });
+  }
+
+  @override
+  void dispose() {
+    _expensesSubscription?.cancel();
+    _incomesSubscription?.cancel();
+    super.dispose();
+  }
 }

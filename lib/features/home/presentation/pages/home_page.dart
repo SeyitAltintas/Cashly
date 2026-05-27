@@ -808,6 +808,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           onOdemeYontemleriChanged: (odemeYontemleri) {
             _homeState.tumOdemeYontemleri = odemeYontemleri;
           },
+          onMonthChanged: (DateTime newMonth) {
+            _homeState.secilenAy = newMonth;
+          },
         ),
       ),
     );
@@ -837,6 +840,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           },
           onOdemeYontemleriChanged: (odemeYontemleri) {
             _homeState.tumOdemeYontemleri = odemeYontemleri;
+          },
+          onMonthChanged: (DateTime newMonth) {
+            _homeState.secilenAy = newMonth;
           },
         ),
       ),

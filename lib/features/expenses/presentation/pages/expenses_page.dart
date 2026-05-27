@@ -1,18 +1,15 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/features/expenses/presentation/widgets/expenses_list_view.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/theme_manager.dart';
-import 'package:cashly/features/expenses/presentation/widgets/expenses_list_view.dart';
 import 'package:cashly/features/expenses/presentation/widgets/expenses_app_bar.dart';
 import '../../../../core/constants/color_constants.dart';
-import '../../../../core/constants/icon_constants.dart';
 import '../../../../core/utils/debouncer.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
-import '../widgets/expense_list_item.dart';
 import '../widgets/expense_summary_card.dart';
 import 'add_expense_page.dart';
-import 'expense_detail_page.dart';
 import '../widgets/voice_input_sheet.dart';
 import 'recycle_bin_page.dart';
 import '../../../../core/di/injection_container.dart';
@@ -42,6 +39,7 @@ class ExpensesPage extends StatefulWidget {
   final String? varsayilanOdemeYontemiId;
   final Function(List<Map<String, dynamic>>) onHarcamalarChanged;
   final Function(List<PaymentMethod>) onOdemeYontemleriChanged;
+  final Function(DateTime)? onMonthChanged;
 
   const ExpensesPage({
     super.key,
@@ -54,6 +52,7 @@ class ExpensesPage extends StatefulWidget {
     this.varsayilanOdemeYontemiId,
     required this.onHarcamalarChanged,
     required this.onOdemeYontemleriChanged,
+    this.onMonthChanged,
   });
 
   @override
@@ -159,11 +158,13 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
 
   void oncekiAy() {
     _controller.secilenAy = DateTime(secilenAy.year, secilenAy.month - 1, 1);
+    widget.onMonthChanged?.call(_controller.secilenAy);
     filtreleVeGoster();
   }
 
   void sonrakiAy() {
     _controller.secilenAy = DateTime(secilenAy.year, secilenAy.month + 1, 1);
+    widget.onMonthChanged?.call(_controller.secilenAy);
     filtreleVeGoster();
   }
 
@@ -177,6 +178,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
 
     if (selectedDate != null && mounted) {
       _controller.secilenAy = selectedDate;
+      widget.onMonthChanged?.call(selectedDate);
       filtreleVeGoster();
     }
   }

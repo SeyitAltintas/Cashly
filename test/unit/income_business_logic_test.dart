@@ -20,6 +20,11 @@ class MockIncomeRepository implements IncomeRepository {
   List<Map<String, dynamic>> getIncomes(String userId) => _incomes;
 
   @override
+  Stream<List<Map<String, dynamic>>> watchIncomesByMonth(String userId, DateTime month) {
+    return Stream.value(_incomes);
+  }
+
+  @override
   Future<void> addIncome(String userId, Map<String, dynamic> income) async {}
   @override
   Future<void> updateIncome(String userId, Map<String, dynamic> income) async {}

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/services/speech/speech_service.dart';
@@ -22,6 +23,8 @@ class ExpensesController extends ChangeNotifier {
     required this.userId,
   }) : _expenseRepository = expenseRepository,
        _paymentMethodRepository = paymentMethodRepository;
+
+  StreamSubscription? _expensesSubscription;
 
   // ===== STATE =====
 
@@ -383,6 +386,7 @@ class ExpensesController extends ChangeNotifier {
   set secilenAy(DateTime value) {
     if (_secilenAy != value) {
       _secilenAy = value;
+      _startExpensesStream();
       notifyListeners();
     }
   }
@@ -415,6 +419,22 @@ class ExpensesController extends ChangeNotifier {
     return toplam;
   }
 
+  // ===== INIT VE DISPOSE =====
+
+  void _startExpensesStream() {
+    _expensesSubscription?.cancel();
+    _expensesSubscription = _expenseRepository.watchExpensesByMonth(userId, _secilenAy).listen((data) {
+      _tumHarcamalar = data;
+      filtreleVeGoster();
+    });
+  }
+
+  @override
+  void dispose() {
+    _expensesSubscription?.cancel();
+    super.dispose();
+  }
+
   // ===== REPOSITORY İŞLEMLERİ =====
 
   /// Tüm verileri yükle (repository'den)
@@ -423,8 +443,8 @@ class ExpensesController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Harcamaları yükle
-      _tumHarcamalar = _expenseRepository.getExpenses(userId);
+      // Harcamaları stream ile yönetiyoruz
+      _startExpensesStream();
 
       // Kategorileri yükle
       _kategoriler = _expenseRepository.getCategories(userId);
@@ -497,12 +517,14 @@ class ExpensesController extends ChangeNotifier {
   /// Önceki aya git
   void oncekiAy() {
     _secilenAy = DateTime(_secilenAy.year, _secilenAy.month - 1);
+    _startExpensesStream();
     notifyListeners();
   }
 
   /// Sonraki aya git
   void sonrakiAy() {
     _secilenAy = DateTime(_secilenAy.year, _secilenAy.month + 1);
+    _startExpensesStream();
     notifyListeners();
   }
 
@@ -529,7 +551,6 @@ class ExpensesController extends ChangeNotifier {
     String aramaMetni = '',
     Function(int)? onResetLazyLoading,
   }) {
-    _tumHarcamalar = tumHarcamalar;
     filtreleVeGoster(
       aramaMetni: aramaMetni,
       onResetLazyLoading: onResetLazyLoading,
@@ -545,7 +566,7 @@ class ExpensesController extends ChangeNotifier {
     Function(int)? onResetLazyLoading,
   }) async {
     try {
-      _tumHarcamalar = tumHarcamalar;
+      _tumHarcamalar = List.from(tumHarcamalar);
       _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
 
       harcama['silindi'] = true;
@@ -570,7 +591,6 @@ class ExpensesController extends ChangeNotifier {
       }
 
       await _expenseRepository.updateExpense(userId, harcama); // Soft delete
-      // await saveExpenses();
 
       await savePaymentMethods();
       filtreleVeGoster(
@@ -595,7 +615,7 @@ class ExpensesController extends ChangeNotifier {
     Function(int)? onResetLazyLoading,
   }) async {
     try {
-      _tumHarcamalar = tumHarcamalar;
+      _tumHarcamalar = List.from(tumHarcamalar);
       _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
 
       harcama['silindi'] = eskiSilindi ?? false;
@@ -607,7 +627,6 @@ class ExpensesController extends ChangeNotifier {
       }
 
       await _expenseRepository.updateExpense(userId, harcama); // Restore
-      // await saveExpenses();
 
       await savePaymentMethods();
       filtreleVeGoster(
@@ -641,7 +660,7 @@ class ExpensesController extends ChangeNotifier {
     Function(int)? onResetLazyLoading,
   }) async {
     try {
-      _tumHarcamalar = tumHarcamalar;
+      _tumHarcamalar = List.from(tumHarcamalar);
       _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
 
       void updateBalance(String? pmId, double amountChange) {
@@ -703,15 +722,6 @@ class ExpensesController extends ChangeNotifier {
         await _expenseRepository.addExpense(userId, newExpense);
       }
 
-      _tumHarcamalar.sort((a, b) {
-        DateTime tarihA =
-            DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-        DateTime tarihB =
-            DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-        return tarihB.compareTo(tarihA);
-      });
-
-      // await saveExpenses(); -> Gerek yok, yukarıda tekil kaydettik
       await savePaymentMethods();
       filtreleVeGoster(
         aramaMetni: aramaMetni ?? '',

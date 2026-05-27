@@ -48,6 +48,28 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   }
 
   @override
+  Stream<List<Map<String, dynamic>>> watchIncomesByMonth(String userId, DateTime month) {
+    final startOfMonth = DateTime(month.year, month.month, 1);
+    final endOfMonth = DateTime(month.year, month.month + 1, 0, 23, 59, 59, 999);
+    
+    return _userDoc(userId)
+        .collection('incomes')
+        .where('tarih', isGreaterThanOrEqualTo: startOfMonth.toIso8601String())
+        .where('tarih', isLessThanOrEqualTo: endOfMonth.toIso8601String())
+        .orderBy('tarih', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        if (data['tarih'] is Timestamp) {
+          data['tarih'] = (data['tarih'] as Timestamp).toDate().toIso8601String();
+        }
+        return data;
+      }).toList();
+    });
+  }
+
+  @override
   Future<void> addIncome(String userId, Map<String, dynamic> income) async {
     try {
       if ((income['id']?.toString() ?? '').isEmpty) {

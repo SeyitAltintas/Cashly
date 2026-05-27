@@ -16,10 +16,8 @@ import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/utils/debouncer.dart';
 import '../widgets/income_summary_card.dart';
-import '../widgets/income_list_item.dart';
 import 'package:cashly/features/income/presentation/widgets/incomes_list_view.dart';
 import 'package:cashly/features/income/presentation/widgets/incomes_app_bar.dart';
-import '../../../../core/constants/color_constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/widgets/skeleton_widget.dart';
 import '../../../../core/services/currency_service.dart';
@@ -36,6 +34,7 @@ class IncomesPage extends StatefulWidget {
   final String? userId;
   final Function(List<Income>) onGelirlerChanged;
   final Function(List<PaymentMethod>) onOdemeYontemleriChanged;
+  final Function(DateTime)? onMonthChanged;
 
   const IncomesPage({
     super.key,
@@ -46,6 +45,7 @@ class IncomesPage extends StatefulWidget {
     required this.userId,
     required this.onGelirlerChanged,
     required this.onOdemeYontemleriChanged,
+    this.onMonthChanged,
   });
 
   @override
@@ -127,10 +127,14 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
 
   void oncekiAy() {
     _controller.secilenAy = DateTime(secilenAy.year, secilenAy.month - 1, 1);
+    widget.onMonthChanged?.call(_controller.secilenAy);
+    _gelirFiltreleVeGoster();
   }
 
   void sonrakiAy() {
     _controller.secilenAy = DateTime(secilenAy.year, secilenAy.month + 1, 1);
+    widget.onMonthChanged?.call(_controller.secilenAy);
+    _gelirFiltreleVeGoster();
   }
 
   void _ayYilSeciciAc() async {
@@ -143,6 +147,8 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
 
     if (selectedDate != null && mounted) {
       _controller.secilenAy = selectedDate;
+      widget.onMonthChanged?.call(selectedDate);
+      _gelirFiltreleVeGoster();
     }
   }
 
