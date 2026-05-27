@@ -275,7 +275,7 @@ class IncomesController extends ChangeNotifier {
       _tumGelirler.insert(0, gelir);
 
       if (gelir.paymentMethodId != null) {
-        _updateBalance(gelir.paymentMethodId!, gelir.amount, isIncome: true);
+        _updateBalance(gelir.paymentMethodId!, gelir.amount, gelir.paraBirimi, isIncome: true);
       }
 
       await _incomeRepository.addIncome(userId, gelir.toMap());
@@ -301,6 +301,7 @@ class IncomesController extends ChangeNotifier {
           _updateBalance(
             income.paymentMethodId!,
             income.amount,
+            income.paraBirimi,
             isIncome: false,
           );
         }
@@ -354,11 +355,13 @@ class IncomesController extends ChangeNotifier {
   }) async {
     try {
       if (income.paymentMethodId != null) {
-        _updateBalance(income.paymentMethodId!, income.amount, isIncome: false);
+        final eskiParaBirimi = income.paraBirimi;
+        _updateBalance(income.paymentMethodId!, income.amount, eskiParaBirimi, isIncome: false);
       }
 
       if (paymentMethodId != null) {
-        _updateBalance(paymentMethodId, amount, isIncome: true);
+        final yeniParaBirimi = paraBirimi ?? income.paraBirimi;
+        _updateBalance(paymentMethodId, amount, yeniParaBirimi, isIncome: true);
       }
 
       final index = _tumGelirler.indexWhere((g) => g.id == income.id);
@@ -406,21 +409,25 @@ class IncomesController extends ChangeNotifier {
     await addIncome(newIncome);
   }
 
-  void _updateBalance(String pmId, double amount, {required bool isIncome}) {
+  void _updateBalance(String pmId, double amount, String amountCurrency, {required bool isIncome}) {
     final pmIndex = _tumOdemeYontemleri.indexWhere((p) => p.id == pmId);
     if (pmIndex == -1) return;
 
     final pm = _tumOdemeYontemleri[pmIndex];
+    
+    final cur = getIt<CurrencyService>();
+    final convertedAmount = cur.convert(amount, amountCurrency, pm.paraBirimi);
+    
     double newBalance;
 
     if (isIncome) {
       newBalance = pm.type == 'kredi'
-          ? pm.balance - amount
-          : pm.balance + amount;
+          ? pm.balance - convertedAmount
+          : pm.balance + convertedAmount;
     } else {
       newBalance = pm.type == 'kredi'
-          ? pm.balance + amount
-          : pm.balance - amount;
+          ? pm.balance + convertedAmount
+          : pm.balance - convertedAmount;
     }
 
     _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
@@ -547,7 +554,7 @@ class IncomesController extends ChangeNotifier {
     _binSilinenGelirler.removeWhere((g) => g.id == gelir.id);
     
     if (gelir.paymentMethodId != null) {
-      _updateBalance(gelir.paymentMethodId!, gelir.amount, isIncome: true);
+      _updateBalance(gelir.paymentMethodId!, gelir.amount, gelir.paraBirimi, isIncome: true);
       await savePaymentMethods();
     }
     notifyListeners();
@@ -581,7 +588,7 @@ class IncomesController extends ChangeNotifier {
         await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
         
         if (gelir.paymentMethodId != null) {
-          _updateBalance(gelir.paymentMethodId!, gelir.amount, isIncome: true);
+          _updateBalance(gelir.paymentMethodId!, gelir.amount, gelir.paraBirimi, isIncome: true);
           hasBalanceChange = true;
         }
       }

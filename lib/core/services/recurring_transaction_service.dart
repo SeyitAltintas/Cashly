@@ -3,6 +3,7 @@ import 'package:cashly/features/expenses/domain/repositories/expense_repository.
 import 'package:cashly/features/income/domain/repositories/income_repository.dart';
 import 'package:cashly/features/income/data/models/income_model.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
+import 'package:cashly/core/services/currency_service.dart';
 import 'package:uuid/uuid.dart';
 
 /// Tekrarlayan harcama ve gelir işlemlerini kontrol eden servis.
@@ -58,6 +59,7 @@ class RecurringTransactionService {
 
         // Harcama ekle - tarih belirlenen güne göre ayarlanır
         final islemTarihi = DateTime(bugun.year, bugun.month, gun);
+        final islemParaBirimi = islem['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
         final yeniHarcama = {
           'id': const Uuid().v4(),
           'isim': isim,
@@ -66,6 +68,7 @@ class RecurringTransactionService {
           'tarih': islemTarihi.toString(),
           'silindi': false,
           'odemeYontemiId': odemeYontemiId,
+          'paraBirimi': islemParaBirimi,
         };
         tumHarcamalar.add(yeniHarcama);
         expenseRepo.addExpense(userId, yeniHarcama);
@@ -77,11 +80,15 @@ class RecurringTransactionService {
           );
           if (pmIndex != -1) {
             final pm = tumOdemeYontemleri[pmIndex];
+            
+            final cur = getIt<CurrencyService>();
+            final convertedAmount = cur.convert(tutar, islemParaBirimi, pm.paraBirimi);
+
             double yeniBakiye;
             if (pm.type == 'kredi') {
-              yeniBakiye = pm.balance + tutar; // Borç artar
+              yeniBakiye = pm.balance + convertedAmount; // Borç artar
             } else {
-              yeniBakiye = pm.balance - tutar; // Bakiyeden düşer
+              yeniBakiye = pm.balance - convertedAmount; // Bakiyeden düşer
               // Yetersiz bakiye kontrolü
               if (yeniBakiye < 0) {
                 yetersizBakiyeUyarilari.add(
@@ -145,6 +152,7 @@ class RecurringTransactionService {
 
         // Gelir ekle - tarih belirlenen güne göre ayarlanır
         final islemTarihi = DateTime(bugun.year, bugun.month, gun);
+        final gelirParaBirimi = gelir['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
         final yeniGelir = Income(
           id: const Uuid().v4(),
           name: isim,
@@ -152,6 +160,7 @@ class RecurringTransactionService {
           category: 'Tekrarlayan Gelirler',
           date: islemTarihi,
           paymentMethodId: odemeYontemiId,
+          paraBirimi: gelirParaBirimi,
         );
         tumGelirler.add(yeniGelir);
         incomeRepo.addIncome(userId, yeniGelir.toMap());
@@ -163,11 +172,15 @@ class RecurringTransactionService {
           );
           if (pmIndex != -1) {
             final pm = tumOdemeYontemleri[pmIndex];
+            
+            final cur = getIt<CurrencyService>();
+            final convertedAmount = cur.convert(tutar, gelirParaBirimi, pm.paraBirimi);
+
             double yeniBakiye;
             if (pm.type == 'kredi') {
-              yeniBakiye = pm.balance - tutar; // Borç azalır
+              yeniBakiye = pm.balance - convertedAmount; // Borç azalır
             } else {
-              yeniBakiye = pm.balance + tutar; // Bakiye artar
+              yeniBakiye = pm.balance + convertedAmount; // Bakiye artar
             }
             onPaymentMethodUpdate(pmIndex, pm.copyWith(balance: yeniBakiye));
           }

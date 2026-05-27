@@ -331,11 +331,16 @@ class ExpensesController extends ChangeNotifier {
         if (pmIndex != -1) {
           final pm = _tumOdemeYontemleri[pmIndex];
           final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+          
+          final amountCurrency = harcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+          final cur = getIt<CurrencyService>();
+          final convertedAmount = cur.convert(amount, amountCurrency, pm.paraBirimi);
+
           double newBalance;
           if (pm.type == 'kredi') {
-            newBalance = pm.balance + amount;
+            newBalance = pm.balance + convertedAmount;
           } else {
-            newBalance = pm.balance - amount;
+            newBalance = pm.balance - convertedAmount;
           }
           _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
           hasBalanceChange = true;
@@ -750,11 +755,16 @@ class ExpensesController extends ChangeNotifier {
         if (pmIndex != -1) {
           final pm = _tumOdemeYontemleri[pmIndex];
           final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+          
+          final amountCurrency = harcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+          final cur = getIt<CurrencyService>();
+          final convertedAmount = cur.convert(amount, amountCurrency, pm.paraBirimi);
+
           double newBalance;
           if (pm.type == 'kredi') {
-            newBalance = pm.balance - amount;
+            newBalance = pm.balance - convertedAmount;
           } else {
-            newBalance = pm.balance + amount;
+            newBalance = pm.balance + convertedAmount;
           }
           _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
         }
@@ -817,17 +827,21 @@ class ExpensesController extends ChangeNotifier {
     String aramaMetni = '',
     Function(int)? onResetLazyLoading,
   }) async {
-    void updateBalance(String? pmId, double amountChange) {
+    void updateBalance(String? pmId, double amountChange, String amountCurrency) {
       if (pmId == null) return;
       final pmIdx = _tumOdemeYontemleri.indexWhere((p) => p.id == pmId);
       if (pmIdx == -1) return;
 
       final pm = _tumOdemeYontemleri[pmIdx];
+      
+      final cur = getIt<CurrencyService>();
+      final convertedAmount = cur.convert(amountChange, amountCurrency, pm.paraBirimi);
+      
       double newBalance;
       if (pm.type == 'kredi') {
-        newBalance = pm.balance + amountChange;
+        newBalance = pm.balance + convertedAmount;
       } else {
-        newBalance = pm.balance - amountChange;
+        newBalance = pm.balance - convertedAmount;
       }
       _tumOdemeYontemleri[pmIdx] = pm.copyWith(balance: newBalance);
     }
@@ -835,10 +849,12 @@ class ExpensesController extends ChangeNotifier {
     try {
       if (duzenlenecekHarcama != null) {
         if (eskiOdemeYontemiId != null) {
-          updateBalance(eskiOdemeYontemiId, -(eskiTutar ?? 0));
+          final eskiParaBirimi = duzenlenecekHarcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+          updateBalance(eskiOdemeYontemiId, -(eskiTutar ?? 0), eskiParaBirimi);
         }
         if (paymentMethodId != null) {
-          updateBalance(paymentMethodId, amount);
+          final yeniParaBirimi = duzenlenecekHarcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+          updateBalance(paymentMethodId, amount, yeniParaBirimi);
         }
 
         int index = _tumHarcamalar.indexOf(duzenlenecekHarcama);
@@ -858,7 +874,7 @@ class ExpensesController extends ChangeNotifier {
         }
       } else {
         if (paymentMethodId != null) {
-          updateBalance(paymentMethodId, amount);
+          updateBalance(paymentMethodId, amount, getIt<CurrencyService>().currentCurrency);
         }
 
         final newExpense = {

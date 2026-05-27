@@ -11,6 +11,8 @@ import '../../../payment_methods/data/models/transfer_model.dart';
 import '../../../expenses/presentation/pages/expenses_page.dart';
 import '../../../income/presentation/pages/incomes_page.dart';
 import '../../../income/data/models/income_model.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 
 /// Ana sayfa navigasyon işlemleri için mixin
 /// Home page'de kullanılan tüm navigasyon metodlarını içerir
@@ -231,15 +233,19 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
             final isScheduled = transferDate.isAfter(today);
 
             if (!isScheduled) {
+              final cur = getIt<CurrencyService>();
+              
               // Gönderen hesap
               final fromIndex = tumOdemeYontemleri.indexWhere(
                 (pm) => pm.id == fromId,
               );
               if (fromIndex != -1) {
                 final fromPm = tumOdemeYontemleri[fromIndex];
+                final convertedFromAmount = cur.convert(amount, cur.currentCurrency, fromPm.paraBirimi);
+                
                 double yeniBakiye = fromPm.type == 'kredi'
-                    ? fromPm.balance + amount
-                    : fromPm.balance - amount;
+                    ? fromPm.balance + convertedFromAmount
+                    : fromPm.balance - convertedFromAmount;
                 tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
                   balance: yeniBakiye,
                 );
@@ -251,9 +257,11 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
               );
               if (toIndex != -1) {
                 final toPm = tumOdemeYontemleri[toIndex];
+                final convertedToAmount = cur.convert(amount, cur.currentCurrency, toPm.paraBirimi);
+                
                 double yeniBakiye = toPm.type == 'kredi'
-                    ? toPm.balance - amount
-                    : toPm.balance + amount;
+                    ? toPm.balance - convertedToAmount
+                    : toPm.balance + convertedToAmount;
                 tumOdemeYontemleri[toIndex] = toPm.copyWith(
                   balance: yeniBakiye,
                 );
