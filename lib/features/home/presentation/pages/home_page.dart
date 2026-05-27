@@ -249,7 +249,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         }
 
         // Edge Case 5: Gönderen hesapta yetersiz bakiye (banka/nakit için)
-        if (fromPm.type != 'kredi' && fromPm.balance < transfer.amount) {
+        final cur = getIt<CurrencyService>();
+        final convertedTransferAmountFrom = cur.convert(transfer.amount, transfer.paraBirimi, fromPm.paraBirimi);
+        
+        if (fromPm.type != 'kredi' && fromPm.balance < convertedTransferAmountFrom) {
           tumTransferler[i] = transfer.copyWith(
             isFailed: true,
             failureReason: context.l10n.insufficientBalanceAccount(fromPm.name),
@@ -276,16 +279,17 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
         // Tüm kontroller geçti - transfer uygula
         double fromYeniBakiye = fromPm.type == 'kredi'
-            ? fromPm.balance + transfer.amount
-            : fromPm.balance - transfer.amount;
+            ? fromPm.balance + convertedTransferAmountFrom
+            : fromPm.balance - convertedTransferAmountFrom;
         tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
           balance: fromYeniBakiye,
         );
         getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, tumOdemeYontemleri[fromIndex].toMap());
 
+        final convertedTransferAmountTo = cur.convert(transfer.amount, transfer.paraBirimi, toPm.paraBirimi);
         double toYeniBakiye = toPm.type == 'kredi'
-            ? toPm.balance - transfer.amount
-            : toPm.balance + transfer.amount;
+            ? toPm.balance - convertedTransferAmountTo
+            : toPm.balance + convertedTransferAmountTo;
         tumOdemeYontemleri[toIndex] = toPm.copyWith(balance: toYeniBakiye);
         getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, tumOdemeYontemleri[toIndex].toMap());
 
@@ -711,14 +715,18 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
             if (!isScheduled) {
               // Anında transfer - bakiyeleri hemen güncelle
+              final cur = getIt<CurrencyService>();
+              
               final fromIndex = tumOdemeYontemleri.indexWhere(
                 (pm) => pm.id == fromId,
               );
               if (fromIndex != -1) {
                 final fromPm = tumOdemeYontemleri[fromIndex];
+                final convertedFromAmount = cur.convert(amount, cur.currentCurrency, fromPm.paraBirimi);
+                
                 double yeniBakiye = fromPm.type == 'kredi'
-                    ? fromPm.balance + amount
-                    : fromPm.balance - amount;
+                    ? fromPm.balance + convertedFromAmount
+                    : fromPm.balance - convertedFromAmount;
                 tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
                   balance: yeniBakiye,
                 );
@@ -729,9 +737,11 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
               );
               if (toIndex != -1) {
                 final toPm = tumOdemeYontemleri[toIndex];
+                final convertedToAmount = cur.convert(amount, cur.currentCurrency, toPm.paraBirimi);
+                
                 double yeniBakiye = toPm.type == 'kredi'
-                    ? toPm.balance - amount
-                    : toPm.balance + amount;
+                    ? toPm.balance - convertedToAmount
+                    : toPm.balance + convertedToAmount;
                 tumOdemeYontemleri[toIndex] = toPm.copyWith(
                   balance: yeniBakiye,
                 );

@@ -12,6 +12,7 @@ import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../settings/domain/repositories/settings_repository.dart';
 import '../controllers/payment_methods_controller.dart';
 import '../../../../core/services/currency_service.dart';
+import '../../../../core/widgets/balance_warning_dialog.dart';
 
 class TransferPage extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
@@ -160,6 +161,8 @@ class _TransferPageState extends State<TransferPage> {
 
     if (toAccount.type == 'kredi') {
       final borcMiktari = toAccount.balance;
+      final cur = getIt<CurrencyService>();
+      final convertedAmountToTo = cur.convert(amount, cur.currentCurrency, toAccount.paraBirimi);
 
       // Borç yoksa kredi kartına transfer yapılamaz
       if (borcMiktari <= 0) {
@@ -171,11 +174,10 @@ class _TransferPageState extends State<TransferPage> {
       }
 
       // Transfer edilen miktar borçtan fazla olamaz
-      if (amount > borcMiktari) {
+      if (convertedAmountToTo > borcMiktari) {
         ErrorHandler.showErrorSnackBar(
           context,
           context.l10n.creditCardDebtLimit(() {
-            final cur = getIt<CurrencyService>();
             return CurrencyFormatter.format(
               cur.convert(
                 borcMiktari,
@@ -195,24 +197,42 @@ class _TransferPageState extends State<TransferPage> {
     );
     final fromAccount = _paymentMethods[fromIndex];
 
+    // Gönderen hesap banka/nakit ise negatif bakiye kontrolü yap
+    final cur = getIt<CurrencyService>();
+    final convertedAmountToFrom = cur.convert(amount, cur.currentCurrency, fromAccount.paraBirimi);
+    
+    if (!_isScheduled && fromAccount.type != 'kredi' && fromAccount.balance < convertedAmountToFrom) {
+      final onay = await BalanceWarningDialog.show(
+        context: context,
+        paymentType: fromAccount.type,
+        currentBalance: fromAccount.balance,
+        expenseAmount: convertedAmountToFrom,
+      );
+
+      if (onay != true) return;
+    }
+
     // Transfer işlemini gerçekleştir (callback)
     widget.onTransfer(_fromAccountId!, _toAccountId!, amount, _selectedDate);
 
     // Lokal bakiyeleri güncelle (sadece bugün veya geçmiş tarih için)
-    // Lokal bakiyeleri güncelle (sadece bugün veya geçmiş tarih için)
     if (!_isScheduled) {
+      final cur = getIt<CurrencyService>();
+      final convertedToFrom = cur.convert(amount, cur.currentCurrency, fromAccount.paraBirimi);
+      final convertedToTo = cur.convert(amount, cur.currentCurrency, toAccount.paraBirimi);
+      
       double newFromBalance;
       if (fromAccount.type == 'kredi') {
-        newFromBalance = fromAccount.balance + amount;
+        newFromBalance = fromAccount.balance + convertedToFrom;
       } else {
-        newFromBalance = fromAccount.balance - amount;
+        newFromBalance = fromAccount.balance - convertedToFrom;
       }
 
       double newToBalance;
       if (toAccount.type == 'kredi') {
-        newToBalance = toAccount.balance - amount;
+        newToBalance = toAccount.balance - convertedToTo;
       } else {
-        newToBalance = toAccount.balance + amount;
+        newToBalance = toAccount.balance + convertedToTo;
       }
 
       if (_controller != null) {
