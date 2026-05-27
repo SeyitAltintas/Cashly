@@ -269,6 +269,38 @@ class AuthRepositoryImpl implements AuthRepository {
     return false;
   }
 
+  // --- GÜVENLİK YAMASI: Offline Brute-force Koruma Metodları ---
+  Future<int> getFailedOfflineAttempts(String userId) async {
+    final sessionBox = await _getSessionBox();
+    return sessionBox.get('failed_attempts_$userId', defaultValue: 0) as int;
+  }
+
+  Future<void> incrementFailedOfflineAttempts(String userId) async {
+    final sessionBox = await _getSessionBox();
+    final current = await getFailedOfflineAttempts(userId);
+    await sessionBox.put('failed_attempts_$userId', current + 1);
+    if (current + 1 >= 5) {
+      // 5 başarısız denemede 5 dakika kilitle
+      await sessionBox.put('lockout_until_$userId', DateTime.now().add(const Duration(minutes: 5)).toIso8601String());
+    }
+  }
+
+  Future<void> resetFailedOfflineAttempts(String userId) async {
+    final sessionBox = await _getSessionBox();
+    await sessionBox.delete('failed_attempts_$userId');
+    await sessionBox.delete('lockout_until_$userId');
+  }
+
+  Future<DateTime?> getOfflineLockoutUntil(String userId) async {
+    final sessionBox = await _getSessionBox();
+    final dateStr = sessionBox.get('lockout_until_$userId');
+    if (dateStr != null) {
+      return DateTime.tryParse(dateStr);
+    }
+    return null;
+  }
+  // -------------------------------------------------------------
+
   /// Çevrimdışı TTL kontrolü için son online doğrulama zamanını kaydeder
   Future<void> updateLastOnlineSync(String userId) async {
     final sessionBox = await _getSessionBox();

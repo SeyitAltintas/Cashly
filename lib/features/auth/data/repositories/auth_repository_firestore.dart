@@ -162,7 +162,15 @@ class AuthRepositoryFirestore implements AuthRepository {
     UserEntity localUser,
     String pin,
   ) async {
+    // GÜVENLİK YAMASI: Kaba kuvvet (Brute-force) koruması
+    final lockoutUntil = await _localHiveRepo.getOfflineLockoutUntil(localUser.id);
+    if (lockoutUntil != null && DateTime.now().isBefore(lockoutUntil)) {
+      final waitMinutes = lockoutUntil.difference(DateTime.now()).inMinutes;
+      throw Exception('Çok fazla hatalı giriş yaptınız. Güvenlik nedeniyle lütfen ${waitMinutes > 0 ? waitMinutes : 1} dakika bekleyip tekrar deneyin.');
+    }
+
     if (localUser.pin == pin) {
+      await _localHiveRepo.resetFailedOfflineAttempts(localUser.id);
       final loggedInUser = await _localHiveRepo.loginUser(localUser.id, pin);
       if (loggedInUser != null) {
         debugPrint(
@@ -171,8 +179,17 @@ class AuthRepositoryFirestore implements AuthRepository {
       }
       return loggedInUser;
     }
-    debugPrint('loginUser: Offline mod — PIN yanlış, giriş reddedildi.');
-    return null;
+    
+    await _localHiveRepo.incrementFailedOfflineAttempts(localUser.id);
+    final attempts = await _localHiveRepo.getFailedOfflineAttempts(localUser.id);
+    final remaining = 5 - attempts;
+    
+    debugPrint('loginUser: Offline mod — PIN yanlış, kalan hak: $remaining');
+    if (remaining <= 0) {
+      throw Exception('Çok fazla hatalı giriş yaptınız. Güvenlik nedeniyle uygulamanız 5 dakika süreyle kilitlenmiştir.');
+    } else {
+      throw Exception('Hatalı PIN. Kalan deneme hakkınız: $remaining');
+    }
   }
 
   @override
@@ -378,7 +395,21 @@ class AuthRepositoryFirestore implements AuthRepository {
         await _localHiveRepo.updateLastOnlineSync(user.id);
       } catch (e) {
         if (e is SessionExpiredException) rethrow; // Hatayı UI'a ilet
-        debugPrint('getCurrentUser CloudSync Hatasi: $e');
+        debugPrint('getCurrentUser CloudSync Hatasi (offline?): $e');
+        
+        // GÜVENLİK YAMASI: Auto-Login Offline TTL Kontrolü
+        final lastSync = await _localHiveRepo.getLastOnlineSync(user.id);
+        if (lastSync != null) {
+          final diff = DateTime.now().difference(lastSync);
+          if (diff.isNegative) { 
+             throw SessionExpiredException('Güvenlik nedeniyle (cihaz saati hatalı) lütfen internete bağlanarak giriş yapın.');
+          }
+          if (diff.inHours > 48) { 
+             throw SessionExpiredException('Güvenlik nedeniyle (uzun süredir çevrimdışısınız) oturumunuz zaman aşımına uğradı. Lütfen PIN kodunuz ile tekrar giriş yapın.');
+          }
+        } else {
+          throw SessionExpiredException('Güvenlik nedeniyle ilk girişinizde internet bağlantısı gereklidir.');
+        }
       }
     }
 
