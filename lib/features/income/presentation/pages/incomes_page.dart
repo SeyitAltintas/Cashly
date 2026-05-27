@@ -17,6 +17,9 @@ import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/utils/debouncer.dart';
 import '../widgets/income_summary_card.dart';
 import '../widgets/income_list_item.dart';
+import 'package:cashly/features/income/presentation/widgets/incomes_list_view.dart';
+import 'package:cashly/features/income/presentation/widgets/incomes_app_bar.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/widgets/skeleton_widget.dart';
 import '../../../../core/services/currency_service.dart';
@@ -90,6 +93,10 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     tGelirArama.dispose();
     _searchDebouncer.dispose();
     super.dispose();
+  }
+
+  void _gelirFiltreleVeGoster() {
+    setState(() {});
   }
 
   String get ayIsmi {
@@ -351,72 +358,17 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
       value: _controller,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Builder(
-            builder: (context) {
-              final gelirAramaModuContext = context.select((IncomesController c) => c.aramaModu);
-              final secilenAyContext = context.select((IncomesController c) => c.secilenAy);
-              DateTime simdi = DateTime.now();
-              bool buAyMi = (secilenAyContext.year == simdi.year && secilenAyContext.month == simdi.month);
-
-              return AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                title: gelirAramaModuContext
-                    ? TextField(
-                        controller: tGelirArama,
-                        autofocus: true,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: context.l10n.searchIncome,
-                          border: InputBorder.none,
-                          hintStyle: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.54),
-                          ),
-                        ),
-                        onChanged: (val) => _searchDebouncer.run(() => setState(() {})),
-                      )
-                    : Text(context.l10n.myIncomesTitle),
-                actions: [
-                  if (!gelirAramaModuContext && !buAyMi)
-            TextButton(
-              onPressed: () {
-                _controller.secilenAy = DateTime.now();
-              },
-              child: Text(
-                context.l10n.goToToday,
-                style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  fontSize: 14,
-                ),
-              ),
-            ),
-
-                  IconButton(
-                    icon: Icon(
-                      gelirAramaModuContext ? Icons.close : Icons.search,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      _controller.aramaModu = !gelirAramaModuContext;
-                      if (!gelirAramaModuContext) {
-                        tGelirArama.clear();
-                      }
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
+        appBar: IncomesAppBar(
+          searchController: tGelirArama,
+          onSearchChanged: _gelirFiltreleVeGoster,
+          onClearSearch: () {
+            tGelirArama.clear();
+            _gelirFiltreleVeGoster();
+          },
+          onGoToToday: () {
+            _controller.secilenAy = DateTime.now();
+            _gelirFiltreleVeGoster();
+          },
         ),
         body: Builder(
           builder: (context) {
@@ -446,47 +398,28 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                       ),
 
                     // Gelir listesi
-                    Expanded(
-                      child: gelirler.isEmpty
-                          ? gelirAramaModuContext
-                            ? EmptyStateWidget(
-                                icon: Icons.search_off,
-                                title: context.l10n.noResultsFound,
-                                subtitle: context.l10n.tryDifferentSearchTerm,
-                              )
-                            : EmptyStateWidget.noIncomes(context)
-                      : RefreshIndicator(
-                          onRefresh: () async {
-                            // State'i yenile
-                            _controller.refresh();
-                          },
-                          color: Colors.green,
-                          child: ListView.builder(
-                            controller: lazyScrollController,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            // cacheExtent: Görünür alan dışında önbelleğe alınacak piksel
-                            // 500px = yaklaşık 5-6 liste öğesi önden yüklenir
-                            cacheExtent: 500,
-                            itemCount: gelirler.length + (hasMoreItems ? 1 : 0),
-                            itemBuilder: (context, index) {
-                              // Son item ise ve daha fazla veri varsa loading göster
-                              if (index >= gelirler.length) {
-                                return buildLoadingIndicator();
-                              }
-
-                              final gelir = gelirler[index];
-                              return IncomeListItem(
-                                income: gelir,
-                                categoryIcon: widget
-                                    .gelirKategoriIkonlari[gelir.category],
-                                itemIndex: index,
-                                onDelete: () => gelirSil(gelir),
-                                onTap: () => gelirDuzenle(gelir),
-                              );
-                            },
-                          ),
-                        ),
-                    ),
+                      Expanded(
+                        child: gelirler.isEmpty
+                            ? gelirAramaModuContext
+                              ? EmptyStateWidget(
+                                  icon: Icons.search_off,
+                                  title: context.l10n.noResultsFound,
+                                  subtitle: context.l10n.tryDifferentSearchTerm,
+                                )
+                              : EmptyStateWidget.noIncomes(context)
+                            : IncomesListView(
+                                gelirler: gelirler,
+                                hasMoreItems: hasMoreItems,
+                                scrollController: lazyScrollController,
+                                onRefresh: () async {
+                                  _controller.refresh();
+                                },
+                                buildLoadingIndicator: buildLoadingIndicator,
+                                onDelete: gelirSil,
+                                onEdit: gelirDuzenle,
+                                kategoriIkonlari: widget.gelirKategoriIkonlari,
+                              ),
+                      ),
                   ],
                 );
               }

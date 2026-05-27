@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/theme_manager.dart';
+import 'package:cashly/features/expenses/presentation/widgets/expenses_list_view.dart';
+import 'package:cashly/features/expenses/presentation/widgets/expenses_app_bar.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/constants/icon_constants.dart';
 import '../../../../core/utils/debouncer.dart';
@@ -326,74 +328,17 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
       value: _controller,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Builder(
-            builder: (context) {
-              final aramaModuContext = context.select((ExpensesController c) => c.aramaModu);
-              final secilenAyContext = context.select((ExpensesController c) => c.secilenAy);
-              DateTime simdi = DateTime.now();
-              bool buAyMi = (secilenAyContext.year == simdi.year && secilenAyContext.month == simdi.month);
-
-              return AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                title: aramaModuContext
-                    ? TextField(
-                        controller: tArama,
-                        autofocus: true,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: context.l10n.searchExpense,
-                          border: InputBorder.none,
-                          hintStyle: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.54),
-                          ),
-                        ),
-                        onChanged: (val) => filtreleVeGoster(),
-                      )
-                    : Text(context.l10n.myExpensesTitle),
-                actions: [
-                  if (!aramaModuContext && !buAyMi)
-            TextButton(
-              onPressed: () {
-                _controller.secilenAy = DateTime.now();
-                filtreleVeGoster();
-              },
-              child: Text(
-                context.l10n.goToToday,
-                style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  fontSize: 14,
-                ),
-              ),
-            ),
-
-                  IconButton(
-                    icon: Icon(
-                      aramaModuContext ? Icons.close : Icons.search,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      _controller.aramaModu = !aramaModuContext;
-                      if (!aramaModuContext) {
-                        tArama.clear();
-                        filtreleVeGoster();
-                      }
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
+        appBar: ExpensesAppBar(
+          searchController: tArama,
+          onSearchChanged: filtreleVeGoster,
+          onClearSearch: () {
+            tArama.clear();
+            filtreleVeGoster();
+          },
+          onGoToToday: () {
+            _controller.secilenAy = DateTime.now();
+            filtreleVeGoster();
+          },
         ),
         body: Builder(
           builder: (context) {
@@ -430,134 +375,45 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                                 subtitle: context.l10n.tryDifferentSearchTerm,
                               )
                             : EmptyStateWidget.noExpenses(context)
-                      : RefreshIndicator(
+                      : ExpensesListView(
+                          gruplar: gruplar,
+                          hasMoreItems: hasMoreItems,
+                          scrollController: lazyScrollController,
                           onRefresh: () async {
-                            // Verileri yeniden filtrele ve göster
                             filtreleVeGoster();
                           },
-                          color: ColorConstants.kirmiziVurgu,
-                          child: ListView.builder(
-                            controller: lazyScrollController,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 10,
-                            ),
-                            // cacheExtent: Görünür alan dışında önbelleğe alınacak piksel
-                            // 500px = yaklaşık 5-6 gün grubu önden yüklenir
-                            cacheExtent: 500,
-                            itemCount:
-                                gruplar.keys.length + (hasMoreItems ? 1 : 0),
-                            itemBuilder: (context, index) {
-                              // Son item ise ve daha fazla veri varsa loading göster
-                              if (index >= gruplar.keys.length) {
-                                return buildLoadingIndicator();
-                              }
+                          buildLoadingIndicator: buildLoadingIndicator,
+                          onDelete: harcamaSil,
+                          onEdit: (harcama, updatedHarcama) async {
+                            final index = gosterilenHarcamalarContext.indexOf(harcama);
+                            if (index != -1) {
+                              gosterilenHarcamalarContext[index] = updatedHarcama;
+                            }
 
-                              String gunBasligi = gruplar.keys.elementAt(index);
-                              List<Map<String, dynamic>> harcamalar =
-                                  gruplar[gunBasligi]!;
+                            await _controller.harcamaEkleVeyaDuzenleLegacy(
+                              tumHarcamalar: widget.tumHarcamalar,
+                              tumOdemeYontemleri: widget.tumOdemeYontemleri,
+                              name: updatedHarcama['isim'] ?? harcama['isim'],
+                              amount: double.tryParse(updatedHarcama['tutar'].toString()) ?? 0.0,
+                              category: updatedHarcama['kategori'] ?? harcama['kategori'],
+                              date: DateTime.tryParse(updatedHarcama['tarih'].toString()) ?? DateTime.now(),
+                              paymentMethodId: updatedHarcama['odemeYontemiId'],
+                              paraBirimi: updatedHarcama['paraBirimi'],
+                              duzenlenecekHarcama: harcama,
+                              eskiOdemeYontemiId: harcama['odemeYontemiId'],
+                              eskiTutar: double.tryParse(harcama['tutar'].toString()) ?? 0.0,
+                              aramaMetni: tArama.text,
+                              onResetLazyLoading: resetLazyLoading,
+                            );
 
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Tarih başlığı kaldırıldı (Kart içinde gösteriliyor)
-                                  /*
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 8,
-                                bottom: 5,
-                                top: 10,
-                              ),
-                              child: Text(
-                                gunBasligi.toUpperCase(),
-                                style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface.withValues(alpha: 0.54),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            */
-                                  ...harcamalar.map((harcama) {
-                                    return ExpenseListItem(
-                                      harcama: harcama,
-                                      categoryIcon:
-                                          widget
-                                              .kategoriIkonlari[harcama['kategori']] ??
-                                          IconConstants.getIconFromCategoryName(
-                                            harcama['kategori'],
-                                          ),
-                                      paymentMethods: widget.tumOdemeYontemleri,
-                                      itemIndex: gosterilenHarcamalar.indexOf(
-                                        harcama,
-                                      ),
-                                      onDelete: () => harcamaSil(harcama),
-                                      onTap: () {
-                                        HapticService.selectionClick();
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (ctx) => ExpenseDetailPage(
-                                              harcama: harcama,
-                                              categoryIcon:
-                                                  widget
-                                                      .kategoriIkonlari[harcama['kategori']] ??
-                                                  IconConstants.getIconFromCategoryName(
-                                                    harcama['kategori'],
-                                                  ),
-                                              paymentMethods:
-                                                  widget.tumOdemeYontemleri,
-                                              kategoriIkonlari:
-                                                  widget.kategoriIkonlari,
-                                              onEdit: (updatedHarcama) async {
-                                                final index =
-                                                    gosterilenHarcamalar
-                                                        .indexOf(harcama);
-                                                if (index != -1) {
-                                                  gosterilenHarcamalar[index] =
-                                                      updatedHarcama;
-                                                }
-
-                                                await _controller.harcamaEkleVeyaDuzenleLegacy(
-                                                  tumHarcamalar: widget.tumHarcamalar,
-                                                  tumOdemeYontemleri: widget.tumOdemeYontemleri,
-                                                  name: updatedHarcama['isim'] ?? harcama['isim'],
-                                                  amount: double.tryParse(updatedHarcama['tutar'].toString()) ?? 0.0,
-                                                  category: updatedHarcama['kategori'] ?? harcama['kategori'],
-                                                  date: DateTime.tryParse(updatedHarcama['tarih'].toString()) ?? DateTime.now(),
-                                                  paymentMethodId: updatedHarcama['odemeYontemiId'],
-                                                  paraBirimi: updatedHarcama['paraBirimi'],
-                                                  duzenlenecekHarcama: harcama,
-                                                  eskiOdemeYontemiId: harcama['odemeYontemiId'],
-                                                  eskiTutar: double.tryParse(harcama['tutar'].toString()) ?? 0.0,
-                                                  aramaMetni: tArama.text,
-                                                  onResetLazyLoading: resetLazyLoading,
-                                                );
-
-                                                widget.onHarcamalarChanged(
-                                                  widget.tumHarcamalar,
-                                                );
-                                                widget.onOdemeYontemleriChanged(
-                                                  widget.tumOdemeYontemleri,
-                                                );
-                                              },
-                                              onDelete: (deletedHarcama) {
-                                                harcamaSil(deletedHarcama);
-                                              },
-                                            ),
-                                          ),
-                                        ).then((_) {
-                                          if (mounted) filtreleVeGoster();
-                                        });
-                                      },
-                                    );
-                                  }),
-                                ],
-                              );
-                            },
-                          ),
+                            widget.onHarcamalarChanged(widget.tumHarcamalar);
+                            widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+                            
+                            if (mounted) filtreleVeGoster();
+                          },
+                          kategoriIkonlari: widget.kategoriIkonlari,
+                          tumOdemeYontemleri: widget.tumOdemeYontemleri,
+                          gosterilenHarcamalar: gosterilenHarcamalarContext,
                         ),
                       ),
                     ],
