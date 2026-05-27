@@ -665,7 +665,7 @@ void main() {
           await controller.loadData();
 
           controller.setBinSilinenHarcamalar([harcama1, harcama2]);
-          controller.binRestoreAll();
+          await controller.binRestoreAll();
 
           // Her iki harcama geri yüklenince: 5000 - 500 - 300 = 4200
           expect(

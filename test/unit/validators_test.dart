@@ -39,10 +39,9 @@ void main() {
     });
 
     group('validatePIN', () {
-      test('geçerli PIN için null döner (4-6 rakam)', () {
-        expect(Validators.validatePIN('1234'), isNull);
-        expect(Validators.validatePIN('12345'), isNull);
+      test('geçerli PIN için null döner (6 rakam)', () {
         expect(Validators.validatePIN('123456'), isNull);
+        expect(Validators.validatePIN('987654'), isNull);
       });
 
       test('boş PIN için hata mesajı döner', () {

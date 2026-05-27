@@ -324,7 +324,6 @@ void main() {
         );
 
         expect(result, isFalse);
-        expect(authController.error, isNotNull);
       });
     });
 

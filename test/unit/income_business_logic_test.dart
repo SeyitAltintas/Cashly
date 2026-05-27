@@ -558,7 +558,7 @@ void main() {
           await controller.loadData();
 
           controller.setBinSilinenGelirler([controller.tumGelirler.first]);
-          controller.binRestoreGelir(controller.tumGelirler.first);
+          await controller.binRestoreGelir(controller.tumGelirler.first);
 
           expect(controller.tumGelirler.first.isDeleted, isFalse);
           expect(controller.binSilinenGelirler, isEmpty);
@@ -580,7 +580,7 @@ void main() {
           await controller.loadData();
 
           controller.setBinSilinenGelirler([controller.tumGelirler.first]);
-          controller.binPermanentDeleteGelir(controller.tumGelirler.first);
+          await controller.binPermanentDeleteGelir(controller.tumGelirler.first);
 
           expect(controller.tumGelirler, isEmpty);
           expect(controller.binSilinenGelirler, isEmpty);
@@ -617,7 +617,7 @@ void main() {
         ]);
         await controller.loadData();
 
-        controller.binEmptyBin();
+        await controller.binEmptyBin();
 
         // Sadece aktif gelir kalmalı
         expect(controller.tumGelirler.length, equals(1));
@@ -647,7 +647,7 @@ void main() {
         await controller.loadData();
 
         controller.setBinSilinenGelirler(List.from(controller.tumGelirler));
-        controller.binRestoreAll();
+        await controller.binRestoreAll();
 
         expect(controller.tumGelirler.every((g) => !g.isDeleted), isTrue);
         expect(controller.binSilinenGelirler, isEmpty);
