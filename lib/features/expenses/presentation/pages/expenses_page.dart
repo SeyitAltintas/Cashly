@@ -69,9 +69,8 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   // Controller - DI'dan alınır
   late final ExpensesController _controller;
 
-  // Getter'lar - controller'a kolay erişim
+  // Getter'lar
   bool get aramaModu => _controller.aramaModu;
-  bool get _isLoading => _controller.isLoading;
   DateTime get secilenAy => _controller.secilenAy;
   List<Map<String, dynamic>> get gosterilenHarcamalar =>
       _controller.gosterilenHarcamalar;
@@ -87,9 +86,6 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     initLazyLoading();
     _filtreleVeGoster();
 
-    // State değişikliklerini dinle ve UI'yı güncelle
-    _controller.addListener(_onStateChanged);
-
     // Kısa skeleton animasyonu için 300ms bekle
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
@@ -98,13 +94,8 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     });
   }
 
-  void _onStateChanged() {
-    if (mounted) setState(() {});
-  }
-
   @override
   void dispose() {
-    _controller.removeListener(_onStateChanged);
     _controller.dispose();
     disposeLazyLoading();
     tArama.dispose();
@@ -331,41 +322,45 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
 
   @override
   Widget build(BuildContext context) {
-    DateTime simdi = DateTime.now();
-    bool buAyMi =
-        (secilenAy.year == simdi.year && secilenAy.month == simdi.month);
-
-    Map<String, List<Map<String, dynamic>>> gruplar =
-        gunlukGruplanmisHarcamalar;
-
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
+    return ChangeNotifierProvider<ExpensesController>.value(
+      value: _controller,
+      child: Scaffold(
         backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: aramaModu
-            ? TextField(
-                controller: tArama,
-                autofocus: true,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: context.l10n.searchExpense,
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.54),
-                  ),
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Builder(
+            builder: (context) {
+              final aramaModuContext = context.select((ExpensesController c) => c.aramaModu);
+              final secilenAyContext = context.select((ExpensesController c) => c.secilenAy);
+              DateTime simdi = DateTime.now();
+              bool buAyMi = (secilenAyContext.year == simdi.year && secilenAyContext.month == simdi.month);
+
+              return AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
                 ),
-                onChanged: (val) => filtreleVeGoster(),
-              )
-            : Text(context.l10n.myExpensesTitle),
-        actions: [
-          if (!aramaModu && !buAyMi)
+                title: aramaModuContext
+                    ? TextField(
+                        controller: tArama,
+                        autofocus: true,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: context.l10n.searchExpense,
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.54),
+                          ),
+                        ),
+                        onChanged: (val) => filtreleVeGoster(),
+                      )
+                    : Text(context.l10n.myExpensesTitle),
+                actions: [
+                  if (!aramaModuContext && !buAyMi)
             TextButton(
               onPressed: () {
                 _controller.secilenAy = DateTime.now();
@@ -382,41 +377,53 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
               ),
             ),
 
-          IconButton(
-            icon: Icon(
-              aramaModu ? Icons.close : Icons.search,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              _controller.aramaModu = !aramaModu;
-              if (!aramaModu) {
-                tArama.clear();
-                filtreleVeGoster();
-              }
+                  IconButton(
+                    icon: Icon(
+                      aramaModuContext ? Icons.close : Icons.search,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      _controller.aramaModu = !aramaModuContext;
+                      if (!aramaModuContext) {
+                        tArama.clear();
+                        filtreleVeGoster();
+                      }
+                    },
+                  ),
+                ],
+              );
             },
           ),
-        ],
-      ),
-      body: _isLoading
-          ? const ExpensesPageSkeleton()
-          : Column(
-              children: [
-                if (!aramaModu) ...[
-                  ExpenseSummaryCard(
-                    ayIsmi: ayIsmi,
-                    toplamTutar: toplamTutar,
-                    butceLimiti: widget.butceLimiti,
-                    oncekiAy: oncekiAy,
-                    sonrakiAy: sonrakiAy,
-                    ayYilSeciciAc: _ayYilSeciciAc,
-                    secilenAy: secilenAy,
-                    harcamalar: widget.tumHarcamalar,
-                  ),
-                  const SizedBox(height: 10),
-                ],
-                Expanded(
-                  child: gosterilenHarcamalar.isEmpty
-                      ? aramaModu
+        ),
+        body: Builder(
+          builder: (context) {
+            final isLoadingContext = context.select((ExpensesController c) => c.isLoading);
+            final aramaModuContext = context.select((ExpensesController c) => c.aramaModu);
+            final secilenAyContext = context.select((ExpensesController c) => c.secilenAy);
+            final gosterilenHarcamalarContext = context.select((ExpensesController c) => c.gosterilenHarcamalar);
+            
+            Map<String, List<Map<String, dynamic>>> gruplar = gunlukGruplanmisHarcamalar;
+
+            return isLoadingContext
+                ? const ExpensesPageSkeleton()
+                : Column(
+                    children: [
+                      if (!aramaModuContext) ...[
+                        ExpenseSummaryCard(
+                          ayIsmi: ayIsmi,
+                          toplamTutar: toplamTutar,
+                          butceLimiti: widget.butceLimiti,
+                          oncekiAy: oncekiAy,
+                          sonrakiAy: sonrakiAy,
+                          ayYilSeciciAc: _ayYilSeciciAc,
+                          secilenAy: secilenAyContext,
+                          harcamalar: widget.tumHarcamalar,
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                      Expanded(
+                        child: gosterilenHarcamalarContext.isEmpty
+                            ? aramaModuContext
                             ? EmptyStateWidget(
                                 icon: Icons.search_off,
                                 title: context.l10n.noResultsFound,
@@ -552,9 +559,11 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                             },
                           ),
                         ),
-                ),
-              ],
-            ),
+                      ),
+                    ],
+                  );
+          },
+        ),
       // Modern floating bottom navigation bar - Ortak widget kullanımı
       bottomNavigationBar: AppFloatingBottomBar(
         items: [
@@ -589,7 +598,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           pencereAc();
         },
       ),
-    );
+    ));
   }
 
   void _showVoiceInput() {

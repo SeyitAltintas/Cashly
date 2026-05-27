@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -60,7 +61,6 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
 
   // Getter'lar
   bool get gelirAramaModu => _controller.aramaModu;
-  bool get _isLoading => _controller.isLoading;
   DateTime get secilenAy => _controller.secilenAy;
 
   @override
@@ -69,7 +69,6 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
 
     _controller = getIt<IncomesController>(param1: widget.userId ?? '');
     _controller.secilenAy = widget.secilenAy;
-    _controller.addListener(_onStateChanged);
 
     // Widget prop'larından veriyi controller'a yükle
     _controller.setIncomesFromWidget(
@@ -84,17 +83,8 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     });
   }
 
-  void _onStateChanged() {
-    if (mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() {});
-      });
-    }
-  }
-
   @override
   void dispose() {
-    _controller.removeListener(_onStateChanged);
     _controller.dispose();
     disposeLazyLoading();
     tGelirArama.dispose();
@@ -357,39 +347,45 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
 
   @override
   Widget build(BuildContext context) {
-    DateTime simdi = DateTime.now();
-    bool buAyMi =
-        (secilenAy.year == simdi.year && secilenAy.month == simdi.month);
-    final gelirler = filtrelenmisGelirler;
-
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
+    return ChangeNotifierProvider<IncomesController>.value(
+      value: _controller,
+      child: Scaffold(
         backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: gelirAramaModu
-            ? TextField(
-                controller: tGelirArama,
-                autofocus: true,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: context.l10n.searchIncome,
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.54),
-                  ),
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Builder(
+            builder: (context) {
+              final gelirAramaModuContext = context.select((IncomesController c) => c.aramaModu);
+              final secilenAyContext = context.select((IncomesController c) => c.secilenAy);
+              DateTime simdi = DateTime.now();
+              bool buAyMi = (secilenAyContext.year == simdi.year && secilenAyContext.month == simdi.month);
+
+              return AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
                 ),
-                onChanged: (val) => _searchDebouncer.run(() => setState(() {})),
-              )
-            : Text(context.l10n.myIncomesTitle),
-        actions: [
-          if (!gelirAramaModu && !buAyMi)
+                title: gelirAramaModuContext
+                    ? TextField(
+                        controller: tGelirArama,
+                        autofocus: true,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: context.l10n.searchIncome,
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.54),
+                          ),
+                        ),
+                        onChanged: (val) => _searchDebouncer.run(() => setState(() {})),
+                      )
+                    : Text(context.l10n.myIncomesTitle),
+                actions: [
+                  if (!gelirAramaModuContext && !buAyMi)
             TextButton(
               onPressed: () {
                 _controller.secilenAy = DateTime.now();
@@ -405,41 +401,54 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
               ),
             ),
 
-          IconButton(
-            icon: Icon(
-              gelirAramaModu ? Icons.close : Icons.search,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              _controller.aramaModu = !gelirAramaModu;
-              if (!gelirAramaModu) {
-                tGelirArama.clear();
-              }
+                  IconButton(
+                    icon: Icon(
+                      gelirAramaModuContext ? Icons.close : Icons.search,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      _controller.aramaModu = !gelirAramaModuContext;
+                      if (!gelirAramaModuContext) {
+                        tGelirArama.clear();
+                      }
+                    },
+                  ),
+                ],
+              );
             },
           ),
-        ],
-      ),
-      body: _isLoading
-          ? const IncomePageSkeleton()
-          : Column(
-              children: [
-                // Özet Kartı
-                if (!gelirAramaModu)
-                  // Özet Kartı
-                  if (!gelirAramaModu)
-                    IncomeSummaryCard(
-                      ayIsmi: ayIsmi,
-                      toplamGelir: toplamGelir,
-                      oncekiAy: oncekiAy,
-                      sonrakiAy: sonrakiAy,
-                      ayYilSeciciAc: _ayYilSeciciAc,
-                      gelirSayisi: gelirler.length,
-                    ),
+        ),
+        body: Builder(
+          builder: (context) {
+            final isLoadingContext = context.select((IncomesController c) => c.isLoading);
+            final gelirAramaModuContext = context.select((IncomesController c) => c.aramaModu);
+            
+            // secilenAyContext was unused
+            context.select((IncomesController c) => c.tumGelirler);
+            
+            return ValueListenableBuilder<TextEditingValue>(
+              valueListenable: tGelirArama,
+              builder: (context, _, _) {
+                final gelirler = filtrelenmisGelirler;
+                return isLoadingContext
+                    ? const IncomePageSkeleton()
+                    : Column(
+                  children: [
+                    // Özet Kartı
+                    if (!gelirAramaModuContext)
+                      IncomeSummaryCard(
+                        ayIsmi: ayIsmi,
+                        toplamGelir: toplamGelir,
+                        oncekiAy: oncekiAy,
+                        sonrakiAy: sonrakiAy,
+                        ayYilSeciciAc: _ayYilSeciciAc,
+                        gelirSayisi: gelirler.length,
+                      ),
 
-                // Gelir listesi
-                Expanded(
-                  child: gelirler.isEmpty
-                      ? gelirAramaModu
+                    // Gelir listesi
+                    Expanded(
+                      child: gelirler.isEmpty
+                          ? gelirAramaModuContext
                             ? EmptyStateWidget(
                                 icon: Icons.search_off,
                                 title: context.l10n.noResultsFound,
@@ -477,9 +486,13 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                             },
                           ),
                         ),
-                ),
-              ],
-            ),
+                    ),
+                  ],
+                );
+              }
+            );
+          },
+        ),
       // Modern floating bottom navigation bar - Ortak widget kullanımı
       bottomNavigationBar: AppFloatingBottomBar(
         items: [
@@ -516,6 +529,6 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           yeniGelirEkle();
         },
       ),
-    );
+    ));
   }
 }

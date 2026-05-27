@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 import '../../data/models/asset_model.dart';
@@ -66,11 +67,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
   // Controller - DI'dan alınır
   late final AssetsController _controller;
 
-  // Getter'lar
-  bool get _aramaModu => _controller.aramaModu;
-  bool get _isLoading => _controller.isLoading;
   List<Asset> get _deletedAssets => _controller.deletedAssets;
-  List<Asset> get _filtrelenmisVarliklar => _controller.filtrelenmisVarliklar;
 
   @override
   void initState() {
@@ -79,7 +76,6 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
     final authController = getIt<AuthController>();
     final userId = authController.currentUser?.id ?? '';
     _controller = getIt<AssetsController>(param1: userId);
-    _controller.addListener(_onStateChanged);
 
     // Widget prop'larından veriyi controller'a yükle
     _controller.setAssetsFromWidget(widget.assets, widget.deletedAssets);
@@ -91,9 +87,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
     });
   }
 
-  void _onStateChanged() {
-    if (mounted) setState(() {});
-  }
+  // setState kaldırıldı, yerine ListenableBuilder kullanılıyor
 
   @override
   void didUpdateWidget(covariant AssetsPage oldWidget) {
@@ -110,7 +104,6 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
 
   @override
   void dispose() {
-    _controller.removeListener(_onStateChanged);
     _controller.dispose();
     disposeLazyLoading();
     _aramaController.dispose();
@@ -130,14 +123,22 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: _aramaModu
-            ? TextField(
-                controller: _aramaController,
-                onChanged: (value) => _searchDebouncer.run(() => _filtrele()),
-                autofocus: true,
+    return ChangeNotifierProvider<AssetsController>.value(
+      value: _controller,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Builder(
+            builder: (context) {
+              final aramaModuContext = context.select((AssetsController c) => c.aramaModu);
+              
+              return AppBar(
+                title: aramaModuContext
+                    ? TextField(
+                        controller: _aramaController,
+                        onChanged: (value) => _searchDebouncer.run(() => _filtrele()),
+                        autofocus: true,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -163,37 +164,46 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: Icon(
-              _aramaModu ? Icons.close : Icons.search,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              _controller.aramaModu = !_aramaModu;
-              if (!_controller.aramaModu) {
-                _aramaController.clear();
-                _controller.filtrele('');
-              }
+                  IconButton(
+                    icon: Icon(
+                      aramaModuContext ? Icons.close : Icons.search,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      _controller.aramaModu = !aramaModuContext;
+                      if (!aramaModuContext) {
+                        _aramaController.clear();
+                        _controller.filtrele('');
+                      }
+                    },
+                  ),
+                ],
+              );
             },
           ),
-        ],
-      ),
-      body: _isLoading
-          ? const AssetsPageSkeleton()
-          : Column(
-              children: [
-                // Toplam Varlık Kartı - Harcamalarım tarzı tasarım (mavi tema)
-                if (!_aramaModu)
-                  // Toplam Varlık Kartı
-                  if (!_aramaModu)
-                    AssetSummaryCard(
-                      totalAssets: totalAssets,
-                      assetCount: _filtrelenmisVarliklar.length,
-                    ),
-                // Liste veya EmptyState (ekranın kalan kısmının ortasında)
-                Expanded(child: _buildAssetList()),
-              ],
-            ),
+        ),
+        body: Builder(
+          builder: (context) {
+            final isLoadingContext = context.select((AssetsController c) => c.isLoading);
+            final aramaModuContext = context.select((AssetsController c) => c.aramaModu);
+            final filtrelenmisVarliklarContext = context.select((AssetsController c) => c.filtrelenmisVarliklar);
+            
+            return isLoadingContext
+                ? const AssetsPageSkeleton()
+                : Column(
+                  children: [
+                    // Toplam Varlık Kartı - Harcamalarım tarzı tasarım (mavi tema)
+                    if (!aramaModuContext)
+                      AssetSummaryCard(
+                        totalAssets: totalAssets,
+                        assetCount: filtrelenmisVarliklarContext.length,
+                      ),
+                    // Liste veya EmptyState (ekranın kalan kısmının ortasında)
+                    Expanded(child: _buildAssetList(filtrelenmisVarliklarContext, aramaModuContext)),
+                  ],
+                );
+          },
+        ),
       // Modern floating bottom navigation bar - Ortak widget kullanımı
       bottomNavigationBar: AppFloatingBottomBar(
         items: [
@@ -234,7 +244,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
           _showAddAssetSheet();
         },
       ),
-    );
+    ));
   }
 
   void _showAddAssetSheet() {
@@ -282,9 +292,9 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
     );
   }
 
-  Widget _buildAssetList() {
-    if (_filtrelenmisVarliklar.isEmpty) {
-      return _aramaModu && _aramaController.text.isNotEmpty
+  Widget _buildAssetList(List<Asset> filtrelenmisVarliklar, bool aramaModu) {
+    if (filtrelenmisVarliklar.isEmpty) {
+      return aramaModu && _aramaController.text.isNotEmpty
           ? EmptyStateWidget(
               icon: Icons.search_off,
               title: context.l10n.noResultsFound,
@@ -304,14 +314,14 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
         // cacheExtent: Görünür alan dışında önbelleğe alınacak piksel
         // 500px = yaklaşık 4-5 liste öğesi önden yüklenir
         cacheExtent: 500,
-        itemCount: _filtrelenmisVarliklar.length + (hasMoreItems ? 1 : 0),
+        itemCount: filtrelenmisVarliklar.length + (hasMoreItems ? 1 : 0),
         itemBuilder: (context, index) {
           // Son item ise ve daha fazla veri varsa loading göster
-          if (index >= _filtrelenmisVarliklar.length) {
+          if (index >= filtrelenmisVarliklar.length) {
             return buildLoadingIndicator();
           }
 
-          final asset = _filtrelenmisVarliklar[index];
+          final asset = filtrelenmisVarliklar[index];
           // RepaintBoundary ile render izolasyonu - performans optimizasyonu
           return AssetListItem(
             asset: asset,

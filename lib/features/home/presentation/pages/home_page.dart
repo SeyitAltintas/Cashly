@@ -107,7 +107,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   }
 
   void _onHomeStateChanged() {
-    if (mounted) setState(() {});
+    // setState kaldırıldı, yerine ListenableBuilder kullanılıyor
   }
 
   // Bekleyen kutlama popup'ı için flag
@@ -376,19 +376,24 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     return Scaffold(
       // ValueListenableBuilder ile sadece AppBar değişikliklerinde rebuild
       appBar: _buildAppBarWithNotifier(),
-      body: PageView(
-        controller: _pageController,
-        // setState yerine ValueNotifier kullanarak gereksiz rebuild'leri önle
-        onPageChanged: (index) => _selectedIndexNotifier.value = index,
-        children: [
-          _buildToolsPage(),
-          _buildDashboardPage(userName),
-          ProfilSayfasi(
-            authController: widget.authController,
-            onRefresh: _verileriOku,
-            onNavigationReturn: _showCelebrationIfPending,
-          ),
-        ],
+      body: ListenableBuilder(
+        listenable: _homeState,
+        builder: (context, _) {
+          return PageView(
+            controller: _pageController,
+            // setState yerine ValueNotifier kullanarak gereksiz rebuild'leri önle
+            onPageChanged: (index) => _selectedIndexNotifier.value = index,
+            children: [
+              _buildToolsPage(),
+              _buildDashboardPage(userName),
+              ProfilSayfasi(
+                authController: widget.authController,
+                onRefresh: _verileriOku,
+                onNavigationReturn: _showCelebrationIfPending,
+              ),
+            ],
+          );
+        },
       ),
       // ValueListenableBuilder ile sadece navigation değişikliklerinde rebuild
       bottomNavigationBar: ValueListenableBuilder<int>(
