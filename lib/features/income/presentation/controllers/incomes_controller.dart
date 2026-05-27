@@ -239,7 +239,9 @@ class IncomesController extends ChangeNotifier {
   // saveIncomes metodu deprecate edildi, tekil işlemler kullanılıyor
 
   Future<void> savePaymentMethods() async {
-    // Deprecated: Handled by individual CRUD operations
+    for (var pm in _tumOdemeYontemleri) {
+      await _paymentMethodRepository.updatePaymentMethod(userId, pm.toMap());
+    }
   }
 
   // ===== AY GEÇİŞLERİ =====
@@ -536,36 +538,56 @@ class IncomesController extends ChangeNotifier {
   }
 
   /// Silinen geliri geri yükle
-  void binRestoreGelir(Income gelir) {
+  Future<void> binRestoreGelir(Income gelir) async {
     int index = _tumGelirler.indexWhere((g) => g.id == gelir.id);
     if (index != -1) {
       _tumGelirler[index] = gelir.copyWith(isDeleted: false);
+      await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
     }
     _binSilinenGelirler.removeWhere((g) => g.id == gelir.id);
+    
+    if (gelir.paymentMethodId != null) {
+      _updateBalance(gelir.paymentMethodId!, gelir.amount, isIncome: true);
+      await savePaymentMethods();
+    }
     notifyListeners();
   }
 
   /// Geliri kalıcı sil
-  void binPermanentDeleteGelir(Income gelir) {
+  Future<void> binPermanentDeleteGelir(Income gelir) async {
     _tumGelirler.removeWhere((g) => g.id == gelir.id);
     _binSilinenGelirler.removeWhere((g) => g.id == gelir.id);
+    await _incomeRepository.deleteIncome(userId, gelir.id);
     notifyListeners();
   }
 
   /// Çöpü boşalt
-  void binEmptyBin() {
+  Future<void> binEmptyBin() async {
+    for (var g in _tumGelirler.where((g) => g.isDeleted)) {
+      await _incomeRepository.deleteIncome(userId, g.id);
+    }
     _tumGelirler.removeWhere((g) => g.isDeleted);
     _binSilinenGelirler.clear();
     notifyListeners();
   }
 
   /// Tümünü geri yükle
-  void binRestoreAll() {
+  Future<void> binRestoreAll() async {
+    bool hasBalanceChange = false;
     for (var gelir in _binSilinenGelirler) {
       int index = _tumGelirler.indexWhere((g) => g.id == gelir.id);
       if (index != -1) {
         _tumGelirler[index] = gelir.copyWith(isDeleted: false);
+        await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
+        
+        if (gelir.paymentMethodId != null) {
+          _updateBalance(gelir.paymentMethodId!, gelir.amount, isIncome: true);
+          hasBalanceChange = true;
+        }
       }
+    }
+    if (hasBalanceChange) {
+      await savePaymentMethods();
     }
     _binSilinenGelirler.clear();
     notifyListeners();

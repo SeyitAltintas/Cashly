@@ -265,7 +265,7 @@ class ExpensesController extends ChangeNotifier {
   }
 
   /// Silinen harcamayı geri yükle (bakiye güncelleme ile)
-  void binRestoreHarcama(Map<String, dynamic> harcama) {
+  Future<void> binRestoreHarcama(Map<String, dynamic> harcama) async {
     harcama['silindi'] = false;
     _binSilinenHarcamalar.remove(harcama);
 
@@ -287,25 +287,38 @@ class ExpensesController extends ChangeNotifier {
         _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
       }
     }
+    
+    await _expenseRepository.updateExpense(userId, harcama);
+    await savePaymentMethods();
     notifyListeners();
   }
 
   /// Harcamayı kalıcı sil
-  void binPermanentDeleteHarcama(Map<String, dynamic> harcama) {
+  Future<void> binPermanentDeleteHarcama(Map<String, dynamic> harcama) async {
     _tumHarcamalar.remove(harcama);
     _binSilinenHarcamalar.remove(harcama);
+    if (harcama['id'] != null) {
+      await _expenseRepository.deleteExpense(userId, harcama['id']);
+    }
     notifyListeners();
   }
 
   /// Çöpü boşalt
-  void binEmptyBin() {
+  Future<void> binEmptyBin() async {
+    final toDelete = _tumHarcamalar.where((element) => element['silindi'] == true).toList();
+    for (var h in toDelete) {
+      if (h['id'] != null) {
+        await _expenseRepository.deleteExpense(userId, h['id']);
+      }
+    }
     _tumHarcamalar.removeWhere((element) => element['silindi'] == true);
     _binSilinenHarcamalar.clear();
     notifyListeners();
   }
 
   /// Tümünü geri yükle (bakiye güncelleme ile)
-  void binRestoreAll() {
+  Future<void> binRestoreAll() async {
+    bool hasBalanceChange = false;
     for (var harcama in List.from(_binSilinenHarcamalar)) {
       harcama['silindi'] = false;
 
@@ -325,8 +338,13 @@ class ExpensesController extends ChangeNotifier {
             newBalance = pm.balance - amount;
           }
           _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+          hasBalanceChange = true;
         }
       }
+      await _expenseRepository.updateExpense(userId, harcama);
+    }
+    if (hasBalanceChange) {
+      await savePaymentMethods();
     }
     _binSilinenHarcamalar.clear();
     notifyListeners();
@@ -430,7 +448,9 @@ class ExpensesController extends ChangeNotifier {
 
   /// Ödeme yöntemlerini kaydet
   Future<void> savePaymentMethods() async {
-    // Deprecated: Handled by individual CRUD operations
+    for (var pm in _tumOdemeYontemleri) {
+      await _paymentMethodRepository.updatePaymentMethod(userId, pm.toMap());
+    }
   }
 
   // ===== FİLTRELEME =====
