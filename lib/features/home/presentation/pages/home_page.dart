@@ -203,6 +203,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             isFailed: true,
             failureReason: context.l10n.senderAccountNotFound,
           );
+          getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
           basarisizTransferler.add(context.l10n.senderAccountNotFound);
           transferDegisti = true;
           continue;
@@ -214,6 +215,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             isFailed: true,
             failureReason: context.l10n.receiverAccountNotFound,
           );
+          getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
           basarisizTransferler.add(context.l10n.receiverAccountNotFound);
           transferDegisti = true;
           continue;
@@ -228,6 +230,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             isFailed: true,
             failureReason: context.l10n.accountDeleted(fromPm.name),
           );
+          getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
           basarisizTransferler.add(context.l10n.accountDeleted(fromPm.name));
           transferDegisti = true;
           continue;
@@ -239,6 +242,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             isFailed: true,
             failureReason: context.l10n.accountDeleted(toPm.name),
           );
+          getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
           basarisizTransferler.add(context.l10n.accountDeleted(toPm.name));
           transferDegisti = true;
           continue;
@@ -250,6 +254,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             isFailed: true,
             failureReason: context.l10n.insufficientBalanceAccount(fromPm.name),
           );
+          getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
           basarisizTransferler.add(
             context.l10n.insufficientBalanceAccount(fromPm.name),
           );
@@ -263,6 +268,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             isFailed: true,
             failureReason: context.l10n.noDebtToPay(toPm.name),
           );
+          getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
           basarisizTransferler.add(context.l10n.noDebtToPay(toPm.name));
           transferDegisti = true;
           continue;
@@ -275,14 +281,17 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
           balance: fromYeniBakiye,
         );
+        getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, tumOdemeYontemleri[fromIndex].toMap());
 
         double toYeniBakiye = toPm.type == 'kredi'
             ? toPm.balance - transfer.amount
             : toPm.balance + transfer.amount;
         tumOdemeYontemleri[toIndex] = toPm.copyWith(balance: toYeniBakiye);
+        getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, tumOdemeYontemleri[toIndex].toMap());
 
         // Transferi başarılı olarak işaretle
         tumTransferler[i] = transfer.copyWith(isExecuted: true);
+        getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
         transferDegisti = true;
       }
     }
