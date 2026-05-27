@@ -648,15 +648,20 @@ class AuthRepositoryFirestore implements AuthRepository {
   @override
   Future<void> updateUserPin(String userId, String newPin) async {
     try {
-      // 1. Firebase Auth şifresi güncelle
+      // GÜVENLİK YAMASI: PIN değişikliği (State Inconsistency önleme)
+      // PIN değişimi Firebase Auth ve yerel Hive'da eşzamanlı yapılmalıdır.
+      // Cihaz çevrimdışıysa (veya oturum Firebase Auth'ta aktif değilse) yerel PIN 
+      // güncellenmemeli, aksi halde bulut-lokal şifre uyumsuzluğu oluşur.
       final user = _firebaseAuth.currentUser;
-      if (user != null && user.uid == userId) {
-        await user.updatePassword(newPin);
+      if (user == null || user.uid != userId) {
+        throw Exception('Güvenlik nedeniyle PIN değişikliği işlemi çevrimdışı modda yapılamaz. Lütfen internete bağlanarak giriş yapın ve tekrar deneyin.');
       }
+      
+      // 1. Firebase Auth şifresi güncelle
+      await user.updatePassword(newPin);
+      
       // 2. Lokal Hive güncelle
       await _localHiveRepo.updateUserPin(userId, newPin);
-      // NOT: newPin Firestore'a kasıtlı olarak yazılmıyor.
-      // PIN Firebase Auth şifresine encode edilmiş durumda, ayrıca saklamak güvenlik riski.
     } catch (e) {
       throw Exception("PIN güncellenemedi: ${e.toString()}");
     }
