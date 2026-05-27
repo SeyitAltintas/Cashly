@@ -112,7 +112,7 @@ class _TransferPageState extends State<TransferPage> {
     super.dispose();
   }
 
-  void _save() {
+  Future<void> _save() async {
     // Haptic Feedback (Sadece titreşim, animasyon yok)
     HapticService.mediumImpact();
 
@@ -229,6 +229,8 @@ class _TransferPageState extends State<TransferPage> {
         if (onay != true) return;
       }
     }
+
+    if (!mounted) return;
 
     // Transfer işlemini gerçekleştir (callback)
     widget.onTransfer(_fromAccountId!, _toAccountId!, amount, _selectedDate);

@@ -10,6 +10,7 @@ import 'package:cashly/features/payment_methods/data/models/payment_method_model
 import 'package:cashly/features/payment_methods/data/models/transfer_model.dart';
 import 'package:cashly/core/constants/icon_constants.dart';
 import 'package:cashly/core/services/asset_price_update_service.dart';
+import 'package:cashly/core/services/currency_service.dart';
 import 'package:intl/intl.dart';
 
 /// Ana sayfa için state yönetimi sağlayan Provider sınıfı.
