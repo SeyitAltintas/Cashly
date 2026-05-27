@@ -504,7 +504,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                                                   widget.tumOdemeYontemleri,
                                               kategoriIkonlari:
                                                   widget.kategoriIkonlari,
-                                              onEdit: (updatedHarcama) {
+                                              onEdit: (updatedHarcama) async {
                                                 final index =
                                                     gosterilenHarcamalar
                                                         .indexOf(harcama);
@@ -512,9 +512,28 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                                                   gosterilenHarcamalar[index] =
                                                       updatedHarcama;
                                                 }
-                                                filtreleVeGoster();
+
+                                                await _controller.harcamaEkleVeyaDuzenleLegacy(
+                                                  tumHarcamalar: widget.tumHarcamalar,
+                                                  tumOdemeYontemleri: widget.tumOdemeYontemleri,
+                                                  name: updatedHarcama['isim'] ?? harcama['isim'],
+                                                  amount: double.tryParse(updatedHarcama['tutar'].toString()) ?? 0.0,
+                                                  category: updatedHarcama['kategori'] ?? harcama['kategori'],
+                                                  date: DateTime.tryParse(updatedHarcama['tarih'].toString()) ?? DateTime.now(),
+                                                  paymentMethodId: updatedHarcama['odemeYontemiId'],
+                                                  paraBirimi: updatedHarcama['paraBirimi'],
+                                                  duzenlenecekHarcama: harcama,
+                                                  eskiOdemeYontemiId: harcama['odemeYontemiId'],
+                                                  eskiTutar: double.tryParse(harcama['tutar'].toString()) ?? 0.0,
+                                                  aramaMetni: tArama.text,
+                                                  onResetLazyLoading: resetLazyLoading,
+                                                );
+
                                                 widget.onHarcamalarChanged(
                                                   widget.tumHarcamalar,
+                                                );
+                                                widget.onOdemeYontemleriChanged(
+                                                  widget.tumOdemeYontemleri,
                                                 );
                                               },
                                               onDelete: (deletedHarcama) {
