@@ -248,11 +248,23 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           continue;
         }
 
-        // Edge Case 5: Gönderen hesapta yetersiz bakiye (banka/nakit için)
+        // Edge Case 5: Gönderen hesap kontrolü (Yetersiz bakiye veya Limit aşımı)
         final cur = getIt<CurrencyService>();
         final convertedTransferAmountFrom = cur.convert(transfer.amount, transfer.paraBirimi, fromPm.paraBirimi);
         
-        if (fromPm.type != 'kredi' && fromPm.balance < convertedTransferAmountFrom) {
+        bool limitVeyaBakiyeAsildi = false;
+        if (fromPm.type == 'kredi') {
+          final kalanLimit = (fromPm.limit ?? 0) - fromPm.balance;
+          if (convertedTransferAmountFrom > kalanLimit) {
+            limitVeyaBakiyeAsildi = true;
+          }
+        } else {
+          if (fromPm.balance < convertedTransferAmountFrom) {
+            limitVeyaBakiyeAsildi = true;
+          }
+        }
+
+        if (limitVeyaBakiyeAsildi) {
           tumTransferler[i] = transfer.copyWith(
             isFailed: true,
             failureReason: context.l10n.insufficientBalanceAccount(fromPm.name),

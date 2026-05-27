@@ -197,19 +197,37 @@ class _TransferPageState extends State<TransferPage> {
     );
     final fromAccount = _paymentMethods[fromIndex];
 
-    // Gönderen hesap banka/nakit ise negatif bakiye kontrolü yap
+    // Gönderen hesap kontrolü (Negatif bakiye veya Limit aşımı)
     final cur = getIt<CurrencyService>();
     final convertedAmountToFrom = cur.convert(amount, cur.currentCurrency, fromAccount.paraBirimi);
     
-    if (!_isScheduled && fromAccount.type != 'kredi' && fromAccount.balance < convertedAmountToFrom) {
-      final onay = await BalanceWarningDialog.show(
-        context: context,
-        paymentType: fromAccount.type,
-        currentBalance: fromAccount.balance,
-        expenseAmount: convertedAmountToFrom,
-      );
+    if (!_isScheduled) {
+      bool limitVeyaBakiyeAsildi = false;
+      double guncelBakiyeVeyaKalanLimit = 0;
 
-      if (onay != true) return;
+      if (fromAccount.type == 'kredi') {
+        final kalanLimit = (fromAccount.limit ?? 0) - fromAccount.balance;
+        if (convertedAmountToFrom > kalanLimit) {
+          limitVeyaBakiyeAsildi = true;
+          guncelBakiyeVeyaKalanLimit = kalanLimit;
+        }
+      } else {
+        if (convertedAmountToFrom > fromAccount.balance) {
+          limitVeyaBakiyeAsildi = true;
+          guncelBakiyeVeyaKalanLimit = fromAccount.balance;
+        }
+      }
+
+      if (limitVeyaBakiyeAsildi) {
+        final onay = await BalanceWarningDialog.show(
+          context: context,
+          paymentType: fromAccount.type,
+          currentBalance: guncelBakiyeVeyaKalanLimit,
+          expenseAmount: convertedAmountToFrom,
+        );
+
+        if (onay != true) return;
+      }
     }
 
     // Transfer işlemini gerçekleştir (callback)
