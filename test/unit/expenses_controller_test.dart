@@ -8,8 +8,8 @@ class MockExpenseRepository implements ExpenseRepository {
   List<Map<String, dynamic>> _expenses = [];
   List<Map<String, dynamic>> _categories = [];
   double _budget = 8000.0;
-  List<Map<String, dynamic>> _fixedExpenseTemplates = [];
-  Map<String, double> _categoryBudgets = {};
+  final List<Map<String, dynamic>> _fixedExpenseTemplates = [];
+  final Map<String, double> _categoryBudgets = {};
 
   @override
   List<Map<String, dynamic>> getExpenses(String userId) => _expenses;
@@ -24,7 +24,13 @@ class MockExpenseRepository implements ExpenseRepository {
   @override
   List<Map<String, dynamic>> getCategories(String userId) => _categories;
 
-
+  @override
+  Future<void> saveCategories(
+    String userId,
+    List<Map<String, dynamic>> categories,
+  ) async {
+    _categories = List.from(categories);
+  }
 
   @override
   double getBudget(String userId) => _budget;
@@ -38,13 +44,20 @@ class MockExpenseRepository implements ExpenseRepository {
   List<Map<String, dynamic>> getFixedExpenseTemplates(String userId) =>
       _fixedExpenseTemplates;
 
-
+  @override
+  Future<void> saveFixedExpenseTemplates(
+    String userId,
+    List<Map<String, dynamic>> templates,
+  ) async {}
 
   @override
   Map<String, double> getCategoryBudgets(String userId) => _categoryBudgets;
 
-
-
+  @override
+  Future<void> saveCategoryBudgets(
+    String userId,
+    Map<String, double> budgets,
+  ) async {}
   // Test helper metodları
   void setExpenses(List<Map<String, dynamic>> expenses) {
     _expenses = expenses;
@@ -58,9 +71,9 @@ class MockExpenseRepository implements ExpenseRepository {
 /// Mock PaymentMethodRepository
 class MockPaymentMethodRepository implements PaymentMethodRepository {
   List<Map<String, dynamic>> _paymentMethods = [];
-  List<Map<String, dynamic>> _deletedPaymentMethods = [];
+  final List<Map<String, dynamic>> _deletedPaymentMethods = [];
   String? _defaultPaymentMethodId;
-  List<Map<String, dynamic>> _transfers = [];
+  final List<Map<String, dynamic>> _transfers = [];
 
   @override
   List<Map<String, dynamic>> getPaymentMethods(String userId) =>

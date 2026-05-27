@@ -13,8 +13,8 @@ import 'package:get_it/get_it.dart';
 
 class MockIncomeRepository implements IncomeRepository {
   List<Map<String, dynamic>> _incomes = [];
-  List<Map<String, dynamic>> _categories = [];
-  List<Map<String, dynamic>> _recurringIncomes = [];
+  final List<Map<String, dynamic>> _categories = [];
+  final List<Map<String, dynamic>> _recurringIncomes = [];
 
   @override
   List<Map<String, dynamic>> getIncomes(String userId) => _incomes;
@@ -29,13 +29,21 @@ class MockIncomeRepository implements IncomeRepository {
   @override
   List<Map<String, dynamic>> getCategories(String userId) => _categories;
 
-
+  @override
+  Future<void> saveCategories(
+    String userId,
+    List<Map<String, dynamic>> categories,
+  ) async {}
 
   @override
   List<Map<String, dynamic>> getRecurringIncomes(String userId) =>
       _recurringIncomes;
 
-
+  @override
+  Future<void> saveRecurringIncomes(
+    String userId,
+    List<Map<String, dynamic>> incomes,
+  ) async {}
 
   void setIncomes(List<Map<String, dynamic>> incomes) {
     _incomes = incomes;
@@ -44,9 +52,9 @@ class MockIncomeRepository implements IncomeRepository {
 
 class MockPaymentMethodRepository implements PaymentMethodRepository {
   List<Map<String, dynamic>> _paymentMethods = [];
-  List<Map<String, dynamic>> _deletedPaymentMethods = [];
+  final List<Map<String, dynamic>> _deletedPaymentMethods = [];
   String? _defaultPaymentMethodId;
-  List<Map<String, dynamic>> _transfers = [];
+  final List<Map<String, dynamic>> _transfers = [];
 
   @override
   List<Map<String, dynamic>> getPaymentMethods(String userId) =>

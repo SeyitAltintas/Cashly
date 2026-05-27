@@ -13,7 +13,7 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
   List<Map<String, dynamic>> _paymentMethods = [];
   List<Map<String, dynamic>> _deletedPaymentMethods = [];
   String? _defaultPaymentMethodId;
-  List<Map<String, dynamic>> _transfers = [];
+  final List<Map<String, dynamic>> _transfers = [];
 
   @override
   List<Map<String, dynamic>> getPaymentMethods(String userId) =>
