@@ -195,6 +195,10 @@ class AuthRepositoryFirestore implements AuthRepository {
         if (doc.exists && doc.data() != null) {
           final userModelFromFirestore = UserModel.fromMap(doc.data()!);
 
+          // Yerel Biyometrik ayarını koru veya yeni cihazsa false yap
+          final existingLocalUser = await _localHiveRepo.getUserByEmail(email);
+          final localBiometricState = existingLocalUser?.biometricEnabled ?? false;
+
           // FIX-7: Firestore'da PIN güvenli tutulmadığı (olmadığı) için
           // inen profilde PIN boştur. Cihaza kaydetmeden önce başarılı olan
           // gerçek PIN'i enjekte ediyoruz ki sonraki girişlerde kilitlenmesin.
@@ -206,7 +210,7 @@ class AuthRepositoryFirestore implements AuthRepository {
             profileImage: userModelFromFirestore.profileImage,
             createdAt: userModelFromFirestore.createdAt,
             lastLoginAt: userModelFromFirestore.lastLoginAt,
-            biometricEnabled: userModelFromFirestore.biometricEnabled,
+            biometricEnabled: localBiometricState, // GÜVENLİK YAMASI (Edge Case 2)
           );
 
           await _localHiveRepo.registerUser(
@@ -315,8 +319,11 @@ class AuthRepositoryFirestore implements AuthRepository {
         throw Exception('Hesabınız silinirken bir ağ hatası oluştu. Lütfen bağlantınızı kontrol edip tekrar deneyin.');
       } catch (e) {
         debugPrint('deleteUser beklenmedik hata: $e');
-        // FIX: Tüm beklenmedik hatalarda (Timeout, Socket) işlemi iptal et ki kullanıcı sildiğini sanmasın
-        throw Exception('Hesabınızı silerken beklenmedik bir hata oluştu. Lütfen tekrar deneyin.');
+        // GÜVENLİK YAMASI (Edge Case 3): Eğer Firebase işlemi başardıysa ama bize
+        // Timeout/Ağ hatası düştüyse, Ghost Account kalmaması için en azından 
+        // kullanıcının bu cihazdaki oturumunu kapatıyoruz.
+        await logout();
+        throw Exception('Hesabınızı silerken bir ağ hatası oluştu. İşlem tamamlanmış olabilir, emin olmak için tekrar giriş yapmayı deneyin.');
       }
     }
     // Firebase hesabı başarıyla silindiyse (veya zaten yoksa) lokal veriyi temizle.
@@ -476,13 +483,11 @@ class AuthRepositoryFirestore implements AuthRepository {
 
   @override
   Future<void> updateBiometricPreference(String userId, bool enabled) async {
+    // GÜVENLİK YAMASI (Edge Case 2): Biyometrik tercih (Touch ID/Face ID) 
+    // donanıma ve cihaza özel bir ayardır. Bunu Firestore'a senkronize etmek, 
+    // diğer cihazlarda hatalara ve bypass senaryolarına yol açabilir.
+    // Bu yüzden SADECE cihazın yerel veritabanında tutuyoruz.
     await _localHiveRepo.updateBiometricPreference(userId, enabled);
-    await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('profile')
-        .doc('info')
-        .set({'biometricEnabled': enabled}, SetOptions(merge: true));
   }
 
   @override
@@ -576,45 +581,27 @@ class AuthRepositoryFirestore implements AuthRepository {
               final userWithSession = await _createAndSaveSession(syncedUser);
               await _localHiveRepo.setCurrentUser(userWithSession.id);
             } else {
-              // Firestore profili yok ama en azından Hive oturumunu aç
-              // FIX: Ghost Session - Kullanıcı lokalde yoksa ve Firestore'dan çekilemediyse çökmesini önle
-              final localUserCheck = await _localHiveRepo.loginUser(user.uid, newPin);
-              if (localUserCheck == null) {
-                final emergencyUser = UserEntity(
-                  id: user.uid,
-                  name: user.displayName ?? 'Kullanıcı',
-                  email: user.email ?? email,
-                  pin: newPin,
-                  createdAt: DateTime.now(),
-                  lastLoginAt: DateTime.now(),
-                  biometricEnabled: false,
-                );
-                final userWithSession = await _createAndSaveSession(emergencyUser);
-                await _localHiveRepo.setCurrentUser(userWithSession.id);
-              } else {
-                await _localHiveRepo.setCurrentUser(user.uid);
-              }
+              // GÜVENLİK YAMASI (Edge Case 1): Kullanıcı profili Firestore'da yoksa, bu 
+              // kayıtlı olmayan bir mail üzerinden sıfırlama yapılmaya çalışıldığını gösterir.
+              // Firebase Auth'ta oluşan bu hayalet hesabı silip işlemi reddediyoruz.
+              await user.delete();
+              throw Exception('Bu e-posta adresi sistemde kayıtlı değil. Lütfen önce kayıt olun.');
             }
           } catch (e) {
+            if (e.toString().contains('kayıtlı değil')) rethrow;
+            
             debugPrint(
               'verifyEmailLinkAndSetPin: Profil sync hatası (offline?): $e',
             );
-            // Sync başarısız olsa bile PIN güncellemesi geçerliydi, lokalde yoksa oluştur
+            
+            // Eğer profil çekilirken ağ hatası alındıysa (doc.exists değil de catch'e düştüyse),
+            // sadece yerelde varsa işleme devam edelim (kayıtlı olduğundan eminizdir).
             final localUserCheck = await _localHiveRepo.loginUser(user.uid, newPin);
-            if (localUserCheck == null) {
-              final emergencyUser = UserEntity(
-                id: user.uid,
-                name: user.displayName ?? 'Kullanıcı',
-                email: user.email ?? email,
-                pin: newPin,
-                createdAt: DateTime.now(),
-                lastLoginAt: DateTime.now(),
-                biometricEnabled: false,
-              );
-              final userWithSession = await _createAndSaveSession(emergencyUser);
-              await _localHiveRepo.setCurrentUser(userWithSession.id);
+            if (localUserCheck != null) {
+               await _localHiveRepo.setCurrentUser(user.uid);
             } else {
-              await _localHiveRepo.setCurrentUser(user.uid);
+               // Lokal de yoksa ve ağ hatası varsa, güvenli tarafta kalıp işlemi iptal edelim.
+               throw Exception('Ağ hatası nedeniyle profil doğrulanamadı. Lütfen bağlantınızı kontrol edip tekrar deneyin.');
             }
           }
 
