@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/expense_repository.dart';
+import '../../../../core/services/network_service.dart';
 
 /// Harcama repository implementasyonu (Firestore)
 /// Clean Architecture: ExpenseRepository interface'ini Firestore ile uygular.
@@ -231,8 +232,10 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
       final colRef = _userDoc(userId).collection('expenseCategories');
       final batch = _firestore.batch();
 
-      // Mevcut dokümanları sil
-      final existing = await colRef.get().timeout(const Duration(seconds: 10));
+      final getOptions = NetworkService().isOffline
+          ? const GetOptions(source: Source.cache)
+          : const GetOptions();
+      final existing = await colRef.get(getOptions).timeout(const Duration(seconds: 10));
       for (final doc in existing.docs) {
         batch.delete(doc.reference);
       }
@@ -248,7 +251,11 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         batch.set(colRef.doc(catId), categories[i]);
       }
 
-      await batch.commit().timeout(const Duration(seconds: 10));
+      if (NetworkService().isOffline) {
+        batch.commit(); // Çevrimdışıysa arkada bekle
+      } else {
+        await batch.commit().timeout(const Duration(seconds: 10));
+      }
       CacheService.set('expense_categories_$userId', categories);
     } on TimeoutException {
       debugPrint('Kategori kaydetme zaman aşımına uğradı.');

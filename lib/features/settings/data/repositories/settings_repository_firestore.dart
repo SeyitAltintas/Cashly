@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/settings_repository.dart';
+import '../../../../core/services/network_service.dart';
 
 /// Ayarlar repository - Firestore implementasyonu
 ///
@@ -33,7 +34,10 @@ class SettingsRepositoryFirestore implements SettingsRepository {
   /// Firestore'dan sesli geri bildirim ayarını çeker
   Future<bool> fetchVoiceFeedbackEnabled(String userId) async {
     try {
-      final doc = await _settingsDoc(userId).get();
+      final getOptions = NetworkService().isOffline
+          ? const GetOptions(source: Source.cache)
+          : const GetOptions();
+      final doc = await _settingsDoc(userId).get(getOptions);
       final value =
           (doc.data() as Map<String, dynamic>?)?['voiceFeedback'] as bool? ??
           true;
@@ -68,7 +72,10 @@ class SettingsRepositoryFirestore implements SettingsRepository {
   /// Firestore'dan transfer geçmişi limitini çeker
   Future<int> fetchTransferHistoryLimit(String userId) async {
     try {
-      final doc = await _settingsDoc(userId).get();
+      final getOptions = NetworkService().isOffline
+          ? const GetOptions(source: Source.cache)
+          : const GetOptions();
+      final doc = await _settingsDoc(userId).get(getOptions);
       final raw =
           (doc.data() as Map<String, dynamic>?)?['transferHistoryLimit'];
       int limit = 30;

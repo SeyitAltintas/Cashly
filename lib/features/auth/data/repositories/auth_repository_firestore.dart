@@ -9,6 +9,7 @@ import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
 import 'auth_repository_impl.dart';
+import '../../../../core/services/network_service.dart';
 
 class AuthRepositoryFirestore implements AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -208,7 +209,7 @@ class AuthRepositoryFirestore implements AuthRepository {
             .doc(firebaseUser.uid)
             .collection('profile')
             .doc('info')
-            .get();
+            .get(NetworkService().isOffline ? const GetOptions(source: Source.cache) : const GetOptions());
         if (doc.exists && doc.data() != null) {
           final userModelFromFirestore = UserModel.fromMap(doc.data()!);
 
@@ -369,7 +370,7 @@ class AuthRepositoryFirestore implements AuthRepository {
             .doc(user.id)
             .collection('profile')
             .doc('info')
-            .get()
+            .get(NetworkService().isOffline ? const GetOptions(source: Source.cache) : const GetOptions())
             .timeout(const Duration(seconds: 5));
 
         if (profileDoc.exists) {
@@ -464,7 +465,7 @@ class AuthRepositoryFirestore implements AuthRepository {
           .doc(user.id)
           .collection('profile')
           .doc('info')
-          .get()
+          .get(NetworkService().isOffline ? const GetOptions(source: Source.cache) : const GetOptions())
           .timeout(const Duration(seconds: 5));
 
       if (profileDoc.exists) {
@@ -593,7 +594,7 @@ class AuthRepositoryFirestore implements AuthRepository {
                 .doc(user.uid)
                 .collection('profile')
                 .doc('info')
-                .get()
+                .get(NetworkService().isOffline ? const GetOptions(source: Source.cache) : const GetOptions())
                 .timeout(const Duration(seconds: 5));
 
             if (doc.exists && doc.data() != null) {

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../domain/repositories/streak_repository.dart';
 import '../models/streak_model.dart';
 import '../services/streak_service.dart';
+import '../../../../core/services/network_service.dart';
 
 /// Streak repository - Firestore implementasyonu
 ///
@@ -27,7 +28,10 @@ class StreakRepositoryFirestore implements StreakRepository {
   /// Firestore'dan streak verisini çeker
   Future<StreakData> fetchStreakData(String userId) async {
     try {
-      final doc = await _streakDoc(userId).get();
+      final getOptions = NetworkService().isOffline
+          ? const GetOptions(source: Source.cache)
+          : const GetOptions();
+      final doc = await _streakDoc(userId).get(getOptions);
       if (!doc.exists) return StreakData.empty();
       final data = Map<String, dynamic>.from(doc.data() as Map);
       // Firestore'a özgü alanları temizle

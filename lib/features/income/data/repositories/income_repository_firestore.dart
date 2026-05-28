@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/income_repository.dart';
+import '../../../../core/services/network_service.dart';
 
 /// Gelir repository implementasyonu (Firestore)
 class IncomeRepositoryFirestore implements IncomeRepository {
@@ -166,7 +167,10 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   ) async {
     try {
       final colRef = _userDoc(userId).collection('incomeCategories');
-      final existing = await colRef.get();
+      final getOptions = NetworkService().isOffline
+          ? const GetOptions(source: Source.cache)
+          : const GetOptions();
+      final existing = await colRef.get(getOptions);
       // EC-1: Batch 500 limit için chunk'lara böl
       await _commitInChunks([
         ...existing.docs.map((d) => _BatchOp(d.reference, null)),
@@ -196,7 +200,11 @@ class IncomeRepositoryFirestore implements IncomeRepository {
           batch.set(op.ref, op.data!);
         }
       }
-      await batch.commit().timeout(const Duration(seconds: 10));
+      if (NetworkService().isOffline) {
+        batch.commit();
+      } else {
+        await batch.commit().timeout(const Duration(seconds: 10));
+      }
     }
   }
 
@@ -218,7 +226,10 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   ) async {
     try {
       final colRef = _userDoc(userId).collection('recurringIncomes');
-      final existing = await colRef.get();
+      final getOptions = NetworkService().isOffline
+          ? const GetOptions(source: Source.cache)
+          : const GetOptions();
+      final existing = await colRef.get(getOptions);
 
       final ops = [
         ...existing.docs.map((d) => _BatchOp(d.reference, null)),
