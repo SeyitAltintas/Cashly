@@ -372,7 +372,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                   ),
                 ),
               );
-            },
+            }),
           ),
         ),
       ],

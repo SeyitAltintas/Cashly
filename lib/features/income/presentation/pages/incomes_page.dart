@@ -89,11 +89,13 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   @override
   void didUpdateWidget(IncomesPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.gelirler != oldWidget.gelirler || widget.secilenAy != oldWidget.secilenAy) {
-      _controller.initialize(
-        widget.gelirler,
-        widget.odemeYontemleri,
-        widget.secilenAy,
+    if (widget.tumGelirler != oldWidget.tumGelirler || widget.secilenAy != oldWidget.secilenAy) {
+      if (widget.secilenAy != oldWidget.secilenAy) {
+        _controller.secilenAy = widget.secilenAy;
+      }
+      _controller.setIncomesFromWidget(
+        widget.tumGelirler,
+        widget.tumOdemeYontemleri,
       );
       _gelirFiltreleVeGoster();
     }
