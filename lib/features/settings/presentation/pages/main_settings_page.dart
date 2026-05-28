@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 
 import 'package:cashly/core/extensions/l10n_extensions.dart';
-import 'package:cashly/features/income/presentation/pages/income_settings_page.dart';
+import 'finance/income_settings_page.dart';
 import 'appearance/appearance_page.dart';
 import 'appearance/language_settings_page.dart';
 import 'voice/voice_assistant_page.dart';
@@ -209,7 +209,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => GelirlerAyarlariSayfasi(
+                  builder: (context) => GelirAyarlariSayfasi(
                     userId: widget.authController.currentUser!.id,
                   ),
                 ),

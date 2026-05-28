@@ -246,6 +246,70 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       rethrow;
     }
   }
+
+  // ===== GELİR HEDEFİ =====
+
+  @override
+  double getIncomeTarget(String userId) {
+    final cacheKey = 'income_target_$userId';
+    final cached = CacheService.get<double>(cacheKey);
+    if (cached != null) return cached;
+    return 0.0;
+  }
+
+  Stream<double> watchIncomeTarget(String userId) {
+    return _userDoc(userId)
+        .collection('settings')
+        .doc('income')
+        .snapshots()
+        .map((doc) {
+      final target = (doc.data()?['monthlyIncomeTarget'] as num?)?.toDouble() ?? 0.0;
+      CacheService.set('income_target_$userId', target);
+      return target;
+    });
+  }
+
+  @override
+  Future<void> saveIncomeTarget(String userId, double target) async {
+    try {
+      await _userDoc(userId).collection('settings').doc('income').set({
+        'monthlyIncomeTarget': target,
+      }, SetOptions(merge: true));
+      CacheService.set('income_target_$userId', target);
+    } catch (e) {
+      debugPrint('Gelir hedefi kaydedilirken hata: $e');
+      rethrow;
+    }
+  }
+
+  // ===== TEKRARlAYAN GELİR ŞABLONLARI (Gelir Ayarları) =====
+
+  @override
+  List<Map<String, dynamic>> getRecurringIncomeTemplates(String userId) {
+    try {
+      return CacheService.get<List<Map<String, dynamic>>>(
+              'income_templates_$userId') ??
+          [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  @override
+  Future<void> saveRecurringIncomeTemplates(
+    String userId,
+    List<Map<String, dynamic>> templates,
+  ) async {
+    try {
+      await _userDoc(userId).collection('settings').doc('income').set({
+        'recurringIncomes': templates,
+      }, SetOptions(merge: true));
+      CacheService.set('income_templates_$userId', templates);
+    } catch (e) {
+      debugPrint('Tekrarlayan gelir şablonları kaydedilirken hata: $e');
+      rethrow;
+    }
+  }
 }
 
 /// EC-1 yardimci sinif: Batch islemini temsil eder (set veya delete)
@@ -254,3 +318,4 @@ class _BatchOp {
   final Map<String, dynamic>? data;
   const _BatchOp(this.ref, this.data);
 }
+

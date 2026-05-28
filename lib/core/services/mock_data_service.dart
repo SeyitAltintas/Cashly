@@ -402,6 +402,57 @@ class MockDataService {
     }
     allOps.add(assetBatch.commit());
 
+    // ===== AYARLAR (Settings) =====
+    // Harcama ayarları: bütçe, sabit gider şablonları, kategori bütçeleri
+    allOps.add(
+      userDoc.collection('settings').doc('general').set({
+        'budget': 20000.0,
+        'mock_generated': true,
+        'fixedExpenseTemplates': [
+          {'id': 'mock_ft_1', 'isim': 'Kira', 'tutar': 8500.0, 'gun': 1, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
+          {'id': 'mock_ft_2', 'isim': 'Elektrik faturası', 'tutar': 380.0, 'gun': 5, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
+          {'id': 'mock_ft_3', 'isim': 'Su faturası', 'tutar': 95.0, 'gun': 7, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
+          {'id': 'mock_ft_4', 'isim': 'Doğalgaz', 'tutar': 250.0, 'gun': 8, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
+          {'id': 'mock_ft_5', 'isim': 'İnternet', 'tutar': 299.0, 'gun': 10, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
+          {'id': 'mock_ft_6', 'isim': 'Telefon faturası', 'tutar': 450.0, 'gun': 12, 'odemeYontemiId': 'mock_kredi_001', 'kategori': 'Sabit Giderler'},
+        ],
+        'categoryBudgets': {
+          'Yemek ve Kafe': 3000.0,
+          'Market ve Atıştırmalık': 2500.0,
+          'Araç ve Ulaşım': 2000.0,
+          'Sabit Giderler': 10000.0,
+          'Diğer': 1500.0,
+          'Hediye ve Özel': 1000.0,
+        },
+      }, SetOptions(merge: true)),
+    );
+
+    // Gelir ayarları: aylık hedef ve tekrarlayan gelirler
+    allOps.add(
+      userDoc.collection('settings').doc('income').set({
+        'monthlyIncomeTarget': 22000.0,
+        'mock_generated': true,
+        'recurringIncomes': [
+          {
+            'id': 'mock_ri_1',
+            'isim': 'Aylık maaş',
+            'tutar': 19000.0,
+            'gun': 3,
+            'kategori': 'Maaş',
+            'odemeYontemiId': 'mock_banka_001',
+          },
+          {
+            'id': 'mock_ri_2',
+            'isim': 'Daire kira geliri',
+            'tutar': 3000.0,
+            'gun': 1,
+            'kategori': 'Kira Geliri',
+            'odemeYontemiId': 'mock_nakit_001',
+          },
+        ],
+      }, SetOptions(merge: true)),
+    );
+
     await Future.wait(allOps);
   }
 
@@ -410,16 +461,33 @@ class MockDataService {
     debugPrint('[MockDataService] Mock veriler temizleniyor...');
     final userDoc = _firestore.collection('users').doc(userId);
 
+    // Koleksiyon dökümanları (mock_ prefix'li olanlar)
     final collections = ['expenses', 'incomes', 'paymentMethods', 'assets'];
     for (final col in collections) {
       final snap = await userDoc.collection(col).get();
       final mockDocs = snap.docs.where((d) => d.id.startsWith('mock_'));
-      
+
       final batch = _firestore.batch();
       for (final doc in mockDocs) {
         batch.delete(doc.reference);
       }
       if (mockDocs.isNotEmpty) await batch.commit();
+    }
+
+    // Settings dökümanlarındaki mock alanlarını temizle
+    final generalDoc = await userDoc.collection('settings').doc('general').get();
+    if (generalDoc.exists && generalDoc.data()?['mock_generated'] == true) {
+      await userDoc.collection('settings').doc('general').update({
+        'budget': FieldValue.delete(),
+        'fixedExpenseTemplates': FieldValue.delete(),
+        'categoryBudgets': FieldValue.delete(),
+        'mock_generated': FieldValue.delete(),
+      });
+    }
+
+    final incomeDoc = await userDoc.collection('settings').doc('income').get();
+    if (incomeDoc.exists && incomeDoc.data()?['mock_generated'] == true) {
+      await userDoc.collection('settings').doc('income').delete();
     }
 
     debugPrint('[MockDataService] Mock veriler temizlendi.');

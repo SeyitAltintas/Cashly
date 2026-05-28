@@ -37,4 +37,19 @@ abstract class IncomeRepository {
     String userId,
     List<Map<String, dynamic>> incomes,
   );
+
+  /// Aylık gelir hedefini getirir (varsayılan: 0.0)
+  double getIncomeTarget(String userId);
+
+  /// Aylık gelir hedefini kaydeder
+  Future<void> saveIncomeTarget(String userId, double target);
+
+  /// Tekrarlayan gelir şablonlarını getirir (gelir ayarları için)
+  List<Map<String, dynamic>> getRecurringIncomeTemplates(String userId);
+
+  /// Tekrarlayan gelir şablonlarını kaydeder (gelir ayarları için)
+  Future<void> saveRecurringIncomeTemplates(
+    String userId,
+    List<Map<String, dynamic>> templates,
+  );
 }
