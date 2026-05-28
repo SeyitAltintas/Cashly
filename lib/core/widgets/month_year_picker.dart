@@ -323,15 +323,15 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
         // Ay Seçici
         Expanded(
           flex: 3,
-          child: CupertinoPicker.builder(
+          child: CupertinoPicker(
             scrollController: _monthController,
             itemExtent: 40,
+            looping: true,
             onSelectedItemChanged: (index) {
               HapticService.selectionClick();
               _pickerState.setMonth(index);
             },
-            childCount: 12,
-            itemBuilder: (context, index) {
+            children: List.generate(12, (index) {
               final locale =
                   Localizations.localeOf(context).languageCode == 'tr'
                   ? 'tr_TR'
@@ -349,21 +349,20 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                   ),
                 ),
               );
-            },
+            }),
           ),
         ),
         // Yıl Seçici
         Expanded(
           flex: 2,
-          child: CupertinoPicker.builder(
+          child: CupertinoPicker(
             scrollController: _yearController,
             itemExtent: 40,
             onSelectedItemChanged: (index) {
               HapticService.selectionClick();
               _pickerState.setYear(2000 + index);
             },
-            childCount: 101, // 2000-2100 arası (dahil)
-            itemBuilder: (context, index) {
+            children: List.generate(101, (index) {
               return Center(
                 child: Text(
                   "${2000 + index}",

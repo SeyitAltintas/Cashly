@@ -96,6 +96,17 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   }
 
   @override
+  void didUpdateWidget(ExpensesPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.tumHarcamalar != oldWidget.tumHarcamalar || widget.secilenAy != oldWidget.secilenAy) {
+      if (widget.secilenAy != oldWidget.secilenAy) {
+        _controller.secilenAy = widget.secilenAy;
+      }
+      _filtreleVeGoster();
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     disposeLazyLoading();

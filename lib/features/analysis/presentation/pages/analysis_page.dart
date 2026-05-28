@@ -128,7 +128,9 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   void _onStateChanged() {
-    // Removed empty setState. UI uses ListenableBuilder now.
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
