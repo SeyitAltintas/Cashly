@@ -58,7 +58,7 @@ class AssetRepositoryFirestore implements AssetRepository {
       final docRef = _userDoc(userId).collection('assets').doc(asset['id'].toString());
       final data = Map<String, dynamic>.from(asset);
       data['updatedAt'] = FieldValue.serverTimestamp();
-      await docRef.update(data);
+      await docRef.set(data, SetOptions(merge: true));
 
       final cacheKey = 'assets_$userId';
       final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
