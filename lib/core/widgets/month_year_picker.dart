@@ -77,6 +77,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
   late int _selectedYear;
   late int _selectedMonthIndex;
   late FixedExtentScrollController _monthController;
+  late FixedExtentScrollController _yearController;
   late final MonthYearPickerState _pickerState;
 
   @override
@@ -84,11 +85,12 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     super.initState();
     _currentDate = widget.initialDate;
     _selectedYear = widget.initialDate.year;
-    // 0-based index. Ortadan başlatmak için büyük bir sayı ekle (12 * 1000)
-    // Böylece hem yukarı hem aşağı sonsuz kaydırılabilir.
     _selectedMonthIndex = widget.initialDate.month - 1;
     _monthController = FixedExtentScrollController(
       initialItem: (12 * 1000) + _selectedMonthIndex,
+    );
+    _yearController = FixedExtentScrollController(
+      initialItem: _selectedYear - 2000,
     );
 
     _pickerState = MonthYearPickerState();
@@ -110,6 +112,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     _pickerState.removeListener(_onStateChanged);
     _pickerState.dispose();
     _monthController.dispose();
+    _yearController.dispose();
     super.dispose();
   }
 
@@ -353,9 +356,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
         Expanded(
           flex: 2,
           child: CupertinoPicker.builder(
-            scrollController: FixedExtentScrollController(
-              initialItem: _selectedYear - 2000,
-            ), // 2000'den başlatarak offset
+            scrollController: _yearController,
             itemExtent: 40,
             onSelectedItemChanged: (index) {
               HapticService.selectionClick();

@@ -183,8 +183,10 @@ class IncomesController extends ChangeNotifier {
   DateTime _secilenAy = DateTime.now();
   DateTime get secilenAy => _secilenAy;
   set secilenAy(DateTime value) {
-    if (_secilenAy != value) {
-      _secilenAy = value;
+    // Gün/saat farkını görmezden gel — sadece yıl ve ay karşılaştır
+    final isSameMonth = _secilenAy.year == value.year && _secilenAy.month == value.month;
+    _secilenAy = DateTime(value.year, value.month);
+    if (!isSameMonth) {
       _startIncomesStream();
       notifyListeners();
     }
