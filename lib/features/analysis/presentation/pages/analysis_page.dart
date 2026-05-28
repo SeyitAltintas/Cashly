@@ -148,15 +148,17 @@ class _AnalysisPageState extends State<AnalysisPage>
         children: [
           _buildStickyHeader(context),
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildExpenseAnalysis(),
-                _buildIncomeAnalysis(),
-                _buildAssetAnalysis(),
-              ],
-            ),
+            child: _controller.isLoading
+                ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                : TabBarView(
+                    controller: _tabController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      _buildExpenseAnalysis(),
+                      _buildIncomeAnalysis(),
+                      _buildAssetAnalysis(),
+                    ],
+                  ),
           ),
         ],
       ),

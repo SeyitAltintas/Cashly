@@ -78,7 +78,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
   late int _selectedMonthIndex;
   late FixedExtentScrollController _monthController;
   late FixedExtentScrollController _yearController;
-  late final MonthYearPickerState _pickerState;
+  late MonthYearPickerState _pickerState;
 
   @override
   void initState() {
@@ -87,7 +87,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     _selectedYear = widget.initialDate.year;
     _selectedMonthIndex = widget.initialDate.month - 1;
     _monthController = FixedExtentScrollController(
-      initialItem: (12 * 1000) + _selectedMonthIndex,
+      initialItem: _selectedMonthIndex,
     );
     _yearController = FixedExtentScrollController(
       initialItem: _selectedYear - 2000,
@@ -330,7 +330,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
               HapticService.selectionClick();
               _pickerState.setMonth(index);
             },
-            // childCount vermezsek sonsuz olur
+            childCount: 12,
             itemBuilder: (context, index) {
               final locale =
                   Localizations.localeOf(context).languageCode == 'tr'
@@ -339,7 +339,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
               final monthName = DateFormat(
                 'MMMM',
                 locale,
-              ).format(DateTime(2023, (index % 12) + 1));
+              ).format(DateTime(2023, index + 1));
               return Center(
                 child: Text(
                   monthName,

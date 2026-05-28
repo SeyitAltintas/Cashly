@@ -193,6 +193,10 @@ class IncomesController extends ChangeNotifier {
   }
 
   List<Income> _tumGelirler = [];
+
+  // ===== GETTERS =====
+  double get incomeTarget => _incomeRepository.getIncomeTarget(userId);
+
   List<Income> get tumGelirler => _tumGelirler;
 
   List<Map<String, dynamic>> _kategoriler = [];

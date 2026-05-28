@@ -9,6 +9,7 @@ class IncomeSummaryCard extends StatelessWidget {
   final VoidCallback sonrakiAy;
   final VoidCallback ayYilSeciciAc;
   final int gelirSayisi;
+  final double? gelirHedefi;
 
   const IncomeSummaryCard({
     super.key,
@@ -18,6 +19,7 @@ class IncomeSummaryCard extends StatelessWidget {
     required this.sonrakiAy,
     required this.ayYilSeciciAc,
     required this.gelirSayisi,
+    this.gelirHedefi,
   });
 
   @override
@@ -209,11 +211,71 @@ class IncomeSummaryCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (gelirHedefi != null && gelirHedefi! > 0) ...[
+                  SizedBox(height: padding * 0.75),
+                  _buildProgressBar(context, padding, subtitleFontSize),
+                ]
               ],
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildProgressBar(BuildContext context, double padding, double subtitleFontSize) {
+    final double percent = (toplamGelir / gelirHedefi!).clamp(0.0, 1.0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Aylık Hedef',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: subtitleFontSize,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              '${CurrencyFormatter.format(toplamGelir)} / ${CurrencyFormatter.format(gelirHedefi!)}',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.9),
+                fontSize: subtitleFontSize,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 6,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: percent,
+            child: Container(
+              decoration: BoxDecoration(
+                color: percent >= 1.0 ? Colors.green.shade400 : Colors.green.shade300,
+                borderRadius: BorderRadius.circular(3),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.shade400.withValues(alpha: 0.5),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -401,6 +401,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                         sonrakiAy: sonrakiAy,
                         ayYilSeciciAc: _ayYilSeciciAc,
                         gelirSayisi: gelirler.length,
+                        gelirHedefi: context.select((IncomesController c) => c.incomeTarget),
                       ),
 
                     // Gelir listesi
