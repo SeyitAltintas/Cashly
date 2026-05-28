@@ -28,6 +28,7 @@ class CloudSyncService {
         userDoc.collection('transfers').get(),        // 2
         userDoc.collection('expenseCategories').get(), // 3
         userDoc.collection('incomeCategories').get(), // 4
+        userDoc.collection('settings').get(),         // 5
       ]).timeout(const Duration(seconds: 20));
 
       // 1. Varlıklar
@@ -78,6 +79,27 @@ class CloudSyncService {
       if (iCategorySnap.docs.isNotEmpty) {
         final cats = iCategorySnap.docs.map((d) => Map<String, dynamic>.from(d.data())).toList();
         CacheService.set('income_categories_$userId', cats, ttl: _cloudSyncTtl);
+      }
+
+      // 6. Ayarlar (Bütçe, Gelir Hedefi, Tekrarlayanlar vb.)
+      final settingsSnap = results[5];
+      for (final doc in settingsSnap.docs) {
+        final data = doc.data();
+        if (doc.id == 'general') {
+          if (data.containsKey('budget')) {
+            CacheService.set('budget_$userId', (data['budget'] as num).toDouble(), ttl: _cloudSyncTtl);
+          }
+          if (data.containsKey('fixedExpenseTemplates')) {
+            CacheService.set('fixed_templates_$userId', List<Map<String, dynamic>>.from(data['fixedExpenseTemplates'] as List), ttl: _cloudSyncTtl);
+          }
+        } else if (doc.id == 'income') {
+          if (data.containsKey('monthlyIncomeTarget')) {
+            CacheService.set('income_target_$userId', (data['monthlyIncomeTarget'] as num).toDouble(), ttl: _cloudSyncTtl);
+          }
+          if (data.containsKey('recurringIncomes')) {
+            CacheService.set('income_templates_$userId', List<Map<String, dynamic>>.from(data['recurringIncomes'] as List), ttl: _cloudSyncTtl);
+          }
+        }
       }
 
       debugPrint('CloudSyncService: Senkronizasyon BASARILI! '

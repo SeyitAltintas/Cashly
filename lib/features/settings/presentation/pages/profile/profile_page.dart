@@ -9,6 +9,7 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/services/haptic_service.dart';
 import 'package:cashly/core/utils/image_utils.dart';
 import 'package:cashly/core/services/mock_data_service.dart';
+import 'package:cashly/core/services/cloud_sync_service.dart';
 
 class ProfilSayfasi extends StatefulWidget {
   final AuthController authController;
@@ -36,10 +37,11 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
     setState(() => _mockLoading = true);
     try {
       await MockDataService().generateMockData(userId);
+      await CloudSyncService.syncAllUserData(userId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('✓ Sahte veriler oluşturuldu! Uygulamayı yenileyin.'),
+            content: Text('✓ Sahte veriler oluşturuldu!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -80,11 +82,12 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
     setState(() => _mockLoading = true);
     try {
       await MockDataService().clearMockData(userId);
+      await CloudSyncService.syncAllUserData(userId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('✓ Mock veriler temizlendi.'),
-            backgroundColor: Colors.orange,
+            content: Text('✓ Sahte veriler temizlendi!'),
+            backgroundColor: Colors.green,
           ),
         );
         widget.onRefresh?.call();
