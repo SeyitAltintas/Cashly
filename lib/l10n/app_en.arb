@@ -1238,13 +1238,37 @@
   "incomeRecycleBin": "Income Recycle Bin",
   "incomeCategories": "Income Categories",
   "incomeSettingsTitle": "Income Settings",
+  "incomeSettingsDesc": "Manage your monthly income target and recurring incomes.",
+  "monthlyIncomeTarget": "Monthly Income Target",
+  "incomeTargetQuestion": "How much income do you aim to earn?",
+  "perMonth": "/ month",
+  "incomeTargetUpdated": "Income target updated ✓",
   "recurringIncomesTitle": "Recurring Incomes",
+  "manageRecurringIncomes": "Manage Recurring Incomes",
+  "manageRecurringIncomesDesc": "Set up your regular incomes such as salary, rent",
   "expenseCategoriesTitle": "Expense Categories",
   "myExpensesTitle": "My Expenses",
   "assetRecycleBin": "Asset Recycle Bin",
   "assetDetail": "Asset Detail",
   "deleteAsset": "Delete Asset",
-  "deleteAssetConfirm": "Are you sure you want to delete \"{name}\"?",
+  "deleteAssetConfirm": "Are you sure you want to delete the \"{name}\" asset?",
+  "newRecurringIncome": "New Recurring Income",
+  "editIncome": "Edit Income",
+  "incomeNamePlaceholder": "Income Name (e.g. Salary, Rent)",
+  "incomeNameRequired": "Income name is required",
+  "incomeAdded": "Income added",
+  "incomeUpdated": "Income updated",
+  "recurringIncomeInfo": "Regular incomes like salary and rent will be automatically added on the day you set each month.",
+  "noRecurringIncomes": "No recurring income added yet",
+  "deleteIncome": "Delete Income",
+  "deleteIncomeConfirm": "Are you sure you want to delete the \"{name}\" income?",
+  "@deleteIncomeConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@deleteAssetConfirm": {
     "placeholders": {
       "name": {

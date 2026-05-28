@@ -46,6 +46,9 @@ class MockDataService {
   /// Tüm veriler batch write ile atomik olarak eklenir.
   Future<void> generateMockData(String userId) async {
     debugPrint('[MockDataService] Sahte veri üretimi başlıyor...');
+    
+    // Önceki mock verileri temizle (Idempotency için)
+    await clearMockData(userId);
 
     // 1. Ödeme yöntemlerini oluştur (önce bunlar — diğerleri bunlara bağlı)
     final paymentMethods = _generatePaymentMethods();

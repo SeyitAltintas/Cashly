@@ -1263,13 +1263,37 @@
   "incomeRecycleBin": "Gelir Çöp Kutusu",
   "incomeCategories": "Gelir Kategorileri",
   "incomeSettingsTitle": "Gelir Ayarları",
+  "incomeSettingsDesc": "Aylık gelir hedefinizi ve tekrarlayan gelirlerinizi yönetin.",
+  "monthlyIncomeTarget": "Aylık Gelir Hedefi",
+  "incomeTargetQuestion": "Ne kadar gelir kazanmayı hedefliyorsunuz?",
+  "perMonth": "/ ay",
+  "incomeTargetUpdated": "Gelir hedefi güncellendi ✓",
   "recurringIncomesTitle": "Tekrarlayan Gelirler",
+  "manageRecurringIncomes": "Tekrarlayan Gelirleri Yönet",
+  "manageRecurringIncomesDesc": "Maaş, kira gibi düzenli gelirlerinizi ayarlayın",
   "expenseCategoriesTitle": "Harcama Kategorileri",
   "myExpensesTitle": "Harcamalarım",
   "assetRecycleBin": "Varlık Çöp Kutusu",
   "assetDetail": "Varlık Detayı",
   "deleteAsset": "Varlığı Sil",
   "deleteAssetConfirm": "\"{name}\" varlığını silmek istediğinize emin misiniz?",
+  "newRecurringIncome": "Yeni Tekrarlayan Gelir",
+  "editIncome": "Geliri Düzenle",
+  "incomeNamePlaceholder": "Gelir Adı (ör: Maaş, Kira)",
+  "incomeNameRequired": "Gelir adı gerekli",
+  "incomeAdded": "Gelir eklendi",
+  "incomeUpdated": "Gelir güncellendi",
+  "recurringIncomeInfo": "Maaş, kira geliri gibi düzenli gelirleriniz her ayın belirlediğiniz gününde otomatik olarak eklenir.",
+  "noRecurringIncomes": "Henüz tekrarlayan gelir eklenmemiş",
+  "deleteIncome": "Geliri Sil",
+  "deleteIncomeConfirm": "\"{name}\" gelirini silmek istediğinize emin misiniz?",
+  "@deleteIncomeConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@deleteAssetConfirm": {
     "placeholders": {
       "name": {

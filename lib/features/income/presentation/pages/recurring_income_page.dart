@@ -85,7 +85,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
       } else {
         ErrorHandler.showErrorSnackBar(
           context,
-          'Kaydetme sırasında bir hata oluştu',
+          context.l10n.errorWhileSaving,
         );
       }
     }
@@ -147,7 +147,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    gelir == null ? 'Yeni Tekrarlayan Gelir' : 'Geliri Düzenle',
+                    gelir == null ? context.l10n.newRecurringIncome : context.l10n.editIncome,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 20,
@@ -163,7 +163,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                     decoration: InputDecoration(
-                      labelText: 'Gelir Adı (ör: Maaş, Kira)',
+                      labelText: context.l10n.incomeNamePlaceholder,
                       labelStyle: TextStyle(
                         color: Theme.of(
                           context,
@@ -194,7 +194,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Gelir adı gerekli';
+                        return context.l10n.incomeNameRequired;
                       }
                       return null;
                     },
@@ -243,11 +243,11 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Tutar gerekli';
+                        return context.l10n.amountRequired;
                       }
                       final tutar = double.tryParse(value.replaceAll(',', '.'));
                       if (tutar == null || tutar <= 0) {
-                        return 'Geçerli bir tutar girin';
+                        return context.l10n.enterValidAmount;
                       }
                       return null;
                     },
@@ -259,7 +259,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Her ayın:',
+                          context.l10n.everyMonthOn,
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -287,7 +287,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                                   (gun) => DropdownMenuItem(
                                     value: gun,
                                     child: Text(
-                                      '$gun. günü',
+                                      context.l10n.dayOfMonth(gun),
                                       style: TextStyle(
                                         color: Theme.of(
                                           context,
@@ -316,7 +316,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                     initialValue: secilenOdemeYontemiId,
                     dropdownColor: Theme.of(context).colorScheme.surface,
                     decoration: InputDecoration(
-                      labelText: 'Hangi Hesaba Yatacak?',
+                      labelText: context.l10n.selectAccount,
                       labelStyle: TextStyle(
                         color: Theme.of(
                           context,
@@ -367,7 +367,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                     },
                     validator: (value) {
                       if (value == null) {
-                        return 'Hesap seçin';
+                        return context.l10n.selectPaymentMethod;
                       }
                       return null;
                     },
@@ -425,9 +425,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                index != null
-                                    ? 'Gelir güncellendi'
-                                    : 'Gelir eklendi',
+                                index != null ? context.l10n.incomeUpdated : context.l10n.incomeAdded,
                               ),
                               backgroundColor: Colors.green.shade700,
                               behavior: SnackBarBehavior.floating,
@@ -440,7 +438,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                         }
                       },
                       child: Text(
-                        gelir == null ? 'Ekle' : 'Güncelle',
+                        gelir == null ? context.l10n.add : context.l10n.update,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -459,12 +457,12 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
   }
 
   String _getOdemeYontemiAdi(String? id) {
-    if (id == null) return 'Belirtilmemiş';
+    if (id == null) return context.l10n.notSpecified;
     final pm = _odemeYontemleri.firstWhere(
       (p) => p.id == id,
       orElse: () => PaymentMethod(
         id: '',
-        name: 'Bilinmeyen',
+        name: context.l10n.unknown,
         type: 'banka',
         balance: 0,
         createdAt: DateTime.now(),
@@ -507,7 +505,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Maaş, kira geliri gibi düzenli gelirleriniz her ayın belirlediğiniz gününde otomatik olarak eklenir.',
+                    context.l10n.recurringIncomeInfo,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 13,
@@ -534,7 +532,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Henüz tekrarlayan gelir yok',
+                          context.l10n.noRecurringIncomes,
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -544,7 +542,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Eklemek için + butonuna tıklayın',
+                          context.l10n.tapPlusToAdd,
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -593,11 +591,11 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
           builder: (context) => AlertDialog(
             backgroundColor: Theme.of(context).colorScheme.surface,
             title: Text(
-              'Geliri Sil',
+              context.l10n.deleteIncome,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
             content: Text(
-              '${gelir['isim']} gelirini silmek istiyor musunuz?',
+              context.l10n.deleteIncomeConfirm(gelir['isim'] ?? ''),
               style: TextStyle(
                 color: Theme.of(
                   context,
@@ -611,7 +609,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text('Sil', style: TextStyle(color: Colors.red)),
+                child: Text(context.l10n.delete, style: const TextStyle(color: Colors.red)),
               ),
             ],
           ),
@@ -654,7 +652,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      gelir['isim'] ?? 'İsimsiz',
+                      gelir['isim'] ?? context.l10n.unnamed,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 16,
@@ -663,7 +661,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Her ayın $gun. günü • $odemeYontemi',
+                      context.l10n.everyMonthDayOf(gun, odemeYontemi),
                       style: TextStyle(
                         color: Theme.of(
                           context,

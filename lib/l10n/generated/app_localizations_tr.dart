@@ -2841,7 +2841,31 @@ class AppLocalizationsTr extends AppLocalizations {
   String get incomeSettingsTitle => 'Gelir Ayarları';
 
   @override
+  String get incomeSettingsDesc =>
+      'Aylık gelir hedefinizi ve tekrarlayan gelirlerinizi yönetin.';
+
+  @override
+  String get monthlyIncomeTarget => 'Aylık Gelir Hedefi';
+
+  @override
+  String get incomeTargetQuestion =>
+      'Ne kadar gelir kazanmayı hedefliyorsunuz?';
+
+  @override
+  String get perMonth => '/ ay';
+
+  @override
+  String get incomeTargetUpdated => 'Gelir hedefi güncellendi ✓';
+
+  @override
   String get recurringIncomesTitle => 'Tekrarlayan Gelirler';
+
+  @override
+  String get manageRecurringIncomes => 'Tekrarlayan Gelirleri Yönet';
+
+  @override
+  String get manageRecurringIncomesDesc =>
+      'Maaş, kira gibi düzenli gelirlerinizi ayarlayın';
 
   @override
   String get expenseCategoriesTitle => 'Harcama Kategorileri';
@@ -2861,6 +2885,36 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String deleteAssetConfirm(String name) {
     return '\"$name\" varlığını silmek istediğinize emin misiniz?';
+  }
+
+  @override
+  String get newRecurringIncome => 'Yeni Tekrarlayan Gelir';
+
+  @override
+  String get incomeNamePlaceholder => 'Gelir Adı (ör: Maaş, Kira)';
+
+  @override
+  String get incomeNameRequired => 'Gelir adı gerekli';
+
+  @override
+  String get incomeAdded => 'Gelir eklendi';
+
+  @override
+  String get incomeUpdated => 'Gelir güncellendi';
+
+  @override
+  String get recurringIncomeInfo =>
+      'Maaş, kira geliri gibi düzenli gelirleriniz her ayın belirlediğiniz gününde otomatik olarak eklenir.';
+
+  @override
+  String get noRecurringIncomes => 'Henüz tekrarlayan gelir eklenmemiş';
+
+  @override
+  String get deleteIncome => 'Geliri Sil';
+
+  @override
+  String deleteIncomeConfirm(String name) {
+    return '\"$name\" gelirini silmek istediğinize emin misiniz?';
   }
 
   @override

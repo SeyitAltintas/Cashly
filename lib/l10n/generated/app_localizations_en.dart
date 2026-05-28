@@ -2839,7 +2839,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get incomeSettingsTitle => 'Income Settings';
 
   @override
+  String get incomeSettingsDesc =>
+      'Manage your monthly income target and recurring incomes.';
+
+  @override
+  String get monthlyIncomeTarget => 'Monthly Income Target';
+
+  @override
+  String get incomeTargetQuestion => 'How much income do you aim to earn?';
+
+  @override
+  String get perMonth => '/ month';
+
+  @override
+  String get incomeTargetUpdated => 'Income target updated ✓';
+
+  @override
   String get recurringIncomesTitle => 'Recurring Incomes';
+
+  @override
+  String get manageRecurringIncomes => 'Manage Recurring Incomes';
+
+  @override
+  String get manageRecurringIncomesDesc =>
+      'Set up your regular incomes such as salary, rent';
 
   @override
   String get expenseCategoriesTitle => 'Expense Categories';
@@ -2858,7 +2881,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deleteAssetConfirm(String name) {
-    return 'Are you sure you want to delete \"$name\"?';
+    return 'Are you sure you want to delete the \"$name\" asset?';
+  }
+
+  @override
+  String get newRecurringIncome => 'New Recurring Income';
+
+  @override
+  String get incomeNamePlaceholder => 'Income Name (e.g. Salary, Rent)';
+
+  @override
+  String get incomeNameRequired => 'Income name is required';
+
+  @override
+  String get incomeAdded => 'Income added';
+
+  @override
+  String get incomeUpdated => 'Income updated';
+
+  @override
+  String get recurringIncomeInfo =>
+      'Regular incomes like salary and rent will be automatically added on the day you set each month.';
+
+  @override
+  String get noRecurringIncomes => 'No recurring income added yet';
+
+  @override
+  String get deleteIncome => 'Delete Income';
+
+  @override
+  String deleteIncomeConfirm(String name) {
+    return 'Are you sure you want to delete the \"$name\" income?';
   }
 
   @override

@@ -5324,11 +5324,53 @@ abstract class AppLocalizations {
   /// **'Gelir Ayarları'**
   String get incomeSettingsTitle;
 
+  /// No description provided for @incomeSettingsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık gelir hedefinizi ve tekrarlayan gelirlerinizi yönetin.'**
+  String get incomeSettingsDesc;
+
+  /// No description provided for @monthlyIncomeTarget.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık Gelir Hedefi'**
+  String get monthlyIncomeTarget;
+
+  /// No description provided for @incomeTargetQuestion.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ne kadar gelir kazanmayı hedefliyorsunuz?'**
+  String get incomeTargetQuestion;
+
+  /// No description provided for @perMonth.
+  ///
+  /// In tr, this message translates to:
+  /// **'/ ay'**
+  String get perMonth;
+
+  /// No description provided for @incomeTargetUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir hedefi güncellendi ✓'**
+  String get incomeTargetUpdated;
+
   /// No description provided for @recurringIncomesTitle.
   ///
   /// In tr, this message translates to:
   /// **'Tekrarlayan Gelirler'**
   String get recurringIncomesTitle;
+
+  /// No description provided for @manageRecurringIncomes.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrarlayan Gelirleri Yönet'**
+  String get manageRecurringIncomes;
+
+  /// No description provided for @manageRecurringIncomesDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Maaş, kira gibi düzenli gelirlerinizi ayarlayın'**
+  String get manageRecurringIncomesDesc;
 
   /// No description provided for @expenseCategoriesTitle.
   ///
@@ -5365,6 +5407,60 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'\"{name}\" varlığını silmek istediğinize emin misiniz?'**
   String deleteAssetConfirm(String name);
+
+  /// No description provided for @newRecurringIncome.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni Tekrarlayan Gelir'**
+  String get newRecurringIncome;
+
+  /// No description provided for @incomeNamePlaceholder.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir Adı (ör: Maaş, Kira)'**
+  String get incomeNamePlaceholder;
+
+  /// No description provided for @incomeNameRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir adı gerekli'**
+  String get incomeNameRequired;
+
+  /// No description provided for @incomeAdded.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir eklendi'**
+  String get incomeAdded;
+
+  /// No description provided for @incomeUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gelir güncellendi'**
+  String get incomeUpdated;
+
+  /// No description provided for @recurringIncomeInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Maaş, kira geliri gibi düzenli gelirleriniz her ayın belirlediğiniz gününde otomatik olarak eklenir.'**
+  String get recurringIncomeInfo;
+
+  /// No description provided for @noRecurringIncomes.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz tekrarlayan gelir eklenmemiş'**
+  String get noRecurringIncomes;
+
+  /// No description provided for @deleteIncome.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geliri Sil'**
+  String get deleteIncome;
+
+  /// No description provided for @deleteIncomeConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{name}\" gelirini silmek istediğinize emin misiniz?'**
+  String deleteIncomeConfirm(String name);
 
   /// No description provided for @myAssets.
   ///
