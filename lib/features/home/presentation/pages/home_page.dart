@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/core/services/cloud_sync_service.dart';
@@ -373,7 +374,18 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     final userName =
         widget.authController.currentUser?.name ?? context.l10n.user;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_selectedIndexNotifier.value != 1) {
+          _pageController.jumpToPage(1);
+          _selectedIndexNotifier.value = 1;
+        } else {
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
       // ValueListenableBuilder ile sadece AppBar değişikliklerinde rebuild
       appBar: _buildAppBarWithNotifier(),
       body: ListenableBuilder(
@@ -404,6 +416,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             onPageChanged: (index) => _pageController.jumpToPage(index),
           );
         },
+      ),
       ),
     );
   }
