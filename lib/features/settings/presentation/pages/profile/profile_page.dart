@@ -8,11 +8,12 @@ import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/services/haptic_service.dart';
 import 'package:cashly/core/utils/image_utils.dart';
+import 'package:cashly/core/services/mock_data_service.dart';
 
-class ProfilSayfasi extends StatelessWidget {
+class ProfilSayfasi extends StatefulWidget {
   final AuthController authController;
   final VoidCallback? onRefresh;
-  final VoidCallback? onNavigationReturn; // Alt sayfalardan dönüşte çağrılır
+  final VoidCallback? onNavigationReturn;
 
   const ProfilSayfasi({
     super.key,
@@ -20,6 +21,84 @@ class ProfilSayfasi extends StatelessWidget {
     this.onRefresh,
     this.onNavigationReturn,
   });
+
+  @override
+  State<ProfilSayfasi> createState() => _ProfilSayfasiState();
+}
+
+class _ProfilSayfasiState extends State<ProfilSayfasi> {
+  bool _mockLoading = false;
+
+  Future<void> _generateMockData() async {
+    final userId = widget.authController.currentUser?.id;
+    if (userId == null) return;
+
+    setState(() => _mockLoading = true);
+    try {
+      await MockDataService().generateMockData(userId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✓ Sahte veriler oluşturuldu! Uygulamayı yenileyin.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        widget.onRefresh?.call();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _mockLoading = false);
+    }
+  }
+
+  Future<void> _clearMockData() async {
+    final userId = widget.authController.currentUser?.id;
+    if (userId == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Mock Verileri Temizle'),
+        content: const Text('Sahte veriler silinecek. Gerçek verileriniz korunur.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('İptal')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Sil', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() => _mockLoading = true);
+    try {
+      await MockDataService().clearMockData(userId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✓ Mock veriler temizlendi.'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        widget.onRefresh?.call();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _mockLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,10 +153,10 @@ class ProfilSayfasi extends StatelessWidget {
                       context,
                     ).colorScheme.surfaceContainerHighest,
                     backgroundImage:
-                        authController.currentUser?.profileImage != null
-                        ? ImageUtils.getProfileImageProvider(authController.currentUser!.profileImage)
+                        widget.authController.currentUser?.profileImage != null
+                        ? ImageUtils.getProfileImageProvider(widget.authController.currentUser!.profileImage)
                         : null,
-                    child: authController.currentUser?.profileImage == null
+                    child: widget.authController.currentUser?.profileImage == null
                         ? Icon(
                             Icons.person,
                             size: 40,
@@ -94,7 +173,7 @@ class ProfilSayfasi extends StatelessWidget {
                     children: [
                       // Kullanıcı Adı
                       Text(
-                        authController.currentUser?.name ?? context.l10n.user,
+                        widget.authController.currentUser?.name ?? context.l10n.user,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -104,9 +183,9 @@ class ProfilSayfasi extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       // E-posta
-                      if (authController.currentUser?.email != null)
+                      if (widget.authController.currentUser?.email != null)
                         Text(
-                          authController.currentUser!.email,
+                          widget.authController.currentUser!.email,
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 14,
@@ -164,9 +243,9 @@ class ProfilSayfasi extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            ProfileSettingsPage(authController: authController),
+                            ProfileSettingsPage(authController: widget.authController),
                       ),
-                    ).then((_) => onNavigationReturn?.call());
+                    ).then((_) => widget.onNavigationReturn?.call());
                   },
                 ),
                 _buildDivider(context),
@@ -183,16 +262,16 @@ class ProfilSayfasi extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => AyarlarSayfasi(
-                          authController: authController,
+                          authController: widget.authController,
                           // Geri yüklemede streak dahil tüm verileri yenilemek için
-                          onNavigationReturn: onRefresh,
+                          onNavigationReturn: widget.onRefresh,
                         ),
                       ),
                     );
-                    if (result == true && onRefresh != null) {
-                      onRefresh!();
+                    if (result == true && widget.onRefresh != null) {
+                      widget.onRefresh!();
                     }
-                    onNavigationReturn?.call();
+                    widget.onNavigationReturn?.call();
                   },
                   isLast: true,
                 ),
@@ -288,17 +367,92 @@ class ProfilSayfasi extends StatelessWidget {
               subtitle: context.l10n.logoutSubtitle,
               titleColor: ColorConstants.kirmiziVurgu,
               onTap: () async {
-                await authController.logout();
+                await widget.authController.logout();
                 if (context.mounted) {
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                      builder: (_) => LoginPage(authController: authController),
+                      builder: (_) => LoginPage(authController: widget.authController),
                     ),
                     (route) => false,
                   );
                 }
               },
               isLast: true,
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // ===== GELİŞTİRİCİ ARAÇLARI =====
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.deepPurple.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.deepPurple.withValues(alpha: 0.25),
+              ),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.science_outlined, color: Colors.deepPurple, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Geliştirici Araçları',
+                      style: TextStyle(
+                        color: Colors.deepPurple.shade300,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Test verisi oluşturmak ve temizlemek için.',
+                  style: TextStyle(
+                    color: Colors.deepPurple.withValues(alpha: 0.6),
+                    fontSize: 11,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (_mockLoading)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _generateMockData,
+                          icon: const Icon(Icons.data_object, size: 18),
+                          label: const Text('Sahte Veri Üret'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.deepPurple.shade300,
+                            side: BorderSide(color: Colors.deepPurple.withValues(alpha: 0.4)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      OutlinedButton.icon(
+                        onPressed: _clearMockData,
+                        icon: const Icon(Icons.delete_sweep_outlined, size: 18),
+                        label: const Text('Temizle'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.red.shade300,
+                          side: BorderSide(color: Colors.red.withValues(alpha: 0.4)),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
             ),
           ),
         ],
