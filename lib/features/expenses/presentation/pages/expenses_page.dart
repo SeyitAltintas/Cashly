@@ -80,12 +80,11 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   void initState() {
     super.initState();
 
-    // Controller'ı DI'dan al
     _controller = getIt<ExpensesController>(param1: widget.userId ?? '');
     _controller.secilenAy = widget.secilenAy;
 
     initLazyLoading();
-    _filtreleVeGoster();
+    _controller.loadData();
 
     // Kısa skeleton animasyonu için 300ms bekle
     Future.delayed(const Duration(milliseconds: 300), () {

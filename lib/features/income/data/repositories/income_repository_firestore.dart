@@ -33,13 +33,13 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   Stream<List<Map<String, dynamic>>> watchIncomes(String userId) {
     return _userDoc(userId)
         .collection('incomes')
-        .orderBy('tarih', descending: true)
+        .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
       final incomes = snapshot.docs.map((doc) {
         final data = doc.data();
-        if (data['tarih'] is Timestamp) {
-          data['tarih'] = (data['tarih'] as Timestamp).toDate().toIso8601String();
+        if (data['date'] is Timestamp) {
+          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
         }
         return data;
       }).toList();
@@ -55,15 +55,15 @@ class IncomeRepositoryFirestore implements IncomeRepository {
     
     return _userDoc(userId)
         .collection('incomes')
-        .where('tarih', isGreaterThanOrEqualTo: startOfMonth.toIso8601String())
-        .where('tarih', isLessThanOrEqualTo: endOfMonth.toIso8601String())
-        .orderBy('tarih', descending: true)
+        .where('date', isGreaterThanOrEqualTo: startOfMonth.toIso8601String())
+        .where('date', isLessThanOrEqualTo: endOfMonth.toIso8601String())
+        .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
         final data = doc.data();
-        if (data['tarih'] is Timestamp) {
-          data['tarih'] = (data['tarih'] as Timestamp).toDate().toIso8601String();
+        if (data['date'] is Timestamp) {
+          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
         }
         return data;
       }).toList();
@@ -105,8 +105,8 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       }
       final docRef = _userDoc(userId).collection('incomes').doc(income['id'].toString());
       final data = Map<String, dynamic>.from(income);
-      if (data['tarih'] is String) {
-        data['tarih'] = Timestamp.fromDate(DateTime.parse(data['tarih']));
+      if (data['date'] is String) {
+        data['date'] = Timestamp.fromDate(DateTime.parse(data['date']));
       }
       data['updatedAt'] = FieldValue.serverTimestamp();
       await docRef.update(data);

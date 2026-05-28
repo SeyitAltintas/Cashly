@@ -553,6 +553,7 @@ class ExpensesController extends ChangeNotifier {
     String aramaMetni = '',
     Function(int)? onResetLazyLoading,
   }) {
+    _tumHarcamalar = tumHarcamalar;
     filtreleVeGoster(
       aramaMetni: aramaMetni,
       onResetLazyLoading: onResetLazyLoading,
