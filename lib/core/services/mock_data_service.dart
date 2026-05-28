@@ -57,6 +57,7 @@ class MockDataService {
     final now = DateTime.now();
     final expenses = <Map<String, dynamic>>[];
     final incomes = <Map<String, dynamic>>[];
+    final transfers = <Map<String, dynamic>>[];
 
     // Her ödeme yöntemi için gerçek bakiye takibi
     final balances = {
@@ -93,12 +94,25 @@ class MockDataService {
         final pmId = expense['odemeYontemiId'] as String?;
         final amount = (expense['tutar'] as num).toDouble();
         if (pmId != null && balances.containsKey(pmId)) {
-          if (pmId == creditId) {
-            // Kredi kartı: bakiye azaldıkça borç artar (negatife gider)
-            balances[pmId] = balances[pmId]! - amount;
-          } else {
-            balances[pmId] = balances[pmId]! - amount;
-          }
+          balances[pmId] = balances[pmId]! - amount;
+        }
+      }
+
+      // Her ay için transferler (Bankadan nakite, Bankadan kredi kartı ödemesi vs.)
+      final monthlyTransfers = _generateMonthlyTransfers(month, daysInMonth, bankId, creditId, cashId);
+      transfers.addAll(monthlyTransfers);
+
+      // Transferleri bakiyeye yansıt
+      for (final transfer in monthlyTransfers) {
+        final fromId = transfer['fromAccountId'] as String?;
+        final toId = transfer['toAccountId'] as String?;
+        final amount = (transfer['amount'] as num).toDouble();
+        
+        if (fromId != null && balances.containsKey(fromId)) {
+          balances[fromId] = balances[fromId]! - amount;
+        }
+        if (toId != null && balances.containsKey(toId)) {
+          balances[toId] = balances[toId]! + amount;
         }
       }
     }
@@ -116,10 +130,10 @@ class MockDataService {
     final assets = _generateAssets(now);
 
     // 5. Firebase'e yaz (batch)
-    await _writeTofirestore(userId, paymentMethods, expenses, incomes, assets);
+    await _writeTofirestore(userId, paymentMethods, expenses, incomes, assets, transfers);
 
     debugPrint('[MockDataService] Tamamlandı! '
-        '${expenses.length} harcama, ${incomes.length} gelir, '
+        '${expenses.length} harcama, ${incomes.length} gelir, ${transfers.length} transfer, '
         '${assets.length} varlık, ${paymentMethods.length} ödeme yöntemi.');
   }
 
@@ -198,6 +212,46 @@ class MockDataService {
     }
 
     return incomes;
+  }
+
+  List<Map<String, dynamic>> _generateMonthlyTransfers(
+      DateTime month, int daysInMonth, String bankId, String creditId, String cashId) {
+    final transfers = <Map<String, dynamic>>[];
+    
+    // 1. Bankadan nakit çekimi (ATM) - ayda 2-3 kez
+    int atmCekimSayisi = _random.nextInt(2) + 2;
+    for (int i = 0; i < atmCekimSayisi; i++) {
+      int day = _random.nextInt(daysInMonth) + 1;
+      transfers.add({
+        'id': 'mock_tr_${month.year}_${month.month}_atm_$i',
+        'fromAccountId': bankId,
+        'toAccountId': cashId,
+        'amount': (500 + _random.nextInt(15) * 100).toDouble(), // 500 - 1900 arası
+        'date': DateTime(month.year, month.month, day, _random.nextInt(10) + 9, _random.nextInt(60)).toIso8601String(),
+        'description': 'ATM Para Çekme',
+        'paraBirimi': 'TRY',
+        'isScheduled': false,
+        'isExecuted': true,
+        'isFailed': false,
+      });
+    }
+
+    // 2. Kredi kartı borç ödemesi (Bankadan Kredi Kartına) - ayda 1 kez (Eğer geçmişte bir ay ise, bu mantıklıdır)
+    int day = _random.nextInt(5) + 10; // Ayın 10-15 arası
+    transfers.add({
+      'id': 'mock_tr_${month.year}_${month.month}_cc',
+      'fromAccountId': bankId,
+      'toAccountId': creditId,
+      'amount': (2000 + _random.nextInt(30) * 100).toDouble(), // 2000 - 4900 arası ödeme
+      'date': DateTime(month.year, month.month, day, _random.nextInt(5) + 10, _random.nextInt(60)).toIso8601String(),
+      'description': 'Kredi Kartı Ödemesi',
+      'paraBirimi': 'TRY',
+      'isScheduled': false,
+      'isExecuted': true,
+      'isFailed': false,
+    });
+
+    return transfers;
   }
 
   List<Map<String, dynamic>> _generateMonthlyExpenses(
@@ -362,6 +416,7 @@ class MockDataService {
     List<Map<String, dynamic>> expenses,
     List<Map<String, dynamic>> incomes,
     List<Map<String, dynamic>> assets,
+    List<Map<String, dynamic>> transfers,
   ) async {
     final userDoc = _firestore.collection('users').doc(userId);
 
@@ -401,6 +456,16 @@ class MockDataService {
       assetBatch.set(userDoc.collection('assets').doc(asset['id']), asset);
     }
     allOps.add(assetBatch.commit());
+
+    // Transferler - 400'lük gruplar
+    for (int i = 0; i < transfers.length; i += 400) {
+      final chunk = transfers.sublist(i, min(i + 400, transfers.length));
+      final b = _firestore.batch();
+      for (final t in chunk) {
+        b.set(userDoc.collection('transfers').doc(t['id']), t);
+      }
+      allOps.add(b.commit());
+    }
 
     // ===== AYARLAR (Settings) =====
     // Harcama ayarları: bütçe, sabit gider şablonları, kategori bütçeleri
@@ -462,7 +527,7 @@ class MockDataService {
     final userDoc = _firestore.collection('users').doc(userId);
 
     // Koleksiyon dökümanları (mock_ prefix'li olanlar)
-    final collections = ['expenses', 'incomes', 'paymentMethods', 'assets'];
+    final collections = ['expenses', 'incomes', 'paymentMethods', 'assets', 'transfers'];
     for (final col in collections) {
       final snap = await userDoc.collection(col).get();
       final mockDocs = snap.docs.where((d) => d.id.startsWith('mock_'));

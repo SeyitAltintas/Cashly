@@ -50,6 +50,21 @@ class MockIncomeRepository implements IncomeRepository {
     List<Map<String, dynamic>> incomes,
   ) async {}
 
+  @override
+  double getIncomeTarget(String userId) => 0.0;
+
+  @override
+  Future<void> saveIncomeTarget(String userId, double target) async {}
+
+  @override
+  List<Map<String, dynamic>> getRecurringIncomeTemplates(String userId) => [];
+
+  @override
+  Future<void> saveRecurringIncomeTemplates(
+    String userId,
+    List<Map<String, dynamic>> templates,
+  ) async {}
+
   void setIncomes(List<Map<String, dynamic>> incomes) {
     _incomes = incomes;
   }
