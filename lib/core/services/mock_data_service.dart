@@ -82,7 +82,11 @@ class MockDataService {
         final pmId = income['paymentMethodId'] as String?;
         final amount = (income['amount'] as num).toDouble();
         if (pmId != null && balances.containsKey(pmId)) {
-          balances[pmId] = balances[pmId]! + amount;
+          if (pmId == creditId) {
+            balances[pmId] = balances[pmId]! - amount; // Gelir gelirse kredi kartı borcu azalır
+          } else {
+            balances[pmId] = balances[pmId]! + amount;
+          }
         }
       }
 
@@ -97,7 +101,11 @@ class MockDataService {
         final pmId = expense['odemeYontemiId'] as String?;
         final amount = (expense['tutar'] as num).toDouble();
         if (pmId != null && balances.containsKey(pmId)) {
-          balances[pmId] = balances[pmId]! - amount;
+          if (pmId == creditId) {
+            balances[pmId] = balances[pmId]! + amount; // Harcama kredi kartı borcunu artırır
+          } else {
+            balances[pmId] = balances[pmId]! - amount; // Nakit/Banka azalır
+          }
         }
       }
 
@@ -107,15 +115,28 @@ class MockDataService {
 
       // Transferleri bakiyeye yansıt
       for (final transfer in monthlyTransfers) {
+        // İptal edilen veya henüz gerçekleşmeyen transferler bakiyeyi etkilemez
+        if (transfer['isFailed'] == true || (transfer['isScheduled'] == true && transfer['isExecuted'] == false)) {
+            continue; 
+        }
+
         final fromId = transfer['fromAccountId'] as String?;
         final toId = transfer['toAccountId'] as String?;
         final amount = (transfer['amount'] as num).toDouble();
         
         if (fromId != null && balances.containsKey(fromId)) {
-          balances[fromId] = balances[fromId]! - amount;
+          if (fromId == creditId) {
+            balances[fromId] = balances[fromId]! + amount; // Krediden çıkış borcu artırır
+          } else {
+            balances[fromId] = balances[fromId]! - amount;
+          }
         }
         if (toId != null && balances.containsKey(toId)) {
-          balances[toId] = balances[toId]! + amount;
+          if (toId == creditId) {
+            balances[toId] = balances[toId]! - amount; // Krediye giriş borcu azaltır
+          } else {
+            balances[toId] = balances[toId]! + amount;
+          }
         }
       }
     }
@@ -271,6 +292,42 @@ class MockDataService {
       'isExecuted': true,
       'isFailed': false,
     });
+
+    // 3. Başarısız transfer örneği
+    if (_random.nextDouble() < 0.2) {
+      transfers.add({
+        'id': 'mock_tr_${month.year}_${month.month}_failed',
+        'fromAccountId': bankId,
+        'toAccountId': creditId,
+        'amount': (10000.0),
+        'date': Timestamp.fromDate(DateTime(month.year, month.month, 5)),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'description': 'Kredi Kartı Ödemesi (Başarısız)',
+        'paraBirimi': 'TRY',
+        'isScheduled': false,
+        'isExecuted': false,
+        'isFailed': true,
+        'failureReason': 'Yetersiz bakiye',
+      });
+    }
+
+    // 4. Zamanlanmış transfer (Sadece içinde bulunduğumuz aydaysak)
+    final now = DateTime.now();
+    if (month.year == now.year && month.month == now.month) {
+       transfers.add({
+        'id': 'mock_tr_future',
+        'fromAccountId': bankId,
+        'toAccountId': cashId,
+        'amount': (1000.0),
+        'date': Timestamp.fromDate(DateTime(now.year, now.month, now.day).add(const Duration(days: 3))),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'description': 'İleri Tarihli Nakit Çekim',
+        'paraBirimi': 'TRY',
+        'isScheduled': true,
+        'isExecuted': false,
+        'isFailed': false,
+      });
+    }
 
     return transfers;
   }
