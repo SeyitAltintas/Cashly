@@ -236,9 +236,18 @@ class MockDataService {
       paymentMethodId: bankId,
     ));
 
+    // Kira Geliri - her ay 1. gün (recurring templates ile tutarlı)
+    incomes.add(_buildIncome(
+      name: 'Daire kira geliri',
+      category: 'Kira Geliri',
+      amount: 3000.0,
+      date: DateTime(month.year, month.month, 1, 9, 30, 0),
+      paymentMethodId: cashId,
+    ));
+
     // Ek gelirler (% 40 ihtimal)
     if (_random.nextDouble() < 0.4) {
-      final extraCategories = ['Serbest Çalışma', 'Diğer', 'Kira Geliri'];
+      final extraCategories = ['Serbest Çalışma', 'Diğer'];
       final cat = extraCategories[_random.nextInt(extraCategories.length)];
       final names = _incomeNames[cat]!;
       incomes.add(_buildIncome(
@@ -341,12 +350,12 @@ class MockDataService {
 
     // Sabit aylık faturalar
     final fixedExpenses = [
-      {'isim': 'Kira', 'tutar': 8500.0, 'gun': 1},
-      {'isim': 'Elektrik faturası', 'tutar': 350.0 + _random.nextInt(100), 'gun': 5},
-      {'isim': 'Su faturası', 'tutar': 80.0 + _random.nextInt(30), 'gun': 7},
-      {'isim': 'İnternet', 'tutar': 299.0, 'gun': 10},
-      {'isim': 'Telefon faturası', 'tutar': 450.0, 'gun': 12},
-      {'isim': 'Doğalgaz', 'tutar': 200.0 + _random.nextInt(150), 'gun': 8},
+      {'isim': 'Kira', 'tutar': 8500.0, 'gun': 1, 'pmId': bankId},
+      {'isim': 'Elektrik faturası', 'tutar': 350.0 + _random.nextInt(100), 'gun': 5, 'pmId': bankId},
+      {'isim': 'Su faturası', 'tutar': 80.0 + _random.nextInt(30), 'gun': 7, 'pmId': bankId},
+      {'isim': 'İnternet', 'tutar': 299.0, 'gun': 10, 'pmId': bankId},
+      {'isim': 'Telefon faturası', 'tutar': 450.0, 'gun': 12, 'pmId': creditId},
+      {'isim': 'Doğalgaz', 'tutar': 200.0 + _random.nextInt(150), 'gun': 8, 'pmId': bankId},
     ];
 
     for (final fixed in fixedExpenses) {
@@ -356,7 +365,7 @@ class MockDataService {
         kategori: 'Sabit Giderler',
         tutar: (fixed['tutar'] as num).toDouble(),
         date: DateTime(month.year, month.month, day, _random.nextInt(15) + 8, _random.nextInt(60), _random.nextInt(60)),
-        odemeYontemiId: bankId,
+        odemeYontemiId: fixed['pmId'] as String,
       ));
     }
 
