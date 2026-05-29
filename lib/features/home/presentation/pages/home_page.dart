@@ -26,6 +26,7 @@ import 'package:cashly/features/payment_methods/presentation/pages/transfer_page
 import 'package:cashly/features/payment_methods/presentation/pages/payment_method_detail_page.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/features/payment_methods/data/models/transfer_model.dart';
+import 'package:cashly/features/payment_methods/domain/transfer_schedule_policy.dart';
 import 'package:cashly/features/income/data/models/income_model.dart';
 import 'package:cashly/features/home/presentation/widgets/home_app_bar.dart';
 import 'package:cashly/features/home/presentation/widgets/home_bottom_nav.dart';
@@ -204,7 +205,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             isFailed: true,
             failureReason: context.l10n.senderAccountNotFound,
           );
-          getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
+          getIt<PaymentMethodRepository>().updateTransfer(
+            widget.authController.currentUser!.id,
+            tumTransferler[i].toMap(),
+          );
           basarisizTransferler.add(context.l10n.senderAccountNotFound);
           transferDegisti = true;
           continue;
@@ -216,7 +220,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             isFailed: true,
             failureReason: context.l10n.receiverAccountNotFound,
           );
-          getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
+          getIt<PaymentMethodRepository>().updateTransfer(
+            widget.authController.currentUser!.id,
+            tumTransferler[i].toMap(),
+          );
           basarisizTransferler.add(context.l10n.receiverAccountNotFound);
           transferDegisti = true;
           continue;
@@ -231,7 +238,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             isFailed: true,
             failureReason: context.l10n.accountDeleted(fromPm.name),
           );
-          getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
+          getIt<PaymentMethodRepository>().updateTransfer(
+            widget.authController.currentUser!.id,
+            tumTransferler[i].toMap(),
+          );
           basarisizTransferler.add(context.l10n.accountDeleted(fromPm.name));
           transferDegisti = true;
           continue;
@@ -243,7 +253,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             isFailed: true,
             failureReason: context.l10n.accountDeleted(toPm.name),
           );
-          getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
+          getIt<PaymentMethodRepository>().updateTransfer(
+            widget.authController.currentUser!.id,
+            tumTransferler[i].toMap(),
+          );
           basarisizTransferler.add(context.l10n.accountDeleted(toPm.name));
           transferDegisti = true;
           continue;
@@ -251,8 +264,12 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
         // Edge Case 5: Gönderen hesap kontrolü (Yetersiz bakiye veya Limit aşımı)
         final cur = getIt<CurrencyService>();
-        final convertedTransferAmountFrom = cur.convert(transfer.amount, transfer.paraBirimi, fromPm.paraBirimi);
-        
+        final convertedTransferAmountFrom = cur.convert(
+          transfer.amount,
+          transfer.paraBirimi,
+          fromPm.paraBirimi,
+        );
+
         bool limitVeyaBakiyeAsildi = false;
         if (fromPm.type == 'kredi') {
           final kalanLimit = (fromPm.limit ?? 0) - fromPm.balance;
@@ -270,7 +287,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             isFailed: true,
             failureReason: context.l10n.insufficientBalanceAccount(fromPm.name),
           );
-          getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
+          getIt<PaymentMethodRepository>().updateTransfer(
+            widget.authController.currentUser!.id,
+            tumTransferler[i].toMap(),
+          );
           basarisizTransferler.add(
             context.l10n.insufficientBalanceAccount(fromPm.name),
           );
@@ -284,7 +304,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             isFailed: true,
             failureReason: context.l10n.noDebtToPay(toPm.name),
           );
-          getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
+          getIt<PaymentMethodRepository>().updateTransfer(
+            widget.authController.currentUser!.id,
+            tumTransferler[i].toMap(),
+          );
           basarisizTransferler.add(context.l10n.noDebtToPay(toPm.name));
           transferDegisti = true;
           continue;
@@ -297,18 +320,31 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
           balance: fromYeniBakiye,
         );
-        getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, tumOdemeYontemleri[fromIndex].toMap());
+        getIt<PaymentMethodRepository>().updatePaymentMethod(
+          widget.authController.currentUser!.id,
+          tumOdemeYontemleri[fromIndex].toMap(),
+        );
 
-        final convertedTransferAmountTo = cur.convert(transfer.amount, transfer.paraBirimi, toPm.paraBirimi);
+        final convertedTransferAmountTo = cur.convert(
+          transfer.amount,
+          transfer.paraBirimi,
+          toPm.paraBirimi,
+        );
         double toYeniBakiye = toPm.type == 'kredi'
             ? toPm.balance - convertedTransferAmountTo
             : toPm.balance + convertedTransferAmountTo;
         tumOdemeYontemleri[toIndex] = toPm.copyWith(balance: toYeniBakiye);
-        getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, tumOdemeYontemleri[toIndex].toMap());
+        getIt<PaymentMethodRepository>().updatePaymentMethod(
+          widget.authController.currentUser!.id,
+          tumOdemeYontemleri[toIndex].toMap(),
+        );
 
         // Transferi başarılı olarak işaretle
         tumTransferler[i] = transfer.copyWith(isExecuted: true);
-        getIt<PaymentMethodRepository>().updateTransfer(widget.authController.currentUser!.id, tumTransferler[i].toMap());
+        getIt<PaymentMethodRepository>().updateTransfer(
+          widget.authController.currentUser!.id,
+          tumTransferler[i].toMap(),
+        );
         transferDegisti = true;
       }
     }
@@ -349,7 +385,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       if (mounted) {
         _homeState.varliklar = updatedAssets;
         for (var asset in updatedAssets) {
-          getIt<AssetRepository>().updateAsset(widget.authController.currentUser!.id, asset.toMap());
+          getIt<AssetRepository>().updateAsset(
+            widget.authController.currentUser!.id,
+            asset.toMap(),
+          );
         }
       }
     } catch (e) {
@@ -360,7 +399,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   // ===== KAYIT METODLARI =====
 
   // _harcamalariKaydet iptal edildi, tekil işlemler yapılıyor
-  
+
   // _gelirleriKaydet iptal edildi, tekil işlemler yapılıyor
 
   // _varliklariKaydet iptal edildi, tekil işlemler yapılıyor
@@ -386,37 +425,37 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         }
       },
       child: Scaffold(
-      // ValueListenableBuilder ile sadece AppBar değişikliklerinde rebuild
-      appBar: _buildAppBarWithNotifier(),
-      body: ListenableBuilder(
-        listenable: _homeState,
-        builder: (context, _) {
-          return PageView(
-            controller: _pageController,
-            // setState yerine ValueNotifier kullanarak gereksiz rebuild'leri önle
-            onPageChanged: (index) => _selectedIndexNotifier.value = index,
-            children: [
-              _buildToolsPage(),
-              _buildDashboardPage(userName),
-              ProfilSayfasi(
-                authController: widget.authController,
-                onRefresh: _verileriOku,
-                onNavigationReturn: _showCelebrationIfPending,
-              ),
-            ],
-          );
-        },
-      ),
-      // ValueListenableBuilder ile sadece navigation değişikliklerinde rebuild
-      bottomNavigationBar: ValueListenableBuilder<int>(
-        valueListenable: _selectedIndexNotifier,
-        builder: (context, selectedIndex, _) {
-          return HomeBottomNav(
-            selectedIndex: selectedIndex,
-            onPageChanged: (index) => _pageController.jumpToPage(index),
-          );
-        },
-      ),
+        // ValueListenableBuilder ile sadece AppBar değişikliklerinde rebuild
+        appBar: _buildAppBarWithNotifier(),
+        body: ListenableBuilder(
+          listenable: _homeState,
+          builder: (context, _) {
+            return PageView(
+              controller: _pageController,
+              // setState yerine ValueNotifier kullanarak gereksiz rebuild'leri önle
+              onPageChanged: (index) => _selectedIndexNotifier.value = index,
+              children: [
+                _buildToolsPage(),
+                _buildDashboardPage(userName),
+                ProfilSayfasi(
+                  authController: widget.authController,
+                  onRefresh: _verileriOku,
+                  onNavigationReturn: _showCelebrationIfPending,
+                ),
+              ],
+            );
+          },
+        ),
+        // ValueListenableBuilder ile sadece navigation değişikliklerinde rebuild
+        bottomNavigationBar: ValueListenableBuilder<int>(
+          valueListenable: _selectedIndexNotifier,
+          builder: (context, selectedIndex, _) {
+            return HomeBottomNav(
+              selectedIndex: selectedIndex,
+              onPageChanged: (index) => _pageController.jumpToPage(index),
+            );
+          },
+        ),
       ),
     );
   }
@@ -453,10 +492,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       final saniyeKaldi =
           (_refreshCooldown - now.difference(lastRefresh)).inSeconds;
       if (mounted) {
-        AppSnackBar.info(
-          context,
-          context.l10n.canRefreshIn(saniyeKaldi),
-        );
+        AppSnackBar.info(context, context.l10n.canRefreshIn(saniyeKaldi));
       }
       return;
     }
@@ -484,19 +520,13 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       // Mevcut cache korunur, kullaniciya bilgi verilir
       _verileriOku(); // cache'deki veriyi goster
       if (mounted) {
-        AppSnackBar.warning(
-          context,
-          context.l10n.offlineDataShown,
-        );
+        AppSnackBar.warning(context, context.l10n.offlineDataShown);
       }
     } catch (e) {
       // Diger hatalar (permission-denied vb.)
       _verileriOku();
       if (mounted) {
-        AppSnackBar.warning(
-          context,
-          context.l10n.dataRefreshFailed,
-        );
+        AppSnackBar.warning(context, context.l10n.dataRefreshFailed);
       }
     }
   }
@@ -542,7 +572,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             if (index != -1) {
               final deletedAsset = varliklar[index].copyWith(isDeleted: true);
               varliklar[index] = deletedAsset;
-              getIt<AssetRepository>().updateAsset(widget.authController.currentUser!.id, deletedAsset.toMap());
+              getIt<AssetRepository>().updateAsset(
+                widget.authController.currentUser!.id,
+                deletedAsset.toMap(),
+              );
             }
             _homeState.varliklar = List.from(varliklar);
           },
@@ -550,7 +583,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             final index = varliklar.indexWhere((a) => a.id == asset.id);
             if (index != -1) {
               varliklar[index] = asset;
-              getIt<AssetRepository>().updateAsset(widget.authController.currentUser!.id, asset.toMap());
+              getIt<AssetRepository>().updateAsset(
+                widget.authController.currentUser!.id,
+                asset.toMap(),
+              );
             }
             _homeState.varliklar = List.from(varliklar);
           },
@@ -559,19 +595,28 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             if (index != -1) {
               final restoredAsset = varliklar[index].copyWith(isDeleted: false);
               varliklar[index] = restoredAsset;
-              getIt<AssetRepository>().updateAsset(widget.authController.currentUser!.id, restoredAsset.toMap());
+              getIt<AssetRepository>().updateAsset(
+                widget.authController.currentUser!.id,
+                restoredAsset.toMap(),
+              );
             }
             _homeState.varliklar = List.from(varliklar);
           },
           onPermanentDelete: (asset) {
             varliklar.removeWhere((a) => a.id == asset.id);
             _homeState.varliklar = List.from(varliklar);
-            getIt<AssetRepository>().deleteAsset(widget.authController.currentUser!.id, asset.id);
+            getIt<AssetRepository>().deleteAsset(
+              widget.authController.currentUser!.id,
+              asset.id,
+            );
           },
           onEmptyBin: () {
             final deletedAssets = varliklar.where((a) => a.isDeleted).toList();
             for (var asset in deletedAssets) {
-              getIt<AssetRepository>().deleteAsset(widget.authController.currentUser!.id, asset.id);
+              getIt<AssetRepository>().deleteAsset(
+                widget.authController.currentUser!.id,
+                asset.id,
+              );
             }
             varliklar.removeWhere((a) => a.isDeleted);
             _homeState.varliklar = List.from(varliklar);
@@ -589,7 +634,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             );
             varliklar.add(newAsset);
             _homeState.varliklar = List.from(varliklar);
-            getIt<AssetRepository>().addAsset(widget.authController.currentUser!.id, newAsset.toMap());
+            getIt<AssetRepository>().addAsset(
+              widget.authController.currentUser!.id,
+              newAsset.toMap(),
+            );
           },
         ),
       ),
@@ -657,7 +705,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                 final deletedPm = pm.copyWith(isDeleted: true);
                 tumOdemeYontemleri[i] = deletedPm;
                 _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-                getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, deletedPm.toMap());
+                getIt<PaymentMethodRepository>().updatePaymentMethod(
+                  widget.authController.currentUser!.id,
+                  deletedPm.toMap(),
+                );
               }
             },
             onEdit: (pm) {
@@ -665,7 +716,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
               if (i != -1) {
                 tumOdemeYontemleri[i] = pm;
                 _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-                getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, pm.toMap());
+                getIt<PaymentMethodRepository>().updatePaymentMethod(
+                  widget.authController.currentUser!.id,
+                  pm.toMap(),
+                );
               }
             },
             onRestore: (pm) {
@@ -674,18 +728,29 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                 final restoredPm = pm.copyWith(isDeleted: false);
                 tumOdemeYontemleri[i] = restoredPm;
                 _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-                getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, restoredPm.toMap());
+                getIt<PaymentMethodRepository>().updatePaymentMethod(
+                  widget.authController.currentUser!.id,
+                  restoredPm.toMap(),
+                );
               }
             },
             onPermanentDelete: (pm) {
               tumOdemeYontemleri.removeWhere((p) => p.id == pm.id);
               _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-              getIt<PaymentMethodRepository>().deletePaymentMethod(widget.authController.currentUser!.id, pm.id);
+              getIt<PaymentMethodRepository>().deletePaymentMethod(
+                widget.authController.currentUser!.id,
+                pm.id,
+              );
             },
             onEmptyBin: () {
-              final deletedMethods = tumOdemeYontemleri.where((p) => p.isDeleted).toList();
+              final deletedMethods = tumOdemeYontemleri
+                  .where((p) => p.isDeleted)
+                  .toList();
               for (var delPm in deletedMethods) {
-                getIt<PaymentMethodRepository>().deletePaymentMethod(widget.authController.currentUser!.id, delPm.id);
+                getIt<PaymentMethodRepository>().deletePaymentMethod(
+                  widget.authController.currentUser!.id,
+                  delPm.id,
+                );
               }
               tumOdemeYontemleri.removeWhere((p) => p.isDeleted);
               _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
@@ -704,7 +769,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
               );
               tumOdemeYontemleri.add(newPm);
               _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-              getIt<PaymentMethodRepository>().addPaymentMethod(widget.authController.currentUser!.id, newPm.toMap());
+              getIt<PaymentMethodRepository>().addPaymentMethod(
+                widget.authController.currentUser!.id,
+                newPm.toMap(),
+              );
             },
             onCardTap: (pm) {
               Navigator.push(
@@ -738,44 +806,57 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           transfers: tumTransferler,
           onTransfer: (fromId, toId, amount, date) {
             // Tarihi kontrol et - bugün mü yoksa ileri tarih mi?
-            final now = DateTime.now();
-            final today = DateTime(now.year, now.month, now.day);
-            final transferDate = DateTime(date.year, date.month, date.day);
-            final isScheduled = transferDate.isAfter(today);
+            final isScheduled = TransferSchedulePolicy.isScheduled(
+              selectedDate: date,
+            );
 
             if (!isScheduled) {
               // Anında transfer - bakiyeleri hemen güncelle
               final cur = getIt<CurrencyService>();
-              
+
               final fromIndex = tumOdemeYontemleri.indexWhere(
                 (pm) => pm.id == fromId,
               );
               if (fromIndex != -1) {
                 final fromPm = tumOdemeYontemleri[fromIndex];
-                final convertedFromAmount = cur.convert(amount, cur.currentCurrency, fromPm.paraBirimi);
-                
+                final convertedFromAmount = cur.convert(
+                  amount,
+                  cur.currentCurrency,
+                  fromPm.paraBirimi,
+                );
+
                 double yeniBakiye = fromPm.type == 'kredi'
                     ? fromPm.balance + convertedFromAmount
                     : fromPm.balance - convertedFromAmount;
                 tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
                   balance: yeniBakiye,
                 );
-                getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, tumOdemeYontemleri[fromIndex].toMap());
+                getIt<PaymentMethodRepository>().updatePaymentMethod(
+                  widget.authController.currentUser!.id,
+                  tumOdemeYontemleri[fromIndex].toMap(),
+                );
               }
               final toIndex = tumOdemeYontemleri.indexWhere(
                 (pm) => pm.id == toId,
               );
               if (toIndex != -1) {
                 final toPm = tumOdemeYontemleri[toIndex];
-                final convertedToAmount = cur.convert(amount, cur.currentCurrency, toPm.paraBirimi);
-                
+                final convertedToAmount = cur.convert(
+                  amount,
+                  cur.currentCurrency,
+                  toPm.paraBirimi,
+                );
+
                 double yeniBakiye = toPm.type == 'kredi'
                     ? toPm.balance - convertedToAmount
                     : toPm.balance + convertedToAmount;
                 tumOdemeYontemleri[toIndex] = toPm.copyWith(
                   balance: yeniBakiye,
                 );
-                getIt<PaymentMethodRepository>().updatePaymentMethod(widget.authController.currentUser!.id, tumOdemeYontemleri[toIndex].toMap());
+                getIt<PaymentMethodRepository>().updatePaymentMethod(
+                  widget.authController.currentUser!.id,
+                  tumOdemeYontemleri[toIndex].toMap(),
+                );
               }
               _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
             }
@@ -792,11 +873,11 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
               isExecuted: !isScheduled, // Anında transfer zaten uygulandı
               paraBirimi: getIt<CurrencyService>().currentCurrency,
             );
-            tumTransferler.insert(
-              0,
-              newTransfer
+            tumTransferler.insert(0, newTransfer);
+            getIt<PaymentMethodRepository>().addTransfer(
+              widget.authController.currentUser!.id,
+              newTransfer.toMap(),
             );
-            getIt<PaymentMethodRepository>().addTransfer(widget.authController.currentUser!.id, newTransfer.toMap());
           },
         ),
       ),

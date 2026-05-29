@@ -5,6 +5,7 @@ import '../../../../core/utils/error_handler.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../data/models/transfer_model.dart';
+import '../../domain/transfer_schedule_policy.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../../../../core/di/injection_container.dart';
@@ -82,23 +83,7 @@ class _TransferPageState extends State<TransferPage> {
 
   /// Seçilen tarih ve saat şu andan ileri mi?
   bool get _isScheduled {
-    final now = DateTime.now();
-    // Dakika hassasiyetinde karşılaştırma (saniye ve milisaniyeyi sıfırla)
-    final nowMinutes = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      now.hour,
-      now.minute,
-    );
-    final selectedMinutes = DateTime(
-      _selectedDate.year,
-      _selectedDate.month,
-      _selectedDate.day,
-      _selectedDate.hour,
-      _selectedDate.minute,
-    );
-    return selectedMinutes.isAfter(nowMinutes);
+    return TransferSchedulePolicy.isScheduled(selectedDate: _selectedDate);
   }
 
   // İşlem geçmişi için ScrollController
@@ -156,13 +141,25 @@ class _TransferPageState extends State<TransferPage> {
     }
 
     // Hedef hesap kredi kartıysa, borç kontrolü (lokal listeden)
-    final toIndex = _paymentMethods.indexWhere((pm) => pm.id == _toAccountId);
-    final toAccount = _paymentMethods[toIndex];
+    final fromAccount = _findPaymentMethod(_fromAccountId);
+    final toAccount = _findPaymentMethod(_toAccountId);
+
+    if (fromAccount == null || toAccount == null) {
+      ErrorHandler.showErrorSnackBar(
+        context,
+        context.l10n.pleaseSelectAccounts,
+      );
+      return;
+    }
 
     if (toAccount.type == 'kredi') {
       final borcMiktari = toAccount.balance;
       final cur = getIt<CurrencyService>();
-      final convertedAmountToTo = cur.convert(amount, cur.currentCurrency, toAccount.paraBirimi);
+      final convertedAmountToTo = cur.convert(
+        amount,
+        cur.currentCurrency,
+        toAccount.paraBirimi,
+      );
 
       // Borç yoksa kredi kartına transfer yapılamaz
       if (borcMiktari <= 0) {
@@ -191,16 +188,14 @@ class _TransferPageState extends State<TransferPage> {
       }
     }
 
-    // Gönderen hesabı bul
-    final fromIndex = _paymentMethods.indexWhere(
-      (pm) => pm.id == _fromAccountId,
-    );
-    final fromAccount = _paymentMethods[fromIndex];
-
     // Gönderen hesap kontrolü (Negatif bakiye veya Limit aşımı)
     final cur = getIt<CurrencyService>();
-    final convertedAmountToFrom = cur.convert(amount, cur.currentCurrency, fromAccount.paraBirimi);
-    
+    final convertedAmountToFrom = cur.convert(
+      amount,
+      cur.currentCurrency,
+      fromAccount.paraBirimi,
+    );
+
     if (!_isScheduled) {
       bool limitVeyaBakiyeAsildi = false;
       double guncelBakiyeVeyaKalanLimit = 0;
@@ -238,9 +233,17 @@ class _TransferPageState extends State<TransferPage> {
     // Lokal bakiyeleri güncelle (sadece bugün veya geçmiş tarih için)
     if (!_isScheduled) {
       final cur = getIt<CurrencyService>();
-      final convertedToFrom = cur.convert(amount, cur.currentCurrency, fromAccount.paraBirimi);
-      final convertedToTo = cur.convert(amount, cur.currentCurrency, toAccount.paraBirimi);
-      
+      final convertedToFrom = cur.convert(
+        amount,
+        cur.currentCurrency,
+        fromAccount.paraBirimi,
+      );
+      final convertedToTo = cur.convert(
+        amount,
+        cur.currentCurrency,
+        toAccount.paraBirimi,
+      );
+
       double newFromBalance;
       if (fromAccount.type == 'kredi') {
         newFromBalance = fromAccount.balance + convertedToFrom;
@@ -858,9 +861,8 @@ class _TransferPageState extends State<TransferPage> {
     required bool isDark,
   }) {
     // Seçili hesabı bul (varsa) - lokal listeden
-    final selectedAccount = value != null
-        ? _paymentMethods.firstWhere((pm) => pm.id == value)
-        : null;
+    final selectedAccount = _findPaymentMethod(value);
+    final dropdownValue = selectedAccount == null ? null : value;
 
     return Row(
       children: [
@@ -889,7 +891,7 @@ class _TransferPageState extends State<TransferPage> {
               const SizedBox(height: 4),
               DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value: value,
+                  value: dropdownValue,
                   hint: Text(
                     hint,
                     style: TextStyle(
@@ -1030,6 +1032,14 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   /// İleri tarih bilgi kutusu
+  PaymentMethod? _findPaymentMethod(String? id) {
+    if (id == null) return null;
+    for (final method in _paymentMethods) {
+      if (method.id == id) return method;
+    }
+    return null;
+  }
+
   Widget _buildScheduledInfo(Color textColor, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(12),

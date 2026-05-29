@@ -1,3 +1,5 @@
+import '../../domain/transfer_schedule_policy.dart';
+
 /// Para transferi için model sınıfı
 /// Hem anlık hem de zamanlanmış transferleri destekler
 class Transfer {
@@ -71,10 +73,7 @@ class Transfer {
 
   /// Transfer tarihinin bugün veya geçmişte olup olmadığını kontrol eder
   bool get isDue {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final transferDate = DateTime(date.year, date.month, date.day);
-    return !transferDate.isAfter(today);
+    return TransferSchedulePolicy.isDue(selectedDate: date);
   }
 
   /// Bekleyen zamanlanmış transfer mi? (tarihi gelmiş ama uygulanmamış ve başarısız değil)

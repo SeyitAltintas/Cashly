@@ -8,6 +8,7 @@ import '../../../payment_methods/presentation/pages/payment_method_detail_page.d
 import '../../../payment_methods/presentation/pages/transfer_page.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
+import '../../../payment_methods/domain/transfer_schedule_policy.dart';
 import '../../../expenses/presentation/pages/expenses_page.dart';
 import '../../../income/presentation/pages/incomes_page.dart';
 import '../../../income/data/models/income_model.dart';
@@ -227,22 +228,25 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
           transfers: tumTransferler,
           onTransfer: (fromId, toId, amount, date) {
             // Tarihi kontrol et - bugün mü yoksa ileri tarih mi?
-            final now = DateTime.now();
-            final today = DateTime(now.year, now.month, now.day);
-            final transferDate = DateTime(date.year, date.month, date.day);
-            final isScheduled = transferDate.isAfter(today);
+            final isScheduled = TransferSchedulePolicy.isScheduled(
+              selectedDate: date,
+            );
 
             if (!isScheduled) {
               final cur = getIt<CurrencyService>();
-              
+
               // Gönderen hesap
               final fromIndex = tumOdemeYontemleri.indexWhere(
                 (pm) => pm.id == fromId,
               );
               if (fromIndex != -1) {
                 final fromPm = tumOdemeYontemleri[fromIndex];
-                final convertedFromAmount = cur.convert(amount, cur.currentCurrency, fromPm.paraBirimi);
-                
+                final convertedFromAmount = cur.convert(
+                  amount,
+                  cur.currentCurrency,
+                  fromPm.paraBirimi,
+                );
+
                 double yeniBakiye = fromPm.type == 'kredi'
                     ? fromPm.balance + convertedFromAmount
                     : fromPm.balance - convertedFromAmount;
@@ -257,8 +261,12 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
               );
               if (toIndex != -1) {
                 final toPm = tumOdemeYontemleri[toIndex];
-                final convertedToAmount = cur.convert(amount, cur.currentCurrency, toPm.paraBirimi);
-                
+                final convertedToAmount = cur.convert(
+                  amount,
+                  cur.currentCurrency,
+                  toPm.paraBirimi,
+                );
+
                 double yeniBakiye = toPm.type == 'kredi'
                     ? toPm.balance - convertedToAmount
                     : toPm.balance + convertedToAmount;
