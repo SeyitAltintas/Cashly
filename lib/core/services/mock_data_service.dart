@@ -414,59 +414,39 @@ class MockDataService {
 
   List<Map<String, dynamic>> _generateAssets(DateTime now) {
     return [
-      {
-        'id': 'mock_asset_usd_001',
-        'name': 'Dolar',
-        'amount': 35200.0,
-        'quantity': 1000.0,
-        'category': 'Döviz',
-        'type': 'USD',
-        'lastUpdated': now.toIso8601String(),
-        'purchaseDate': now.subtract(const Duration(days: 120)).toIso8601String(),
-        'purchasePrice': 31000.0,
-        'paraBirimi': 'TRY',
-        'isDeleted': false,
-      },
-      {
-        'id': 'mock_asset_gold_001',
-        'name': 'Gram Altın',
-        'amount': 42000.0,
-        'quantity': 10.0,
-        'category': 'Altın',
-        'type': 'XAU',
-        'lastUpdated': now.toIso8601String(),
-        'purchaseDate': now.subtract(const Duration(days: 180)).toIso8601String(),
-        'purchasePrice': 38000.0,
-        'paraBirimi': 'TRY',
-        'isDeleted': false,
-      },
-      {
-        'id': 'mock_asset_btc_001',
-        'name': 'Bitcoin',
-        'amount': 45000.0,
-        'quantity': 0.05,
-        'category': 'Kripto',
-        'type': 'BTC',
-        'lastUpdated': now.toIso8601String(),
-        'purchaseDate': now.subtract(const Duration(days: 90)).toIso8601String(),
-        'purchasePrice': 38000.0,
-        'paraBirimi': 'TRY',
-        'isDeleted': false,
-      },
-      {
-        'id': 'mock_asset_silver_001',
-        'name': 'Gümüş',
-        'amount': 4500.0,
-        'quantity': 100.0,
-        'category': 'Emtia',
-        'type': 'XAG',
-        'lastUpdated': now.toIso8601String(),
-        'purchaseDate': now.subtract(const Duration(days: 60)).toIso8601String(),
-        'purchasePrice': 4000.0,
-        'paraBirimi': 'TRY',
-        'isDeleted': true, // Mock çöp kutusu testi
-      },
+      _buildAsset(name: 'Dolar', category: 'Döviz', type: 'USD', quantity: 1000.0, purchasePrice: 31000.0, amount: 35200.0, paraBirimi: 'TRY'),
+      _buildAsset(name: 'Gram Altın', category: 'Altın', type: 'XAU', quantity: 10.0, purchasePrice: 38000.0, amount: 42000.0, paraBirimi: 'TRY'),
+      _buildAsset(name: 'Bitcoin', category: 'Kripto', type: 'BTC', quantity: 0.05, purchasePrice: 38000.0, amount: 45000.0, paraBirimi: 'TRY'),
+      _buildAsset(name: 'Gümüş', category: 'Emtia', type: 'XAG', quantity: 100.0, purchasePrice: 4000.0, amount: 4500.0, paraBirimi: 'TRY', isDeleted: true),
     ];
+  }
+
+  Map<String, dynamic> _buildAsset({
+    required String name,
+    required String category,
+    String? type,
+    required double quantity,
+    required double purchasePrice,
+    required double amount,
+    required String paraBirimi,
+    bool isDeleted = false,
+  }) {
+    final now = DateTime.now();
+    final purchaseDate = now.subtract(Duration(days: _random.nextInt(180) + 30));
+    
+    return {
+      'id': 'mock_asset_${(type ?? category).toLowerCase()}_${_random.nextInt(99999)}',
+      'name': name,
+      'category': category,
+      'type': type,
+      'quantity': quantity,
+      'purchasePrice': purchasePrice,
+      'amount': amount,
+      'paraBirimi': paraBirimi,
+      'purchaseDate': purchaseDate.toIso8601String(),
+      'lastUpdated': now.toIso8601String(),
+      'isDeleted': isDeleted,
+    };
   }
 
   Map<String, dynamic> _generateStreakData(DateTime now) {
