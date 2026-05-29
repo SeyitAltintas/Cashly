@@ -78,8 +78,8 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       }
       final docRef = _userDoc(userId).collection('incomes').doc(income['id'].toString());
       final data = Map<String, dynamic>.from(income);
-      if (data['tarih'] is String) {
-        data['tarih'] = Timestamp.fromDate(DateTime.parse(data['tarih']));
+      if (data['date'] is String) {
+        data['date'] = Timestamp.fromDate(DateTime.parse(data['date']));
       }
       data['updatedAt'] = FieldValue.serverTimestamp();
       await docRef.set(data);

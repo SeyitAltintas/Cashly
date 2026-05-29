@@ -179,7 +179,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
   Stream<List<Map<String, dynamic>>> watchTransfers(String userId) {
     return _userDoc(userId)
         .collection('transfers')
-        .orderBy('tarih', descending: true)
+        .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
           final transfers = snapshot.docs.map((doc) => doc.data()).toList();

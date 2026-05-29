@@ -11,7 +11,7 @@ import 'package:flutter/foundation.dart';
 /// - Veriler 6 aya yayılmış, her ay mantıklı tutarlarla dağıtılmıştır.
 class MockDataService {
   final _firestore = FirebaseFirestore.instance;
-  final _random = Random(42); // Sabit seed = her seferinde aynı veri
+  final _random = Random(); // Sabit seed kaldırıldı, her seferinde farklı veri
 
   // ===== SABIT VERİ HAVUZLARI =====
 
@@ -132,12 +132,15 @@ class MockDataService {
     // 4. Varlıklar
     final assets = _generateAssets(now);
 
-    // 5. Firebase'e yaz (batch)
-    await _writeTofirestore(userId, paymentMethods, expenses, incomes, assets, transfers);
+    // 5. Streak Sahte Verisi
+    final streakData = _generateStreakData(now);
+
+    // 6. Firebase'e yaz (batch)
+    await _writeTofirestore(userId, paymentMethods, expenses, incomes, assets, transfers, streakData);
 
     debugPrint('[MockDataService] Tamamlandı! '
         '${expenses.length} harcama, ${incomes.length} gelir, ${transfers.length} transfer, '
-        '${assets.length} varlık, ${paymentMethods.length} ödeme yöntemi.');
+        '${assets.length} varlık, ${paymentMethods.length} ödeme yöntemi, 1 streak verisi.');
   }
 
   // ===== VERİ ÜRETİCİLER =====
@@ -196,7 +199,7 @@ class MockDataService {
       name: 'Aylık maaş',
       category: 'Maaş',
       amount: salaryAmount,
-      date: DateTime(month.year, month.month, salaryDay),
+      date: DateTime(month.year, month.month, salaryDay, _random.nextInt(4) + 8, _random.nextInt(60), _random.nextInt(60)),
       paymentMethodId: bankId,
     ));
 
@@ -209,7 +212,7 @@ class MockDataService {
         name: names[_random.nextInt(names.length)],
         category: cat,
         amount: (2000 + _random.nextInt(15) * 500).toDouble(),
-        date: DateTime(month.year, month.month, 10 + _random.nextInt(15)),
+        date: DateTime(month.year, month.month, 10 + _random.nextInt(15), _random.nextInt(10) + 10, _random.nextInt(60), _random.nextInt(60)),
         paymentMethodId: _random.nextBool() ? bankId : cashId,
       ));
     }
@@ -230,7 +233,8 @@ class MockDataService {
         'fromAccountId': bankId,
         'toAccountId': cashId,
         'amount': (500 + _random.nextInt(15) * 100).toDouble(), // 500 - 1900 arası
-        'date': DateTime(month.year, month.month, day, _random.nextInt(10) + 9, _random.nextInt(60)).toIso8601String(),
+        'date': Timestamp.fromDate(DateTime(month.year, month.month, day, _random.nextInt(10) + 9, _random.nextInt(60))),
+        'updatedAt': FieldValue.serverTimestamp(),
         'description': 'ATM Para Çekme',
         'paraBirimi': 'TRY',
         'isScheduled': false,
@@ -246,7 +250,8 @@ class MockDataService {
       'fromAccountId': bankId,
       'toAccountId': creditId,
       'amount': (2000 + _random.nextInt(30) * 100).toDouble(), // 2000 - 4900 arası ödeme
-      'date': DateTime(month.year, month.month, day, _random.nextInt(5) + 10, _random.nextInt(60)).toIso8601String(),
+      'date': Timestamp.fromDate(DateTime(month.year, month.month, day, _random.nextInt(5) + 10, _random.nextInt(60))),
+      'updatedAt': FieldValue.serverTimestamp(),
       'description': 'Kredi Kartı Ödemesi',
       'paraBirimi': 'TRY',
       'isScheduled': false,
@@ -280,7 +285,7 @@ class MockDataService {
         isim: fixed['isim'] as String,
         kategori: 'Sabit Giderler',
         tutar: (fixed['tutar'] as num).toDouble(),
-        date: DateTime(month.year, month.month, day),
+        date: DateTime(month.year, month.month, day, _random.nextInt(15) + 8, _random.nextInt(60), _random.nextInt(60)),
         odemeYontemiId: bankId,
       ));
     }
@@ -319,8 +324,9 @@ class MockDataService {
         isim: name,
         kategori: cat,
         tutar: amount,
-        date: DateTime(month.year, month.month, day.clamp(1, daysInMonth)),
+        date: DateTime(month.year, month.month, day.clamp(1, daysInMonth), _random.nextInt(15) + 8, _random.nextInt(60), _random.nextInt(60)),
         odemeYontemiId: pmId,
+        isDeleted: _random.nextDouble() < 0.05, // %5 ihtimalle silinmiş veri
       ));
     }
 
@@ -371,6 +377,21 @@ class MockDataService {
     ];
   }
 
+  Map<String, dynamic> _generateStreakData(DateTime now) {
+    return {
+      'currentStreak': 12,
+      'longestStreak': 45,
+      'lastLoginDate': now.toIso8601String().split('T')[0],
+      'totalLoginDays': 120,
+      'earnedBadges': ['first_week', 'month_hero'],
+      'freezeCount': 2,
+      'usedFreezeToday': false,
+      'totalFreezesUsed': 3,
+      'mock_generated': true,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+  }
+
   // ===== YARDIMCI BUILDER'LAR =====
 
   Map<String, dynamic> _buildExpense({
@@ -379,16 +400,18 @@ class MockDataService {
     required double tutar,
     required DateTime date,
     required String odemeYontemiId,
+    bool isDeleted = false,
   }) {
     return {
       'id': 'mock_exp_${date.millisecondsSinceEpoch}_${_random.nextInt(99999)}',
       'isim': isim,
       'kategori': kategori,
       'tutar': tutar,
-      'tarih': date.toIso8601String(),
+      'tarih': Timestamp.fromDate(date),
+      'updatedAt': FieldValue.serverTimestamp(),
       'paraBirimi': 'TRY',
       'odemeYontemiId': odemeYontemiId,
-      'notlar': null,
+      'isDeleted': isDeleted,
     };
   }
 
@@ -404,7 +427,8 @@ class MockDataService {
       'name': name,
       'category': category,
       'amount': amount,
-      'date': date.toIso8601String(),
+      'date': Timestamp.fromDate(date),
+      'updatedAt': FieldValue.serverTimestamp(),
       'paraBirimi': 'TRY',
       'paymentMethodId': paymentMethodId,
       'isDeleted': false,
@@ -420,6 +444,7 @@ class MockDataService {
     List<Map<String, dynamic>> incomes,
     List<Map<String, dynamic>> assets,
     List<Map<String, dynamic>> transfers,
+    Map<String, dynamic> streakData,
   ) async {
     final userDoc = _firestore.collection('users').doc(userId);
 
@@ -521,6 +546,11 @@ class MockDataService {
       }, SetOptions(merge: true)),
     );
 
+    // ===== STREAK =====
+    allOps.add(
+      userDoc.collection('streak').doc('data').set(streakData, SetOptions(merge: true)),
+    );
+
     await Future.wait(allOps);
   }
 
@@ -545,17 +575,28 @@ class MockDataService {
     // Settings dökümanlarındaki mock alanlarını temizle
     final generalDoc = await userDoc.collection('settings').doc('general').get();
     if (generalDoc.exists && generalDoc.data()?['mock_generated'] == true) {
+      final currentTemplates = List<dynamic>.from(generalDoc.data()?['fixedExpenseTemplates'] ?? []);
+      currentTemplates.removeWhere((item) => item['id'].toString().startsWith('mock_'));
       await userDoc.collection('settings').doc('general').update({
-        'budget': FieldValue.delete(),
-        'fixedExpenseTemplates': FieldValue.delete(),
-        'categoryBudgets': FieldValue.delete(),
+        'fixedExpenseTemplates': currentTemplates,
         'mock_generated': FieldValue.delete(),
       });
     }
 
     final incomeDoc = await userDoc.collection('settings').doc('income').get();
     if (incomeDoc.exists && incomeDoc.data()?['mock_generated'] == true) {
-      await userDoc.collection('settings').doc('income').delete();
+      final currentIncomes = List<dynamic>.from(incomeDoc.data()?['recurringIncomes'] ?? []);
+      currentIncomes.removeWhere((item) => item['id'].toString().startsWith('mock_'));
+      await userDoc.collection('settings').doc('income').update({
+        'recurringIncomes': currentIncomes,
+        'mock_generated': FieldValue.delete(),
+      });
+    }
+
+    // Streak mock temizliği
+    final streakDoc = await userDoc.collection('streak').doc('data').get();
+    if (streakDoc.exists && streakDoc.data()?['mock_generated'] == true) {
+       await userDoc.collection('streak').doc('data').delete();
     }
 
     debugPrint('[MockDataService] Mock veriler temizlendi.');
