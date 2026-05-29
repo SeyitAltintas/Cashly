@@ -591,8 +591,8 @@ class MockDataService {
           {'id': 'mock_ft_6', 'isim': 'Telefon faturası', 'tutar': 450.0, 'gun': 12, 'odemeYontemiId': 'mock_kredi_001', 'kategori': 'Sabit Giderler'},
         ],
         'categoryBudgets': {
-          'Yemek ve Kafe': 3000.0,
-          'Market ve Atıştırmalık': 2500.0,
+          'Yemek ve Kafe': 4000.0,
+          'Market ve Atıştırmalık': 3500.0,
           'Araç ve Ulaşım': 2000.0,
           'Sabit Giderler': 10000.0,
           'Diğer': 1500.0,
