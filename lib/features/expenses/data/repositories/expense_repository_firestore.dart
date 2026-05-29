@@ -54,8 +54,8 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
     
     return _userDoc(userId)
         .collection('expenses')
-        .where('tarih', isGreaterThanOrEqualTo: startOfMonth.toIso8601String())
-        .where('tarih', isLessThanOrEqualTo: endOfMonth.toIso8601String())
+        .where('tarih', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
+        .where('tarih', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
         .orderBy('tarih', descending: true)
         .snapshots()
         .map((snapshot) {

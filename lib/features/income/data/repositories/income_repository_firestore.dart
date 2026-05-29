@@ -55,8 +55,8 @@ class IncomeRepositoryFirestore implements IncomeRepository {
     
     return _userDoc(userId)
         .collection('incomes')
-        .where('date', isGreaterThanOrEqualTo: startOfMonth.toIso8601String())
-        .where('date', isLessThanOrEqualTo: endOfMonth.toIso8601String())
+        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
+        .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
         .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
