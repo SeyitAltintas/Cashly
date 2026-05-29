@@ -285,7 +285,13 @@
   "incomeTransactions": "income records",
   "savingsPotential": "Savings Potential",
   "savingsPotentialPositive": "{percent} of your income is still untouched. Great job!",
-  "@savingsPotentialPositive": { "placeholders": { "percent": { "type": "String" } } },
+  "@savingsPotentialPositive": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "savingsPotentialNegative": "Your expenses exceeded your income. Review your budget.",
   "savingsPotentialNoExpense": "No expenses recorded this period. All your income is in hand!",
   "detailInfoTitle": "Detailed Info",
@@ -310,7 +316,16 @@
   "diversifiedPortfolioDesc": "Your assets are spread across different types. This reduces your risk.",
   "concentratedPortfolio": "Concentrated Portfolio",
   "concentratedPortfolioDesc": "{category} makes up {percent}% of your portfolio. Consider diversifying to spread your risk.",
-  "@concentratedPortfolioDesc": { "placeholders": { "category": { "type": "String" }, "percent": { "type": "String" } } },
+  "@concentratedPortfolioDesc": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "singleAssetType": "Single Type Portfolio",
   "singleAssetTypeDesc": "All your assets are in one type. Consider diversifying into different asset types.",
   "portfolioDiversificationDetailTitle": "What is Portfolio Diversification?",
@@ -319,7 +334,13 @@
   "highLiquidity": "High Liquidity",
   "lowLiquidity": "Low Liquidity",
   "liquidityHealthy": "{percent}% of your assets can be quickly converted to cash.",
-  "@liquidityHealthy": { "placeholders": { "percent": { "type": "String" } } },
+  "@liquidityHealthy": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "liquidityWarning": "Most of your assets have low liquidity. Converting to cash in emergencies may be difficult.",
   "liquidityDetailTitle": "What is Liquidity?",
   "liquidityDetailBody": "Liquidity shows how quickly an asset can be converted to cash.\n\nHigh: Gold, Forex, Crypto, Bank accounts.\nLow: Real estate, Vehicles, Stocks.\n\nKnowing your liquid asset ratio is important for financial security.",
@@ -1253,7 +1274,6 @@
   "deleteAsset": "Delete Asset",
   "deleteAssetConfirm": "Are you sure you want to delete the \"{name}\" asset?",
   "newRecurringIncome": "New Recurring Income",
-  "editIncome": "Edit Income",
   "incomeNamePlaceholder": "Income Name (e.g. Salary, Rent)",
   "incomeNameRequired": "Income name is required",
   "incomeAdded": "Income added",
@@ -1919,5 +1939,6 @@
     }
   },
   "assetNoChange": "No value change",
-  "fxImpactNotice": "Market and FX impact"
+  "fxImpactNotice": "Market and FX impact",
+  "assetTypes": "Asset Types"
 }

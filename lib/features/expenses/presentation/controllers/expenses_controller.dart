@@ -281,11 +281,16 @@ class ExpensesController extends ChangeNotifier {
       if (pmIndex != -1) {
         final pm = _tumOdemeYontemleri[pmIndex];
         final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+        
+        final amountCurrency = harcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+        final cur = getIt<CurrencyService>();
+        final convertedAmount = cur.convert(amount, amountCurrency, pm.paraBirimi);
+
         double newBalance;
         if (pm.type == 'kredi') {
-          newBalance = pm.balance + amount;
+          newBalance = pm.balance + convertedAmount;
         } else {
-          newBalance = pm.balance - amount;
+          newBalance = pm.balance - convertedAmount;
         }
         _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
       }

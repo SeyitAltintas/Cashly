@@ -184,6 +184,18 @@ class MockDataService {
         'paraBirimi': 'TRY',
         'isDeleted': false,
       },
+      {
+        'id': 'mock_banka_002',
+        'name': 'Kapatılan Hesap',
+        'type': 'banka',
+        'lastFourDigits': '9999',
+        'balance': 0.0,
+        'limit': null,
+        'colorIndex': 3,
+        'createdAt': DateTime.now().subtract(const Duration(days: 300)).toIso8601String(),
+        'paraBirimi': 'TRY',
+        'isDeleted': true, // Mock çöp kutusu testi
+      },
     ];
   }
 
@@ -214,6 +226,7 @@ class MockDataService {
         amount: (2000 + _random.nextInt(15) * 500).toDouble(),
         date: DateTime(month.year, month.month, 10 + _random.nextInt(15), _random.nextInt(10) + 10, _random.nextInt(60), _random.nextInt(60)),
         paymentMethodId: _random.nextBool() ? bankId : cashId,
+        isDeleted: _random.nextDouble() < 0.05, // %5 ihtimalle silinmiş veri
       ));
     }
 
@@ -326,7 +339,7 @@ class MockDataService {
         tutar: amount,
         date: DateTime(month.year, month.month, day.clamp(1, daysInMonth), _random.nextInt(15) + 8, _random.nextInt(60), _random.nextInt(60)),
         odemeYontemiId: pmId,
-        isDeleted: _random.nextDouble() < 0.05, // %5 ihtimalle silinmiş veri
+        silindi: _random.nextDouble() < 0.05, // %5 ihtimalle silinmiş veri
       ));
     }
 
@@ -374,6 +387,19 @@ class MockDataService {
         'paraBirimi': 'TRY',
         'isDeleted': false,
       },
+      {
+        'id': 'mock_asset_silver_001',
+        'name': 'Gümüş',
+        'amount': 4500.0,
+        'quantity': 100.0,
+        'category': 'Emtia',
+        'type': 'XAG',
+        'lastUpdated': now.toIso8601String(),
+        'purchaseDate': now.subtract(const Duration(days: 60)).toIso8601String(),
+        'purchasePrice': 4000.0,
+        'paraBirimi': 'TRY',
+        'isDeleted': true, // Mock çöp kutusu testi
+      },
     ];
   }
 
@@ -400,7 +426,7 @@ class MockDataService {
     required double tutar,
     required DateTime date,
     required String odemeYontemiId,
-    bool isDeleted = false,
+    bool silindi = false,
   }) {
     return {
       'id': 'mock_exp_${date.millisecondsSinceEpoch}_${_random.nextInt(99999)}',
@@ -411,7 +437,7 @@ class MockDataService {
       'updatedAt': FieldValue.serverTimestamp(),
       'paraBirimi': 'TRY',
       'odemeYontemiId': odemeYontemiId,
-      'isDeleted': isDeleted,
+      'silindi': silindi,
     };
   }
 
@@ -421,6 +447,7 @@ class MockDataService {
     required double amount,
     required DateTime date,
     required String paymentMethodId,
+    bool isDeleted = false,
   }) {
     return {
       'id': 'mock_inc_${date.millisecondsSinceEpoch}_${_random.nextInt(99999)}',
@@ -431,7 +458,7 @@ class MockDataService {
       'updatedAt': FieldValue.serverTimestamp(),
       'paraBirimi': 'TRY',
       'paymentMethodId': paymentMethodId,
-      'isDeleted': false,
+      'isDeleted': isDeleted,
     };
   }
 
@@ -454,7 +481,11 @@ class MockDataService {
     // Ödeme yöntemleri
     var batch = _firestore.batch();
     for (final pm in paymentMethods) {
-      batch.set(userDoc.collection('paymentMethods').doc(pm['id']), pm);
+      if (pm['isDeleted'] == true) {
+        batch.set(userDoc.collection('deletedPaymentMethods').doc(pm['id']), pm);
+      } else {
+        batch.set(userDoc.collection('paymentMethods').doc(pm['id']), pm);
+      }
     }
     allOps.add(batch.commit());
 
@@ -481,7 +512,11 @@ class MockDataService {
     // Varlıklar
     final assetBatch = _firestore.batch();
     for (final asset in assets) {
-      assetBatch.set(userDoc.collection('assets').doc(asset['id']), asset);
+      if (asset['isDeleted'] == true) {
+        assetBatch.set(userDoc.collection('deletedAssets').doc(asset['id']), asset);
+      } else {
+        assetBatch.set(userDoc.collection('assets').doc(asset['id']), asset);
+      }
     }
     allOps.add(assetBatch.commit());
 
@@ -560,7 +595,7 @@ class MockDataService {
     final userDoc = _firestore.collection('users').doc(userId);
 
     // Koleksiyon dökümanları (mock_ prefix'li olanlar)
-    final collections = ['expenses', 'incomes', 'paymentMethods', 'assets', 'transfers'];
+    final collections = ['expenses', 'incomes', 'paymentMethods', 'assets', 'transfers', 'deletedAssets', 'deletedPaymentMethods'];
     for (final col in collections) {
       final snap = await userDoc.collection(col).get();
       final mockDocs = snap.docs.where((d) => d.id.startsWith('mock_'));
