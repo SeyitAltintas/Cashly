@@ -502,22 +502,22 @@ class IncomesController extends ChangeNotifier {
           
           final revertIndex = _tumGelirler.indexWhere((g) => g.id == income.id);
           if (revertIndex != -1) {
-            _tumGelirler[revertIndex] = oldIncome;
+            _tumGelirler[revertIndex] = income;
           }
           
-          if (oldPaymentMethodId != null) {
+          if (income.paymentMethodId != null) {
             _updateBalance(
-              oldPaymentMethodId,
-              oldAmount ?? 0,
-              oldIncome.paraBirimi,
+              income.paymentMethodId!,
+              income.amount,
+              income.paraBirimi,
               isIncome: true,
             );
           }
-          if (newPaymentMethodId != null) {
+          if (paymentMethodId != null) {
             _updateBalance(
-              newPaymentMethodId,
-              newAmount ?? 0,
-              income.paraBirimi,
+              paymentMethodId,
+              amount,
+              paraBirimi ?? income.paraBirimi,
               isIncome: false,
             );
           }

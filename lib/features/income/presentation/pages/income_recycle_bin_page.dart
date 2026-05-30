@@ -31,7 +31,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
   // Controller veya yerel state
   IncomesController? _controller;
   List<Income> _localSilinenGelirler = [];
-  List<Income> _localTumGelirler = [];
+  final List<Income> _localTumGelirler = [];
 
   List<Income> get silinenGelirler =>
       _controller?.binSilinenGelirler ?? _localSilinenGelirler;
