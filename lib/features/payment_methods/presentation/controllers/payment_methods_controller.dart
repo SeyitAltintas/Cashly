@@ -4,6 +4,7 @@ import '../../domain/repositories/payment_method_repository.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/utils/error_handler.dart';
+import '../../../../core/services/batch_service.dart';
 
 /// Ödeme Yöntemleri Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
@@ -284,9 +285,16 @@ class PaymentMethodsController extends ChangeNotifier {
 
       Future.microtask(() async {
         try {
-          await _paymentMethodRepository.addPaymentMethod(userId, method.toMap());
+          await _paymentMethodRepository.addPaymentMethod(
+            userId,
+            method.toMap(),
+          );
         } catch (e, s) {
-          ErrorHandler.logError('PaymentMethodsController.addMethod Background', e, s);
+          ErrorHandler.logError(
+            'PaymentMethodsController.addMethod Background',
+            e,
+            s,
+          );
           _paymentMethods.removeWhere((p) => p.id == method.id);
           _filtrele();
         }
@@ -307,10 +315,19 @@ class PaymentMethodsController extends ChangeNotifier {
 
         Future.microtask(() async {
           try {
-            await _paymentMethodRepository.updatePaymentMethod(userId, method.toMap());
+            await _paymentMethodRepository.updatePaymentMethod(
+              userId,
+              method.toMap(),
+            );
           } catch (e, s) {
-            ErrorHandler.logError('PaymentMethodsController.updateMethod Background', e, s);
-            final revertIndex = _paymentMethods.indexWhere((p) => p.id == method.id);
+            ErrorHandler.logError(
+              'PaymentMethodsController.updateMethod Background',
+              e,
+              s,
+            );
+            final revertIndex = _paymentMethods.indexWhere(
+              (p) => p.id == method.id,
+            );
             if (revertIndex != -1) {
               _paymentMethods[revertIndex] = oldMethod;
               _filtrele();
@@ -333,9 +350,17 @@ class PaymentMethodsController extends ChangeNotifier {
 
       Future.microtask(() async {
         try {
-          await _paymentMethodRepository.updatePaymentMethod(userId, deleted.toMap());
+          final operations = <BatchOperation>[
+            _paymentMethodRepository.getDeletePaymentMethodOperation(userId, method.id),
+            _paymentMethodRepository.getAddPaymentMethodOperation(userId, deleted.toMap())
+          ];
+          await getIt<BatchService>().commit(operations);
         } catch (e, s) {
-          ErrorHandler.logError('PaymentMethodsController.moveToBin Background', e, s);
+          ErrorHandler.logError(
+            'PaymentMethodsController.moveToBin Background',
+            e,
+            s,
+          );
         }
       });
     } catch (e, s) {
@@ -353,9 +378,17 @@ class PaymentMethodsController extends ChangeNotifier {
 
       Future.microtask(() async {
         try {
-          await _paymentMethodRepository.updatePaymentMethod(userId, restored.toMap());
+          final operations = <BatchOperation>[
+            _paymentMethodRepository.getDeletePaymentMethodOperation(userId, method.id),
+            _paymentMethodRepository.getAddPaymentMethodOperation(userId, restored.toMap())
+          ];
+          await getIt<BatchService>().commit(operations);
         } catch (e, s) {
-          ErrorHandler.logError('PaymentMethodsController.restoreMethod Background', e, s);
+          ErrorHandler.logError(
+            'PaymentMethodsController.restoreMethod Background',
+            e,
+            s,
+          );
         }
       });
     } catch (e, s) {
@@ -377,7 +410,11 @@ class PaymentMethodsController extends ChangeNotifier {
         try {
           await _paymentMethodRepository.deletePaymentMethod(userId, method.id);
         } catch (e, s) {
-          ErrorHandler.logError('PaymentMethodsController.permanentDelete Background', e, s);
+          ErrorHandler.logError(
+            'PaymentMethodsController.permanentDelete Background',
+            e,
+            s,
+          );
           _deletedPaymentMethods.add(methodToRestore);
           notifyListeners();
         }
@@ -396,11 +433,22 @@ class PaymentMethodsController extends ChangeNotifier {
 
       Future.microtask(() async {
         try {
+          final operations = <BatchOperation>[];
           for (var id in deletedIds) {
-            await _paymentMethodRepository.deletePaymentMethod(userId, id);
+            operations.add(
+              _paymentMethodRepository.getDeletePaymentMethodOperation(
+                userId,
+                id,
+              ),
+            );
           }
+          await getIt<BatchService>().commit(operations);
         } catch (e, s) {
-          ErrorHandler.logError('PaymentMethodsController.emptyBin Background', e, s);
+          ErrorHandler.logError(
+            'PaymentMethodsController.emptyBin Background',
+            e,
+            s,
+          );
         }
       });
     } catch (e, s) {
@@ -422,11 +470,22 @@ class PaymentMethodsController extends ChangeNotifier {
 
       Future.microtask(() async {
         try {
+          final operations = <BatchOperation>[];
           for (final data in restoredMethods) {
-            await _paymentMethodRepository.updatePaymentMethod(userId, data);
+            operations.add(
+              _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                userId,
+                data,
+              ),
+            );
           }
+          await getIt<BatchService>().commit(operations);
         } catch (e, s) {
-          ErrorHandler.logError('PaymentMethodsController.restoreAll Background', e, s);
+          ErrorHandler.logError(
+            'PaymentMethodsController.restoreAll Background',
+            e,
+            s,
+          );
         }
       });
     } catch (e, s) {
@@ -442,12 +501,19 @@ class PaymentMethodsController extends ChangeNotifier {
         final pm = _paymentMethods[index];
         _paymentMethods[index] = pm.copyWith(balance: pm.balance + amount);
         notifyListeners();
-        
+
         Future.microtask(() async {
           try {
-            await _paymentMethodRepository.updatePaymentMethod(userId, _paymentMethods[index].toMap());
+            await _paymentMethodRepository.updatePaymentMethod(
+              userId,
+              _paymentMethods[index].toMap(),
+            );
           } catch (e, s) {
-            ErrorHandler.logError('PaymentMethodsController.updateBalance Background', e, s);
+            ErrorHandler.logError(
+              'PaymentMethodsController.updateBalance Background',
+              e,
+              s,
+            );
           }
         });
       }

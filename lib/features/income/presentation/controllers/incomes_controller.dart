@@ -6,6 +6,7 @@ import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/services/speech/speech_service.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/batch_service.dart';
 import 'dart:async';
 import '../../../../core/services/currency_service.dart';
 
@@ -184,7 +185,8 @@ class IncomesController extends ChangeNotifier {
   DateTime get secilenAy => _secilenAy;
   set secilenAy(DateTime value) {
     // Gün/saat farkını görmezden gel — sadece yıl ve ay karşılaştır
-    final isSameMonth = _secilenAy.year == value.year && _secilenAy.month == value.month;
+    final isSameMonth =
+        _secilenAy.year == value.year && _secilenAy.month == value.month;
     _secilenAy = DateTime(value.year, value.month);
     if (!isSameMonth) {
       _startIncomesStream();
@@ -225,10 +227,12 @@ class IncomesController extends ChangeNotifier {
 
   void _startIncomesStream() {
     _incomesSubscription?.cancel();
-    _incomesSubscription = _incomeRepository.watchIncomesByMonth(userId, _secilenAy).listen((data) {
-      _tumGelirler = data.map((m) => Income.fromMap(m)).toList();
-      notifyListeners();
-    });
+    _incomesSubscription = _incomeRepository
+        .watchIncomesByMonth(userId, _secilenAy)
+        .listen((data) {
+          _tumGelirler = data.map((m) => Income.fromMap(m)).toList();
+          notifyListeners();
+        });
   }
 
   @override
@@ -306,7 +310,12 @@ class IncomesController extends ChangeNotifier {
       _tumGelirler.insert(0, gelir);
 
       if (gelir.paymentMethodId != null) {
-        _updateBalance(gelir.paymentMethodId!, gelir.amount, gelir.paraBirimi, isIncome: true);
+        _updateBalance(
+          gelir.paymentMethodId!,
+          gelir.amount,
+          gelir.paraBirimi,
+          isIncome: true,
+        );
       }
 
       // Anında arayüzü güncelle (Optimistic UI)
@@ -315,8 +324,26 @@ class IncomesController extends ChangeNotifier {
       // Arka planda Firestore işlemlerini yap
       Future.microtask(() async {
         try {
-          await _incomeRepository.addIncome(userId, gelir.toMap());
-          await savePaymentMethods();
+          final operations = <BatchOperation>[];
+          operations.add(
+            _incomeRepository.getAddIncomeOperation(userId, gelir.toMap()),
+          );
+
+          if (gelir.paymentMethodId != null) {
+            final pmIdx = _tumOdemeYontemleri.indexWhere(
+              (p) => p.id == gelir.paymentMethodId,
+            );
+            if (pmIdx != -1) {
+              operations.add(
+                _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                  userId,
+                  _tumOdemeYontemleri[pmIdx].toMap(),
+                ),
+              );
+            }
+          }
+
+          await getIt<BatchService>().commit(operations);
         } catch (e, s) {
           ErrorHandler.logError('IncomesController.addIncome Background', e, s);
           _tumGelirler.removeWhere((g) => g.id == gelir.id);
@@ -364,15 +391,26 @@ class IncomesController extends ChangeNotifier {
         // Arka planda Firestore işlemlerini yap
         Future.microtask(() async {
           try {
-            await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
+            await _incomeRepository.updateIncome(
+              userId,
+              _tumGelirler[index].toMap(),
+            );
             await savePaymentMethods();
           } catch (e, s) {
             // Hata durumunda işlemi geri al (Rollback)
-            ErrorHandler.logError('IncomesController.deleteIncome Background', e, s);
-            
-            final revertIndex = _tumGelirler.indexWhere((g) => g.id == income.id);
+            ErrorHandler.logError(
+              'IncomesController.deleteIncome Background',
+              e,
+              s,
+            );
+
+            final revertIndex = _tumGelirler.indexWhere(
+              (g) => g.id == income.id,
+            );
             if (revertIndex != -1) {
-              _tumGelirler[revertIndex] = _tumGelirler[revertIndex].copyWith(isDeleted: oldIsDeleted);
+              _tumGelirler[revertIndex] = _tumGelirler[revertIndex].copyWith(
+                isDeleted: oldIsDeleted,
+              );
             }
             if (income.paymentMethodId != null) {
               // Silme işleminde isIncome: false idi, geri almada isIncome: true olur
@@ -422,15 +460,26 @@ class IncomesController extends ChangeNotifier {
         // Arka planda Firestore işlemlerini yap
         Future.microtask(() async {
           try {
-            await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
+            await _incomeRepository.updateIncome(
+              userId,
+              _tumGelirler[index].toMap(),
+            );
             await savePaymentMethods();
           } catch (e, s) {
             // Hata durumunda işlemi geri al (Rollback)
-            ErrorHandler.logError('IncomesController.undoDelete Background', e, s);
-            
-            final revertIndex = _tumGelirler.indexWhere((g) => g.id == income.id);
+            ErrorHandler.logError(
+              'IncomesController.undoDelete Background',
+              e,
+              s,
+            );
+
+            final revertIndex = _tumGelirler.indexWhere(
+              (g) => g.id == income.id,
+            );
             if (revertIndex != -1) {
-              _tumGelirler[revertIndex] = _tumGelirler[revertIndex].copyWith(isDeleted: oldIsDeleted);
+              _tumGelirler[revertIndex] = _tumGelirler[revertIndex].copyWith(
+                isDeleted: oldIsDeleted,
+              );
             }
             if (income.paymentMethodId != null) {
               // Geri almada isIncome: true yapılmıştı, şimdi tekrar isIncome: false yaparak geri alıyoruz
@@ -463,7 +512,12 @@ class IncomesController extends ChangeNotifier {
     try {
       if (income.paymentMethodId != null) {
         final eskiParaBirimi = income.paraBirimi;
-        _updateBalance(income.paymentMethodId!, income.amount, eskiParaBirimi, isIncome: false);
+        _updateBalance(
+          income.paymentMethodId!,
+          income.amount,
+          eskiParaBirimi,
+          isIncome: false,
+        );
       }
 
       if (paymentMethodId != null) {
@@ -493,18 +547,57 @@ class IncomesController extends ChangeNotifier {
       // Arka planda Firestore işlemlerini yap
       Future.microtask(() async {
         try {
+          final operations = <BatchOperation>[];
           if (updatedIncomeMap != null) {
-            await _incomeRepository.updateIncome(userId, updatedIncomeMap);
+            operations.add(
+              _incomeRepository.getUpdateIncomeOperation(
+                userId,
+                updatedIncomeMap,
+              ),
+            );
           }
-          await savePaymentMethods();
+
+          if (income.paymentMethodId != null) {
+            final pmIdx = _tumOdemeYontemleri.indexWhere(
+              (p) => p.id == income.paymentMethodId,
+            );
+            if (pmIdx != -1) {
+              operations.add(
+                _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                  userId,
+                  _tumOdemeYontemleri[pmIdx].toMap(),
+                ),
+              );
+            }
+          }
+          if (paymentMethodId != null &&
+              paymentMethodId != income.paymentMethodId) {
+            final pmIdx = _tumOdemeYontemleri.indexWhere(
+              (p) => p.id == paymentMethodId,
+            );
+            if (pmIdx != -1) {
+              operations.add(
+                _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                  userId,
+                  _tumOdemeYontemleri[pmIdx].toMap(),
+                ),
+              );
+            }
+          }
+
+          await getIt<BatchService>().commit(operations);
         } catch (e, s) {
-          ErrorHandler.logError('IncomesController.updateIncome Background', e, s);
-          
+          ErrorHandler.logError(
+            'IncomesController.updateIncome Background',
+            e,
+            s,
+          );
+
           final revertIndex = _tumGelirler.indexWhere((g) => g.id == income.id);
           if (revertIndex != -1) {
             _tumGelirler[revertIndex] = income;
           }
-          
+
           if (income.paymentMethodId != null) {
             _updateBalance(
               income.paymentMethodId!,
@@ -521,7 +614,7 @@ class IncomesController extends ChangeNotifier {
               isIncome: false,
             );
           }
-          
+
           notifyListeners();
         }
       });
@@ -552,15 +645,20 @@ class IncomesController extends ChangeNotifier {
     await addIncome(newIncome);
   }
 
-  void _updateBalance(String pmId, double amount, String amountCurrency, {required bool isIncome}) {
+  void _updateBalance(
+    String pmId,
+    double amount,
+    String amountCurrency, {
+    required bool isIncome,
+  }) {
     final pmIndex = _tumOdemeYontemleri.indexWhere((p) => p.id == pmId);
     if (pmIndex == -1) return;
 
     final pm = _tumOdemeYontemleri[pmIndex];
-    
+
     final cur = getIt<CurrencyService>();
     final convertedAmount = cur.convert(amount, amountCurrency, pm.paraBirimi);
-    
+
     double newBalance;
 
     if (isIncome) {
@@ -696,21 +794,43 @@ class IncomesController extends ChangeNotifier {
       _tumGelirler[index] = gelir.copyWith(isDeleted: false);
     }
     _binSilinenGelirler.removeWhere((g) => g.id == gelir.id);
-    
+
     if (gelir.paymentMethodId != null) {
-      _updateBalance(gelir.paymentMethodId!, gelir.amount, gelir.paraBirimi, isIncome: true);
+      _updateBalance(
+        gelir.paymentMethodId!,
+        gelir.amount,
+        gelir.paraBirimi,
+        isIncome: true,
+      );
     }
-    
+
     notifyListeners();
 
     Future.microtask(() async {
       try {
+        final operations = <BatchOperation>[];
         if (index != -1) {
-          await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
+          operations.add(
+            _incomeRepository.getUpdateIncomeOperation(
+              userId,
+              _tumGelirler[index].toMap(),
+            ),
+          );
         }
         if (gelir.paymentMethodId != null) {
-          await savePaymentMethods();
+          final pmIdx = _tumOdemeYontemleri.indexWhere(
+            (p) => p.id == gelir.paymentMethodId,
+          );
+          if (pmIdx != -1) {
+            operations.add(
+              _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                userId,
+                _tumOdemeYontemleri[pmIdx].toMap(),
+              ),
+            );
+          }
         }
+        await getIt<BatchService>().commit(operations);
       } catch (e, s) {
         ErrorHandler.logError('IncomesController.binRestoreGelir', e, s);
       }
@@ -725,25 +845,40 @@ class IncomesController extends ChangeNotifier {
 
     Future.microtask(() async {
       try {
-        await _incomeRepository.deleteIncome(userId, gelir.id);
+        final operations = <BatchOperation>[];
+        operations.add(
+          _incomeRepository.getDeleteIncomeOperation(userId, gelir.id),
+        );
+        await getIt<BatchService>().commit(operations);
       } catch (e, s) {
-        ErrorHandler.logError('IncomesController.binPermanentDeleteGelir', e, s);
+        ErrorHandler.logError(
+          'IncomesController.binPermanentDeleteGelir',
+          e,
+          s,
+        );
       }
     });
   }
 
   /// Çöpü boşalt
   Future<void> binEmptyBin() async {
-    final deletedIds = _tumGelirler.where((g) => g.isDeleted).map((g) => g.id).toList();
+    final deletedIds = _tumGelirler
+        .where((g) => g.isDeleted)
+        .map((g) => g.id)
+        .toList();
     _tumGelirler.removeWhere((g) => g.isDeleted);
     _binSilinenGelirler.clear();
     notifyListeners();
 
     Future.microtask(() async {
       try {
+        final operations = <BatchOperation>[];
         for (var id in deletedIds) {
-          await _incomeRepository.deleteIncome(userId, id);
+          operations.add(
+            _incomeRepository.getDeleteIncomeOperation(userId, id),
+          );
         }
+        await getIt<BatchService>().commit(operations);
       } catch (e, s) {
         ErrorHandler.logError('IncomesController.binEmptyBin', e, s);
       }
@@ -760,9 +895,14 @@ class IncomesController extends ChangeNotifier {
       if (index != -1) {
         _tumGelirler[index] = gelir.copyWith(isDeleted: false);
         updatedIncomes.add(_tumGelirler[index].toMap());
-        
+
         if (gelir.paymentMethodId != null) {
-          _updateBalance(gelir.paymentMethodId!, gelir.amount, gelir.paraBirimi, isIncome: true);
+          _updateBalance(
+            gelir.paymentMethodId!,
+            gelir.amount,
+            gelir.paraBirimi,
+            isIncome: true,
+          );
           hasBalanceChange = true;
         }
       }
@@ -772,12 +912,30 @@ class IncomesController extends ChangeNotifier {
 
     Future.microtask(() async {
       try {
+        final operations = <BatchOperation>[];
         for (var data in updatedIncomes) {
-          await _incomeRepository.updateIncome(userId, data);
+          operations.add(
+            _incomeRepository.getUpdateIncomeOperation(userId, data),
+          );
         }
         if (hasBalanceChange) {
-          await savePaymentMethods();
+          for (var data in updatedIncomes) {
+            if (data['odemeYontemiId'] != null) {
+              final pmIdx = _tumOdemeYontemleri.indexWhere(
+                (p) => p.id == data['odemeYontemiId'],
+              );
+              if (pmIdx != -1) {
+                operations.add(
+                  _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                    userId,
+                    _tumOdemeYontemleri[pmIdx].toMap(),
+                  ),
+                );
+              }
+            }
+          }
         }
+        await getIt<BatchService>().commit(operations);
       } catch (e, s) {
         ErrorHandler.logError('IncomesController.binRestoreAll', e, s);
       }

@@ -24,11 +24,7 @@ class ObscuredAmountText extends StatelessWidget {
 
     return ImageFiltered(
       imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-      child: Text(
-        text,
-        style: style,
-        textAlign: textAlign,
-      ),
+      child: Text(text, style: style, textAlign: textAlign),
     );
   }
 }

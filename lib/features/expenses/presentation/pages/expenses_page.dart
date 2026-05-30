@@ -97,7 +97,8 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   @override
   void didUpdateWidget(ExpensesPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.tumHarcamalar != oldWidget.tumHarcamalar || widget.secilenAy != oldWidget.secilenAy) {
+    if (widget.tumHarcamalar != oldWidget.tumHarcamalar ||
+        widget.secilenAy != oldWidget.secilenAy) {
       if (widget.secilenAy != oldWidget.secilenAy) {
         _controller.secilenAy = widget.secilenAy;
       }
@@ -358,12 +359,21 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
         ),
         body: Builder(
           builder: (context) {
-            final isLoadingContext = context.select((ExpensesController c) => c.isLoading);
-            final aramaModuContext = context.select((ExpensesController c) => c.aramaModu);
-            final secilenAyContext = context.select((ExpensesController c) => c.secilenAy);
-            final gosterilenHarcamalarContext = context.select((ExpensesController c) => c.gosterilenHarcamalar);
-            
-            Map<String, List<Map<String, dynamic>>> gruplar = gunlukGruplanmisHarcamalar;
+            final isLoadingContext = context.select(
+              (ExpensesController c) => c.isLoading,
+            );
+            final aramaModuContext = context.select(
+              (ExpensesController c) => c.aramaModu,
+            );
+            final secilenAyContext = context.select(
+              (ExpensesController c) => c.secilenAy,
+            );
+            final gosterilenHarcamalarContext = context.select(
+              (ExpensesController c) => c.gosterilenHarcamalar,
+            );
+
+            Map<String, List<Map<String, dynamic>>> gruplar =
+                gunlukGruplanmisHarcamalar;
 
             return isLoadingContext
                 ? const ExpensesPageSkeleton()
@@ -385,92 +395,124 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                       Expanded(
                         child: gosterilenHarcamalarContext.isEmpty
                             ? aramaModuContext
-                            ? EmptyStateWidget(
-                                icon: Icons.search_off,
-                                title: context.l10n.noResultsFound,
-                                subtitle: context.l10n.tryDifferentSearchTerm,
-                              )
-                            : EmptyStateWidget.noExpenses(context)
-                      : ExpensesListView(
-                          gruplar: gruplar,
-                          hasMoreItems: hasMoreItems,
-                          scrollController: lazyScrollController,
-                          onRefresh: () async {
-                            filtreleVeGoster();
-                          },
-                          buildLoadingIndicator: buildLoadingIndicator,
-                          onDelete: harcamaSil,
-                          onEdit: (harcama, updatedHarcama) async {
-                            final index = gosterilenHarcamalarContext.indexOf(harcama);
-                            if (index != -1) {
-                              gosterilenHarcamalarContext[index] = updatedHarcama;
-                            }
+                                  ? EmptyStateWidget(
+                                      icon: Icons.search_off,
+                                      title: context.l10n.noResultsFound,
+                                      subtitle:
+                                          context.l10n.tryDifferentSearchTerm,
+                                    )
+                                  : EmptyStateWidget.noExpenses(context)
+                            : ExpensesListView(
+                                gruplar: gruplar,
+                                hasMoreItems: hasMoreItems,
+                                scrollController: lazyScrollController,
+                                onRefresh: () async {
+                                  filtreleVeGoster();
+                                },
+                                buildLoadingIndicator: buildLoadingIndicator,
+                                onDelete: harcamaSil,
+                                onEdit: (harcama, updatedHarcama) async {
+                                  final index = gosterilenHarcamalarContext
+                                      .indexOf(harcama);
+                                  if (index != -1) {
+                                    gosterilenHarcamalarContext[index] =
+                                        updatedHarcama;
+                                  }
 
-                            await _controller.harcamaEkleVeyaDuzenleLegacy(
-                              tumHarcamalar: widget.tumHarcamalar,
-                              tumOdemeYontemleri: widget.tumOdemeYontemleri,
-                              name: updatedHarcama['isim'] ?? harcama['isim'],
-                              amount: double.tryParse(updatedHarcama['tutar'].toString()) ?? 0.0,
-                              category: updatedHarcama['kategori'] ?? harcama['kategori'],
-                              date: DateTime.tryParse(updatedHarcama['tarih'].toString()) ?? DateTime.now(),
-                              paymentMethodId: updatedHarcama['odemeYontemiId'],
-                              paraBirimi: updatedHarcama['paraBirimi'],
-                              duzenlenecekHarcama: harcama,
-                              eskiOdemeYontemiId: harcama['odemeYontemiId'],
-                              eskiTutar: double.tryParse(harcama['tutar'].toString()) ?? 0.0,
-                              aramaMetni: tArama.text,
-                              onResetLazyLoading: resetLazyLoading,
-                            );
+                                  await _controller
+                                      .harcamaEkleVeyaDuzenleLegacy(
+                                        tumHarcamalar: widget.tumHarcamalar,
+                                        tumOdemeYontemleri:
+                                            widget.tumOdemeYontemleri,
+                                        name:
+                                            updatedHarcama['isim'] ??
+                                            harcama['isim'],
+                                        amount:
+                                            double.tryParse(
+                                              updatedHarcama['tutar']
+                                                  .toString(),
+                                            ) ??
+                                            0.0,
+                                        category:
+                                            updatedHarcama['kategori'] ??
+                                            harcama['kategori'],
+                                        date:
+                                            DateTime.tryParse(
+                                              updatedHarcama['tarih']
+                                                  .toString(),
+                                            ) ??
+                                            DateTime.now(),
+                                        paymentMethodId:
+                                            updatedHarcama['odemeYontemiId'],
+                                        paraBirimi:
+                                            updatedHarcama['paraBirimi'],
+                                        duzenlenecekHarcama: harcama,
+                                        eskiOdemeYontemiId:
+                                            harcama['odemeYontemiId'],
+                                        eskiTutar:
+                                            double.tryParse(
+                                              harcama['tutar'].toString(),
+                                            ) ??
+                                            0.0,
+                                        aramaMetni: tArama.text,
+                                        onResetLazyLoading: resetLazyLoading,
+                                      );
 
-                            widget.onHarcamalarChanged(widget.tumHarcamalar);
-                            widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
-                            
-                            if (mounted) filtreleVeGoster();
-                          },
-                          kategoriIkonlari: widget.kategoriIkonlari,
-                          tumOdemeYontemleri: widget.tumOdemeYontemleri,
-                          gosterilenHarcamalar: gosterilenHarcamalarContext,
-                        ),
+                                  widget.onHarcamalarChanged(
+                                    widget.tumHarcamalar,
+                                  );
+                                  widget.onOdemeYontemleriChanged(
+                                    widget.tumOdemeYontemleri,
+                                  );
+
+                                  if (mounted) filtreleVeGoster();
+                                },
+                                kategoriIkonlari: widget.kategoriIkonlari,
+                                tumOdemeYontemleri: widget.tumOdemeYontemleri,
+                                gosterilenHarcamalar:
+                                    gosterilenHarcamalarContext,
+                              ),
                       ),
                     ],
                   );
           },
         ),
-      // Modern floating bottom navigation bar - Ortak widget kullanımı
-      bottomNavigationBar: AppFloatingBottomBar(
-        items: [
-          BottomBarItem(
-            icon: Icons.delete_outline,
-            label: context.l10n.trashBin,
-            onTap: () {
-              HapticService.selectionClick();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      CopKutusuSayfasi(userId: widget.userId ?? ''),
-                ),
-              ).then((_) {
-                filtreleVeGoster();
-              });
-            },
-          ),
-          BottomBarItem(
-            icon: Icons.mic,
-            label: context.l10n.voiceInput,
-            onTap: () {
-              HapticService.selectionClick();
-              _showVoiceInput();
-            },
-          ),
-        ],
-        centerButtonColor: ColorConstants.kirmiziVurgu,
-        onCenterButtonTap: () {
-          HapticService.lightImpact();
-          pencereAc();
-        },
+        // Modern floating bottom navigation bar - Ortak widget kullanımı
+        bottomNavigationBar: AppFloatingBottomBar(
+          items: [
+            BottomBarItem(
+              icon: Icons.delete_outline,
+              label: context.l10n.trashBin,
+              onTap: () {
+                HapticService.selectionClick();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CopKutusuSayfasi(userId: widget.userId ?? ''),
+                  ),
+                ).then((_) {
+                  filtreleVeGoster();
+                });
+              },
+            ),
+            BottomBarItem(
+              icon: Icons.mic,
+              label: context.l10n.voiceInput,
+              onTap: () {
+                HapticService.selectionClick();
+                _showVoiceInput();
+              },
+            ),
+          ],
+          centerButtonColor: ColorConstants.kirmiziVurgu,
+          onCenterButtonTap: () {
+            HapticService.lightImpact();
+            pencereAc();
+          },
+        ),
       ),
-    ));
+    );
   }
 
   void _showVoiceInput() {

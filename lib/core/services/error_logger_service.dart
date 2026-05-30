@@ -75,7 +75,9 @@ class ErrorLoggerService {
       }
       await clearLogs();
       if (kDebugMode) {
-        debugPrint('✅ ${logs.length} log Crashlytics\'e gönderildi ve lokal temizlendi');
+        debugPrint(
+          '✅ ${logs.length} log Crashlytics\'e gönderildi ve lokal temizlendi',
+        );
       }
     } catch (e) {
       debugPrint('Toplu log gönderim hatası: $e');

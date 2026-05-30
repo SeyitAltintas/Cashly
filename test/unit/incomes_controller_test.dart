@@ -5,9 +5,11 @@ import 'package:cashly/features/income/data/models/income_model.dart';
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/core/services/currency_service.dart';
 import 'package:get_it/get_it.dart';
+import 'package:cashly/core/services/batch_service.dart';
 
 /// Mock IncomeRepository
 class MockIncomeRepository implements IncomeRepository {
+$ops
   List<Map<String, dynamic>> _incomes = [];
   final List<Map<String, dynamic>> _categories = [];
   final List<Map<String, dynamic>> _recurringIncomes = [];
@@ -68,6 +70,7 @@ class MockIncomeRepository implements IncomeRepository {
 
 /// Mock PaymentMethodRepository
 class MockPaymentMethodRepository implements PaymentMethodRepository {
+$ops
   List<Map<String, dynamic>> _paymentMethods = [];
   final List<Map<String, dynamic>> _deletedPaymentMethods = [];
   String? _defaultPaymentMethodId;
@@ -118,6 +121,7 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
   }
 }
 
+$dummyBatch
 void main() {
   setUpAll(() {
     if (!GetIt.instance.isRegistered<CurrencyService>()) {

@@ -5,12 +5,15 @@ import 'package:cashly/features/payment_methods/domain/repositories/payment_meth
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/core/services/currency_service.dart';
 import 'package:get_it/get_it.dart';
+import 'package:cashly/core/services/batch_service.dart';
 
 // =====================================================================
+$dummyBatch
 // MOCK REPOSITORIES
 // =====================================================================
 
 class MockExpenseRepository implements ExpenseRepository {
+$ops
   List<Map<String, dynamic>> _expenses = [];
   List<Map<String, dynamic>> _categories = [];
   double _budget = 8000.0;
@@ -77,6 +80,7 @@ class MockExpenseRepository implements ExpenseRepository {
 }
 
 class MockPaymentMethodRepository implements PaymentMethodRepository {
+$ops
   List<Map<String, dynamic>> _paymentMethods = [];
   final List<Map<String, dynamic>> _deletedPaymentMethods = [];
   String? _defaultPaymentMethodId;

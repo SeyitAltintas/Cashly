@@ -4,9 +4,11 @@ import 'package:cashly/features/payment_methods/domain/repositories/payment_meth
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/core/services/currency_service.dart';
 import 'package:get_it/get_it.dart';
+import 'package:cashly/core/services/batch_service.dart';
 
 /// Mock PaymentMethodRepository
 class MockPaymentMethodRepository implements PaymentMethodRepository {
+$ops
   List<Map<String, dynamic>> _paymentMethods = [];
   List<Map<String, dynamic>> _deletedPaymentMethods = [];
   String? _defaultPaymentMethodId;
@@ -61,6 +63,7 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
   }
 }
 
+$dummyBatch
 void main() {
   setUpAll(() {
     if (!GetIt.instance.isRegistered<CurrencyService>()) {

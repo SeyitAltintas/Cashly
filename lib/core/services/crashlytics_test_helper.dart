@@ -35,7 +35,10 @@ class CrashlyticsTestHelper {
   static Future<void> sendTestLog() async {
     FirebaseCrashlytics.instance.log('Cashly test log - ${DateTime.now()}');
     await FirebaseCrashlytics.instance.setCustomKey('test_key', 'test_value');
-    await FirebaseCrashlytics.instance.setCustomKey('environment', 'development');
+    await FirebaseCrashlytics.instance.setCustomKey(
+      'environment',
+      'development',
+    );
     if (kDebugMode) {
       debugPrint('✅ Test log ve custom key\'ler Crashlytics\'e gönderildi');
     }

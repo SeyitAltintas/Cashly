@@ -89,7 +89,8 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
   @override
   void didUpdateWidget(IncomesPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.tumGelirler != oldWidget.tumGelirler || widget.secilenAy != oldWidget.secilenAy) {
+    if (widget.tumGelirler != oldWidget.tumGelirler ||
+        widget.secilenAy != oldWidget.secilenAy) {
       if (widget.secilenAy != oldWidget.secilenAy) {
         _controller.secilenAy = widget.secilenAy;
       }
@@ -227,7 +228,11 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     }
 
     try {
-      final deleteFuture = _controller.deleteIncome(income, pm: pm, pmIndex: pmIndex);
+      final deleteFuture = _controller.deleteIncome(
+        income,
+        pm: pm,
+        pmIndex: pmIndex,
+      );
 
       widget.onGelirlerChanged(_controller.tumGelirler);
       widget.onOdemeYontemleriChanged(_controller.tumOdemeYontemleri);
@@ -396,12 +401,16 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
         ),
         body: Builder(
           builder: (context) {
-            final isLoadingContext = context.select((IncomesController c) => c.isLoading);
-            final gelirAramaModuContext = context.select((IncomesController c) => c.aramaModu);
-            
+            final isLoadingContext = context.select(
+              (IncomesController c) => c.isLoading,
+            );
+            final gelirAramaModuContext = context.select(
+              (IncomesController c) => c.aramaModu,
+            );
+
             // secilenAyContext was unused
             context.select((IncomesController c) => c.tumGelirler);
-            
+
             return ValueListenableBuilder<TextEditingValue>(
               valueListenable: tGelirArama,
               builder: (context, _, _) {
@@ -409,84 +418,93 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                 return isLoadingContext
                     ? const IncomePageSkeleton()
                     : Column(
-                  children: [
-                    // Özet Kartı
-                    if (!gelirAramaModuContext)
-                      IncomeSummaryCard(
-                        ayIsmi: ayIsmi,
-                        toplamGelir: toplamGelir,
-                        oncekiAy: oncekiAy,
-                        sonrakiAy: sonrakiAy,
-                        ayYilSeciciAc: _ayYilSeciciAc,
-                        gelirSayisi: gelirler.length,
-                        gelirHedefi: context.select((IncomesController c) => c.incomeTarget),
-                      ),
-
-                    // Gelir listesi
-                      Expanded(
-                        child: gelirler.isEmpty
-                            ? gelirAramaModuContext
-                              ? EmptyStateWidget(
-                                  icon: Icons.search_off,
-                                  title: context.l10n.noResultsFound,
-                                  subtitle: context.l10n.tryDifferentSearchTerm,
-                                )
-                              : EmptyStateWidget.noIncomes(context)
-                            : IncomesListView(
-                                gelirler: gelirler,
-                                hasMoreItems: hasMoreItems,
-                                scrollController: lazyScrollController,
-                                onRefresh: () async {
-                                  await _controller.loadData(isRefresh: true);
-                                },
-                                buildLoadingIndicator: buildLoadingIndicator,
-                                onDelete: gelirSil,
-                                onEdit: gelirDuzenle,
-                                kategoriIkonlari: widget.gelirKategoriIkonlari,
+                        children: [
+                          // Özet Kartı
+                          if (!gelirAramaModuContext)
+                            IncomeSummaryCard(
+                              ayIsmi: ayIsmi,
+                              toplamGelir: toplamGelir,
+                              oncekiAy: oncekiAy,
+                              sonrakiAy: sonrakiAy,
+                              ayYilSeciciAc: _ayYilSeciciAc,
+                              gelirSayisi: gelirler.length,
+                              gelirHedefi: context.select(
+                                (IncomesController c) => c.incomeTarget,
                               ),
-                      ),
-                  ],
-                );
-              }
+                            ),
+
+                          // Gelir listesi
+                          Expanded(
+                            child: gelirler.isEmpty
+                                ? gelirAramaModuContext
+                                      ? EmptyStateWidget(
+                                          icon: Icons.search_off,
+                                          title: context.l10n.noResultsFound,
+                                          subtitle: context
+                                              .l10n
+                                              .tryDifferentSearchTerm,
+                                        )
+                                      : EmptyStateWidget.noIncomes(context)
+                                : IncomesListView(
+                                    gelirler: gelirler,
+                                    hasMoreItems: hasMoreItems,
+                                    scrollController: lazyScrollController,
+                                    onRefresh: () async {
+                                      await _controller.loadData(
+                                        isRefresh: true,
+                                      );
+                                    },
+                                    buildLoadingIndicator:
+                                        buildLoadingIndicator,
+                                    onDelete: gelirSil,
+                                    onEdit: gelirDuzenle,
+                                    kategoriIkonlari:
+                                        widget.gelirKategoriIkonlari,
+                                  ),
+                          ),
+                        ],
+                      );
+              },
             );
           },
         ),
-      // Modern floating bottom navigation bar - Ortak widget kullanımı
-      bottomNavigationBar: AppFloatingBottomBar(
-        items: [
-          BottomBarItem(
-            icon: Icons.delete_outline,
-            label: context.l10n.trashBin,
-            onTap: () {
-              HapticService.selectionClick();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GelirCopKutusuSayfasi(
-                    userId: widget.userId ?? '',
-                    controller: _controller,
+        // Modern floating bottom navigation bar - Ortak widget kullanımı
+        bottomNavigationBar: AppFloatingBottomBar(
+          items: [
+            BottomBarItem(
+              icon: Icons.delete_outline,
+              label: context.l10n.trashBin,
+              onTap: () {
+                HapticService.selectionClick();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GelirCopKutusuSayfasi(
+                      userId: widget.userId ?? '',
+                      controller: _controller,
+                    ),
                   ),
-                ),
-              ).then((_) {
-                if (mounted) _controller.refresh();
-              });
-            },
-          ),
-          BottomBarItem(
-            icon: Icons.mic,
-            label: context.l10n.voiceInput,
-            onTap: () {
-              HapticService.selectionClick();
-              _showVoiceInput();
-            },
-          ),
-        ],
-        centerButtonColor: Colors.green.shade600,
-        onCenterButtonTap: () {
-          HapticService.lightImpact();
-          yeniGelirEkle();
-        },
+                ).then((_) {
+                  if (mounted) _controller.refresh();
+                });
+              },
+            ),
+            BottomBarItem(
+              icon: Icons.mic,
+              label: context.l10n.voiceInput,
+              onTap: () {
+                HapticService.selectionClick();
+                _showVoiceInput();
+              },
+            ),
+          ],
+          centerButtonColor: Colors.green.shade600,
+          onCenterButtonTap: () {
+            HapticService.lightImpact();
+            yeniGelirEkle();
+          },
+        ),
       ),
-    ));
+    );
   }
 }

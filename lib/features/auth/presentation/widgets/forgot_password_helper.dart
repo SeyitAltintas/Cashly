@@ -77,53 +77,63 @@ class ForgotPasswordHelper {
                     }),
                     if (errorMessage != null || successMessage != null)
                       _buildMessageBox(
-                          builderContext, successMessage, errorMessage),
+                        builderContext,
+                        successMessage,
+                        errorMessage,
+                      ),
                     const SizedBox(height: 24),
                     // FIX-1: isSending VEYA isSent iken spinner/disabled göster
                     isSending
-                      ? const Center(child: CircularProgressIndicator())
-                      : _buildContinueButton(
-                        sheetContext,
-                        // FIX-2: Başarılı gönderi sonrası buton kilitleniyor
-                        enabled: !isSent,
-                        onPressed: () async {
-                          if (!formKey.currentState!.validate()) return;
+                        ? const Center(child: CircularProgressIndicator())
+                        : _buildContinueButton(
+                            sheetContext,
+                            // FIX-2: Başarılı gönderi sonrası buton kilitleniyor
+                            enabled: !isSent,
+                            onPressed: () async {
+                              if (!formKey.currentState!.validate()) return;
 
-                          final email = emailController.text.trim();
+                              final email = emailController.text.trim();
 
-                          // FIX-1: Race condition önleme — önce gönderiliyor bayrağını kıl,
-                          // getUserByEmail async bekleme süresinde ikinci tap mümkün olmasın.
-                          setSheetState(() => isSending = true);
+                              // FIX-1: Race condition önleme — önce gönderiliyor bayrağını kıl,
+                              // getUserByEmail async bekleme süresinde ikinci tap mümkün olmasın.
+                              setSheetState(() => isSending = true);
 
-                          final user = await authController.getUserByEmail(email);
+                              final user = await authController.getUserByEmail(
+                                email,
+                              );
 
-                          if (!context.mounted) return;
+                              if (!context.mounted) return;
 
-                          if (user == null) {
-                            setSheetState(() {
-                              isSending = false;
-                              errorMessage = context.l10n.userNotFoundWithEmail;
-                            });
-                            return;
-                          }
+                              if (user == null) {
+                                setSheetState(() {
+                                  isSending = false;
+                                  errorMessage =
+                                      context.l10n.userNotFoundWithEmail;
+                                });
+                                return;
+                              }
 
-                          final sent = await authController.sendPinResetEmailLink(email);
+                              final sent = await authController
+                                  .sendPinResetEmailLink(email);
 
-                          if (!context.mounted) return;
+                              if (!context.mounted) return;
 
-                          setSheetState(() {
-                            isSending = false;
-                            if (sent) {
-                              isSent = true; // FIX-2: Butonu kilitle
-                              successMessage = "Bağlantı e-posta adresinize gönderildi. Lütfen e-postasınızı kontrol edin.";
-                              errorMessage = null;
-                            } else {
-                              errorMessage = authController.error ?? "Bağlantı gönderilemedi.";
-                              successMessage = null;
-                            }
-                          });
-                        },
-                      ),
+                              setSheetState(() {
+                                isSending = false;
+                                if (sent) {
+                                  isSent = true; // FIX-2: Butonu kilitle
+                                  successMessage =
+                                      "Bağlantı e-posta adresinize gönderildi. Lütfen e-postasınızı kontrol edin.";
+                                  errorMessage = null;
+                                } else {
+                                  errorMessage =
+                                      authController.error ??
+                                      "Bağlantı gönderilemedi.";
+                                  successMessage = null;
+                                }
+                              });
+                            },
+                          ),
                     const SizedBox(height: 12),
                   ],
                 ),
@@ -137,7 +147,12 @@ class ForgotPasswordHelper {
 
   /// Adım 2: Magic Link ile App açıldıktan sonra Yeni PIN belirleme ekranı
   /// Bu metod AppLinks listener tarafından tetiklenir
-  static void showSetNewPinSheet(BuildContext context, AuthController authController, String email, String emailLink) {
+  static void showSetNewPinSheet(
+    BuildContext context,
+    AuthController authController,
+    String email,
+    String emailLink,
+  ) {
     final pinController = TextEditingController();
     final confirmPinController = TextEditingController();
     final formKey = GlobalKey<FormState>();
@@ -184,7 +199,7 @@ class ForgotPasswordHelper {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                         "Doğrulama başarılı! Lütfen 6 haneli yeni PIN kodunuzu oluşturun.",
+                        "Doğrulama başarılı! Lütfen 6 haneli yeni PIN kodunuzu oluşturun.",
                         style: TextStyle(
                           fontSize: 14,
                           color: Theme.of(
@@ -218,46 +233,56 @@ class ForgotPasswordHelper {
                           errorMessage,
                         ),
                       const SizedBox(height: 24),
-                      isSaving 
-                        ? const Center(child: CircularProgressIndicator()) 
-                        : _buildUpdatePinButton(
-                        builderContext,
-                        context,
-                        onPressed: () async {
-                          if (!formKey.currentState!.validate()) return;
+                      isSaving
+                          ? const Center(child: CircularProgressIndicator())
+                          : _buildUpdatePinButton(
+                              builderContext,
+                              context,
+                              onPressed: () async {
+                                if (!formKey.currentState!.validate()) return;
 
-                          final newPin = pinController.text;
-                          
-                          setSheetState(() => isSaving = true);
+                                final newPin = pinController.text;
 
-                          final success = await authController.verifyEmailLinkAndSetPin(email, emailLink, newPin);
-                          
-                          if (!context.mounted) return;
-                          
-                          setSheetState(() => isSaving = false);
+                                setSheetState(() => isSaving = true);
 
-                          if (success) {
-                            setSheetState(() {
-                              successMessage = context.l10n.pinUpdatedSuccess;
-                              errorMessage = null;
-                            });
+                                final success = await authController
+                                    .verifyEmailLinkAndSetPin(
+                                      email,
+                                      emailLink,
+                                      newPin,
+                                    );
 
-                            await Future.delayed(
-                              const Duration(milliseconds: 1500),
-                            );
-                            if (!context.mounted) return;
+                                if (!context.mounted) return;
 
-                            // FIX-5: Sheet kapatılıp login sayfasına yönlendir.
-                            // Kullanıcı yeni PIN ile giriş yapmalı (verifyEmailLink zaten oturum açtı
-                            // ama AuthController'da checkAuth yapılması için route sıfırlanır).
-                            Navigator.of(context).popUntil((route) => route.isFirst);
-                          } else {
-                            setSheetState(
-                              () => errorMessage = authController.error ?? "Güncelleme başarısız oldu.",
-                            );
-                          }
-                        },
-                      ),
+                                setSheetState(() => isSaving = false);
+
+                                if (success) {
+                                  setSheetState(() {
+                                    successMessage =
+                                        context.l10n.pinUpdatedSuccess;
+                                    errorMessage = null;
+                                  });
+
+                                  await Future.delayed(
+                                    const Duration(milliseconds: 1500),
+                                  );
+                                  if (!context.mounted) return;
+
+                                  // FIX-5: Sheet kapatılıp login sayfasına yönlendir.
+                                  // Kullanıcı yeni PIN ile giriş yapmalı (verifyEmailLink zaten oturum açtı
+                                  // ama AuthController'da checkAuth yapılması için route sıfırlanır).
+                                  Navigator.of(
+                                    context,
+                                  ).popUntil((route) => route.isFirst);
+                                } else {
+                                  setSheetState(
+                                    () => errorMessage =
+                                        authController.error ??
+                                        "Güncelleme başarısız oldu.",
+                                  );
+                                }
+                              },
+                            ),
                       const SizedBox(height: 12),
                     ],
                   ),
@@ -285,7 +310,7 @@ class ForgotPasswordHelper {
       ),
     );
   }
-  
+
   static Widget _buildStaticHandle(BuildContext ctx) {
     return Center(
       child: Container(
@@ -417,7 +442,10 @@ class ForgotPasswordHelper {
         labelStyle: TextStyle(
           color: Theme.of(ctx).colorScheme.onSurface.withAlpha(180),
         ),
-        prefixIcon: Icon(Icons.lock_reset, color: Theme.of(ctx).colorScheme.secondary),
+        prefixIcon: Icon(
+          Icons.lock_reset,
+          color: Theme.of(ctx).colorScheme.secondary,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
           borderSide: BorderSide(
@@ -481,8 +509,12 @@ class ForgotPasswordHelper {
   Widget _buildMessageBox(BuildContext ctx, String? success, String? error) {
     return _buildMessageBoxInstance(ctx, success, error);
   }
-  
-  static Widget _buildMessageBoxInstance(BuildContext ctx, String? success, String? error) {
+
+  static Widget _buildMessageBoxInstance(
+    BuildContext ctx,
+    String? success,
+    String? error,
+  ) {
     final isSuccess = success != null;
     return Padding(
       padding: const EdgeInsets.only(top: 12),
@@ -547,7 +579,9 @@ class ForgotPasswordHelper {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: enabled ? Colors.white : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.38),
+            color: enabled
+                ? Colors.white
+                : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.38),
           ),
         ),
       ),

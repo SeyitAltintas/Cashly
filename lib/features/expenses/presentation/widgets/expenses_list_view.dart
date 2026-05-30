@@ -58,8 +58,11 @@ class ExpensesListView extends StatelessWidget {
               ...harcamalar.map((harcama) {
                 return ExpenseListItem(
                   harcama: harcama,
-                  categoryIcon: kategoriIkonlari[harcama['kategori']] ??
-                      IconConstants.getIconFromCategoryName(harcama['kategori']),
+                  categoryIcon:
+                      kategoriIkonlari[harcama['kategori']] ??
+                      IconConstants.getIconFromCategoryName(
+                        harcama['kategori'],
+                      ),
                   paymentMethods: tumOdemeYontemleri,
                   itemIndex: gosterilenHarcamalar.indexOf(harcama),
                   onDelete: () => onDelete(harcama),
@@ -70,8 +73,11 @@ class ExpensesListView extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (ctx) => ExpenseDetailPage(
                           harcama: harcama,
-                          categoryIcon: kategoriIkonlari[harcama['kategori']] ??
-                              IconConstants.getIconFromCategoryName(harcama['kategori']),
+                          categoryIcon:
+                              kategoriIkonlari[harcama['kategori']] ??
+                              IconConstants.getIconFromCategoryName(
+                                harcama['kategori'],
+                              ),
                           paymentMethods: tumOdemeYontemleri,
                           kategoriIkonlari: kategoriIkonlari,
                           onEdit: (updatedHarcama) {

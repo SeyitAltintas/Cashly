@@ -61,7 +61,6 @@ class AnalysisPage extends StatefulWidget {
 
 enum ChartViewType { pie, bar, line }
 
-
 class _AnalysisPageState extends State<AnalysisPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
@@ -72,13 +71,10 @@ class _AnalysisPageState extends State<AnalysisPage>
   int get _touchedIndex => _controller.touchedIndex;
 
   // Harcamalar için birbirine zıt, okunabilir ve canlı "Sıcak" tonlar
-  
 
   // Gelirler için birbirine zıt, tazeleyici "Doğa / Yeşil" tabanlı tonlar
-  
 
   // Varlıklar için birbirine zıt, güven veren "Deniz / Gökyüzü" tabanlı tonlar
-  
 
   @override
   void initState() {
@@ -151,7 +147,9 @@ class _AnalysisPageState extends State<AnalysisPage>
           _buildStickyHeader(context),
           Expanded(
             child: _controller.isLoading
-                ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                ? const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  )
                 : TabBarView(
                     controller: _tabController,
                     physics: const NeverScrollableScrollPhysics(),
@@ -569,13 +567,10 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   /// Harcama Analizi
-  
 
   /// Gelir Analizi
-  
 
   /// Varlık Analizi
-  
 
   // ========== YARDIMCI METODLAR ==========
 
@@ -585,7 +580,7 @@ class _AnalysisPageState extends State<AnalysisPage>
         final locale = Localizations.localeOf(context).languageCode;
         return DateFormat.MMM(locale).format(DateTime(2024, month, 1));
       } catch (_) {
-         // Fallback works natively internally or below
+        // Fallback works natively internally or below
       }
     }
     return '';
@@ -1196,7 +1191,8 @@ class _AnalysisPageState extends State<AnalysisPage>
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((spot) {
                         // Bounds check to prevent RangeError
-                        if (spot.spotIndex < 0 || spot.spotIndex >= sortedEntries.length) {
+                        if (spot.spotIndex < 0 ||
+                            spot.spotIndex >= sortedEntries.length) {
                           return null;
                         }
                         final date = sortedEntries[spot.spotIndex].key;
@@ -1356,7 +1352,9 @@ class _AnalysisPageState extends State<AnalysisPage>
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
-              horizontalInterval: maxVal > 0 ? (maxVal / 4).clamp(0.1, double.infinity) : 1,
+              horizontalInterval: maxVal > 0
+                  ? (maxVal / 4).clamp(0.1, double.infinity)
+                  : 1,
               getDrawingHorizontalLine: (value) => FlLine(
                 color: Colors.white.withValues(alpha: 0.3),
                 strokeWidth: 1,
@@ -1397,10 +1395,12 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   /// Ödeme yöntemine göre dağılım
   Widget _buildPaymentMethodDistribution({bool isExpense = true}) {
-    final Map<String, double> pmTotals =
-        isExpense ? _controller.expensePaymentMethodTotals : _controller.incomePaymentMethodTotals;
-    final double pmTotal =
-        isExpense ? _controller.totalMonthlyExpense : _controller.totalMonthlyIncome;
+    final Map<String, double> pmTotals = isExpense
+        ? _controller.expensePaymentMethodTotals
+        : _controller.incomePaymentMethodTotals;
+    final double pmTotal = isExpense
+        ? _controller.totalMonthlyExpense
+        : _controller.totalMonthlyIncome;
 
     if (pmTotals.isEmpty || pmTotal == 0) return const SizedBox.shrink();
 
@@ -1418,42 +1418,45 @@ class _AnalysisPageState extends State<AnalysisPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        Text(
-          isExpense
-              ? context.l10n.distributionByPaymentMethod
-              : context.l10n.distributionByAccount,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+          Text(
+            isExpense
+                ? context.l10n.distributionByPaymentMethod
+                : context.l10n.distributionByAccount,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 110,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: pmTotals.length,
-            clipBehavior: Clip.none,
-            itemBuilder: (context, index) {
-              final entry = pmTotals.entries.elementAt(index);
-              final color = pmColors[index % pmColors.length];
-              return _buildPaymentMethodCard(
-                entry.key,
-                entry.value,
-                pmTotal,
-                color,
-              );
-            },
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 110,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: pmTotals.length,
+              clipBehavior: Clip.none,
+              itemBuilder: (context, index) {
+                final entry = pmTotals.entries.elementAt(index);
+                final color = pmColors[index % pmColors.length];
+                return _buildPaymentMethodCard(
+                  entry.key,
+                  entry.value,
+                  pmTotal,
+                  color,
+                );
+              },
+            ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }
 
   /// En yüksek 3 harcamayı gösteren widget
-  Widget _buildTopExpenses(List<Map<String, dynamic>> currentExpenses, double totalMonthlyExpense) {
+  Widget _buildTopExpenses(
+    List<Map<String, dynamic>> currentExpenses,
+    double totalMonthlyExpense,
+  ) {
     if (currentExpenses.isEmpty) return const SizedBox.shrink();
 
     // "Sabit Giderler" / "Fixed Expenses" kategorisini hariç tut
@@ -1471,14 +1474,22 @@ class _AnalysisPageState extends State<AnalysisPage>
         final double valB = (b['tutar'] as num?)?.toDouble() ?? 0.0;
         final pbA = a['paraBirimi']?.toString() ?? 'TRY';
         final pbB = b['paraBirimi']?.toString() ?? 'TRY';
-        final convertedA = curService.convert(valA, pbA, curService.currentCurrency);
-        final convertedB = curService.convert(valB, pbB, curService.currentCurrency);
+        final convertedA = curService.convert(
+          valA,
+          pbA,
+          curService.currentCurrency,
+        );
+        final convertedB = curService.convert(
+          valB,
+          pbB,
+          curService.currentCurrency,
+        );
         return convertedB.compareTo(convertedA);
       });
 
     final top3 = sortedExpenses.take(3).toList();
     if (top3.isEmpty || top3.every((e) => (e['tutar'] as num? ?? 0.0) == 0.0)) {
-       return const SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     return Padding(
@@ -1486,170 +1497,213 @@ class _AnalysisPageState extends State<AnalysisPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              context.l10n.topExpenses,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                context.l10n.topExpenses,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            Container(
-               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-               decoration: BoxDecoration(
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
                   color: Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-               ),
-               child: Icon(Icons.warning_rounded, size: 16, color: Colors.red.shade400),
-            )
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          context.l10n.topExpensesDescription,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-            fontSize: 13,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                ),
+                child: Icon(
+                  Icons.warning_rounded,
+                  size: 16,
+                  color: Colors.red.shade400,
+                ),
               ),
             ],
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            context.l10n.topExpensesDescription,
+            style: TextStyle(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
+              fontSize: 13,
             ),
           ),
-          child: Column(
-            children: List.generate(top3.length, (index) {
-              final expense = top3[index];
-              final category = expense['kategori']?.toString() ?? context.l10n.notSpecified;
-              final expenseName = expense['isim']?.toString() ?? context.translateDbName(category);
-              final amount = (expense['tutar'] as num?)?.toDouble() ?? 0.0;
-              final currency = expense['paraBirimi']?.toString() ?? 'TRY';
-              final note = expense['ikinciAciklama']?.toString() ?? expense['kategoriAyrinti']?.toString() ?? '';
-              
-              // Orijinal tutarı base currency'e çevir
-              final curService = getIt<CurrencyService>();
-              final convertedAmount = curService.convert(amount, currency, curService.currentCurrency);
-              
-              // Tarih bilgisini al ve formatla
-              final tarihStr = expense['tarih']?.toString();
-              String dateText = '';
-              if (tarihStr != null) {
-                final date = DateTime.tryParse(tarihStr);
-                if (date != null) {
-                  dateText = '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+          const SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Column(
+              children: List.generate(top3.length, (index) {
+                final expense = top3[index];
+                final category =
+                    expense['kategori']?.toString() ??
+                    context.l10n.notSpecified;
+                final expenseName =
+                    expense['isim']?.toString() ??
+                    context.translateDbName(category);
+                final amount = (expense['tutar'] as num?)?.toDouble() ?? 0.0;
+                final currency = expense['paraBirimi']?.toString() ?? 'TRY';
+                final note =
+                    expense['ikinciAciklama']?.toString() ??
+                    expense['kategoriAyrinti']?.toString() ??
+                    '';
+
+                // Orijinal tutarı base currency'e çevir
+                final curService = getIt<CurrencyService>();
+                final convertedAmount = curService.convert(
+                  amount,
+                  currency,
+                  curService.currentCurrency,
+                );
+
+                // Tarih bilgisini al ve formatla
+                final tarihStr = expense['tarih']?.toString();
+                String dateText = '';
+                if (tarihStr != null) {
+                  final date = DateTime.tryParse(tarihStr);
+                  if (date != null) {
+                    dateText =
+                        '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+                  }
                 }
-              }
 
-              // İkonu bul
-              IconData categoryIcon = widget.expenseCategoryIcons?[category] ?? Icons.category_rounded;
-              
-              // Her işlem için o harcama paletindeki zıt renklerden birini seç
-              final Color iconColor = AnalysisColors.expenseColors[index % AnalysisColors.expenseColors.length];
+                // İkonu bul
+                IconData categoryIcon =
+                    widget.expenseCategoryIcons?[category] ??
+                    Icons.category_rounded;
 
-              return Column(
-                children: [
-                   ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    leading: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: iconColor.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
+                // Her işlem için o harcama paletindeki zıt renklerden birini seç
+                final Color iconColor = AnalysisColors
+                    .expenseColors[index % AnalysisColors.expenseColors.length];
+
+                return Column(
+                  children: [
+                    ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
                       ),
-                      child: Icon(categoryIcon, color: iconColor, size: 24),
-                    ),
-                    title: Text(
-                      expenseName,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (note.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            note,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                              fontSize: 12,
+                      leading: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: iconColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(categoryIcon, color: iconColor, size: 24),
+                      ),
+                      title: Text(
+                        expenseName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (note.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              note,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.6),
+                                fontSize: 12,
+                              ),
                             ),
-                          ),
-                        ],
-                        if (dateText.isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          Row(
-                             children: [
-                                Icon(Icons.calendar_today_outlined, size: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+                          ],
+                          if (dateText.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.calendar_today_outlined,
+                                  size: 12,
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   dateText,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
                                   ),
                                 ),
-                             ],
-                          ),
+                              ],
+                            ),
+                          ],
                         ],
-                      ],
-                    ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          CurrencyFormatter.format(amount, currency: currency),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.red,
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            CurrencyFormatter.format(
+                              amount,
+                              currency: currency,
+                            ),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.red,
+                            ),
                           ),
-                        ),
-                        if (currency != curService.currentCurrency) ...[
-                           Text(
-                             '~${CurrencyFormatter.format(convertedAmount)}',
-                             style: TextStyle(
-                               fontSize: 11,
-                               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                             ),
-                           )
+                          if (currency != curService.currentCurrency) ...[
+                            Text(
+                              '~${CurrencyFormatter.format(convertedAmount)}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                  // Son eleman değilse araya çizgi koy
-                  if (index != top3.length - 1)
-                    Divider(
-                      height: 1,
-                      indent: 72,
-                      endIndent: 16,
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                    ),
-                ],
-              );
-            }),
+                    // Son eleman değilse araya çizgi koy
+                    if (index != top3.length - 1)
+                      Divider(
+                        height: 1,
+                        indent: 72,
+                        endIndent: 16,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outline.withValues(alpha: 0.1),
+                      ),
+                  ],
+                );
+              }),
+            ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }
@@ -1662,11 +1716,15 @@ class _AnalysisPageState extends State<AnalysisPage>
     final curService = getIt<CurrencyService>();
 
     // purchasePrice == 0 ise ROI hesaplanamaz → hariç tut
-    final assetsWithRoi = activeAssets.where((a) => a.purchasePrice > 0).toList();
+    final assetsWithRoi = activeAssets
+        .where((a) => a.purchasePrice > 0)
+        .toList();
     if (assetsWithRoi.isEmpty) return const SizedBox.shrink();
 
     // ROI'ye göre sırala (en yüksek başta)
-    assetsWithRoi.sort((a, b) => b.profitLossPercentage.compareTo(a.profitLossPercentage));
+    assetsWithRoi.sort(
+      (a, b) => b.profitLossPercentage.compareTo(a.profitLossPercentage),
+    );
 
     // Sadece kârda olanları göster
     final profitable = assetsWithRoi.where((a) => a.profitLoss > 0).toList();
@@ -1709,7 +1767,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                   child: Icon(
                     Icons.info_outline_rounded,
                     size: 18,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
                 ),
               ],
@@ -1720,7 +1780,9 @@ class _AnalysisPageState extends State<AnalysisPage>
         Text(
           context.l10n.topPerformersDesc,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.6),
             fontSize: 13,
           ),
         ),
@@ -1737,7 +1799,9 @@ class _AnalysisPageState extends State<AnalysisPage>
               ),
             ],
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.1),
             ),
           ),
           child: Column(
@@ -1745,7 +1809,9 @@ class _AnalysisPageState extends State<AnalysisPage>
               final asset = top3[index];
               final roi = asset.profitLossPercentage;
               final profitAmount = curService.convert(
-                asset.profitLoss, asset.paraBirimi, curService.currentCurrency,
+                asset.profitLoss,
+                asset.paraBirimi,
+                curService.currentCurrency,
               );
               final isProfit = profitAmount >= 0;
               final Color roiColor = isProfit ? Colors.green : Colors.red;
@@ -1753,16 +1819,24 @@ class _AnalysisPageState extends State<AnalysisPage>
               return Column(
                 children: [
                   ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     leading: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AnalysisColors.assetColors[index % AnalysisColors.assetColors.length].withValues(alpha: 0.1),
+                        color: AnalysisColors
+                            .assetColors[index %
+                                AnalysisColors.assetColors.length]
+                            .withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.show_chart_rounded,
-                        color: AnalysisColors.assetColors[index % AnalysisColors.assetColors.length],
+                        color:
+                            AnalysisColors.assetColors[index %
+                                AnalysisColors.assetColors.length],
                         size: 24,
                       ),
                     ),
@@ -1776,7 +1850,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                       context.translateDbName(asset.category),
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                     trailing: Column(
@@ -1784,7 +1860,10 @@ class _AnalysisPageState extends State<AnalysisPage>
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: roiColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
@@ -1803,7 +1882,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                           '${isProfit ? '+' : ''}${CurrencyFormatter.format(profitAmount)}',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                       ],
@@ -1814,7 +1895,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                       height: 1,
                       indent: 72,
                       endIndent: 16,
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.1),
                     ),
                 ],
               );
@@ -1826,7 +1909,10 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   /// Özellik 2: Portföy Çeşitliliği
-  Widget _buildPortfolioDiversification(Map<String, double> typeTotals, double totalValue) {
+  Widget _buildPortfolioDiversification(
+    Map<String, double> typeTotals,
+    double totalValue,
+  ) {
     if (typeTotals.isEmpty || totalValue <= 0) return const SizedBox.shrink();
 
     final typeCount = typeTotals.length;
@@ -1895,7 +1981,9 @@ class _AnalysisPageState extends State<AnalysisPage>
               child: Icon(
                 Icons.info_outline_rounded,
                 size: 18,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.4),
               ),
             ),
           ],
@@ -1907,7 +1995,9 @@ class _AnalysisPageState extends State<AnalysisPage>
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.1),
             ),
           ),
           child: Column(
@@ -1915,7 +2005,11 @@ class _AnalysisPageState extends State<AnalysisPage>
               // Progress bars for each type
               ...typeTotals.entries.map((entry) {
                 final pct = entry.value / totalValue;
-                final color = AnalysisColors.assetColors[typeTotals.keys.toList().indexOf(entry.key) % AnalysisColors.assetColors.length];
+                final color =
+                    AnalysisColors.assetColors[typeTotals.keys.toList().indexOf(
+                          entry.key,
+                        ) %
+                        AnalysisColors.assetColors.length];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Column(
@@ -1947,7 +2041,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: pct.clamp(0.0, 1.0),
-                          backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.08),
                           valueColor: AlwaysStoppedAnimation(color),
                           minHeight: 6,
                         ),
@@ -1980,17 +2076,26 @@ class _AnalysisPageState extends State<AnalysisPage>
     // Yüksek likidite: Altın, Döviz, Kripto, Banka
     // Düşük likidite: Hisse Senedi, Diğer, ve kullanıcı tanımlı bilinmeyen türler
     const highLiquidityCategories = {
-      'altın', 'gold',
-      'döviz', 'forex', 'currency',
-      'kripto', 'crypto',
-      'banka', 'bank',
+      'altın',
+      'gold',
+      'döviz',
+      'forex',
+      'currency',
+      'kripto',
+      'crypto',
+      'banka',
+      'bank',
     };
 
     double highLiquidTotal = 0;
     double lowLiquidTotal = 0;
 
     for (var asset in activeAssets) {
-      final converted = curService.convert(asset.amount, asset.paraBirimi, curService.currentCurrency);
+      final converted = curService.convert(
+        asset.amount,
+        asset.paraBirimi,
+        curService.currentCurrency,
+      );
       if (highLiquidityCategories.contains(asset.category.toLowerCase())) {
         highLiquidTotal += converted;
       } else {
@@ -2026,7 +2131,9 @@ class _AnalysisPageState extends State<AnalysisPage>
               child: Icon(
                 Icons.info_outline_rounded,
                 size: 18,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.4),
               ),
             ),
           ],
@@ -2038,7 +2145,9 @@ class _AnalysisPageState extends State<AnalysisPage>
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.1),
             ),
           ),
           child: Column(
@@ -2050,7 +2159,11 @@ class _AnalysisPageState extends State<AnalysisPage>
                   Expanded(
                     child: Column(
                       children: [
-                        const Icon(Icons.flash_on_rounded, color: Colors.cyan, size: 28),
+                        const Icon(
+                          Icons.flash_on_rounded,
+                          color: Colors.cyan,
+                          size: 28,
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           context.l10n.highLiquidity,
@@ -2074,8 +2187,12 @@ class _AnalysisPageState extends State<AnalysisPage>
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
                             value: (highPct / 100).clamp(0.0, 1.0),
-                            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
-                            valueColor: const AlwaysStoppedAnimation(Colors.cyan),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.08),
+                            valueColor: const AlwaysStoppedAnimation(
+                              Colors.cyan,
+                            ),
                             minHeight: 6,
                           ),
                         ),
@@ -2087,7 +2204,11 @@ class _AnalysisPageState extends State<AnalysisPage>
                   Expanded(
                     child: Column(
                       children: [
-                        const Icon(Icons.hourglass_bottom_rounded, color: Colors.orange, size: 28),
+                        const Icon(
+                          Icons.hourglass_bottom_rounded,
+                          color: Colors.orange,
+                          size: 28,
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           context.l10n.lowLiquidity,
@@ -2111,8 +2232,12 @@ class _AnalysisPageState extends State<AnalysisPage>
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
                             value: (lowPct / 100).clamp(0.0, 1.0),
-                            backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
-                            valueColor: const AlwaysStoppedAnimation(Colors.orange),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.08),
+                            valueColor: const AlwaysStoppedAnimation(
+                              Colors.orange,
+                            ),
                             minHeight: 6,
                           ),
                         ),
@@ -2124,9 +2249,13 @@ class _AnalysisPageState extends State<AnalysisPage>
               const SizedBox(height: 16),
               // Status message
               _buildInfoCard(
-                icon: isHealthy ? Icons.check_circle_outline_rounded : Icons.warning_amber_rounded,
+                icon: isHealthy
+                    ? Icons.check_circle_outline_rounded
+                    : Icons.warning_amber_rounded,
                 iconColor: isHealthy ? Colors.green : Colors.orange,
-                title: isHealthy ? context.l10n.highLiquidity : context.l10n.lowLiquidity,
+                title: isHealthy
+                    ? context.l10n.highLiquidity
+                    : context.l10n.lowLiquidity,
                 message: isHealthy
                     ? context.l10n.liquidityHealthy(highPct.toStringAsFixed(0))
                     : context.l10n.liquidityWarning,
@@ -2139,7 +2268,6 @@ class _AnalysisPageState extends State<AnalysisPage>
   }
 
   // ========== GELİR ANALİZİ WİDGET'LARI ==========
-
 
   /// Özellik 1: En Büyük 3 Gelir (Düzenli gelirler hariç)
   /// Controller üzerinden tüm tarihsel veriye bakarak düzenli kategorileri tespit eder.
@@ -2167,14 +2295,22 @@ class _AnalysisPageState extends State<AnalysisPage>
     final curService = getIt<CurrencyService>();
     final sorted = List<Income>.from(filtered)
       ..sort((a, b) {
-        final va = curService.convert(a.amount, a.paraBirimi, curService.currentCurrency);
-        final vb = curService.convert(b.amount, b.paraBirimi, curService.currentCurrency);
+        final va = curService.convert(
+          a.amount,
+          a.paraBirimi,
+          curService.currentCurrency,
+        );
+        final vb = curService.convert(
+          b.amount,
+          b.paraBirimi,
+          curService.currentCurrency,
+        );
         return vb.compareTo(va);
       });
 
     final top3 = sorted.take(3).toList();
     if (top3.isEmpty || top3.every((e) => e.amount == 0.0)) {
-       return const SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     return Padding(
@@ -2182,163 +2318,205 @@ class _AnalysisPageState extends State<AnalysisPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Text(
-                  context.l10n.topIncomes,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    context.l10n.topIncomes,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 6),
-                GestureDetector(
-                  onTap: () => _showDetailBottomSheet(
-                    title: context.l10n.topIncomesDetailTitle,
-                    body: context.l10n.topIncomesDetailBody,
-                    icon: Icons.emoji_events_rounded,
-                    iconColor: Colors.amber,
+                  const SizedBox(width: 6),
+                  GestureDetector(
+                    onTap: () => _showDetailBottomSheet(
+                      title: context.l10n.topIncomesDetailTitle,
+                      body: context.l10n.topIncomesDetailBody,
+                      icon: Icons.emoji_events_rounded,
+                      iconColor: Colors.amber,
+                    ),
+                    child: Icon(
+                      Icons.info_outline_rounded,
+                      size: 18,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.4),
+                    ),
                   ),
-                  child: Icon(
-                    Icons.info_outline_rounded,
-                    size: 18,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-                  ),
-                ),
-              ],
-            ),
-            Container(
-               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-               decoration: BoxDecoration(
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
                   color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-               ),
-               child: Icon(Icons.emoji_events_rounded, size: 16, color: Colors.green.shade400),
-            )
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          context.l10n.topIncomesDescription,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-            fontSize: 13,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                ),
+                child: Icon(
+                  Icons.emoji_events_rounded,
+                  size: 16,
+                  color: Colors.green.shade400,
+                ),
               ),
             ],
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            context.l10n.topIncomesDescription,
+            style: TextStyle(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
+              fontSize: 13,
             ),
           ),
-          child: Column(
-            children: List.generate(top3.length, (index) {
-              final income = top3[index];
-              final amount = income.amount;
-              final currency = income.paraBirimi;
-              final convertedAmount = curService.convert(amount, currency, curService.currentCurrency);
-              final Color iconColor = AnalysisColors.incomeColors[index % AnalysisColors.incomeColors.length];
-              final incomeCatIcon = widget.incomeCategoryIcons?[income.category] ?? Icons.attach_money_rounded;
+          const SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Column(
+              children: List.generate(top3.length, (index) {
+                final income = top3[index];
+                final amount = income.amount;
+                final currency = income.paraBirimi;
+                final convertedAmount = curService.convert(
+                  amount,
+                  currency,
+                  curService.currentCurrency,
+                );
+                final Color iconColor = AnalysisColors
+                    .incomeColors[index % AnalysisColors.incomeColors.length];
+                final incomeCatIcon =
+                    widget.incomeCategoryIcons?[income.category] ??
+                    Icons.attach_money_rounded;
 
-              // Tarih
-              final date = income.date;
-              final dateText = '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+                // Tarih
+                final date = income.date;
+                final dateText =
+                    '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
 
-              return Column(
-                children: [
-                   ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    leading: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: iconColor.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
+                return Column(
+                  children: [
+                    ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
                       ),
-                      child: Icon(incomeCatIcon, color: iconColor, size: 24),
-                    ),
-                    title: Text(
-                      income.name.isNotEmpty ? income.name : context.translateDbName(income.category),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            Icon(Icons.calendar_today_outlined, size: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
-                            const SizedBox(width: 4),
+                      leading: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: iconColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(incomeCatIcon, color: iconColor, size: 24),
+                      ),
+                      title: Text(
+                        income.name.isNotEmpty
+                            ? income.name
+                            : context.translateDbName(income.category),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today_outlined,
+                                size: 12,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.6),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                dateText,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            CurrencyFormatter.format(
+                              amount,
+                              currency: currency,
+                            ),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.green.shade600,
+                            ),
+                          ),
+                          if (currency != curService.currentCurrency)
                             Text(
-                              dateText,
+                              '~${CurrencyFormatter.format(convertedAmount)}',
                               style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                fontSize: 11,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.5),
                               ),
                             ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          CurrencyFormatter.format(amount, currency: currency),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.green.shade600,
-                          ),
-                        ),
-                        if (currency != curService.currentCurrency)
-                           Text(
-                             '~${CurrencyFormatter.format(convertedAmount)}',
-                             style: TextStyle(
-                               fontSize: 11,
-                               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                             ),
-                           ),
-                      ],
-                    ),
-                  ),
-                  if (index != top3.length - 1)
-                    Divider(
-                      height: 1,
-                      indent: 72,
-                      endIndent: 16,
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                    ),
-                ],
-              );
-            }),
+                    if (index != top3.length - 1)
+                      Divider(
+                        height: 1,
+                        indent: 72,
+                        endIndent: 16,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outline.withValues(alpha: 0.1),
+                      ),
+                  ],
+                );
+              }),
+            ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }
 
   /// Özellik 2: Gelir Kararlılığı (Düzenli vs Değişken)
-  Widget _buildIncomeStability(List<Income> currentIncomes, double totalIncome) {
-    if (currentIncomes.isEmpty || totalIncome <= 0) return const SizedBox.shrink();
+  Widget _buildIncomeStability(
+    List<Income> currentIncomes,
+    double totalIncome,
+  ) {
+    if (currentIncomes.isEmpty || totalIncome <= 0) {
+      return const SizedBox.shrink();
+    }
 
     // Controller'ın tüm geçmişe bakarak hesapladığı düzenli kategorileri al
     final regularCategories = _controller.regularIncomeCategories;
@@ -2346,7 +2524,11 @@ class _AnalysisPageState extends State<AnalysisPage>
     final categoryAmounts = <String, double>{};
 
     for (var g in currentIncomes) {
-      final val = curService.convert(g.amount, g.paraBirimi, curService.currentCurrency);
+      final val = curService.convert(
+        g.amount,
+        g.paraBirimi,
+        curService.currentCurrency,
+      );
       categoryAmounts[g.category] = (categoryAmounts[g.category] ?? 0) + val;
     }
 
@@ -2363,7 +2545,10 @@ class _AnalysisPageState extends State<AnalysisPage>
     final uniqueCategories = categoryAmounts.length;
 
     final regularPercent = (regularTotal / totalIncome * 100).clamp(0.0, 100.0);
-    final variablePercent = (variableTotal / totalIncome * 100).clamp(0.0, 100.0);
+    final variablePercent = (variableTotal / totalIncome * 100).clamp(
+      0.0,
+      100.0,
+    );
 
     // Tek kaynak uyarısı vs çeşitli gelir
     final bool isSingleSource = uniqueCategories == 1;
@@ -2371,138 +2556,152 @@ class _AnalysisPageState extends State<AnalysisPage>
         ? context.l10n.singleSourceWarning
         : context.l10n.stableIncomeNote;
     final Color adviceColor = isSingleSource ? Colors.orange : Colors.green;
-    final IconData adviceIcon = isSingleSource ? Icons.warning_amber_rounded : Icons.check_circle_outline_rounded;
+    final IconData adviceIcon = isSingleSource
+        ? Icons.warning_amber_rounded
+        : Icons.check_circle_outline_rounded;
 
     return Padding(
       padding: const EdgeInsets.only(top: 24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        Row(
-          children: [
-            Text(
-              context.l10n.incomeStability,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(width: 6),
-            GestureDetector(
-              onTap: () => _showDetailBottomSheet(
-                title: context.l10n.incomeStabilityDetailTitle,
-                body: context.l10n.incomeStabilityDetailBody,
-                icon: Icons.balance_rounded,
-                iconColor: Colors.blue,
-              ),
-              child: Icon(
-                Icons.info_outline_rounded,
-                size: 18,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-            ),
-          ),
-          child: Column(
+          Row(
             children: [
-              // Progress bar
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: SizedBox(
-                  height: 12,
-                  child: Row(
-                    children: [
-                      if (regularPercent > 0)
-                        Expanded(
-                          flex: (regularPercent * 100).ceil(),
-                          child: Container(color: Colors.green.shade400),
-                        ),
-                      if (variablePercent > 0)
-                        Expanded(
-                          flex: (variablePercent * 100).ceil(),
-                          child: Container(color: Colors.orange.shade400),
-                        ),
-                    ],
-                  ),
+              Text(
+                context.l10n.incomeStability,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 12),
-              // Legend
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 10, height: 10,
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade400,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${context.l10n.regularIncome} %${regularPercent.toStringAsFixed(0)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        width: 10, height: 10,
-                        decoration: BoxDecoration(
-                          color: Colors.orange.shade400,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${context.l10n.variableIncome} %${variablePercent.toStringAsFixed(0)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // Tavsiye notu
-              Row(
-                children: [
-                  Icon(adviceIcon, size: 16, color: adviceColor),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      adviceText,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ),
-                ],
+              const SizedBox(width: 6),
+              GestureDetector(
+                onTap: () => _showDetailBottomSheet(
+                  title: context.l10n.incomeStabilityDetailTitle,
+                  body: context.l10n.incomeStabilityDetailBody,
+                  icon: Icons.balance_rounded,
+                  iconColor: Colors.blue,
+                ),
+                child: Icon(
+                  Icons.info_outline_rounded,
+                  size: 18,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.4),
+                ),
               ),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Column(
+              children: [
+                // Progress bar
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    height: 12,
+                    child: Row(
+                      children: [
+                        if (regularPercent > 0)
+                          Expanded(
+                            flex: (regularPercent * 100).ceil(),
+                            child: Container(color: Colors.green.shade400),
+                          ),
+                        if (variablePercent > 0)
+                          Expanded(
+                            flex: (variablePercent * 100).ceil(),
+                            child: Container(color: Colors.orange.shade400),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Legend
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade400,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${context.l10n.regularIncome} %${regularPercent.toStringAsFixed(0)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade400,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${context.l10n.variableIncome} %${variablePercent.toStringAsFixed(0)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Tavsiye notu
+                Row(
+                  children: [
+                    Icon(adviceIcon, size: 16, color: adviceColor),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        adviceText,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -2528,7 +2727,8 @@ class _AnalysisPageState extends State<AnalysisPage>
       totalDays = DateTime(now.year, now.month + 1, 0).day;
     } else if (limit == 366) {
       // Bu Yıl (This Calendar Year) → yılın toplam gün sayısı
-      final isLeap = (now.year % 4 == 0 && now.year % 100 != 0) || (now.year % 400 == 0);
+      final isLeap =
+          (now.year % 4 == 0 && now.year % 100 != 0) || (now.year % 400 == 0);
       totalDays = isLeap ? 366 : 365;
     } else {
       // 7, 90, 180, 365 → doğrudan kullan
@@ -2544,108 +2744,127 @@ class _AnalysisPageState extends State<AnalysisPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        Row(
-          children: [
-            Text(
-              context.l10n.dailyEarningRate,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(width: 6),
-            GestureDetector(
-              onTap: () => _showDetailBottomSheet(
-                title: context.l10n.dailyEarningRateDetailTitle,
-                body: context.l10n.dailyEarningRateDetailBody,
-                icon: Icons.speed_rounded,
-                iconColor: Colors.green,
-              ),
-              child: Icon(
-                Icons.info_outline_rounded,
-                size: 18,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-            ),
-          ),
-          child: Row(
+          Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
+              Text(
+                context.l10n.dailyEarningRate,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-                child: Icon(Icons.speed_rounded, color: Colors.green.shade400, size: 28),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(width: 6),
+              GestureDetector(
+                onTap: () => _showDetailBottomSheet(
+                  title: context.l10n.dailyEarningRateDetailTitle,
+                  body: context.l10n.dailyEarningRateDetailBody,
+                  icon: Icons.speed_rounded,
+                  iconColor: Colors.green,
+                ),
+                child: Icon(
+                  Icons.info_outline_rounded,
+                  size: 18,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.4),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.speed_rounded,
+                    color: Colors.green.shade400,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        CurrencyFormatter.format(dailyAvg),
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green.shade600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        context.l10n.dailyAverage,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      CurrencyFormatter.format(dailyAvg),
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green.shade600,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '$totalDays ${context.l10n.daysElapsed}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      context.l10n.dailyAverage,
+                      '$incomeCount ${context.l10n.incomeTransactions}',
                       style: TextStyle(
-                        fontSize: 13,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        fontSize: 11,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
                       ),
                     ),
                   ],
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '$totalDays ${context.l10n.daysElapsed}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$incomeCount ${context.l10n.incomeTransactions}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }
@@ -2668,7 +2887,9 @@ class _AnalysisPageState extends State<AnalysisPage>
       statusIcon = Icons.celebration_rounded;
     } else if (savings >= 0) {
       // Pozitif tasarruf
-      message = context.l10n.savingsPotentialPositive('%${savingsPercent.toStringAsFixed(0)}');
+      message = context.l10n.savingsPotentialPositive(
+        '%${savingsPercent.toStringAsFixed(0)}',
+      );
       statusColor = Colors.green;
       statusIcon = Icons.savings_rounded;
     } else {
@@ -2686,96 +2907,108 @@ class _AnalysisPageState extends State<AnalysisPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        Row(
-          children: [
-            Text(
-              context.l10n.savingsPotential,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(width: 6),
-            GestureDetector(
-              onTap: () => _showDetailBottomSheet(
-                title: context.l10n.savingsPotentialDetailTitle,
-                body: context.l10n.savingsPotentialDetailBody,
-                icon: Icons.savings_rounded,
-                iconColor: Colors.green,
-              ),
-              child: Icon(
-                Icons.info_outline_rounded,
-                size: 18,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-            ),
-          ),
-          child: Column(
+          Row(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    CurrencyFormatter.format(savings.abs()),
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: statusColor,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(statusIcon, color: statusColor, size: 24),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // Progress bar
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: progressValue.clamp(0.0, 1.0),
-                  minHeight: 8,
-                  backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
-                  valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+              Text(
+                context.l10n.savingsPotential,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Icon(statusIcon, size: 14, color: statusColor.withValues(alpha: 0.7)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      message,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ),
-                ],
+              const SizedBox(width: 6),
+              GestureDetector(
+                onTap: () => _showDetailBottomSheet(
+                  title: context.l10n.savingsPotentialDetailTitle,
+                  body: context.l10n.savingsPotentialDetailBody,
+                  icon: Icons.savings_rounded,
+                  iconColor: Colors.green,
+                ),
+                child: Icon(
+                  Icons.info_outline_rounded,
+                  size: 18,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.4),
+                ),
               ),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      CurrencyFormatter.format(savings.abs()),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: statusColor,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(statusIcon, color: statusColor, size: 24),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Progress bar
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: progressValue.clamp(0.0, 1.0),
+                    minHeight: 8,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.1),
+                    valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Icon(
+                      statusIcon,
+                      size: 14,
+                      color: statusColor.withValues(alpha: 0.7),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        message,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -2823,7 +3056,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                   message,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -2864,7 +3099,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -2895,7 +3132,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.6,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(height: 24),
@@ -2907,7 +3146,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     side: BorderSide(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.2),
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),

@@ -68,8 +68,8 @@ class StreakService {
             .doc('data')
             .set(data.toMap())
             .catchError((e) {
-          developer.log('Streak Firestore yazilamadi: $e', name: _logName);
-        });
+              developer.log('Streak Firestore yazilamadi: $e', name: _logName);
+            });
       }
 
       developer.log(
@@ -104,18 +104,19 @@ class StreakService {
         final localData = getStreakData(userId);
 
         bool shouldUpdateFromCloud = false;
-        
+
         if (localData.lastLoginDate.isEmpty) {
           shouldUpdateFromCloud = true;
         } else if (cloudData.lastLoginDate.isNotEmpty) {
           final cloudDate = DateTime.tryParse(cloudData.lastLoginDate);
           final localDate = DateTime.tryParse(localData.lastLoginDate);
-          
+
           if (cloudDate != null && localDate != null) {
             if (cloudDate.isAfter(localDate)) {
               // Buluttaki tarih daha yeniyse (örn: başka cihazda giriş yapılmış)
               shouldUpdateFromCloud = true;
-            } else if (cloudDate.isAtSameMomentAs(localDate) && cloudData.currentStreak > localData.currentStreak) {
+            } else if (cloudDate.isAtSameMomentAs(localDate) &&
+                cloudData.currentStreak > localData.currentStreak) {
               // Aynı gün ama buluttaki seri daha yüksekse
               shouldUpdateFromCloud = true;
             }

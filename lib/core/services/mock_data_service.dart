@@ -25,17 +25,70 @@ class MockDataService {
   ];
 
   static const _expenseNames = {
-    'Yemek ve Kafe': ['Öğle yemeği', 'Akşam yemeği', 'Kahvaltı', 'Kafe', 'Tatlı', 'Restoran', 'Döner', 'Pizza', 'Burger'],
-    'Market ve Atıştırmalık': ['Migros', 'A101', 'BİM', 'CarrefourSA', 'Şok market', 'Manav', 'Ekmek ve süt', 'Haftalık alışveriş'],
-    'Araç ve Ulaşım': ['Benzin', 'Metrobüs', 'Metro kartı', 'Taksi', 'Otopark', 'Araç bakım', 'Sigorta', 'Servis'],
-    'Sabit Giderler': ['Elektrik faturası', 'Su faturası', 'Doğalgaz', 'İnternet', 'Telefon faturası', 'Kira'],
-    'Diğer': ['Eczane', 'Kitap', 'Kırtasiye', 'Spor salonu', 'Sinema', 'Abonelik', 'Berbere gittim'],
-    'Hediye ve Özel': ['Doğum günü hediyesi', 'Düğün hediyesi', 'Özel alışveriş', 'Çiçek'],
+    'Yemek ve Kafe': [
+      'Öğle yemeği',
+      'Akşam yemeği',
+      'Kahvaltı',
+      'Kafe',
+      'Tatlı',
+      'Restoran',
+      'Döner',
+      'Pizza',
+      'Burger',
+    ],
+    'Market ve Atıştırmalık': [
+      'Migros',
+      'A101',
+      'BİM',
+      'CarrefourSA',
+      'Şok market',
+      'Manav',
+      'Ekmek ve süt',
+      'Haftalık alışveriş',
+    ],
+    'Araç ve Ulaşım': [
+      'Benzin',
+      'Metrobüs',
+      'Metro kartı',
+      'Taksi',
+      'Otopark',
+      'Araç bakım',
+      'Sigorta',
+      'Servis',
+    ],
+    'Sabit Giderler': [
+      'Elektrik faturası',
+      'Su faturası',
+      'Doğalgaz',
+      'İnternet',
+      'Telefon faturası',
+      'Kira',
+    ],
+    'Diğer': [
+      'Eczane',
+      'Kitap',
+      'Kırtasiye',
+      'Spor salonu',
+      'Sinema',
+      'Abonelik',
+      'Berbere gittim',
+    ],
+    'Hediye ve Özel': [
+      'Doğum günü hediyesi',
+      'Düğün hediyesi',
+      'Özel alışveriş',
+      'Çiçek',
+    ],
   };
 
   static const _incomeNames = {
     'Maaş': ['Aylık maaş', 'Maaş', 'Bordro ödemesi'],
-    'Serbest Çalışma': ['Freelance proje', 'Danışmanlık ücreti', 'Yazılım projesi', 'Tasarım işi'],
+    'Serbest Çalışma': [
+      'Freelance proje',
+      'Danışmanlık ücreti',
+      'Yazılım projesi',
+      'Tasarım işi',
+    ],
     'Kira Geliri': ['Daire kira geliri', 'Dükkan kira geliri'],
     'Diğer': ['Prim ödemesi', 'İkramiye', 'Satış geliri', 'Çeşitli gelir'],
   };
@@ -46,7 +99,7 @@ class MockDataService {
   /// Tüm veriler batch write ile atomik olarak eklenir.
   Future<void> generateMockData(String userId) async {
     debugPrint('[MockDataService] Sahte veri üretimi başlıyor...');
-    
+
     // Önceki mock verileri temizle (Idempotency için)
     await clearMockData(userId);
 
@@ -64,9 +117,9 @@ class MockDataService {
 
     // Her ödeme yöntemi için gerçek bakiye takibi
     final balances = {
-      bankId: 15000.0,   // Başlangıç bakiyesi
-      creditId: 0.0,     // Kredi kartı borcu (negatif = borç)
-      cashId: 2500.0,    // Nakit başlangıcı
+      bankId: 15000.0, // Başlangıç bakiyesi
+      creditId: 0.0, // Kredi kartı borcu (negatif = borç)
+      cashId: 2500.0, // Nakit başlangıcı
     };
 
     for (int monthOffset = 5; monthOffset >= 0; monthOffset--) {
@@ -74,8 +127,13 @@ class MockDataService {
       final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
 
       // Her ay için gelirler
-      final monthlyIncomes = _generateMonthlyIncomes(month, daysInMonth, bankId, cashId);
-      
+      final monthlyIncomes = _generateMonthlyIncomes(
+        month,
+        daysInMonth,
+        bankId,
+        cashId,
+      );
+
       // Filtre: Gelecek tarihte olan gerçekleşmiş verileri sil
       if (monthOffset == 0) {
         monthlyIncomes.removeWhere((inc) {
@@ -83,18 +141,20 @@ class MockDataService {
           return date.isAfter(now);
         });
       }
-      
+
       incomes.addAll(monthlyIncomes);
 
       // Gelirler bakiyeye eklenir
       for (final income in monthlyIncomes) {
         if (income['isDeleted'] == true) continue;
-        
+
         final pmId = income['paymentMethodId'] as String?;
         final amount = (income['amount'] as num).toDouble();
         if (pmId != null && balances.containsKey(pmId)) {
           if (pmId == creditId) {
-            balances[pmId] = balances[pmId]! - amount; // Gelir gelirse kredi kartı borcu azalır
+            balances[pmId] =
+                balances[pmId]! -
+                amount; // Gelir gelirse kredi kartı borcu azalır
           } else {
             balances[pmId] = balances[pmId]! + amount;
           }
@@ -103,9 +163,13 @@ class MockDataService {
 
       // Her ay için harcamalar
       final monthlyExpenses = _generateMonthlyExpenses(
-        month, daysInMonth, bankId, creditId, cashId,
+        month,
+        daysInMonth,
+        bankId,
+        creditId,
+        cashId,
       );
-      
+
       // Filtre: Gelecek tarihte olan harcamaları sil
       if (monthOffset == 0) {
         monthlyExpenses.removeWhere((exp) {
@@ -113,18 +177,19 @@ class MockDataService {
           return date.isAfter(now);
         });
       }
-      
+
       expenses.addAll(monthlyExpenses);
 
       // Harcamalar bakiyeden düşülür
       for (final expense in monthlyExpenses) {
         if (expense['silindi'] == true) continue;
-        
+
         final pmId = expense['odemeYontemiId'] as String?;
         final amount = (expense['tutar'] as num).toDouble();
         if (pmId != null && balances.containsKey(pmId)) {
           if (pmId == creditId) {
-            balances[pmId] = balances[pmId]! + amount; // Harcama kredi kartı borcunu artırır
+            balances[pmId] =
+                balances[pmId]! + amount; // Harcama kredi kartı borcunu artırır
           } else {
             balances[pmId] = balances[pmId]! - amount; // Nakit/Banka azalır
           }
@@ -132,8 +197,14 @@ class MockDataService {
       }
 
       // Her ay için transferler (Bankadan nakite, Bankadan kredi kartı ödemesi vs.)
-      final monthlyTransfers = _generateMonthlyTransfers(month, daysInMonth, bankId, creditId, cashId);
-      
+      final monthlyTransfers = _generateMonthlyTransfers(
+        month,
+        daysInMonth,
+        bankId,
+        creditId,
+        cashId,
+      );
+
       // Filtre: Gelecek tarihte olan geçmiş transferleri sil (Zamanlanmış hariç)
       if (monthOffset == 0) {
         monthlyTransfers.removeWhere((tr) {
@@ -142,30 +213,34 @@ class MockDataService {
           return date.isAfter(now);
         });
       }
-      
+
       transfers.addAll(monthlyTransfers);
 
       // Transferleri bakiyeye yansıt
       for (final transfer in monthlyTransfers) {
         // İptal edilen veya henüz gerçekleşmeyen transferler bakiyeyi etkilemez
-        if (transfer['isFailed'] == true || (transfer['isScheduled'] == true && transfer['isExecuted'] == false)) {
-            continue; 
+        if (transfer['isFailed'] == true ||
+            (transfer['isScheduled'] == true &&
+                transfer['isExecuted'] == false)) {
+          continue;
         }
 
         final fromId = transfer['fromAccountId'] as String?;
         final toId = transfer['toAccountId'] as String?;
         final amount = (transfer['amount'] as num).toDouble();
-        
+
         if (fromId != null && balances.containsKey(fromId)) {
           if (fromId == creditId) {
-            balances[fromId] = balances[fromId]! + amount; // Krediden çıkış borcu artırır
+            balances[fromId] =
+                balances[fromId]! + amount; // Krediden çıkış borcu artırır
           } else {
             balances[fromId] = balances[fromId]! - amount;
           }
         }
         if (toId != null && balances.containsKey(toId)) {
           if (toId == creditId) {
-            balances[toId] = balances[toId]! - amount; // Krediye giriş borcu azaltır
+            balances[toId] =
+                balances[toId]! - amount; // Krediye giriş borcu azaltır
           } else {
             balances[toId] = balances[toId]! + amount;
           }
@@ -178,7 +253,7 @@ class MockDataService {
 
     // 5. Streak Sahte Verisi
     final streakData = _generateStreakData(now);
-    
+
     // Bakiyelerdeki son manuel düşüşleri ödeme yöntemlerine yansıt
     for (int i = 0; i < paymentMethods.length; i++) {
       final pmId = paymentMethods[i]['id'] as String;
@@ -189,11 +264,21 @@ class MockDataService {
     }
 
     // 6. Firebase'e yaz (batch)
-    await _writeTofirestore(userId, paymentMethods, expenses, incomes, assets, transfers, streakData);
+    await _writeTofirestore(
+      userId,
+      paymentMethods,
+      expenses,
+      incomes,
+      assets,
+      transfers,
+      streakData,
+    );
 
-    debugPrint('[MockDataService] Tamamlandı! '
-        '${expenses.length} harcama, ${incomes.length} gelir, ${transfers.length} transfer, '
-        '${assets.length} varlık, ${paymentMethods.length} ödeme yöntemi, 1 streak verisi.');
+    debugPrint(
+      '[MockDataService] Tamamlandı! '
+      '${expenses.length} harcama, ${incomes.length} gelir, ${transfers.length} transfer, '
+      '${assets.length} varlık, ${paymentMethods.length} ödeme yöntemi, 1 streak verisi.',
+    );
   }
 
   // ===== VERİ ÜRETİCİLER =====
@@ -245,7 +330,9 @@ class MockDataService {
         'balance': 0.0,
         'limit': null,
         'colorIndex': 3,
-        'createdAt': DateTime.now().subtract(const Duration(days: 300)).toIso8601String(),
+        'createdAt': DateTime.now()
+            .subtract(const Duration(days: 300))
+            .toIso8601String(),
         'paraBirimi': 'TRY',
         'isDeleted': true, // Mock çöp kutusu testi
       },
@@ -253,52 +340,80 @@ class MockDataService {
   }
 
   List<Map<String, dynamic>> _generateMonthlyIncomes(
-    DateTime month, int daysInMonth, String bankId, String cashId,
+    DateTime month,
+    int daysInMonth,
+    String bankId,
+    String cashId,
   ) {
     final incomes = <Map<String, dynamic>>[];
 
     // Maaş — her ay 3-5 arası günde
     final salaryDay = 3 + _random.nextInt(3);
     final salaryAmount = 18000 + (_random.nextInt(8) * 500).toDouble();
-    incomes.add(_buildIncome(
-      name: 'Aylık maaş',
-      category: 'Maaş',
-      amount: salaryAmount,
-      date: DateTime(month.year, month.month, salaryDay, _random.nextInt(4) + 8, _random.nextInt(60), _random.nextInt(60)),
-      paymentMethodId: bankId,
-    ));
+    incomes.add(
+      _buildIncome(
+        name: 'Aylık maaş',
+        category: 'Maaş',
+        amount: salaryAmount,
+        date: DateTime(
+          month.year,
+          month.month,
+          salaryDay,
+          _random.nextInt(4) + 8,
+          _random.nextInt(60),
+          _random.nextInt(60),
+        ),
+        paymentMethodId: bankId,
+      ),
+    );
 
     // Kira Geliri - her ay 1. gün (recurring templates ile tutarlı)
-    incomes.add(_buildIncome(
-      name: 'Daire kira geliri',
-      category: 'Kira Geliri',
-      amount: 3000.0,
-      date: DateTime(month.year, month.month, 1, 9, 30, 0),
-      paymentMethodId: cashId,
-    ));
+    incomes.add(
+      _buildIncome(
+        name: 'Daire kira geliri',
+        category: 'Kira Geliri',
+        amount: 3000.0,
+        date: DateTime(month.year, month.month, 1, 9, 30, 0),
+        paymentMethodId: cashId,
+      ),
+    );
 
     // Ek gelirler (% 40 ihtimal)
     if (_random.nextDouble() < 0.4) {
       final extraCategories = ['Serbest Çalışma', 'Diğer'];
       final cat = extraCategories[_random.nextInt(extraCategories.length)];
       final names = _incomeNames[cat]!;
-      incomes.add(_buildIncome(
-        name: names[_random.nextInt(names.length)],
-        category: cat,
-        amount: (2000 + _random.nextInt(15) * 500).toDouble(),
-        date: DateTime(month.year, month.month, 10 + _random.nextInt(15), _random.nextInt(10) + 10, _random.nextInt(60), _random.nextInt(60)),
-        paymentMethodId: _random.nextBool() ? bankId : cashId,
-        isDeleted: _random.nextDouble() < 0.05, // %5 ihtimalle silinmiş veri
-      ));
+      incomes.add(
+        _buildIncome(
+          name: names[_random.nextInt(names.length)],
+          category: cat,
+          amount: (2000 + _random.nextInt(15) * 500).toDouble(),
+          date: DateTime(
+            month.year,
+            month.month,
+            10 + _random.nextInt(15),
+            _random.nextInt(10) + 10,
+            _random.nextInt(60),
+            _random.nextInt(60),
+          ),
+          paymentMethodId: _random.nextBool() ? bankId : cashId,
+          isDeleted: _random.nextDouble() < 0.05, // %5 ihtimalle silinmiş veri
+        ),
+      );
     }
 
     return incomes;
   }
 
   List<Map<String, dynamic>> _generateMonthlyTransfers(
-      DateTime month, int daysInMonth, String bankId, String creditId, String cashId) {
+    DateTime month,
+    int daysInMonth,
+    String bankId,
+    String creditId,
+    String cashId,
+  ) {
     final transfers = <Map<String, dynamic>>[];
-    
+
     // 1. Bankadan nakit çekimi (ATM) - ayda 2-3 kez
     int atmCekimSayisi = _random.nextInt(2) + 2;
     for (int i = 0; i < atmCekimSayisi; i++) {
@@ -307,8 +422,15 @@ class MockDataService {
         'id': 'mock_tr_${month.year}_${month.month}_atm_$i',
         'fromAccountId': bankId,
         'toAccountId': cashId,
-        'amount': (500 + _random.nextInt(15) * 100).toDouble(), // 500 - 1900 arası
-        'date': DateTime(month.year, month.month, day, _random.nextInt(10) + 9, _random.nextInt(60)).toIso8601String(),
+        'amount': (500 + _random.nextInt(15) * 100)
+            .toDouble(), // 500 - 1900 arası
+        'date': DateTime(
+          month.year,
+          month.month,
+          day,
+          _random.nextInt(10) + 9,
+          _random.nextInt(60),
+        ).toIso8601String(),
         'updatedAt': FieldValue.serverTimestamp(),
         'description': 'ATM Para Çekme',
         'paraBirimi': 'TRY',
@@ -324,8 +446,15 @@ class MockDataService {
       'id': 'mock_tr_${month.year}_${month.month}_cc',
       'fromAccountId': bankId,
       'toAccountId': creditId,
-      'amount': (500 + _random.nextInt(15) * 100).toDouble(), // 500 - 1900 arası ödeme (Ortalama harcamalarla uyumlu)
-      'date': DateTime(month.year, month.month, day, _random.nextInt(5) + 10, _random.nextInt(60)).toIso8601String(),
+      'amount': (500 + _random.nextInt(15) * 100)
+          .toDouble(), // 500 - 1900 arası ödeme (Ortalama harcamalarla uyumlu)
+      'date': DateTime(
+        month.year,
+        month.month,
+        day,
+        _random.nextInt(5) + 10,
+        _random.nextInt(60),
+      ).toIso8601String(),
       'updatedAt': FieldValue.serverTimestamp(),
       'description': 'Kredi Kartı Ödemesi',
       'paraBirimi': 'TRY',
@@ -355,12 +484,16 @@ class MockDataService {
     // 4. Zamanlanmış transfer (Sadece içinde bulunduğumuz aydaysak)
     final now = DateTime.now();
     if (month.year == now.year && month.month == now.month) {
-       transfers.add({
+      transfers.add({
         'id': 'mock_tr_future',
         'fromAccountId': bankId,
         'toAccountId': cashId,
         'amount': (1000.0),
-        'date': DateTime(now.year, now.month, now.day).add(const Duration(days: 3)).toIso8601String(),
+        'date': DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).add(const Duration(days: 3)).toIso8601String(),
         'updatedAt': FieldValue.serverTimestamp(),
         'description': 'İleri Tarihli Nakit Çekim',
         'paraBirimi': 'TRY',
@@ -374,8 +507,11 @@ class MockDataService {
   }
 
   List<Map<String, dynamic>> _generateMonthlyExpenses(
-    DateTime month, int daysInMonth,
-    String bankId, String creditId, String cashId,
+    DateTime month,
+    int daysInMonth,
+    String bankId,
+    String creditId,
+    String cashId,
   ) {
     final expenses = <Map<String, dynamic>>[];
     final paymentIds = [bankId, creditId, cashId];
@@ -383,30 +519,57 @@ class MockDataService {
     // Sabit aylık faturalar
     final fixedExpenses = [
       {'isim': 'Kira', 'tutar': 8500.0, 'gun': 1, 'pmId': bankId},
-      {'isim': 'Elektrik faturası', 'tutar': 350.0 + _random.nextInt(100), 'gun': 5, 'pmId': bankId},
-      {'isim': 'Su faturası', 'tutar': 80.0 + _random.nextInt(30), 'gun': 7, 'pmId': bankId},
+      {
+        'isim': 'Elektrik faturası',
+        'tutar': 350.0 + _random.nextInt(100),
+        'gun': 5,
+        'pmId': bankId,
+      },
+      {
+        'isim': 'Su faturası',
+        'tutar': 80.0 + _random.nextInt(30),
+        'gun': 7,
+        'pmId': bankId,
+      },
       {'isim': 'İnternet', 'tutar': 299.0, 'gun': 10, 'pmId': bankId},
       {'isim': 'Telefon faturası', 'tutar': 450.0, 'gun': 12, 'pmId': creditId},
-      {'isim': 'Doğalgaz', 'tutar': 200.0 + _random.nextInt(150), 'gun': 8, 'pmId': bankId},
+      {
+        'isim': 'Doğalgaz',
+        'tutar': 200.0 + _random.nextInt(150),
+        'gun': 8,
+        'pmId': bankId,
+      },
     ];
 
     for (final fixed in fixedExpenses) {
       final day = (fixed['gun'] as int).clamp(1, daysInMonth);
-      expenses.add(_buildExpense(
-        isim: fixed['isim'] as String,
-        kategori: 'Sabit Giderler',
-        tutar: (fixed['tutar'] as num).toDouble(),
-        date: DateTime(month.year, month.month, day, _random.nextInt(15) + 8, _random.nextInt(60), _random.nextInt(60)),
-        odemeYontemiId: fixed['pmId'] as String,
-      ));
+      expenses.add(
+        _buildExpense(
+          isim: fixed['isim'] as String,
+          kategori: 'Sabit Giderler',
+          tutar: (fixed['tutar'] as num).toDouble(),
+          date: DateTime(
+            month.year,
+            month.month,
+            day,
+            _random.nextInt(15) + 8,
+            _random.nextInt(60),
+            _random.nextInt(60),
+          ),
+          odemeYontemiId: fixed['pmId'] as String,
+        ),
+      );
     }
 
     // Değişken günlük harcamalar (25-35 adet/ay)
     final expenseCount = 25 + _random.nextInt(11);
-    final availableCategories = _expenseCategories.where((c) => c != 'Sabit Giderler').toList();
-    
+    final availableCategories = _expenseCategories
+        .where((c) => c != 'Sabit Giderler')
+        .toList();
+
     for (int i = 0; i < expenseCount; i++) {
-      final cat = availableCategories[_random.nextInt(availableCategories.length)];
+      final cat =
+          availableCategories[_random.nextInt(availableCategories.length)];
       final names = _expenseNames[cat]!;
       final name = names[_random.nextInt(names.length)];
       final day = 1 + _random.nextInt(daysInMonth);
@@ -431,14 +594,23 @@ class MockDataService {
           amount = 50 + (_random.nextInt(20) * 25).toDouble();
       }
 
-      expenses.add(_buildExpense(
-        isim: name,
-        kategori: cat,
-        tutar: amount,
-        date: DateTime(month.year, month.month, day.clamp(1, daysInMonth), _random.nextInt(15) + 8, _random.nextInt(60), _random.nextInt(60)),
-        odemeYontemiId: pmId,
-        silindi: _random.nextDouble() < 0.05, // %5 ihtimalle silinmiş veri
-      ));
+      expenses.add(
+        _buildExpense(
+          isim: name,
+          kategori: cat,
+          tutar: amount,
+          date: DateTime(
+            month.year,
+            month.month,
+            day.clamp(1, daysInMonth),
+            _random.nextInt(15) + 8,
+            _random.nextInt(60),
+            _random.nextInt(60),
+          ),
+          odemeYontemiId: pmId,
+          silindi: _random.nextDouble() < 0.05, // %5 ihtimalle silinmiş veri
+        ),
+      );
     }
 
     return expenses;
@@ -446,10 +618,43 @@ class MockDataService {
 
   List<Map<String, dynamic>> _generateAssets(DateTime now) {
     return [
-      _buildAsset(name: 'Dolar', category: 'Döviz', type: 'USD', quantity: 1000.0, purchasePrice: 31000.0, amount: 35200.0, paraBirimi: 'TRY'),
-      _buildAsset(name: 'Gram Altın', category: 'Altın', type: 'XAU', quantity: 10.0, purchasePrice: 38000.0, amount: 42000.0, paraBirimi: 'TRY'),
-      _buildAsset(name: 'Bitcoin', category: 'Kripto', type: 'BTC', quantity: 0.05, purchasePrice: 38000.0, amount: 45000.0, paraBirimi: 'TRY'),
-      _buildAsset(name: 'Gümüş', category: 'Emtia', type: 'XAG', quantity: 100.0, purchasePrice: 4000.0, amount: 4500.0, paraBirimi: 'TRY', isDeleted: true),
+      _buildAsset(
+        name: 'Dolar',
+        category: 'Döviz',
+        type: 'USD',
+        quantity: 1000.0,
+        purchasePrice: 31000.0,
+        amount: 35200.0,
+        paraBirimi: 'TRY',
+      ),
+      _buildAsset(
+        name: 'Gram Altın',
+        category: 'Altın',
+        type: 'XAU',
+        quantity: 10.0,
+        purchasePrice: 38000.0,
+        amount: 42000.0,
+        paraBirimi: 'TRY',
+      ),
+      _buildAsset(
+        name: 'Bitcoin',
+        category: 'Kripto',
+        type: 'BTC',
+        quantity: 0.05,
+        purchasePrice: 38000.0,
+        amount: 45000.0,
+        paraBirimi: 'TRY',
+      ),
+      _buildAsset(
+        name: 'Gümüş',
+        category: 'Emtia',
+        type: 'XAG',
+        quantity: 100.0,
+        purchasePrice: 4000.0,
+        amount: 4500.0,
+        paraBirimi: 'TRY',
+        isDeleted: true,
+      ),
     ];
   }
 
@@ -464,10 +669,13 @@ class MockDataService {
     bool isDeleted = false,
   }) {
     final now = DateTime.now();
-    final purchaseDate = now.subtract(Duration(days: _random.nextInt(180) + 30));
-    
+    final purchaseDate = now.subtract(
+      Duration(days: _random.nextInt(180) + 30),
+    );
+
     return {
-      'id': 'mock_asset_${(type ?? category).toLowerCase()}_${_random.nextInt(99999)}',
+      'id':
+          'mock_asset_${(type ?? category).toLowerCase()}_${_random.nextInt(99999)}',
       'name': name,
       'category': category,
       'type': type,
@@ -563,7 +771,10 @@ class MockDataService {
     var batch = _firestore.batch();
     for (final pm in paymentMethods) {
       if (pm['isDeleted'] == true) {
-        batch.set(userDoc.collection('deletedPaymentMethods').doc(pm['id']), pm);
+        batch.set(
+          userDoc.collection('deletedPaymentMethods').doc(pm['id']),
+          pm,
+        );
       } else {
         batch.set(userDoc.collection('paymentMethods').doc(pm['id']), pm);
       }
@@ -594,7 +805,10 @@ class MockDataService {
     final assetBatch = _firestore.batch();
     for (final asset in assets) {
       if (asset['isDeleted'] == true) {
-        assetBatch.set(userDoc.collection('deletedAssets').doc(asset['id']), asset);
+        assetBatch.set(
+          userDoc.collection('deletedAssets').doc(asset['id']),
+          asset,
+        );
       } else {
         assetBatch.set(userDoc.collection('assets').doc(asset['id']), asset);
       }
@@ -619,12 +833,54 @@ class MockDataService {
         'mock_generated': true,
         'defaultPaymentMethodId': 'mock_banka_001',
         'fixedExpenseTemplates': [
-          {'id': 'mock_ft_1', 'isim': 'Kira', 'tutar': 8500.0, 'gun': 1, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
-          {'id': 'mock_ft_2', 'isim': 'Elektrik faturası', 'tutar': 380.0, 'gun': 5, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
-          {'id': 'mock_ft_3', 'isim': 'Su faturası', 'tutar': 95.0, 'gun': 7, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
-          {'id': 'mock_ft_4', 'isim': 'Doğalgaz', 'tutar': 250.0, 'gun': 8, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
-          {'id': 'mock_ft_5', 'isim': 'İnternet', 'tutar': 299.0, 'gun': 10, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
-          {'id': 'mock_ft_6', 'isim': 'Telefon faturası', 'tutar': 450.0, 'gun': 12, 'odemeYontemiId': 'mock_kredi_001', 'kategori': 'Sabit Giderler'},
+          {
+            'id': 'mock_ft_1',
+            'isim': 'Kira',
+            'tutar': 8500.0,
+            'gun': 1,
+            'odemeYontemiId': 'mock_banka_001',
+            'kategori': 'Sabit Giderler',
+          },
+          {
+            'id': 'mock_ft_2',
+            'isim': 'Elektrik faturası',
+            'tutar': 380.0,
+            'gun': 5,
+            'odemeYontemiId': 'mock_banka_001',
+            'kategori': 'Sabit Giderler',
+          },
+          {
+            'id': 'mock_ft_3',
+            'isim': 'Su faturası',
+            'tutar': 95.0,
+            'gun': 7,
+            'odemeYontemiId': 'mock_banka_001',
+            'kategori': 'Sabit Giderler',
+          },
+          {
+            'id': 'mock_ft_4',
+            'isim': 'Doğalgaz',
+            'tutar': 250.0,
+            'gun': 8,
+            'odemeYontemiId': 'mock_banka_001',
+            'kategori': 'Sabit Giderler',
+          },
+          {
+            'id': 'mock_ft_5',
+            'isim': 'İnternet',
+            'tutar': 299.0,
+            'gun': 10,
+            'odemeYontemiId': 'mock_banka_001',
+            'kategori': 'Sabit Giderler',
+          },
+          {
+            'id': 'mock_ft_6',
+            'isim': 'Telefon faturası',
+            'tutar': 450.0,
+            'gun': 12,
+            'odemeYontemiId': 'mock_kredi_001',
+            'kategori': 'Sabit Giderler',
+          },
         ],
         'categoryBudgets': {
           'Yemek ve Kafe': 4000.0,
@@ -665,7 +921,10 @@ class MockDataService {
 
     // ===== STREAK =====
     allOps.add(
-      userDoc.collection('streak').doc('data').set(streakData, SetOptions(merge: true)),
+      userDoc
+          .collection('streak')
+          .doc('data')
+          .set(streakData, SetOptions(merge: true)),
     );
 
     await Future.wait(allOps);
@@ -677,7 +936,15 @@ class MockDataService {
     final userDoc = _firestore.collection('users').doc(userId);
 
     // Koleksiyon dökümanları (mock_ prefix'li olanlar)
-    final collections = ['expenses', 'incomes', 'paymentMethods', 'assets', 'transfers', 'deletedAssets', 'deletedPaymentMethods'];
+    final collections = [
+      'expenses',
+      'incomes',
+      'paymentMethods',
+      'assets',
+      'transfers',
+      'deletedAssets',
+      'deletedPaymentMethods',
+    ];
     for (final col in collections) {
       final snap = await userDoc.collection(col).get();
       final mockDocs = snap.docs.where((d) => d.id.startsWith('mock_'));
@@ -690,10 +957,17 @@ class MockDataService {
     }
 
     // Settings dökümanlarındaki mock alanlarını temizle
-    final generalDoc = await userDoc.collection('settings').doc('general').get();
+    final generalDoc = await userDoc
+        .collection('settings')
+        .doc('general')
+        .get();
     if (generalDoc.exists && generalDoc.data()?['mock_generated'] == true) {
-      final currentTemplates = List<dynamic>.from(generalDoc.data()?['fixedExpenseTemplates'] ?? []);
-      currentTemplates.removeWhere((item) => item['id'].toString().startsWith('mock_'));
+      final currentTemplates = List<dynamic>.from(
+        generalDoc.data()?['fixedExpenseTemplates'] ?? [],
+      );
+      currentTemplates.removeWhere(
+        (item) => item['id'].toString().startsWith('mock_'),
+      );
       await userDoc.collection('settings').doc('general').update({
         'fixedExpenseTemplates': currentTemplates,
         'mock_generated': FieldValue.delete(),
@@ -702,8 +976,12 @@ class MockDataService {
 
     final incomeDoc = await userDoc.collection('settings').doc('income').get();
     if (incomeDoc.exists && incomeDoc.data()?['mock_generated'] == true) {
-      final currentIncomes = List<dynamic>.from(incomeDoc.data()?['recurringIncomes'] ?? []);
-      currentIncomes.removeWhere((item) => item['id'].toString().startsWith('mock_'));
+      final currentIncomes = List<dynamic>.from(
+        incomeDoc.data()?['recurringIncomes'] ?? [],
+      );
+      currentIncomes.removeWhere(
+        (item) => item['id'].toString().startsWith('mock_'),
+      );
       await userDoc.collection('settings').doc('income').update({
         'recurringIncomes': currentIncomes,
         'mock_generated': FieldValue.delete(),
@@ -713,7 +991,7 @@ class MockDataService {
     // Streak mock temizliği
     final streakDoc = await userDoc.collection('streak').doc('data').get();
     if (streakDoc.exists && streakDoc.data()?['mock_generated'] == true) {
-       await userDoc.collection('streak').doc('data').delete();
+      await userDoc.collection('streak').doc('data').delete();
     }
 
     debugPrint('[MockDataService] Mock veriler temizlendi.');

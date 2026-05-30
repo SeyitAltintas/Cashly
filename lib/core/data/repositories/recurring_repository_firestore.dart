@@ -25,7 +25,9 @@ class RecurringRepositoryFirestore implements RecurringRepository {
   }
 
   /// Firestore'dan sabit gider şablonlarını çeker
-  Future<List<Map<String, dynamic>>> fetchFixedExpenseTemplates(String userId) async {
+  Future<List<Map<String, dynamic>>> fetchFixedExpenseTemplates(
+    String userId,
+  ) async {
     try {
       final doc = await _recurringDoc(userId, 'fixed_expenses').get();
       if (!doc.exists) return [];
@@ -62,7 +64,9 @@ class RecurringRepositoryFirestore implements RecurringRepository {
   }
 
   /// Firestore'dan tekrarlayan gelirleri çeker
-  Future<List<Map<String, dynamic>>> fetchRecurringIncomes(String userId) async {
+  Future<List<Map<String, dynamic>>> fetchRecurringIncomes(
+    String userId,
+  ) async {
     try {
       final doc = await _recurringDoc(userId, 'recurring_incomes').get();
       if (!doc.exists) return [];
@@ -81,10 +85,10 @@ class RecurringRepositoryFirestore implements RecurringRepository {
     List<Map<String, dynamic>> incomes,
   ) async {
     try {
-      await _recurringDoc(userId, 'recurring_incomes').set({
-        'incomes': incomes,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      await _recurringDoc(
+        userId,
+        'recurring_incomes',
+      ).set({'incomes': incomes, 'updatedAt': FieldValue.serverTimestamp()});
     } catch (e) {
       debugPrint('Firestore tekrarlayan gelirler kaydedilirken hata: $e');
       rethrow;

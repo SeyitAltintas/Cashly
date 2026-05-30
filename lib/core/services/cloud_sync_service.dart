@@ -16,19 +16,21 @@ class CloudSyncService {
       return;
     }
 
-    debugPrint('CloudSyncService: Paralel senkronizasyon başlıyor... [$userId]');
+    debugPrint(
+      'CloudSyncService: Paralel senkronizasyon başlıyor... [$userId]',
+    );
     try {
       final userDoc = _firestore.collection('users').doc(userId);
 
       // EC-4: Sequential await yerine paralel çekme - 7 koleksiyonu aynı anda iste
       final results = await Future.wait([
         // Incomes and Expenses are now loaded lazily by month, skipped here
-        userDoc.collection('assets').get(),           // 0
-        userDoc.collection('paymentMethods').get(),   // 1
-        userDoc.collection('transfers').get(),        // 2
+        userDoc.collection('assets').get(), // 0
+        userDoc.collection('paymentMethods').get(), // 1
+        userDoc.collection('transfers').get(), // 2
         userDoc.collection('expenseCategories').get(), // 3
         userDoc.collection('incomeCategories').get(), // 4
-        userDoc.collection('settings').get(),         // 5
+        userDoc.collection('settings').get(), // 5
       ]).timeout(const Duration(seconds: 20));
 
       // 1. Varlıklar
@@ -36,7 +38,9 @@ class CloudSyncService {
       final assets = assetsSnap.docs.map((d) {
         final data = Map<String, dynamic>.from(d.data());
         if (data['lastUpdated'] is Timestamp) {
-          data['lastUpdated'] = (data['lastUpdated'] as Timestamp).toDate().toIso8601String();
+          data['lastUpdated'] = (data['lastUpdated'] as Timestamp)
+              .toDate()
+              .toIso8601String();
         }
         return data;
       }).toList();
@@ -47,7 +51,9 @@ class CloudSyncService {
       final methods = paymentSnap.docs.map((d) {
         final data = Map<String, dynamic>.from(d.data());
         if (data['createdAt'] is Timestamp) {
-          data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
+          data['createdAt'] = (data['createdAt'] as Timestamp)
+              .toDate()
+              .toIso8601String();
         }
         return data;
       }).toList();
@@ -61,7 +67,9 @@ class CloudSyncService {
           data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
         }
         if (data['tarih'] is Timestamp) {
-          data['tarih'] = (data['tarih'] as Timestamp).toDate().toIso8601String();
+          data['tarih'] = (data['tarih'] as Timestamp)
+              .toDate()
+              .toIso8601String();
         }
         return data;
       }).toList();
@@ -70,14 +78,22 @@ class CloudSyncService {
       // 4. Gider Kategorileri
       final eCategorySnap = results[3];
       if (eCategorySnap.docs.isNotEmpty) {
-        final cats = eCategorySnap.docs.map((d) => Map<String, dynamic>.from(d.data())).toList();
-        CacheService.set('expense_categories_$userId', cats, ttl: _cloudSyncTtl);
+        final cats = eCategorySnap.docs
+            .map((d) => Map<String, dynamic>.from(d.data()))
+            .toList();
+        CacheService.set(
+          'expense_categories_$userId',
+          cats,
+          ttl: _cloudSyncTtl,
+        );
       }
 
       // 5. Gelir Kategorileri
       final iCategorySnap = results[4];
       if (iCategorySnap.docs.isNotEmpty) {
-        final cats = iCategorySnap.docs.map((d) => Map<String, dynamic>.from(d.data())).toList();
+        final cats = iCategorySnap.docs
+            .map((d) => Map<String, dynamic>.from(d.data()))
+            .toList();
         CacheService.set('income_categories_$userId', cats, ttl: _cloudSyncTtl);
       }
 
@@ -87,25 +103,47 @@ class CloudSyncService {
         final data = doc.data();
         if (doc.id == 'general') {
           if (data.containsKey('budget')) {
-            CacheService.set('budget_$userId', (data['budget'] as num).toDouble(), ttl: _cloudSyncTtl);
+            CacheService.set(
+              'budget_$userId',
+              (data['budget'] as num).toDouble(),
+              ttl: _cloudSyncTtl,
+            );
           }
           if (data.containsKey('fixedExpenseTemplates')) {
-            CacheService.set('fixed_templates_$userId', List<Map<String, dynamic>>.from(data['fixedExpenseTemplates'] as List), ttl: _cloudSyncTtl);
+            CacheService.set(
+              'fixed_templates_$userId',
+              List<Map<String, dynamic>>.from(
+                data['fixedExpenseTemplates'] as List,
+              ),
+              ttl: _cloudSyncTtl,
+            );
           }
         } else if (doc.id == 'income') {
           if (data.containsKey('monthlyIncomeTarget')) {
-            CacheService.set('income_target_$userId', (data['monthlyIncomeTarget'] as num).toDouble(), ttl: _cloudSyncTtl);
+            CacheService.set(
+              'income_target_$userId',
+              (data['monthlyIncomeTarget'] as num).toDouble(),
+              ttl: _cloudSyncTtl,
+            );
           }
           if (data.containsKey('recurringIncomes')) {
-            CacheService.set('income_templates_$userId', List<Map<String, dynamic>>.from(data['recurringIncomes'] as List), ttl: _cloudSyncTtl);
+            CacheService.set(
+              'income_templates_$userId',
+              List<Map<String, dynamic>>.from(data['recurringIncomes'] as List),
+              ttl: _cloudSyncTtl,
+            );
           }
         }
       }
 
-      debugPrint('CloudSyncService: Senkronizasyon BASARILI! '
-          '(V:${assets.length} ÖY:${methods.length} T:${transfers.length})');
+      debugPrint(
+        'CloudSyncService: Senkronizasyon BASARILI! '
+        '(V:${assets.length} ÖY:${methods.length} T:${transfers.length})',
+      );
     } on TimeoutException {
-      debugPrint('CloudSyncService: Zaman aşımı (20s). Var olan cache korundu.');
+      debugPrint(
+        'CloudSyncService: Zaman aşımı (20s). Var olan cache korundu.',
+      );
     } catch (e, stackTrace) {
       debugPrint('CloudSyncService: HATA: $e\n$stackTrace');
     }

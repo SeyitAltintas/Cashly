@@ -58,10 +58,7 @@ class CurrencyFormatter {
   /// Sembol ve tutarı doğru konumda birleştirir
   /// TRY: "50.000,00 ₺" (sonda)
   /// USD: "$50,000.00" (başta)
-  static String _applySymbol(
-    String formattedAmount,
-    String? currencyCode,
-  ) {
+  static String _applySymbol(String formattedAmount, String? currencyCode) {
     final code = _resolveCurrencyCode(currencyCode);
     final symbol = _getSymbolForCurrency(currencyCode);
 
@@ -74,14 +71,8 @@ class CurrencyFormatter {
   /// Para değerini formatlar (sembol konumu para birimine göre otomatik)
   /// TRY: "50.000,00 ₺"
   /// USD: "$50.000,00"
-  static String format(
-    double amount, {
-    String? currency,
-  }) {
-    return _applySymbol(
-      _trFormatter.format(amount),
-      currency,
-    );
+  static String format(double amount, {String? currency}) {
+    return _applySymbol(_trFormatter.format(amount), currency);
   }
 
   /// Para değerini sembolsüz formatlar
@@ -112,10 +103,7 @@ class CurrencyFormatter {
 
   /// Para değerini kısaltılmış formatta döndürür (sembol konumu otomatik)
   /// TRY: "1,5M ₺"  /  USD: "$1,5M"
-  static String formatCompact(
-    double amount, {
-    String? currency,
-  }) {
+  static String formatCompact(double amount, {String? currency}) {
     final code = _resolveCurrencyCode(currency);
     final sym = _getSymbolForCurrency(currency);
     final isPrefix = _prefixCurrencies.contains(code);
@@ -136,13 +124,7 @@ class CurrencyFormatter {
 
   /// Tam sayı olarak formatla (ondalık yok, sembol konumu otomatik)
   /// TRY: "50.001 ₺"  /  USD: "$50,001"
-  static String formatInteger(
-    double amount, {
-    String? currency,
-  }) {
-    return _applySymbol(
-      _trFormatterNoDecimal.format(amount.round()),
-      currency,
-    );
+  static String formatInteger(double amount, {String? currency}) {
+    return _applySymbol(_trFormatterNoDecimal.format(amount.round()), currency);
   }
 }

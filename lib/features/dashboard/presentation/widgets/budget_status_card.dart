@@ -68,7 +68,9 @@ class BudgetStatusCard extends StatelessWidget {
                         Icon(
                           Icons.chevron_right_rounded,
                           size: 20,
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.4),
                         ),
                       ],
                     ],
@@ -103,9 +105,7 @@ class BudgetStatusCard extends StatelessWidget {
                 children: [
                   ObscuredAmountText(
                     context.l10n.spentAmount(
-                      CurrencyFormatter.format(
-                        monthlyExpense,
-                      ),
+                      CurrencyFormatter.format(monthlyExpense),
                     ),
                     isObscured: isObscured,
                     style: TextStyle(
@@ -117,9 +117,7 @@ class BudgetStatusCard extends StatelessWidget {
                   ),
                   ObscuredAmountText(
                     context.l10n.limitAmount(
-                      CurrencyFormatter.format(
-                        butceLimiti,
-                      ),
+                      CurrencyFormatter.format(butceLimiti),
                     ),
                     isObscured: isObscured,
                     style: TextStyle(

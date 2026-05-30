@@ -7,6 +7,7 @@ import 'package:cashly/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:cashly/core/services/batch_service.dart';
 
 class _MockPaymentMethodRepository implements PaymentMethodRepository {
   List<Map<String, dynamic>> methods = [];
@@ -66,6 +67,7 @@ class _MockPaymentMethodRepository implements PaymentMethodRepository {
   ) async {}
 }
 
+$dummyBatch
 void main() {
   setUp(() async {
     await GetIt.instance.reset();

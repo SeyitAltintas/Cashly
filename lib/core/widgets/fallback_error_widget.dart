@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// UI Hata Sınırları (Error Boundaries)
-/// Özellikle fl_chart gibi karmaşık widgetlar liste içinde vs. çökerse 
+/// Özellikle fl_chart gibi karmaşık widgetlar liste içinde vs. çökerse
 /// bütün ekranı beyaz bırakmak yerine o bölgeye bu Fallback widget konur.
 class FallbackErrorWidget extends StatelessWidget {
   final FlutterErrorDetails? details;
@@ -37,10 +37,7 @@ class FallbackErrorWidget extends StatelessWidget {
               SizedBox(height: 4),
               Text(
                 'Bu bileşen şu an yüklenemiyor, uygulama çalışmaya devam ediyor.',
-                style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.white54, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
             ],

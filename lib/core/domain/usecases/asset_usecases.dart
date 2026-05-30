@@ -29,7 +29,9 @@ class SaveAssets implements UseCase<void, SaveAssetsParams> {
 
   @override
   Future<void> call(SaveAssetsParams params) async {
-    throw UnimplementedError('saveAssets is deprecated. Use add/update/delete Asset instead.');
+    throw UnimplementedError(
+      'saveAssets is deprecated. Use add/update/delete Asset instead.',
+    );
   }
 }
 
@@ -83,7 +85,10 @@ class DeleteAsset implements UseCase<void, DeleteAssetParams> {
 
   @override
   Future<void> call(DeleteAssetParams params) async {
-    await repository.deleteAsset(params.userId, params.assetId); // Or update with isDeleted = true depending on app logic
+    await repository.deleteAsset(
+      params.userId,
+      params.assetId,
+    ); // Or update with isDeleted = true depending on app logic
   }
 }
 

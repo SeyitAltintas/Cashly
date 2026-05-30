@@ -30,7 +30,7 @@ class SavePaymentMethods implements UseCase<void, SavePaymentMethodsParams> {
 
   @override
   Future<void> call(SavePaymentMethodsParams params) async {
-    // Deprecated: Batch save is no longer supported. 
+    // Deprecated: Batch save is no longer supported.
     // This is left here to not break DI.
   }
 }
@@ -121,7 +121,10 @@ class UpdateBalance implements UseCase<void, UpdateBalanceParams> {
     );
     if (index != -1) {
       paymentMethods[index]['balance'] = params.newBalance;
-      await repository.updatePaymentMethod(params.userId, paymentMethods[index]);
+      await repository.updatePaymentMethod(
+        params.userId,
+        paymentMethods[index],
+      );
     }
   }
 }

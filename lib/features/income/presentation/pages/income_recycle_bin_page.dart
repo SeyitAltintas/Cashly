@@ -76,13 +76,15 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
 
       // Optimistic UI ile yerelde silinmiş ama henüz Firestore'a yansımamış olabilecek kartları ekle
       if (_controller != null) {
-        final localDeleted = _controller!.tumGelirler.where((g) => g.isDeleted).toList();
+        final localDeleted = _controller!.tumGelirler
+            .where((g) => g.isDeleted)
+            .toList();
         for (var local in localDeleted) {
           if (!silinen.any((s) => s.id == local.id)) {
             silinen.add(local);
           }
         }
-        
+
         // Yeniden eskiye doğru sırala
         silinen.sort((a, b) => b.date.compareTo(a.date));
 
@@ -170,7 +172,10 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
       }
       _localSilinenGelirler.removeWhere((g) => g.id == gelir.id);
       setState(() {});
-      await getIt<IncomeRepository>().updateIncome(widget.userId, gelir.copyWith(isDeleted: false).toMap());
+      await getIt<IncomeRepository>().updateIncome(
+        widget.userId,
+        gelir.copyWith(isDeleted: false).toMap(),
+      );
     }
     if (mounted) {
       AppSnackBar.success(context, context.l10n.incomeRestored);
@@ -247,7 +252,10 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         _localSilinenGelirler.clear();
         setState(() {});
         for (var gelir in silinenlerKopya) {
-          await getIt<IncomeRepository>().updateIncome(widget.userId, gelir.copyWith(isDeleted: false).toMap());
+          await getIt<IncomeRepository>().updateIncome(
+            widget.userId,
+            gelir.copyWith(isDeleted: false).toMap(),
+          );
         }
       }
       if (mounted) {

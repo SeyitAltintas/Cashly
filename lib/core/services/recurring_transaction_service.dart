@@ -59,7 +59,9 @@ class RecurringTransactionService {
 
         // Harcama ekle - tarih belirlenen güne göre ayarlanır
         final islemTarihi = DateTime(bugun.year, bugun.month, gun);
-        final islemParaBirimi = islem['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+        final islemParaBirimi =
+            islem['paraBirimi']?.toString() ??
+            getIt<CurrencyService>().currentCurrency;
         final yeniHarcama = {
           'id': const Uuid().v4(),
           'isim': isim,
@@ -80,9 +82,13 @@ class RecurringTransactionService {
           );
           if (pmIndex != -1) {
             final pm = tumOdemeYontemleri[pmIndex];
-            
+
             final cur = getIt<CurrencyService>();
-            final convertedAmount = cur.convert(tutar, islemParaBirimi, pm.paraBirimi);
+            final convertedAmount = cur.convert(
+              tutar,
+              islemParaBirimi,
+              pm.paraBirimi,
+            );
 
             double yeniBakiye;
             if (pm.type == 'kredi') {
@@ -152,7 +158,9 @@ class RecurringTransactionService {
 
         // Gelir ekle - tarih belirlenen güne göre ayarlanır
         final islemTarihi = DateTime(bugun.year, bugun.month, gun);
-        final gelirParaBirimi = gelir['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+        final gelirParaBirimi =
+            gelir['paraBirimi']?.toString() ??
+            getIt<CurrencyService>().currentCurrency;
         final yeniGelir = Income(
           id: const Uuid().v4(),
           name: isim,
@@ -172,9 +180,13 @@ class RecurringTransactionService {
           );
           if (pmIndex != -1) {
             final pm = tumOdemeYontemleri[pmIndex];
-            
+
             final cur = getIt<CurrencyService>();
-            final convertedAmount = cur.convert(tutar, gelirParaBirimi, pm.paraBirimi);
+            final convertedAmount = cur.convert(
+              tutar,
+              gelirParaBirimi,
+              pm.paraBirimi,
+            );
 
             double yeniBakiye;
             if (pm.type == 'kredi') {

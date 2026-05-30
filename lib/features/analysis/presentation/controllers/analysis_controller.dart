@@ -12,11 +12,11 @@ class AnalysisComputePayload {
   final List<Map<String, dynamic>> harcamalar;
   final List<Income> gelirler;
   final List<Asset> varliklar;
-  
+
   final int historyLimit;
   final DateTime selectedMonth;
   final DateTime todayDate;
-  
+
   final Map<String, double> rates;
   final String currentCurrency;
 
@@ -76,7 +76,12 @@ class AnalysisComputeResult {
 
 // ===== ISOLATE HELPER FUNCTIONS =====
 
-double _isolateConvert(double amount, String sourceCurrency, String targetCurrency, Map<String, double> rates) {
+double _isolateConvert(
+  double amount,
+  String sourceCurrency,
+  String targetCurrency,
+  Map<String, double> rates,
+) {
   if (sourceCurrency == targetCurrency) return amount;
   final sourceRate = rates[sourceCurrency] ?? 0.0;
   final targetRate = rates[targetCurrency] ?? 0.0;
@@ -85,7 +90,12 @@ double _isolateConvert(double amount, String sourceCurrency, String targetCurren
   return amountInUsd * targetRate;
 }
 
-bool _isolateIsWithinLimit(DateTime date, int historyLimit, DateTime selectedMonth, DateTime todayDate) {
+bool _isolateIsWithinLimit(
+  DateTime date,
+  int historyLimit,
+  DateTime selectedMonth,
+  DateTime todayDate,
+) {
   if (historyLimit == -1) {
     return date.year == selectedMonth.year && date.month == selectedMonth.month;
   }
@@ -105,15 +115,26 @@ bool _isolateIsWithinLimit(DateTime date, int historyLimit, DateTime selectedMon
     } else if (historyLimit == 180) {
       thresholdDate = DateTime(todayDate.year, todayDate.month - 6, 1);
     } else if (historyLimit == 365) {
-      thresholdDate = DateTime(todayDate.year - 1, todayDate.month, todayDate.day);
+      thresholdDate = DateTime(
+        todayDate.year - 1,
+        todayDate.month,
+        todayDate.day,
+      );
     } else {
       thresholdDate = todayStart.subtract(Duration(days: historyLimit));
     }
-    return (date.isAfter(thresholdDate) || date.isAtSameMomentAs(thresholdDate)) && date.isBefore(tomorrow);
+    return (date.isAfter(thresholdDate) ||
+            date.isAtSameMomentAs(thresholdDate)) &&
+        date.isBefore(tomorrow);
   }
 }
 
-bool _isolateIsWithinPreviousLimit(DateTime date, int historyLimit, DateTime selectedMonth, DateTime todayDate) {
+bool _isolateIsWithinPreviousLimit(
+  DateTime date,
+  int historyLimit,
+  DateTime selectedMonth,
+  DateTime todayDate,
+) {
   if (historyLimit == -1) {
     final prevMonth = DateTime(selectedMonth.year, selectedMonth.month - 1);
     return date.year == prevMonth.year && date.month == prevMonth.month;
@@ -139,17 +160,31 @@ bool _isolateIsWithinPreviousLimit(DateTime date, int historyLimit, DateTime sel
       currentThreshold = DateTime(todayDate.year, todayDate.month - 6, 1);
       previousThreshold = DateTime(todayDate.year, todayDate.month - 12, 1);
     } else if (historyLimit == 365) {
-      currentThreshold = DateTime(todayDate.year - 1, todayDate.month, todayDate.day);
-      previousThreshold = DateTime(todayDate.year - 2, todayDate.month, todayDate.day);
+      currentThreshold = DateTime(
+        todayDate.year - 1,
+        todayDate.month,
+        todayDate.day,
+      );
+      previousThreshold = DateTime(
+        todayDate.year - 2,
+        todayDate.month,
+        todayDate.day,
+      );
     } else {
       currentThreshold = todayStart.subtract(Duration(days: historyLimit));
-      previousThreshold = currentThreshold.subtract(Duration(days: historyLimit));
+      previousThreshold = currentThreshold.subtract(
+        Duration(days: historyLimit),
+      );
     }
-    return (date.isAfter(previousThreshold) || date.isAtSameMomentAs(previousThreshold)) && date.isBefore(currentThreshold);
+    return (date.isAfter(previousThreshold) ||
+            date.isAtSameMomentAs(previousThreshold)) &&
+        date.isBefore(currentThreshold);
   }
 }
 
-Future<AnalysisComputeResult> _calculateAnalysisWorker(AnalysisComputePayload payload) async {
+Future<AnalysisComputeResult> _calculateAnalysisWorker(
+  AnalysisComputePayload payload,
+) async {
   final rates = payload.rates;
   final targetCurrency = payload.currentCurrency;
   final todayDate = payload.todayDate;
@@ -169,7 +204,7 @@ Future<AnalysisComputeResult> _calculateAnalysisWorker(AnalysisComputePayload pa
   final pmExpTotals = <String, double>{};
   final dailyExpTotals = <DateTime, double>{};
 
-  for(var h in currentExpenses) {
+  for (var h in currentExpenses) {
     final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
     final pb = h['paraBirimi']?.toString() ?? 'TRY';
     final deger = _isolateConvert(tutar, pb, targetCurrency, rates);
@@ -192,10 +227,15 @@ Future<AnalysisComputeResult> _calculateAnalysisWorker(AnalysisComputePayload pa
     if (h['silindi'] == true) return false;
     DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
     if (tarih == null) return false;
-    return _isolateIsWithinPreviousLimit(tarih, historyLimit, selectedMonth, todayDate);
+    return _isolateIsWithinPreviousLimit(
+      tarih,
+      historyLimit,
+      selectedMonth,
+      todayDate,
+    );
   });
   double prevTotalExp = 0.0;
-  for(var h in prevHarcamalar) {
+  for (var h in prevHarcamalar) {
     final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
     final pb = h['paraBirimi']?.toString() ?? 'TRY';
     prevTotalExp += _isolateConvert(tutar, pb, targetCurrency, rates);
@@ -204,7 +244,12 @@ Future<AnalysisComputeResult> _calculateAnalysisWorker(AnalysisComputePayload pa
   // 2. Current Incomes
   final currentIncomes = payload.gelirler.where((g) {
     if (g.isDeleted) return false;
-    return _isolateIsWithinLimit(g.date, historyLimit, selectedMonth, todayDate);
+    return _isolateIsWithinLimit(
+      g.date,
+      historyLimit,
+      selectedMonth,
+      todayDate,
+    );
   }).toList();
 
   double totalInc = 0.0;
@@ -212,12 +257,19 @@ Future<AnalysisComputeResult> _calculateAnalysisWorker(AnalysisComputePayload pa
   final pmIncTotals = <String, double>{};
   final dailyIncTotals = <DateTime, double>{};
 
-  for(var g in currentIncomes) {
-    final deger = _isolateConvert(g.amount, g.paraBirimi, targetCurrency, rates);
+  for (var g in currentIncomes) {
+    final deger = _isolateConvert(
+      g.amount,
+      g.paraBirimi,
+      targetCurrency,
+      rates,
+    );
     totalInc += deger;
     final kat = g.category.isEmpty ? 'Diğer' : g.category;
     catIncTotals[kat] = (catIncTotals[kat] ?? 0) + deger;
-    final pmId = (g.paymentMethodId == null || g.paymentMethodId!.isEmpty) ? 'unknown' : g.paymentMethodId!;
+    final pmId = (g.paymentMethodId == null || g.paymentMethodId!.isEmpty)
+        ? 'unknown'
+        : g.paymentMethodId!;
     pmIncTotals[pmId] = (pmIncTotals[pmId] ?? 0) + deger;
 
     final dateOnly = DateTime(g.date.year, g.date.month, g.date.day);
@@ -226,11 +278,21 @@ Future<AnalysisComputeResult> _calculateAnalysisWorker(AnalysisComputePayload pa
 
   final prevGelirler = payload.gelirler.where((g) {
     if (g.isDeleted) return false;
-    return _isolateIsWithinPreviousLimit(g.date, historyLimit, selectedMonth, todayDate);
+    return _isolateIsWithinPreviousLimit(
+      g.date,
+      historyLimit,
+      selectedMonth,
+      todayDate,
+    );
   });
   double prevTotalInc = 0.0;
-  for(var g in prevGelirler) {
-    prevTotalInc += _isolateConvert(g.amount, g.paraBirimi, targetCurrency, rates);
+  for (var g in prevGelirler) {
+    prevTotalInc += _isolateConvert(
+      g.amount,
+      g.paraBirimi,
+      targetCurrency,
+      rates,
+    );
   }
 
   final categoryMonths = <String, Set<String>>{};
@@ -240,7 +302,10 @@ Future<AnalysisComputeResult> _calculateAnalysisWorker(AnalysisComputePayload pa
     categoryMonths.putIfAbsent(g.category, () => <String>{});
     categoryMonths[g.category]!.add(monthKey);
   }
-  final regIncomes = categoryMonths.entries.where((e) => e.value.length >= 2).map((e) => e.key).toSet();
+  final regIncomes = categoryMonths.entries
+      .where((e) => e.value.length >= 2)
+      .map((e) => e.key)
+      .toSet();
 
   // 3. Assets
   final activeAssets = payload.varliklar.where((v) => !v.isDeleted).toList();
@@ -248,12 +313,24 @@ Future<AnalysisComputeResult> _calculateAnalysisWorker(AnalysisComputePayload pa
   double totalAssetPurchase = 0.0;
   final assetTypeTotals = <String, double>{};
 
-  for(var v in activeAssets) {
-    totalAssetValue += _isolateConvert(v.amount, v.paraBirimi, targetCurrency, rates);
-    totalAssetPurchase += _isolateConvert(v.purchasePrice, v.paraBirimi, targetCurrency, rates);
+  for (var v in activeAssets) {
+    totalAssetValue += _isolateConvert(
+      v.amount,
+      v.paraBirimi,
+      targetCurrency,
+      rates,
+    );
+    totalAssetPurchase += _isolateConvert(
+      v.purchasePrice,
+      v.paraBirimi,
+      targetCurrency,
+      rates,
+    );
 
     final tip = v.type ?? 'Diğer';
-    assetTypeTotals[tip] = (assetTypeTotals[tip] ?? 0) + _isolateConvert(v.amount, v.paraBirimi, targetCurrency, rates);
+    assetTypeTotals[tip] =
+        (assetTypeTotals[tip] ?? 0) +
+        _isolateConvert(v.amount, v.paraBirimi, targetCurrency, rates);
   }
 
   return AnalysisComputeResult(
@@ -313,8 +390,8 @@ class AnalysisController extends ChangeNotifier {
   List<Income> _gelirler = [];
   List<Asset> _varliklar = [];
   List<PaymentMethod> _odemeYontemleri = [];
-  
-  int _historyLimit = 30; 
+
+  int _historyLimit = 30;
   int get historyLimit => _historyLimit;
 
   DateTime _selectedMonth = DateTime.now();
@@ -337,11 +414,12 @@ class AnalysisController extends ChangeNotifier {
     _varliklar = varliklar;
     _odemeYontemleri = odemeYontemleri;
 
-    if (_selectedMonth.year != secilenAy.year || _selectedMonth.month != secilenAy.month) {
+    if (_selectedMonth.year != secilenAy.year ||
+        _selectedMonth.month != secilenAy.month) {
       _selectedMonth = secilenAy;
       _historyLimit = -1;
     }
-    
+
     await _recalculateData();
   }
 
@@ -378,7 +456,7 @@ class AnalysisController extends ChangeNotifier {
 
   Future<void> _recalculateData() async {
     setLoading(true);
-    
+
     final cur = getIt<CurrencyService>();
     final payload = AnalysisComputePayload(
       harcamalar: _harcamalar,
@@ -390,7 +468,7 @@ class AnalysisController extends ChangeNotifier {
       rates: cur.rates,
       currentCurrency: cur.currentCurrency,
     );
-    
+
     _result = await compute(_calculateAnalysisWorker, payload);
 
     if (!_isDisposed) {
@@ -406,36 +484,46 @@ class AnalysisController extends ChangeNotifier {
 
   // Harcamalar
   List<Map<String, dynamic>> get harcamalar => _harcamalar;
-  List<Map<String, dynamic>> get currentExpenses => _result?.currentExpenses ?? [];
+  List<Map<String, dynamic>> get currentExpenses =>
+      _result?.currentExpenses ?? [];
   double get totalMonthlyExpense => _result?.totalMonthlyExpense ?? 0.0;
-  double get previousMonthTotalExpense => _result?.previousMonthTotalExpense ?? 0.0;
-  Map<String, double> get expenseCategoryTotals => _result?.expenseCategoryTotals ?? {};
-  Map<String, double> get expensePaymentMethodTotals => _result?.expensePaymentMethodTotals ?? {};
-  
+  double get previousMonthTotalExpense =>
+      _result?.previousMonthTotalExpense ?? 0.0;
+  Map<String, double> get expenseCategoryTotals =>
+      _result?.expenseCategoryTotals ?? {};
+  Map<String, double> get expensePaymentMethodTotals =>
+      _result?.expensePaymentMethodTotals ?? {};
+
   MapEntry<String, double>? get topExpenseCategory {
     final totals = expenseCategoryTotals;
     if (totals.isEmpty) return null;
     return totals.entries.reduce((a, b) => a.value > b.value ? a : b);
   }
-  
-  Map<DateTime, double> get dailyExpenseTotals => _result?.dailyExpenseTotals ?? {};
+
+  Map<DateTime, double> get dailyExpenseTotals =>
+      _result?.dailyExpenseTotals ?? {};
 
   // Gelirler
   List<Income> get gelirler => _gelirler;
   List<Income> get currentIncomes => _result?.currentIncomes ?? [];
   double get totalMonthlyIncome => _result?.totalMonthlyIncome ?? 0.0;
-  double get previousMonthTotalIncome => _result?.previousMonthTotalIncome ?? 0.0;
-  Map<String, double> get incomeCategoryTotals => _result?.incomeCategoryTotals ?? {};
-  
+  double get previousMonthTotalIncome =>
+      _result?.previousMonthTotalIncome ?? 0.0;
+  Map<String, double> get incomeCategoryTotals =>
+      _result?.incomeCategoryTotals ?? {};
+
   MapEntry<String, double>? get topIncomeCategory {
     final totals = incomeCategoryTotals;
     if (totals.isEmpty) return null;
     return totals.entries.reduce((a, b) => a.value > b.value ? a : b);
   }
-  
-  Map<String, double> get incomePaymentMethodTotals => _result?.incomePaymentMethodTotals ?? {};
-  Set<String> get regularIncomeCategories => _result?.regularIncomeCategories ?? {};
-  Map<DateTime, double> get dailyIncomeTotals => _result?.dailyIncomeTotals ?? {};
+
+  Map<String, double> get incomePaymentMethodTotals =>
+      _result?.incomePaymentMethodTotals ?? {};
+  Set<String> get regularIncomeCategories =>
+      _result?.regularIncomeCategories ?? {};
+  Map<DateTime, double> get dailyIncomeTotals =>
+      _result?.dailyIncomeTotals ?? {};
 
   // Varlıklar
   List<Asset> get varliklar => _varliklar;
@@ -443,31 +531,43 @@ class AnalysisController extends ChangeNotifier {
   double get totalAssetValue => _result?.totalAssetValue ?? 0.0;
   double get totalAssetPurchaseValue => _result?.totalAssetPurchaseValue ?? 0.0;
   Map<String, double> get assetTypeTotals => _result?.assetTypeTotals ?? {};
-  
+
   // Ödeme Yöntemleri
   List<PaymentMethod> get odemeYontemleri => _odemeYontemleri;
 
   // ===== YARDIMCI METODLAR =====
-  
+
   List<Color> getTabColors(int tabIndex) {
     switch (tabIndex) {
       case 0:
         return [
-          Colors.red.shade400, Colors.orange.shade400, Colors.amber.shade400,
-          Colors.pink.shade400, Colors.deepOrange.shade400,
-          Colors.redAccent.shade200, Colors.orangeAccent.shade200,
+          Colors.red.shade400,
+          Colors.orange.shade400,
+          Colors.amber.shade400,
+          Colors.pink.shade400,
+          Colors.deepOrange.shade400,
+          Colors.redAccent.shade200,
+          Colors.orangeAccent.shade200,
         ];
       case 1:
         return [
-          Colors.green.shade400, Colors.teal.shade400, Colors.lime.shade400,
-          Colors.lightGreen.shade400, Colors.greenAccent.shade400,
-          Colors.tealAccent.shade400, Colors.cyan.shade400,
+          Colors.green.shade400,
+          Colors.teal.shade400,
+          Colors.lime.shade400,
+          Colors.lightGreen.shade400,
+          Colors.greenAccent.shade400,
+          Colors.tealAccent.shade400,
+          Colors.cyan.shade400,
         ];
       case 2:
         return [
-          Colors.blue.shade400, Colors.indigo.shade400, Colors.purple.shade400,
-          Colors.deepPurple.shade400, Colors.blueAccent.shade200,
-          Colors.indigoAccent.shade200, Colors.purpleAccent.shade200,
+          Colors.blue.shade400,
+          Colors.indigo.shade400,
+          Colors.purple.shade400,
+          Colors.deepPurple.shade400,
+          Colors.blueAccent.shade200,
+          Colors.indigoAccent.shade200,
+          Colors.purpleAccent.shade200,
         ];
       default:
         return [Colors.grey.shade400];

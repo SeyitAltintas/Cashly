@@ -216,15 +216,19 @@ class HomePageState extends ChangeNotifier {
     final expenseRepo = getIt<ExpenseRepository>();
     final incomeRepo = getIt<IncomeRepository>();
 
-    _expensesSubscription = expenseRepo.watchExpensesByMonth(userId, _secilenAy).listen((expenses) {
-      _tumHarcamalar = expenses;
-      notifyListeners();
-    });
+    _expensesSubscription = expenseRepo
+        .watchExpensesByMonth(userId, _secilenAy)
+        .listen((expenses) {
+          _tumHarcamalar = expenses;
+          notifyListeners();
+        });
 
-    _incomesSubscription = incomeRepo.watchIncomesByMonth(userId, _secilenAy).listen((incomesMap) {
-      _tumGelirler = incomesMap.map((map) => Income.fromMap(map)).toList();
-      notifyListeners();
-    });
+    _incomesSubscription = incomeRepo
+        .watchIncomesByMonth(userId, _secilenAy)
+        .listen((incomesMap) {
+          _tumGelirler = incomesMap.map((map) => Income.fromMap(map)).toList();
+          notifyListeners();
+        });
   }
 
   @override

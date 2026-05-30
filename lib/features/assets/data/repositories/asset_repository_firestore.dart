@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../../core/services/batch_service.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/asset_repository.dart';
@@ -16,10 +17,7 @@ class AssetRepositoryFirestore implements AssetRepository {
   }
 
   Stream<List<Map<String, dynamic>>> watchAssets(String userId) {
-    return _userDoc(userId)
-        .collection('assets')
-        .snapshots()
-        .map((snapshot) {
+    return _userDoc(userId).collection('assets').snapshots().map((snapshot) {
       final assets = snapshot.docs.map((doc) => doc.data()).toList();
       CacheService.set('assets_$userId', assets);
       return assets;
@@ -32,13 +30,16 @@ class AssetRepositoryFirestore implements AssetRepository {
       if ((asset['id']?.toString() ?? '').isEmpty) {
         throw Exception('Varlık eklenirken ID eksik!');
       }
-      final docRef = _userDoc(userId).collection('assets').doc(asset['id'].toString());
+      final docRef = _userDoc(
+        userId,
+      ).collection('assets').doc(asset['id'].toString());
       final data = Map<String, dynamic>.from(asset);
       data['updatedAt'] = FieldValue.serverTimestamp();
       await docRef.set(data);
 
       final cacheKey = 'assets_$userId';
-      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final cached =
+          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       if (!cached.any((a) => a['id'] == asset['id'])) {
         cached.add(asset);
         CacheService.set(cacheKey, cached);
@@ -55,13 +56,16 @@ class AssetRepositoryFirestore implements AssetRepository {
       if ((asset['id']?.toString() ?? '').isEmpty) {
         throw Exception('Varlık güncellenirken ID eksik!');
       }
-      final docRef = _userDoc(userId).collection('assets').doc(asset['id'].toString());
+      final docRef = _userDoc(
+        userId,
+      ).collection('assets').doc(asset['id'].toString());
       final data = Map<String, dynamic>.from(asset);
       data['updatedAt'] = FieldValue.serverTimestamp();
       await docRef.set(data, SetOptions(merge: true));
 
       final cacheKey = 'assets_$userId';
-      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final cached =
+          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       final index = cached.indexWhere((a) => a['id'] == asset['id']);
       if (index != -1) {
         cached[index] = asset;
@@ -80,7 +84,8 @@ class AssetRepositoryFirestore implements AssetRepository {
       await docRef.delete();
 
       final cacheKey = 'assets_$userId';
-      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final cached =
+          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       cached.removeWhere((a) => a['id'] == assetId);
       CacheService.set(cacheKey, cached);
     } catch (e) {
@@ -91,20 +96,29 @@ class AssetRepositoryFirestore implements AssetRepository {
 
   @override
   List<Map<String, dynamic>> getDeletedAssets(String userId) {
-    return CacheService.get<List<Map<String, dynamic>>>('deleted_assets_$userId') ?? [];
+    return CacheService.get<List<Map<String, dynamic>>>(
+          'deleted_assets_$userId',
+        ) ??
+        [];
   }
 
   @override
-  Future<void> addDeletedAsset(String userId, Map<String, dynamic> asset) async {
+  Future<void> addDeletedAsset(
+    String userId,
+    Map<String, dynamic> asset,
+  ) async {
     try {
       if ((asset['id']?.toString() ?? '').isEmpty) {
         throw Exception('Silinen varlık eklenirken ID eksik!');
       }
-      final docRef = _userDoc(userId).collection('deletedAssets').doc(asset['id'].toString());
+      final docRef = _userDoc(
+        userId,
+      ).collection('deletedAssets').doc(asset['id'].toString());
       await docRef.set(asset);
 
       final cacheKey = 'deleted_assets_$userId';
-      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final cached =
+          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       if (!cached.any((a) => a['id'] == asset['id'])) {
         cached.add(asset);
         CacheService.set(cacheKey, cached);
@@ -122,12 +136,63 @@ class AssetRepositoryFirestore implements AssetRepository {
       await docRef.delete();
 
       final cacheKey = 'deleted_assets_$userId';
-      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final cached =
+          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       cached.removeWhere((a) => a['id'] == assetId);
       CacheService.set(cacheKey, cached);
     } catch (e) {
       debugPrint('Silinen varlık kalıcı silme hatası: $e');
       rethrow;
     }
+  }
+
+  @override
+  Future<void> saveDeletedAssets(
+    String userId,
+    List<Map<String, dynamic>> assets,
+  ) async {
+    // Implemented via BatchService usually, or just not needed anymore
+  }
+
+  @override
+  BatchOperation getAddAssetOperation(String userId, Map<String, dynamic> asset) {
+    if ((asset['id']?.toString() ?? '').isEmpty) {
+      throw Exception('Varlık eklenirken ID eksik!');
+    }
+    final docRef = _userDoc(userId).collection('assets').doc(asset['id'].toString());
+    final data = Map<String, dynamic>.from(asset);
+    data['updatedAt'] = FieldValue.serverTimestamp();
+    return FirestoreBatchOperation(
+      type: BatchOperationType.set,
+      collectionPath: _userDoc(userId).collection('assets').path,
+      documentId: asset['id'].toString(),
+      data: data,
+    );
+  }
+
+  @override
+  BatchOperation getUpdateAssetOperation(String userId, Map<String, dynamic> asset) {
+    if ((asset['id']?.toString() ?? '').isEmpty) {
+      throw Exception('Varlık güncellenirken ID eksik!');
+    }
+    final docRef = _userDoc(userId).collection('assets').doc(asset['id'].toString());
+    final data = Map<String, dynamic>.from(asset);
+    data['updatedAt'] = FieldValue.serverTimestamp();
+    return FirestoreBatchOperation(
+      type: BatchOperationType.update,
+      collectionPath: _userDoc(userId).collection('assets').path,
+      documentId: asset['id'].toString(),
+      data: data,
+    );
+  }
+
+  @override
+  BatchOperation getDeleteAssetOperation(String userId, String id) {
+    final docRef = _userDoc(userId).collection('assets').doc(id);
+    return FirestoreBatchOperation(
+      type: BatchOperationType.delete,
+      collectionPath: _userDoc(userId).collection('assets').path,
+      documentId: id,
+    );
   }
 }

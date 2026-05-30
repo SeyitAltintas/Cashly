@@ -48,7 +48,10 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
         .trim()
         .replaceAll('.', '')
         .replaceAll(',', '');
-    final validationError = Validators.validateAmount(tutarText, maxAmount: 10000000);
+    final validationError = Validators.validateAmount(
+      tutarText,
+      maxAmount: 10000000,
+    );
 
     if (validationError != null) {
       ErrorHandler.showErrorSnackBar(context, validationError);
@@ -61,8 +64,11 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
         getIt<IncomeRepository>().saveIncomeTarget(widget.userId, yeniHedef);
         _categoryChanged = true;
         setState(() => _isSaved = true);
-        AppSnackBar.success(context, context.l10n.incomeTargetUpdated,
-            duration: const Duration(seconds: 2));
+        AppSnackBar.success(
+          context,
+          context.l10n.incomeTargetUpdated,
+          duration: const Duration(seconds: 2),
+        );
         Future.delayed(const Duration(seconds: 4), () {
           if (mounted) setState(() => _isSaved = false);
         });
@@ -71,8 +77,6 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
       }
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -103,8 +107,11 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
               const SizedBox(height: 32),
 
               // ===== AYLIK GELİR HEDEFİ =====
-              _buildSectionTitle(context, context.l10n.monthlyIncomeTarget,
-                  Icons.trending_up_rounded),
+              _buildSectionTitle(
+                context,
+                context.l10n.monthlyIncomeTarget,
+                Icons.trending_up_rounded,
+              ),
               const SizedBox(height: 12),
               _buildIncomeTargetSection(context),
 
@@ -141,7 +148,9 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
       builder: (context, value, child) => Opacity(
         opacity: value,
         child: Transform.translate(
-            offset: Offset(0, 20 * (1 - value)), child: child),
+          offset: Offset(0, 20 * (1 - value)),
+          child: child,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,10 +168,9 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
           Text(
             context.l10n.incomeSettingsDesc,
             style: TextStyle(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.54),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.54),
               fontSize: 14,
             ),
           ),
@@ -171,13 +179,10 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
     );
   }
 
-  Widget _buildSectionTitle(
-      BuildContext context, String title, IconData icon) {
+  Widget _buildSectionTitle(BuildContext context, String title, IconData icon) {
     return Row(
       children: [
-        Icon(icon,
-            size: 18,
-            color: Theme.of(context).colorScheme.secondary),
+        Icon(icon, size: 18, color: Theme.of(context).colorScheme.secondary),
         const SizedBox(width: 8),
         Text(
           title,
@@ -198,10 +203,9 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context)
-              .colorScheme
-              .onSurface
-              .withValues(alpha: 0.08),
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.08),
         ),
         boxShadow: [
           BoxShadow(
@@ -218,10 +222,9 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
           Text(
             context.l10n.incomeTargetQuestion,
             style: TextStyle(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.7),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
               fontSize: 13,
             ),
           ),
@@ -232,7 +235,8 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
                 child: TextField(
                   controller: _targetController,
                   keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true),
+                    decimal: true,
+                  ),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
@@ -241,25 +245,24 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
                   decoration: InputDecoration(
                     hintText: '0',
                     hintStyle: TextStyle(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.3),
                     ),
-                    prefixIcon: Icon(Icons.currency_lira,
-                        color: Colors.green.shade400),
+                    prefixIcon: Icon(
+                      Icons.currency_lira,
+                      color: Colors.green.shade400,
+                    ),
                     suffixText: context.l10n.perMonth,
                     suffixStyle: TextStyle(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                     filled: true,
-                    fillColor: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.05),
+                    fillColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.05),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -276,9 +279,12 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
                       : Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 16),
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: Text(
                   _isSaved ? '✓' : context.l10n.save,
@@ -305,7 +311,9 @@ class RecurringIncomeSection extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.15),
           width: 0.5,
         ),
       ),
@@ -316,7 +324,9 @@ class RecurringIncomeSection extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
+              color: Theme.of(
+                context,
+              ).colorScheme.surface.withValues(alpha: 0.3),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -375,7 +385,9 @@ class RecurringIncomeSection extends StatelessWidget {
                         Text(
                           context.l10n.manageRecurringIncomesDesc,
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.5),
                             fontSize: 12,
                           ),
                         ),
@@ -384,7 +396,9 @@ class RecurringIncomeSection extends StatelessWidget {
                   ),
                   Icon(
                     Icons.chevron_right,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ],
               ),

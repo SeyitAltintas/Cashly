@@ -29,7 +29,9 @@ class SaveIncomes implements UseCase<void, SaveIncomesParams> {
 
   @override
   Future<void> call(SaveIncomesParams params) async {
-    throw UnimplementedError('saveIncomes is deprecated. Use add/update/delete Income instead.');
+    throw UnimplementedError(
+      'saveIncomes is deprecated. Use add/update/delete Income instead.',
+    );
   }
 }
 

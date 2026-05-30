@@ -20,14 +20,20 @@ class AuthController extends ChangeNotifier {
 
   void _initAuthListener() {
     try {
-      _authListenerSub = FirebaseAuth.instance.userChanges().listen((User? user) async {
+      _authListenerSub = FirebaseAuth.instance.userChanges().listen((
+        User? user,
+      ) async {
         if (user == null && _currentUser != null) {
-          debugPrint('Bulut kaynaklı çıkış (Force Logout) algılandı, lokal oturum temizleniyor.');
+          debugPrint(
+            'Bulut kaynaklı çıkış (Force Logout) algılandı, lokal oturum temizleniyor.',
+          );
           await logout();
         }
       });
     } catch (e) {
-      debugPrint('Firebase Auth Listener başlatılamadı (Test ortamı olabilir): $e');
+      debugPrint(
+        'Firebase Auth Listener başlatılamadı (Test ortamı olabilir): $e',
+      );
     }
   }
 
@@ -69,11 +75,7 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<bool> register(
-    String name,
-    String email,
-    String pin,
-  ) async {
+  Future<bool> register(String name, String email, String pin) async {
     _setLoading(true);
     _error = null;
     try {
@@ -202,11 +204,19 @@ class AuthController extends ChangeNotifier {
   }
 
   /// E-posta bağlantısını doğrula ve yeni PIN'i kaydet
-  Future<bool> verifyEmailLinkAndSetPin(String email, String emailLink, String newPin) async {
+  Future<bool> verifyEmailLinkAndSetPin(
+    String email,
+    String emailLink,
+    String newPin,
+  ) async {
     _setLoading(true);
     _error = null;
     try {
-      return await _authRepository.verifyEmailLinkAndSetPin(email, emailLink, newPin);
+      return await _authRepository.verifyEmailLinkAndSetPin(
+        email,
+        emailLink,
+        newPin,
+      );
     } catch (e) {
       _error = e.toString();
       return false;

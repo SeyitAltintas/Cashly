@@ -67,9 +67,7 @@ class AssetSummaryCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   ObscuredAmountText(
-                    CurrencyFormatter.format(
-                      totalAssets,
-                    ),
+                    CurrencyFormatter.format(totalAssets),
                     isObscured: isObscured,
                     style: TextStyle(
                       fontSize: 24,

@@ -96,7 +96,8 @@ class AuthRepositoryImpl implements AuthRepository {
       final userData = box.get(key);
       if (userData != null) {
         final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
-        if (user.email.toLowerCase() == email.toLowerCase() && user.pin == pin) {
+        if (user.email.toLowerCase() == email.toLowerCase() &&
+            user.pin == pin) {
           return await loginUser(user.id, pin);
         }
       }
@@ -112,7 +113,9 @@ class AuthRepositoryImpl implements AuthRepository {
     for (var key in box.keys) {
       final userData = box.get(key);
       if (userData != null) {
-        final userModel = UserModel.fromMap(Map<String, dynamic>.from(userData));
+        final userModel = UserModel.fromMap(
+          Map<String, dynamic>.from(userData),
+        );
         // FIX-11: PIN sızıntısını önlemek için, UI'a gönderilen liste hafızasında
         // açık PIN kodlarını temizliyoruz.
         users.add(
@@ -264,7 +267,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<bool> verifyEmailLinkAndSetPin(String email, String emailLink, String newPin) async {
+  Future<bool> verifyEmailLinkAndSetPin(
+    String email,
+    String emailLink,
+    String newPin,
+  ) async {
     // Sadece Firestore versiyonunda implemente edilir.
     return false;
   }
@@ -281,7 +288,10 @@ class AuthRepositoryImpl implements AuthRepository {
     await sessionBox.put('failed_attempts_$userId', current + 1);
     if (current + 1 >= 5) {
       // 5 başarısız denemede 5 dakika kilitle
-      await sessionBox.put('lockout_until_$userId', DateTime.now().add(const Duration(minutes: 5)).toIso8601String());
+      await sessionBox.put(
+        'lockout_until_$userId',
+        DateTime.now().add(const Duration(minutes: 5)).toIso8601String(),
+      );
     }
   }
 
@@ -304,7 +314,10 @@ class AuthRepositoryImpl implements AuthRepository {
   /// Çevrimdışı TTL kontrolü için son online doğrulama zamanını kaydeder
   Future<void> updateLastOnlineSync(String userId) async {
     final sessionBox = await _getSessionBox();
-    await sessionBox.put('last_online_sync_$userId', DateTime.now().toIso8601String());
+    await sessionBox.put(
+      'last_online_sync_$userId',
+      DateTime.now().toIso8601String(),
+    );
   }
 
   /// Çevrimdışı TTL kontrolü için son online doğrulama zamanını getirir

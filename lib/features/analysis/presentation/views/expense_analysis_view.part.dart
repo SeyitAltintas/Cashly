@@ -28,7 +28,11 @@ extension _ExpenseAnalysisExtension on _AnalysisPageState {
     final topCategory = topEntry?.key ?? '';
     final topAmount = topEntry?.value ?? 0.0;
 
-    final sections = _buildPieChartSections(totals, totalAmount, AnalysisColors.expenseColors);
+    final sections = _buildPieChartSections(
+      totals,
+      totalAmount,
+      AnalysisColors.expenseColors,
+    );
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -52,7 +56,12 @@ extension _ExpenseAnalysisExtension on _AnalysisPageState {
                     topCategoryName: context.translateDbName(topCategory),
                     topCategoryAmount: CurrencyFormatter.format(topAmount),
                   ),
-                  _buildChartArea(sections, totals, totalAmount, AnalysisColors.expenseColors),
+                  _buildChartArea(
+                    sections,
+                    totals,
+                    totalAmount,
+                    AnalysisColors.expenseColors,
+                  ),
                   if (_controller.historyLimit == 30 ||
                       _controller.historyLimit == -1) ...[
                     const SizedBox(height: 24),
@@ -78,7 +87,10 @@ extension _ExpenseAnalysisExtension on _AnalysisPageState {
                     ),
                   ],
                   if (currentExpenses.isNotEmpty)
-                    _buildTopExpenses(currentExpenses, _controller.totalMonthlyExpense),
+                    _buildTopExpenses(
+                      currentExpenses,
+                      _controller.totalMonthlyExpense,
+                    ),
                   if (widget.paymentMethods.isNotEmpty)
                     _buildPaymentMethodDistribution(),
                 ]

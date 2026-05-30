@@ -101,7 +101,9 @@ class _UserListPageState extends State<UserListPage> {
                         context,
                       ).colorScheme.primary.withValues(alpha: 0.2),
                       backgroundImage: user.profileImage != null
-                          ? ImageUtils.getProfileImageProvider(user.profileImage)
+                          ? ImageUtils.getProfileImageProvider(
+                              user.profileImage,
+                            )
                           : null,
                       child: user.profileImage == null
                           ? Text(

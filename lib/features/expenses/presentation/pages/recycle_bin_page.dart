@@ -69,25 +69,31 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
       final List<Map<String, dynamic>> silinen = snapshot.docs.map((doc) {
         final data = doc.data();
         if (data['tarih'] is Timestamp) {
-          data['tarih'] = (data['tarih'] as Timestamp).toDate().toIso8601String();
+          data['tarih'] = (data['tarih'] as Timestamp)
+              .toDate()
+              .toIso8601String();
         }
         return data;
       }).toList();
 
       // Optimistic UI ile yerelde silinmiş ama henüz Firestore'a yansımamış olabilecek kartları ekle
       if (_controller != null) {
-        final localDeleted = _controller!.tumHarcamalar.where((h) => h['silindi'] == true).toList();
+        final localDeleted = _controller!.tumHarcamalar
+            .where((h) => h['silindi'] == true)
+            .toList();
         for (var local in localDeleted) {
           if (!silinen.any((s) => s['id'] == local['id'])) {
             silinen.add(local);
           }
         }
-        
+
         // Yeniden eskiye doğru sırala
         silinen.sort((a, b) {
-           DateTime dateA = DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-           DateTime dateB = DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-           return dateB.compareTo(dateA);
+          DateTime dateA =
+              DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+          DateTime dateB =
+              DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+          return dateB.compareTo(dateA);
         });
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -144,7 +150,9 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
     );
 
     if (onay == true) {
-      final silinenlerKopya = List<Map<String, dynamic>>.from(silinenHarcamalar);
+      final silinenlerKopya = List<Map<String, dynamic>>.from(
+        silinenHarcamalar,
+      );
       if (_controller != null) {
         await _controller!.binEmptyBin();
       } else {
@@ -152,7 +160,10 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
         _localSilinenHarcamalar.clear();
         setState(() {});
         for (var harcama in silinenlerKopya) {
-          await getIt<ExpenseRepository>().deleteExpense(widget.userId, harcama['id']);
+          await getIt<ExpenseRepository>().deleteExpense(
+            widget.userId,
+            harcama['id'],
+          );
         }
       }
       if (mounted) {
@@ -184,7 +195,10 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
       _localTumHarcamalarHam.remove(harcama);
       _localSilinenHarcamalar.remove(harcama);
       setState(() {});
-      await getIt<ExpenseRepository>().deleteExpense(widget.userId, harcama['id']);
+      await getIt<ExpenseRepository>().deleteExpense(
+        widget.userId,
+        harcama['id'],
+      );
     }
     if (mounted) {
       AppSnackBar.deleted(context, context.l10n.expensePermanentlyDeleted);
@@ -234,7 +248,9 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
     );
 
     if (onay == true) {
-      final silinenlerKopya = List<Map<String, dynamic>>.from(silinenHarcamalar);
+      final silinenlerKopya = List<Map<String, dynamic>>.from(
+        silinenHarcamalar,
+      );
       // State metoduyla tüm harcamaları geri yükle (bakiye güncelleme dahil)
       if (_controller != null) {
         await _controller!.binRestoreAll();
@@ -244,9 +260,12 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
         }
         _localSilinenHarcamalar.clear();
         setState(() {});
-        
+
         for (var harcama in silinenlerKopya) {
-            await getIt<ExpenseRepository>().updateExpense(widget.userId, harcama);
+          await getIt<ExpenseRepository>().updateExpense(
+            widget.userId,
+            harcama,
+          );
         }
       }
       // Payment methods have been updated locally, they will be synced when their balances change

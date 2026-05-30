@@ -1,3 +1,5 @@
+import '../../../../core/services/batch_service.dart';
+
 /// Ödeme yöntemi repository interface (Domain Layer)
 /// Bu interface, ödeme yöntemi verilerine erişim için soyut bir kontrat tanımlar.
 abstract class PaymentMethodRepository {
@@ -10,14 +12,35 @@ abstract class PaymentMethodRepository {
   /// Mevcut bir ödeme yöntemini günceller
   Future<void> updatePaymentMethod(String userId, Map<String, dynamic> method);
 
+  /// Bir ödeme yöntemini silmek için batch operasyonu döndürür
+  BatchOperation getDeletePaymentMethodOperation(
+    String userId,
+    String methodId,
+  );
+
   /// Bir ödeme yöntemini siler
   Future<void> deletePaymentMethod(String userId, String methodId);
+
+  /// Bir ödeme yöntemini eklemek için batch operasyonu döndürür
+  BatchOperation getAddPaymentMethodOperation(
+    String userId,
+    Map<String, dynamic> method,
+  );
+
+  /// Bir ödeme yöntemini güncellemek için batch operasyonu döndürür
+  BatchOperation getUpdatePaymentMethodOperation(
+    String userId,
+    Map<String, dynamic> method,
+  );
 
   /// Silinen ödeme yöntemlerini getirir
   List<Map<String, dynamic>> getDeletedPaymentMethods(String userId);
 
   /// Geri dönüşüm kutusuna ödeme yöntemi ekler
-  Future<void> addDeletedPaymentMethod(String userId, Map<String, dynamic> method);
+  Future<void> addDeletedPaymentMethod(
+    String userId,
+    Map<String, dynamic> method,
+  );
 
   /// Geri dönüşüm kutusundan ödeme yöntemini tamamen siler
   Future<void> removeDeletedPaymentMethod(String userId, String methodId);
@@ -33,6 +56,9 @@ abstract class PaymentMethodRepository {
 
   /// Yeni bir transfer ekler
   Future<void> addTransfer(String userId, Map<String, dynamic> transfer);
+
+  /// Yeni bir transfer eklemek için batch operasyonu döndürür
+  BatchOperation getAddTransferOperation(String userId, Map<String, dynamic> transfer);
 
   /// Mevcut bir transferi günceller
   Future<void> updateTransfer(String userId, Map<String, dynamic> transfer);

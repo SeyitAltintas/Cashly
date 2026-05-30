@@ -213,7 +213,11 @@ Uint8List? _compressWithImagePackage(Map<String, dynamic> args) {
     final img.Image? original = img.decodeImage(bytes);
     if (original == null) return null;
 
-    final img.Image resized = img.copyResize(original, width: width, maintainAspect: true);
+    final img.Image resized = img.copyResize(
+      original,
+      width: width,
+      maintainAspect: true,
+    );
     // Resmi hızlı ve kayıplı JPEG formatına dönüştürüyoruz, böylece 1MB sınırına ASLA yaklaşmaz:
     final List<int> jpegBytes = img.encodeJpg(resized, quality: quality);
 

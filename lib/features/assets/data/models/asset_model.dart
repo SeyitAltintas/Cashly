@@ -67,7 +67,9 @@ class Asset {
     final amount = (map['amount'] as num?)?.toDouble() ?? 0.0;
 
     return Asset(
-      id: map['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      id:
+          map['id']?.toString() ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
       name: map['name']?.toString() ?? 'İsimsiz Varlık',
       amount: amount,
       quantity: (map['quantity'] as num?)?.toDouble() ?? 1.0,

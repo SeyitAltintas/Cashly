@@ -83,10 +83,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
       if (e is AppException) {
         ErrorHandler.handleAppException(context, e);
       } else {
-        ErrorHandler.showErrorSnackBar(
-          context,
-          context.l10n.errorWhileSaving,
-        );
+        ErrorHandler.showErrorSnackBar(context, context.l10n.errorWhileSaving);
       }
     }
   }
@@ -147,7 +144,9 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    gelir == null ? context.l10n.newRecurringIncome : context.l10n.editIncome,
+                    gelir == null
+                        ? context.l10n.newRecurringIncome
+                        : context.l10n.editIncome,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 20,
@@ -425,7 +424,9 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                index != null ? context.l10n.incomeUpdated : context.l10n.incomeAdded,
+                                index != null
+                                    ? context.l10n.incomeUpdated
+                                    : context.l10n.incomeAdded,
                               ),
                               backgroundColor: Colors.green.shade700,
                               behavior: SnackBarBehavior.floating,
@@ -609,7 +610,10 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: Text(context.l10n.delete, style: const TextStyle(color: Colors.red)),
+                child: Text(
+                  context.l10n.delete,
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
             ],
           ),

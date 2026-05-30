@@ -78,11 +78,15 @@ class _BalanceCardState extends State<BalanceCard> {
       final controller = context.read<DashboardController>();
       final currencyService = context.read<CurrencyService>();
       final targetCurrency = currencyService.currentCurrency;
-      
+
       double cashBalance = 0;
       for (var pm in controller.odemeYontemleri.where((p) => !p.isDeleted)) {
         if (pm.type == 'nakit') {
-          cashBalance += currencyService.convert(pm.balance, pm.paraBirimi, targetCurrency);
+          cashBalance += currencyService.convert(
+            pm.balance,
+            pm.paraBirimi,
+            targetCurrency,
+          );
         }
       }
       return cashBalance;
@@ -94,7 +98,9 @@ class _BalanceCardState extends State<BalanceCard> {
   @override
   Widget build(BuildContext context) {
     final isObscured = context.select((DashboardController c) => c.isObscured);
-    final monthlyIncome = context.select((DashboardController c) => c.monthlyIncome);
+    final monthlyIncome = context.select(
+      (DashboardController c) => c.monthlyIncome,
+    );
 
     // Verileri hesapla
     final cashBalance = _calculateCashBalance(context);
@@ -147,10 +153,13 @@ class _BalanceCardState extends State<BalanceCard> {
                   ),
                 ),
               ),
-              
+
               // Kart İçeriği
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 20,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -175,7 +184,9 @@ class _BalanceCardState extends State<BalanceCard> {
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              isObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                              isObscured
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
                               color: Colors.white70,
                               size: 20,
                             ),
@@ -184,7 +195,7 @@ class _BalanceCardState extends State<BalanceCard> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // Orta Kısım: Ana Bakiye
                     GestureDetector(
                       onTap: () => _cycleCurrency(context),
@@ -200,7 +211,7 @@ class _BalanceCardState extends State<BalanceCard> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    
+
                     // Bu Ay Geliri
                     Row(
                       children: [
@@ -214,7 +225,10 @@ class _BalanceCardState extends State<BalanceCard> {
                         ),
                         const SizedBox(width: 8),
                         ObscuredAmountText(
-                          CurrencyFormatter.formatSigned(monthlyIncome, showPlus: true),
+                          CurrencyFormatter.formatSigned(
+                            monthlyIncome,
+                            showPlus: true,
+                          ),
                           isObscured: isObscured,
                           style: const TextStyle(
                             color: Color(0xFF4CAF50),
@@ -224,18 +238,18 @@ class _BalanceCardState extends State<BalanceCard> {
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Ayraç Çizgisi
                     Container(
                       height: 1,
                       width: double.infinity,
                       color: Colors.white.withValues(alpha: 0.1),
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Alt Kısım: Nakit Bilgisi
                     Row(
                       children: [
@@ -254,10 +268,7 @@ class _BalanceCardState extends State<BalanceCard> {
                         const SizedBox(width: 12),
                         const Text(
                           "Nakit:",
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 15,
-                          ),
+                          style: TextStyle(color: Colors.white70, fontSize: 15),
                         ),
                         const SizedBox(width: 6),
                         ObscuredAmountText(

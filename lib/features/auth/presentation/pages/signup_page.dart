@@ -291,7 +291,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isConfirmPinVisible ? Icons.visibility : Icons.visibility_off,
+                        _isConfirmPinVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.7),

@@ -108,7 +108,8 @@ class ProfileSettingsHelper {
 
     if (!context.mounted) return;
     _updateUser(
-      profileImage: base64String, // Kayıt artık lokal path değil, buluta gidecek Base64 string!
+      profileImage:
+          base64String, // Kayıt artık lokal path değil, buluta gidecek Base64 string!
       successMessage: context.l10n.profilePhotoUpdated,
     );
     if (context.mounted) {
@@ -416,27 +417,29 @@ class ProfileSettingsHelper {
                                   newPinController.text,
                                 )
                                 .then((_) {
-                              if (ctx.mounted) {
-                                AppSnackBar.success(
-                                  ctx,
-                                  context.l10n.pinUpdated,
-                                );
-                                Navigator.pop(ctx);
-                              }
-                            }).catchError((e) {
-                              if (ctx.mounted) {
-                                final isRecentLoginRequired =
-                                    e.toString().contains(
-                                      'requires-recent-login',
+                                  if (ctx.mounted) {
+                                    AppSnackBar.success(
+                                      ctx,
+                                      context.l10n.pinUpdated,
                                     );
-                                AppSnackBar.error(
-                                  ctx,
-                                  isRecentLoginRequired
-                                      ? 'Güvenlik doğrulaması gerekiyor. Lütfen çıkış yapıp tekrar giriş yapın ve ardından PIN kodunuzu güncelleyin.'
-                                      : context.l10n.updateFailed(e.toString()),
-                                );
-                              }
-                            });
+                                    Navigator.pop(ctx);
+                                  }
+                                })
+                                .catchError((e) {
+                                  if (ctx.mounted) {
+                                    final isRecentLoginRequired = e
+                                        .toString()
+                                        .contains('requires-recent-login');
+                                    AppSnackBar.error(
+                                      ctx,
+                                      isRecentLoginRequired
+                                          ? 'Güvenlik doğrulaması gerekiyor. Lütfen çıkış yapıp tekrar giriş yapın ve ardından PIN kodunuzu güncelleyin.'
+                                          : context.l10n.updateFailed(
+                                              e.toString(),
+                                            ),
+                                    );
+                                  }
+                                });
                           } catch (e) {
                             debugPrint('PIN Change Error: $e');
                           }
@@ -726,8 +729,9 @@ class ProfileSettingsHelper {
               } catch (e) {
                 if (context.mounted) {
                   // FIX-6: requires-recent-login → kullanıcıya anlaşılır yönlendirme
-                  final isRecentLoginRequired =
-                      e.toString().contains('requires-recent-login');
+                  final isRecentLoginRequired = e.toString().contains(
+                    'requires-recent-login',
+                  );
                   AppSnackBar.error(
                     context,
                     isRecentLoginRequired

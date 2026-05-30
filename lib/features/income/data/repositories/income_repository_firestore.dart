@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/income_repository.dart';
 import '../../../../core/services/network_service.dart';
+import '../../../../core/services/batch_service.dart';
 
 /// Gelir repository implementasyonu (Firestore)
 class IncomeRepositoryFirestore implements IncomeRepository {
@@ -31,11 +32,11 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   }
 
   Stream<List<Map<String, dynamic>>> watchIncomes(String userId) {
-    return _userDoc(userId)
-        .collection('incomes')
-        .orderBy('date', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _userDoc(
+      userId,
+    ).collection('incomes').orderBy('date', descending: true).snapshots().map((
+      snapshot,
+    ) {
       final incomes = snapshot.docs.map((doc) {
         final data = doc.data();
         if (data['date'] is Timestamp) {
@@ -49,10 +50,21 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   }
 
   @override
-  Stream<List<Map<String, dynamic>>> watchIncomesByMonth(String userId, DateTime month) {
+  Stream<List<Map<String, dynamic>>> watchIncomesByMonth(
+    String userId,
+    DateTime month,
+  ) {
     final startOfMonth = DateTime(month.year, month.month, 1);
-    final endOfMonth = DateTime(month.year, month.month + 1, 0, 23, 59, 59, 999);
-    
+    final endOfMonth = DateTime(
+      month.year,
+      month.month + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
+
     return _userDoc(userId)
         .collection('incomes')
         .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
@@ -60,14 +72,16 @@ class IncomeRepositoryFirestore implements IncomeRepository {
         .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        if (data['date'] is Timestamp) {
-          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
-        }
-        return data;
-      }).toList();
-    });
+          return snapshot.docs.map((doc) {
+            final data = doc.data();
+            if (data['date'] is Timestamp) {
+              data['date'] = (data['date'] as Timestamp)
+                  .toDate()
+                  .toIso8601String();
+            }
+            return data;
+          }).toList();
+        });
   }
 
   @override
@@ -76,7 +90,9 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       if ((income['id']?.toString() ?? '').isEmpty) {
         throw Exception('Gelir eklenirken ID eksik!');
       }
-      final docRef = _userDoc(userId).collection('incomes').doc(income['id'].toString());
+      final docRef = _userDoc(
+        userId,
+      ).collection('incomes').doc(income['id'].toString());
       final data = Map<String, dynamic>.from(income);
       if (data['date'] is String) {
         data['date'] = Timestamp.fromDate(DateTime.parse(data['date']));
@@ -86,7 +102,8 @@ class IncomeRepositoryFirestore implements IncomeRepository {
 
       // Cache'i güncelle
       final cacheKey = 'incomes_$userId';
-      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final cached =
+          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       if (!cached.any((i) => i['id'] == income['id'])) {
         cached.add(income);
         CacheService.set(cacheKey, cached);
@@ -103,7 +120,9 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       if ((income['id']?.toString() ?? '').isEmpty) {
         throw Exception('Gelir güncellenirken ID eksik!');
       }
-      final docRef = _userDoc(userId).collection('incomes').doc(income['id'].toString());
+      final docRef = _userDoc(
+        userId,
+      ).collection('incomes').doc(income['id'].toString());
       final data = Map<String, dynamic>.from(income);
       if (data['date'] is String) {
         data['date'] = Timestamp.fromDate(DateTime.parse(data['date']));
@@ -113,7 +132,8 @@ class IncomeRepositoryFirestore implements IncomeRepository {
 
       // Cache'i güncelle
       final cacheKey = 'incomes_$userId';
-      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final cached =
+          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       final index = cached.indexWhere((i) => i['id'] == income['id']);
       if (index != -1) {
         cached[index] = income;
@@ -126,6 +146,61 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   }
 
   @override
+  BatchOperation getUpdateIncomeOperation(
+    String userId,
+    Map<String, dynamic> income,
+  ) {
+    if ((income['id']?.toString() ?? '').isEmpty) {
+      throw Exception('Gelir güncellenirken ID eksik!');
+    }
+
+    final data = Map<String, dynamic>.from(income);
+    if (data['date'] is String) {
+      data['date'] = Timestamp.fromDate(DateTime.parse(data['date']));
+    }
+    data['updatedAt'] = FieldValue.serverTimestamp();
+
+    return FirestoreBatchOperation(
+      collectionPath: 'users/$userId/incomes',
+      documentId: income['id'].toString(),
+      type: BatchOperationType.update,
+      data: data,
+    );
+  }
+
+  @override
+  BatchOperation getAddIncomeOperation(
+    String userId,
+    Map<String, dynamic> income,
+  ) {
+    if ((income['id']?.toString() ?? '').isEmpty) {
+      throw Exception('Gelir eklenirken ID eksik!');
+    }
+
+    final data = Map<String, dynamic>.from(income);
+    if (data['date'] is String) {
+      data['date'] = Timestamp.fromDate(DateTime.parse(data['date']));
+    }
+    data['updatedAt'] = FieldValue.serverTimestamp();
+
+    return FirestoreBatchOperation(
+      collectionPath: 'users/$userId/incomes',
+      documentId: income['id'].toString(),
+      type: BatchOperationType.set,
+      data: data,
+    );
+  }
+
+  @override
+  BatchOperation getDeleteIncomeOperation(String userId, String incomeId) {
+    return FirestoreBatchOperation(
+      collectionPath: 'users/$userId/incomes',
+      documentId: incomeId,
+      type: BatchOperationType.delete,
+    );
+  }
+
+  @override
   Future<void> deleteIncome(String userId, String incomeId) async {
     try {
       final docRef = _userDoc(userId).collection('incomes').doc(incomeId);
@@ -133,7 +208,8 @@ class IncomeRepositoryFirestore implements IncomeRepository {
 
       // Cache'i güncelle
       final cacheKey = 'incomes_$userId';
-      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final cached =
+          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       cached.removeWhere((i) => i['id'] == incomeId);
       CacheService.set(cacheKey, cached);
     } catch (e) {
@@ -146,7 +222,8 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   List<Map<String, dynamic>> getCategories(String userId) {
     try {
       final cached = CacheService.get<List<Map<String, dynamic>>>(
-          'income_categories_$userId');
+        'income_categories_$userId',
+      );
       if (cached != null) return cached;
       // EC-2: Sadece Firebase oturumu varken Firestore'a yaz (döngü/crash önleme)
       if (FirebaseAuth.instance.currentUser != null) {
@@ -175,7 +252,12 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       await _commitInChunks([
         ...existing.docs.map((d) => _BatchOp(d.reference, null)),
         ...List.generate(categories.length, (i) {
-          final catId = categories[i]['isim']?.toString().toLowerCase().replaceAll(' ', '_') ?? 'cat_$i';
+          final catId =
+              categories[i]['isim']?.toString().toLowerCase().replaceAll(
+                ' ',
+                '_',
+              ) ??
+              'cat_$i';
           return _BatchOp(colRef.doc(catId), categories[i]);
         }),
       ]);
@@ -212,7 +294,8 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   List<Map<String, dynamic>> getRecurringIncomes(String userId) {
     try {
       return CacheService.get<List<Map<String, dynamic>>>(
-              'recurring_incomes_$userId') ??
+            'recurring_incomes_$userId',
+          ) ??
           [];
     } catch (e) {
       return [];
@@ -234,8 +317,7 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       final ops = [
         ...existing.docs.map((d) => _BatchOp(d.reference, null)),
         ...incomes.asMap().entries.map((e) {
-          final id =
-              e.value['id'] as String? ?? 'recurring_${e.key}';
+          final id = e.value['id'] as String? ?? 'recurring_${e.key}';
           return _BatchOp(colRef.doc(id), e.value);
         }),
       ];
@@ -258,12 +340,11 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   }
 
   Stream<double> watchIncomeTarget(String userId) {
-    return _userDoc(userId)
-        .collection('settings')
-        .doc('income')
-        .snapshots()
-        .map((doc) {
-      final target = (doc.data()?['monthlyIncomeTarget'] as num?)?.toDouble() ?? 0.0;
+    return _userDoc(
+      userId,
+    ).collection('settings').doc('income').snapshots().map((doc) {
+      final target =
+          (doc.data()?['monthlyIncomeTarget'] as num?)?.toDouble() ?? 0.0;
       CacheService.set('income_target_$userId', target);
       return target;
     });
@@ -288,7 +369,8 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   List<Map<String, dynamic>> getRecurringIncomeTemplates(String userId) {
     try {
       return CacheService.get<List<Map<String, dynamic>>>(
-              'income_templates_$userId') ??
+            'income_templates_$userId',
+          ) ??
           [];
     } catch (e) {
       return [];
@@ -318,4 +400,3 @@ class _BatchOp {
   final Map<String, dynamic>? data;
   const _BatchOp(this.ref, this.data);
 }
-

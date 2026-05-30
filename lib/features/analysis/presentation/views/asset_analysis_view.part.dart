@@ -26,7 +26,11 @@ extension _AssetAnalysisExtension on _AnalysisPageState {
     final totalValue = _controller.totalAssetValue;
     final (topType, topAmount) = _findTopCategory(totals);
 
-    final sections = _buildPieChartSections(totals, totalValue, AnalysisColors.assetColors);
+    final sections = _buildPieChartSections(
+      totals,
+      totalValue,
+      AnalysisColors.assetColors,
+    );
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -48,7 +52,12 @@ extension _AssetAnalysisExtension on _AnalysisPageState {
                     topCategoryAmount: CurrencyFormatter.format(topAmount),
                   ),
                   const SizedBox(height: 24),
-                  _buildChartArea(sections, totals, totalValue, AnalysisColors.assetColors),
+                  _buildChartArea(
+                    sections,
+                    totals,
+                    totalValue,
+                    AnalysisColors.assetColors,
+                  ),
                   if (activeAssets.any((a) => a.purchasePrice > 0)) ...[
                     const SizedBox(height: 24),
                     _buildTopPerformers(activeAssets),

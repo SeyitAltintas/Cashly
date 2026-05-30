@@ -44,7 +44,9 @@ class CategoryRepositoryFirestore implements CategoryRepository {
   }
 
   /// Firestore'dan harcama kategorilerini çeker (gerçek async versiyon)
-  Future<List<Map<String, dynamic>>> fetchExpenseCategories(String userId) async {
+  Future<List<Map<String, dynamic>>> fetchExpenseCategories(
+    String userId,
+  ) async {
     try {
       final doc = await _categoryDoc(userId, 'expense_categories').get();
       if (!doc.exists) {
@@ -85,7 +87,9 @@ class CategoryRepositoryFirestore implements CategoryRepository {
   }
 
   /// Firestore'dan gelir kategorilerini çeker
-  Future<List<Map<String, dynamic>>> fetchIncomeCategories(String userId) async {
+  Future<List<Map<String, dynamic>>> fetchIncomeCategories(
+    String userId,
+  ) async {
     try {
       final doc = await _categoryDoc(userId, 'income_categories').get();
       if (!doc.exists) {

@@ -42,7 +42,7 @@ void main() {
       WidgetsFlutterBinding.ensureInitialized();
 
       // ====== BAŞLATMA SIRALAMASI ======
-      // Önce Hive'ı başlatıyoruz, çünkü erken fırlatılan bir hatada 
+      // Önce Hive'ı başlatıyoruz, çünkü erken fırlatılan bir hatada
       // ErrorLoggerService loglamak için Hive'ı kullanacaktır.
       await Hive.initFlutter();
       await SecureStorageService.openSecureBox('settings');
@@ -54,7 +54,9 @@ void main() {
         );
       } catch (e) {
         if (e is FirebaseException && e.code == 'duplicate-app') {
-          debugPrint('Firebase [DEFAULT] zaten arka planda başlatılmış, devam ediliyor...');
+          debugPrint(
+            'Firebase [DEFAULT] zaten arka planda başlatılmış, devam ediliyor...',
+          );
         } else {
           rethrow;
         }
@@ -76,9 +78,9 @@ void main() {
       FlutterError.onError = (FlutterErrorDetails details) {
         // Crashlytics'e gönder (fatal Flutter error)
         FirebaseCrashlytics.instance.recordFlutterFatalError(details);
-        
+
         FlutterError.presentError(details);
-        
+
         ErrorLoggerService.logError(
           'FlutterError: ${details.exceptionAsString()}',
           stackTrace: details.stack?.toString(),
@@ -103,7 +105,6 @@ void main() {
       };
 
       try {
-        
         await initializeDependencies();
         await ImageCacheService().initialize();
         runApp(
@@ -117,8 +118,11 @@ void main() {
           ),
         );
       } catch (e, stackTrace) {
-        await ErrorLoggerService.logError('Main Initialization Error: $e', stackTrace: stackTrace.toString());
-        
+        await ErrorLoggerService.logError(
+          'Main Initialization Error: $e',
+          stackTrace: stackTrace.toString(),
+        );
+
         debugPrint('HATA: Uygulama başlatılırken bir sorun oluştu: $e');
         debugPrint('Stack Trace: $stackTrace');
         runApp(
@@ -131,9 +135,12 @@ void main() {
     (error, stackTrace) {
       // Crashlytics'e gönder (runZonedGuarded yakaladı)
       FirebaseCrashlytics.instance.recordError(error, stackTrace, fatal: true);
-      
-      ErrorLoggerService.logError('Uncaught RunZonedGuarded Error: $error', stackTrace: stackTrace.toString());
-      
+
+      ErrorLoggerService.logError(
+        'Uncaught RunZonedGuarded Error: $error',
+        stackTrace: stackTrace.toString(),
+      );
+
       debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       debugPrint('❌ UNCAUGHT ERROR');
       debugPrint('Error: $error');
@@ -154,7 +161,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
   AppRouter? _appRouter;
   bool _isInitialized = false;
   String? _initError;
-  
+
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
 
@@ -163,7 +170,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initializeApp();
-    
+
     _appLinks = AppLinks();
     _initAppLinks();
   }
@@ -253,9 +260,10 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
   }
 
   void _handleDeepLink(Uri uri) {
-    if (uri.path.contains('/__/auth/action') || uri.path.contains('/__/auth/links')) {
+    if (uri.path.contains('/__/auth/action') ||
+        uri.path.contains('/__/auth/links')) {
       String? email = uri.queryParameters['email'];
-      
+
       if (email == null || email.isEmpty) {
         final continueUrlStr = uri.queryParameters['continueUrl'];
         if (continueUrlStr != null && continueUrlStr.isNotEmpty) {
@@ -280,7 +288,11 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
   }
 
   /// Navigator context hazır olana kadar 200ms aralıklarla tekrar dener (max 25 kez = 5 sn).
-  void _waitForContextAndShowSheet(String email, String emailLink, {int attempt = 0}) {
+  void _waitForContextAndShowSheet(
+    String email,
+    String emailLink, {
+    int attempt = 0,
+  }) {
     const maxAttempts = 25;
     const retryDelay = Duration(milliseconds: 200);
 
@@ -296,7 +308,9 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
     }
 
     if (attempt >= maxAttempts) {
-      debugPrint('Deep Link işlenemedi: Navigator context $maxAttempts denemede hazır olmadı.');
+      debugPrint(
+        'Deep Link işlenemedi: Navigator context $maxAttempts denemede hazır olmadı.',
+      );
       return;
     }
 
@@ -398,9 +412,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
           theme: themeManager.currentTheme,
           routerConfig: _appRouter!.router,
           builder: (context, child) {
-            return OfflineSensor(
-              child: child ?? const SizedBox.shrink(),
-            );
+            return OfflineSensor(child: child ?? const SizedBox.shrink());
           },
         );
       },

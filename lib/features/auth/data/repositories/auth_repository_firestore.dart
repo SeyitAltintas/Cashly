@@ -164,10 +164,14 @@ class AuthRepositoryFirestore implements AuthRepository {
     String pin,
   ) async {
     // GÜVENLİK YAMASI: Kaba kuvvet (Brute-force) koruması
-    final lockoutUntil = await _localHiveRepo.getOfflineLockoutUntil(localUser.id);
+    final lockoutUntil = await _localHiveRepo.getOfflineLockoutUntil(
+      localUser.id,
+    );
     if (lockoutUntil != null && DateTime.now().isBefore(lockoutUntil)) {
       final waitMinutes = lockoutUntil.difference(DateTime.now()).inMinutes;
-      throw Exception('Çok fazla hatalı giriş yaptınız. Güvenlik nedeniyle lütfen ${waitMinutes > 0 ? waitMinutes : 1} dakika bekleyip tekrar deneyin.');
+      throw Exception(
+        'Çok fazla hatalı giriş yaptınız. Güvenlik nedeniyle lütfen ${waitMinutes > 0 ? waitMinutes : 1} dakika bekleyip tekrar deneyin.',
+      );
     }
 
     if (localUser.pin == pin) {
@@ -180,14 +184,18 @@ class AuthRepositoryFirestore implements AuthRepository {
       }
       return loggedInUser;
     }
-    
+
     await _localHiveRepo.incrementFailedOfflineAttempts(localUser.id);
-    final attempts = await _localHiveRepo.getFailedOfflineAttempts(localUser.id);
+    final attempts = await _localHiveRepo.getFailedOfflineAttempts(
+      localUser.id,
+    );
     final remaining = 5 - attempts;
-    
+
     debugPrint('loginUser: Offline mod — PIN yanlış, kalan hak: $remaining');
     if (remaining <= 0) {
-      throw Exception('Çok fazla hatalı giriş yaptınız. Güvenlik nedeniyle uygulamanız 5 dakika süreyle kilitlenmiştir.');
+      throw Exception(
+        'Çok fazla hatalı giriş yaptınız. Güvenlik nedeniyle uygulamanız 5 dakika süreyle kilitlenmiştir.',
+      );
     } else {
       throw Exception('Hatalı PIN. Kalan deneme hakkınız: $remaining');
     }
@@ -209,13 +217,18 @@ class AuthRepositoryFirestore implements AuthRepository {
             .doc(firebaseUser.uid)
             .collection('profile')
             .doc('info')
-            .get(NetworkService().isOffline ? const GetOptions(source: Source.cache) : const GetOptions());
+            .get(
+              NetworkService().isOffline
+                  ? const GetOptions(source: Source.cache)
+                  : const GetOptions(),
+            );
         if (doc.exists && doc.data() != null) {
           final userModelFromFirestore = UserModel.fromMap(doc.data()!);
 
           // Yerel Biyometrik ayarını koru veya yeni cihazsa false yap
           final existingLocalUser = await _localHiveRepo.getUserByEmail(email);
-          final localBiometricState = existingLocalUser?.biometricEnabled ?? false;
+          final localBiometricState =
+              existingLocalUser?.biometricEnabled ?? false;
 
           // FIX-7: Firestore'da PIN güvenli tutulmadığı (olmadığı) için
           // inen profilde PIN boştur. Cihaza kaydetmeden önce başarılı olan
@@ -228,7 +241,8 @@ class AuthRepositoryFirestore implements AuthRepository {
             profileImage: userModelFromFirestore.profileImage,
             createdAt: userModelFromFirestore.createdAt,
             lastLoginAt: userModelFromFirestore.lastLoginAt,
-            biometricEnabled: localBiometricState, // GÜVENLİK YAMASI (Edge Case 2)
+            biometricEnabled:
+                localBiometricState, // GÜVENLİK YAMASI (Edge Case 2)
           );
 
           await _localHiveRepo.registerUser(
@@ -241,7 +255,9 @@ class AuthRepositoryFirestore implements AuthRepository {
         } else {
           // FIX: Phantom Registration
           // Eğer profil Firestore'da yoksa (kayıt esnasında internet kopmuşsa), yeni cihaza girişte kilitlenmeyi önler.
-          debugPrint("loginByEmail: Firestore profili bulunamadı. Yeniden oluşturuluyor...");
+          debugPrint(
+            "loginByEmail: Firestore profili bulunamadı. Yeniden oluşturuluyor...",
+          );
           final userModel = UserModel(
             id: firebaseUser.uid,
             name: firebaseUser.displayName ?? 'Kullanıcı',
@@ -251,7 +267,7 @@ class AuthRepositoryFirestore implements AuthRepository {
             lastLoginAt: DateTime.now(),
             biometricEnabled: false,
           );
-          
+
           try {
             await _firestore
                 .collection('users')
@@ -261,9 +277,11 @@ class AuthRepositoryFirestore implements AuthRepository {
                 .set(userModel.toFirestoreMap())
                 .timeout(const Duration(seconds: 5));
           } catch (e) {
-            debugPrint("loginByEmail: Phantom profili buluta yazılamadı (offline?): $e");
+            debugPrint(
+              "loginByEmail: Phantom profili buluta yazılamadı (offline?): $e",
+            );
           }
-          
+
           await _localHiveRepo.registerUser(userModel);
           final userWithSession = await _createAndSaveSession(userModel);
           // Sync service will just create empty folders locally for new accounts
@@ -274,7 +292,9 @@ class AuthRepositoryFirestore implements AuthRepository {
       return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'network-request-failed') {
-        debugPrint('loginByEmail: Ağ bağlantısı yok, yerel PIN doğrulamasına geçiliyor...');
+        debugPrint(
+          'loginByEmail: Ağ bağlantısı yok, yerel PIN doğrulamasına geçiliyor...',
+        );
         return await _localHiveRepo.loginByEmail(email, pin);
       }
       debugPrint("Firebase loginByEmail Error: ${e.message}");
@@ -284,7 +304,9 @@ class AuthRepositoryFirestore implements AuthRepository {
       if (msg.contains('timeout') ||
           msg.contains('socketexception') ||
           msg.contains('failed host lookup')) {
-        debugPrint('loginByEmail: Bağlantı zaman aşımı, yerel PIN doğrulamasına geçiliyor...');
+        debugPrint(
+          'loginByEmail: Bağlantı zaman aşımı, yerel PIN doğrulamasına geçiliyor...',
+        );
         return await _localHiveRepo.loginByEmail(email, pin);
       }
       return null;
@@ -334,14 +356,18 @@ class AuthRepositoryFirestore implements AuthRepository {
         // Başka Firebase hataları (ör. ağ) → logla ama yerel temizliği yine de yap
         debugPrint('deleteUser Firebase hatası [${e.code}]: ${e.message}');
         // FIX: Diğer tüm Firebase ağ hatalarında işlemi iptal et. Lokal temizliği durdur.
-        throw Exception('Hesabınız silinirken bir ağ hatası oluştu. Lütfen bağlantınızı kontrol edip tekrar deneyin.');
+        throw Exception(
+          'Hesabınız silinirken bir ağ hatası oluştu. Lütfen bağlantınızı kontrol edip tekrar deneyin.',
+        );
       } catch (e) {
         debugPrint('deleteUser beklenmedik hata: $e');
         // GÜVENLİK YAMASI (Edge Case 3): Eğer Firebase işlemi başardıysa ama bize
-        // Timeout/Ağ hatası düştüyse, Ghost Account kalmaması için en azından 
+        // Timeout/Ağ hatası düştüyse, Ghost Account kalmaması için en azından
         // kullanıcının bu cihazdaki oturumunu kapatıyoruz.
         await logout();
-        throw Exception('Hesabınızı silerken bir ağ hatası oluştu. İşlem tamamlanmış olabilir, emin olmak için tekrar giriş yapmayı deneyin.');
+        throw Exception(
+          'Hesabınızı silerken bir ağ hatası oluştu. İşlem tamamlanmış olabilir, emin olmak için tekrar giriş yapmayı deneyin.',
+        );
       }
     }
     // Firebase hesabı başarıyla silindiyse (veya zaten yoksa) lokal veriyi temizle.
@@ -370,7 +396,11 @@ class AuthRepositoryFirestore implements AuthRepository {
             .doc(user.id)
             .collection('profile')
             .doc('info')
-            .get(NetworkService().isOffline ? const GetOptions(source: Source.cache) : const GetOptions())
+            .get(
+              NetworkService().isOffline
+                  ? const GetOptions(source: Source.cache)
+                  : const GetOptions(),
+            )
             .timeout(const Duration(seconds: 5));
 
         if (profileDoc.exists) {
@@ -391,25 +421,31 @@ class AuthRepositoryFirestore implements AuthRepository {
           user.id,
         ).timeout(const Duration(seconds: 15));
         await StreakService.syncFromCloud(user.id);
-        
+
         // Başarılı online doğrulama sonrası TTL süresini güncelle
         await _localHiveRepo.updateLastOnlineSync(user.id);
       } catch (e) {
         if (e is SessionExpiredException) rethrow; // Hatayı UI'a ilet
         debugPrint('getCurrentUser CloudSync Hatasi (offline?): $e');
-        
+
         // GÜVENLİK YAMASI: Auto-Login Offline TTL Kontrolü
         final lastSync = await _localHiveRepo.getLastOnlineSync(user.id);
         if (lastSync != null) {
           final diff = DateTime.now().difference(lastSync);
-          if (diff.isNegative) { 
-             throw SessionExpiredException('Güvenlik nedeniyle (cihaz saati hatalı) lütfen internete bağlanarak giriş yapın.');
+          if (diff.isNegative) {
+            throw SessionExpiredException(
+              'Güvenlik nedeniyle (cihaz saati hatalı) lütfen internete bağlanarak giriş yapın.',
+            );
           }
-          if (diff.inHours > 48) { 
-             throw SessionExpiredException('Güvenlik nedeniyle (uzun süredir çevrimdışısınız) oturumunuz zaman aşımına uğradı. Lütfen PIN kodunuz ile tekrar giriş yapın.');
+          if (diff.inHours > 48) {
+            throw SessionExpiredException(
+              'Güvenlik nedeniyle (uzun süredir çevrimdışısınız) oturumunuz zaman aşımına uğradı. Lütfen PIN kodunuz ile tekrar giriş yapın.',
+            );
           }
         } else {
-          throw SessionExpiredException('Güvenlik nedeniyle ilk girişinizde internet bağlantısı gereklidir.');
+          throw SessionExpiredException(
+            'Güvenlik nedeniyle ilk girişinizde internet bağlantısı gereklidir.',
+          );
         }
       }
     }
@@ -455,7 +491,7 @@ class AuthRepositoryFirestore implements AuthRepository {
 
     if (user == null) return null;
 
-    // firebaseUser null kontrolü yukarıda (FIX-10) yapıldığı için, 
+    // firebaseUser null kontrolü yukarıda (FIX-10) yapıldığı için,
     // buraya ulaşıldığında oturum kesinlikle aktiftir. Sync işlemini direkt yapabiliriz.
     try {
       // FIX: Biometric Login Bypassing Single Device Policy (Edge Case)
@@ -465,7 +501,11 @@ class AuthRepositoryFirestore implements AuthRepository {
           .doc(user.id)
           .collection('profile')
           .doc('info')
-          .get(NetworkService().isOffline ? const GetOptions(source: Source.cache) : const GetOptions())
+          .get(
+            NetworkService().isOffline
+                ? const GetOptions(source: Source.cache)
+                : const GetOptions(),
+          )
           .timeout(const Duration(seconds: 5));
 
       if (profileDoc.exists) {
@@ -483,26 +523,34 @@ class AuthRepositoryFirestore implements AuthRepository {
 
       await CloudSyncService.syncAllUserData(user.id);
       await StreakService.syncFromCloud(user.id);
-      
+
       // Başarılı online doğrulama sonrası TTL süresini güncelle
       await _localHiveRepo.updateLastOnlineSync(user.id);
     } catch (e) {
       if (e is SessionExpiredException) rethrow; // Hatayı UI'a ilet
       debugPrint('Biyometrik giriş sonrası sync hatası (offline?): $e');
-      
+
       // ÇEVRİMDIŞI TTL KONTROLÜ (Offline TTL)
       final lastSync = await _localHiveRepo.getLastOnlineSync(user.id);
       if (lastSync != null) {
         final diff = DateTime.now().difference(lastSync);
-        if (diff.isNegative) { // FIX: Saat manipülasyonu / Time Travel kontrolü
-           throw SessionExpiredException('Güvenlik nedeniyle (cihaz saati hatalı) lütfen internete bağlanarak giriş yapın.');
+        if (diff.isNegative) {
+          // FIX: Saat manipülasyonu / Time Travel kontrolü
+          throw SessionExpiredException(
+            'Güvenlik nedeniyle (cihaz saati hatalı) lütfen internete bağlanarak giriş yapın.',
+          );
         }
-        if (diff.inHours > 48) { // 48 saat sınırı (Offline kullanım süresi dolmuş)
-           throw SessionExpiredException('Güvenlik nedeniyle (uzun süredir çevrimdışı) lütfen internete bağlanarak veya PIN kodunuzu girerek tekrar giriş yapın.');
+        if (diff.inHours > 48) {
+          // 48 saat sınırı (Offline kullanım süresi dolmuş)
+          throw SessionExpiredException(
+            'Güvenlik nedeniyle (uzun süredir çevrimdışı) lütfen internete bağlanarak veya PIN kodunuzu girerek tekrar giriş yapın.',
+          );
         }
       } else {
         // Hiç sync olmamışsa biyometrik offline girişe izin verme
-        throw SessionExpiredException('Güvenlik nedeniyle ilk biyometrik girişinizde internet bağlantısı gereklidir.');
+        throw SessionExpiredException(
+          'Güvenlik nedeniyle ilk biyometrik girişinizde internet bağlantısı gereklidir.',
+        );
       }
 
       // FIX: Çevrimdışı durumlarda (TimeoutException vb.) biyometrik girişe izin verilir.
@@ -515,8 +563,8 @@ class AuthRepositoryFirestore implements AuthRepository {
 
   @override
   Future<void> updateBiometricPreference(String userId, bool enabled) async {
-    // GÜVENLİK YAMASI (Edge Case 2): Biyometrik tercih (Touch ID/Face ID) 
-    // donanıma ve cihaza özel bir ayardır. Bunu Firestore'a senkronize etmek, 
+    // GÜVENLİK YAMASI (Edge Case 2): Biyometrik tercih (Touch ID/Face ID)
+    // donanıma ve cihaza özel bir ayardır. Bunu Firestore'a senkronize etmek,
     // diğer cihazlarda hatalara ve bypass senaryolarına yol açabilir.
     // Bu yüzden SADECE cihazın yerel veritabanında tutuyoruz.
     await _localHiveRepo.updateBiometricPreference(userId, enabled);
@@ -594,7 +642,11 @@ class AuthRepositoryFirestore implements AuthRepository {
                 .doc(user.uid)
                 .collection('profile')
                 .doc('info')
-                .get(NetworkService().isOffline ? const GetOptions(source: Source.cache) : const GetOptions())
+                .get(
+                  NetworkService().isOffline
+                      ? const GetOptions(source: Source.cache)
+                      : const GetOptions(),
+                )
                 .timeout(const Duration(seconds: 5));
 
             if (doc.exists && doc.data() != null) {
@@ -613,27 +665,34 @@ class AuthRepositoryFirestore implements AuthRepository {
               final userWithSession = await _createAndSaveSession(syncedUser);
               await _localHiveRepo.setCurrentUser(userWithSession.id);
             } else {
-              // GÜVENLİK YAMASI (Edge Case 1): Kullanıcı profili Firestore'da yoksa, bu 
+              // GÜVENLİK YAMASI (Edge Case 1): Kullanıcı profili Firestore'da yoksa, bu
               // kayıtlı olmayan bir mail üzerinden sıfırlama yapılmaya çalışıldığını gösterir.
               // Firebase Auth'ta oluşan bu hayalet hesabı silip işlemi reddediyoruz.
               await user.delete();
-              throw Exception('Bu e-posta adresi sistemde kayıtlı değil. Lütfen önce kayıt olun.');
+              throw Exception(
+                'Bu e-posta adresi sistemde kayıtlı değil. Lütfen önce kayıt olun.',
+              );
             }
           } catch (e) {
             if (e.toString().contains('kayıtlı değil')) rethrow;
-            
+
             debugPrint(
               'verifyEmailLinkAndSetPin: Profil sync hatası (offline?): $e',
             );
-            
+
             // Eğer profil çekilirken ağ hatası alındıysa (doc.exists değil de catch'e düştüyse),
             // sadece yerelde varsa işleme devam edelim (kayıtlı olduğundan eminizdir).
-            final localUserCheck = await _localHiveRepo.loginUser(user.uid, newPin);
+            final localUserCheck = await _localHiveRepo.loginUser(
+              user.uid,
+              newPin,
+            );
             if (localUserCheck != null) {
-               await _localHiveRepo.setCurrentUser(user.uid);
+              await _localHiveRepo.setCurrentUser(user.uid);
             } else {
-               // Lokal de yoksa ve ağ hatası varsa, güvenli tarafta kalıp işlemi iptal edelim.
-               throw Exception('Ağ hatası nedeniyle profil doğrulanamadı. Lütfen bağlantınızı kontrol edip tekrar deneyin.');
+              // Lokal de yoksa ve ağ hatası varsa, güvenli tarafta kalıp işlemi iptal edelim.
+              throw Exception(
+                'Ağ hatası nedeniyle profil doğrulanamadı. Lütfen bağlantınızı kontrol edip tekrar deneyin.',
+              );
             }
           }
 
@@ -651,16 +710,18 @@ class AuthRepositoryFirestore implements AuthRepository {
     try {
       // GÜVENLİK YAMASI: PIN değişikliği (State Inconsistency önleme)
       // PIN değişimi Firebase Auth ve yerel Hive'da eşzamanlı yapılmalıdır.
-      // Cihaz çevrimdışıysa (veya oturum Firebase Auth'ta aktif değilse) yerel PIN 
+      // Cihaz çevrimdışıysa (veya oturum Firebase Auth'ta aktif değilse) yerel PIN
       // güncellenmemeli, aksi halde bulut-lokal şifre uyumsuzluğu oluşur.
       final user = _firebaseAuth.currentUser;
       if (user == null || user.uid != userId) {
-        throw Exception('Güvenlik nedeniyle PIN değişikliği işlemi çevrimdışı modda yapılamaz. Lütfen internete bağlanarak giriş yapın ve tekrar deneyin.');
+        throw Exception(
+          'Güvenlik nedeniyle PIN değişikliği işlemi çevrimdışı modda yapılamaz. Lütfen internete bağlanarak giriş yapın ve tekrar deneyin.',
+        );
       }
-      
+
       // 1. Firebase Auth şifresi güncelle
       await user.updatePassword(newPin);
-      
+
       // 2. Lokal Hive güncelle
       await _localHiveRepo.updateUserPin(userId, newPin);
     } catch (e) {
@@ -682,10 +743,10 @@ class AuthRepositoryFirestore implements AuthRepository {
       biometricEnabled: user.biometricEnabled,
       activeSessionId: sessionId,
     );
-    
+
     // Lokal güncelle
     await _localHiveRepo.updateUser(updatedUser);
-    
+
     // Firestore güncelle
     try {
       await _firestore
@@ -695,13 +756,13 @@ class AuthRepositoryFirestore implements AuthRepository {
           .doc('info')
           .set({'activeSessionId': sessionId}, SetOptions(merge: true))
           .timeout(const Duration(seconds: 5));
-          
+
       // Firestore'a erişim başarılıysa online damgasını vur
       await _localHiveRepo.updateLastOnlineSync(user.id);
     } catch (e) {
       debugPrint("Firestore activeSessionId update failed (offline?): $e");
     }
-    
+
     return updatedUser;
   }
 }

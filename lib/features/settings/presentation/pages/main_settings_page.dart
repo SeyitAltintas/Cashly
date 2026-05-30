@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'finance/income_settings_page.dart';
 import 'appearance/appearance_page.dart';
@@ -16,7 +15,6 @@ import 'package:cashly/features/auth/presentation/controllers/auth_controller.da
 
 // Modüler widget'lar
 import '../widgets/settings_tile.dart';
-
 
 /// Ayarlar Sayfası
 class AyarlarSayfasi extends StatefulWidget {

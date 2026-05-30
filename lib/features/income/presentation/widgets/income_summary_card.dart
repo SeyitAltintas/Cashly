@@ -214,7 +214,7 @@ class IncomeSummaryCard extends StatelessWidget {
                 if (gelirHedefi != null && gelirHedefi! > 0) ...[
                   SizedBox(height: padding * 0.75),
                   _buildProgressBar(context, padding, subtitleFontSize),
-                ]
+                ],
               ],
             ),
           );
@@ -223,7 +223,11 @@ class IncomeSummaryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressBar(BuildContext context, double padding, double subtitleFontSize) {
+  Widget _buildProgressBar(
+    BuildContext context,
+    double padding,
+    double subtitleFontSize,
+  ) {
     final double percent = (toplamGelir / gelirHedefi!).clamp(0.0, 1.0);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +266,9 @@ class IncomeSummaryCard extends StatelessWidget {
             widthFactor: percent,
             child: Container(
               decoration: BoxDecoration(
-                color: percent >= 1.0 ? Colors.green.shade400 : Colors.green.shade300,
+                color: percent >= 1.0
+                    ? Colors.green.shade400
+                    : Colors.green.shade300,
                 borderRadius: BorderRadius.circular(3),
                 boxShadow: [
                   BoxShadow(

@@ -11,8 +11,6 @@ import '../../features/settings/domain/repositories/settings_repository.dart';
 import '../domain/repositories/category_repository.dart';
 import '../domain/repositories/recurring_repository.dart';
 
-
-
 // Repository Implementations (Data - Firestore)
 import '../../features/auth/data/repositories/auth_repository_firestore.dart';
 import '../../features/expenses/data/repositories/expense_repository_firestore.dart';
@@ -23,6 +21,9 @@ import '../../features/streak/data/repositories/streak_repository_firestore.dart
 import '../../features/settings/data/repositories/settings_repository_firestore.dart';
 import '../data/repositories/category_repository_firestore.dart';
 import '../data/repositories/recurring_repository_firestore.dart';
+
+// Services
+import '../services/batch_service.dart';
 
 // Notification Services
 import '../services/notification_service.dart';
@@ -84,13 +85,13 @@ Future<void> initializeDependencies() async {
   // Currency Service
   getIt.registerLazySingleton<CurrencyService>(() => CurrencyService());
 
+  // Batch Service
+  getIt.registerLazySingleton<BatchService>(() => FirestoreBatchService());
+
   // ===== REPOSITORIES =====
 
   // Auth Repository
-  getIt.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryFirestore(),
-  );
-
+  getIt.registerLazySingleton<AuthRepository>(() => AuthRepositoryFirestore());
 
   // Expense Repository
   getIt.registerLazySingleton<ExpenseRepository>(

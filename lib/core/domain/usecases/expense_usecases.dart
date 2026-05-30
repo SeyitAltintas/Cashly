@@ -30,7 +30,9 @@ class SaveExpenses implements UseCase<void, SaveExpensesParams> {
   @override
   Future<void> call(SaveExpensesParams params) async {
     // Deprecated, no-op or throw error. Keeping for interface compatibility temporarily
-    throw UnimplementedError('saveExpenses is deprecated. Use add/update/delete Expense instead.');
+    throw UnimplementedError(
+      'saveExpenses is deprecated. Use add/update/delete Expense instead.',
+    );
   }
 }
 

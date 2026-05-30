@@ -66,9 +66,14 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Mock Verileri Temizle'),
-        content: const Text('Sahte veriler silinecek. Gerçek verileriniz korunur.'),
+        content: const Text(
+          'Sahte veriler silinecek. Gerçek verileriniz korunur.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('İptal')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('İptal'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Sil', style: TextStyle(color: Colors.red)),
@@ -157,9 +162,12 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
                     ).colorScheme.surfaceContainerHighest,
                     backgroundImage:
                         widget.authController.currentUser?.profileImage != null
-                        ? ImageUtils.getProfileImageProvider(widget.authController.currentUser!.profileImage)
+                        ? ImageUtils.getProfileImageProvider(
+                            widget.authController.currentUser!.profileImage,
+                          )
                         : null,
-                    child: widget.authController.currentUser?.profileImage == null
+                    child:
+                        widget.authController.currentUser?.profileImage == null
                         ? Icon(
                             Icons.person,
                             size: 40,
@@ -176,7 +184,8 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
                     children: [
                       // Kullanıcı Adı
                       Text(
-                        widget.authController.currentUser?.name ?? context.l10n.user,
+                        widget.authController.currentUser?.name ??
+                            context.l10n.user,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -245,8 +254,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            ProfileSettingsPage(authController: widget.authController),
+                        builder: (context) => ProfileSettingsPage(
+                          authController: widget.authController,
+                        ),
                       ),
                     ).then((_) => widget.onNavigationReturn?.call());
                   },
@@ -374,7 +384,8 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
                 if (context.mounted) {
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                      builder: (_) => LoginPage(authController: widget.authController),
+                      builder: (_) =>
+                          LoginPage(authController: widget.authController),
                     ),
                     (route) => false,
                   );
@@ -400,7 +411,11 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.science_outlined, color: Colors.deepPurple, size: 18),
+                    const Icon(
+                      Icons.science_outlined,
+                      color: Colors.deepPurple,
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       'Geliştirici Araçları',
@@ -439,7 +454,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
                           label: const Text('Sahte Veri Üret'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.deepPurple.shade300,
-                            side: BorderSide(color: Colors.deepPurple.withValues(alpha: 0.4)),
+                            side: BorderSide(
+                              color: Colors.deepPurple.withValues(alpha: 0.4),
+                            ),
                           ),
                         ),
                       ),
@@ -450,7 +467,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
                         label: const Text('Temizle'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.red.shade300,
-                          side: BorderSide(color: Colors.red.withValues(alpha: 0.4)),
+                          side: BorderSide(
+                            color: Colors.red.withValues(alpha: 0.4),
+                          ),
                         ),
                       ),
                     ],

@@ -132,39 +132,42 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Builder(
             builder: (context) {
-              final aramaModuContext = context.select((AssetsController c) => c.aramaModu);
-              
+              final aramaModuContext = context.select(
+                (AssetsController c) => c.aramaModu,
+              );
+
               return AppBar(
                 title: aramaModuContext
                     ? TextField(
                         controller: _aramaController,
-                        onChanged: (value) => _searchDebouncer.run(() => _filtrele()),
+                        onChanged: (value) =>
+                            _searchDebouncer.run(() => _filtrele()),
                         autofocus: true,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                decoration: InputDecoration(
-                  hintText: context.l10n.searchAsset,
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: context.l10n.searchAsset,
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      )
+                    : Text(context.l10n.myAssets),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                centerTitle: false,
+                leading: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
+                  onPressed: () => Navigator.pop(context),
                 ),
-              )
-            : Text(context.l10n.myAssets),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: false,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
+                actions: [
                   IconButton(
                     icon: Icon(
                       aramaModuContext ? Icons.close : Icons.search,
@@ -185,67 +188,79 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
         ),
         body: Builder(
           builder: (context) {
-            final isLoadingContext = context.select((AssetsController c) => c.isLoading);
-            final aramaModuContext = context.select((AssetsController c) => c.aramaModu);
-            final filtrelenmisVarliklarContext = context.select((AssetsController c) => c.filtrelenmisVarliklar);
-            
+            final isLoadingContext = context.select(
+              (AssetsController c) => c.isLoading,
+            );
+            final aramaModuContext = context.select(
+              (AssetsController c) => c.aramaModu,
+            );
+            final filtrelenmisVarliklarContext = context.select(
+              (AssetsController c) => c.filtrelenmisVarliklar,
+            );
+
             return isLoadingContext
                 ? const AssetsPageSkeleton()
                 : Column(
-                  children: [
-                    // Toplam Varlık Kartı - Harcamalarım tarzı tasarım (mavi tema)
-                    if (!aramaModuContext)
-                      AssetSummaryCard(
-                        totalAssets: totalAssets,
-                        assetCount: filtrelenmisVarliklarContext.length,
+                    children: [
+                      // Toplam Varlık Kartı - Harcamalarım tarzı tasarım (mavi tema)
+                      if (!aramaModuContext)
+                        AssetSummaryCard(
+                          totalAssets: totalAssets,
+                          assetCount: filtrelenmisVarliklarContext.length,
+                        ),
+                      // Liste veya EmptyState (ekranın kalan kısmının ortasında)
+                      Expanded(
+                        child: _buildAssetList(
+                          filtrelenmisVarliklarContext,
+                          aramaModuContext,
+                        ),
                       ),
-                    // Liste veya EmptyState (ekranın kalan kısmının ortasında)
-                    Expanded(child: _buildAssetList(filtrelenmisVarliklarContext, aramaModuContext)),
-                  ],
-                );
+                    ],
+                  );
           },
         ),
-      // Modern floating bottom navigation bar - Ortak widget kullanımı
-      bottomNavigationBar: AppFloatingBottomBar(
-        items: [
-          BottomBarItem(
-            icon: Icons.delete_outline,
-            label: context.l10n.trashBin,
-            onTap: () {
-              HapticService.selectionClick();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AssetRecycleBinPage(
-                    deletedAssets: _deletedAssets,
-                    onRestore: (asset) {
-                      _controller.restoreAsset(asset);
-                      widget.onRestore(asset);
-                    },
-                    onPermanentDelete: (asset) {
-                      _controller.permanentDeleteAsset(asset);
-                      widget.onPermanentDelete(asset);
-                    },
-                    onEmptyBin: () {
-                      _controller.emptyBin();
-                      widget.onEmptyBin();
-                    },
+        // Modern floating bottom navigation bar - Ortak widget kullanımı
+        bottomNavigationBar: AppFloatingBottomBar(
+          items: [
+            BottomBarItem(
+              icon: Icons.delete_outline,
+              label: context.l10n.trashBin,
+              onTap: () {
+                HapticService.selectionClick();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AssetRecycleBinPage(
+                      deletedAssets: _deletedAssets,
+                      onRestore: (asset) {
+                        _controller.restoreAsset(asset);
+                        widget.onRestore(asset);
+                      },
+                      onPermanentDelete: (asset) {
+                        _controller.permanentDeleteAsset(asset);
+                        widget.onPermanentDelete(asset);
+                      },
+                      onEmptyBin: () {
+                        _controller.emptyBin();
+                        widget.onEmptyBin();
+                      },
+                    ),
                   ),
-                ),
-              ).then((_) {
-                if (mounted) setState(() {});
-              });
-            },
-          ),
-        ],
-        centerButtonColor: Colors.blue.shade600,
-        centerButtonLabel: context.l10n.addAsset,
-        onCenterButtonTap: () {
-          HapticService.lightImpact();
-          _showAddAssetSheet();
-        },
+                ).then((_) {
+                  if (mounted) setState(() {});
+                });
+              },
+            ),
+          ],
+          centerButtonColor: Colors.blue.shade600,
+          centerButtonLabel: context.l10n.addAsset,
+          onCenterButtonTap: () {
+            HapticService.lightImpact();
+            _showAddAssetSheet();
+          },
+        ),
       ),
-    ));
+    );
   }
 
   void _showAddAssetSheet() {
@@ -331,7 +346,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
             onDelete: () {
               _controller.deleteAsset(asset);
               widget.onDelete(asset);
-              
+
               if (!mounted) return;
               AppSnackBar.deleted(
                 context,

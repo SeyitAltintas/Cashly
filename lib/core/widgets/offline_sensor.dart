@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:async';
 
-
 class OfflineSensor extends StatefulWidget {
   final Widget child;
 
@@ -21,7 +20,9 @@ class _OfflineSensorState extends State<OfflineSensor> {
   void initState() {
     super.initState();
     _checkInitialConnectivity();
-    _subscription = Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
+    _subscription = Connectivity().onConnectivityChanged.listen(
+      _updateConnectionStatus,
+    );
   }
 
   Future<void> _checkInitialConnectivity() async {
@@ -30,8 +31,10 @@ class _OfflineSensorState extends State<OfflineSensor> {
   }
 
   void _updateConnectionStatus(List<ConnectivityResult> results) {
-    final isOffline = results.every((result) => result == ConnectivityResult.none);
-    
+    final isOffline = results.every(
+      (result) => result == ConnectivityResult.none,
+    );
+
     if (_firstCheckDone && _isOffline != isOffline) {
       if (mounted) setState(() => _isOffline = isOffline);
     } else if (!_firstCheckDone) {
@@ -63,7 +66,10 @@ class _OfflineSensorState extends State<OfflineSensor> {
               child: Material(
                 color: Colors.transparent,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 4,
+                    horizontal: 16,
+                  ),
                   color: Colors.redAccent.withValues(alpha: 0.9),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,

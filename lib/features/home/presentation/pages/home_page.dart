@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../../../core/utils/error_handler.dart';
 import 'package:flutter/services.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
@@ -7,6 +8,9 @@ import 'package:cashly/core/services/cloud_sync_service.dart';
 
 import 'package:cashly/features/settings/presentation/pages/profile/profile_page.dart';
 import 'package:cashly/core/di/injection_container.dart';
+import '../../../../core/services/error_logger_service.dart';
+import '../../../../core/services/notification_service.dart';
+import '../../../../core/services/batch_service.dart';
 import 'package:cashly/core/services/currency_service.dart';
 import 'package:cashly/core/services/asset_price_update_service.dart';
 
@@ -612,14 +616,25 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           },
           onEmptyBin: () {
             final deletedAssets = varliklar.where((a) => a.isDeleted).toList();
-            for (var asset in deletedAssets) {
-              getIt<AssetRepository>().deleteAsset(
-                widget.authController.currentUser!.id,
-                asset.id,
-              );
-            }
             varliklar.removeWhere((a) => a.isDeleted);
             _homeState.varliklar = List.from(varliklar);
+            
+            Future.microtask(() async {
+              try {
+                final operations = <BatchOperation>[];
+                for (var asset in deletedAssets) {
+                  operations.add(
+                    getIt<AssetRepository>().getDeleteAssetOperation(
+                      widget.authController.currentUser!.id,
+                      asset.id,
+                    ),
+                  );
+                }
+                await getIt<BatchService>().commit(operations);
+              } catch (e, s) {
+                ErrorHandler.logError('HomePage.Assets.onEmptyBin Background', e, s);
+              }
+            });
           },
           onAdd: (name, amount, quantity, category, type) {
             final newAsset = Asset(
@@ -810,6 +825,8 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
               selectedDate: date,
             );
 
+            int finalFromIndex = -1;
+            int finalToIndex = -1;
             if (!isScheduled) {
               // Anında transfer - bakiyeleri hemen güncelle
               final cur = getIt<CurrencyService>();
@@ -817,6 +834,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
               final fromIndex = tumOdemeYontemleri.indexWhere(
                 (pm) => pm.id == fromId,
               );
+              finalFromIndex = fromIndex;
               if (fromIndex != -1) {
                 final fromPm = tumOdemeYontemleri[fromIndex];
                 final convertedFromAmount = cur.convert(
@@ -831,14 +849,14 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                 tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
                   balance: yeniBakiye,
                 );
-                getIt<PaymentMethodRepository>().updatePaymentMethod(
-                  widget.authController.currentUser!.id,
-                  tumOdemeYontemleri[fromIndex].toMap(),
+                tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
+                  balance: yeniBakiye,
                 );
               }
               final toIndex = tumOdemeYontemleri.indexWhere(
                 (pm) => pm.id == toId,
               );
+              finalToIndex = toIndex;
               if (toIndex != -1) {
                 final toPm = tumOdemeYontemleri[toIndex];
                 final convertedToAmount = cur.convert(
@@ -853,9 +871,8 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
                 tumOdemeYontemleri[toIndex] = toPm.copyWith(
                   balance: yeniBakiye,
                 );
-                getIt<PaymentMethodRepository>().updatePaymentMethod(
-                  widget.authController.currentUser!.id,
-                  tumOdemeYontemleri[toIndex].toMap(),
+                tumOdemeYontemleri[toIndex] = toPm.copyWith(
+                  balance: yeniBakiye,
                 );
               }
               _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
@@ -874,10 +891,37 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
               paraBirimi: getIt<CurrencyService>().currentCurrency,
             );
             tumTransferler.insert(0, newTransfer);
-            getIt<PaymentMethodRepository>().addTransfer(
-              widget.authController.currentUser!.id,
-              newTransfer.toMap(),
-            );
+            
+            // Arka planda Firestore işlemlerini Batch ile yap
+            Future.microtask(() async {
+              try {
+                final operations = <BatchOperation>[];
+                
+                if (!isScheduled) {
+                  if (finalFromIndex != -1) {
+                    operations.add(getIt<PaymentMethodRepository>().getUpdatePaymentMethodOperation(
+                      widget.authController.currentUser!.id,
+                      tumOdemeYontemleri[finalFromIndex].toMap(),
+                    ));
+                  }
+                  if (finalToIndex != -1) {
+                    operations.add(getIt<PaymentMethodRepository>().getUpdatePaymentMethodOperation(
+                      widget.authController.currentUser!.id,
+                      tumOdemeYontemleri[finalToIndex].toMap(),
+                    ));
+                  }
+                }
+                
+                operations.add(getIt<PaymentMethodRepository>().getAddTransferOperation(
+                  widget.authController.currentUser!.id,
+                  newTransfer.toMap(),
+                ));
+                
+                await getIt<BatchService>().commit(operations);
+              } catch (e, s) {
+                ErrorHandler.logError('HomePage.Transfer Background', e, s);
+              }
+            });
           },
         ),
       ),

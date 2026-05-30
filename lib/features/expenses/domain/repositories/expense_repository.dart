@@ -1,3 +1,5 @@
+import '../../../../core/services/batch_service.dart';
+
 /// Harcama repository interface (Domain Layer)
 /// Bu interface, harcama verilerine erişim için soyut bir kontrat tanımlar.
 /// Data katmanındaki implementation bu interface'i uygular.
@@ -11,7 +13,10 @@ abstract class ExpenseRepository {
   /// [userId] - Kullanıcı ID'si
   /// [month] - Dinlenecek ay
   /// Döndürür: Harcama listesi (Map formatında) Stream
-  Stream<List<Map<String, dynamic>>> watchExpensesByMonth(String userId, DateTime month);
+  Stream<List<Map<String, dynamic>>> watchExpensesByMonth(
+    String userId,
+    DateTime month,
+  );
 
   /// Yeni bir harcama ekler
   /// [userId] - Kullanıcı ID'si
@@ -27,6 +32,21 @@ abstract class ExpenseRepository {
   /// [userId] - Kullanıcı ID'si
   /// [expenseId] - Silinecek harcama ID'si
   Future<void> deleteExpense(String userId, String expenseId);
+
+  /// Bir harcamayı eklemek için batch operasyonu döndürür
+  BatchOperation getAddExpenseOperation(
+    String userId,
+    Map<String, dynamic> expense,
+  );
+
+  /// Bir harcamayı güncellemek için batch operasyonu döndürür
+  BatchOperation getUpdateExpenseOperation(
+    String userId,
+    Map<String, dynamic> expense,
+  );
+
+  /// Bir harcamayı silmek için batch operasyonu döndürür
+  BatchOperation getDeleteExpenseOperation(String userId, String expenseId);
 
   /// Kullanıcının bütçe limitini getirir
   /// [userId] - Kullanıcı ID'si

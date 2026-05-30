@@ -28,7 +28,11 @@ extension _IncomeAnalysisExtension on _AnalysisPageState {
     final topCategory = topEntry?.key ?? '';
     final topAmount = topEntry?.value ?? 0.0;
 
-    final sections = _buildPieChartSections(totals, totalIncome, AnalysisColors.incomeColors);
+    final sections = _buildPieChartSections(
+      totals,
+      totalIncome,
+      AnalysisColors.incomeColors,
+    );
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -52,14 +56,22 @@ extension _IncomeAnalysisExtension on _AnalysisPageState {
                     topCategoryName: context.translateDbName(topCategory),
                     topCategoryAmount: CurrencyFormatter.format(topAmount),
                   ),
-                  _buildChartArea(sections, totals, totalIncome, AnalysisColors.incomeColors),
+                  _buildChartArea(
+                    sections,
+                    totals,
+                    totalIncome,
+                    AnalysisColors.incomeColors,
+                  ),
                   if (currentIncomes.isNotEmpty)
                     _buildTopIncomes(currentIncomes, totalIncome),
                   if (currentIncomes.isNotEmpty && totalIncome > 0)
                     _buildIncomeStability(currentIncomes, totalIncome),
                   if (totalIncome > 0) ...[
                     _buildDailyEarningRate(totalIncome),
-                    _buildSavingsPotential(totalIncome, _controller.totalMonthlyExpense),
+                    _buildSavingsPotential(
+                      totalIncome,
+                      _controller.totalMonthlyExpense,
+                    ),
                   ],
                   if (widget.paymentMethods.isNotEmpty)
                     _buildPaymentMethodDistribution(isExpense: false),

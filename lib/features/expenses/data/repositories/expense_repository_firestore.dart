@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../../../core/services/network_service.dart';
+import '../../../../core/services/batch_service.dart';
 
 /// Harcama repository implementasyonu (Firestore)
 /// Clean Architecture: ExpenseRepository interface'ini Firestore ile uygular.
@@ -48,13 +49,27 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   }
 
   @override
-  Stream<List<Map<String, dynamic>>> watchExpensesByMonth(String userId, DateTime month) {
+  Stream<List<Map<String, dynamic>>> watchExpensesByMonth(
+    String userId,
+    DateTime month,
+  ) {
     final startOfMonth = DateTime(month.year, month.month, 1);
-    final endOfMonth = DateTime(month.year, month.month + 1, 0, 23, 59, 59, 999);
-    
+    final endOfMonth = DateTime(
+      month.year,
+      month.month + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
+
     return _userDoc(userId)
         .collection('expenses')
-        .where('tarih', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
+        .where(
+          'tarih',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth),
+        )
         .where('tarih', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
         .orderBy('tarih', descending: true)
         .snapshots()
@@ -73,13 +88,16 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
       if ((expense['id']?.toString() ?? '').isEmpty) {
         throw Exception('Harcama eklenirken ID eksik!');
       }
-      final docRef = _userDoc(userId).collection('expenses').doc(expense['id'].toString());
+      final docRef = _userDoc(
+        userId,
+      ).collection('expenses').doc(expense['id'].toString());
       final data = _convertStringToTimestamp(expense);
       await docRef.set(data);
 
       // Cache'i güncelle
       final cacheKey = 'expenses_$userId';
-      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final cached =
+          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       // Aynı ID'de veri varsa ekleme
       if (!cached.any((e) => e['id'] == expense['id'])) {
         cached.add(expense);
@@ -92,18 +110,24 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   }
 
   @override
-  Future<void> updateExpense(String userId, Map<String, dynamic> expense) async {
+  Future<void> updateExpense(
+    String userId,
+    Map<String, dynamic> expense,
+  ) async {
     try {
       if ((expense['id']?.toString() ?? '').isEmpty) {
         throw Exception('Harcama güncellenirken ID eksik!');
       }
-      final docRef = _userDoc(userId).collection('expenses').doc(expense['id'].toString());
+      final docRef = _userDoc(
+        userId,
+      ).collection('expenses').doc(expense['id'].toString());
       final data = _convertStringToTimestamp(expense);
       await docRef.update(data);
 
       // Cache'i güncelle
       final cacheKey = 'expenses_$userId';
-      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final cached =
+          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       final index = cached.indexWhere((e) => e['id'] == expense['id']);
       if (index != -1) {
         cached[index] = expense;
@@ -123,13 +147,59 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
 
       // Cache'i güncelle
       final cacheKey = 'expenses_$userId';
-      final cached = CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+      final cached =
+          CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       cached.removeWhere((e) => e['id'] == expenseId);
       CacheService.set(cacheKey, cached);
     } catch (e) {
       debugPrint('Firestore harcama silme hatası: $e');
       rethrow;
     }
+  }
+
+  @override
+  BatchOperation getAddExpenseOperation(
+    String userId,
+    Map<String, dynamic> expense,
+  ) {
+    if ((expense['id']?.toString() ?? '').isEmpty) {
+      throw Exception('Harcama eklenirken ID eksik!');
+    }
+    final data = _convertStringToTimestamp(expense);
+
+    return FirestoreBatchOperation(
+      collectionPath: 'users/$userId/expenses',
+      documentId: expense['id'].toString(),
+      type: BatchOperationType.set,
+      data: data,
+    );
+  }
+
+  @override
+  BatchOperation getUpdateExpenseOperation(
+    String userId,
+    Map<String, dynamic> expense,
+  ) {
+    if ((expense['id']?.toString() ?? '').isEmpty) {
+      throw Exception('Harcama güncellenirken ID eksik!');
+    }
+    final data = _convertStringToTimestamp(expense);
+
+    return FirestoreBatchOperation(
+      collectionPath: 'users/$userId/expenses',
+      documentId: expense['id'].toString(),
+      type: BatchOperationType.update,
+      data: data,
+    );
+  }
+
+  @override
+  BatchOperation getDeleteExpenseOperation(String userId, String expenseId) {
+    return FirestoreBatchOperation(
+      collectionPath: 'users/$userId/expenses',
+      documentId: expenseId,
+      type: BatchOperationType.delete,
+    );
   }
 
   @override
@@ -235,7 +305,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
       final getOptions = NetworkService().isOffline
           ? const GetOptions(source: Source.cache)
           : const GetOptions();
-      final existing = await colRef.get(getOptions).timeout(const Duration(seconds: 10));
+      final existing = await colRef
+          .get(getOptions)
+          .timeout(const Duration(seconds: 10));
       for (final doc in existing.docs) {
         batch.delete(doc.reference);
       }
@@ -305,5 +377,4 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
     data['updatedAt'] = FieldValue.serverTimestamp();
     return data;
   }
-
 }

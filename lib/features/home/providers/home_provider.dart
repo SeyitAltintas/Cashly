@@ -556,18 +556,26 @@ class HomeProvider extends ChangeNotifier {
     if (pmIndex == -1) return;
 
     final pm = tumOdemeYontemleri[pmIndex];
-    
+
     final cur = getIt<CurrencyService>();
-    final convertedAmount = cur.convert(miktar, cur.currentCurrency, pm.paraBirimi);
+    final convertedAmount = cur.convert(
+      miktar,
+      cur.currentCurrency,
+      pm.paraBirimi,
+    );
 
     double yeniBakiye;
 
     if (pm.type == 'kredi') {
       // Kredi kartı: harcama borcu artırır, gelir borcu azaltır
-      yeniBakiye = isHarcama ? pm.balance + convertedAmount : pm.balance - convertedAmount;
+      yeniBakiye = isHarcama
+          ? pm.balance + convertedAmount
+          : pm.balance - convertedAmount;
     } else {
       // Banka/Nakit: harcama bakiyeyi azaltır, gelir artırır
-      yeniBakiye = isHarcama ? pm.balance - convertedAmount : pm.balance + convertedAmount;
+      yeniBakiye = isHarcama
+          ? pm.balance - convertedAmount
+          : pm.balance + convertedAmount;
     }
 
     tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: yeniBakiye);

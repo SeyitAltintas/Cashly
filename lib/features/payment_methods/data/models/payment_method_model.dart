@@ -43,7 +43,9 @@ class PaymentMethod {
   /// Map'ten PaymentMethod oluştur (veritabanından okuma için)
   factory PaymentMethod.fromMap(Map<String, dynamic> map) {
     return PaymentMethod(
-      id: map['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      id:
+          map['id']?.toString() ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
       name: map['name']?.toString() ?? 'İsimsiz Yöntem',
       type: map['type']?.toString() ?? 'banka',
       lastFourDigits: map['lastFourDigits']?.toString(),

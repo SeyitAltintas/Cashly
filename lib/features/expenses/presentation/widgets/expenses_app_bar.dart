@@ -22,10 +22,16 @@ class ExpensesAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final aramaModuContext = context.select((ExpensesController c) => c.aramaModu);
-    final secilenAyContext = context.select((ExpensesController c) => c.secilenAy);
+    final aramaModuContext = context.select(
+      (ExpensesController c) => c.aramaModu,
+    );
+    final secilenAyContext = context.select(
+      (ExpensesController c) => c.secilenAy,
+    );
     DateTime simdi = DateTime.now();
-    bool buAyMi = (secilenAyContext.year == simdi.year && secilenAyContext.month == simdi.month);
+    bool buAyMi =
+        (secilenAyContext.year == simdi.year &&
+        secilenAyContext.month == simdi.month);
 
     return AppBar(
       backgroundColor: Colors.transparent,
@@ -43,7 +49,9 @@ class ExpensesAppBar extends StatelessWidget implements PreferredSizeWidget {
                 hintText: context.l10n.searchExpense,
                 border: InputBorder.none,
                 hintStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.54),
                 ),
               ),
               onChanged: (val) => onSearchChanged(),
@@ -56,7 +64,9 @@ class ExpensesAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: Text(
               context.l10n.goToToday,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 14,
               ),
             ),
