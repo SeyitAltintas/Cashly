@@ -3417,7 +3417,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTransactions => 'Search transactions...';
 
   @override
-  String get assetTypes => 'Varlık Türleri';
+  String get assetTypes => 'Asset Types';
 
   @override
   String get distributionByPaymentMethod => 'Distribution By Payment Method';

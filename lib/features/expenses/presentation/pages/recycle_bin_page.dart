@@ -132,14 +132,14 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
     if (onay == true) {
       final silinenlerKopya = List<Map<String, dynamic>>.from(silinenHarcamalar);
       if (_controller != null) {
-        _controller!.binEmptyBin();
+        await _controller!.binEmptyBin();
       } else {
         _localTumHarcamalarHam.removeWhere((e) => e['silindi'] == true);
         _localSilinenHarcamalar.clear();
         setState(() {});
-      }
-      for (var harcama in silinenlerKopya) {
-        await getIt<ExpenseRepository>().deleteExpense(widget.userId, harcama['id']);
+        for (var harcama in silinenlerKopya) {
+          await getIt<ExpenseRepository>().deleteExpense(widget.userId, harcama['id']);
+        }
       }
       if (mounted) {
         AppSnackBar.deleted(context, context.l10n.trashBinEmptied);
@@ -149,13 +149,13 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
 
   Future<void> harcamayiGeriYukle(Map<String, dynamic> harcama) async {
     if (_controller != null) {
-      _controller!.binRestoreHarcama(harcama);
+      await _controller!.binRestoreHarcama(harcama);
     } else {
       harcama['silindi'] = false;
       _localSilinenHarcamalar.remove(harcama);
       setState(() {});
+      await getIt<ExpenseRepository>().updateExpense(widget.userId, harcama);
     }
-    await getIt<ExpenseRepository>().updateExpense(widget.userId, harcama);
     // Payment methods have been updated locally, they will be synced when their balances change
 
     if (mounted) {
@@ -165,13 +165,13 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
 
   Future<void> harcamayiKaliciSil(Map<String, dynamic> harcama) async {
     if (_controller != null) {
-      _controller!.binPermanentDeleteHarcama(harcama);
+      await _controller!.binPermanentDeleteHarcama(harcama);
     } else {
       _localTumHarcamalarHam.remove(harcama);
       _localSilinenHarcamalar.remove(harcama);
       setState(() {});
+      await getIt<ExpenseRepository>().deleteExpense(widget.userId, harcama['id']);
     }
-    await getIt<ExpenseRepository>().deleteExpense(widget.userId, harcama['id']);
     if (mounted) {
       AppSnackBar.deleted(context, context.l10n.expensePermanentlyDeleted);
     }
@@ -223,18 +223,17 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
       final silinenlerKopya = List<Map<String, dynamic>>.from(silinenHarcamalar);
       // State metoduyla tüm harcamaları geri yükle (bakiye güncelleme dahil)
       if (_controller != null) {
-        _controller!.binRestoreAll();
+        await _controller!.binRestoreAll();
       } else {
         for (var harcama in List.from(_localSilinenHarcamalar)) {
           harcama['silindi'] = false;
         }
         _localSilinenHarcamalar.clear();
         setState(() {});
-      }
-
-      // Verileri kaydet
-      for (var harcama in silinenlerKopya) {
-          await getIt<ExpenseRepository>().updateExpense(widget.userId, harcama);
+        
+        for (var harcama in silinenlerKopya) {
+            await getIt<ExpenseRepository>().updateExpense(widget.userId, harcama);
+        }
       }
       // Payment methods have been updated locally, they will be synced when their balances change
 

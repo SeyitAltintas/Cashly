@@ -23,7 +23,8 @@ class MonthYearPickerState extends ChangeNotifier {
 
   /// Ay değiştiğinde
   void setMonth(int index) {
-    _selectedMonthIndex = index % 12;
+    // Dart'ta negatif sayılar için modulo düzeltmesi
+    _selectedMonthIndex = (index % 12 + 12) % 12;
     notifyListeners();
   }
 

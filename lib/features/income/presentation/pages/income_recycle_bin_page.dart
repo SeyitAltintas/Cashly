@@ -134,14 +134,14 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
     if (onay == true) {
       final silinenlerKopya = List<Income>.from(silinenGelirler);
       if (_controller != null) {
-        _controller!.binEmptyBin();
+        await _controller!.binEmptyBin();
       } else {
         _localTumGelirler.removeWhere((g) => g.isDeleted);
         _localSilinenGelirler.clear();
         setState(() {});
-      }
-      for (var gelir in silinenlerKopya) {
-        await getIt<IncomeRepository>().deleteIncome(widget.userId, gelir.id);
+        for (var gelir in silinenlerKopya) {
+          await getIt<IncomeRepository>().deleteIncome(widget.userId, gelir.id);
+        }
       }
       if (mounted) {
         AppSnackBar.deleted(context, context.l10n.trashBinEmptied);
@@ -151,7 +151,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
 
   Future<void> geliriGeriYukle(Income gelir) async {
     if (_controller != null) {
-      _controller!.binRestoreGelir(gelir);
+      await _controller!.binRestoreGelir(gelir);
     } else {
       int index = _localTumGelirler.indexWhere((g) => g.id == gelir.id);
       if (index != -1) {
@@ -159,8 +159,8 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
       }
       _localSilinenGelirler.removeWhere((g) => g.id == gelir.id);
       setState(() {});
+      await getIt<IncomeRepository>().updateIncome(widget.userId, gelir.copyWith(isDeleted: false).toMap());
     }
-    await getIt<IncomeRepository>().updateIncome(widget.userId, gelir.toMap());
     if (mounted) {
       AppSnackBar.success(context, context.l10n.incomeRestored);
     }
@@ -168,13 +168,13 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
 
   Future<void> geliriKaliciSil(Income gelir) async {
     if (_controller != null) {
-      _controller!.binPermanentDeleteGelir(gelir);
+      await _controller!.binPermanentDeleteGelir(gelir);
     } else {
       _localTumGelirler.removeWhere((g) => g.id == gelir.id);
       _localSilinenGelirler.removeWhere((g) => g.id == gelir.id);
       setState(() {});
+      await getIt<IncomeRepository>().deleteIncome(widget.userId, gelir.id);
     }
-    await getIt<IncomeRepository>().deleteIncome(widget.userId, gelir.id);
     if (mounted) {
       AppSnackBar.deleted(context, context.l10n.incomePermanentlyDeleted);
     }
@@ -225,7 +225,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
     if (onay == true) {
       final silinenlerKopya = List<Income>.from(silinenGelirler);
       if (_controller != null) {
-        _controller!.binRestoreAll();
+        await _controller!.binRestoreAll();
       } else {
         for (var gelir in _localSilinenGelirler) {
           int index = _localTumGelirler.indexWhere((g) => g.id == gelir.id);
@@ -235,9 +235,9 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         }
         _localSilinenGelirler.clear();
         setState(() {});
-      }
-      for (var gelir in silinenlerKopya) {
-        await getIt<IncomeRepository>().updateIncome(widget.userId, gelir.toMap());
+        for (var gelir in silinenlerKopya) {
+          await getIt<IncomeRepository>().updateIncome(widget.userId, gelir.copyWith(isDeleted: false).toMap());
+        }
       }
       if (mounted) {
         AppSnackBar.success(context, context.l10n.allIncomesRestored);

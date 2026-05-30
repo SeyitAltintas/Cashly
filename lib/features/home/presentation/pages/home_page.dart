@@ -885,6 +885,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   }
 
   void _navigateToExpenses({bool replace = false, DateTime? initialDate}) {
+    // Sayfa açıldığında her zaman güncel ayı (veya gelen tarihi) göstersin
+    final targetDate = initialDate ?? DateTime.now();
+    _homeState.secilenAy = targetDate;
+
     final route = MaterialPageRoute(
       builder: (context) => PageErrorBoundary(
         pageName: context.l10n.expenses,
@@ -893,7 +897,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           tumOdemeYontemleri: tumOdemeYontemleri,
           kategoriIkonlari: kategoriIkonlari,
           butceLimiti: butceLimiti,
-          secilenAy: initialDate ?? secilenAy,
+          secilenAy: targetDate,
           userId: widget.authController.currentUser?.id,
           varsayilanOdemeYontemiId: varsayilanOdemeYontemiId,
           onHarcamalarChanged: (harcamalar) {
@@ -920,6 +924,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   }
 
   void _navigateToIncomes({bool replace = false, DateTime? initialDate}) {
+    // Sayfa açıldığında her zaman güncel ayı (veya gelen tarihi) göstersin
+    final targetDate = initialDate ?? DateTime.now();
+    _homeState.secilenAy = targetDate;
+
     final route = MaterialPageRoute(
       builder: (context) => PageErrorBoundary(
         pageName: context.l10n.incomes,
@@ -927,7 +935,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
           tumGelirler: tumGelirler,
           tumOdemeYontemleri: tumOdemeYontemleri,
           gelirKategoriIkonlari: gelirKategoriIkonlari,
-          secilenAy: initialDate ?? secilenAy,
+          secilenAy: targetDate,
           userId: widget.authController.currentUser?.id,
           onGelirlerChanged: (gelirler) {
             _homeState.tumGelirler = gelirler;
