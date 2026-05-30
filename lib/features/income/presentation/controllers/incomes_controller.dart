@@ -322,6 +322,10 @@ class IncomesController extends ChangeNotifier {
     try {
       final index = _tumGelirler.indexWhere((g) => g.id == income.id);
       if (index != -1) {
+        // Eski state'i kopyala (Rollback için)
+        final oldIncome = _tumGelirler[index];
+        final oldPaymentMethods = List<PaymentMethod>.from(_tumOdemeYontemleri.map((e) => e.copyWith()));
+
         _tumGelirler[index] = income.copyWith(isDeleted: true);
 
         if (income.paymentMethodId != null) {
@@ -336,8 +340,16 @@ class IncomesController extends ChangeNotifier {
         // Anında arayüzü güncelle (Optimistic UI update)
         notifyListeners();
 
-        await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
-        await savePaymentMethods();
+        try {
+          await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
+          await savePaymentMethods();
+        } catch (e) {
+          // Hata durumunda işlemi geri al (Rollback)
+          _tumGelirler[index] = oldIncome;
+          _tumOdemeYontemleri = oldPaymentMethods;
+          notifyListeners();
+          rethrow;
+        }
       }
     } catch (e, s) {
       ErrorHandler.logError('IncomesController.deleteIncome', e, s);
@@ -355,6 +367,10 @@ class IncomesController extends ChangeNotifier {
     try {
       final index = _tumGelirler.indexWhere((g) => g.id == income.id);
       if (index != -1) {
+        // Eski state'i kopyala (Rollback için)
+        final oldIncome = _tumGelirler[index];
+        final oldPaymentMethods = List<PaymentMethod>.from(_tumOdemeYontemleri.map((e) => e.copyWith()));
+
         _tumGelirler[index] = income.copyWith(isDeleted: wasDeleted ?? false);
 
         if (pmIndex != null && pmIndex != -1 && oldBalance != null) {
@@ -366,8 +382,16 @@ class IncomesController extends ChangeNotifier {
         // Anında arayüzü güncelle (Optimistic UI update)
         notifyListeners();
 
-        await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
-        await savePaymentMethods();
+        try {
+          await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
+          await savePaymentMethods();
+        } catch (e) {
+          // Hata durumunda işlemi geri al (Rollback)
+          _tumGelirler[index] = oldIncome;
+          _tumOdemeYontemleri = oldPaymentMethods;
+          notifyListeners();
+          rethrow;
+        }
       }
     } catch (e, s) {
       ErrorHandler.logError('IncomesController.undoDelete', e, s);

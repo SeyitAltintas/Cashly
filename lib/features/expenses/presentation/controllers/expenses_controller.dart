@@ -577,6 +577,10 @@ class ExpensesController extends ChangeNotifier {
       _tumHarcamalar = List.from(tumHarcamalar);
       _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
 
+      // Eski değerleri kopyala (Rollback için)
+      final bool oldSilindi = harcama['silindi'] ?? false;
+      final oldPaymentMethods = List<PaymentMethod>.from(_tumOdemeYontemleri.map((e) => e.copyWith()));
+
       harcama['silindi'] = true;
 
       final paymentMethodId = harcama['odemeYontemiId'];
@@ -604,9 +608,25 @@ class ExpensesController extends ChangeNotifier {
         onResetLazyLoading: onResetLazyLoading,
       );
 
-      // Veritabanını arkaplanda güncelle
-      await _expenseRepository.updateExpense(userId, harcama); // Soft delete
-      await savePaymentMethods();
+      try {
+        // Veritabanını arkaplanda güncelle
+        await _expenseRepository.updateExpense(userId, harcama); // Soft delete
+        await savePaymentMethods();
+      } catch (e) {
+        // Hata durumunda işlemi geri al (Rollback)
+        harcama['silindi'] = oldSilindi;
+        _tumOdemeYontemleri = oldPaymentMethods;
+        for (int i = 0; i < tumOdemeYontemleri.length; i++) {
+           if (i < _tumOdemeYontemleri.length) {
+              tumOdemeYontemleri[i] = _tumOdemeYontemleri[i];
+           }
+        }
+        filtreleVeGoster(
+          aramaMetni: aramaMetni ?? '',
+          onResetLazyLoading: onResetLazyLoading,
+        );
+        rethrow;
+      }
     } catch (e, s) {
       ErrorHandler.logError('ExpensesController.harcamaSilLegacy', e, s);
       rethrow;
@@ -628,6 +648,10 @@ class ExpensesController extends ChangeNotifier {
       _tumHarcamalar = List.from(tumHarcamalar);
       _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
 
+      // Eski değerleri kopyala (Rollback için)
+      final bool oldSilindi = harcama['silindi'] ?? false;
+      final oldPaymentMethods = List<PaymentMethod>.from(_tumOdemeYontemleri.map((e) => e.copyWith()));
+
       harcama['silindi'] = eskiSilindi ?? false;
       if (pmIndex != null && pmIndex != -1 && eskiBakiye != null) {
         _tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex].copyWith(
@@ -642,8 +666,24 @@ class ExpensesController extends ChangeNotifier {
         onResetLazyLoading: onResetLazyLoading,
       );
 
-      await _expenseRepository.updateExpense(userId, harcama); // Restore
-      await savePaymentMethods();
+      try {
+        await _expenseRepository.updateExpense(userId, harcama); // Restore
+        await savePaymentMethods();
+      } catch (e) {
+        // Hata durumunda işlemi geri al (Rollback)
+        harcama['silindi'] = oldSilindi;
+        _tumOdemeYontemleri = oldPaymentMethods;
+        for (int i = 0; i < tumOdemeYontemleri.length; i++) {
+           if (i < _tumOdemeYontemleri.length) {
+              tumOdemeYontemleri[i] = _tumOdemeYontemleri[i];
+           }
+        }
+        filtreleVeGoster(
+          aramaMetni: aramaMetni ?? '',
+          onResetLazyLoading: onResetLazyLoading,
+        );
+        rethrow;
+      }
     } catch (e, s) {
       ErrorHandler.logError(
         'ExpensesController.harcamaSilmeGeriAlLegacy',
@@ -765,6 +805,10 @@ class ExpensesController extends ChangeNotifier {
     Function(int)? onResetLazyLoading,
   }) async {
     try {
+      // Eski değerleri kopyala (Rollback için)
+      final bool oldSilindi = harcama['silindi'] ?? false;
+      final oldPaymentMethods = List<PaymentMethod>.from(_tumOdemeYontemleri.map((e) => e.copyWith()));
+
       harcama['silindi'] = true;
 
       // Ödeme yönteminin bakiyesini geri ekle
@@ -797,9 +841,20 @@ class ExpensesController extends ChangeNotifier {
         onResetLazyLoading: onResetLazyLoading,
       );
 
-      // Veritabanını arkaplanda güncelle
-      await _expenseRepository.updateExpense(userId, harcama); // Soft delete
-      await savePaymentMethods();
+      try {
+        // Veritabanını arkaplanda güncelle
+        await _expenseRepository.updateExpense(userId, harcama); // Soft delete
+        await savePaymentMethods();
+      } catch (e) {
+        // Hata durumunda işlemi geri al (Rollback)
+        harcama['silindi'] = oldSilindi;
+        _tumOdemeYontemleri = oldPaymentMethods;
+        filtreleVeGoster(
+          aramaMetni: aramaMetni,
+          onResetLazyLoading: onResetLazyLoading,
+        );
+        rethrow;
+      }
     } catch (e, s) {
       ErrorHandler.logError('ExpensesController.harcamaSil', e, s);
       rethrow;
@@ -816,6 +871,10 @@ class ExpensesController extends ChangeNotifier {
     Function(int)? onResetLazyLoading,
   }) async {
     try {
+      // Eski değerleri kopyala (Rollback için)
+      final bool oldSilindi = harcama['silindi'] ?? false;
+      final oldPaymentMethods = List<PaymentMethod>.from(_tumOdemeYontemleri.map((e) => e.copyWith()));
+
       harcama['silindi'] = eskiSilindi ?? false;
       if (pmIndex != null && pmIndex != -1 && eskiBakiye != null) {
         _tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex].copyWith(
@@ -829,8 +888,19 @@ class ExpensesController extends ChangeNotifier {
         onResetLazyLoading: onResetLazyLoading,
       );
 
-      await _expenseRepository.updateExpense(userId, harcama); // Restore
-      await savePaymentMethods();
+      try {
+        await _expenseRepository.updateExpense(userId, harcama); // Restore
+        await savePaymentMethods();
+      } catch (e) {
+        // Hata durumunda işlemi geri al (Rollback)
+        harcama['silindi'] = oldSilindi;
+        _tumOdemeYontemleri = oldPaymentMethods;
+        filtreleVeGoster(
+          aramaMetni: aramaMetni,
+          onResetLazyLoading: onResetLazyLoading,
+        );
+        rethrow;
+      }
     } catch (e, s) {
       ErrorHandler.logError('ExpensesController.harcamaSilmeGeriAl', e, s);
       rethrow;
