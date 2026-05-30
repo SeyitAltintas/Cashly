@@ -288,6 +288,62 @@ class MockDataService {
       amount: 2500.0,
       paraBirimi: 'TRY',
     ));
+
+    // J) Silinmiş / Olmayan Kategori Testi (İkon Bulamama Durumu)
+    expenses.add(_buildExpense(
+      isim: 'Bilinmeyen Kategoride Harcama',
+      kategori: 'Varolmayan Kategori_X123', // Uygulamada bu kategori yok!
+      tutar: 120.0,
+      date: now.subtract(const Duration(days: 7)),
+      odemeYontemiId: bankId,
+    ));
+    balances[bankId] = (balances[bankId] ?? 0) - 120.0;
+
+    // K) Negatif Tutar (Eksi Değerli Harcama / Mantık Testi)
+    expenses.add(_buildExpense(
+      isim: 'Hatalı (Negatif) Gider',
+      kategori: 'Diğer',
+      tutar: -50.0, // Normalde gider negatife düşmez
+      date: now.subtract(const Duration(days: 8)),
+      odemeYontemiId: bankId,
+    ));
+    balances[bankId] = (balances[bankId] ?? 0) - (-50.0); // Matematiksel olarak eklenir
+
+    // L) Boş İsim (Whitespace Layout Testi)
+    expenses.add(_buildExpense(
+      isim: '   ', // Sadece boşluk, Widget'lar görünmez olabilir
+      kategori: 'Market ve Atıştırmalık',
+      tutar: 15.0,
+      date: now.subtract(const Duration(days: 9)),
+      odemeYontemiId: cashId,
+    ));
+    balances[cashId] = (balances[cashId] ?? 0) - 15.0;
+
+    // M) Desteklenmeyen Para Birimi (Currency API Çökme Testi)
+    final alienExpense = _buildExpense(
+      isim: 'Uzaylı Parası Harcaması',
+      kategori: 'Eğlence',
+      tutar: 1000.0,
+      date: now.subtract(const Duration(days: 10)),
+      odemeYontemiId: creditId,
+    );
+    alienExpense['paraBirimi'] = 'GALACTIC_CREDIT'; // Kasıtlı geçersiz kur
+    expenses.add(alienExpense);
+    balances[creditId] = (balances[creditId] ?? 0) + 1000.0; // Borç yazar
+
+    // N) Uzak Gelecek Testi (Grafikleri Dondurma/Memory Leak Testi)
+    incomes.add({
+      'id': 'mock_inc_future_2099',
+      'name': '2099 Yılından Gelen Para (Chart Bozukluk Testi)',
+      'category': 'Maaş',
+      'amount': 9999.0,
+      'date': Timestamp.fromDate(DateTime(2099, 1, 1)),
+      'updatedAt': FieldValue.serverTimestamp(),
+      'paraBirimi': 'TRY',
+      'paymentMethodId': bankId,
+      'isDeleted': false,
+    });
+    // 2099 yılındaki veri mevcut bakiyeyi bozmamalı
     
     // Bakiyelerdeki son manuel düşüşleri ödeme yöntemlerine yansıt
     for (int i = 0; i < paymentMethods.length; i++) {
@@ -329,7 +385,7 @@ class MockDataService {
         'type': 'kredi',
         'lastFourDigits': '8823',
         'balance': 0.0, // Sonradan güncellenir
-        'limit': 20000.0,
+        'limit': 1500.0, // Bilinçli olarak düşük tutuldu (Limit Aşımı / UI Kırmızı Bar testi için)
         'colorIndex': 2,
         'createdAt': now,
         'paraBirimi': 'TRY',
