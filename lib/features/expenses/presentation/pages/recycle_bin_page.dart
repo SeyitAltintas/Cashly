@@ -67,7 +67,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
           .where('silindi', isEqualTo: true)
           .get();
 
-      final silinen = snapshot.docs.map((doc) {
+      final List<Map<String, dynamic>> silinen = snapshot.docs.map((doc) {
         final data = doc.data();
         if (data['tarih'] is Timestamp) {
           data['tarih'] = (data['tarih'] as Timestamp).toDate().toIso8601String();
@@ -75,7 +75,22 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
         return data;
       }).toList();
 
+      // Optimistic UI ile yerelde silinmiş ama henüz Firestore'a yansımamış olabilecek kartları ekle
       if (_controller != null) {
+        final localDeleted = _controller!.tumHarcamalar.where((h) => h['silindi'] == true).toList();
+        for (var local in localDeleted) {
+          if (!silinen.any((s) => s['id'] == local['id'])) {
+            silinen.add(local);
+          }
+        }
+        
+        // Yeniden eskiye doğru sırala
+        silinen.sort((a, b) {
+           DateTime dateA = DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+           DateTime dateB = DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+           return dateB.compareTo(dateA);
+        });
+
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _controller!.setBinSilinenHarcamalar(silinen);
         });

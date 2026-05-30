@@ -66,7 +66,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
           .where('isDeleted', isEqualTo: true)
           .get();
 
-      final silinen = snapshot.docs.map((doc) {
+      final List<Income> silinen = snapshot.docs.map((doc) {
         final data = doc.data();
         if (data['date'] is Timestamp) {
           data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
@@ -74,7 +74,18 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         return Income.fromMap(data);
       }).toList();
 
+      // Optimistic UI ile yerelde silinmiş ama henüz Firestore'a yansımamış olabilecek kartları ekle
       if (_controller != null) {
+        final localDeleted = _controller!.tumGelirler.where((g) => g.isDeleted).toList();
+        for (var local in localDeleted) {
+          if (!silinen.any((s) => s.id == local.id)) {
+            silinen.add(local);
+          }
+        }
+        
+        // Yeniden eskiye doğru sırala
+        silinen.sort((a, b) => b.date.compareTo(a.date));
+
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _controller!.setBinSilinenGelirler(silinen);
         });
