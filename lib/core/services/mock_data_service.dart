@@ -75,6 +75,15 @@ class MockDataService {
 
       // Her ay için gelirler
       final monthlyIncomes = _generateMonthlyIncomes(month, daysInMonth, bankId, cashId);
+      
+      // Filtre: Gelecek tarihte olan gerçekleşmiş verileri sil
+      if (monthOffset == 0) {
+        monthlyIncomes.removeWhere((inc) {
+          final date = (inc['date'] as Timestamp).toDate();
+          return date.isAfter(now);
+        });
+      }
+      
       incomes.addAll(monthlyIncomes);
 
       // Gelirler bakiyeye eklenir
@@ -96,6 +105,15 @@ class MockDataService {
       final monthlyExpenses = _generateMonthlyExpenses(
         month, daysInMonth, bankId, creditId, cashId,
       );
+      
+      // Filtre: Gelecek tarihte olan harcamaları sil
+      if (monthOffset == 0) {
+        monthlyExpenses.removeWhere((exp) {
+          final date = (exp['tarih'] as Timestamp).toDate();
+          return date.isAfter(now);
+        });
+      }
+      
       expenses.addAll(monthlyExpenses);
 
       // Harcamalar bakiyeden düşülür
@@ -115,6 +133,16 @@ class MockDataService {
 
       // Her ay için transferler (Bankadan nakite, Bankadan kredi kartı ödemesi vs.)
       final monthlyTransfers = _generateMonthlyTransfers(month, daysInMonth, bankId, creditId, cashId);
+      
+      // Filtre: Gelecek tarihte olan geçmiş transferleri sil (Zamanlanmış hariç)
+      if (monthOffset == 0) {
+        monthlyTransfers.removeWhere((tr) {
+          if (tr['isScheduled'] == true) return false;
+          final date = DateTime.parse(tr['date'].toString());
+          return date.isAfter(now);
+        });
+      }
+      
       transfers.addAll(monthlyTransfers);
 
       // Transferleri bakiyeye yansıt
@@ -296,7 +324,7 @@ class MockDataService {
       'id': 'mock_tr_${month.year}_${month.month}_cc',
       'fromAccountId': bankId,
       'toAccountId': creditId,
-      'amount': (2000 + _random.nextInt(30) * 100).toDouble(), // 2000 - 4900 arası ödeme
+      'amount': (500 + _random.nextInt(15) * 100).toDouble(), // 500 - 1900 arası ödeme (Ortalama harcamalarla uyumlu)
       'date': DateTime(month.year, month.month, day, _random.nextInt(5) + 10, _random.nextInt(60)).toIso8601String(),
       'updatedAt': FieldValue.serverTimestamp(),
       'description': 'Kredi Kartı Ödemesi',
