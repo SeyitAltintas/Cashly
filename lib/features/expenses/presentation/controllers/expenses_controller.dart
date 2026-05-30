@@ -834,6 +834,33 @@ class ExpensesController extends ChangeNotifier {
           await savePaymentMethods();
         } catch (e, s) {
           ErrorHandler.logError('ExpensesController.harcamaEkleVeyaDuzenleLegacy Background', e, s);
+          
+          if (modifiedExpense != null) {
+            if (duzenlenecekHarcama != null) {
+              // Geri alma: Güncellemeyi iptal et
+              int revertIndex = _tumHarcamalar.indexWhere((h) => h['id'] == modifiedExpense!['id']);
+              if (revertIndex != -1) {
+                _tumHarcamalar[revertIndex] = duzenlenecekHarcama;
+              }
+              // Bakiyeleri eski haline getir
+              if (paymentMethodId != null) {
+                updateBalance(paymentMethodId, -amount);
+              }
+              if (eskiOdemeYontemiId != null) {
+                updateBalance(eskiOdemeYontemiId, eskiTutar ?? 0);
+              }
+            } else {
+              // Geri alma: Eklemeyi iptal et
+              _tumHarcamalar.removeWhere((h) => h['id'] == modifiedExpense!['id']);
+              if (paymentMethodId != null) {
+                updateBalance(paymentMethodId, -amount);
+              }
+            }
+            filtreleVeGoster(
+              aramaMetni: aramaMetni ?? '',
+              onResetLazyLoading: onResetLazyLoading,
+            );
+          }
         }
       });
     } catch (e, s) {
@@ -1104,6 +1131,40 @@ class ExpensesController extends ChangeNotifier {
           await savePaymentMethods();
         } catch (e, s) {
           ErrorHandler.logError('ExpensesController.harcamaEkleVeyaDuzenle Background', e, s);
+          
+          if (modifiedExpense != null) {
+            if (duzenlenecekHarcama != null) {
+              int revertIndex = _tumHarcamalar.indexWhere((h) => h['id'] == modifiedExpense!['id']);
+              if (revertIndex != -1) {
+                _tumHarcamalar[revertIndex] = duzenlenecekHarcama;
+              }
+              // Bakiyeleri eski haline getir
+              if (paymentMethodId != null) {
+                final yeniParaBirimi = duzenlenecekHarcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+                updateBalance(paymentMethodId, -amount, yeniParaBirimi);
+              }
+              if (eskiOdemeYontemiId != null) {
+                final eskiParaBirimi = duzenlenecekHarcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+                updateBalance(eskiOdemeYontemiId, eskiTutar ?? 0, eskiParaBirimi);
+              }
+            } else {
+              _tumHarcamalar.removeWhere((h) => h['id'] == modifiedExpense!['id']);
+              if (paymentMethodId != null) {
+                updateBalance(paymentMethodId, -amount, getIt<CurrencyService>().currentCurrency);
+              }
+            }
+            
+            _tumHarcamalar.sort((a, b) {
+              DateTime tarihA = DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+              DateTime tarihB = DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+              return tarihB.compareTo(tarihA);
+            });
+
+            filtreleVeGoster(
+              aramaMetni: aramaMetni,
+              onResetLazyLoading: onResetLazyLoading,
+            );
+          }
         }
       });
     } catch (e, s) {

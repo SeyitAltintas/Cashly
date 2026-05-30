@@ -287,6 +287,8 @@ class PaymentMethodsController extends ChangeNotifier {
           await _paymentMethodRepository.addPaymentMethod(userId, method.toMap());
         } catch (e, s) {
           ErrorHandler.logError('PaymentMethodsController.addMethod Background', e, s);
+          _paymentMethods.removeWhere((p) => p.id == method.id);
+          _filtrele();
         }
       });
     } catch (e, s) {
@@ -299,6 +301,7 @@ class PaymentMethodsController extends ChangeNotifier {
     try {
       final index = _paymentMethods.indexWhere((p) => p.id == method.id);
       if (index != -1) {
+        final oldMethod = _paymentMethods[index];
         _paymentMethods[index] = method;
         _filtrele();
 
@@ -307,6 +310,11 @@ class PaymentMethodsController extends ChangeNotifier {
             await _paymentMethodRepository.updatePaymentMethod(userId, method.toMap());
           } catch (e, s) {
             ErrorHandler.logError('PaymentMethodsController.updateMethod Background', e, s);
+            final revertIndex = _paymentMethods.indexWhere((p) => p.id == method.id);
+            if (revertIndex != -1) {
+              _paymentMethods[revertIndex] = oldMethod;
+              _filtrele();
+            }
           }
         });
       }
@@ -358,6 +366,10 @@ class PaymentMethodsController extends ChangeNotifier {
 
   Future<void> permanentDelete(PaymentMethod method) async {
     try {
+      final methodToRestore = _deletedPaymentMethods.firstWhere(
+        (p) => p.id == method.id,
+        orElse: () => method,
+      );
       _deletedPaymentMethods.removeWhere((p) => p.id == method.id);
       notifyListeners();
 
@@ -366,6 +378,8 @@ class PaymentMethodsController extends ChangeNotifier {
           await _paymentMethodRepository.deletePaymentMethod(userId, method.id);
         } catch (e, s) {
           ErrorHandler.logError('PaymentMethodsController.permanentDelete Background', e, s);
+          _deletedPaymentMethods.add(methodToRestore);
+          notifyListeners();
         }
       });
     } catch (e, s) {

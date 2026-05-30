@@ -319,6 +319,16 @@ class IncomesController extends ChangeNotifier {
           await savePaymentMethods();
         } catch (e, s) {
           ErrorHandler.logError('IncomesController.addIncome Background', e, s);
+          _tumGelirler.removeWhere((g) => g.id == gelir.id);
+          if (gelir.paymentMethodId != null) {
+            _updateBalance(
+              gelir.paymentMethodId!,
+              gelir.amount,
+              gelir.paraBirimi,
+              isIncome: false,
+            );
+          }
+          notifyListeners();
         }
       });
     } catch (e, s) {
@@ -489,6 +499,30 @@ class IncomesController extends ChangeNotifier {
           await savePaymentMethods();
         } catch (e, s) {
           ErrorHandler.logError('IncomesController.updateIncome Background', e, s);
+          
+          final revertIndex = _tumGelirler.indexWhere((g) => g.id == income.id);
+          if (revertIndex != -1) {
+            _tumGelirler[revertIndex] = oldIncome;
+          }
+          
+          if (oldPaymentMethodId != null) {
+            _updateBalance(
+              oldPaymentMethodId,
+              oldAmount ?? 0,
+              oldIncome.paraBirimi,
+              isIncome: true,
+            );
+          }
+          if (newPaymentMethodId != null) {
+            _updateBalance(
+              newPaymentMethodId,
+              newAmount ?? 0,
+              income.paraBirimi,
+              isIncome: false,
+            );
+          }
+          
+          notifyListeners();
         }
       });
     } catch (e, s) {
