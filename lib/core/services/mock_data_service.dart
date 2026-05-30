@@ -79,6 +79,8 @@ class MockDataService {
 
       // Gelirler bakiyeye eklenir
       for (final income in monthlyIncomes) {
+        if (income['isDeleted'] == true) continue;
+        
         final pmId = income['paymentMethodId'] as String?;
         final amount = (income['amount'] as num).toDouble();
         if (pmId != null && balances.containsKey(pmId)) {
@@ -98,6 +100,8 @@ class MockDataService {
 
       // Harcamalar bakiyeden düşülür
       for (final expense in monthlyExpenses) {
+        if (expense['silindi'] == true) continue;
+        
         final pmId = expense['odemeYontemiId'] as String?;
         final amount = (expense['tutar'] as num).toDouble();
         if (pmId != null && balances.containsKey(pmId)) {
@@ -371,10 +375,10 @@ class MockDataService {
 
     // Değişken günlük harcamalar (25-35 adet/ay)
     final expenseCount = 25 + _random.nextInt(11);
+    final availableCategories = _expenseCategories.where((c) => c != 'Sabit Giderler').toList();
+    
     for (int i = 0; i < expenseCount; i++) {
-      final cat = _expenseCategories[_random.nextInt(_expenseCategories.length - 1)]; // 'Sabit Giderler' hariç
-      if (cat == 'Sabit Giderler') continue;
-
+      final cat = availableCategories[_random.nextInt(availableCategories.length)];
       final names = _expenseNames[cat]!;
       final name = names[_random.nextInt(names.length)];
       final day = 1 + _random.nextInt(daysInMonth);
@@ -582,6 +586,7 @@ class MockDataService {
       userDoc.collection('settings').doc('general').set({
         'budget': 20000.0,
         'mock_generated': true,
+        'defaultPaymentMethodId': 'mock_banka_001',
         'fixedExpenseTemplates': [
           {'id': 'mock_ft_1', 'isim': 'Kira', 'tutar': 8500.0, 'gun': 1, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
           {'id': 'mock_ft_2', 'isim': 'Elektrik faturası', 'tutar': 380.0, 'gun': 5, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
