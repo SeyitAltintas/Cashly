@@ -81,104 +81,140 @@ class _BalanceCardState extends State<BalanceCard> {
       delay: 100,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF1a1a2e), Color(0xFF16213e), Color(0xFF0f3460)],
+            colors: [Color(0xFF16213E), Color(0xFF0F3460)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.15),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+              color: const Color(0xFF0F3460).withValues(alpha: 0.3),
+              blurRadius: 24,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  context.l10n.totalBalance,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: Stack(
+            children: [
+              // Sol alt dekoratif parıltı
+              Positioned(
+                bottom: -40,
+                left: -40,
+                child: Container(
+                  width: 140,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+                        Colors.transparent,
+                      ],
+                    ),
                   ),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+              ),
+              // Sağ üst dekoratif parıltı
+              Positioned(
+                top: -60,
+                right: -40,
+                child: Container(
+                  width: 180,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        Theme.of(context).colorScheme.secondary.withValues(alpha: 0.4),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              
+              // Kart İçeriği
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GestureDetector(
-                      onTap: _toggleObscure,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        margin: const EdgeInsets.only(right: 8),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surface.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.1),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Icon(
+                                Icons.account_balance_wallet_outlined,
+                                color: Colors.white,
+                                size: 22,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Text(
+                              context.l10n.totalBalance,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white70,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                        GestureDetector(
+                          onTap: _toggleObscure,
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Icon(
+                              isObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                              color: Colors.white70,
+                              size: 22,
+                            ),
                           ),
                         ),
-                        child: Icon(
-                          isObscured ? Icons.visibility_off : Icons.visibility,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
-                          size: 20,
-                        ),
-                      ),
+                      ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.account_balance_wallet,
-                        color: Theme.of(context).colorScheme.secondary,
-                        size: 24,
+                    const SizedBox(height: 28),
+                    GestureDetector(
+                      onTap: () => _cycleCurrency(context),
+                      child: ObscuredAmountText(
+                        CurrencyFormatter.format(widget.totalBalance),
+                        isObscured: isObscured,
+                        style: TextStyle(
+                          fontSize: 42,
+                          fontWeight: FontWeight.w800,
+                          height: 1.1,
+                          letterSpacing: -1.5,
+                          color: widget.totalBalance >= 0
+                              ? Colors.white
+                              : Colors.red.shade300,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            GestureDetector(
-              onTap: () => _cycleCurrency(context),
-              child: ObscuredAmountText(
-                CurrencyFormatter.format(widget.totalBalance),
-                isObscured: isObscured,
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: widget.totalBalance >= 0
-                      ? Colors.green.shade300
-                      : Colors.red.shade300,
-                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
