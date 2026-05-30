@@ -333,9 +333,11 @@ class IncomesController extends ChangeNotifier {
           );
         }
 
+        // Anında arayüzü güncelle (Optimistic UI update)
+        notifyListeners();
+
         await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
         await savePaymentMethods();
-        notifyListeners();
       }
     } catch (e, s) {
       ErrorHandler.logError('IncomesController.deleteIncome', e, s);
@@ -361,9 +363,11 @@ class IncomesController extends ChangeNotifier {
           );
         }
 
+        // Anında arayüzü güncelle (Optimistic UI update)
+        notifyListeners();
+
         await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
         await savePaymentMethods();
-        notifyListeners();
       }
     } catch (e, s) {
       ErrorHandler.logError('IncomesController.undoDelete', e, s);

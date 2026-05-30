@@ -212,7 +212,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     }
 
     try {
-      await _controller.harcamaSilLegacy(
+      final deleteFuture = _controller.harcamaSilLegacy(
         harcama: harcama,
         tumHarcamalar: widget.tumHarcamalar,
         tumOdemeYontemleri: widget.tumOdemeYontemleri,
@@ -220,6 +220,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
         onResetLazyLoading: resetLazyLoading,
       );
 
+      // UI'ı hemen güncelle (Optimistic)
       widget.onHarcamalarChanged(widget.tumHarcamalar);
       widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
 
@@ -262,6 +263,9 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           }
         },
       );
+
+      // Hataları arka planda dinle
+      await deleteFuture;
     } catch (e) {
       if (!mounted) return;
       if (e is AppException) {

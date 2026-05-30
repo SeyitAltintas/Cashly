@@ -227,7 +227,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     }
 
     try {
-      await _controller.deleteIncome(income, pm: pm, pmIndex: pmIndex);
+      final deleteFuture = _controller.deleteIncome(income, pm: pm, pmIndex: pmIndex);
 
       widget.onGelirlerChanged(_controller.tumGelirler);
       widget.onOdemeYontemleriChanged(_controller.tumOdemeYontemleri);
@@ -268,6 +268,9 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           }
         },
       );
+
+      // Hataları arka planda dinle
+      await deleteFuture;
     } catch (e) {
       if (!mounted) return;
       if (e is AppException) {

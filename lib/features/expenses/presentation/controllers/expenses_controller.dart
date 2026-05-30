@@ -598,13 +598,15 @@ class ExpensesController extends ChangeNotifier {
         }
       }
 
-      await _expenseRepository.updateExpense(userId, harcama); // Soft delete
-
-      await savePaymentMethods();
+      // Anında arayüzü güncelle (Optimistic UI update)
       filtreleVeGoster(
         aramaMetni: aramaMetni ?? '',
         onResetLazyLoading: onResetLazyLoading,
       );
+
+      // Veritabanını arkaplanda güncelle
+      await _expenseRepository.updateExpense(userId, harcama); // Soft delete
+      await savePaymentMethods();
     } catch (e, s) {
       ErrorHandler.logError('ExpensesController.harcamaSilLegacy', e, s);
       rethrow;
@@ -634,13 +636,14 @@ class ExpensesController extends ChangeNotifier {
         tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex];
       }
 
-      await _expenseRepository.updateExpense(userId, harcama); // Restore
-
-      await savePaymentMethods();
+      // Anında arayüzü güncelle (Optimistic UI update)
       filtreleVeGoster(
         aramaMetni: aramaMetni ?? '',
         onResetLazyLoading: onResetLazyLoading,
       );
+
+      await _expenseRepository.updateExpense(userId, harcama); // Restore
+      await savePaymentMethods();
     } catch (e, s) {
       ErrorHandler.logError(
         'ExpensesController.harcamaSilmeGeriAlLegacy',
@@ -788,14 +791,15 @@ class ExpensesController extends ChangeNotifier {
         }
       }
 
-      // Kaydet ve filtrele
-      await _expenseRepository.updateExpense(userId, harcama); // Soft delete
-      // await saveExpenses();
-      await savePaymentMethods();
+      // Anında arayüzü güncelle (Optimistic UI update)
       filtreleVeGoster(
         aramaMetni: aramaMetni,
         onResetLazyLoading: onResetLazyLoading,
       );
+
+      // Veritabanını arkaplanda güncelle
+      await _expenseRepository.updateExpense(userId, harcama); // Soft delete
+      await savePaymentMethods();
     } catch (e, s) {
       ErrorHandler.logError('ExpensesController.harcamaSil', e, s);
       rethrow;
@@ -819,13 +823,14 @@ class ExpensesController extends ChangeNotifier {
         );
       }
 
-      await _expenseRepository.updateExpense(userId, harcama); // Restore
-      // await saveExpenses();
-      await savePaymentMethods();
+      // Anında arayüzü güncelle (Optimistic UI update)
       filtreleVeGoster(
         aramaMetni: aramaMetni,
         onResetLazyLoading: onResetLazyLoading,
       );
+
+      await _expenseRepository.updateExpense(userId, harcama); // Restore
+      await savePaymentMethods();
     } catch (e, s) {
       ErrorHandler.logError('ExpensesController.harcamaSilmeGeriAl', e, s);
       rethrow;
