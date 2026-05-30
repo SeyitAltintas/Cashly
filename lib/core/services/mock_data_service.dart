@@ -173,7 +173,62 @@ class MockDataService {
       }
     }
 
-    // 3. Bakiyeleri güncelle (tutarlı son bakiye)
+    // 4. Varlıklar
+    final assets = _generateAssets(now);
+
+    // 5. Streak Sahte Verisi
+    final streakData = _generateStreakData(now);
+
+    // --- ÖZEL UÇ DURUMLAR (EDGE CASES) EKLENİYOR ---
+    
+    // A) Silinmiş Hesaba Ait İşlemler (Relation ve NotFound testleri)
+    final deletedBankId = paymentMethods[3]['id'] as String;
+    expenses.add(_buildExpense(
+      isim: 'Eski Abonelik (Silinmiş Hesap)',
+      kategori: 'Sabit Giderler',
+      tutar: 150.0,
+      date: now.subtract(const Duration(days: 90)),
+      odemeYontemiId: deletedBankId,
+    ));
+    incomes.add(_buildIncome(
+      name: 'Eski Maaş (Silinmiş Hesap)',
+      category: 'Maaş',
+      amount: 15000.0,
+      date: now.subtract(const Duration(days: 95)),
+      paymentMethodId: deletedBankId,
+    ));
+
+    // B) Çok Uzun İsimli Harcama (UI TextOverflow testi)
+    expenses.add(_buildExpense(
+      isim: 'Migros ekstra büyük boy cips ve yanında soğuk içecek aldım ama poşet yırtıldı (UI Taşırma Testi)',
+      kategori: 'Market ve Atıştırmalık',
+      tutar: 125.50,
+      date: now.subtract(const Duration(days: 1)),
+      odemeYontemiId: bankId,
+    ));
+    balances[bankId] = (balances[bankId] ?? 0) - 125.50; // Bakiyeden düş
+
+    // C) Çok Küçük Küsuratlı Harcama (Double/Int TypeCasting testi)
+    expenses.add(_buildExpense(
+      isim: 'Plastik Poşet',
+      kategori: 'Market ve Atıştırmalık',
+      tutar: 0.25,
+      date: now.subtract(const Duration(days: 2)),
+      odemeYontemiId: cashId,
+    ));
+    balances[cashId] = (balances[cashId] ?? 0) - 0.25; // Bakiyeden düş
+
+    // D) Aşırı Büyük Değerli Varlık (Yüksek meblağ formatı ve UI sığma testi)
+    assets.add(_buildAsset(
+      name: 'Yazlık Villa (Büyük Sayı Testi)',
+      category: 'Diğer',
+      quantity: 1.0,
+      purchasePrice: 5000000.0, // 5 Milyon
+      amount: 8500000.0, // 8.5 Milyon
+      paraBirimi: 'TRY',
+    ));
+    
+    // Bakiyelerdeki son manuel düşüşleri ödeme yöntemlerine yansıt
     for (int i = 0; i < paymentMethods.length; i++) {
       final pmId = paymentMethods[i]['id'] as String;
       if (balances.containsKey(pmId)) {
@@ -181,12 +236,6 @@ class MockDataService {
           ..['balance'] = double.parse(balances[pmId]!.toStringAsFixed(2));
       }
     }
-
-    // 4. Varlıklar
-    final assets = _generateAssets(now);
-
-    // 5. Streak Sahte Verisi
-    final streakData = _generateStreakData(now);
 
     // 6. Firebase'e yaz (batch)
     await _writeTofirestore(userId, paymentMethods, expenses, incomes, assets, transfers, streakData);
