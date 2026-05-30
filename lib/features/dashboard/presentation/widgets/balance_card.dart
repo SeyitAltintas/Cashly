@@ -73,37 +73,6 @@ class _BalanceCardState extends State<BalanceCard> {
     context.read<DashboardController>().toggleObscured();
   }
 
-  double _calculateTodayNet(BuildContext context) {
-    try {
-      final controller = context.read<DashboardController>();
-      final currencyService = context.read<CurrencyService>();
-      final targetCurrency = currencyService.currentCurrency;
-      
-      double todayNet = 0;
-      final now = DateTime.now();
-
-      for (var g in controller.gelirler) {
-        if (g.isDeleted) continue;
-        if (g.date.year == now.year && g.date.month == now.month && g.date.day == now.day) {
-          todayNet += currencyService.convert(g.amount, g.paraBirimi, targetCurrency);
-        }
-      }
-
-      for (var h in controller.harcamalar) {
-        if (h['silindi'] == true) continue;
-        DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-        if (tarih != null && tarih.year == now.year && tarih.month == now.month && tarih.day == now.day) {
-          final rawAmount = (h['tutar'] as num?)?.toDouble() ?? 0;
-          final paraBirimi = h['paraBirimi']?.toString() ?? 'TRY';
-          todayNet -= currencyService.convert(rawAmount, paraBirimi, targetCurrency);
-        }
-      }
-      return todayNet;
-    } catch (e) {
-      return 0.0;
-    }
-  }
-
   double _calculateCashBalance(BuildContext context) {
     try {
       final controller = context.read<DashboardController>();
@@ -125,14 +94,9 @@ class _BalanceCardState extends State<BalanceCard> {
   @override
   Widget build(BuildContext context) {
     final isObscured = context.select((DashboardController c) => c.isObscured);
+    final monthlyIncome = context.select((DashboardController c) => c.monthlyIncome);
 
     // Verileri hesapla
-    final todayNet = _calculateTodayNet(context);
-    final previousBalance = widget.totalBalance - todayNet;
-    final percentage = previousBalance == 0 ? 0.0 : (todayNet / previousBalance.abs()) * 100;
-    
-    final isPositive = todayNet >= 0;
-    final percentageStr = percentage.abs().toStringAsFixed(2).replaceAll('.', ',');
     final cashBalance = _calculateCashBalance(context);
 
     return AnimatedCard(
@@ -186,7 +150,7 @@ class _BalanceCardState extends State<BalanceCard> {
               
               // Kart İçeriği
               Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -219,7 +183,7 @@ class _BalanceCardState extends State<BalanceCard> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     
                     // Orta Kısım: Ana Bakiye
                     GestureDetector(
@@ -228,50 +192,40 @@ class _BalanceCardState extends State<BalanceCard> {
                         CurrencyFormatter.format(widget.totalBalance),
                         isObscured: isObscured,
                         style: const TextStyle(
-                          fontSize: 38,
+                          fontSize: 34,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           letterSpacing: -0.5,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     
-                    // Bugün Değişimi
+                    // Bu Ay Geliri
                     Row(
                       children: [
-                        Text(
-                          context.l10n.today,
-                          style: const TextStyle(
+                        const Text(
+                          "Bu ay",
+                          style: TextStyle(
                             color: Colors.white70,
-                            fontSize: 14,
+                            fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         const SizedBox(width: 8),
                         ObscuredAmountText(
-                          CurrencyFormatter.formatSigned(todayNet, showPlus: true),
+                          CurrencyFormatter.formatSigned(monthlyIncome, showPlus: true),
                           isObscured: isObscured,
-                          style: TextStyle(
-                            color: isPositive ? const Color(0xFF4CAF50) : const Color(0xFFF44336),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        ObscuredAmountText(
-                          "(${isPositive ? '+' : '-'}$percentageStr%)",
-                          isObscured: isObscured,
-                          style: TextStyle(
-                            color: isPositive ? const Color(0xFF4CAF50) : const Color(0xFFF44336),
-                            fontSize: 14,
+                          style: const TextStyle(
+                            color: Color(0xFF4CAF50),
+                            fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
                     
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     
                     // Ayraç Çizgisi
                     Container(
@@ -280,7 +234,7 @@ class _BalanceCardState extends State<BalanceCard> {
                       color: Colors.white.withValues(alpha: 0.1),
                     ),
                     
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     
                     // Alt Kısım: Nakit Bilgisi
                     Row(
