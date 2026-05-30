@@ -482,15 +482,18 @@ class MockDataService {
   }
 
   Map<String, dynamic> _generateStreakData(DateTime now) {
+    final currentStreak = 5 + _random.nextInt(20);
+    final longestStreak = currentStreak + _random.nextInt(30);
+    final totalLoginDays = longestStreak + 20 + _random.nextInt(100);
     return {
-      'currentStreak': 12,
-      'longestStreak': 45,
+      'currentStreak': currentStreak,
+      'longestStreak': longestStreak,
       'lastLoginDate': now.toIso8601String().split('T')[0],
-      'totalLoginDays': 120,
+      'totalLoginDays': totalLoginDays,
       'earnedBadges': ['first_week', 'month_hero'],
-      'freezeCount': 2,
+      'freezeCount': _random.nextInt(5),
       'usedFreezeToday': false,
-      'totalFreezesUsed': 3,
+      'totalFreezesUsed': _random.nextInt(10),
       'mock_generated': true,
       'updatedAt': FieldValue.serverTimestamp(),
     };

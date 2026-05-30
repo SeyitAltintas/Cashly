@@ -3,6 +3,7 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/di/injection_container.dart';
 import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
@@ -57,24 +58,33 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
     super.dispose();
   }
 
-  void verileriYukle() {
-    final expenseRepo = getIt<ExpenseRepository>();
-    final paymentRepo = getIt<PaymentMethodRepository>();
+  Future<void> verileriYukle() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.userId)
+          .collection('expenses')
+          .where('silindi', isEqualTo: true)
+          .get();
 
-    final harcamalar = expenseRepo.getExpenses(widget.userId);
-    List<Map<String, dynamic>> pmVerileri = paymentRepo.getPaymentMethods(
-      widget.userId,
-    );
-    final pmList = pmVerileri.map((m) => PaymentMethod.fromMap(m)).toList();
-    final silinen = harcamalar.where((e) => e['silindi'] == true).toList();
+      final silinen = snapshot.docs.map((doc) {
+        final data = doc.data();
+        if (data['tarih'] is Timestamp) {
+          data['tarih'] = (data['tarih'] as Timestamp).toDate().toIso8601String();
+        }
+        return data;
+      }).toList();
 
-    if (_controller != null) {
-      _controller!.setBinSilinenHarcamalar(silinen);
-    } else {
-      _localTumHarcamalarHam = harcamalar;
-      _localOdemeYontemleri = pmList;
-      _localSilinenHarcamalar = silinen;
-      setState(() {});
+      if (_controller != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _controller!.setBinSilinenHarcamalar(silinen);
+        });
+      } else {
+        _localSilinenHarcamalar = silinen;
+        if (mounted) setState(() {});
+      }
+    } catch (e) {
+      debugPrint("Error loading deleted expenses: $e");
     }
   }
 

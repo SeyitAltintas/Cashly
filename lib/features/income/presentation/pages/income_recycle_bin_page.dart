@@ -3,6 +3,7 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/di/injection_container.dart';
 import '../../../income/domain/repositories/income_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/core/mixins/lazy_loading_mixin.dart';
@@ -56,24 +57,33 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
     super.dispose();
   }
 
-  void verileriYukle() {
+  Future<void> verileriYukle() async {
     try {
-      final incomeRepo = getIt<IncomeRepository>();
-      List<Map<String, dynamic>> gelirVerileri = incomeRepo.getIncomes(
-        widget.userId,
-      );
-      final gelirler = gelirVerileri.map((map) => Income.fromMap(map)).toList();
-      final silinen = gelirler.where((g) => g.isDeleted).toList();
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.userId)
+          .collection('incomes')
+          .where('isDeleted', isEqualTo: true)
+          .get();
+
+      final silinen = snapshot.docs.map((doc) {
+        final data = doc.data();
+        if (data['date'] is Timestamp) {
+          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
+        }
+        return Income.fromMap(data);
+      }).toList();
 
       if (_controller != null) {
-        _controller!.setBinSilinenGelirler(silinen);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _controller!.setBinSilinenGelirler(silinen);
+        });
       } else {
-        _localTumGelirler = gelirler;
         _localSilinenGelirler = silinen;
-        setState(() {});
+        if (mounted) setState(() {});
       }
     } catch (e) {
-      ErrorHandler.handleDatabaseError(context, e);
+      if (mounted) ErrorHandler.handleDatabaseError(context, e);
       ErrorHandler.logError('Silinen gelirler yüklenirken hata', e);
     }
   }

@@ -570,7 +570,6 @@ class IncomesController extends ChangeNotifier {
   List<Income> get binSilinenGelirler => _binSilinenGelirler;
   void setBinSilinenGelirler(List<Income> value) {
     _binSilinenGelirler = value;
-    notifyListeners();
   }
 
   /// Silinen geliri geri yükle
