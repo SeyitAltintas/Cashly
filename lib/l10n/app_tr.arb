@@ -1278,7 +1278,6 @@
   "deleteAsset": "Varlığı Sil",
   "deleteAssetConfirm": "\"{name}\" varlığını silmek istediğinize emin misiniz?",
   "newRecurringIncome": "Yeni Tekrarlayan Gelir",
-  "editIncome": "Geliri Düzenle",
   "incomeNamePlaceholder": "Gelir Adı (ör: Maaş, Kira)",
   "incomeNameRequired": "Gelir adı gerekli",
   "incomeAdded": "Gelir eklendi",

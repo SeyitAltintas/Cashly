@@ -4,7 +4,6 @@ import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/di/injection_container.dart';
 import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/core/mixins/lazy_loading_mixin.dart';
@@ -27,8 +26,8 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
   // Controller veya yerel state
   ExpensesController? _controller;
   List<Map<String, dynamic>> _localSilinenHarcamalar = [];
-  List<Map<String, dynamic>> _localTumHarcamalarHam = [];
-  List<PaymentMethod> _localOdemeYontemleri = [];
+  final List<Map<String, dynamic>> _localTumHarcamalarHam = [];
+  final List<PaymentMethod> _localOdemeYontemleri = [];
 
   // Getter'lar
   List<Map<String, dynamic>> get silinenHarcamalar =>

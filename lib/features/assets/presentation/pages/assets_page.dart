@@ -22,6 +22,7 @@ import '../../../../core/services/currency_service.dart';
 import '../controllers/assets_controller.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 
 class AssetsPage extends StatefulWidget {
   final List<Asset> assets;
