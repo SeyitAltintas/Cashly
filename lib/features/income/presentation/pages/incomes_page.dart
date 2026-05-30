@@ -437,7 +437,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                                 hasMoreItems: hasMoreItems,
                                 scrollController: lazyScrollController,
                                 onRefresh: () async {
-                                  _controller.refresh();
+                                  await _controller.loadData(isRefresh: true);
                                 },
                                 buildLoadingIndicator: buildLoadingIndicator,
                                 onDelete: gelirSil,

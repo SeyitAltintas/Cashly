@@ -304,7 +304,8 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
     }
     return RefreshIndicator(
       onRefresh: () async {
-        // Verileri yeniden filtrele
+        // Verileri sunucudan yeniden çek (Pull to refresh)
+        await _controller.loadData(isRefresh: true);
         _filtrele();
       },
       color: Colors.blue.shade600,
@@ -328,6 +329,21 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
             onDelete: () {
               _controller.deleteAsset(asset);
               widget.onDelete(asset);
+              
+              if (!mounted) return;
+              AppSnackBar.deleted(
+                context,
+                '${asset.name} ${context.l10n.movedToTrash} 🗑️',
+                onUndo: () {
+                  if (!mounted) return;
+                  _controller.restoreAsset(asset);
+                  widget.onRestore(asset);
+                  AppSnackBar.success(
+                    context,
+                    '${asset.name} ${context.l10n.restored} ✅',
+                  );
+                },
+              );
             },
             onTap: () {
               Navigator.push(

@@ -239,9 +239,11 @@ class IncomesController extends ChangeNotifier {
 
   // ===== REPOSITORY İŞLEMLERİ =====
 
-  Future<void> loadData() async {
-    _isLoading = true;
-    notifyListeners();
+  Future<void> loadData({bool isRefresh = false}) async {
+    if (!isRefresh) {
+      _isLoading = true;
+      notifyListeners();
+    }
 
     try {
       _startIncomesStream();
@@ -256,8 +258,10 @@ class IncomesController extends ChangeNotifier {
       ErrorHandler.logError('IncomesController.loadData', e, s);
       rethrow;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (!isRefresh) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
