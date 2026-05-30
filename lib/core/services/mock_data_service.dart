@@ -227,6 +227,67 @@ class MockDataService {
       amount: 8500000.0, // 8.5 Milyon
       paraBirimi: 'TRY',
     ));
+
+    // E) Bağlantısız (Null) İşlem (Orphan Relation Test)
+    expenses.add(_buildExpense(
+      isim: 'Kayıt Dışı Elden Harcama (Null Hesap)',
+      kategori: 'Diğer',
+      tutar: 50.0,
+      date: now.subtract(const Duration(days: 3)),
+      odemeYontemiId: null, // Bilinçli olarak null bırakıldı
+    ));
+
+    // F) Emoji ve Özel Karakterli İşlem (Encoding ve XSS Testi)
+    expenses.add(_buildExpense(
+      isim: '🎉 Parti & Kutlama! <script>alert(1)</script> / \\ 🥳',
+      kategori: 'Eğlence',
+      tutar: 850.0,
+      date: now.subtract(const Duration(days: 4)),
+      odemeYontemiId: bankId,
+    ));
+    balances[bankId] = (balances[bankId] ?? 0) - 850.0;
+
+    // G) Birebir Aynı Milisaniyede Birden Fazla İşlem (Sorting Stability Test)
+    final exactSameTime = now.subtract(const Duration(days: 5));
+    for (int j = 1; j <= 3; j++) {
+      expenses.add({
+        'id': 'mock_exp_sametime_$j',
+        'isim': 'Seri İşlem $j (Aynı Saniye Testi)',
+        'kategori': 'Diğer',
+        'tutar': 10.0 * j,
+        'tarih': Timestamp.fromDate(exactSameTime),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'paraBirimi': 'TRY',
+        'odemeYontemiId': cashId,
+        'silindi': false,
+      });
+      balances[cashId] = (balances[cashId] ?? 0) - (10.0 * j);
+    }
+
+    // H) Kendi Kendine Transfer (Logic Error / Self-loop Test)
+    transfers.add({
+      'id': 'mock_tr_self_loop',
+      'fromAccountId': bankId,
+      'toAccountId': bankId, // Aynı hesaba!
+      'amount': 100.0,
+      'date': now.subtract(const Duration(days: 6)).toIso8601String(),
+      'updatedAt': FieldValue.serverTimestamp(),
+      'description': 'Kendi Kendine Transfer (Mantık Hatası Testi)',
+      'paraBirimi': 'TRY',
+      'isScheduled': false,
+      'isExecuted': true,
+      'isFailed': false,
+    });
+
+    // I) Sıfır Maliyetli Varlık (Divide by Zero / Infinity Test)
+    assets.add(_buildAsset(
+      name: 'Hediye Hisse (Sıfır Maliyet Testi)',
+      category: 'Hisse',
+      quantity: 50.0,
+      purchasePrice: 0.0, // Maliyet sıfır, sonsuz kar yüzdesi potansiyeli!
+      amount: 2500.0,
+      paraBirimi: 'TRY',
+    ));
     
     // Bakiyelerdeki son manuel düşüşleri ödeme yöntemlerine yansıt
     for (int i = 0; i < paymentMethods.length; i++) {
@@ -552,7 +613,7 @@ class MockDataService {
     required String kategori,
     required double tutar,
     required DateTime date,
-    required String odemeYontemiId,
+    String? odemeYontemiId,
     bool silindi = false,
   }) {
     return {
@@ -671,6 +732,7 @@ class MockDataService {
           {'id': 'mock_ft_4', 'isim': 'Doğalgaz', 'tutar': 250.0, 'gun': 8, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
           {'id': 'mock_ft_5', 'isim': 'İnternet', 'tutar': 299.0, 'gun': 10, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
           {'id': 'mock_ft_6', 'isim': 'Telefon faturası', 'tutar': 450.0, 'gun': 12, 'odemeYontemiId': 'mock_kredi_001', 'kategori': 'Sabit Giderler'},
+          {'id': 'mock_ft_7', 'isim': 'Bağış (Geçersiz Hesap Testi)', 'tutar': 100.0, 'gun': 15, 'odemeYontemiId': 'mock_banka_002', 'kategori': 'Diğer'},
         ],
         'categoryBudgets': {
           'Yemek ve Kafe': 4000.0,
