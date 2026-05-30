@@ -178,172 +178,6 @@ class MockDataService {
 
     // 5. Streak Sahte Verisi
     final streakData = _generateStreakData(now);
-
-    // --- ÖZEL UÇ DURUMLAR (EDGE CASES) EKLENİYOR ---
-    
-    // A) Silinmiş Hesaba Ait İşlemler (Relation ve NotFound testleri)
-    final deletedBankId = paymentMethods[3]['id'] as String;
-    expenses.add(_buildExpense(
-      isim: 'Eski Abonelik (Silinmiş Hesap)',
-      kategori: 'Sabit Giderler',
-      tutar: 150.0,
-      date: now.subtract(const Duration(days: 90)),
-      odemeYontemiId: deletedBankId,
-    ));
-    incomes.add(_buildIncome(
-      name: 'Eski Maaş (Silinmiş Hesap)',
-      category: 'Maaş',
-      amount: 15000.0,
-      date: now.subtract(const Duration(days: 95)),
-      paymentMethodId: deletedBankId,
-    ));
-
-    // B) Çok Uzun İsimli Harcama (UI TextOverflow testi)
-    expenses.add(_buildExpense(
-      isim: 'Migros ekstra büyük boy cips ve yanında soğuk içecek aldım ama poşet yırtıldı (UI Taşırma Testi)',
-      kategori: 'Market ve Atıştırmalık',
-      tutar: 125.50,
-      date: now.subtract(const Duration(days: 1)),
-      odemeYontemiId: bankId,
-    ));
-    balances[bankId] = (balances[bankId] ?? 0) - 125.50; // Bakiyeden düş
-
-    // C) Çok Küçük Küsuratlı Harcama (Double/Int TypeCasting testi)
-    expenses.add(_buildExpense(
-      isim: 'Plastik Poşet',
-      kategori: 'Market ve Atıştırmalık',
-      tutar: 0.25,
-      date: now.subtract(const Duration(days: 2)),
-      odemeYontemiId: cashId,
-    ));
-    balances[cashId] = (balances[cashId] ?? 0) - 0.25; // Bakiyeden düş
-
-    // D) Aşırı Büyük Değerli Varlık (Yüksek meblağ formatı ve UI sığma testi)
-    assets.add(_buildAsset(
-      name: 'Yazlık Villa (Büyük Sayı Testi)',
-      category: 'Diğer',
-      quantity: 1.0,
-      purchasePrice: 5000000.0, // 5 Milyon
-      amount: 8500000.0, // 8.5 Milyon
-      paraBirimi: 'TRY',
-    ));
-
-    // E) Bağlantısız (Null) İşlem (Orphan Relation Test)
-    expenses.add(_buildExpense(
-      isim: 'Kayıt Dışı Elden Harcama (Null Hesap)',
-      kategori: 'Diğer',
-      tutar: 50.0,
-      date: now.subtract(const Duration(days: 3)),
-      odemeYontemiId: null, // Bilinçli olarak null bırakıldı
-    ));
-
-    // F) Emoji ve Özel Karakterli İşlem (Encoding ve XSS Testi)
-    expenses.add(_buildExpense(
-      isim: '🎉 Parti & Kutlama! <script>alert(1)</script> / \\ 🥳',
-      kategori: 'Eğlence',
-      tutar: 850.0,
-      date: now.subtract(const Duration(days: 4)),
-      odemeYontemiId: bankId,
-    ));
-    balances[bankId] = (balances[bankId] ?? 0) - 850.0;
-
-    // G) Birebir Aynı Milisaniyede Birden Fazla İşlem (Sorting Stability Test)
-    final exactSameTime = now.subtract(const Duration(days: 5));
-    for (int j = 1; j <= 3; j++) {
-      expenses.add({
-        'id': 'mock_exp_sametime_$j',
-        'isim': 'Seri İşlem $j (Aynı Saniye Testi)',
-        'kategori': 'Diğer',
-        'tutar': 10.0 * j,
-        'tarih': Timestamp.fromDate(exactSameTime),
-        'updatedAt': FieldValue.serverTimestamp(),
-        'paraBirimi': 'TRY',
-        'odemeYontemiId': cashId,
-        'silindi': false,
-      });
-      balances[cashId] = (balances[cashId] ?? 0) - (10.0 * j);
-    }
-
-    // H) Kendi Kendine Transfer (Logic Error / Self-loop Test)
-    transfers.add({
-      'id': 'mock_tr_self_loop',
-      'fromAccountId': bankId,
-      'toAccountId': bankId, // Aynı hesaba!
-      'amount': 100.0,
-      'date': now.subtract(const Duration(days: 6)).toIso8601String(),
-      'updatedAt': FieldValue.serverTimestamp(),
-      'description': 'Kendi Kendine Transfer (Mantık Hatası Testi)',
-      'paraBirimi': 'TRY',
-      'isScheduled': false,
-      'isExecuted': true,
-      'isFailed': false,
-    });
-
-    // I) Sıfır Maliyetli Varlık (Divide by Zero / Infinity Test)
-    assets.add(_buildAsset(
-      name: 'Hediye Hisse (Sıfır Maliyet Testi)',
-      category: 'Hisse',
-      quantity: 50.0,
-      purchasePrice: 0.0, // Maliyet sıfır, sonsuz kar yüzdesi potansiyeli!
-      amount: 2500.0,
-      paraBirimi: 'TRY',
-    ));
-
-    // J) Silinmiş / Olmayan Kategori Testi (İkon Bulamama Durumu)
-    expenses.add(_buildExpense(
-      isim: 'Bilinmeyen Kategoride Harcama',
-      kategori: 'Varolmayan Kategori_X123', // Uygulamada bu kategori yok!
-      tutar: 120.0,
-      date: now.subtract(const Duration(days: 7)),
-      odemeYontemiId: bankId,
-    ));
-    balances[bankId] = (balances[bankId] ?? 0) - 120.0;
-
-    // K) Negatif Tutar (Eksi Değerli Harcama / Mantık Testi)
-    expenses.add(_buildExpense(
-      isim: 'Hatalı (Negatif) Gider',
-      kategori: 'Diğer',
-      tutar: -50.0, // Normalde gider negatife düşmez
-      date: now.subtract(const Duration(days: 8)),
-      odemeYontemiId: bankId,
-    ));
-    balances[bankId] = (balances[bankId] ?? 0) - (-50.0); // Matematiksel olarak eklenir
-
-    // L) Boş İsim (Whitespace Layout Testi)
-    expenses.add(_buildExpense(
-      isim: '   ', // Sadece boşluk, Widget'lar görünmez olabilir
-      kategori: 'Market ve Atıştırmalık',
-      tutar: 15.0,
-      date: now.subtract(const Duration(days: 9)),
-      odemeYontemiId: cashId,
-    ));
-    balances[cashId] = (balances[cashId] ?? 0) - 15.0;
-
-    // M) Desteklenmeyen Para Birimi (Currency API Çökme Testi)
-    final alienExpense = _buildExpense(
-      isim: 'Uzaylı Parası Harcaması',
-      kategori: 'Eğlence',
-      tutar: 1000.0,
-      date: now.subtract(const Duration(days: 10)),
-      odemeYontemiId: creditId,
-    );
-    alienExpense['paraBirimi'] = 'GALACTIC_CREDIT'; // Kasıtlı geçersiz kur
-    expenses.add(alienExpense);
-    balances[creditId] = (balances[creditId] ?? 0) + 1000.0; // Borç yazar
-
-    // N) Uzak Gelecek Testi (Grafikleri Dondurma/Memory Leak Testi)
-    incomes.add({
-      'id': 'mock_inc_future_2099',
-      'name': '2099 Yılından Gelen Para (Chart Bozukluk Testi)',
-      'category': 'Maaş',
-      'amount': 9999.0,
-      'date': Timestamp.fromDate(DateTime(2099, 1, 1)),
-      'updatedAt': FieldValue.serverTimestamp(),
-      'paraBirimi': 'TRY',
-      'paymentMethodId': bankId,
-      'isDeleted': false,
-    });
-    // 2099 yılındaki veri mevcut bakiyeyi bozmamalı
     
     // Bakiyelerdeki son manuel düşüşleri ödeme yöntemlerine yansıt
     for (int i = 0; i < paymentMethods.length; i++) {
@@ -385,7 +219,7 @@ class MockDataService {
         'type': 'kredi',
         'lastFourDigits': '8823',
         'balance': 0.0, // Sonradan güncellenir
-        'limit': 1500.0, // Bilinçli olarak düşük tutuldu (Limit Aşımı / UI Kırmızı Bar testi için)
+        'limit': 20000.0,
         'colorIndex': 2,
         'createdAt': now,
         'paraBirimi': 'TRY',
@@ -669,7 +503,7 @@ class MockDataService {
     required String kategori,
     required double tutar,
     required DateTime date,
-    String? odemeYontemiId,
+    required String odemeYontemiId,
     bool silindi = false,
   }) {
     return {
@@ -788,7 +622,6 @@ class MockDataService {
           {'id': 'mock_ft_4', 'isim': 'Doğalgaz', 'tutar': 250.0, 'gun': 8, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
           {'id': 'mock_ft_5', 'isim': 'İnternet', 'tutar': 299.0, 'gun': 10, 'odemeYontemiId': 'mock_banka_001', 'kategori': 'Sabit Giderler'},
           {'id': 'mock_ft_6', 'isim': 'Telefon faturası', 'tutar': 450.0, 'gun': 12, 'odemeYontemiId': 'mock_kredi_001', 'kategori': 'Sabit Giderler'},
-          {'id': 'mock_ft_7', 'isim': 'Bağış (Geçersiz Hesap Testi)', 'tutar': 100.0, 'gun': 15, 'odemeYontemiId': 'mock_banka_002', 'kategori': 'Diğer'},
         ],
         'categoryBudgets': {
           'Yemek ve Kafe': 4000.0,
