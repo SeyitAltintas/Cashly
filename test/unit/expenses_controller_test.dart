@@ -6,7 +6,13 @@ import 'package:cashly/features/payment_methods/domain/repositories/payment_meth
 
 /// Mock ExpenseRepository - testlerde gerçek veritabanını kullanmadan test yapabilmek için
 class MockExpenseRepository implements ExpenseRepository {
-$ops
+  @override
+  BatchOperation getAddExpenseOperation(String userId, Map<String, dynamic> expense) => DummyBatchOperation();
+  @override
+  BatchOperation getUpdateExpenseOperation(String userId, Map<String, dynamic> expense) => DummyBatchOperation();
+  @override
+  BatchOperation getDeleteExpenseOperation(String userId, String id) => DummyBatchOperation();
+
   List<Map<String, dynamic>> _expenses = [];
   List<Map<String, dynamic>> _categories = [];
   double _budget = 8000.0;
@@ -77,7 +83,15 @@ $ops
 
 /// Mock PaymentMethodRepository
 class MockPaymentMethodRepository implements PaymentMethodRepository {
-$ops
+  @override
+  BatchOperation getAddPaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  @override
+  BatchOperation getUpdatePaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  @override
+  BatchOperation getDeletePaymentMethodOperation(String userId, String id) => DummyBatchOperation();
+  @override
+  BatchOperation getAddTransferOperation(String userId, Map<String, dynamic> transfer) => DummyBatchOperation();
+
   List<Map<String, dynamic>> _paymentMethods = [];
   final List<Map<String, dynamic>> _deletedPaymentMethods = [];
   String? _defaultPaymentMethodId;
@@ -129,7 +143,21 @@ $ops
   }
 }
 
-$dummyBatch
+class DummyBatchOperation implements BatchOperation {
+  @override
+  BatchOperationType get type => BatchOperationType.set;
+  @override
+  String get collectionPath => '';
+  @override
+  String get documentId => '';
+  @override
+  Map<String, dynamic>? get data => null;
+}
+
+class MockBatchService implements BatchService {
+  @override
+  Future<void> commit(List<BatchOperation> operations) async {}
+}
 void main() {
   group('ExpensesController', () {
     late MockExpenseRepository mockExpenseRepo;

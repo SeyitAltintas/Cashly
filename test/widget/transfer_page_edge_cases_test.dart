@@ -13,6 +13,15 @@ class _MockPaymentMethodRepository implements PaymentMethodRepository {
   List<Map<String, dynamic>> methods = [];
 
   @override
+  BatchOperation getAddPaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  @override
+  BatchOperation getUpdatePaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  @override
+  BatchOperation getDeletePaymentMethodOperation(String userId, String id) => DummyBatchOperation();
+  @override
+  BatchOperation getAddTransferOperation(String userId, Map<String, dynamic> transfer) => DummyBatchOperation();
+
+  @override
   Future<void> addDeletedPaymentMethod(
     String userId,
     Map<String, dynamic> method,
@@ -67,7 +76,21 @@ class _MockPaymentMethodRepository implements PaymentMethodRepository {
   ) async {}
 }
 
-$dummyBatch
+class DummyBatchOperation implements BatchOperation {
+  @override
+  BatchOperationType get type => BatchOperationType.set;
+  @override
+  String get collectionPath => '';
+  @override
+  String get documentId => '';
+  @override
+  Map<String, dynamic>? get data => null;
+}
+
+class MockBatchService implements BatchService {
+  @override
+  Future<void> commit(List<BatchOperation> operations) async {}
+}
 void main() {
   setUp(() async {
     await GetIt.instance.reset();

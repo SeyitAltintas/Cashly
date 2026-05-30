@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:cashly/core/services/batch_service.dart';
 import 'package:cashly/features/assets/presentation/controllers/assets_controller.dart';
 import 'package:cashly/features/assets/domain/repositories/asset_repository.dart';
 import 'package:cashly/features/assets/data/models/asset_model.dart';
@@ -6,7 +7,33 @@ import 'package:cashly/core/services/currency_service.dart';
 import 'package:get_it/get_it.dart';
 
 /// Mock AssetRepository
+
+class DummyBatchOperation implements BatchOperation {
+  @override
+  BatchOperationType get type => BatchOperationType.set;
+  @override
+  String get collectionPath => '';
+  @override
+  String get documentId => '';
+  @override
+  Map<String, dynamic>? get data => null;
+}
+
+class MockBatchService implements BatchService {
+  @override
+  Future<void> commit(List<BatchOperation> operations) async {}
+}
+
 class MockAssetRepository implements AssetRepository {
+  @override
+  BatchOperation getAddAssetOperation(String userId, Map<String, dynamic> asset) => DummyBatchOperation();
+  @override
+  BatchOperation getUpdateAssetOperation(String userId, Map<String, dynamic> asset) => DummyBatchOperation();
+  @override
+  BatchOperation getDeleteAssetOperation(String userId, String id) => DummyBatchOperation();
+  @override
+  Future<void> saveDeletedAssets(String userId, List<Map<String, dynamic>> assets) async {}
+
   List<Map<String, dynamic>> _assets = [];
   List<Map<String, dynamic>> _deletedAssets = [];
 

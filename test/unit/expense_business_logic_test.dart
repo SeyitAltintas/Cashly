@@ -8,12 +8,32 @@ import 'package:get_it/get_it.dart';
 import 'package:cashly/core/services/batch_service.dart';
 
 // =====================================================================
-$dummyBatch
+class DummyBatchOperation implements BatchOperation {
+  @override
+  BatchOperationType get type => BatchOperationType.set;
+  @override
+  String get collectionPath => '';
+  @override
+  String get documentId => '';
+  @override
+  Map<String, dynamic>? get data => null;
+}
+
+class MockBatchService implements BatchService {
+  @override
+  Future<void> commit(List<BatchOperation> operations) async {}
+}
 // MOCK REPOSITORIES
 // =====================================================================
 
 class MockExpenseRepository implements ExpenseRepository {
-$ops
+  @override
+  BatchOperation getAddExpenseOperation(String userId, Map<String, dynamic> expense) => DummyBatchOperation();
+  @override
+  BatchOperation getUpdateExpenseOperation(String userId, Map<String, dynamic> expense) => DummyBatchOperation();
+  @override
+  BatchOperation getDeleteExpenseOperation(String userId, String id) => DummyBatchOperation();
+
   List<Map<String, dynamic>> _expenses = [];
   List<Map<String, dynamic>> _categories = [];
   double _budget = 8000.0;
@@ -80,7 +100,15 @@ $ops
 }
 
 class MockPaymentMethodRepository implements PaymentMethodRepository {
-$ops
+  @override
+  BatchOperation getAddPaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  @override
+  BatchOperation getUpdatePaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  @override
+  BatchOperation getDeletePaymentMethodOperation(String userId, String id) => DummyBatchOperation();
+  @override
+  BatchOperation getAddTransferOperation(String userId, Map<String, dynamic> transfer) => DummyBatchOperation();
+
   List<Map<String, dynamic>> _paymentMethods = [];
   final List<Map<String, dynamic>> _deletedPaymentMethods = [];
   String? _defaultPaymentMethodId;
