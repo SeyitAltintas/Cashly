@@ -39,6 +39,7 @@ class ExpensesListView extends StatelessWidget {
       onRefresh: onRefresh,
       color: ColorConstants.kirmiziVurgu,
       child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         cacheExtent: 500,

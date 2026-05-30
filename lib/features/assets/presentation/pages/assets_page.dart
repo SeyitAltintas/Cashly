@@ -311,6 +311,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
       },
       color: Colors.blue.shade600,
       child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         controller: lazyScrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         // cacheExtent: Görünür alan dışında önbelleğe alınacak piksel

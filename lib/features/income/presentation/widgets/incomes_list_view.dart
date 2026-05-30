@@ -31,6 +31,7 @@ class IncomesListView extends StatelessWidget {
       onRefresh: onRefresh,
       color: Colors.green,
       child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         cacheExtent: 500,
