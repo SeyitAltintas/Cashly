@@ -335,9 +335,7 @@ class IncomesController extends ChangeNotifier {
     try {
       final index = _tumGelirler.indexWhere((g) => g.id == income.id);
       if (index != -1) {
-        // Eski state'i kopyala (Rollback için)
-        final oldIncome = _tumGelirler[index];
-        final oldPaymentMethods = List<PaymentMethod>.from(_tumOdemeYontemleri.map((e) => e.copyWith()));
+        final oldIsDeleted = _tumGelirler[index].isDeleted;
 
         _tumGelirler[index] = income.copyWith(isDeleted: true);
 
@@ -361,8 +359,20 @@ class IncomesController extends ChangeNotifier {
           } catch (e, s) {
             // Hata durumunda işlemi geri al (Rollback)
             ErrorHandler.logError('IncomesController.deleteIncome Background', e, s);
-            _tumGelirler[index] = oldIncome;
-            _tumOdemeYontemleri = oldPaymentMethods;
+            
+            final revertIndex = _tumGelirler.indexWhere((g) => g.id == income.id);
+            if (revertIndex != -1) {
+              _tumGelirler[revertIndex] = _tumGelirler[revertIndex].copyWith(isDeleted: oldIsDeleted);
+            }
+            if (income.paymentMethodId != null) {
+              // Silme işleminde isIncome: false idi, geri almada isIncome: true olur
+              _updateBalance(
+                income.paymentMethodId!,
+                income.amount,
+                income.paraBirimi,
+                isIncome: true,
+              );
+            }
             notifyListeners();
           }
         });
@@ -383,15 +393,16 @@ class IncomesController extends ChangeNotifier {
     try {
       final index = _tumGelirler.indexWhere((g) => g.id == income.id);
       if (index != -1) {
-        // Eski state'i kopyala (Rollback için)
-        final oldIncome = _tumGelirler[index];
-        final oldPaymentMethods = List<PaymentMethod>.from(_tumOdemeYontemleri.map((e) => e.copyWith()));
+        final oldIsDeleted = _tumGelirler[index].isDeleted;
 
         _tumGelirler[index] = income.copyWith(isDeleted: wasDeleted ?? false);
 
-        if (pmIndex != null && pmIndex != -1 && oldBalance != null) {
-          _tumOdemeYontemleri[pmIndex] = _tumOdemeYontemleri[pmIndex].copyWith(
-            balance: oldBalance,
+        if (income.paymentMethodId != null) {
+          _updateBalance(
+            income.paymentMethodId!,
+            income.amount,
+            income.paraBirimi,
+            isIncome: true,
           );
         }
 
@@ -406,8 +417,20 @@ class IncomesController extends ChangeNotifier {
           } catch (e, s) {
             // Hata durumunda işlemi geri al (Rollback)
             ErrorHandler.logError('IncomesController.undoDelete Background', e, s);
-            _tumGelirler[index] = oldIncome;
-            _tumOdemeYontemleri = oldPaymentMethods;
+            
+            final revertIndex = _tumGelirler.indexWhere((g) => g.id == income.id);
+            if (revertIndex != -1) {
+              _tumGelirler[revertIndex] = _tumGelirler[revertIndex].copyWith(isDeleted: oldIsDeleted);
+            }
+            if (income.paymentMethodId != null) {
+              // Geri almada isIncome: true yapılmıştı, şimdi tekrar isIncome: false yaparak geri alıyoruz
+              _updateBalance(
+                income.paymentMethodId!,
+                income.amount,
+                income.paraBirimi,
+                isIncome: false,
+              );
+            }
             notifyListeners();
           }
         });

@@ -863,13 +863,9 @@ class ExpensesController extends ChangeNotifier {
     Function(int)? onResetLazyLoading,
   }) async {
     try {
-      // Eski değerleri kopyala (Rollback için)
       final bool oldSilindi = harcama['silindi'] ?? false;
-      final oldPaymentMethods = List<PaymentMethod>.from(_tumOdemeYontemleri.map((e) => e.copyWith()));
-
       harcama['silindi'] = true;
 
-      // Ödeme yönteminin bakiyesini geri ekle
       final paymentMethodId = harcama['odemeYontemiId'];
       if (paymentMethodId != null) {
         final pmIndex = _tumOdemeYontemleri.indexWhere(
@@ -906,10 +902,27 @@ class ExpensesController extends ChangeNotifier {
           await _expenseRepository.updateExpense(userId, harcama); // Soft delete
           await savePaymentMethods();
         } catch (e, s) {
-          // Hata durumunda işlemi geri al (Rollback)
           ErrorHandler.logError('ExpensesController.harcamaSil Background', e, s);
           harcama['silindi'] = oldSilindi;
-          _tumOdemeYontemleri = oldPaymentMethods;
+          
+          if (paymentMethodId != null) {
+            final pmIndex = _tumOdemeYontemleri.indexWhere((p) => p.id == paymentMethodId);
+            if (pmIndex != -1) {
+              final pm = _tumOdemeYontemleri[pmIndex];
+              final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+              final amountCurrency = harcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+              final convertedAmount = getIt<CurrencyService>().convert(amount, amountCurrency, pm.paraBirimi);
+
+              double newBalance;
+              if (pm.type == 'kredi') {
+                newBalance = pm.balance + convertedAmount;
+              } else {
+                newBalance = pm.balance - convertedAmount;
+              }
+              _tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
+            }
+          }
+
           filtreleVeGoster(
             aramaMetni: aramaMetni,
             onResetLazyLoading: onResetLazyLoading,
@@ -932,9 +945,7 @@ class ExpensesController extends ChangeNotifier {
     Function(int)? onResetLazyLoading,
   }) async {
     try {
-      // Eski değerleri kopyala (Rollback için)
       final bool oldSilindi = harcama['silindi'] ?? false;
-      final oldPaymentMethods = List<PaymentMethod>.from(_tumOdemeYontemleri.map((e) => e.copyWith()));
 
       harcama['silindi'] = eskiSilindi ?? false;
       if (pmIndex != null && pmIndex != -1 && eskiBakiye != null) {
@@ -955,10 +966,28 @@ class ExpensesController extends ChangeNotifier {
           await _expenseRepository.updateExpense(userId, harcama); // Restore
           await savePaymentMethods();
         } catch (e, s) {
-          // Hata durumunda işlemi geri al (Rollback)
           ErrorHandler.logError('ExpensesController.harcamaSilmeGeriAl Background', e, s);
           harcama['silindi'] = oldSilindi;
-          _tumOdemeYontemleri = oldPaymentMethods;
+          
+          final paymentMethodId = harcama['odemeYontemiId'];
+          if (paymentMethodId != null) {
+            final restorePmIndex = _tumOdemeYontemleri.indexWhere((p) => p.id == paymentMethodId);
+            if (restorePmIndex != -1) {
+              final pm = _tumOdemeYontemleri[restorePmIndex];
+              final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+              final amountCurrency = harcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+              final convertedAmount = getIt<CurrencyService>().convert(amount, amountCurrency, pm.paraBirimi);
+
+              double newBalance;
+              if (pm.type == 'kredi') {
+                newBalance = pm.balance - convertedAmount;
+              } else {
+                newBalance = pm.balance + convertedAmount;
+              }
+              _tumOdemeYontemleri[restorePmIndex] = pm.copyWith(balance: newBalance);
+            }
+          }
+
           filtreleVeGoster(
             aramaMetni: aramaMetni,
             onResetLazyLoading: onResetLazyLoading,
