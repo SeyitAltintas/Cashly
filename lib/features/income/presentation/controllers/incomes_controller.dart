@@ -309,9 +309,18 @@ class IncomesController extends ChangeNotifier {
         _updateBalance(gelir.paymentMethodId!, gelir.amount, gelir.paraBirimi, isIncome: true);
       }
 
-      await _incomeRepository.addIncome(userId, gelir.toMap());
-      await savePaymentMethods();
+      // Anında arayüzü güncelle (Optimistic UI)
       notifyListeners();
+
+      // Arka planda Firestore işlemlerini yap
+      Future.microtask(() async {
+        try {
+          await _incomeRepository.addIncome(userId, gelir.toMap());
+          await savePaymentMethods();
+        } catch (e, s) {
+          ErrorHandler.logError('IncomesController.addIncome Background', e, s);
+        }
+      });
     } catch (e, s) {
       ErrorHandler.logError('IncomesController.addIncome', e, s);
       rethrow;
@@ -344,16 +353,19 @@ class IncomesController extends ChangeNotifier {
         // Anında arayüzü güncelle (Optimistic UI update)
         notifyListeners();
 
-        try {
-          await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
-          await savePaymentMethods();
-        } catch (e) {
-          // Hata durumunda işlemi geri al (Rollback)
-          _tumGelirler[index] = oldIncome;
-          _tumOdemeYontemleri = oldPaymentMethods;
-          notifyListeners();
-          rethrow;
-        }
+        // Arka planda Firestore işlemlerini yap
+        Future.microtask(() async {
+          try {
+            await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
+            await savePaymentMethods();
+          } catch (e, s) {
+            // Hata durumunda işlemi geri al (Rollback)
+            ErrorHandler.logError('IncomesController.deleteIncome Background', e, s);
+            _tumGelirler[index] = oldIncome;
+            _tumOdemeYontemleri = oldPaymentMethods;
+            notifyListeners();
+          }
+        });
       }
     } catch (e, s) {
       ErrorHandler.logError('IncomesController.deleteIncome', e, s);
@@ -386,16 +398,19 @@ class IncomesController extends ChangeNotifier {
         // Anında arayüzü güncelle (Optimistic UI update)
         notifyListeners();
 
-        try {
-          await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
-          await savePaymentMethods();
-        } catch (e) {
-          // Hata durumunda işlemi geri al (Rollback)
-          _tumGelirler[index] = oldIncome;
-          _tumOdemeYontemleri = oldPaymentMethods;
-          notifyListeners();
-          rethrow;
-        }
+        // Arka planda Firestore işlemlerini yap
+        Future.microtask(() async {
+          try {
+            await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
+            await savePaymentMethods();
+          } catch (e, s) {
+            // Hata durumunda işlemi geri al (Rollback)
+            ErrorHandler.logError('IncomesController.undoDelete Background', e, s);
+            _tumGelirler[index] = oldIncome;
+            _tumOdemeYontemleri = oldPaymentMethods;
+            notifyListeners();
+          }
+        });
       }
     } catch (e, s) {
       ErrorHandler.logError('IncomesController.undoDelete', e, s);
@@ -424,6 +439,7 @@ class IncomesController extends ChangeNotifier {
       }
 
       final index = _tumGelirler.indexWhere((g) => g.id == income.id);
+      Map<String, dynamic>? updatedIncomeMap;
       if (index != -1) {
         _tumGelirler[index] = Income(
           id: income.id,
@@ -435,12 +451,23 @@ class IncomesController extends ChangeNotifier {
           paraBirimi: paraBirimi ?? income.paraBirimi,
           isDeleted: false,
         );
-        await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
+        updatedIncomeMap = _tumGelirler[index].toMap();
       }
 
-      // await saveIncomes();
-      await savePaymentMethods();
+      // Anında arayüzü güncelle
       notifyListeners();
+
+      // Arka planda Firestore işlemlerini yap
+      Future.microtask(() async {
+        try {
+          if (updatedIncomeMap != null) {
+            await _incomeRepository.updateIncome(userId, updatedIncomeMap);
+          }
+          await savePaymentMethods();
+        } catch (e, s) {
+          ErrorHandler.logError('IncomesController.updateIncome Background', e, s);
+        }
+      });
     } catch (e, s) {
       ErrorHandler.logError('IncomesController.updateIncome', e, s);
       rethrow;
@@ -610,43 +637,72 @@ class IncomesController extends ChangeNotifier {
     int index = _tumGelirler.indexWhere((g) => g.id == gelir.id);
     if (index != -1) {
       _tumGelirler[index] = gelir.copyWith(isDeleted: false);
-      await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
     }
     _binSilinenGelirler.removeWhere((g) => g.id == gelir.id);
     
     if (gelir.paymentMethodId != null) {
       _updateBalance(gelir.paymentMethodId!, gelir.amount, gelir.paraBirimi, isIncome: true);
-      await savePaymentMethods();
     }
+    
     notifyListeners();
+
+    Future.microtask(() async {
+      try {
+        if (index != -1) {
+          await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
+        }
+        if (gelir.paymentMethodId != null) {
+          await savePaymentMethods();
+        }
+      } catch (e, s) {
+        ErrorHandler.logError('IncomesController.binRestoreGelir', e, s);
+      }
+    });
   }
 
   /// Geliri kalıcı sil
   Future<void> binPermanentDeleteGelir(Income gelir) async {
     _tumGelirler.removeWhere((g) => g.id == gelir.id);
     _binSilinenGelirler.removeWhere((g) => g.id == gelir.id);
-    await _incomeRepository.deleteIncome(userId, gelir.id);
     notifyListeners();
+
+    Future.microtask(() async {
+      try {
+        await _incomeRepository.deleteIncome(userId, gelir.id);
+      } catch (e, s) {
+        ErrorHandler.logError('IncomesController.binPermanentDeleteGelir', e, s);
+      }
+    });
   }
 
   /// Çöpü boşalt
   Future<void> binEmptyBin() async {
-    for (var g in _tumGelirler.where((g) => g.isDeleted)) {
-      await _incomeRepository.deleteIncome(userId, g.id);
-    }
+    final deletedIds = _tumGelirler.where((g) => g.isDeleted).map((g) => g.id).toList();
     _tumGelirler.removeWhere((g) => g.isDeleted);
     _binSilinenGelirler.clear();
     notifyListeners();
+
+    Future.microtask(() async {
+      try {
+        for (var id in deletedIds) {
+          await _incomeRepository.deleteIncome(userId, id);
+        }
+      } catch (e, s) {
+        ErrorHandler.logError('IncomesController.binEmptyBin', e, s);
+      }
+    });
   }
 
   /// Tümünü geri yükle
   Future<void> binRestoreAll() async {
     bool hasBalanceChange = false;
+    final List<Map<String, dynamic>> updatedIncomes = [];
+
     for (var gelir in _binSilinenGelirler) {
       int index = _tumGelirler.indexWhere((g) => g.id == gelir.id);
       if (index != -1) {
         _tumGelirler[index] = gelir.copyWith(isDeleted: false);
-        await _incomeRepository.updateIncome(userId, _tumGelirler[index].toMap());
+        updatedIncomes.add(_tumGelirler[index].toMap());
         
         if (gelir.paymentMethodId != null) {
           _updateBalance(gelir.paymentMethodId!, gelir.amount, gelir.paraBirimi, isIncome: true);
@@ -654,10 +710,20 @@ class IncomesController extends ChangeNotifier {
         }
       }
     }
-    if (hasBalanceChange) {
-      await savePaymentMethods();
-    }
     _binSilinenGelirler.clear();
     notifyListeners();
+
+    Future.microtask(() async {
+      try {
+        for (var data in updatedIncomes) {
+          await _incomeRepository.updateIncome(userId, data);
+        }
+        if (hasBalanceChange) {
+          await savePaymentMethods();
+        }
+      } catch (e, s) {
+        ErrorHandler.logError('IncomesController.binRestoreAll', e, s);
+      }
+    });
   }
 }

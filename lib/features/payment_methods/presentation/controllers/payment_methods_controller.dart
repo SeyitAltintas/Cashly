@@ -280,8 +280,15 @@ class PaymentMethodsController extends ChangeNotifier {
   Future<void> addMethod(PaymentMethod method) async {
     try {
       _paymentMethods.add(method);
-      await _paymentMethodRepository.addPaymentMethod(userId, method.toMap());
       _filtrele();
+
+      Future.microtask(() async {
+        try {
+          await _paymentMethodRepository.addPaymentMethod(userId, method.toMap());
+        } catch (e, s) {
+          ErrorHandler.logError('PaymentMethodsController.addMethod Background', e, s);
+        }
+      });
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.addMethod', e, s);
       rethrow;
@@ -293,8 +300,15 @@ class PaymentMethodsController extends ChangeNotifier {
       final index = _paymentMethods.indexWhere((p) => p.id == method.id);
       if (index != -1) {
         _paymentMethods[index] = method;
-        await _paymentMethodRepository.updatePaymentMethod(userId, method.toMap());
         _filtrele();
+
+        Future.microtask(() async {
+          try {
+            await _paymentMethodRepository.updatePaymentMethod(userId, method.toMap());
+          } catch (e, s) {
+            ErrorHandler.logError('PaymentMethodsController.updateMethod Background', e, s);
+          }
+        });
       }
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.updateMethod', e, s);
@@ -307,9 +321,15 @@ class PaymentMethodsController extends ChangeNotifier {
       _paymentMethods.removeWhere((p) => p.id == method.id);
       final deleted = method.copyWith(isDeleted: true);
       _deletedPaymentMethods.add(deleted);
-
-      await _paymentMethodRepository.updatePaymentMethod(userId, deleted.toMap());
       _filtrele();
+
+      Future.microtask(() async {
+        try {
+          await _paymentMethodRepository.updatePaymentMethod(userId, deleted.toMap());
+        } catch (e, s) {
+          ErrorHandler.logError('PaymentMethodsController.moveToBin Background', e, s);
+        }
+      });
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.moveToBin', e, s);
       rethrow;
@@ -321,9 +341,15 @@ class PaymentMethodsController extends ChangeNotifier {
       _deletedPaymentMethods.removeWhere((p) => p.id == method.id);
       final restored = method.copyWith(isDeleted: false);
       _paymentMethods.add(restored);
-
-      await _paymentMethodRepository.updatePaymentMethod(userId, restored.toMap());
       _filtrele();
+
+      Future.microtask(() async {
+        try {
+          await _paymentMethodRepository.updatePaymentMethod(userId, restored.toMap());
+        } catch (e, s) {
+          ErrorHandler.logError('PaymentMethodsController.restoreMethod Background', e, s);
+        }
+      });
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.restoreMethod', e, s);
       rethrow;
@@ -333,8 +359,15 @@ class PaymentMethodsController extends ChangeNotifier {
   Future<void> permanentDelete(PaymentMethod method) async {
     try {
       _deletedPaymentMethods.removeWhere((p) => p.id == method.id);
-      await _paymentMethodRepository.deletePaymentMethod(userId, method.id);
       notifyListeners();
+
+      Future.microtask(() async {
+        try {
+          await _paymentMethodRepository.deletePaymentMethod(userId, method.id);
+        } catch (e, s) {
+          ErrorHandler.logError('PaymentMethodsController.permanentDelete Background', e, s);
+        }
+      });
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.permanentDelete', e, s);
       rethrow;
@@ -343,11 +376,19 @@ class PaymentMethodsController extends ChangeNotifier {
 
   Future<void> emptyBin() async {
     try {
-      for (var method in _deletedPaymentMethods) {
-        await _paymentMethodRepository.deletePaymentMethod(userId, method.id);
-      }
+      final deletedIds = _deletedPaymentMethods.map((m) => m.id).toList();
       _deletedPaymentMethods.clear();
       notifyListeners();
+
+      Future.microtask(() async {
+        try {
+          for (var id in deletedIds) {
+            await _paymentMethodRepository.deletePaymentMethod(userId, id);
+          }
+        } catch (e, s) {
+          ErrorHandler.logError('PaymentMethodsController.emptyBin Background', e, s);
+        }
+      });
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.emptyBin', e, s);
       rethrow;
@@ -356,14 +397,24 @@ class PaymentMethodsController extends ChangeNotifier {
 
   Future<void> restoreAll() async {
     try {
+      final restoredMethods = <Map<String, dynamic>>[];
       for (final method in _deletedPaymentMethods) {
         final restored = method.copyWith(isDeleted: false);
         _paymentMethods.add(restored);
-        await _paymentMethodRepository.updatePaymentMethod(userId, restored.toMap());
+        restoredMethods.add(restored.toMap());
       }
       _deletedPaymentMethods.clear();
-
       _filtrele();
+
+      Future.microtask(() async {
+        try {
+          for (final data in restoredMethods) {
+            await _paymentMethodRepository.updatePaymentMethod(userId, data);
+          }
+        } catch (e, s) {
+          ErrorHandler.logError('PaymentMethodsController.restoreAll Background', e, s);
+        }
+      });
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.restoreAll', e, s);
       rethrow;
@@ -376,8 +427,15 @@ class PaymentMethodsController extends ChangeNotifier {
       if (index != -1) {
         final pm = _paymentMethods[index];
         _paymentMethods[index] = pm.copyWith(balance: pm.balance + amount);
-        await _paymentMethodRepository.updatePaymentMethod(userId, _paymentMethods[index].toMap());
         notifyListeners();
+        
+        Future.microtask(() async {
+          try {
+            await _paymentMethodRepository.updatePaymentMethod(userId, _paymentMethods[index].toMap());
+          } catch (e, s) {
+            ErrorHandler.logError('PaymentMethodsController.updateBalance Background', e, s);
+          }
+        });
       }
     } catch (e, s) {
       ErrorHandler.logError('PaymentMethodsController.updateBalance', e, s);

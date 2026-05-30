@@ -296,37 +296,62 @@ class ExpensesController extends ChangeNotifier {
       }
     }
     
-    await _expenseRepository.updateExpense(userId, harcama);
-    await savePaymentMethods();
     notifyListeners();
+
+    Future.microtask(() async {
+      try {
+        await _expenseRepository.updateExpense(userId, harcama);
+        if (paymentMethodId != null) {
+          await savePaymentMethods();
+        }
+      } catch (e, s) {
+        ErrorHandler.logError('ExpensesController.binRestoreHarcama', e, s);
+      }
+    });
   }
 
   /// Harcamayı kalıcı sil
   Future<void> binPermanentDeleteHarcama(Map<String, dynamic> harcama) async {
     _tumHarcamalar.remove(harcama);
     _binSilinenHarcamalar.remove(harcama);
-    if (harcama['id'] != null) {
-      await _expenseRepository.deleteExpense(userId, harcama['id']);
-    }
     notifyListeners();
+
+    Future.microtask(() async {
+      try {
+        if (harcama['id'] != null) {
+          await _expenseRepository.deleteExpense(userId, harcama['id']);
+        }
+      } catch (e, s) {
+        ErrorHandler.logError('ExpensesController.binPermanentDeleteHarcama', e, s);
+      }
+    });
   }
 
   /// Çöpü boşalt
   Future<void> binEmptyBin() async {
     final toDelete = _tumHarcamalar.where((element) => element['silindi'] == true).toList();
-    for (var h in toDelete) {
-      if (h['id'] != null) {
-        await _expenseRepository.deleteExpense(userId, h['id']);
-      }
-    }
     _tumHarcamalar.removeWhere((element) => element['silindi'] == true);
     _binSilinenHarcamalar.clear();
     notifyListeners();
+
+    Future.microtask(() async {
+      try {
+        for (var h in toDelete) {
+          if (h['id'] != null) {
+            await _expenseRepository.deleteExpense(userId, h['id']);
+          }
+        }
+      } catch (e, s) {
+        ErrorHandler.logError('ExpensesController.binEmptyBin', e, s);
+      }
+    });
   }
 
   /// Tümünü geri yükle (bakiye güncelleme ile)
   Future<void> binRestoreAll() async {
     bool hasBalanceChange = false;
+    final List<Map<String, dynamic>> updatedExpenses = [];
+
     for (var harcama in List.from(_binSilinenHarcamalar)) {
       harcama['silindi'] = false;
 
@@ -354,13 +379,24 @@ class ExpensesController extends ChangeNotifier {
           hasBalanceChange = true;
         }
       }
-      await _expenseRepository.updateExpense(userId, harcama);
+      updatedExpenses.add(harcama);
     }
-    if (hasBalanceChange) {
-      await savePaymentMethods();
-    }
+    
     _binSilinenHarcamalar.clear();
     notifyListeners();
+
+    Future.microtask(() async {
+      try {
+        for (var data in updatedExpenses) {
+          await _expenseRepository.updateExpense(userId, data);
+        }
+        if (hasBalanceChange) {
+          await savePaymentMethods();
+        }
+      } catch (e, s) {
+        ErrorHandler.logError('ExpensesController.binRestoreAll', e, s);
+      }
+    });
   }
 
   // ===== ANA STATE =====
@@ -608,25 +644,28 @@ class ExpensesController extends ChangeNotifier {
         onResetLazyLoading: onResetLazyLoading,
       );
 
-      try {
-        // Veritabanını arkaplanda güncelle
-        await _expenseRepository.updateExpense(userId, harcama); // Soft delete
-        await savePaymentMethods();
-      } catch (e) {
-        // Hata durumunda işlemi geri al (Rollback)
-        harcama['silindi'] = oldSilindi;
-        _tumOdemeYontemleri = oldPaymentMethods;
-        for (int i = 0; i < tumOdemeYontemleri.length; i++) {
-           if (i < _tumOdemeYontemleri.length) {
-              tumOdemeYontemleri[i] = _tumOdemeYontemleri[i];
-           }
+      // Arka planda Firestore işlemlerini yap
+      Future.microtask(() async {
+        try {
+          // Veritabanını arkaplanda güncelle
+          await _expenseRepository.updateExpense(userId, harcama); // Soft delete
+          await savePaymentMethods();
+        } catch (e, s) {
+          // Hata durumunda işlemi geri al (Rollback)
+          ErrorHandler.logError('ExpensesController.harcamaSilLegacy Background', e, s);
+          harcama['silindi'] = oldSilindi;
+          _tumOdemeYontemleri = oldPaymentMethods;
+          for (int i = 0; i < tumOdemeYontemleri.length; i++) {
+             if (i < _tumOdemeYontemleri.length) {
+                tumOdemeYontemleri[i] = _tumOdemeYontemleri[i];
+             }
+          }
+          filtreleVeGoster(
+            aramaMetni: aramaMetni ?? '',
+            onResetLazyLoading: onResetLazyLoading,
+          );
         }
-        filtreleVeGoster(
-          aramaMetni: aramaMetni ?? '',
-          onResetLazyLoading: onResetLazyLoading,
-        );
-        rethrow;
-      }
+      });
     } catch (e, s) {
       ErrorHandler.logError('ExpensesController.harcamaSilLegacy', e, s);
       rethrow;
@@ -666,24 +705,27 @@ class ExpensesController extends ChangeNotifier {
         onResetLazyLoading: onResetLazyLoading,
       );
 
-      try {
-        await _expenseRepository.updateExpense(userId, harcama); // Restore
-        await savePaymentMethods();
-      } catch (e) {
-        // Hata durumunda işlemi geri al (Rollback)
-        harcama['silindi'] = oldSilindi;
-        _tumOdemeYontemleri = oldPaymentMethods;
-        for (int i = 0; i < tumOdemeYontemleri.length; i++) {
-           if (i < _tumOdemeYontemleri.length) {
-              tumOdemeYontemleri[i] = _tumOdemeYontemleri[i];
-           }
+      // Arka planda Firestore işlemlerini yap
+      Future.microtask(() async {
+        try {
+          await _expenseRepository.updateExpense(userId, harcama); // Restore
+          await savePaymentMethods();
+        } catch (e, s) {
+          // Hata durumunda işlemi geri al (Rollback)
+          ErrorHandler.logError('ExpensesController.harcamaSilmeGeriAlLegacy Background', e, s);
+          harcama['silindi'] = oldSilindi;
+          _tumOdemeYontemleri = oldPaymentMethods;
+          for (int i = 0; i < tumOdemeYontemleri.length; i++) {
+             if (i < _tumOdemeYontemleri.length) {
+                tumOdemeYontemleri[i] = _tumOdemeYontemleri[i];
+             }
+          }
+          filtreleVeGoster(
+            aramaMetni: aramaMetni ?? '',
+            onResetLazyLoading: onResetLazyLoading,
+          );
         }
-        filtreleVeGoster(
-          aramaMetni: aramaMetni ?? '',
-          onResetLazyLoading: onResetLazyLoading,
-        );
-        rethrow;
-      }
+      });
     } catch (e, s) {
       ErrorHandler.logError(
         'ExpensesController.harcamaSilmeGeriAlLegacy',
@@ -730,6 +772,7 @@ class ExpensesController extends ChangeNotifier {
         tumOdemeYontemleri[pmIdx] = _tumOdemeYontemleri[pmIdx];
       }
 
+      Map<String, dynamic>? modifiedExpense;
       if (duzenlenecekHarcama != null) {
         if (eskiOdemeYontemiId != null) {
           updateBalance(eskiOdemeYontemiId, -(eskiTutar ?? 0));
@@ -740,7 +783,8 @@ class ExpensesController extends ChangeNotifier {
 
         int index = _tumHarcamalar.indexOf(duzenlenecekHarcama);
         if (index != -1) {
-          _tumHarcamalar[index] = {
+          modifiedExpense = {
+            "id": duzenlenecekHarcama['id'],
             "isim": name,
             "tutar": amount,
             "kategori": category,
@@ -752,14 +796,14 @@ class ExpensesController extends ChangeNotifier {
                 duzenlenecekHarcama['paraBirimi'] ??
                 getIt<CurrencyService>().currentCurrency,
           };
-          await _expenseRepository.updateExpense(userId, _tumHarcamalar[index]);
+          _tumHarcamalar[index] = modifiedExpense;
         }
       } else {
         if (paymentMethodId != null) {
           updateBalance(paymentMethodId, amount);
         }
 
-        final newExpense = {
+        modifiedExpense = {
           "id": const Uuid().v4(),
           "isim": name,
           "tutar": amount,
@@ -769,15 +813,29 @@ class ExpensesController extends ChangeNotifier {
           "odemeYontemiId": paymentMethodId,
           "paraBirimi": paraBirimi ?? getIt<CurrencyService>().currentCurrency,
         };
-        _tumHarcamalar.add(newExpense);
-        await _expenseRepository.addExpense(userId, newExpense);
+        _tumHarcamalar.add(modifiedExpense);
       }
 
-      await savePaymentMethods();
       filtreleVeGoster(
         aramaMetni: aramaMetni ?? '',
         onResetLazyLoading: onResetLazyLoading,
       );
+
+      // Arka planda Firestore işlemlerini yap
+      Future.microtask(() async {
+        try {
+          if (modifiedExpense != null) {
+             if (duzenlenecekHarcama != null) {
+               await _expenseRepository.updateExpense(userId, modifiedExpense);
+             } else {
+               await _expenseRepository.addExpense(userId, modifiedExpense);
+             }
+          }
+          await savePaymentMethods();
+        } catch (e, s) {
+          ErrorHandler.logError('ExpensesController.harcamaEkleVeyaDuzenleLegacy Background', e, s);
+        }
+      });
     } catch (e, s) {
       ErrorHandler.logError(
         'ExpensesController.harcamaEkleVeyaDuzenleLegacy',
@@ -841,20 +899,23 @@ class ExpensesController extends ChangeNotifier {
         onResetLazyLoading: onResetLazyLoading,
       );
 
-      try {
-        // Veritabanını arkaplanda güncelle
-        await _expenseRepository.updateExpense(userId, harcama); // Soft delete
-        await savePaymentMethods();
-      } catch (e) {
-        // Hata durumunda işlemi geri al (Rollback)
-        harcama['silindi'] = oldSilindi;
-        _tumOdemeYontemleri = oldPaymentMethods;
-        filtreleVeGoster(
-          aramaMetni: aramaMetni,
-          onResetLazyLoading: onResetLazyLoading,
-        );
-        rethrow;
-      }
+      // Arka planda Firestore işlemlerini yap
+      Future.microtask(() async {
+        try {
+          // Veritabanını arkaplanda güncelle
+          await _expenseRepository.updateExpense(userId, harcama); // Soft delete
+          await savePaymentMethods();
+        } catch (e, s) {
+          // Hata durumunda işlemi geri al (Rollback)
+          ErrorHandler.logError('ExpensesController.harcamaSil Background', e, s);
+          harcama['silindi'] = oldSilindi;
+          _tumOdemeYontemleri = oldPaymentMethods;
+          filtreleVeGoster(
+            aramaMetni: aramaMetni,
+            onResetLazyLoading: onResetLazyLoading,
+          );
+        }
+      });
     } catch (e, s) {
       ErrorHandler.logError('ExpensesController.harcamaSil', e, s);
       rethrow;
@@ -888,19 +949,22 @@ class ExpensesController extends ChangeNotifier {
         onResetLazyLoading: onResetLazyLoading,
       );
 
-      try {
-        await _expenseRepository.updateExpense(userId, harcama); // Restore
-        await savePaymentMethods();
-      } catch (e) {
-        // Hata durumunda işlemi geri al (Rollback)
-        harcama['silindi'] = oldSilindi;
-        _tumOdemeYontemleri = oldPaymentMethods;
-        filtreleVeGoster(
-          aramaMetni: aramaMetni,
-          onResetLazyLoading: onResetLazyLoading,
-        );
-        rethrow;
-      }
+      // Arka planda Firestore işlemlerini yap
+      Future.microtask(() async {
+        try {
+          await _expenseRepository.updateExpense(userId, harcama); // Restore
+          await savePaymentMethods();
+        } catch (e, s) {
+          // Hata durumunda işlemi geri al (Rollback)
+          ErrorHandler.logError('ExpensesController.harcamaSilmeGeriAl Background', e, s);
+          harcama['silindi'] = oldSilindi;
+          _tumOdemeYontemleri = oldPaymentMethods;
+          filtreleVeGoster(
+            aramaMetni: aramaMetni,
+            onResetLazyLoading: onResetLazyLoading,
+          );
+        }
+      });
     } catch (e, s) {
       ErrorHandler.logError('ExpensesController.harcamaSilmeGeriAl', e, s);
       rethrow;
@@ -940,6 +1004,7 @@ class ExpensesController extends ChangeNotifier {
     }
 
     try {
+      Map<String, dynamic>? modifiedExpense;
       if (duzenlenecekHarcama != null) {
         if (eskiOdemeYontemiId != null) {
           final eskiParaBirimi = duzenlenecekHarcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
@@ -952,7 +1017,8 @@ class ExpensesController extends ChangeNotifier {
 
         int index = _tumHarcamalar.indexOf(duzenlenecekHarcama);
         if (index != -1) {
-        _tumHarcamalar[index] = {
+          modifiedExpense = {
+            "id": duzenlenecekHarcama['id'],
             "isim": name,
             "tutar": amount,
             "kategori": category,
@@ -963,14 +1029,14 @@ class ExpensesController extends ChangeNotifier {
                 duzenlenecekHarcama['paraBirimi'] ??
                 getIt<CurrencyService>().currentCurrency,
           };
-          await _expenseRepository.updateExpense(userId, _tumHarcamalar[index]);
+          _tumHarcamalar[index] = modifiedExpense;
         }
       } else {
         if (paymentMethodId != null) {
           updateBalance(paymentMethodId, amount, getIt<CurrencyService>().currentCurrency);
         }
 
-        final newExpense = {
+        modifiedExpense = {
           "id": const Uuid().v4(),
           "isim": name,
           "tutar": amount,
@@ -980,8 +1046,7 @@ class ExpensesController extends ChangeNotifier {
           "odemeYontemiId": paymentMethodId,
           "paraBirimi": getIt<CurrencyService>().currentCurrency,
         };
-        _tumHarcamalar.add(newExpense);
-        await _expenseRepository.addExpense(userId, newExpense);
+        _tumHarcamalar.add(modifiedExpense);
       }
 
       _tumHarcamalar.sort((a, b) {
@@ -992,12 +1057,26 @@ class ExpensesController extends ChangeNotifier {
         return tarihB.compareTo(tarihA);
       });
 
-      // await saveExpenses(); -> Tekil işlemlerle halledildi
-      await savePaymentMethods();
       filtreleVeGoster(
         aramaMetni: aramaMetni,
         onResetLazyLoading: onResetLazyLoading,
       );
+
+      // Arka planda Firestore işlemlerini yap
+      Future.microtask(() async {
+        try {
+          if (modifiedExpense != null) {
+            if (duzenlenecekHarcama != null) {
+              await _expenseRepository.updateExpense(userId, modifiedExpense);
+            } else {
+              await _expenseRepository.addExpense(userId, modifiedExpense);
+            }
+          }
+          await savePaymentMethods();
+        } catch (e, s) {
+          ErrorHandler.logError('ExpensesController.harcamaEkleVeyaDuzenle Background', e, s);
+        }
+      });
     } catch (e, s) {
       ErrorHandler.logError('ExpensesController.harcamaEkleVeyaDuzenle', e, s);
       rethrow;
