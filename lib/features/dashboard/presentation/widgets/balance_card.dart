@@ -73,9 +73,67 @@ class _BalanceCardState extends State<BalanceCard> {
     context.read<DashboardController>().toggleObscured();
   }
 
+  double _calculateTodayNet(BuildContext context) {
+    try {
+      final controller = context.read<DashboardController>();
+      final currencyService = context.read<CurrencyService>();
+      final targetCurrency = currencyService.currentCurrency;
+      
+      double todayNet = 0;
+      final now = DateTime.now();
+
+      for (var g in controller.gelirler) {
+        if (g.isDeleted) continue;
+        if (g.date.year == now.year && g.date.month == now.month && g.date.day == now.day) {
+          todayNet += currencyService.convert(g.amount, g.paraBirimi, targetCurrency);
+        }
+      }
+
+      for (var h in controller.harcamalar) {
+        if (h['silindi'] == true) continue;
+        DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
+        if (tarih != null && tarih.year == now.year && tarih.month == now.month && tarih.day == now.day) {
+          final rawAmount = (h['tutar'] as num?)?.toDouble() ?? 0;
+          final paraBirimi = h['paraBirimi']?.toString() ?? 'TRY';
+          todayNet -= currencyService.convert(rawAmount, paraBirimi, targetCurrency);
+        }
+      }
+      return todayNet;
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
+  double _calculateCashBalance(BuildContext context) {
+    try {
+      final controller = context.read<DashboardController>();
+      final currencyService = context.read<CurrencyService>();
+      final targetCurrency = currencyService.currentCurrency;
+      
+      double cashBalance = 0;
+      for (var pm in controller.odemeYontemleri.where((p) => !p.isDeleted)) {
+        if (pm.type == 'nakit') {
+          cashBalance += currencyService.convert(pm.balance, pm.paraBirimi, targetCurrency);
+        }
+      }
+      return cashBalance;
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isObscured = context.select((DashboardController c) => c.isObscured);
+
+    // Verileri hesapla
+    final todayNet = _calculateTodayNet(context);
+    final previousBalance = widget.totalBalance - todayNet;
+    final percentage = previousBalance == 0 ? 0.0 : (todayNet / previousBalance.abs()) * 100;
+    
+    final isPositive = todayNet >= 0;
+    final percentageStr = percentage.abs().toStringAsFixed(2).replaceAll('.', ',');
+    final cashBalance = _calculateCashBalance(context);
 
     return AnimatedCard(
       delay: 100,
@@ -83,98 +141,66 @@ class _BalanceCardState extends State<BalanceCard> {
         width: double.infinity,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF16213E), Color(0xFF0F3460)],
+            colors: [Color(0xFF152A4A), Color(0xFF0A1426)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.1),
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0F3460).withValues(alpha: 0.3),
-              blurRadius: 24,
+              color: const Color(0xFF0A1426).withValues(alpha: 0.4),
+              blurRadius: 20,
               offset: const Offset(0, 10),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(24),
           child: Stack(
             children: [
-              // Sol alt dekoratif parıltı
+              // Arka plan dalgası
               Positioned(
-                bottom: -40,
-                left: -40,
+                right: -80,
+                bottom: -80,
                 child: Container(
-                  width: 140,
-                  height: 140,
+                  width: 250,
+                  height: 250,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-                        Colors.transparent,
-                      ],
-                    ),
+                    color: Colors.white.withValues(alpha: 0.03),
                   ),
                 ),
               ),
-              // Sağ üst dekoratif parıltı
               Positioned(
-                top: -60,
-                right: -40,
+                right: -20,
+                top: -50,
                 child: Container(
-                  width: 180,
-                  height: 180,
+                  width: 150,
+                  height: 150,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        Theme.of(context).colorScheme.secondary.withValues(alpha: 0.4),
-                        Colors.transparent,
-                      ],
-                    ),
+                    color: Colors.white.withValues(alpha: 0.02),
                   ),
                 ),
               ),
               
               // Kart İçeriği
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Üst Kısım: Başlık ve Göz İkonu
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: const Icon(
-                                Icons.account_balance_wallet_outlined,
-                                color: Colors.white,
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Text(
-                              context.l10n.totalBalance,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white70,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          context.l10n.totalBalance,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         GestureDetector(
                           onTap: _toggleObscure,
@@ -182,33 +208,114 @@ class _BalanceCardState extends State<BalanceCard> {
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(20),
+                              shape: BoxShape.circle,
                             ),
                             child: Icon(
                               isObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                               color: Colors.white70,
-                              size: 22,
+                              size: 20,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 16),
+                    
+                    // Orta Kısım: Ana Bakiye
                     GestureDetector(
                       onTap: () => _cycleCurrency(context),
                       child: ObscuredAmountText(
                         CurrencyFormatter.format(widget.totalBalance),
                         isObscured: isObscured,
-                        style: TextStyle(
-                          fontSize: 42,
-                          fontWeight: FontWeight.w800,
-                          height: 1.1,
-                          letterSpacing: -1.5,
-                          color: widget.totalBalance >= 0
-                              ? Colors.white
-                              : Colors.red.shade300,
+                        style: const TextStyle(
+                          fontSize: 38,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
                         ),
                       ),
+                    ),
+                    const SizedBox(height: 8),
+                    
+                    // Bugün Değişimi
+                    Row(
+                      children: [
+                        Text(
+                          context.l10n.today,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ObscuredAmountText(
+                          CurrencyFormatter.formatSigned(todayNet, showPlus: true),
+                          isObscured: isObscured,
+                          style: TextStyle(
+                            color: isPositive ? const Color(0xFF4CAF50) : const Color(0xFFF44336),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        ObscuredAmountText(
+                          "(${isPositive ? '+' : '-'}$percentageStr%)",
+                          isObscured: isObscured,
+                          style: TextStyle(
+                            color: isPositive ? const Color(0xFF4CAF50) : const Color(0xFFF44336),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Ayraç Çizgisi
+                    Container(
+                      height: 1,
+                      width: double.infinity,
+                      color: Colors.white.withValues(alpha: 0.1),
+                    ),
+                    
+                    const SizedBox(height: 20),
+                    
+                    // Alt Kısım: Nakit Bilgisi
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.account_balance_wallet_outlined,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          "Nakit:",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        ObscuredAmountText(
+                          CurrencyFormatter.format(cashBalance),
+                          isObscured: isObscured,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
