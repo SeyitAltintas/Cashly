@@ -60,13 +60,8 @@ class CurrencyFormatter {
   /// USD: "$50,000.00" (başta)
   static String _applySymbol(
     String formattedAmount,
-    String? currencyCode, {
-    bool isObscured = false,
-  }) {
-    if (isObscured) {
-      // Rakamları yıldıza çevir, nokta ve virgül kalsın
-      formattedAmount = formattedAmount.replaceAll(RegExp(r'\d'), '*');
-    }
+    String? currencyCode,
+  ) {
     final code = _resolveCurrencyCode(currencyCode);
     final symbol = _getSymbolForCurrency(currencyCode);
 
@@ -82,22 +77,17 @@ class CurrencyFormatter {
   static String format(
     double amount, {
     String? currency,
-    bool isObscured = false,
   }) {
     return _applySymbol(
       _trFormatter.format(amount),
       currency,
-      isObscured: isObscured,
     );
   }
 
   /// Para değerini sembolsüz formatlar
   /// Örnek: 50000.00 -> "50.000,00"
-  static String formatWithoutSymbol(double amount, {bool isObscured = false}) {
+  static String formatWithoutSymbol(double amount) {
     String formatted = _trFormatter.format(amount);
-    if (isObscured) {
-      formatted = formatted.replaceAll(RegExp(r'\d'), '*');
-    }
     return formatted;
   }
 
@@ -108,16 +98,11 @@ class CurrencyFormatter {
     double amount, {
     bool showPlus = false,
     String? currency,
-    bool isObscured = false,
   }) {
     final prefix = amount >= 0 && showPlus ? '+' : '';
     final code = _resolveCurrencyCode(currency);
     final symbol = _getSymbolForCurrency(currency);
     String formatted = _trFormatter.format(amount);
-
-    if (isObscured) {
-      formatted = formatted.replaceAll(RegExp(r'\d'), '*');
-    }
 
     if (_prefixCurrencies.contains(code)) {
       return '$prefix$symbol$formatted';
@@ -130,7 +115,6 @@ class CurrencyFormatter {
   static String formatCompact(
     double amount, {
     String? currency,
-    bool isObscured = false,
   }) {
     final code = _resolveCurrencyCode(currency);
     final sym = _getSymbolForCurrency(currency);
@@ -144,11 +128,7 @@ class CurrencyFormatter {
       shortAmount =
           '${(amount / 1000).toStringAsFixed(1).replaceAll('.', ',')}K';
     } else {
-      return format(amount, currency: currency, isObscured: isObscured);
-    }
-
-    if (isObscured) {
-      shortAmount = shortAmount.replaceAll(RegExp(r'\d'), '*');
+      return format(amount, currency: currency);
     }
 
     return isPrefix ? '$sym$shortAmount' : '$shortAmount $sym';
@@ -159,12 +139,10 @@ class CurrencyFormatter {
   static String formatInteger(
     double amount, {
     String? currency,
-    bool isObscured = false,
   }) {
     return _applySymbol(
       _trFormatterNoDecimal.format(amount.round()),
       currency,
-      isObscured: isObscured,
     );
   }
 }

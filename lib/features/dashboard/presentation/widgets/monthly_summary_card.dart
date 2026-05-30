@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
+import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../controllers/dashboard_controller.dart';
 
@@ -71,8 +72,8 @@ class MonthlySummaryCard extends StatelessWidget {
                         label: context.l10n.expense,
                         value: CurrencyFormatter.format(
                           monthlyExpense,
-                          isObscured: isObscured,
                         ),
+                        isObscured: isObscured,
                         valueColor: Colors.red.shade300,
                         labelFontSize: labelFontSize,
                         valueFontSize: valueFontSize,
@@ -94,8 +95,8 @@ class MonthlySummaryCard extends StatelessWidget {
                         label: context.l10n.income,
                         value: CurrencyFormatter.format(
                           monthlyIncome,
-                          isObscured: isObscured,
                         ),
+                        isObscured: isObscured,
                         valueColor: Colors.green.shade300,
                         labelFontSize: labelFontSize,
                         valueFontSize: valueFontSize,
@@ -122,8 +123,8 @@ class MonthlySummaryCard extends StatelessWidget {
                         value: CurrencyFormatter.formatSigned(
                           netDiff,
                           showPlus: true,
-                          isObscured: isObscured,
                         ),
+                        isObscured: isObscured,
                         valueColor: netDiff >= 0
                             ? Colors.green.shade300
                             : Colors.red.shade300,
@@ -148,6 +149,7 @@ class MonthlySummaryCard extends StatelessWidget {
     required Color iconColor,
     required String label,
     required String value,
+    required bool isObscured,
     required Color valueColor,
     required double labelFontSize,
     required double valueFontSize,
@@ -167,8 +169,9 @@ class MonthlySummaryCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2),
-        Text(
+        ObscuredAmountText(
           value,
+          isObscured: isObscured,
           style: TextStyle(
             fontSize: valueFontSize,
             fontWeight: FontWeight.bold,

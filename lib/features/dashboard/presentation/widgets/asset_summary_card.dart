@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
+import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../controllers/dashboard_controller.dart';
@@ -65,11 +66,11 @@ class AssetSummaryCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
+                  ObscuredAmountText(
                     CurrencyFormatter.format(
                       totalAssets,
-                      isObscured: isObscured,
                     ),
+                    isObscured: isObscured,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,

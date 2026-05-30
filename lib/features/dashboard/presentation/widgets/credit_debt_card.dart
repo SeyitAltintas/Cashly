@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
+import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../controllers/dashboard_controller.dart';
 
@@ -69,8 +70,9 @@ class CreditDebtCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    CurrencyFormatter.format(totalDebt, isObscured: isObscured),
+                  ObscuredAmountText(
+                    CurrencyFormatter.format(totalDebt),
+                    isObscured: isObscured,
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

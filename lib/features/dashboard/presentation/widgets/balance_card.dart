@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
+import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/services/haptic_service.dart';
@@ -165,11 +166,9 @@ class _BalanceCardState extends State<BalanceCard> {
             const SizedBox(height: 12),
             GestureDetector(
               onTap: () => _cycleCurrency(context),
-              child: Text(
-                CurrencyFormatter.format(
-                  widget.totalBalance,
-                  isObscured: isObscured,
-                ),
+              child: ObscuredAmountText(
+                CurrencyFormatter.format(widget.totalBalance),
+                isObscured: isObscured,
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,

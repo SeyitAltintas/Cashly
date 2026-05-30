@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
+import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
@@ -269,8 +270,9 @@ class RecentTransactionsCard extends StatelessWidget {
               ],
             ),
           ),
-          Text(
-            "$prefix${CurrencyFormatter.format(transaction['amount'] as double, isObscured: isObscured)}",
+          ObscuredAmountText(
+            "$prefix${CurrencyFormatter.format(transaction['amount'] as double)}",
+            isObscured: isObscured,
             style: TextStyle(
               color: iconColor.withValues(alpha: 0.9),
               fontWeight: FontWeight.bold,

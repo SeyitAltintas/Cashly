@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
+import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 
 /// Bütçe Durumu Kartı Widget'ı
@@ -100,13 +101,13 @@ class BudgetStatusCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  ObscuredAmountText(
                     context.l10n.spentAmount(
                       CurrencyFormatter.format(
                         monthlyExpense,
-                        isObscured: isObscured,
                       ),
                     ),
+                    isObscured: isObscured,
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(
@@ -114,13 +115,13 @@ class BudgetStatusCard extends StatelessWidget {
                       ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
-                  Text(
+                  ObscuredAmountText(
                     context.l10n.limitAmount(
                       CurrencyFormatter.format(
                         butceLimiti,
-                        isObscured: isObscured,
                       ),
                     ),
+                    isObscured: isObscured,
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(
