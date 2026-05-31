@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/constants/card_color_constants.dart';
@@ -70,14 +71,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   // Controller - DI'dan alınır
   late final PaymentMethodsController _controller;
 
-  // Getter'lar
-  bool get _aramaModu => _controller.aramaModu;
-  bool get _isLoading => _controller.isLoading;
-
-  List<PaymentMethod> get _filteredMethods => _controller.filteredMethods;
-  List<PaymentMethod> get _deletedPaymentMethods =>
-      _controller.deletedPaymentMethods;
-
   @override
   void initState() {
     super.initState();
@@ -85,7 +78,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     final authController = getIt<AuthController>();
     final userId = authController.currentUser?.id ?? '';
     _controller = getIt<PaymentMethodsController>(param1: userId);
-    _controller.addListener(_onStateChanged);
 
     // Widget prop'larından veriyi controller'a yükle
     _controller.initData(widget.paymentMethods, widget.deletedPaymentMethods);
@@ -93,10 +85,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) _controller.stopLoading();
     });
-  }
-
-  void _onStateChanged() {
-    if (mounted) setState(() {});
   }
 
   @override
@@ -113,7 +101,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
 
   @override
   void dispose() {
-    _controller.removeListener(_onStateChanged);
     _controller.dispose();
     _aramaController.dispose();
     _searchDebouncer.dispose();
@@ -125,192 +112,220 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: _aramaModu
-            ? TextField(
-                controller: _aramaController,
-                onChanged: (value) => _searchDebouncer.run(() => _filtrele()),
-                autofocus: true,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: context.l10n.searchPaymentMethod,
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(
-                    color: Theme.of(
+    return ChangeNotifierProvider<PaymentMethodsController>.value(
+      value: _controller,
+      child: Builder(
+        builder: (context) {
+          final aramaModu = context.select(
+            (PaymentMethodsController c) => c.aramaModu,
+          );
+          final isLoading = context.select(
+            (PaymentMethodsController c) => c.isLoading,
+          );
+          final filteredMethods = context.select(
+            (PaymentMethodsController c) => c.filteredMethods,
+          );
+          final deletedPaymentMethods = context.select(
+            (PaymentMethodsController c) => c.deletedPaymentMethods,
+          );
+          final totalBalance = context.select(
+            (PaymentMethodsController c) => c.totalBalance,
+          );
+          final totalDebt = context.select(
+            (PaymentMethodsController c) => c.totalDebt,
+          );
+
+          return Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              title: aramaModu
+                  ? TextField(
+                      controller: _aramaController,
+                      onChanged: (value) =>
+                          _searchDebouncer.run(() => _filtrele()),
+                      autofocus: true,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: context.l10n.searchPaymentMethod,
+                        border: InputBorder.none,
+                        hintStyle: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    )
+                  : Text(context.l10n.myPaymentMethods),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: false,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.white),
+                  tooltip: context.l10n.trashBin,
+                  onPressed: () {
+                    Navigator.push(
                       context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
+                      MaterialPageRoute(
+                        builder: (context) => PaymentMethodRecycleBinPage(
+                          deletedPaymentMethods: deletedPaymentMethods,
+                          onRestore: (pm) async {
+                            try {
+                              await _controller.restoreMethod(pm);
+                              widget.onRestore(pm);
+                            } catch (e) {
+                              if (!mounted) return;
+                              if (e is AppException) {
+                                ErrorHandler.handleAppException(context, e);
+                              }
+                            }
+                          },
+                          onPermanentDelete: (pm) async {
+                            try {
+                              await _controller.permanentDelete(pm);
+                              widget.onPermanentDelete(pm);
+                            } catch (e) {
+                              if (!mounted) return;
+                              if (e is AppException) {
+                                ErrorHandler.handleAppException(context, e);
+                              }
+                            }
+                          },
+                          onEmptyBin: () async {
+                            try {
+                              await _controller.emptyBin();
+                              widget.onEmptyBin();
+                            } catch (e) {
+                              if (!mounted) return;
+                              if (e is AppException) {
+                                ErrorHandler.handleAppException(context, e);
+                              }
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              )
-            : Text(context.l10n.myPaymentMethods),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.white),
-            tooltip: context.l10n.trashBin,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PaymentMethodRecycleBinPage(
-                    deletedPaymentMethods: _deletedPaymentMethods,
-                    onRestore: (pm) async {
-                      try {
-                        await _controller.restoreMethod(pm);
-                        widget.onRestore(pm);
-                      } catch (e) {
-                        if (!mounted) return;
-                        if (e is AppException) {
-                          ErrorHandler.handleAppException(context, e);
-                        }
-                      }
-                    },
-                    onPermanentDelete: (pm) async {
-                      try {
-                        await _controller.permanentDelete(pm);
-                        widget.onPermanentDelete(pm);
-                      } catch (e) {
-                        if (!mounted) return;
-                        if (e is AppException) {
-                          ErrorHandler.handleAppException(context, e);
-                        }
-                      }
-                    },
-                    onEmptyBin: () async {
-                      try {
-                        await _controller.emptyBin();
-                        widget.onEmptyBin();
-                      } catch (e) {
-                        if (!mounted) return;
-                        if (e is AppException) {
-                          ErrorHandler.handleAppException(context, e);
-                        }
-                      }
-                    },
+                IconButton(
+                  icon: Icon(
+                    aramaModu ? Icons.close : Icons.search,
+                    color: Colors.white,
                   ),
+                  onPressed: () {
+                    _controller.aramaModu = !aramaModu;
+                    if (!aramaModu) {
+                      _aramaController.clear();
+                      _controller.aramaMetni = '';
+                    }
+                  },
                 ),
-              ).then((_) {
-                if (mounted) setState(() {});
-              });
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              _aramaModu ? Icons.close : Icons.search,
-              color: Colors.white,
+              ],
             ),
-            onPressed: () {
-              _controller.aramaModu = !_aramaModu;
-              if (!_aramaModu) {
-                _aramaController.clear();
-                _controller.aramaMetni = '';
-              }
-            },
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const PaymentMethodsPageSkeleton()
-          : RefreshIndicator(
-              onRefresh: () async {
-                // Verileri yeniden yükle
-                _controller.refresh();
-              },
-              color: Theme.of(context).colorScheme.secondary,
-              child: SingleChildScrollView(
-                // RefreshIndicator çalışması için physics gerekli
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    // Toplam Özet Kartı - Kingmode Carousel
-                    PaymentMethodSummaryCard(
-                      totalBalance: totalBalance,
-                      totalDebt: totalDebt,
-                      userName: widget.userName ?? 'Kullanıcı',
-                      userProfileUrl: widget.userProfileUrl,
-                      paymentMethods: _filteredMethods,
+            body: isLoading
+                ? const PaymentMethodsPageSkeleton()
+                : RefreshIndicator(
+                    onRefresh: () async {
+                      // Verileri yeniden yükle
+                      _controller.refresh();
+                    },
+                    color: Theme.of(context).colorScheme.secondary,
+                    child: SingleChildScrollView(
+                      // RefreshIndicator çalışması için physics gerekli
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          // Toplam Özet Kartı - Kingmode Carousel
+                          PaymentMethodSummaryCard(
+                            totalBalance: totalBalance,
+                            totalDebt: totalDebt,
+                            userName: widget.userName ?? 'Kullanıcı',
+                            userProfileUrl: widget.userProfileUrl,
+                            paymentMethods: filteredMethods,
+                          ),
+                          const SizedBox(height: 24),
+                          _buildPaymentMethodsList(filteredMethods, aramaModu),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 24),
-                    _buildPaymentMethodsList(),
-                  ],
+                  ),
+            floatingActionButton: FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddPaymentMethodPage(
+                      onSave:
+                          (
+                            name,
+                            type,
+                            lastFourDigits,
+                            balance,
+                            limit,
+                            colorIndex,
+                          ) async {
+                            try {
+                              final newPm = PaymentMethod(
+                                id: DateTime.now().millisecondsSinceEpoch
+                                    .toString(),
+                                name: name,
+                                type: type,
+                                lastFourDigits: lastFourDigits,
+                                balance: balance,
+                                limit: limit,
+                                colorIndex: colorIndex,
+                                createdAt: DateTime.now(),
+                                isDeleted: false,
+                                paraBirimi:
+                                    getIt<CurrencyService>().currentCurrency,
+                              );
+                              await _controller.addMethod(newPm);
+                              widget.onAdd(
+                                name,
+                                type,
+                                lastFourDigits,
+                                balance,
+                                limit,
+                                colorIndex,
+                              );
+                            } catch (e) {
+                              if (!mounted) return;
+                              if (e is AppException) {
+                                ErrorHandler.handleAppException(context, e);
+                              }
+                            }
+                          },
+                    ),
+                  ),
+                );
+              },
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              icon: const Icon(Icons.add, color: Colors.black),
+              label: Text(
+                context.l10n.addCard,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddPaymentMethodPage(
-                onSave:
-                    (
-                      name,
-                      type,
-                      lastFourDigits,
-                      balance,
-                      limit,
-                      colorIndex,
-                    ) async {
-                      try {
-                        final newPm = PaymentMethod(
-                          id: DateTime.now().millisecondsSinceEpoch.toString(),
-                          name: name,
-                          type: type,
-                          lastFourDigits: lastFourDigits,
-                          balance: balance,
-                          limit: limit,
-                          colorIndex: colorIndex,
-                          createdAt: DateTime.now(),
-                          isDeleted: false,
-                          paraBirimi: getIt<CurrencyService>().currentCurrency,
-                        );
-                        await _controller.addMethod(newPm);
-                        widget.onAdd(
-                          name,
-                          type,
-                          lastFourDigits,
-                          balance,
-                          limit,
-                          colorIndex,
-                        );
-                      } catch (e) {
-                        if (!mounted) return;
-                        if (e is AppException) {
-                          ErrorHandler.handleAppException(context, e);
-                        }
-                      }
-                    },
-              ),
-            ),
-          ).then((_) {
-            if (mounted) setState(() {}); // Sayfadan dönünce state'i yenile
-          });
+          );
         },
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        icon: const Icon(Icons.add, color: Colors.black),
-        label: Text(
-          context.l10n.addCard,
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
       ),
     );
   }
 
-  Widget _buildPaymentMethodsList() {
-    if (_filteredMethods.isEmpty) {
-      return _aramaModu && _aramaController.text.isNotEmpty
+  Widget _buildPaymentMethodsList(
+    List<PaymentMethod> filteredMethods,
+    bool aramaModu,
+  ) {
+    if (filteredMethods.isEmpty) {
+      return aramaModu && _aramaController.text.isNotEmpty
           ? EmptyStateWidget(
               icon: Icons.search_off,
               title: context.l10n.noResultsFound,
@@ -327,12 +342,12 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: _filteredMethods.length,
+      itemCount: filteredMethods.length,
       // itemExtent: Sabit yükseklik belirterek scroll performansını artırır
       // Her kart 140px yükseklik + 16px bottom margin = 156px
       itemExtent: 156,
       itemBuilder: (context, index) {
-        final pm = _filteredMethods[index];
+        final pm = filteredMethods[index];
         return _buildPaymentMethodCard(pm);
       },
     );
@@ -415,9 +430,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       },
                 ),
               ),
-            ).then((_) {
-              if (mounted) setState(() {}); // Sayfadan dönünce state'i yenile
-            });
+            ).then((_) {});
           },
           child: Container(
             height: 140,

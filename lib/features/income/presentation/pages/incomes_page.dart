@@ -98,7 +98,6 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
         widget.tumGelirler,
         widget.tumOdemeYontemleri,
       );
-      _gelirFiltreleVeGoster();
     }
   }
 
@@ -111,46 +110,18 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     super.dispose();
   }
 
-  void _gelirFiltreleVeGoster() {
-    setState(() {});
-  }
-
   String get ayIsmi {
     return "${context.getMonthName(secilenAy.month)} ${secilenAy.year}";
-  }
-
-  List<Income> get filtrelenmisGelirler {
-    String aramaMetni = tGelirArama.text.toLowerCase();
-    return _controller.tumGelirler.where((g) {
-      if (g.isDeleted) return false;
-      if (g.date.year != secilenAy.year || g.date.month != secilenAy.month) {
-        return false;
-      }
-      if (aramaMetni.isEmpty) return true;
-      return g.name.toLowerCase().contains(aramaMetni) ||
-          g.category.toLowerCase().contains(aramaMetni);
-    }).toList()..sort((a, b) => b.date.compareTo(a.date));
-  }
-
-  double get toplamGelir {
-    final cur = getIt<CurrencyService>();
-    double toplam = 0;
-    for (var g in filtrelenmisGelirler) {
-      toplam += cur.convert(g.amount, g.paraBirimi, cur.currentCurrency);
-    }
-    return toplam;
   }
 
   void oncekiAy() {
     _controller.secilenAy = DateTime(secilenAy.year, secilenAy.month - 1, 1);
     widget.onMonthChanged?.call(_controller.secilenAy);
-    _gelirFiltreleVeGoster();
   }
 
   void sonrakiAy() {
     _controller.secilenAy = DateTime(secilenAy.year, secilenAy.month + 1, 1);
     widget.onMonthChanged?.call(_controller.secilenAy);
-    _gelirFiltreleVeGoster();
   }
 
   void _ayYilSeciciAc() async {
@@ -164,7 +135,6 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     if (selectedDate != null && mounted) {
       _controller.secilenAy = selectedDate;
       widget.onMonthChanged?.call(selectedDate);
-      _gelirFiltreleVeGoster();
     }
   }
 
@@ -389,14 +359,12 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
         backgroundColor: Colors.transparent,
         appBar: IncomesAppBar(
           searchController: tGelirArama,
-          onSearchChanged: _gelirFiltreleVeGoster,
+          onSearchChanged: () {}, // Handled by ValueListenableBuilder
           onClearSearch: () {
             tGelirArama.clear();
-            _gelirFiltreleVeGoster();
           },
           onGoToToday: () {
             _controller.secilenAy = DateTime.now();
-            _gelirFiltreleVeGoster();
           },
         ),
         body: Builder(
@@ -407,14 +375,33 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
             final gelirAramaModuContext = context.select(
               (IncomesController c) => c.aramaModu,
             );
-
-            // secilenAyContext was unused
-            context.select((IncomesController c) => c.tumGelirler);
+            final secilenAyContext = context.select(
+              (IncomesController c) => c.secilenAy,
+            );
+            final tumGelirlerContext = context.select(
+              (IncomesController c) => c.tumGelirler,
+            );
 
             return ValueListenableBuilder<TextEditingValue>(
               valueListenable: tGelirArama,
-              builder: (context, _, _) {
-                final gelirler = filtrelenmisGelirler;
+              builder: (context, aramaValue, _) {
+                String aramaMetni = aramaValue.text.toLowerCase();
+                final gelirler = tumGelirlerContext.where((g) {
+                  if (g.isDeleted) return false;
+                  if (g.date.year != secilenAyContext.year || g.date.month != secilenAyContext.month) {
+                    return false;
+                  }
+                  if (aramaMetni.isEmpty) return true;
+                  return g.name.toLowerCase().contains(aramaMetni) ||
+                      g.category.toLowerCase().contains(aramaMetni);
+                }).toList()..sort((a, b) => b.date.compareTo(a.date));
+
+                final cur = getIt<CurrencyService>();
+                double hesaplananToplamGelir = 0;
+                for (var g in gelirler) {
+                  hesaplananToplamGelir += cur.convert(g.amount, g.paraBirimi, cur.currentCurrency);
+                }
+
                 return isLoadingContext
                     ? const IncomePageSkeleton()
                     : Column(
@@ -423,7 +410,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                           if (!gelirAramaModuContext)
                             IncomeSummaryCard(
                               ayIsmi: ayIsmi,
-                              toplamGelir: toplamGelir,
+                              toplamGelir: hesaplananToplamGelir,
                               oncekiAy: oncekiAy,
                               sonrakiAy: sonrakiAy,
                               ayYilSeciciAc: _ayYilSeciciAc,

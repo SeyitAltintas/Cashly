@@ -258,36 +258,37 @@ class _BudgetStatusSection extends StatelessWidget {
   const _BudgetStatusSection();
   @override
   Widget build(BuildContext context) {
-    // Tüm güncellemeleri dinlemek için Consumer kullanıyoruz
-    // çünkü bütçe kartı çok fazla değişkene bağlı
-    return Consumer<DashboardController>(
-      builder: (context, controller, child) {
-        return BudgetStatusCard(
-          monthlyExpense: controller.monthlyExpense,
-          butceLimiti: controller.butceLimiti,
-          categoryBudgets: controller.categoryBudgets,
-          categoryExpenses: controller.categoryExpenses,
-          isObscured: controller.isObscured,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => CategoryBudgetDetailPage(
-                  categoryBudgets: controller.categoryBudgets,
-                  categoryExpenses: controller.categoryExpenses,
-                  totalBudget: controller.butceLimiti,
-                  totalExpense: controller.monthlyExpense,
-                  rawExpenses: controller.harcamalar.where((h) {
-                    if (h['silindi'] == true) return false;
-                    DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-                    if (tarih == null) return false;
-                    return tarih.year == controller.secilenAy.year &&
-                        tarih.month == controller.secilenAy.month;
-                  }).toList(),
-                ),
-              ),
-            );
-          },
+    final monthlyExpense = context.select((DashboardController c) => c.monthlyExpense);
+    final butceLimiti = context.select((DashboardController c) => c.butceLimiti);
+    final categoryBudgets = context.select((DashboardController c) => c.categoryBudgets);
+    final categoryExpenses = context.select((DashboardController c) => c.categoryExpenses);
+    final isObscured = context.select((DashboardController c) => c.isObscured);
+
+    return BudgetStatusCard(
+      monthlyExpense: monthlyExpense,
+      butceLimiti: butceLimiti,
+      categoryBudgets: categoryBudgets,
+      categoryExpenses: categoryExpenses,
+      isObscured: isObscured,
+      onTap: () {
+        final controller = context.read<DashboardController>();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CategoryBudgetDetailPage(
+              categoryBudgets: controller.categoryBudgets,
+              categoryExpenses: controller.categoryExpenses,
+              totalBudget: controller.butceLimiti,
+              totalExpense: controller.monthlyExpense,
+              rawExpenses: controller.harcamalar.where((h) {
+                if (h['silindi'] == true) return false;
+                DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
+                if (tarih == null) return false;
+                return tarih.year == controller.secilenAy.year &&
+                    tarih.month == controller.secilenAy.month;
+              }).toList(),
+            ),
+          ),
         );
       },
     );
@@ -311,10 +312,6 @@ class _RecentTransactionsSection extends StatelessWidget {
   const _RecentTransactionsSection();
   @override
   Widget build(BuildContext context) {
-    return Consumer<DashboardController>(
-      builder: (context, controller, child) {
-        return const RecentTransactionsCard();
-      },
-    );
+    return const RecentTransactionsCard();
   }
 }

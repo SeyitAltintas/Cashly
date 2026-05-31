@@ -246,9 +246,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                       },
                     ),
                   ),
-                ).then((_) {
-                  if (mounted) setState(() {});
-                });
+                ).then((_) {});
               },
             ),
           ],

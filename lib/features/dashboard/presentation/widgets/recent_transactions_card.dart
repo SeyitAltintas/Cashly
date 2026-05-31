@@ -13,8 +13,7 @@ class RecentTransactionsCard extends StatelessWidget {
 
   /// Isolate üzerinden gelen işlemlere UI çevirilerini (localization) uygular
   List<Map<String, dynamic>> _getTranslatedTransactions(BuildContext context) {
-    final controller = context.read<DashboardController>();
-    final rawTransactions = controller.recentTransactions;
+    final rawTransactions = context.select((DashboardController c) => c.recentTransactions);
     
     return rawTransactions.map((tx) {
       // Map'i kopyala ve çevirileri uygula
