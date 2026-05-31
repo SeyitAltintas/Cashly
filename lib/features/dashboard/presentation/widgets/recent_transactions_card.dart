@@ -7,7 +7,6 @@ import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
-import '../../../../core/services/currency_service.dart';
 import '../controllers/dashboard_controller.dart';
 
 /// Son İşlemler Kartı Widget'ı
@@ -26,98 +25,32 @@ class RecentTransactionsCard extends StatelessWidget {
     required this.odemeYontemleri,
   });
 
-  /// Ödeme yöntemi adını ID'ye göre bulur
-  String _getPaymentMethodName(String id) {
-    final pm = odemeYontemleri.firstWhere(
-      (p) => p.id == id,
-      orElse: () => PaymentMethod(
-        id: '',
-        name: 'Unknown',
-        type: 'banka',
-        balance: 0,
-        createdAt: DateTime.now(),
-      ),
-    );
-    return pm.name;
-  }
-
-  /// Son işlemleri birleştirir ve sıralar
-  List<Map<String, dynamic>> _getRecentTransactions(BuildContext context) {
-    List<Map<String, dynamic>> transactions = [];
-    final currencyService = context.read<CurrencyService>();
-    final targetCurrency = currencyService.currentCurrency;
-
-    // Harcamalar ekle
-    for (var h in harcamalar) {
-      if (h['silindi'] == true) continue;
-      DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-      if (tarih != null) {
-        final rawAmount = (h['tutar'] as num?)?.toDouble() ?? 0;
-        final paraBirimi = h['paraBirimi']?.toString() ?? 'TRY';
-        final amount = currencyService.convert(
-          rawAmount,
-          paraBirimi,
-          targetCurrency,
-        );
-
-        transactions.add({
-          'type': 'expense',
-          'name': context.translateDbName(h['isim'] ?? 'Expense'),
-          'amount': amount,
-          'date': tarih,
-          'category': context.translateDbName(h['kategori'] ?? 'Diğer'),
-        });
+  /// Isolate üzerinden gelen işlemlere UI çevirilerini (localization) uygular
+  List<Map<String, dynamic>> _getTranslatedTransactions(BuildContext context) {
+    final controller = context.read<DashboardController>();
+    final rawTransactions = controller.recentTransactions;
+    
+    return rawTransactions.map((tx) {
+      // Map'i kopyala ve çevirileri uygula
+      final newTx = Map<String, dynamic>.from(tx);
+      
+      if (tx['type'] == 'transfer') {
+        // Transfer isim formatı 'from → to' şeklindedir, biz sadece çeviri yapabiliriz veya olduğu gibi bırakabiliriz
+        // (İsimler zaten Isolate içinde oluşturuldu) ama DB çevirisi uygulayalım
+        final parts = (tx['name'] as String).split(' → ');
+        if (parts.length == 2) {
+          newTx['name'] = '${context.translateDbName(parts[0])} → ${context.translateDbName(parts[1])}';
+        }
+      } else {
+        newTx['name'] = context.translateDbName(tx['name'] as String);
       }
-    }
-
-    // Gelirler ekle
-    for (var g in gelirler) {
-      if (g.isDeleted) continue;
-      final amount = currencyService.convert(
-        g.amount,
-        g.paraBirimi,
-        targetCurrency,
-      );
-      transactions.add({
-        'type': 'income',
-        'name': context.translateDbName(g.name),
-        'amount': amount,
-        'date': g.date,
-        'category': context.translateDbName(g.category),
-      });
-    }
-
-    // Transferler ekle
-    for (var t in transferler) {
-      final fromName = context.translateDbName(
-        _getPaymentMethodName(t.fromAccountId),
-      );
-      final toName = context.translateDbName(
-        _getPaymentMethodName(t.toAccountId),
-      );
-      final amount = currencyService.convert(
-        t.amount,
-        t.paraBirimi,
-        targetCurrency,
-      );
-      transactions.add({
-        'type': 'transfer',
-        'name': '$fromName → $toName',
-        'amount': amount,
-        'date': t.date,
-        'category': 'Transfer',
-      });
-    }
-
-    // Tarihe göre sırala (en yeniden en eskiye)
-    transactions.sort((a, b) {
-      DateTime dateA = a['date'];
-      DateTime dateB = b['date'];
-      return dateB.compareTo(dateA);
-    });
-
-    // İlk 5 işlemi al
-    return transactions.take(5).toList();
+      
+      if (tx['category'] != 'Transfer') {
+        newTx['category'] = context.translateDbName(tx['category'] as String);
+      }
+      
+      return newTx;
+    }).toList();
   }
 
   String _formatDate(BuildContext context, DateTime date) {
@@ -133,7 +66,7 @@ class RecentTransactionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final recentTransactions = _getRecentTransactions(context);
+    final recentTransactions = _getTranslatedTransactions(context);
     final isObscured = context.select((DashboardController c) => c.isObscured);
 
     return AnimatedCard(

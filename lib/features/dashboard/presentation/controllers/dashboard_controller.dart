@@ -16,6 +16,7 @@ class DashboardComputePayload {
   final List<Income> gelirler;
   final List<Asset> varliklar;
   final List<PaymentMethod> odemeYontemleri;
+  final List<Transfer> transferler;
   final DateTime secilenAy;
   final Map<String, double> rates;
   final String currentCurrency;
@@ -25,6 +26,7 @@ class DashboardComputePayload {
     required this.gelirler,
     required this.varliklar,
     required this.odemeYontemleri,
+    required this.transferler,
     required this.secilenAy,
     required this.rates,
     required this.currentCurrency,
@@ -38,6 +40,7 @@ class DashboardComputeResult {
   final double monthlyIncome;
   final double totalAssets;
   final Map<String, double> categoryExpenses;
+  final List<Map<String, dynamic>> recentTransactions;
 
   DashboardComputeResult({
     required this.totalBalanceFallback,
@@ -46,6 +49,7 @@ class DashboardComputeResult {
     required this.monthlyIncome,
     required this.totalAssets,
     required this.categoryExpenses,
+    required this.recentTransactions,
   });
 }
 
@@ -110,6 +114,63 @@ Future<DashboardComputeResult> _calculateDashboardWorker(
     tAssets += _isolateConvert(v.amount, v.paraBirimi, target, rates);
   }
 
+  List<Map<String, dynamic>> transactions = [];
+  
+  for (var h in payload.harcamalar) {
+    if (h['silindi'] == true) continue;
+    DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
+    if (tarih != null) {
+      final rawAmount = (h['tutar'] as num?)?.toDouble() ?? 0;
+      final pb = h['paraBirimi']?.toString() ?? 'TRY';
+      final amount = _isolateConvert(rawAmount, pb, target, rates);
+      transactions.add({
+        'type': 'expense',
+        'name': h['isim'] ?? 'Expense',
+        'amount': amount,
+        'date': tarih,
+        'category': h['kategori'] ?? 'Diğer',
+      });
+    }
+  }
+
+  for (var g in payload.gelirler) {
+    if (g.isDeleted) continue;
+    final amount = _isolateConvert(g.amount, g.paraBirimi, target, rates);
+    transactions.add({
+      'type': 'income',
+      'name': g.name,
+      'amount': amount,
+      'date': g.date,
+      'category': g.category,
+    });
+  }
+
+  String getPaymentMethodName(String id) {
+    for (var pm in payload.odemeYontemleri) {
+      if (pm.id == id) return pm.name;
+    }
+    return 'Unknown';
+  }
+
+  for (var t in payload.transferler) {
+    final fromName = getPaymentMethodName(t.fromAccountId);
+    final toName = getPaymentMethodName(t.toAccountId);
+    final amount = _isolateConvert(t.amount, t.paraBirimi, target, rates);
+    transactions.add({
+      'type': 'transfer',
+      'name': '$fromName → $toName',
+      'amount': amount,
+      'date': t.date,
+      'category': 'Transfer',
+    });
+  }
+
+  transactions.sort((a, b) {
+    DateTime dateA = a['date'];
+    DateTime dateB = b['date'];
+    return dateB.compareTo(dateA);
+  });
+
   return DashboardComputeResult(
     totalBalanceFallback: totalBal,
     totalCreditDebtFallback: totalCred,
@@ -117,6 +178,7 @@ Future<DashboardComputeResult> _calculateDashboardWorker(
     monthlyIncome: mInc,
     totalAssets: tAssets,
     categoryExpenses: catExp,
+    recentTransactions: transactions.take(5).toList(),
   );
 }
 
@@ -262,6 +324,9 @@ class DashboardController extends ChangeNotifier {
 
   /// Toplam varlık değeri
   double get totalAssets => _result?.totalAssets ?? 0.0;
+
+  /// Son işlemler listesi (isolate üzerinden)
+  List<Map<String, dynamic>> get recentTransactions => _result?.recentTransactions ?? [];
 
   /// Bütçe kullanım yüzdesi
   double get budgetUsagePercentage {
@@ -435,6 +500,7 @@ class DashboardController extends ChangeNotifier {
       gelirler: _gelirler,
       varliklar: _varliklar,
       odemeYontemleri: _odemeYontemleri,
+      transferler: _transferler,
       secilenAy: _secilenAy,
       rates: service.rates,
       currentCurrency: service.currentCurrency,
