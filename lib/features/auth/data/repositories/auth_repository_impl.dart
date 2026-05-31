@@ -3,6 +3,7 @@ import '../../../../core/services/secure_storage_service.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
+import 'package:bcrypt/bcrypt.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   static const String _usersBoxName = 'users_box';
@@ -25,6 +26,14 @@ class AuthRepositoryImpl implements AuthRepository {
     return Hive.box(_sessionBoxName);
   }
 
+  bool _isHashed(String pin) => pin.startsWith(r'$2a$') || pin.startsWith(r'$2b$');
+
+  String _hashPinIfNeeded(String pin) {
+    if (pin.isEmpty) return pin; // Empty pins (e.g. from getAllUsers ghost list) shouldn't be hashed
+    if (_isHashed(pin)) return pin;
+    return BCrypt.hashpw(pin, BCrypt.gensalt());
+  }
+
   @override
   Future<UserEntity> registerUser(UserEntity user) async {
     final box = await _getUsersBox();
@@ -38,7 +47,18 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> updateUser(UserEntity user) async {
     final box = await _getUsersBox();
     final userModel = UserModel.fromEntity(user);
-    await box.put(user.id, userModel.toMap());
+    final userWithHashedPin = UserModel(
+      id: userModel.id,
+      name: userModel.name,
+      email: userModel.email,
+      pin: _hashPinIfNeeded(userModel.pin),
+      profileImage: userModel.profileImage,
+      createdAt: userModel.createdAt,
+      lastLoginAt: userModel.lastLoginAt,
+      biometricEnabled: userModel.biometricEnabled,
+      activeSessionId: userModel.activeSessionId,
+    );
+    await box.put(user.id, userWithHashedPin.toMap());
 
     // If updating current user, refresh session if needed (though session stores ID which doesn't change)
   }
@@ -69,13 +89,31 @@ class AuthRepositoryImpl implements AuthRepository {
 
     if (userData != null) {
       final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
-      if (user.pin == pin) {
+      
+      bool isMatch = false;
+      bool needsMigration = false;
+      
+      if (_isHashed(user.pin)) {
+        try {
+          isMatch = BCrypt.checkpw(pin, user.pin);
+        } catch (_) {
+          isMatch = false;
+        }
+      } else {
+        // Fallback for old plaintext PINs
+        if (user.pin == pin) {
+          isMatch = true;
+          needsMigration = true; // Needs to be hashed and updated
+        }
+      }
+
+      if (isMatch) {
         // Update lastLoginAt while preserving all user data
         final updatedUser = UserModel(
           id: user.id,
           name: user.name,
           email: user.email,
-          pin: user.pin,
+          pin: needsMigration ? BCrypt.hashpw(pin, BCrypt.gensalt()) : user.pin,
           profileImage: user.profileImage,
           createdAt: user.createdAt,
           lastLoginAt: DateTime.now(),
@@ -96,9 +134,18 @@ class AuthRepositoryImpl implements AuthRepository {
       final userData = box.get(key);
       if (userData != null) {
         final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
-        if (user.email.toLowerCase() == email.toLowerCase() &&
-            user.pin == pin) {
-          return await loginUser(user.id, pin);
+        if (user.email.toLowerCase() == email.toLowerCase()) {
+          bool isMatch = false;
+          if (_isHashed(user.pin)) {
+            try {
+              isMatch = BCrypt.checkpw(pin, user.pin);
+            } catch (_) {}
+          } else {
+            isMatch = (user.pin == pin);
+          }
+          if (isMatch) {
+            return await loginUser(user.id, pin);
+          }
         }
       }
     }
@@ -251,7 +298,7 @@ class AuthRepositoryImpl implements AuthRepository {
         id: user.id,
         name: user.name,
         email: user.email,
-        pin: newPin,
+        pin: _hashPinIfNeeded(newPin),
         profileImage: user.profileImage,
         createdAt: user.createdAt,
         lastLoginAt: user.lastLoginAt,
