@@ -640,3 +640,4 @@ getIt.registerFactory<FeatureController>(
 | DI | GetIt (not Injectable) | Manual control, no code generation |
 | Localization | gen-l10n ARB | Official Flutter approach |
 | Theme | Dark only | Brand identity, single theme simplicity |
+

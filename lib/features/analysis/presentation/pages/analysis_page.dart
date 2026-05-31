@@ -142,35 +142,45 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: Listenable.merge([_controller, _tabController]),
-      builder: (context, _) {
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: _buildAppBar(context),
-          body: Column(
-            children: [
-              _buildStickyHeader(context),
-              Expanded(
-                child: _controller.isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      )
-                    : TabBarView(
-                        controller: _tabController,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: [
-                          _buildExpenseAnalysis(),
-                          _buildIncomeAnalysis(),
-                          _buildAssetAnalysis(),
-                        ],
-                      ),
-              ),
-            ],
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: ListenableBuilder(
+          listenable: Listenable.merge([_controller, _tabController]),
+          builder: (context, _) => _buildAppBar(context),
+        ),
+      ),
+      body: Column(
+        children: [
+          ListenableBuilder(
+            listenable: Listenable.merge([_controller, _tabController]),
+            builder: (context, _) => _buildStickyHeader(context),
           ),
-          bottomNavigationBar: _buildBottomBar(context),
-        );
-      },
+          Expanded(
+            child: ListenableBuilder(
+              listenable: _controller,
+              builder: (context, _) {
+                if (_controller.isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  );
+                }
+                return TabBarView(
+                  controller: _tabController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _buildExpenseAnalysis(),
+                    _buildIncomeAnalysis(),
+                    _buildAssetAnalysis(),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: _buildBottomBar(context),
     );
   }
 

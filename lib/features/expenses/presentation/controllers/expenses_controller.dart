@@ -17,6 +17,36 @@ import '../../../../core/services/batch_service.dart';
 /// Harcamalar Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
 /// Bu controller ExpensePageState'in yerini alır.
+class ExpenseFilterParams {
+  final List<Map<String, dynamic>> tumHarcamalar;
+  final DateTime secilenAy;
+  final String aramaMetni;
+  ExpenseFilterParams(this.tumHarcamalar, this.secilenAy, this.aramaMetni);
+}
+
+List<Map<String, dynamic>> _computeFilterExpenses(ExpenseFilterParams params) {
+  final filteredList = params.tumHarcamalar.where((h) {
+    if (h['silindi'] == true) return false;
+    DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
+    if (tarih == null) return false;
+    bool ayFiltrelendi =
+        tarih.year == params.secilenAy.year && tarih.month == params.secilenAy.month;
+    if (!ayFiltrelendi) return false;
+    if (params.aramaMetni.isEmpty) return true;
+    String isim = (h['isim'] ?? "").toString().toLowerCase();
+    String kategori = (h['kategori'] ?? "").toString().toLowerCase();
+    return isim.contains(params.aramaMetni.toLowerCase()) ||
+        kategori.contains(params.aramaMetni.toLowerCase());
+  }).toList();
+
+  filteredList.sort((a, b) {
+    DateTime tarihA = DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+    DateTime tarihB = DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+    return tarihB.compareTo(tarihA);
+  });
+  return filteredList;
+}
+
 class ExpensesController extends ChangeNotifier with ExpenseFormMixin, ExpenseVoiceMixin, ExpenseCategoryMgmtMixin, ExpenseBinMixin {
   final ExpenseRepository _expenseRepository;
   final PaymentMethodRepository _paymentMethodRepository;
@@ -169,31 +199,12 @@ class ExpensesController extends ChangeNotifier with ExpenseFormMixin, ExpenseVo
   // ===== FİLTRELEME =====
 
   /// Harcamaları filtrele ve sırala
-  void filtreleVeGoster({
+  Future<void> filtreleVeGoster({
     String aramaMetni = '',
     Function(int)? onResetLazyLoading,
-  }) {
-    final filteredList = _tumHarcamalar.where((h) {
-      if (h['silindi'] == true) return false;
-      DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-      if (tarih == null) return false;
-      bool ayFiltrelendi =
-          tarih.year == _secilenAy.year && tarih.month == _secilenAy.month;
-      if (!ayFiltrelendi) return false;
-      if (aramaMetni.isEmpty) return true;
-      String isim = (h['isim'] ?? "").toString().toLowerCase();
-      String kategori = (h['kategori'] ?? "").toString().toLowerCase();
-      return isim.contains(aramaMetni.toLowerCase()) ||
-          kategori.contains(aramaMetni.toLowerCase());
-    }).toList();
-
-    filteredList.sort((a, b) {
-      DateTime tarihA =
-          DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-      DateTime tarihB =
-          DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-      return tarihB.compareTo(tarihA);
-    });
+  }) async {
+    final params = ExpenseFilterParams(_tumHarcamalar, _secilenAy, aramaMetni);
+    final filteredList = await compute(_computeFilterExpenses, params);
 
     _gosterilenHarcamalar = filteredList;
     onResetLazyLoading?.call(filteredList.length);
