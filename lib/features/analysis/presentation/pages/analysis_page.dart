@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/shimmer_loading.dart';
 import '../utils/analysis_colors.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -474,4 +475,56 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   /// Detaylı bilgi bottom sheet'i göster
 
+}
+
+class AnalysisShimmerLayout extends StatelessWidget {
+  const AnalysisShimmerLayout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.auto(
+      context: context,
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Chart Placeholder
+            const SizedBox(height: 16),
+            const ShimmerCircle(size: 200),
+            const SizedBox(height: 32),
+            
+            // List Items Placeholder
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 4,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: Row(
+                    children: [
+                      const ShimmerCircle(size: 48),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            ShimmerBox(width: 120, height: 16),
+                            SizedBox(height: 8),
+                            ShimmerBox(width: 80, height: 12),
+                          ],
+                        ),
+                      ),
+                      const ShimmerBox(width: 60, height: 20),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

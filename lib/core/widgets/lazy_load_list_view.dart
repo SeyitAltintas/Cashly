@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'shimmer_loading.dart';
 
 /// Lazy loading destekli ListView widget'ı
 /// Büyük listeler için otomatik pagination sağlar.
@@ -122,7 +123,7 @@ class _LazyLoadListViewState<T> extends State<LazyLoadListView<T>> {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: widget.loadingWidget ?? const CircularProgressIndicator(),
+              child: widget.loadingWidget ?? const LazyLoadShimmerItem(),
             ),
           );
         }
@@ -204,5 +205,34 @@ class PaginationController<T> extends ChangeNotifier {
   void insertAtStart(T item) {
     _items.insert(0, item);
     notifyListeners();
+  }
+}
+
+class LazyLoadShimmerItem extends StatelessWidget {
+  const LazyLoadShimmerItem({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.auto(
+      context: context,
+      child: Row(
+        children: [
+          const ShimmerCircle(size: 40),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                ShimmerBox(width: 150, height: 16),
+                SizedBox(height: 8),
+                ShimmerBox(width: 100, height: 12),
+              ],
+            ),
+          ),
+          const ShimmerBox(width: 50, height: 20),
+        ],
+      ),
+    );
   }
 }
