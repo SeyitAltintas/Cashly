@@ -8,6 +8,118 @@ import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
 import '../../../streak/data/models/streak_model.dart';
 
+
+// ===== ISOLATE PAYLOAD & RESULT =====
+
+class DashboardComputePayload {
+  final List<Map<String, dynamic>> harcamalar;
+  final List<Income> gelirler;
+  final List<Asset> varliklar;
+  final List<PaymentMethod> odemeYontemleri;
+  final DateTime secilenAy;
+  final Map<String, double> rates;
+  final String currentCurrency;
+
+  DashboardComputePayload({
+    required this.harcamalar,
+    required this.gelirler,
+    required this.varliklar,
+    required this.odemeYontemleri,
+    required this.secilenAy,
+    required this.rates,
+    required this.currentCurrency,
+  });
+}
+
+class DashboardComputeResult {
+  final double totalBalanceFallback;
+  final double totalCreditDebtFallback;
+  final double monthlyExpense;
+  final double monthlyIncome;
+  final double totalAssets;
+  final Map<String, double> categoryExpenses;
+
+  DashboardComputeResult({
+    required this.totalBalanceFallback,
+    required this.totalCreditDebtFallback,
+    required this.monthlyExpense,
+    required this.monthlyIncome,
+    required this.totalAssets,
+    required this.categoryExpenses,
+  });
+}
+
+double _isolateConvert(
+  double amount,
+  String sourceCurrency,
+  String targetCurrency,
+  Map<String, double> rates,
+) {
+  if (sourceCurrency == targetCurrency) return amount;
+  final sourceRate = rates[sourceCurrency] ?? 0.0;
+  final targetRate = rates[targetCurrency] ?? 0.0;
+  if (sourceRate == 0.0 || targetRate == 0.0) return amount;
+  final amountInUsd = amount / sourceRate;
+  return amountInUsd * targetRate;
+}
+
+Future<DashboardComputeResult> _calculateDashboardWorker(
+  DashboardComputePayload payload,
+) async {
+  final rates = payload.rates;
+  final target = payload.currentCurrency;
+  
+  double totalBal = 0;
+  double totalCred = 0;
+  for (var pm in payload.odemeYontemleri) {
+    if (pm.isDeleted) continue;
+    if (pm.type == 'kredi') {
+      if (pm.balance > 0) totalCred += _isolateConvert(pm.balance, pm.paraBirimi, target, rates);
+    } else {
+      totalBal += _isolateConvert(pm.balance, pm.paraBirimi, target, rates);
+    }
+  }
+
+  double mExp = 0;
+  final catExp = <String, double>{};
+  for (var h in payload.harcamalar) {
+    if (h['silindi'] == true) continue;
+    DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
+    if (tarih != null && tarih.year == payload.secilenAy.year && tarih.month == payload.secilenAy.month) {
+      final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
+      final pb = h['paraBirimi']?.toString() ?? 'TRY';
+      final converted = _isolateConvert(tutar, pb, target, rates);
+      mExp += converted;
+      
+      final kat = h['kategori']?.toString() ?? 'Diğer';
+      catExp[kat] = (catExp[kat] ?? 0) + converted;
+    }
+  }
+
+  double mInc = 0;
+  for (var g in payload.gelirler) {
+    if (g.isDeleted) continue;
+    if (g.date.year == payload.secilenAy.year && g.date.month == payload.secilenAy.month) {
+      mInc += _isolateConvert(g.amount, g.paraBirimi, target, rates);
+    }
+  }
+
+  double tAssets = 0;
+  for (var v in payload.varliklar) {
+    if (v.isDeleted) continue;
+    tAssets += _isolateConvert(v.amount, v.paraBirimi, target, rates);
+  }
+
+  return DashboardComputeResult(
+    totalBalanceFallback: totalBal,
+    totalCreditDebtFallback: totalCred,
+    monthlyExpense: mExp,
+    monthlyIncome: mInc,
+    totalAssets: tAssets,
+    categoryExpenses: catExp,
+  );
+}
+
 /// Dashboard Controller
 /// Dashboard sayfası için ChangeNotifier tabanlı state yönetimi sağlar.
 /// Finansal özet hesaplamalarını ve görüntüleme mantığını merkezi olarak yönetir.
@@ -62,6 +174,8 @@ class DashboardController extends ChangeNotifier {
 
   // Cached finansal özet (use case'den)
   FinancialSummary? _cachedSummary;
+
+  DashboardComputeResult? _result;
 
   // ===== CONSTRUCTOR =====
 
@@ -120,16 +234,7 @@ class DashboardController extends ChangeNotifier {
       }
     }
 
-    // Yerel hesaplama (fallback)
-    final service = getIt<CurrencyService>();
-    final target = service.currentCurrency;
-    double total = 0;
-    for (var pm in _odemeYontemleri) {
-      if (pm.isDeleted) continue;
-      if (pm.type == 'kredi') continue;
-      total += service.convert(pm.balance, pm.paraBirimi, target);
-    }
-    return total;
+    return _result?.totalBalanceFallback ?? 0.0;
   }
 
   /// Toplam kredi kartı borcu
@@ -143,66 +248,20 @@ class DashboardController extends ChangeNotifier {
       }
     }
 
-    // Yerel hesaplama (fallback)
-    final service = getIt<CurrencyService>();
-    final target = service.currentCurrency;
-    double total = 0;
-    for (var pm in _odemeYontemleri) {
-      if (pm.isDeleted) continue;
-      if (pm.type == 'kredi' && pm.balance > 0) {
-        total += service.convert(pm.balance, pm.paraBirimi, target);
-      }
-    }
-    return total;
+    return _result?.totalCreditDebtFallback ?? 0.0;
   }
 
   /// Aylık toplam harcama
-  double get monthlyExpense {
-    final service = getIt<CurrencyService>();
-    final target = service.currentCurrency;
-    double total = 0;
-    for (var h in _harcamalar) {
-      if (h['silindi'] == true) continue;
-      DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-      if (tarih != null &&
-          tarih.year == _secilenAy.year &&
-          tarih.month == _secilenAy.month) {
-        final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
-        final paraBirimi = h['paraBirimi']?.toString() ?? 'TRY';
-        total += service.convert(tutar, paraBirimi, target);
-      }
-    }
-    return total;
-  }
+  double get monthlyExpense => _result?.monthlyExpense ?? 0.0;
 
   /// Aylık toplam gelir
-  double get monthlyIncome {
-    final service = getIt<CurrencyService>();
-    final target = service.currentCurrency;
-    double total = 0;
-    for (var g in _gelirler) {
-      if (g.isDeleted) continue;
-      if (g.date.year == _secilenAy.year && g.date.month == _secilenAy.month) {
-        total += service.convert(g.amount, g.paraBirimi, target);
-      }
-    }
-    return total;
-  }
+  double get monthlyIncome => _result?.monthlyIncome ?? 0.0;
 
   /// Net fark (gelir - gider)
   double get netDiff => monthlyIncome - monthlyExpense;
 
   /// Toplam varlık değeri
-  double get totalAssets {
-    final service = getIt<CurrencyService>();
-    final target = service.currentCurrency;
-    double total = 0;
-    for (var v in _varliklar) {
-      if (v.isDeleted) continue;
-      total += service.convert(v.amount, v.paraBirimi, target);
-    }
-    return total;
-  }
+  double get totalAssets => _result?.totalAssets ?? 0.0;
 
   /// Bütçe kullanım yüzdesi
   double get budgetUsagePercentage {
@@ -228,25 +287,7 @@ class DashboardController extends ChangeNotifier {
   }
 
   /// Kategori bazlı aylık harcamalar
-  Map<String, double> get categoryExpenses {
-    final service = getIt<CurrencyService>();
-    final target = service.currentCurrency;
-    final expenses = <String, double>{};
-    for (var h in _harcamalar) {
-      if (h['silindi'] == true) continue;
-      DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-      if (tarih != null &&
-          tarih.year == _secilenAy.year &&
-          tarih.month == _secilenAy.month) {
-        final kategori = h['kategori'] as String? ?? 'Diğer';
-        final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
-        final paraBirimi = h['paraBirimi']?.toString() ?? 'TRY';
-        final convertedTutar = service.convert(tutar, paraBirimi, target);
-        expenses[kategori] = (expenses[kategori] ?? 0) + convertedTutar;
-      }
-    }
-    return expenses;
-  }
+  Map<String, double> get categoryExpenses => _result?.categoryExpenses ?? {};
 
   /// Kategori bütçelerini güncelle
   void setCategoryBudgets(Map<String, double> value) {
@@ -295,7 +336,7 @@ class DashboardController extends ChangeNotifier {
     _streakData = streakData;
     _userId = userId;
     _cachedSummary = null; // Cache'i temizle
-    notifyListeners();
+    _recalculateData();
   }
 
   /// User ID'yi ayarla (Use Case entegrasyonu için)
@@ -311,7 +352,7 @@ class DashboardController extends ChangeNotifier {
   void setSecilenAy(DateTime ay) {
     if (_secilenAy != ay) {
       _secilenAy = ay;
-      notifyListeners();
+      _recalculateData();
     }
   }
 
@@ -340,25 +381,25 @@ class DashboardController extends ChangeNotifier {
   /// Harcamaları güncelle
   void setHarcamalar(List<Map<String, dynamic>> value) {
     _harcamalar = value;
-    notifyListeners();
+    _recalculateData();
   }
 
   /// Gelirleri güncelle
   void setGelirler(List<Income> value) {
     _gelirler = value;
-    notifyListeners();
+    _recalculateData();
   }
 
   /// Varlıkları güncelle
   void setVarliklar(List<Asset> value) {
     _varliklar = value;
-    notifyListeners();
+    _recalculateData();
   }
 
   /// Ödeme yöntemlerini güncelle
   void setOdemeYontemleri(List<PaymentMethod> value) {
     _odemeYontemleri = value;
-    notifyListeners();
+    _recalculateData();
   }
 
   /// Transferleri güncelle
@@ -384,6 +425,22 @@ class DashboardController extends ChangeNotifier {
   /// State'i yenile
   void refresh() {
     _cachedSummary = null;
+    _recalculateData();
+  }
+
+  Future<void> _recalculateData() async {
+    final service = getIt<CurrencyService>();
+    final payload = DashboardComputePayload(
+      harcamalar: _harcamalar,
+      gelirler: _gelirler,
+      varliklar: _varliklar,
+      odemeYontemleri: _odemeYontemleri,
+      secilenAy: _secilenAy,
+      rates: service.rates,
+      currentCurrency: service.currentCurrency,
+    );
+    
+    _result = await compute(_calculateDashboardWorker, payload);
     notifyListeners();
   }
 }
