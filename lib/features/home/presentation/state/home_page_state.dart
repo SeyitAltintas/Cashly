@@ -12,6 +12,9 @@ import '../../../payment_methods/data/models/transfer_model.dart';
 import '../../../streak/data/models/streak_model.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/constants/icon_constants.dart';
+import '../../../../core/services/currency_service.dart';
+import '../../../../core/services/asset_price_update_service.dart';
+import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// AnaSayfa için ChangeNotifier state yöneticisi
 /// Tüm veri state'lerini ve loading durumunu merkezi olarak yönetir
@@ -229,6 +232,122 @@ class HomePageState extends ChangeNotifier {
           _tumGelirler = incomesMap.map((map) => Income.fromMap(map)).toList();
           notifyListeners();
         });
+  }
+
+  /// Zamanlanmış transferleri kontrol eder ve tarihi gelenleri uygular
+  /// Başarısız olan transferlerin hata mesajı key'lerini liste olarak döndürür
+  List<String> checkScheduledTransfers(String userId, BuildContext context) {
+    if (_tumTransferler.isEmpty) return [];
+
+    bool transferDegisti = false;
+    List<String> basarisizTransferler = [];
+    final currencyService = getIt<CurrencyService>();
+    final pmRepo = getIt<PaymentMethodRepository>();
+
+    for (int i = 0; i < _tumTransferler.length; i++) {
+      final transfer = _tumTransferler[i];
+
+      if (transfer.isPending) {
+        final fromIndex = _tumOdemeYontemleri.indexWhere((pm) => pm.id == transfer.fromAccountId);
+        final toIndex = _tumOdemeYontemleri.indexWhere((pm) => pm.id == transfer.toAccountId);
+
+        if (fromIndex == -1) {
+          _tumTransferler[i] = transfer.copyWith(isFailed: true, failureReason: context.l10n.senderAccountNotFound);
+          pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+          basarisizTransferler.add(context.l10n.senderAccountNotFound);
+          transferDegisti = true;
+          continue;
+        }
+
+        if (toIndex == -1) {
+          _tumTransferler[i] = transfer.copyWith(isFailed: true, failureReason: context.l10n.receiverAccountNotFound);
+          pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+          basarisizTransferler.add(context.l10n.receiverAccountNotFound);
+          transferDegisti = true;
+          continue;
+        }
+
+        final fromPm = _tumOdemeYontemleri[fromIndex];
+        final toPm = _tumOdemeYontemleri[toIndex];
+
+        if (fromPm.isDeleted) {
+          _tumTransferler[i] = transfer.copyWith(isFailed: true, failureReason: context.l10n.accountDeleted(fromPm.name));
+          pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+          basarisizTransferler.add(context.l10n.accountDeleted(fromPm.name));
+          transferDegisti = true;
+          continue;
+        }
+
+        if (toPm.isDeleted) {
+          _tumTransferler[i] = transfer.copyWith(isFailed: true, failureReason: context.l10n.accountDeleted(toPm.name));
+          pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+          basarisizTransferler.add(context.l10n.accountDeleted(toPm.name));
+          transferDegisti = true;
+          continue;
+        }
+
+        final convertedTransferAmountFrom = currencyService.convert(transfer.amount, transfer.paraBirimi, fromPm.paraBirimi);
+
+        bool limitVeyaBakiyeAsildi = false;
+        if (fromPm.type == 'kredi') {
+          final kalanLimit = (fromPm.limit ?? 0) - fromPm.balance;
+          if (convertedTransferAmountFrom > kalanLimit) limitVeyaBakiyeAsildi = true;
+        } else {
+          if (fromPm.balance < convertedTransferAmountFrom) limitVeyaBakiyeAsildi = true;
+        }
+
+        if (limitVeyaBakiyeAsildi) {
+          _tumTransferler[i] = transfer.copyWith(isFailed: true, failureReason: context.l10n.insufficientBalanceAccount(fromPm.name));
+          pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+          basarisizTransferler.add(context.l10n.insufficientBalanceAccount(fromPm.name));
+          transferDegisti = true;
+          continue;
+        }
+
+        if (toPm.type == 'kredi' && toPm.balance <= 0) {
+          _tumTransferler[i] = transfer.copyWith(isFailed: true, failureReason: context.l10n.noDebtToPay(toPm.name));
+          pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+          basarisizTransferler.add(context.l10n.noDebtToPay(toPm.name));
+          transferDegisti = true;
+          continue;
+        }
+
+        double fromYeniBakiye = fromPm.type == 'kredi' ? fromPm.balance + convertedTransferAmountFrom : fromPm.balance - convertedTransferAmountFrom;
+        _tumOdemeYontemleri[fromIndex] = fromPm.copyWith(balance: fromYeniBakiye);
+        pmRepo.updatePaymentMethod(userId, _tumOdemeYontemleri[fromIndex].toMap());
+
+        final convertedTransferAmountTo = currencyService.convert(transfer.amount, transfer.paraBirimi, toPm.paraBirimi);
+        double toYeniBakiye = toPm.type == 'kredi' ? toPm.balance - convertedTransferAmountTo : toPm.balance + convertedTransferAmountTo;
+        _tumOdemeYontemleri[toIndex] = toPm.copyWith(balance: toYeniBakiye);
+        pmRepo.updatePaymentMethod(userId, _tumOdemeYontemleri[toIndex].toMap());
+
+        _tumTransferler[i] = transfer.copyWith(isExecuted: true);
+        pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+        transferDegisti = true;
+      }
+    }
+
+    if (transferDegisti) {
+      notifyListeners();
+    }
+    
+    return basarisizTransferler;
+  }
+
+  Future<void> updateAssetPrices(String userId) async {
+    if (_varliklar.isEmpty) return;
+
+    try {
+      final priceUpdateService = AssetPriceUpdateService();
+      final updatedAssets = await priceUpdateService.updateAllAssetPrices(_varliklar);
+      _varliklar = updatedAssets;
+      for (var asset in updatedAssets) {
+        getIt<AssetRepository>().updateAsset(userId, asset.toMap());
+      }
+      notifyListeners();
+    } catch (e) {
+      // Sessizce geç, kullanıcıyı rahatsız etme
+    }
   }
 
   @override

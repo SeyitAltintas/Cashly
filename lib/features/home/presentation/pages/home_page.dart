@@ -1,16 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../../../core/utils/error_handler.dart';
 import 'package:flutter/services.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/core/services/cloud_sync_service.dart';
 
 import 'package:cashly/features/settings/presentation/pages/profile/profile_page.dart';
-import 'package:cashly/core/di/injection_container.dart';
-import '../../../../core/services/batch_service.dart';
-import 'package:cashly/core/services/currency_service.dart';
-import 'package:cashly/core/services/asset_price_update_service.dart';
 
 // Auth
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
@@ -18,17 +13,9 @@ import 'package:cashly/features/auth/presentation/controllers/auth_controller.da
 // Features
 import 'package:cashly/features/tools/presentation/pages/tools_page.dart';
 import 'package:cashly/features/dashboard/presentation/pages/dashboard_page.dart';
-import 'package:cashly/features/expenses/presentation/pages/expenses_page.dart';
-import 'package:cashly/features/income/presentation/pages/incomes_page.dart';
-import 'package:cashly/features/assets/presentation/pages/assets_page.dart';
 import 'package:cashly/features/assets/data/models/asset_model.dart';
-import 'package:cashly/features/analysis/presentation/pages/analysis_page.dart';
-import 'package:cashly/features/payment_methods/presentation/pages/payment_methods_page.dart';
-import 'package:cashly/features/payment_methods/presentation/pages/transfer_page.dart';
-import 'package:cashly/features/payment_methods/presentation/pages/payment_method_detail_page.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/features/payment_methods/data/models/transfer_model.dart';
-import 'package:cashly/features/payment_methods/domain/transfer_schedule_policy.dart';
 import 'package:cashly/features/income/data/models/income_model.dart';
 import 'package:cashly/features/home/presentation/widgets/home_app_bar.dart';
 import 'package:cashly/features/home/presentation/widgets/home_bottom_nav.dart';
@@ -36,12 +23,10 @@ import 'package:cashly/features/streak/data/models/streak_model.dart';
 import 'package:cashly/features/streak/presentation/widgets/streak_celebration_dialog.dart';
 
 // Repository imports
-import 'package:cashly/features/assets/domain/repositories/asset_repository.dart';
-import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/streak/data/services/streak_service.dart';
-import 'package:cashly/core/widgets/error_boundary.dart';
 import '../state/home_page_state.dart';
 import 'package:cashly/core/widgets/shimmer_loading.dart';
+import 'package:cashly/features/home/presentation/utils/home_navigation_helper.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
 /// Araçlar (0), Dashboard (1), Profil (2)
@@ -102,11 +87,18 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Localization ancak didChangeDependencies'te hazır olur
-    // initState'te context.l10n kullanılamaz (Flutter 3.41+)
     if (!_transferKontrolYapildi) {
       _transferKontrolYapildi = true;
-      _zamanlanmisTransferleriKontrolEt();
+      final userId = widget.authController.currentUser?.id;
+      if (userId != null) {
+        final basarisiz = _homeState.checkScheduledTransfers(userId, context);
+        if (basarisiz.isNotEmpty && mounted) {
+          AppSnackBar.warning(
+            context,
+            context.l10n.scheduledTransfersFailed(basarisiz.join(", ")),
+          );
+        }
+      }
     }
   }
 
@@ -175,227 +167,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     if (userId == null) return;
 
     _homeState.loadData(userId);
-
-    // Varlık fiyatlarını arka planda güncelle
-    _updateAssetPrices();
-  }
-
-  /// Zamanlanmış transferleri kontrol eder ve tarihi gelenleri uygular
-  /// Edge case'ler: yetersiz bakiye, silinmiş hesap
-  void _zamanlanmisTransferleriKontrolEt() {
-    bool transferDegisti = false;
-    List<String> basarisizTransferler = [];
-
-    for (int i = 0; i < tumTransferler.length; i++) {
-      final transfer = tumTransferler[i];
-
-      // Bekleyen zamanlanmış transfer mi?
-      if (transfer.isPending) {
-        // Gönderen hesabı kontrol et
-        final fromIndex = tumOdemeYontemleri.indexWhere(
-          (pm) => pm.id == transfer.fromAccountId,
-        );
-
-        // Alıcı hesabı kontrol et
-        final toIndex = tumOdemeYontemleri.indexWhere(
-          (pm) => pm.id == transfer.toAccountId,
-        );
-
-        // Edge Case 1: Gönderen hesap silinmiş veya bulunamadı
-        if (fromIndex == -1) {
-          tumTransferler[i] = transfer.copyWith(
-            isFailed: true,
-            failureReason: context.l10n.senderAccountNotFound,
-          );
-          getIt<PaymentMethodRepository>().updateTransfer(
-            widget.authController.currentUser!.id,
-            tumTransferler[i].toMap(),
-          );
-          basarisizTransferler.add(context.l10n.senderAccountNotFound);
-          transferDegisti = true;
-          continue;
-        }
-
-        // Edge Case 2: Alıcı hesap silinmiş veya bulunamadı
-        if (toIndex == -1) {
-          tumTransferler[i] = transfer.copyWith(
-            isFailed: true,
-            failureReason: context.l10n.receiverAccountNotFound,
-          );
-          getIt<PaymentMethodRepository>().updateTransfer(
-            widget.authController.currentUser!.id,
-            tumTransferler[i].toMap(),
-          );
-          basarisizTransferler.add(context.l10n.receiverAccountNotFound);
-          transferDegisti = true;
-          continue;
-        }
-
-        final fromPm = tumOdemeYontemleri[fromIndex];
-        final toPm = tumOdemeYontemleri[toIndex];
-
-        // Edge Case 3: Gönderen hesap silinmiş (isDeleted = true)
-        if (fromPm.isDeleted) {
-          tumTransferler[i] = transfer.copyWith(
-            isFailed: true,
-            failureReason: context.l10n.accountDeleted(fromPm.name),
-          );
-          getIt<PaymentMethodRepository>().updateTransfer(
-            widget.authController.currentUser!.id,
-            tumTransferler[i].toMap(),
-          );
-          basarisizTransferler.add(context.l10n.accountDeleted(fromPm.name));
-          transferDegisti = true;
-          continue;
-        }
-
-        // Edge Case 4: Alıcı hesap silinmiş (isDeleted = true)
-        if (toPm.isDeleted) {
-          tumTransferler[i] = transfer.copyWith(
-            isFailed: true,
-            failureReason: context.l10n.accountDeleted(toPm.name),
-          );
-          getIt<PaymentMethodRepository>().updateTransfer(
-            widget.authController.currentUser!.id,
-            tumTransferler[i].toMap(),
-          );
-          basarisizTransferler.add(context.l10n.accountDeleted(toPm.name));
-          transferDegisti = true;
-          continue;
-        }
-
-        // Edge Case 5: Gönderen hesap kontrolü (Yetersiz bakiye veya Limit aşımı)
-        final cur = getIt<CurrencyService>();
-        final convertedTransferAmountFrom = cur.convert(
-          transfer.amount,
-          transfer.paraBirimi,
-          fromPm.paraBirimi,
-        );
-
-        bool limitVeyaBakiyeAsildi = false;
-        if (fromPm.type == 'kredi') {
-          final kalanLimit = (fromPm.limit ?? 0) - fromPm.balance;
-          if (convertedTransferAmountFrom > kalanLimit) {
-            limitVeyaBakiyeAsildi = true;
-          }
-        } else {
-          if (fromPm.balance < convertedTransferAmountFrom) {
-            limitVeyaBakiyeAsildi = true;
-          }
-        }
-
-        if (limitVeyaBakiyeAsildi) {
-          tumTransferler[i] = transfer.copyWith(
-            isFailed: true,
-            failureReason: context.l10n.insufficientBalanceAccount(fromPm.name),
-          );
-          getIt<PaymentMethodRepository>().updateTransfer(
-            widget.authController.currentUser!.id,
-            tumTransferler[i].toMap(),
-          );
-          basarisizTransferler.add(
-            context.l10n.insufficientBalanceAccount(fromPm.name),
-          );
-          transferDegisti = true;
-          continue;
-        }
-
-        // Edge Case 6: Alıcı kredi kartında borç yok (ödeme yapacak borç yok)
-        if (toPm.type == 'kredi' && toPm.balance <= 0) {
-          tumTransferler[i] = transfer.copyWith(
-            isFailed: true,
-            failureReason: context.l10n.noDebtToPay(toPm.name),
-          );
-          getIt<PaymentMethodRepository>().updateTransfer(
-            widget.authController.currentUser!.id,
-            tumTransferler[i].toMap(),
-          );
-          basarisizTransferler.add(context.l10n.noDebtToPay(toPm.name));
-          transferDegisti = true;
-          continue;
-        }
-
-        // Tüm kontroller geçti - transfer uygula
-        double fromYeniBakiye = fromPm.type == 'kredi'
-            ? fromPm.balance + convertedTransferAmountFrom
-            : fromPm.balance - convertedTransferAmountFrom;
-        tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
-          balance: fromYeniBakiye,
-        );
-        getIt<PaymentMethodRepository>().updatePaymentMethod(
-          widget.authController.currentUser!.id,
-          tumOdemeYontemleri[fromIndex].toMap(),
-        );
-
-        final convertedTransferAmountTo = cur.convert(
-          transfer.amount,
-          transfer.paraBirimi,
-          toPm.paraBirimi,
-        );
-        double toYeniBakiye = toPm.type == 'kredi'
-            ? toPm.balance - convertedTransferAmountTo
-            : toPm.balance + convertedTransferAmountTo;
-        tumOdemeYontemleri[toIndex] = toPm.copyWith(balance: toYeniBakiye);
-        getIt<PaymentMethodRepository>().updatePaymentMethod(
-          widget.authController.currentUser!.id,
-          tumOdemeYontemleri[toIndex].toMap(),
-        );
-
-        // Transferi başarılı olarak işaretle
-        tumTransferler[i] = transfer.copyWith(isExecuted: true);
-        getIt<PaymentMethodRepository>().updateTransfer(
-          widget.authController.currentUser!.id,
-          tumTransferler[i].toMap(),
-        );
-        transferDegisti = true;
-      }
-    }
-
-    if (transferDegisti) {
-      // _odemeYontemleriKaydet(); // İptal edildi
-      // _transferleriKaydet(); // İptal edildi
-
-      // UI'ı güncelle - ChangeNotifier ile
-      _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-      _homeState.tumTransferler = List.from(tumTransferler);
-
-      // Başarısız transfer varsa kullanıcıyı bilgilendir
-      if (basarisizTransferler.isNotEmpty && mounted) {
-        AppSnackBar.warning(
-          context,
-          context.l10n.scheduledTransfersFailed(
-            basarisizTransferler.join(", "),
-          ),
-        );
-      }
-    }
-  }
-
-  /// Varlık fiyatlarını güncel API verilerine göre günceller
-  Future<void> _updateAssetPrices() async {
-    // Güncellenecek varlık yoksa çık
-    if (varliklar.isEmpty) {
-      return;
-    }
-
-    try {
-      final priceUpdateService = AssetPriceUpdateService();
-      final updatedAssets = await priceUpdateService.updateAllAssetPrices(
-        varliklar,
-      );
-
-      if (mounted) {
-        _homeState.varliklar = updatedAssets;
-        for (var asset in updatedAssets) {
-          getIt<AssetRepository>().updateAsset(
-            widget.authController.currentUser!.id,
-            asset.toMap(),
-          );
-        }
-      }
-    } catch (e) {
-      // Sessizce geç, kullanıcıyı rahatsız etme
-    }
+    _homeState.updateAssetPrices(userId);
   }
 
   // ===== KAYIT METODLARI =====
@@ -471,12 +243,24 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
   Widget _buildToolsPage() {
     return ToolsPage(
-      onAssetsPressed: _navigateToAssets,
-      onAnalysisPressed: _navigateToAnalysis,
-      onPaymentMethodsPressed: _navigateToPaymentMethods,
-      onTransferPressed: _navigateToTransfer,
-      onExpensesPressed: _navigateToExpenses,
-      onIncomesPressed: _navigateToIncomes,
+      onAssetsPressed: ({bool replace = false, DateTime? initialDate}) => HomeNavigationHelper.navigateToAssets(
+        context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending, replace: replace, initialDate: initialDate
+      ),
+      onAnalysisPressed: () => HomeNavigationHelper.navigateToAnalysis(
+        context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending, onDataRefresh: _verileriOku
+      ),
+      onPaymentMethodsPressed: () => HomeNavigationHelper.navigateToPaymentMethods(
+        context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending
+      ),
+      onTransferPressed: () => HomeNavigationHelper.navigateToTransfer(
+        context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending
+      ),
+      onExpensesPressed: ({bool replace = false, DateTime? initialDate}) => HomeNavigationHelper.navigateToExpenses(
+        context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending, onDataRefresh: _verileriOku, replace: replace, initialDate: initialDate
+      ),
+      onIncomesPressed: ({bool replace = false, DateTime? initialDate}) => HomeNavigationHelper.navigateToIncomes(
+        context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending, onDataRefresh: _verileriOku, replace: replace, initialDate: initialDate
+      ),
     );
   }
 
@@ -554,453 +338,13 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         streakData: _streakData,
         transferler: tumTransferler,
         categoryBudgets: categoryBudgets,
-        onAssetsPressed: _navigateToAssets,
-      ),
-    );
-  }
-
-  // ===== NAVİGASYON METODLARI =====
-
-  void _navigateToAssets({bool replace = false, DateTime? initialDate}) {
-    final route = MaterialPageRoute(
-      builder: (context) => PageErrorBoundary(
-        pageName: context.l10n.assets,
-        child: AssetsPage(
-          assets: varliklar.where((a) => !a.isDeleted).toList(),
-          deletedAssets: varliklar.where((a) => a.isDeleted).toList(),
-          initialDate: initialDate ?? secilenAy,
-          onDelete: (asset) {
-            final index = varliklar.indexWhere((a) => a.id == asset.id);
-            if (index != -1) {
-              final deletedAsset = varliklar[index].copyWith(isDeleted: true);
-              varliklar[index] = deletedAsset;
-              getIt<AssetRepository>().updateAsset(
-                widget.authController.currentUser!.id,
-                deletedAsset.toMap(),
-              );
-            }
-            _homeState.varliklar = List.from(varliklar);
-          },
-          onEdit: (asset) {
-            final index = varliklar.indexWhere((a) => a.id == asset.id);
-            if (index != -1) {
-              varliklar[index] = asset;
-              getIt<AssetRepository>().updateAsset(
-                widget.authController.currentUser!.id,
-                asset.toMap(),
-              );
-            }
-            _homeState.varliklar = List.from(varliklar);
-          },
-          onRestore: (asset) {
-            final index = varliklar.indexWhere((a) => a.id == asset.id);
-            if (index != -1) {
-              final restoredAsset = varliklar[index].copyWith(isDeleted: false);
-              varliklar[index] = restoredAsset;
-              getIt<AssetRepository>().updateAsset(
-                widget.authController.currentUser!.id,
-                restoredAsset.toMap(),
-              );
-            }
-            _homeState.varliklar = List.from(varliklar);
-          },
-          onPermanentDelete: (asset) {
-            varliklar.removeWhere((a) => a.id == asset.id);
-            _homeState.varliklar = List.from(varliklar);
-            getIt<AssetRepository>().deleteAsset(
-              widget.authController.currentUser!.id,
-              asset.id,
-            );
-          },
-          onEmptyBin: () {
-            final deletedAssets = varliklar.where((a) => a.isDeleted).toList();
-            varliklar.removeWhere((a) => a.isDeleted);
-            _homeState.varliklar = List.from(varliklar);
-            
-            Future.microtask(() async {
-              try {
-                final operations = <BatchOperation>[];
-                for (var asset in deletedAssets) {
-                  operations.add(
-                    getIt<AssetRepository>().getDeleteAssetOperation(
-                      widget.authController.currentUser!.id,
-                      asset.id,
-                    ),
-                  );
-                }
-                await getIt<BatchService>().commit(operations);
-              } catch (e, s) {
-                ErrorHandler.logError('HomePage.Assets.onEmptyBin Background', e, s);
-              }
-            });
-          },
-          onAdd: (name, amount, quantity, category, type) {
-            final newAsset = Asset(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              name: name,
-              amount: amount,
-              quantity: quantity,
-              category: category,
-              type: type,
-              lastUpdated: DateTime.now(),
-              isDeleted: false,
-            );
-            varliklar.add(newAsset);
-            _homeState.varliklar = List.from(varliklar);
-            getIt<AssetRepository>().addAsset(
-              widget.authController.currentUser!.id,
-              newAsset.toMap(),
-            );
-          },
+        onAssetsPressed: ({bool replace = false, DateTime? initialDate}) => HomeNavigationHelper.navigateToAssets(
+          context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending, replace: replace, initialDate: initialDate
         ),
       ),
     );
-
-    final future = replace
-        ? Navigator.pushReplacement(context, route)
-        : Navigator.push(context, route);
-
-    future.then((_) => _showCelebrationIfPending());
   }
 
-  void _navigateToAnalysis() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PageErrorBoundary(
-          pageName: context.l10n.analysis,
-          child: AnalysisPage(
-            expenses: tumHarcamalar,
-            assets: varliklar,
-            incomes: tumGelirler,
-            selectedDate: secilenAy,
-            userId: widget.authController.currentUser?.id ?? '',
-            userName:
-                widget.authController.currentUser?.name ?? context.l10n.user,
-            paymentMethods: tumOdemeYontemleri,
-            categoryBudgets: categoryBudgets,
-            totalBudget: butceLimiti,
-            expenseCategoryIcons: kategoriIkonlari,
-            incomeCategoryIcons: gelirKategoriIkonlari,
-            onAddExpensePressed: (DateTime date) {
-              _navigateToExpenses(replace: true, initialDate: date);
-            },
-            onAddIncomePressed: (DateTime date) {
-              _navigateToIncomes(replace: true, initialDate: date);
-            },
-            onAddAssetPressed: (DateTime date) {
-              _navigateToAssets(replace: true, initialDate: date);
-            },
-          ),
-        ),
-      ),
-    ).then((_) => _showCelebrationIfPending());
-  }
-
-  void _navigateToPaymentMethods() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PageErrorBoundary(
-          pageName: context.l10n.paymentMethods,
-          child: PaymentMethodsPage(
-            paymentMethods: tumOdemeYontemleri
-                .where((p) => !p.isDeleted)
-                .toList(),
-            deletedPaymentMethods: tumOdemeYontemleri
-                .where((p) => p.isDeleted)
-                .toList(),
-            userName: widget.authController.currentUser?.name,
-            userProfileUrl: widget.authController.currentUser?.profileImage,
-            onDelete: (pm) {
-              final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-              if (i != -1) {
-                final deletedPm = pm.copyWith(isDeleted: true);
-                tumOdemeYontemleri[i] = deletedPm;
-                _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-                getIt<PaymentMethodRepository>().updatePaymentMethod(
-                  widget.authController.currentUser!.id,
-                  deletedPm.toMap(),
-                );
-              }
-            },
-            onEdit: (pm) {
-              final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-              if (i != -1) {
-                tumOdemeYontemleri[i] = pm;
-                _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-                getIt<PaymentMethodRepository>().updatePaymentMethod(
-                  widget.authController.currentUser!.id,
-                  pm.toMap(),
-                );
-              }
-            },
-            onRestore: (pm) {
-              final i = tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
-              if (i != -1) {
-                final restoredPm = pm.copyWith(isDeleted: false);
-                tumOdemeYontemleri[i] = restoredPm;
-                _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-                getIt<PaymentMethodRepository>().updatePaymentMethod(
-                  widget.authController.currentUser!.id,
-                  restoredPm.toMap(),
-                );
-              }
-            },
-            onPermanentDelete: (pm) {
-              tumOdemeYontemleri.removeWhere((p) => p.id == pm.id);
-              _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-              getIt<PaymentMethodRepository>().deletePaymentMethod(
-                widget.authController.currentUser!.id,
-                pm.id,
-              );
-            },
-            onEmptyBin: () {
-              final deletedMethods = tumOdemeYontemleri
-                  .where((p) => p.isDeleted)
-                  .toList();
-              for (var delPm in deletedMethods) {
-                getIt<PaymentMethodRepository>().deletePaymentMethod(
-                  widget.authController.currentUser!.id,
-                  delPm.id,
-                );
-              }
-              tumOdemeYontemleri.removeWhere((p) => p.isDeleted);
-              _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-            },
-            onAdd: (name, type, lastFourDigits, balance, limit, colorIndex) {
-              final newPm = PaymentMethod(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                name: name,
-                type: type,
-                lastFourDigits: lastFourDigits,
-                balance: balance,
-                limit: limit,
-                colorIndex: colorIndex,
-                createdAt: DateTime.now(),
-                isDeleted: false,
-              );
-              tumOdemeYontemleri.add(newPm);
-              _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-              getIt<PaymentMethodRepository>().addPaymentMethod(
-                widget.authController.currentUser!.id,
-                newPm.toMap(),
-              );
-            },
-            onCardTap: (pm) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PaymentMethodDetailPage(
-                    paymentMethod: pm,
-                    harcamalar: tumHarcamalar,
-                    gelirler: tumGelirler,
-                    transferler: tumTransferler,
-                    tumOdemeYontemleri: tumOdemeYontemleri,
-                  ),
-                ),
-              ).then((_) => _showCelebrationIfPending());
-            },
-          ),
-        ),
-      ),
-    ).then((_) => _showCelebrationIfPending());
-  }
-
-  void _navigateToTransfer() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TransferPage(
-          userId: widget.authController.currentUser?.id,
-          paymentMethods: tumOdemeYontemleri
-              .where((pm) => !pm.isDeleted)
-              .toList(),
-          transfers: tumTransferler,
-          onTransfer: (fromId, toId, amount, date) {
-            // Tarihi kontrol et - bugün mü yoksa ileri tarih mi?
-            final isScheduled = TransferSchedulePolicy.isScheduled(
-              selectedDate: date,
-            );
-
-            int finalFromIndex = -1;
-            int finalToIndex = -1;
-            if (!isScheduled) {
-              // Anında transfer - bakiyeleri hemen güncelle
-              final cur = getIt<CurrencyService>();
-
-              final fromIndex = tumOdemeYontemleri.indexWhere(
-                (pm) => pm.id == fromId,
-              );
-              finalFromIndex = fromIndex;
-              if (fromIndex != -1) {
-                final fromPm = tumOdemeYontemleri[fromIndex];
-                final convertedFromAmount = cur.convert(
-                  amount,
-                  cur.currentCurrency,
-                  fromPm.paraBirimi,
-                );
-
-                double yeniBakiye = fromPm.type == 'kredi'
-                    ? fromPm.balance + convertedFromAmount
-                    : fromPm.balance - convertedFromAmount;
-                tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
-                  balance: yeniBakiye,
-                );
-                tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
-                  balance: yeniBakiye,
-                );
-              }
-              final toIndex = tumOdemeYontemleri.indexWhere(
-                (pm) => pm.id == toId,
-              );
-              finalToIndex = toIndex;
-              if (toIndex != -1) {
-                final toPm = tumOdemeYontemleri[toIndex];
-                final convertedToAmount = cur.convert(
-                  amount,
-                  cur.currentCurrency,
-                  toPm.paraBirimi,
-                );
-
-                double yeniBakiye = toPm.type == 'kredi'
-                    ? toPm.balance - convertedToAmount
-                    : toPm.balance + convertedToAmount;
-                tumOdemeYontemleri[toIndex] = toPm.copyWith(
-                  balance: yeniBakiye,
-                );
-                tumOdemeYontemleri[toIndex] = toPm.copyWith(
-                  balance: yeniBakiye,
-                );
-              }
-              _homeState.tumOdemeYontemleri = List.from(tumOdemeYontemleri);
-            }
-            // İleri tarihli transfer - bakiye değişmez, zamanlanmış olarak kaydedilir
-
-            // Transfer kaydını oluştur
-            final newTransfer = Transfer(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              fromAccountId: fromId,
-              toAccountId: toId,
-              amount: amount,
-              date: date,
-              isScheduled: isScheduled,
-              isExecuted: !isScheduled, // Anında transfer zaten uygulandı
-              paraBirimi: getIt<CurrencyService>().currentCurrency,
-            );
-            tumTransferler.insert(0, newTransfer);
-            
-            // Arka planda Firestore işlemlerini Batch ile yap
-            Future.microtask(() async {
-              try {
-                final operations = <BatchOperation>[];
-                
-                if (!isScheduled) {
-                  if (finalFromIndex != -1) {
-                    operations.add(getIt<PaymentMethodRepository>().getUpdatePaymentMethodOperation(
-                      widget.authController.currentUser!.id,
-                      tumOdemeYontemleri[finalFromIndex].toMap(),
-                    ));
-                  }
-                  if (finalToIndex != -1) {
-                    operations.add(getIt<PaymentMethodRepository>().getUpdatePaymentMethodOperation(
-                      widget.authController.currentUser!.id,
-                      tumOdemeYontemleri[finalToIndex].toMap(),
-                    ));
-                  }
-                }
-                
-                operations.add(getIt<PaymentMethodRepository>().getAddTransferOperation(
-                  widget.authController.currentUser!.id,
-                  newTransfer.toMap(),
-                ));
-                
-                await getIt<BatchService>().commit(operations);
-              } catch (e, s) {
-                ErrorHandler.logError('HomePage.Transfer Background', e, s);
-              }
-            });
-          },
-        ),
-      ),
-    ).then((_) => _showCelebrationIfPending());
-  }
-
-  void _navigateToExpenses({bool replace = false, DateTime? initialDate}) {
-    // Sayfa açıldığında her zaman güncel ayı (veya gelen tarihi) göstersin
-    final targetDate = initialDate ?? DateTime.now();
-    _homeState.secilenAy = targetDate;
-
-    final route = MaterialPageRoute(
-      builder: (context) => PageErrorBoundary(
-        pageName: context.l10n.expenses,
-        child: ExpensesPage(
-          tumHarcamalar: tumHarcamalar,
-          tumOdemeYontemleri: tumOdemeYontemleri,
-          kategoriIkonlari: kategoriIkonlari,
-          butceLimiti: butceLimiti,
-          secilenAy: targetDate,
-          userId: widget.authController.currentUser?.id,
-          varsayilanOdemeYontemiId: varsayilanOdemeYontemiId,
-          onHarcamalarChanged: (harcamalar) {
-            _homeState.tumHarcamalar = harcamalar;
-          },
-          onOdemeYontemleriChanged: (odemeYontemleri) {
-            _homeState.tumOdemeYontemleri = odemeYontemleri;
-          },
-          onMonthChanged: (DateTime newMonth) {
-            _homeState.secilenAy = newMonth;
-          },
-        ),
-      ),
-    );
-
-    final future = replace
-        ? Navigator.pushReplacement(context, route)
-        : Navigator.push(context, route);
-
-    future.then((_) {
-      _verileriOku();
-      _showCelebrationIfPending();
-    });
-  }
-
-  void _navigateToIncomes({bool replace = false, DateTime? initialDate}) {
-    // Sayfa açıldığında her zaman güncel ayı (veya gelen tarihi) göstersin
-    final targetDate = initialDate ?? DateTime.now();
-    _homeState.secilenAy = targetDate;
-
-    final route = MaterialPageRoute(
-      builder: (context) => PageErrorBoundary(
-        pageName: context.l10n.incomes,
-        child: IncomesPage(
-          tumGelirler: tumGelirler,
-          tumOdemeYontemleri: tumOdemeYontemleri,
-          gelirKategoriIkonlari: gelirKategoriIkonlari,
-          secilenAy: targetDate,
-          userId: widget.authController.currentUser?.id,
-          onGelirlerChanged: (gelirler) {
-            _homeState.tumGelirler = gelirler;
-          },
-          onOdemeYontemleriChanged: (odemeYontemleri) {
-            _homeState.tumOdemeYontemleri = odemeYontemleri;
-          },
-          onMonthChanged: (DateTime newMonth) {
-            _homeState.secilenAy = newMonth;
-          },
-        ),
-      ),
-    );
-
-    final future = replace
-        ? Navigator.pushReplacement(context, route)
-        : Navigator.push(context, route);
-
-    future.then((_) {
-      _verileriOku();
-      _showCelebrationIfPending();
-    });
-  }
 }
 
 /// M3 uyumlu dinamik AppBar
