@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/core/services/batch_service.dart';
+import 'package:cashly/core/services/currency_service.dart';
 import 'package:cashly/features/expenses/presentation/controllers/expenses_controller.dart';
 import 'package:cashly/features/expenses/domain/repositories/expense_repository.dart';
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
+import 'package:get_it/get_it.dart';
 
 /// Mock ExpenseRepository - testlerde gerçek veritabanını kullanmadan test yapabilmek için
 class MockExpenseRepository implements ExpenseRepository {
@@ -165,6 +167,23 @@ void main() {
     late ExpensesController controller;
     const testUserId = 'test_user_123';
 
+    setUpAll(() {
+      if (!GetIt.instance.isRegistered<BatchService>()) {
+        GetIt.instance.registerLazySingleton<BatchService>(
+          () => MockBatchService(),
+        );
+      }
+      if (!GetIt.instance.isRegistered<CurrencyService>()) {
+        GetIt.instance.registerLazySingleton<CurrencyService>(
+          () => CurrencyService(),
+        );
+      }
+    });
+
+    tearDownAll(() {
+      GetIt.instance.reset();
+    });
+
     setUp(() {
       mockExpenseRepo = MockExpenseRepository();
       mockPaymentMethodRepo = MockPaymentMethodRepository();
@@ -241,7 +260,7 @@ void main() {
 
         await controller.loadData();
         controller.secilenAy = now;
-        controller.filtreleVeGoster();
+        await controller.filtreleVeGoster();
 
         expect(controller.gosterilenHarcamalar.length, equals(1));
         expect(controller.gosterilenHarcamalar.first['isim'], equals('Bu Ay'));
@@ -268,7 +287,7 @@ void main() {
 
         await controller.loadData();
         controller.secilenAy = now;
-        controller.filtreleVeGoster(aramaMetni: 'kahv');
+        await controller.filtreleVeGoster(aramaMetni: 'kahv');
 
         expect(controller.gosterilenHarcamalar.length, equals(1));
         expect(
@@ -298,7 +317,7 @@ void main() {
 
         await controller.loadData();
         controller.secilenAy = now;
-        controller.filtreleVeGoster();
+        await controller.filtreleVeGoster();
 
         expect(controller.gosterilenHarcamalar.length, equals(1));
         expect(controller.gosterilenHarcamalar.first['isim'], equals('Aktif'));

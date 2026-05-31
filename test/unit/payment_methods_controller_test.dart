@@ -93,6 +93,11 @@ void main() {
         () => CurrencyService(),
       );
     }
+    if (!GetIt.instance.isRegistered<BatchService>()) {
+      GetIt.instance.registerLazySingleton<BatchService>(
+        () => MockBatchService(),
+      );
+    }
   });
 
   tearDownAll(() {

@@ -197,6 +197,8 @@ class DashboardController extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _disposed = false;
+
   bool _isObscured = false;
   bool get isObscured => _isObscured;
 
@@ -255,6 +257,7 @@ class DashboardController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     if (getIt.isRegistered<CurrencyService>()) {
       getIt<CurrencyService>().removeListener(_onCurrencyChanged);
     }
@@ -273,15 +276,6 @@ class DashboardController extends ChangeNotifier {
   }
 
   // ===== HESAPLAMALAR =====
-
-  /// Saate göre selamlama mesajı
-  String get greeting {
-    final hour = DateTime.now().hour;
-    if (hour < 6) return "İyi geceler";
-    if (hour < 12) return "Günaydın";
-    if (hour < 18) return "İyi günler";
-    return "İyi akşamlar";
-  }
 
   /// Toplam bakiye (tüm ödeme yöntemlerinin toplamı)
   double get totalBalance {
@@ -507,6 +501,6 @@ class DashboardController extends ChangeNotifier {
     );
     
     _result = await compute(_calculateDashboardWorker, payload);
-    notifyListeners();
+    if (!_disposed) notifyListeners();
   }
 }

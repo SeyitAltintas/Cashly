@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:cashly/features/income/data/models/income_model.dart';
@@ -18,6 +19,12 @@ class MockCurrencyService extends CurrencyService {
   }
 }
 
+/// compute() isolate'inin tamamlanması için bekler.
+/// (Çoklu notifyListeners çakışmalarını önlemek için güvenli bekleme)
+Future<void> _waitForNotify(DashboardController ctrl) async {
+  await Future.delayed(const Duration(milliseconds: 150));
+}
+
 void main() {
   setUpAll(() {
     if (!GetIt.instance.isRegistered<CurrencyService>()) {
@@ -36,27 +43,21 @@ void main() {
 
     setUp(() {
       controller = DashboardController();
-      // Initialize without use cases, just test the fallback logic
       controller.setUserId(null);
     });
 
-    test('Greeting mesaji saate gore degismeli', () {
-      final greeting = controller.greeting;
-      // greeting sadece anlik saate baglı; en azindan bir yazi dondugunu ve null olmadigini bilelim
-      expect(greeting, isNotEmpty);
-      expect(
-        greeting == 'İyi geceler' ||
-            greeting == 'Günaydın' ||
-            greeting == 'İyi günler' ||
-            greeting == 'İyi akşamlar',
-        isTrue,
-      );
+    tearDown(() {
+      controller.dispose();
     });
 
-    test('Bütçe limit aşımı doğru kontrol edilmeli', () {
-      controller.setSecilenAy(DateTime.now());
+    // Not: greeting mantığı UI katmanına taşındı (_GreetingSection widget'ı).
+    // DashboardController artık saat tabanlı greeting içermez.
 
+    test('Bütçe limit aşımı doğru kontrol edilmeli', () async {
+      controller.setSecilenAy(DateTime.now());
       controller.setButceLimiti(5000.0);
+
+      final waitFuture = _waitForNotify(controller);
       controller.setHarcamalar([
         {
           'isim': 'Market',
@@ -66,15 +67,17 @@ void main() {
           'tarih': DateTime.now().toIso8601String(),
         },
       ]);
+      await waitFuture;
 
       expect(controller.isBudgetExceeded, isTrue);
       // Aylık harcama = 6000, Limit = 5000 => Yüzde 100 olmalı (.clamp(0,100) var)
       expect(controller.budgetUsagePercentage, equals(100.0));
     });
 
-    test('Net fark hesaplaması çalışmalı (Gelir - Gider)', () {
+    test('Net fark hesaplaması çalışmalı (Gelir - Gider)', () async {
       controller.setSecilenAy(DateTime.now());
 
+      final waitFuture1 = _waitForNotify(controller);
       controller.setHarcamalar([
         {
           'tutar': 2000.0,
@@ -83,7 +86,9 @@ void main() {
           'tarih': DateTime.now().toIso8601String(),
         },
       ]);
+      await waitFuture1;
 
+      final waitFuture2 = _waitForNotify(controller);
       controller.setGelirler([
         Income(
           id: '1',
@@ -93,6 +98,7 @@ void main() {
           date: DateTime.now(),
         ),
       ]);
+      await waitFuture2;
 
       expect(controller.monthlyExpense, equals(2000.0));
       expect(controller.monthlyIncome, equals(5000.0));
@@ -101,7 +107,8 @@ void main() {
 
     test(
       'Kredi kartı hariç totalBalance toplanır, kredi debt olarak toplanır',
-      () {
+      () async {
+        final waitFuture = _waitForNotify(controller);
         controller.setOdemeYontemleri([
           PaymentMethod(
             id: '1',
@@ -126,47 +133,47 @@ void main() {
             createdAt: DateTime.now(),
           ),
         ]);
+        await waitFuture;
 
         expect(controller.totalBalance, equals(4000.0));
         expect(controller.totalCreditDebt, equals(1500.0));
       },
     );
 
-    test('CurrencyService değiştiğinde DashboardController kendini yeniler', () async {
-      // Bir listener oluşturup Controller'ı dinleyelim
-      bool wasNotified = false;
-      controller.addListener(() {
-        wasNotified = true;
-      });
+    test(
+      'CurrencyService değiştiğinde DashboardController kendini yeniler',
+      () async {
+        final waitFuture1 = _waitForNotify(controller);
+        controller.setOdemeYontemleri([
+          PaymentMethod(
+            id: '1',
+            name: 'Nakit',
+            type: 'nakit',
+            balance: 100.0,
+            createdAt: DateTime.now(),
+          ),
+        ]);
+        await waitFuture1;
 
-      // Bakiye set edelim
-      controller.setOdemeYontemleri([
-        PaymentMethod(
-          id: '1',
-          name: 'Nakit',
-          type: 'nakit',
-          balance: 100.0,
-          createdAt: DateTime.now(),
-        ),
-      ]);
-      wasNotified =
-          false; // setOdemeYontemleri ataması ile notify çalışır, sıfırlayalım
+        bool wasNotified = false;
+        controller.addListener(() {
+          wasNotified = true;
+        });
 
-      final currencyService = GetIt.instance<CurrencyService>();
-      // "setCurrency" asenkron çalıştığı için beklemeliyiz
-      await currencyService.setCurrency('USD');
+        final currencyService = GetIt.instance<CurrencyService>();
+        final waitFuture2 = _waitForNotify(controller);
+        await currencyService.setCurrency('USD');
+        await waitFuture2;
 
-      // CurrencyService'in kendi notify logic'i çalıştı. DashboardController da bunu duymuş olmalı.
-      expect(
-        wasNotified,
-        isTrue,
-        reason:
-            'DashboardController, CurrencyService deki değişikliği dinleyip refresh atmalı',
-      );
+        expect(
+          wasNotified,
+          isTrue,
+          reason:
+              'DashboardController, CurrencyService deki değişikliği dinleyip refresh atmalı',
+        );
 
-      // Test sonrası eski dövize (TRY) çekelim ki diğer testleri (varsa) bozmasın
-      await currencyService.setCurrency('TRY');
-      controller.dispose(); // Listener'ı silsin bellek temizlensin
-    });
+        await currencyService.setCurrency('TRY');
+      },
+    );
   });
 }

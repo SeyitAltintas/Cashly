@@ -107,9 +107,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     super.dispose();
   }
 
-  double get totalBalance => _controller.totalBalance;
-  double get totalDebt => _controller.totalDebt;
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<PaymentMethodsController>.value(
@@ -348,16 +345,42 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
       itemExtent: 156,
       itemBuilder: (context, index) {
         final pm = filteredMethods[index];
-        return _buildPaymentMethodCard(pm);
+        return _PaymentMethodCard(
+          pm: pm,
+          controller: _controller,
+          onDelete: widget.onDelete,
+          onEdit: widget.onEdit,
+          onCardTap: widget.onCardTap,
+        );
       },
     );
   }
 
-  Widget _buildPaymentMethodCard(PaymentMethod pm) {
+}
+
+/// Ödeme yöntemi kartı — ayrı StatelessWidget olarak izole edildi.
+/// [RepaintBoundary] ile repaint izolasyonu ve her rebuild'de yeni nesne
+/// oluşturma maliyeti önlendi.
+class _PaymentMethodCard extends StatelessWidget {
+  final PaymentMethod pm;
+  final PaymentMethodsController controller;
+  final Function(PaymentMethod)? onCardTap;
+  final Function(PaymentMethod) onDelete;
+  final Function(PaymentMethod) onEdit;
+
+  const _PaymentMethodCard({
+    required this.pm,
+    required this.controller,
+    required this.onDelete,
+    required this.onEdit,
+    this.onCardTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final colors = CardColorConstants
         .gradients[pm.colorIndex.clamp(0, CardColorConstants.count - 1)];
 
-    // RepaintBoundary: Bu kartın repaint'ini izole eder
     return RepaintBoundary(
       child: Dismissible(
         key: Key(pm.id),
@@ -374,63 +397,56 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
         ),
         onDismissed: (direction) async {
           try {
-            await _controller.moveToBin(pm);
-            widget.onDelete(pm);
+            await controller.moveToBin(pm);
+            onDelete(pm);
           } catch (e) {
-            if (!mounted) return;
+            if (!context.mounted) return;
             if (e is AppException) {
               ErrorHandler.handleAppException(context, e);
             }
           }
         },
         child: GestureDetector(
-          onTap: () {
-            // Detay sayfasına yönlendir (eğer callback tanımlıysa)
-            if (widget.onCardTap != null) {
-              widget.onCardTap!(pm);
-            }
-          },
+          onTap: onCardTap != null ? () => onCardTap!(pm) : null,
           onLongPress: () {
-            // Düzenleme sayfasına git
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => AddPaymentMethodPage(
                   paymentMethod: pm,
-                  onSave:
-                      (
-                        name,
-                        type,
-                        lastFourDigits,
-                        balance,
-                        limit,
-                        colorIndex,
-                      ) async {
-                        try {
-                          final updatedPm = PaymentMethod(
-                            id: pm.id,
-                            name: name,
-                            type: type,
-                            lastFourDigits: lastFourDigits,
-                            balance: balance,
-                            limit: limit,
-                            colorIndex: colorIndex,
-                            createdAt: pm.createdAt,
-                            isDeleted: false,
-                            paraBirimi: pm.paraBirimi,
-                          );
-                          await _controller.updateMethod(updatedPm);
-                          widget.onEdit(updatedPm);
-                        } catch (e) {
-                          if (!mounted) return;
-                          if (e is AppException) {
-                            ErrorHandler.handleAppException(context, e);
-                          }
-                        }
-                      },
+                  onSave: (
+                    name,
+                    type,
+                    lastFourDigits,
+                    balance,
+                    limit,
+                    colorIndex,
+                  ) async {
+                    try {
+                      final updatedPm = PaymentMethod(
+                        id: pm.id,
+                        name: name,
+                        type: type,
+                        lastFourDigits: lastFourDigits,
+                        balance: balance,
+                        limit: limit,
+                        colorIndex: colorIndex,
+                        createdAt: pm.createdAt,
+                        isDeleted: false,
+                        paraBirimi: pm.paraBirimi,
+                      );
+                      await controller.updateMethod(updatedPm);
+                      onEdit(updatedPm);
+                    } catch (e) {
+                      if (!context.mounted) return;
+                      if (e is AppException) {
+                        ErrorHandler.handleAppException(context, e);
+                      }
+                    }
+                  },
                 ),
               ),
-            ).then((_) {});
+            );
           },
           child: Container(
             height: 140,
@@ -459,7 +475,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Üst satır
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -492,17 +507,15 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       ),
                     ],
                   ),
-                  // Kart numarası
                   if (pm.type != 'nakit' && pm.lastFourDigits != null)
                     Text(
-                      '•••• •••• •••• ${pm.lastFourDigits}',
+                      '\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 ${pm.lastFourDigits}',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 14,
                         letterSpacing: 2,
                       ),
                     ),
-                  // Alt satır
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

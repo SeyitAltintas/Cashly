@@ -63,13 +63,18 @@ class ExpensesController extends ChangeNotifier with ExpenseFormMixin, ExpenseVo
 
   // ===== STATE =====
 
-
   @override
   ExpenseRepository get expenseRepository => _expenseRepository;
-  
-  @override
-  Future<void> savePaymentMethodsInternal() => savePaymentMethods();
 
+  @override
+  Future<void> savePaymentMethodsInternal() => _saveAllPaymentMethods();
+
+  /// Tüm ödeme yöntemlerini Firestore'a yazar (Legacy metodlar için).
+  Future<void> _saveAllPaymentMethods() async {
+    for (var pm in _tumOdemeYontemleri) {
+      await _paymentMethodRepository.updatePaymentMethod(userId, pm.toMap());
+    }
+  }
 
   // ===== ANA STATE =====
 
@@ -186,17 +191,6 @@ class ExpensesController extends ChangeNotifier with ExpenseFormMixin, ExpenseVo
     }
   }
 
-  /// Harcamaları kaydet
-  Future<void> saveExpenses() async {
-    // Deprecated: Handled by individual CRUD operations
-  }
-
-  /// Ödeme yöntemlerini kaydet
-  Future<void> savePaymentMethods() async {
-    for (var pm in _tumOdemeYontemleri) {
-      await _paymentMethodRepository.updatePaymentMethod(userId, pm.toMap());
-    }
-  }
 
   // ===== FİLTRELEME =====
 
@@ -312,7 +306,7 @@ class ExpensesController extends ChangeNotifier with ExpenseFormMixin, ExpenseVo
             userId,
             harcama,
           ); // Soft delete
-          await savePaymentMethods();
+          await _saveAllPaymentMethods();
         } catch (e, s) {
           // Hata durumunda işlemi geri al (Rollback)
           ErrorHandler.logError(
@@ -378,7 +372,7 @@ class ExpensesController extends ChangeNotifier with ExpenseFormMixin, ExpenseVo
       Future.microtask(() async {
         try {
           await _expenseRepository.updateExpense(userId, harcama); // Restore
-          await savePaymentMethods();
+          await _saveAllPaymentMethods();
         } catch (e, s) {
           // Hata durumunda işlemi geri al (Rollback)
           ErrorHandler.logError(

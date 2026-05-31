@@ -5,11 +5,21 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/services/batch_service.dart';
+import 'mixins/payment_method_form_mixin.dart';
+import 'mixins/payment_method_transfer_mixin.dart';
+import 'mixins/payment_method_detail_mixin.dart';
 
-/// Ödeme Yöntemleri Controller
-/// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
-/// Bu controller PaymentMethodPageState'in yerini alır.
-class PaymentMethodsController extends ChangeNotifier {
+/// Ödeme Yöntemleri Controller — CRUD, filtreleme ve liste yönetimi.
+///
+/// Sayfaya özgü geçici state mixin'lere ayrılmıştır:
+/// - [PaymentMethodFormMixin]     → AddPaymentMethodPage form state'i
+/// - [PaymentMethodTransferMixin] → TransferPage state'i
+/// - [PaymentMethodDetailMixin]   → PaymentMethodDetailPage ay/yıl state'i
+class PaymentMethodsController extends ChangeNotifier
+    with
+        PaymentMethodFormMixin,
+        PaymentMethodTransferMixin,
+        PaymentMethodDetailMixin {
   final PaymentMethodRepository _paymentMethodRepository;
   final String userId;
 
@@ -17,145 +27,6 @@ class PaymentMethodsController extends ChangeNotifier {
     required PaymentMethodRepository paymentMethodRepository,
     required this.userId,
   }) : _paymentMethodRepository = paymentMethodRepository;
-
-  // ===== STATE =====
-
-  // ===== FORM STATE (AddPaymentMethodFormState'ten taşındı) =====
-
-  // Form: Seçilen tür (nakit, banka, kredi)
-  String _formSelectedType = 'nakit';
-  String get formSelectedType => _formSelectedType;
-  void setFormType(String type) {
-    if (_formSelectedType != type) {
-      _formSelectedType = type;
-      notifyListeners();
-    }
-  }
-
-  // Form: Seçilen renk index'i
-  int _formSelectedColorIndex = 0;
-  int get formSelectedColorIndex => _formSelectedColorIndex;
-  void setFormColorIndex(int index) {
-    if (_formSelectedColorIndex != index) {
-      _formSelectedColorIndex = index;
-      notifyListeners();
-    }
-  }
-
-  /// Form state'ini initialize et
-  void initializeFormState({String? editType, int? editColorIndex}) {
-    if (editType != null) _formSelectedType = editType;
-    if (editColorIndex != null) _formSelectedColorIndex = editColorIndex;
-    notifyListeners();
-  }
-
-  /// Form state'ini sıfırla
-  void resetFormState() {
-    _formSelectedType = 'nakit';
-    _formSelectedColorIndex = 0;
-    notifyListeners();
-  }
-
-  // ===== TRANSFER STATE (TransferPageState'ten taşındı) =====
-
-  // Transfer: Gönderen hesap ID
-  String? _transferFromAccountId;
-  String? get transferFromAccountId => _transferFromAccountId;
-  void setTransferFromAccount(String? accountId) {
-    if (_transferFromAccountId != accountId) {
-      _transferFromAccountId = accountId;
-      notifyListeners();
-    }
-  }
-
-  // Transfer: Alan hesap ID
-  String? _transferToAccountId;
-  String? get transferToAccountId => _transferToAccountId;
-  void setTransferToAccount(String? accountId) {
-    if (_transferToAccountId != accountId) {
-      _transferToAccountId = accountId;
-      notifyListeners();
-    }
-  }
-
-  // Transfer: Seçilen tarih
-  DateTime _transferSelectedDate = DateTime.now();
-  DateTime get transferSelectedDate => _transferSelectedDate;
-  void setTransferDate(DateTime date) {
-    _transferSelectedDate = date;
-    notifyListeners();
-  }
-
-  // Transfer: Başarı mesajı
-  String? _transferSuccessMessage;
-  String? get transferSuccessMessage => _transferSuccessMessage;
-  void setTransferSuccessMessage(String? message) {
-    _transferSuccessMessage = message;
-    notifyListeners();
-  }
-
-  void clearTransferSuccessMessage() {
-    if (_transferSuccessMessage != null) {
-      _transferSuccessMessage = null;
-      notifyListeners();
-    }
-  }
-
-  /// Transfer formunu sıfırla
-  void resetTransferForm() {
-    _transferFromAccountId = null;
-    _transferToAccountId = null;
-    _transferSelectedDate = DateTime.now();
-    notifyListeners();
-  }
-
-  /// Alias metodları (transfer_page.dart uyumu için)
-  void setTransferFromAccountId(String? accountId) =>
-      setTransferFromAccount(accountId);
-  void setTransferToAccountId(String? accountId) =>
-      setTransferToAccount(accountId);
-  void setTransferSelectedDate(DateTime date) => setTransferDate(date);
-
-  /// Ödeme yöntemi bakiyesini güncelle
-  void updatePaymentMethodBalance(String accountId, double newBalance) {
-    final index = _paymentMethods.indexWhere((pm) => pm.id == accountId);
-    if (index != -1) {
-      _paymentMethods[index] = _paymentMethods[index].copyWith(
-        balance: newBalance,
-      );
-      notifyListeners();
-    }
-  }
-
-  /// Transfer page için ödeme yöntemleri alias
-  List<PaymentMethod> get odemeYontemleri => _paymentMethods;
-
-  // ===== DETAIL PAGE STATE (PaymentMethodDetailState'ten taşındı) =====
-
-  // Detail: Seçilen ay
-  late int _detailSecilenAy = DateTime.now().month;
-  int get detailSecilenAy => _detailSecilenAy;
-
-  // Detail: Seçilen yıl
-  late int _detailSecilenYil = DateTime.now().year;
-  int get detailSecilenYil => _detailSecilenYil;
-
-  /// Detail sayfası için ay seçimini güncelle
-  void selectDetailMonth(int month, int year) {
-    if (_detailSecilenAy != month || _detailSecilenYil != year) {
-      _detailSecilenAy = month;
-      _detailSecilenYil = year;
-      notifyListeners();
-    }
-  }
-
-  /// Detail sayfasını şu ana sıfırla
-  void resetDetailMonth() {
-    final now = DateTime.now();
-    _detailSecilenAy = now.month;
-    _detailSecilenYil = now.year;
-    notifyListeners();
-  }
 
   // ===== ANA STATE =====
 
@@ -195,6 +66,9 @@ class PaymentMethodsController extends ChangeNotifier {
   List<PaymentMethod> get deletedPaymentMethods => _deletedPaymentMethods;
   List<PaymentMethod> get filteredMethods => _filteredMethods;
 
+  /// Transfer page için alias
+  List<PaymentMethod> get odemeYontemleri => _paymentMethods;
+
   double get totalBalance {
     final cur = getIt<CurrencyService>();
     return _filteredMethods
@@ -217,7 +91,7 @@ class PaymentMethodsController extends ChangeNotifier {
         );
   }
 
-  // ===== REPOSITORY İŞLEMLERİ =====
+  // ===== VERİ YÜKLEME =====
 
   Future<void> loadData() async {
     _isLoading = true;
@@ -246,12 +120,15 @@ class PaymentMethodsController extends ChangeNotifier {
     }
   }
 
-  Future<void> savePaymentMethods() async {
-    // Deprecated: No longer doing batch saves
-  }
-
-  Future<void> saveDeletedPaymentMethods() async {
-    // Deprecated: No longer doing batch saves
+  /// Widget prop'larından veriyi yükle (prop-down pattern için)
+  void initData(
+    List<PaymentMethod> methods,
+    List<PaymentMethod> deletedMethods,
+  ) {
+    _paymentMethods = List.from(methods);
+    _deletedPaymentMethods = List.from(deletedMethods);
+    _filteredMethods = List.from(_paymentMethods);
+    notifyListeners();
   }
 
   // ===== FİLTRELEME =====
@@ -272,6 +149,20 @@ class PaymentMethodsController extends ChangeNotifier {
   void stopLoading() {
     if (_isLoading) {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void refresh() => notifyListeners();
+
+  // ===== BAKİYE GÜNCELLEME =====
+
+  void updatePaymentMethodBalance(String accountId, double newBalance) {
+    final index = _paymentMethods.indexWhere((pm) => pm.id == accountId);
+    if (index != -1) {
+      _paymentMethods[index] = _paymentMethods[index].copyWith(
+        balance: newBalance,
+      );
       notifyListeners();
     }
   }
@@ -351,8 +242,14 @@ class PaymentMethodsController extends ChangeNotifier {
       Future.microtask(() async {
         try {
           final operations = <BatchOperation>[
-            _paymentMethodRepository.getDeletePaymentMethodOperation(userId, method.id),
-            _paymentMethodRepository.getAddPaymentMethodOperation(userId, deleted.toMap())
+            _paymentMethodRepository.getDeletePaymentMethodOperation(
+              userId,
+              method.id,
+            ),
+            _paymentMethodRepository.getAddPaymentMethodOperation(
+              userId,
+              deleted.toMap(),
+            ),
           ];
           await getIt<BatchService>().commit(operations);
         } catch (e, s) {
@@ -379,8 +276,14 @@ class PaymentMethodsController extends ChangeNotifier {
       Future.microtask(() async {
         try {
           final operations = <BatchOperation>[
-            _paymentMethodRepository.getDeletePaymentMethodOperation(userId, method.id),
-            _paymentMethodRepository.getAddPaymentMethodOperation(userId, restored.toMap())
+            _paymentMethodRepository.getDeletePaymentMethodOperation(
+              userId,
+              method.id,
+            ),
+            _paymentMethodRepository.getAddPaymentMethodOperation(
+              userId,
+              restored.toMap(),
+            ),
           ];
           await getIt<BatchService>().commit(operations);
         } catch (e, s) {
@@ -408,7 +311,10 @@ class PaymentMethodsController extends ChangeNotifier {
 
       Future.microtask(() async {
         try {
-          await _paymentMethodRepository.deletePaymentMethod(userId, method.id);
+          await _paymentMethodRepository.deletePaymentMethod(
+            userId,
+            method.id,
+          );
         } catch (e, s) {
           ErrorHandler.logError(
             'PaymentMethodsController.permanentDelete Background',
@@ -433,15 +339,13 @@ class PaymentMethodsController extends ChangeNotifier {
 
       Future.microtask(() async {
         try {
-          final operations = <BatchOperation>[];
-          for (var id in deletedIds) {
-            operations.add(
+          final operations = <BatchOperation>[
+            for (final id in deletedIds)
               _paymentMethodRepository.getDeletePaymentMethodOperation(
                 userId,
                 id,
               ),
-            );
-          }
+          ];
           await getIt<BatchService>().commit(operations);
         } catch (e, s) {
           ErrorHandler.logError(
@@ -459,26 +363,24 @@ class PaymentMethodsController extends ChangeNotifier {
 
   Future<void> restoreAll() async {
     try {
-      final restoredMethods = <Map<String, dynamic>>[];
+      final restoredMaps = <Map<String, dynamic>>[];
       for (final method in _deletedPaymentMethods) {
         final restored = method.copyWith(isDeleted: false);
         _paymentMethods.add(restored);
-        restoredMethods.add(restored.toMap());
+        restoredMaps.add(restored.toMap());
       }
       _deletedPaymentMethods.clear();
       _filtrele();
 
       Future.microtask(() async {
         try {
-          final operations = <BatchOperation>[];
-          for (final data in restoredMethods) {
-            operations.add(
+          final operations = <BatchOperation>[
+            for (final data in restoredMaps)
               _paymentMethodRepository.getUpdatePaymentMethodOperation(
                 userId,
                 data,
               ),
-            );
-          }
+          ];
           await getIt<BatchService>().commit(operations);
         } catch (e, s) {
           ErrorHandler.logError(
@@ -525,21 +427,6 @@ class PaymentMethodsController extends ChangeNotifier {
 
   void syncFromBin(List<PaymentMethod> updatedDeletedList) {
     _deletedPaymentMethods = List.from(updatedDeletedList);
-    notifyListeners();
-  }
-
-  /// Widget prop'larından veriyi yükle (geriye dönük uyumluluk)
-  void initData(
-    List<PaymentMethod> methods,
-    List<PaymentMethod> deletedMethods,
-  ) {
-    _paymentMethods = List.from(methods);
-    _deletedPaymentMethods = List.from(deletedMethods);
-    _filteredMethods = List.from(_paymentMethods);
-    notifyListeners();
-  }
-
-  void refresh() {
     notifyListeners();
   }
 }
