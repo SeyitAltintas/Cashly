@@ -8,7 +8,6 @@ import 'expense_list_item.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 
 class ExpensesListView extends StatelessWidget {
-  final Map<String, List<Map<String, dynamic>>> gruplar;
   final bool hasMoreItems;
   final ScrollController scrollController;
   final Future<void> Function() onRefresh;
@@ -21,7 +20,6 @@ class ExpensesListView extends StatelessWidget {
 
   const ExpensesListView({
     super.key,
-    required this.gruplar,
     required this.hasMoreItems,
     required this.scrollController,
     required this.onRefresh,
@@ -43,56 +41,48 @@ class ExpensesListView extends StatelessWidget {
         controller: scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         cacheExtent: 500,
-        itemCount: gruplar.keys.length + (hasMoreItems ? 1 : 0),
+        itemCount: gosterilenHarcamalar.length + (hasMoreItems ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index >= gruplar.keys.length) {
+          if (index >= gosterilenHarcamalar.length) {
             return buildLoadingIndicator();
           }
 
-          String gunBasligi = gruplar.keys.elementAt(index);
-          List<Map<String, dynamic>> harcamalar = gruplar[gunBasligi]!;
+          final harcama = gosterilenHarcamalar[index];
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ...harcamalar.map((harcama) {
-                return ExpenseListItem(
-                  harcama: harcama,
-                  categoryIcon:
-                      kategoriIkonlari[harcama['kategori']] ??
-                      IconConstants.getIconFromCategoryName(
-                        harcama['kategori'],
-                      ),
-                  paymentMethods: tumOdemeYontemleri,
-                  itemIndex: gosterilenHarcamalar.indexOf(harcama),
-                  onDelete: () => onDelete(harcama),
-                  onTap: () {
-                    HapticService.selectionClick();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (ctx) => ExpenseDetailPage(
-                          harcama: harcama,
-                          categoryIcon:
-                              kategoriIkonlari[harcama['kategori']] ??
-                              IconConstants.getIconFromCategoryName(
-                                harcama['kategori'],
-                              ),
-                          paymentMethods: tumOdemeYontemleri,
-                          kategoriIkonlari: kategoriIkonlari,
-                          onEdit: (updatedHarcama) {
-                            onEdit(harcama, updatedHarcama);
-                          },
-                          onDelete: (deletedHarcama) {
-                            onDelete(deletedHarcama);
-                          },
+          return ExpenseListItem(
+            harcama: harcama,
+            categoryIcon:
+                kategoriIkonlari[harcama['kategori']] ??
+                IconConstants.getIconFromCategoryName(
+                  harcama['kategori'],
+                ),
+            paymentMethods: tumOdemeYontemleri,
+            itemIndex: index,
+            onDelete: () => onDelete(harcama),
+            onTap: () {
+              HapticService.selectionClick();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => ExpenseDetailPage(
+                    harcama: harcama,
+                    categoryIcon:
+                        kategoriIkonlari[harcama['kategori']] ??
+                        IconConstants.getIconFromCategoryName(
+                          harcama['kategori'],
                         ),
-                      ),
-                    );
-                  },
-                );
-              }),
-            ],
+                    paymentMethods: tumOdemeYontemleri,
+                    kategoriIkonlari: kategoriIkonlari,
+                    onEdit: (updatedHarcama) {
+                      onEdit(harcama, updatedHarcama);
+                    },
+                    onDelete: (deletedHarcama) {
+                      onDelete(deletedHarcama);
+                    },
+                  ),
+                ),
+              );
+            },
           );
         },
       ),

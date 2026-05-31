@@ -137,19 +137,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     return toplam;
   }
 
-  Map<String, List<Map<String, dynamic>>> get gunlukGruplanmisHarcamalar {
-    Map<String, List<Map<String, dynamic>>> gruplar = {};
-    for (var h in gosterilenHarcamalar) {
-      DateTime tarih =
-          DateTime.tryParse(h['tarih'].toString()) ?? DateTime.now();
-      String tarihBasligi = tarihFormatla(tarih);
-      if (!gruplar.containsKey(tarihBasligi)) {
-        gruplar[tarihBasligi] = [];
-      }
-      gruplar[tarihBasligi]!.add(h);
-    }
-    return gruplar;
-  }
+
 
   String tarihFormatla(DateTime tarih) {
     final simdi = DateTime.now();
@@ -372,9 +360,6 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
               (ExpensesController c) => c.gosterilenHarcamalar,
             );
 
-            Map<String, List<Map<String, dynamic>>> gruplar =
-                gunlukGruplanmisHarcamalar;
-
             return isLoadingContext
                 ? const ExpensesPageSkeleton()
                 : Column(
@@ -403,7 +388,6 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                                     )
                                   : EmptyStateWidget.noExpenses(context)
                             : ExpensesListView(
-                                gruplar: gruplar,
                                 hasMoreItems: hasMoreItems,
                                 scrollController: lazyScrollController,
                                 onRefresh: () async {

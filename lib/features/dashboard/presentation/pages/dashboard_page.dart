@@ -313,12 +313,7 @@ class _RecentTransactionsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<DashboardController>(
       builder: (context, controller, child) {
-        return RecentTransactionsCard(
-          harcamalar: controller.harcamalar,
-          gelirler: controller.gelirler,
-          transferler: controller.transferler,
-          odemeYontemleri: controller.odemeYontemleri,
-        );
+        return const RecentTransactionsCard();
       },
     );
   }

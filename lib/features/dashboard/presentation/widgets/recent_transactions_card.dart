@@ -4,26 +4,12 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
-import '../../../income/data/models/income_model.dart';
-import '../../../payment_methods/data/models/transfer_model.dart';
-import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../controllers/dashboard_controller.dart';
 
 /// Son İşlemler Kartı Widget'ı
 /// Harcama, gelir ve transferlerdeki son işlemleri gösterir
 class RecentTransactionsCard extends StatelessWidget {
-  final List<Map<String, dynamic>> harcamalar;
-  final List<Income> gelirler;
-  final List<Transfer> transferler;
-  final List<PaymentMethod> odemeYontemleri;
-
-  const RecentTransactionsCard({
-    super.key,
-    required this.harcamalar,
-    required this.gelirler,
-    required this.transferler,
-    required this.odemeYontemleri,
-  });
+  const RecentTransactionsCard({super.key});
 
   /// Isolate üzerinden gelen işlemlere UI çevirilerini (localization) uygular
   List<Map<String, dynamic>> _getTranslatedTransactions(BuildContext context) {
