@@ -4,12 +4,14 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import 'package:flutter/services.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../widgets/analysis_widgets.dart';
+import '../widgets/analysis_filters.dart';
 import 'pdf_export_page.dart';
 import '../controllers/analysis_controller.dart';
 import '../../../dashboard/presentation/widgets/budget_status_card.dart';
@@ -65,7 +67,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late final AnalysisController _controller;
-  ChartViewType _chartType = ChartViewType.pie;
+  final ValueNotifier<ChartViewType> _chartTypeNotifier = ValueNotifier(ChartViewType.pie);
   bool _isCumulative = false;
 
   int get _touchedIndex => _controller.touchedIndex;
@@ -81,7 +83,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     super.initState();
     // DI'dan controller al
     _controller = getIt<AnalysisController>();
-    _controller.addListener(_onStateChanged);
+    _controller.addListener(_onControllerChanged);
     _tabController = TabController(length: 3, vsync: this);
 
     // Verileri Controller'a push et
@@ -97,9 +99,6 @@ class _AnalysisPageState extends State<AnalysisPage>
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         _controller.resetTouchedIndex();
-      }
-      if (mounted) {
-        setState(() {}); // appBar durumlarının güncellenmesi için
       }
     });
   }
@@ -123,15 +122,14 @@ class _AnalysisPageState extends State<AnalysisPage>
     }
   }
 
-  void _onStateChanged() {
-    if (mounted) {
-      setState(() {});
-    }
+  void _onControllerChanged() {
+    // Scaffold ListenableBuilder ile rebuild edilecek, setState kullanmıyoruz
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_onStateChanged);
+    _controller.removeListener(_onControllerChanged);
+    _chartTypeNotifier.dispose();
     // Controller singleton olduğu için dispose etmiyoruz
     _tabController.dispose();
     super.dispose();
@@ -139,30 +137,35 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: _buildAppBar(context),
-      body: Column(
-        children: [
-          _buildStickyHeader(context),
-          Expanded(
-            child: _controller.isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  )
-                : TabBarView(
-                    controller: _tabController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      _buildExpenseAnalysis(),
-                      _buildIncomeAnalysis(),
-                      _buildAssetAnalysis(),
-                    ],
-                  ),
+    return ListenableBuilder(
+      listenable: Listenable.merge([_controller, _tabController]),
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: _buildAppBar(context),
+          body: Column(
+            children: [
+              _buildStickyHeader(context),
+              Expanded(
+                child: _controller.isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      )
+                    : TabBarView(
+                        controller: _tabController,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [
+                          _buildExpenseAnalysis(),
+                          _buildIncomeAnalysis(),
+                          _buildAssetAnalysis(),
+                        ],
+                      ),
+              ),
+            ],
           ),
-        ],
-      ),
-      bottomNavigationBar: _buildBottomBar(context),
+          bottomNavigationBar: _buildBottomBar(context),
+        );
+      },
     );
   }
 
@@ -321,7 +324,7 @@ class _AnalysisPageState extends State<AnalysisPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: _buildTimeFilterSelector(context)),
+          Expanded(child: TimeFilterSelector(controller: _controller)),
           const SizedBox(width: 8),
           if (!_isCurrentTabEmpty &&
               _tabController.index !=
@@ -337,9 +340,21 @@ class _AnalysisPageState extends State<AnalysisPage>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildToggleBtn(ChartViewType.pie, Icons.pie_chart_rounded),
-                  _buildToggleBtn(ChartViewType.bar, Icons.bar_chart_rounded),
-                  _buildToggleBtn(ChartViewType.line, Icons.show_chart_rounded),
+                  ChartTypeToggle(
+                    type: ChartViewType.pie,
+                    icon: Icons.pie_chart_rounded,
+                    chartTypeNotifier: _chartTypeNotifier,
+                  ),
+                  ChartTypeToggle(
+                    type: ChartViewType.bar,
+                    icon: Icons.bar_chart_rounded,
+                    chartTypeNotifier: _chartTypeNotifier,
+                  ),
+                  ChartTypeToggle(
+                    type: ChartViewType.line,
+                    icon: Icons.show_chart_rounded,
+                    chartTypeNotifier: _chartTypeNotifier,
+                  ),
                 ],
               ),
             ),
@@ -348,196 +363,7 @@ class _AnalysisPageState extends State<AnalysisPage>
     );
   }
 
-  Widget _buildToggleBtn(ChartViewType type, IconData icon) {
-    final isSelected = _chartType == type;
-    return GestureDetector(
-      onTap: () => setState(() => _chartType = type),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.primary.withAlpha(76),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : [],
-        ),
-        child: Icon(
-          icon,
-          size: 20,
-          color: isSelected ? Colors.white : Colors.white.withAlpha(128),
-        ),
-      ),
-    );
-  }
 
-  /// Zaman Filtresi Seçici Widget'ı
-  Widget _buildTimeFilterSelector(BuildContext context) {
-    String formatMonth(DateTime date) {
-      final months = [
-        '',
-        context.l10n.january,
-        context.l10n.february,
-        context.l10n.march,
-        context.l10n.april,
-        context.l10n.may,
-        context.l10n.june,
-        context.l10n.july,
-        context.l10n.august,
-        context.l10n.september,
-        context.l10n.october,
-        context.l10n.november,
-        context.l10n.december,
-      ];
-      return '${months[date.month]} ${date.year}';
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 0.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (_controller.historyLimit == -1) // Özel ay modu ok tuşu
-            IconButton(
-              icon: const Icon(Icons.chevron_left, color: Colors.white),
-              onPressed: () {
-                final current = _controller.selectedMonth;
-                _controller.setSelectedMonth(
-                  DateTime(current.year, current.month - 1),
-                );
-              },
-            ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.surface.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<int>(
-                  value: _controller.historyLimit,
-                  isDense: true,
-                  isExpanded: true,
-                  dropdownColor: Theme.of(context).colorScheme.surface,
-                  icon: Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: Colors.white.withValues(alpha: 0.9),
-                  ),
-                  items: [
-                    DropdownMenuItem(
-                      value: 7,
-                      child: Text(
-                        context.l10n.thisWeek,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: 30,
-                      child: Text(
-                        context.l10n.thisMonth,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: 90,
-                      child: Text(
-                        context.l10n.last3Months,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: 180,
-                      child: Text(
-                        context.l10n.last6Months,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: 366,
-                      child: Text(
-                        context.l10n.thisYear,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: 365,
-                      child: Text(
-                        context.l10n.last1Year,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: -1,
-                      child: Text(
-                        _controller.historyLimit == -1
-                            ? formatMonth(_controller.selectedMonth)
-                            : context.l10n.selectMonth,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      _controller.setHistoryLimit(value);
-                    }
-                  },
-                  selectedItemBuilder: (BuildContext context) {
-                    return [7, 30, 90, 180, 366, 365, -1].map<Widget>((
-                      int item,
-                    ) {
-                      return Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          item == -1
-                              ? formatMonth(_controller.selectedMonth)
-                              : [
-                                  context.l10n.thisWeek,
-                                  context.l10n.thisMonth,
-                                  context.l10n.last3Months,
-                                  context.l10n.last6Months,
-                                  context.l10n.thisYear,
-                                  context.l10n.last1Year,
-                                  "",
-                                ][[7, 30, 90, 180, 366, 365, -1].indexOf(item)],
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      );
-                    }).toList();
-                  },
-                ),
-              ),
-            ),
-          ),
-
-          if (_controller.historyLimit == -1) // Özel ay modu ok tuşu
-            IconButton(
-              icon: const Icon(Icons.chevron_right, color: Colors.white),
-              onPressed: () {
-                final current = _controller.selectedMonth;
-                _controller.setSelectedMonth(
-                  DateTime(current.year, current.month + 1),
-                );
-              },
-            ),
-        ],
-      ),
-    );
-  }
 
   /// PDF export sayfasina git
   void _showExportSheet() {
@@ -760,6 +586,8 @@ class _AnalysisPageState extends State<AnalysisPage>
                             return;
                           }
 
+                          HapticFeedback.lightImpact();
+
                           int idx = pieTouchResponse
                               .touchedSection!
                               .touchedSectionIndex;
@@ -793,6 +621,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                   children: [
                     InkWell(
                       onTap: () {
+                        HapticFeedback.selectionClick();
                         int currentIndex = _touchedIndex <= 0
                             ? sections.length
                             : _touchedIndex;
@@ -821,9 +650,9 @@ class _AnalysisPageState extends State<AnalysisPage>
                     const SizedBox(height: 12),
                     InkWell(
                       onTap: () {
-                        int currentIndex = _touchedIndex == -1
-                            ? -1
-                            : _touchedIndex;
+                        HapticFeedback.selectionClick();
+                        int currentIndex = _touchedIndex;
+                        if (currentIndex == -1) currentIndex = -1;
                         int newIndex = currentIndex + 1;
                         if (newIndex >= sections.length) newIndex = 0;
                         _controller.setTouchedIndex(newIndex);
@@ -866,40 +695,45 @@ class _AnalysisPageState extends State<AnalysisPage>
       return const SizedBox(height: 320);
     }
 
-    return Column(
-      children: [
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: ScaleTransition(scale: animation, child: child),
-            );
-          },
-          child: _tabController.index == 2
-              ? _buildPieChart(
-                  pieSections,
-                  totals,
-                  totalAmount,
-                  key: const ValueKey('pie'),
-                )
-              : _chartType == ChartViewType.bar
-              ? _buildBarChart(
-                  totals,
-                  totalAmount,
-                  colors,
-                  key: const ValueKey('bar'),
-                )
-              : _chartType == ChartViewType.line
-              ? _buildLineChart(key: const ValueKey('line'))
-              : _buildPieChart(
-                  pieSections,
-                  totals,
-                  totalAmount,
-                  key: const ValueKey('pie'),
-                ),
-        ),
-      ],
+    return ValueListenableBuilder<ChartViewType>(
+      valueListenable: _chartTypeNotifier,
+      builder: (context, currentType, _) {
+        return Column(
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(scale: animation, child: child),
+                );
+              },
+              child: _tabController.index == 2
+                  ? _buildPieChart(
+                      pieSections,
+                      totals,
+                      totalAmount,
+                      key: const ValueKey('pie'),
+                    )
+                  : currentType == ChartViewType.bar
+                  ? _buildBarChart(
+                      totals,
+                      totalAmount,
+                      colors,
+                      key: const ValueKey('bar'),
+                    )
+                  : currentType == ChartViewType.line
+                  ? _buildLineChart(key: const ValueKey('line'))
+                  : _buildPieChart(
+                      pieSections,
+                      totals,
+                      totalAmount,
+                      key: const ValueKey('pie'),
+                    ),
+            ),
+          ],
+        );
+      }
     );
   }
 
