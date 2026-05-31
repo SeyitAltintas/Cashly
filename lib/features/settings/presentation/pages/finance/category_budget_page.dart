@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/widgets/shimmer_loading.dart';
 import 'package:flutter/services.dart';
 import '../../../../../core/di/injection_container.dart';
 import '../../../../../core/extensions/l10n_extensions.dart';
@@ -241,7 +242,48 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(context.l10n.categoryBudgets),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context, _hasChanges),
+          ),
+        ),
+        body: Shimmer.auto(
+          context: context,
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.all(16),
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: 8,
+                  itemBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Container(
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     final activeBudgets = _categoryBudgets.entries

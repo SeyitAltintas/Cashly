@@ -8,8 +8,6 @@ import 'package:cashly/core/services/cloud_sync_service.dart';
 
 import 'package:cashly/features/settings/presentation/pages/profile/profile_page.dart';
 import 'package:cashly/core/di/injection_container.dart';
-import '../../../../core/services/error_logger_service.dart';
-import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/batch_service.dart';
 import 'package:cashly/core/services/currency_service.dart';
 import 'package:cashly/core/services/asset_price_update_service.dart';
@@ -43,7 +41,7 @@ import 'package:cashly/features/payment_methods/domain/repositories/payment_meth
 import 'package:cashly/features/streak/data/services/streak_service.dart';
 import 'package:cashly/core/widgets/error_boundary.dart';
 import '../state/home_page_state.dart';
-import 'package:cashly/core/widgets/skeleton_widget.dart';
+import 'package:cashly/core/widgets/shimmer_loading.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
 /// Araçlar (0), Dashboard (1), Profil (2)

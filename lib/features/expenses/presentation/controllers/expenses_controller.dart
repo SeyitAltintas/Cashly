@@ -5,7 +5,6 @@ import 'mixins/expense_bin_mixin.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
-import '../../../../core/services/speech/speech_service.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -50,6 +49,7 @@ List<Map<String, dynamic>> _computeFilterExpenses(ExpenseFilterParams params) {
 class ExpensesController extends ChangeNotifier with ExpenseFormMixin, ExpenseVoiceMixin, ExpenseCategoryMgmtMixin, ExpenseBinMixin {
   final ExpenseRepository _expenseRepository;
   final PaymentMethodRepository _paymentMethodRepository;
+  @override
   final String userId;
 
   ExpensesController({
@@ -109,6 +109,7 @@ class ExpensesController extends ChangeNotifier with ExpenseFormMixin, ExpenseVo
 
   // Tüm harcamalar listesi (repository'den yüklenir)
   List<Map<String, dynamic>> _tumHarcamalar = [];
+  @override
   List<Map<String, dynamic>> get tumHarcamalar => _tumHarcamalar;
 
   // Gösterilen (filtrelenmiş) harcamalar listesi
@@ -121,6 +122,7 @@ class ExpensesController extends ChangeNotifier with ExpenseFormMixin, ExpenseVo
 
   // Ödeme yöntemleri (referans)
   List<PaymentMethod> _tumOdemeYontemleri = [];
+  @override
   List<PaymentMethod> get tumOdemeYontemleri => _tumOdemeYontemleri;
 
   // Aylık toplam (hesaplanmış değer)
@@ -1048,6 +1050,7 @@ class ExpensesController extends ChangeNotifier with ExpenseFormMixin, ExpenseVo
   }
 
   /// State'i yenile (UI rebuild için)
+  @override
   void refresh() {
     notifyListeners();
   }

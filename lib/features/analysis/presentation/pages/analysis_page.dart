@@ -500,23 +500,23 @@ class AnalysisShimmerLayout extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: 4,
               itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
+                return const Padding(
+                  padding: EdgeInsets.only(bottom: 16.0),
                   child: Row(
                     children: [
-                      const ShimmerCircle(size: 48),
-                      const SizedBox(width: 16),
+                      ShimmerCircle(size: 48),
+                      SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             ShimmerBox(width: 120, height: 16),
                             SizedBox(height: 8),
                             ShimmerBox(width: 80, height: 12),
                           ],
                         ),
                       ),
-                      const ShimmerBox(width: 60, height: 20),
+                      ShimmerBox(width: 60, height: 20),
                     ],
                   ),
                 );

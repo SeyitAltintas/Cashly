@@ -159,7 +159,7 @@ class AssetRepositoryFirestore implements AssetRepository {
     if ((asset['id']?.toString() ?? '').isEmpty) {
       throw Exception('Varlık eklenirken ID eksik!');
     }
-    final docRef = _userDoc(userId).collection('assets').doc(asset['id'].toString());
+    _userDoc(userId).collection('assets').doc(asset['id'].toString());
     final data = Map<String, dynamic>.from(asset);
     data['updatedAt'] = FieldValue.serverTimestamp();
     return FirestoreBatchOperation(
@@ -175,7 +175,7 @@ class AssetRepositoryFirestore implements AssetRepository {
     if ((asset['id']?.toString() ?? '').isEmpty) {
       throw Exception('Varlık güncellenirken ID eksik!');
     }
-    final docRef = _userDoc(userId).collection('assets').doc(asset['id'].toString());
+    _userDoc(userId).collection('assets').doc(asset['id'].toString());
     final data = Map<String, dynamic>.from(asset);
     data['updatedAt'] = FieldValue.serverTimestamp();
     return FirestoreBatchOperation(
@@ -188,7 +188,7 @@ class AssetRepositoryFirestore implements AssetRepository {
 
   @override
   BatchOperation getDeleteAssetOperation(String userId, String id) {
-    final docRef = _userDoc(userId).collection('assets').doc(id);
+    _userDoc(userId).collection('assets').doc(id);
     return FirestoreBatchOperation(
       type: BatchOperationType.delete,
       collectionPath: _userDoc(userId).collection('assets').path,

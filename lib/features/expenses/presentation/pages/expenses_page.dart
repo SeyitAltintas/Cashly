@@ -21,7 +21,7 @@ import '../../../../core/services/haptic_service.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
-import '../../../../core/widgets/skeleton_widget.dart';
+import '../../../../core/widgets/shimmer_loading.dart';
 import '../helpers/expense_calculation_helper.dart';
 import '../controllers/expenses_controller.dart';
 import '../../../../core/utils/error_handler.dart';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/widgets/shimmer_loading.dart';
 import 'package:app_settings/app_settings.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/di/injection_container.dart';
@@ -99,7 +100,30 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(context.l10n.notifications),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: Shimmer.auto(
+          context: context,
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: 5,
+            itemBuilder: (context, index) => Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: Container(
+                height: 70,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
     }
 
     return Scaffold(

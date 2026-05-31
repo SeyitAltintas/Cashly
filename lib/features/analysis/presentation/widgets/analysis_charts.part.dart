@@ -1,3 +1,4 @@
+// ignore_for_file: library_private_types_in_public_api
 part of '../pages/analysis_page.dart';
 
 extension AnalysisChartsExtension on _AnalysisPageState {
@@ -351,6 +352,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
       return GestureDetector(
         onTap: () {
           if (_isCumulative != isCumulativeMode) {
+            // ignore: invalid_use_of_protected_member
             setState(() {
               _isCumulative = isCumulativeMode;
             });

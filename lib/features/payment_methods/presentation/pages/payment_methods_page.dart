@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/constants/card_color_constants.dart';
-import 'package:cashly/core/widgets/skeleton_widget.dart';
+import 'package:cashly/core/widgets/shimmer_loading.dart';
 import 'package:cashly/core/utils/amount_input_formatter.dart';
 import '../../../../core/utils/debouncer.dart';
 import '../../../../core/widgets/empty_state_widget.dart';

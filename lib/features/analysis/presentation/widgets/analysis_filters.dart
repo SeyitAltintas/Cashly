@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../pages/analysis_page.dart' show ChartViewType;
 import '../controllers/analysis_controller.dart';
-import 'package:intl/intl.dart';
 
 class ChartTypeToggle extends StatelessWidget {
   final ChartViewType type;

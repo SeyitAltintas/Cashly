@@ -1,14 +1,5 @@
-import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:uuid/uuid.dart';
 import '../../../../../core/services/speech/speech_service.dart';
-import '../../../domain/repositories/expense_repository.dart';
-import '../../../../payment_methods/domain/repositories/payment_method_repository.dart';
-import '../../../../payment_methods/data/models/payment_method_model.dart';
-import '../../../../../core/utils/error_handler.dart';
-import '../../../../../core/di/injection_container.dart';
-import '../../../../../core/services/currency_service.dart';
-import '../../../../../core/services/batch_service.dart';
 
 mixin ExpenseVoiceMixin on ChangeNotifier {
 

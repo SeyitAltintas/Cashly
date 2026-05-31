@@ -1,5 +1,6 @@
 /// Varlık repository interface (Domain Layer)
 /// Bu interface, varlık verilerine erişim için soyut bir kontrat tanımlar.
+library;
 import '../../../../core/services/batch_service.dart';
 
 abstract class AssetRepository {

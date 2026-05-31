@@ -19,7 +19,7 @@ import '../widgets/income_summary_card.dart';
 import 'package:cashly/features/income/presentation/widgets/incomes_list_view.dart';
 import 'package:cashly/features/income/presentation/widgets/incomes_app_bar.dart';
 import '../../../../core/di/injection_container.dart';
-import '../../../../core/widgets/skeleton_widget.dart';
+import '../../../../core/widgets/shimmer_loading.dart';
 import '../../../../core/services/currency_service.dart';
 import '../controllers/incomes_controller.dart';
 import '../../../../core/utils/error_handler.dart';

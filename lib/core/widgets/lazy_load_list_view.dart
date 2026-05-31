@@ -215,22 +215,22 @@ class LazyLoadShimmerItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.auto(
       context: context,
-      child: Row(
+      child: const Row(
         children: [
-          const ShimmerCircle(size: 40),
-          const SizedBox(width: 16),
+          ShimmerCircle(size: 40),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
-              children: const [
+              children: [
                 ShimmerBox(width: 150, height: 16),
                 SizedBox(height: 8),
                 ShimmerBox(width: 100, height: 12),
               ],
             ),
           ),
-          const ShimmerBox(width: 50, height: 20),
+          ShimmerBox(width: 50, height: 20),
         ],
       ),
     );
