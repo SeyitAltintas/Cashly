@@ -152,6 +152,8 @@ class MockBatchService implements BatchService {
 }
 void main() {
   setUpAll(() {
+    if (!GetIt.instance.isRegistered<BatchService>()) { GetIt.instance.registerLazySingleton<BatchService>(() => MockBatchService()); }
+
     if (!GetIt.instance.isRegistered<CurrencyService>()) {
       GetIt.instance.registerLazySingleton<CurrencyService>(
         () => CurrencyService(),

@@ -165,6 +165,8 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
 
 void main() {
   setUpAll(() {
+    if (!GetIt.instance.isRegistered<BatchService>()) { GetIt.instance.registerLazySingleton<BatchService>(() => MockBatchService()); }
+
     if (!GetIt.instance.isRegistered<CurrencyService>()) {
       GetIt.instance.registerLazySingleton<CurrencyService>(
         () => CurrencyService(),
@@ -764,7 +766,7 @@ void main() {
         ]);
         await controller.loadData();
         controller.secilenAy = now;
-        controller.filtreleVeGoster();
+        await controller.filtreleVeGoster();
 
         expect(controller.gosterilenHarcamalar.length, equals(1));
         expect(controller.gosterilenHarcamalar.first['isim'], equals('Aktif'));
@@ -796,7 +798,7 @@ void main() {
         ]);
         await controller.loadData();
         controller.secilenAy = DateTime(2024, 1, 1);
-        controller.filtreleVeGoster();
+        await controller.filtreleVeGoster();
 
         expect(controller.gosterilenHarcamalar.length, equals(1));
         expect(
@@ -836,7 +838,7 @@ void main() {
           controller.secilenAy = now;
 
           // "yemek" hem isimde hem kategoride bulunmalı
-          controller.filtreleVeGoster(aramaMetni: 'yemek');
+          await controller.filtreleVeGoster(aramaMetni: 'yemek');
 
           expect(controller.gosterilenHarcamalar.length, equals(2));
         },
@@ -868,7 +870,7 @@ void main() {
         ]);
         await controller.loadData();
         controller.secilenAy = DateTime(2024, 6, 1);
-        controller.filtreleVeGoster();
+        await controller.filtreleVeGoster();
 
         final list = controller.gosterilenHarcamalar;
         expect(list[0]['isim'], equals('Geç'));
@@ -951,7 +953,7 @@ void main() {
       test('Boş listeyle filtreleme hata vermez', () async {
         await controller.loadData();
         controller.secilenAy = DateTime.now();
-        controller.filtreleVeGoster();
+        await controller.filtreleVeGoster();
 
         expect(controller.gosterilenHarcamalar, isEmpty);
         expect(controller.toplamTutar, equals(0.0));

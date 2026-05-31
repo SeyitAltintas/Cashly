@@ -74,8 +74,8 @@ void main() {
       await tester.drag(find.byType(ListView), const Offset(0, -500));
       await tester.pump();
 
-      // Loading indicator görünür mü (varsayılan CircularProgressIndicator)
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // Loading indicator görünür mü (varsayılan LazyLoadShimmerItem)
+      expect(find.byType(LazyLoadShimmerItem), findsOneWidget);
     });
 
     testWidgets('Özel loadingWidget kullanılabilir', (

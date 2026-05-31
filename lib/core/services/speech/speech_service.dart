@@ -77,12 +77,12 @@ class SpeechService {
           onDone();
         }
       },
-      listenFor: listenFor,
-      pauseFor: const Duration(seconds: 3),
-      localeId: 'tr_TR', // Türkçe
       listenOptions: SpeechListenOptions(
         cancelOnError: true,
         partialResults: true,
+        listenFor: listenFor,
+        pauseFor: const Duration(seconds: 3),
+        localeId: 'tr_TR', // Türkçe
       ),
     );
   }

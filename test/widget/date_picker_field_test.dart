@@ -6,7 +6,7 @@ import 'package:cashly/l10n/generated/app_localizations.dart';
 
 void main() {
   setUpAll(() async {
-    await initializeDateFormatting('tr_TR', null);
+    try { await initializeDateFormatting('tr_TR', null); } catch (_) {}
   });
 
   group('DatePickerField Widget Testleri', () {
