@@ -100,9 +100,11 @@ class AuthRepositoryFirestore implements AuthRepository {
       // Çözüm: Hive kaydını her girişte Firebase UID ile eşitleyelim.
       final firebaseUid = credential.user?.uid;
       if (firebaseUid != null && firebaseUid != localUser.id) {
-        debugPrint(
-          "loginUser: Hive UID ('${localUser.id}') != Firebase UID ('$firebaseUid'). Güncelleniyor...",
-        );
+        if (kDebugMode) {
+          debugPrint(
+            'loginUser: Hive UID != Firebase UID — güncelleniyor.',
+          );
+        }
         final correctedUser = UserEntity(
           id: firebaseUid,
           name: localUser.name,
@@ -135,12 +137,14 @@ class AuthRepositoryFirestore implements AuthRepository {
       // OFFLINE FALLBACK: Ağ hatası veya bağlanamama durumunda yerel PIN ile doğrula.
       // Bu sayede kullanıcı internetsiz ortamda da PIN ile giriş yapabilir.
       if (e.code == 'network-request-failed') {
-        debugPrint(
-          'loginUser: Ağ bağlantısı yok, yerel PIN doğrulamasına geçiliyor...',
-        );
+        if (kDebugMode) {
+          debugPrint('loginUser: Ağ bağlantısı yok, offline fallback...');
+        }
         return _offlinePinFallback(localUser, pin);
       }
-      debugPrint("Firebase Login Error [${e.code}]: ${e.message}");
+      if (kDebugMode) {
+        debugPrint('Firebase Login Error [${e.code}]: ${e.message}');
+      }
       return null;
     } catch (e) {
       // Timeout veya diğer beklenmedik ağ hataları için de offline fallback.
@@ -148,9 +152,9 @@ class AuthRepositoryFirestore implements AuthRepository {
       if (msg.contains('timeout') ||
           msg.contains('socketexception') ||
           msg.contains('failed host lookup')) {
-        debugPrint(
-          'loginUser: Bağlantı zaman aşımı, yerel PIN doğrulamasına geçiliyor...',
-        );
+        if (kDebugMode) {
+          debugPrint('loginUser: Bağlantı zaman aşımı, offline fallback...');
+        }
         return _offlinePinFallback(localUser, pin);
       }
       rethrow;
@@ -177,10 +181,8 @@ class AuthRepositoryFirestore implements AuthRepository {
     if (localUser.pin == pin) {
       await _localHiveRepo.resetFailedOfflineAttempts(localUser.id);
       final loggedInUser = await _localHiveRepo.loginUser(localUser.id, pin);
-      if (loggedInUser != null) {
-        debugPrint(
-          'loginUser: Offline mod — "${localUser.email}" yerel PIN ile doğrulandı.',
-        );
+      if (kDebugMode && loggedInUser != null) {
+        debugPrint('loginUser: Offline mod — yerel PIN ile doğrulandı.');
       }
       return loggedInUser;
     }
@@ -191,7 +193,9 @@ class AuthRepositoryFirestore implements AuthRepository {
     );
     final remaining = 5 - attempts;
 
-    debugPrint('loginUser: Offline mod — PIN yanlış, kalan hak: $remaining');
+    if (kDebugMode) {
+      debugPrint('loginUser: Offline mod — PIN yanlış, kalan hak: $remaining');
+    }
     if (remaining <= 0) {
       throw Exception(
         'Çok fazla hatalı giriş yaptınız. Güvenlik nedeniyle uygulamanız 5 dakika süreyle kilitlenmiştir.',
