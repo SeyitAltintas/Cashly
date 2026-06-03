@@ -34,4 +34,16 @@ class SecureStorageService {
       return await Hive.openBox<E>(name, encryptionCipher: HiveAesCipher(key));
     }
   }
+
+  static Future<void> saveBiometricPin(String userId, String pin) async {
+    await _storage.write(key: 'bio_pin_$userId', value: pin);
+  }
+
+  static Future<String?> getBiometricPin(String userId) async {
+    return await _storage.read(key: 'bio_pin_$userId');
+  }
+
+  static Future<void> deleteBiometricPin(String userId) async {
+    await _storage.delete(key: 'bio_pin_$userId');
+  }
 }

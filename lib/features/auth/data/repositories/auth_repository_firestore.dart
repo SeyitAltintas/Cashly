@@ -10,6 +10,7 @@ import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
 import 'auth_repository_impl.dart';
 import '../../../../core/services/network_service.dart';
+import '../../../../core/services/secure_storage_service.dart';
 
 class AuthRepositoryFirestore implements AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -55,6 +56,7 @@ class AuthRepositoryFirestore implements AuthRepository {
 
       // Çoklu hesap desteği ve offline kullanım için cihazın lokal Hive'ına da kaydediyoruz
       await _localHiveRepo.registerUser(finalUser);
+      await SecureStorageService.saveBiometricPin(firebaseUser.uid, user.pin);
       return await _createAndSaveSession(finalUser);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
@@ -127,6 +129,7 @@ class AuthRepositoryFirestore implements AuthRepository {
 
       final loggedInUser = await _localHiveRepo.loginUser(id, pin);
       if (loggedInUser != null) {
+        await SecureStorageService.saveBiometricPin(id, pin);
         final userWithSession = await _createAndSaveSession(loggedInUser);
         await CloudSyncService.syncAllUserData(userWithSession.id);
         await StreakService.syncFromCloud(userWithSession.id);
@@ -178,10 +181,11 @@ class AuthRepositoryFirestore implements AuthRepository {
       );
     }
 
-    if (localUser.pin == pin) {
+    final loggedInUser = await _localHiveRepo.loginUser(localUser.id, pin);
+    if (loggedInUser != null) {
       await _localHiveRepo.resetFailedOfflineAttempts(localUser.id);
-      final loggedInUser = await _localHiveRepo.loginUser(localUser.id, pin);
-      if (kDebugMode && loggedInUser != null) {
+      await SecureStorageService.saveBiometricPin(localUser.id, pin);
+      if (kDebugMode) {
         debugPrint('loginUser: Offline mod — yerel PIN ile doğrulandı.');
       }
       return loggedInUser;
@@ -252,6 +256,7 @@ class AuthRepositoryFirestore implements AuthRepository {
           await _localHiveRepo.registerUser(
             userModel,
           ); // create or update on device
+          await SecureStorageService.saveBiometricPin(userModel.id, pin);
           final userWithSession = await _createAndSaveSession(userModel);
           await CloudSyncService.syncAllUserData(userWithSession.id);
           await StreakService.syncFromCloud(userWithSession.id);
@@ -287,6 +292,7 @@ class AuthRepositoryFirestore implements AuthRepository {
           }
 
           await _localHiveRepo.registerUser(userModel);
+          await SecureStorageService.saveBiometricPin(firebaseUser.uid, pin);
           final userWithSession = await _createAndSaveSession(userModel);
           // Sync service will just create empty folders locally for new accounts
           await CloudSyncService.syncAllUserData(userWithSession.id);
@@ -376,6 +382,7 @@ class AuthRepositoryFirestore implements AuthRepository {
     }
     // Firebase hesabı başarıyla silindiyse (veya zaten yoksa) lokal veriyi temizle.
     // Hata fırlatılan durumlarda buraya ulaşılmaz.
+    await SecureStorageService.deleteBiometricPin(userId);
     await _localHiveRepo.deleteUser(userId);
   }
 
@@ -482,13 +489,29 @@ class AuthRepositoryFirestore implements AuthRepository {
   Future<UserEntity?> loginWithBiometric(String userId) async {
     final firebaseUser = _firebaseAuth.currentUser;
 
-    // FIX-10: Firebase oturumu (token) iptal olmuşsa, Biyometrik ile giriş yapılamaz
-    // çünkü arka planda Firebase Auth ile tekrar giriş yapamayız (PIN elimizde yok).
-    // Kullanıcıyı PIN girmeye zorlamalıyız ki Firebase Auth signIn tekrar çalışsın.
     if (firebaseUser == null || firebaseUser.uid != userId) {
-      throw Exception(
-        'Güvenlik nedeniyle (oturum süresi doldu) lütfen PIN kodunuz ile giriş yapın.',
-      );
+      final savedPin = await SecureStorageService.getBiometricPin(userId);
+      if (savedPin != null) {
+        final localUser = await _localHiveRepo.loginWithBiometric(userId);
+        if (localUser != null) {
+          try {
+            await _firebaseAuth.signInWithEmailAndPassword(
+              email: localUser.email,
+              password: savedPin,
+            );
+          } catch (e) {
+            throw Exception(
+              'Güvenlik nedeniyle (oturum süresi doldu) lütfen PIN kodunuz ile manuel giriş yapın.',
+            );
+          }
+        } else {
+          throw Exception('Kullanıcı bulunamadı.');
+        }
+      } else {
+        throw Exception(
+          'Güvenlik nedeniyle (oturum süresi doldu) lütfen PIN kodunuz ile giriş yapın.',
+        );
+      }
     }
 
     final user = await _localHiveRepo.loginWithBiometric(userId);
@@ -636,6 +659,7 @@ class AuthRepositoryFirestore implements AuthRepository {
 
           // FIX-3: Lokal PIN güncelle
           await _localHiveRepo.updateUserPin(user.uid, newPin);
+          await SecureStorageService.saveBiometricPin(user.uid, newPin);
 
           // FIX-3: Oturum state tutarlılığı — Firestore'dan profili çek ve
           // lokal Hive'da aktif oturum aç. Böylece AuthController güncel kullanıcıyı
@@ -728,6 +752,7 @@ class AuthRepositoryFirestore implements AuthRepository {
 
       // 2. Lokal Hive güncelle
       await _localHiveRepo.updateUserPin(userId, newPin);
+      await SecureStorageService.saveBiometricPin(userId, newPin);
     } catch (e) {
       throw Exception("PIN güncellenemedi: ${e.toString()}");
     }
