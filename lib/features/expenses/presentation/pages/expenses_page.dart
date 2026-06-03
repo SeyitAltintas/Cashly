@@ -13,7 +13,6 @@ import 'add_expense_page.dart';
 import '../widgets/voice_input_sheet.dart';
 import 'recycle_bin_page.dart';
 import '../../../../core/di/injection_container.dart';
-import '../../domain/repositories/expense_repository.dart';
 import '../../../../core/widgets/money_animation.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -22,7 +21,7 @@ import '../../../../core/widgets/month_year_picker.dart';
 import '../../../../core/widgets/app_floating_bottom_bar.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/widgets/shimmer_loading.dart';
-import '../helpers/expense_calculation_helper.dart';
+import '../helpers/expense_voice_callbacks.dart';
 import '../controllers/expenses_controller.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
@@ -263,6 +262,34 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     }
   }
 
+  Future<void> _handleExpenseEdit(Map<String, dynamic> harcama, Map<String, dynamic> updatedHarcama) async {
+    final index = gosterilenHarcamalar.indexOf(harcama);
+    if (index != -1) {
+      gosterilenHarcamalar[index] = updatedHarcama;
+    }
+
+    await _controller.harcamaEkleVeyaDuzenleLegacy(
+      tumHarcamalar: widget.tumHarcamalar,
+      tumOdemeYontemleri: widget.tumOdemeYontemleri,
+      name: updatedHarcama['isim'] ?? harcama['isim'],
+      amount: double.tryParse(updatedHarcama['tutar'].toString()) ?? 0.0,
+      category: updatedHarcama['kategori'] ?? harcama['kategori'],
+      date: DateTime.tryParse(updatedHarcama['tarih'].toString()) ?? DateTime.now(),
+      paymentMethodId: updatedHarcama['odemeYontemiId'],
+      paraBirimi: updatedHarcama['paraBirimi'],
+      duzenlenecekHarcama: harcama,
+      eskiOdemeYontemiId: harcama['odemeYontemiId'],
+      eskiTutar: double.tryParse(harcama['tutar'].toString()) ?? 0.0,
+      aramaMetni: tArama.text,
+      onResetLazyLoading: resetLazyLoading,
+    );
+
+    widget.onHarcamalarChanged(widget.tumHarcamalar);
+    widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
+
+    if (mounted) filtreleVeGoster();
+  }
+
   void pencereAc({Map<String, dynamic>? duzenlenecekHarcama}) {
     final eskiTutar = duzenlenecekHarcama != null
         ? double.tryParse(duzenlenecekHarcama['tutar'].toString()) ?? 0.0
@@ -395,62 +422,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                                 },
                                 buildLoadingIndicator: buildLoadingIndicator,
                                 onDelete: harcamaSil,
-                                onEdit: (harcama, updatedHarcama) async {
-                                  final index = gosterilenHarcamalarContext
-                                      .indexOf(harcama);
-                                  if (index != -1) {
-                                    gosterilenHarcamalarContext[index] =
-                                        updatedHarcama;
-                                  }
-
-                                  await _controller
-                                      .harcamaEkleVeyaDuzenleLegacy(
-                                        tumHarcamalar: widget.tumHarcamalar,
-                                        tumOdemeYontemleri:
-                                            widget.tumOdemeYontemleri,
-                                        name:
-                                            updatedHarcama['isim'] ??
-                                            harcama['isim'],
-                                        amount:
-                                            double.tryParse(
-                                              updatedHarcama['tutar']
-                                                  .toString(),
-                                            ) ??
-                                            0.0,
-                                        category:
-                                            updatedHarcama['kategori'] ??
-                                            harcama['kategori'],
-                                        date:
-                                            DateTime.tryParse(
-                                              updatedHarcama['tarih']
-                                                  .toString(),
-                                            ) ??
-                                            DateTime.now(),
-                                        paymentMethodId:
-                                            updatedHarcama['odemeYontemiId'],
-                                        paraBirimi:
-                                            updatedHarcama['paraBirimi'],
-                                        duzenlenecekHarcama: harcama,
-                                        eskiOdemeYontemiId:
-                                            harcama['odemeYontemiId'],
-                                        eskiTutar:
-                                            double.tryParse(
-                                              harcama['tutar'].toString(),
-                                            ) ??
-                                            0.0,
-                                        aramaMetni: tArama.text,
-                                        onResetLazyLoading: resetLazyLoading,
-                                      );
-
-                                  widget.onHarcamalarChanged(
-                                    widget.tumHarcamalar,
-                                  );
-                                  widget.onOdemeYontemleriChanged(
-                                    widget.tumOdemeYontemleri,
-                                  );
-
-                                  if (mounted) filtreleVeGoster();
-                                },
+                                onEdit: _handleExpenseEdit,
                                 kategoriIkonlari: widget.kategoriIkonlari,
                                 tumOdemeYontemleri: widget.tumOdemeYontemleri,
                                 gosterilenHarcamalar:
@@ -500,6 +472,17 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   }
 
   void _showVoiceInput() {
+    final callbacks = ExpenseVoiceCallbacks(
+      tumHarcamalar: widget.tumHarcamalar,
+      gosterilenHarcamalar: gosterilenHarcamalar,
+      secilenAy: secilenAy,
+      butceLimiti: widget.butceLimiti,
+      userId: widget.userId ?? '',
+      onHarcamalarChanged: widget.onHarcamalarChanged,
+      onFiltrele: filtreleVeGoster,
+      snackBarContext: context,
+    );
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -517,10 +500,8 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           });
 
           widget.tumHarcamalar.sort((a, b) {
-            DateTime tarihA =
-                DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-            DateTime tarihB =
-                DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+            DateTime tarihA = DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+            DateTime tarihB = DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
             return tarihB.compareTo(tarihA);
           });
 
@@ -531,216 +512,27 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
             MoneyAnimationOverlay.show(context);
           }
 
-          AppSnackBar.success(
+          showExpenseAddedSnackBar(
             context,
-            '${context.l10n.expense} ${context.l10n.added}: $name - ${CurrencyFormatter.format(amount)}',
+            name,
+            amount,
+            CurrencyFormatter.format(amount),
+            context.l10n.added,
+            context.l10n.expense,
           );
         },
-        onDeleteLastExpense: () async {
-          final buAyHarcamalari = widget.tumHarcamalar.where((h) {
-            if (h['silindi'] == true) return false;
-            DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-            if (tarih == null) return false;
-            return tarih.year == secilenAy.year &&
-                tarih.month == secilenAy.month;
-          }).toList();
-
-          if (buAyHarcamalari.isEmpty) return null;
-
-          buAyHarcamalari.sort((a, b) {
-            DateTime tarihA =
-                DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-            DateTime tarihB =
-                DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-            return tarihB.compareTo(tarihA);
-          });
-
-          final sonHarcama = buAyHarcamalari.first;
-          sonHarcama['silindi'] = true;
-          filtreleVeGoster();
-          widget.onHarcamalarChanged(widget.tumHarcamalar);
-
-          return sonHarcama;
-        },
-        onGetMonthlyTotal: () => toplamTutar,
-        onGetTopCategory: () {
-          final helper = ExpenseCalculationHelper(
-            tumHarcamalar: widget.tumHarcamalar,
-            gosterilenHarcamalar: gosterilenHarcamalar,
-            secilenAy: secilenAy,
-            butceLimiti: widget.butceLimiti,
-          );
-          return helper.getTopCategory();
-        },
-        onGetWeeklyTotal: () {
-          final helper = ExpenseCalculationHelper(
-            tumHarcamalar: widget.tumHarcamalar,
-            gosterilenHarcamalar: gosterilenHarcamalar,
-            secilenAy: secilenAy,
-            butceLimiti: widget.butceLimiti,
-          );
-          return helper.getWeeklyTotal();
-        },
-        onGetDailyTotal: () {
-          final helper = ExpenseCalculationHelper(
-            tumHarcamalar: widget.tumHarcamalar,
-            gosterilenHarcamalar: gosterilenHarcamalar,
-            secilenAy: secilenAy,
-            butceLimiti: widget.butceLimiti,
-          );
-          return helper.getDailyTotal();
-        },
-        onGetLastExpenses: () {
-          final helper = ExpenseCalculationHelper(
-            tumHarcamalar: widget.tumHarcamalar,
-            gosterilenHarcamalar: gosterilenHarcamalar,
-            secilenAy: secilenAy,
-            butceLimiti: widget.butceLimiti,
-          );
-          return helper.getLastExpenses();
-        },
-        onCheckBudget: () {
-          final helper = ExpenseCalculationHelper(
-            tumHarcamalar: widget.tumHarcamalar,
-            gosterilenHarcamalar: gosterilenHarcamalar,
-            secilenAy: secilenAy,
-            butceLimiti: widget.butceLimiti,
-          );
-          return helper.checkBudget();
-        },
-        onGetCategoryTotal: (String kategori) {
-          final helper = ExpenseCalculationHelper(
-            tumHarcamalar: widget.tumHarcamalar,
-            gosterilenHarcamalar: gosterilenHarcamalar,
-            secilenAy: secilenAy,
-            butceLimiti: widget.butceLimiti,
-          );
-          return helper.getCategoryTotal(kategori);
-        },
-        onAddFixedExpenses: () async {
-          final expenseRepo = getIt<ExpenseRepository>();
-          final sabitGiderler = expenseRepo.getFixedExpenseTemplates(
-            widget.userId ?? '',
-          );
-          if (sabitGiderler.isEmpty) {
-            return {'adet': 0, 'toplam': 0.0};
-          }
-          DateTime simdiT = DateTime.now();
-          double toplam = 0;
-          for (var sablon in sabitGiderler) {
-            double tutar = (sablon['tutar'] as num?)?.toDouble() ?? 0;
-            toplam += tutar;
-            widget.tumHarcamalar.add({
-              'isim': sablon['isim'],
-              'tutar': tutar,
-              'kategori': 'Sabit Giderler',
-              'tarih': simdiT.toString(),
-              'silindi': false,
-            });
-          }
-          widget.onHarcamalarChanged(widget.tumHarcamalar);
-          filtreleVeGoster();
-          return {'adet': sabitGiderler.length, 'toplam': toplam};
-        },
-        onEditLastExpense: (double yeniTutar) async {
-          final buAyHarcamalari = widget.tumHarcamalar.where((h) {
-            if (h['silindi'] == true) return false;
-            DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-            if (tarih == null) return false;
-            return tarih.year == secilenAy.year &&
-                tarih.month == secilenAy.month;
-          }).toList();
-          if (buAyHarcamalari.isEmpty) return null;
-          buAyHarcamalari.sort((a, b) {
-            DateTime tarihA =
-                DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-            DateTime tarihB =
-                DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-            return tarihB.compareTo(tarihA);
-          });
-          final sonHarcama = buAyHarcamalari.first;
-          final eskiTutar = (sonHarcama['tutar'] as num?)?.toDouble() ?? 0;
-          final isim = sonHarcama['isim'] ?? 'Harcama';
-          if (yeniTutar == 0) {
-            sonHarcama['silindi'] = true;
-          } else {
-            sonHarcama['tutar'] = yeniTutar;
-          }
-          widget.onHarcamalarChanged(widget.tumHarcamalar);
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (mounted) {
-              filtreleVeGoster();
-            }
-          });
-          return {
-            'isim': isim,
-            'eskiTutar': eskiTutar,
-            'yeniTutar': yeniTutar,
-            'silindi': yeniTutar == 0,
-          };
-        },
-        onGetDateRangeTotal: (DateTime baslangic, DateTime bitis) {
-          final cur = getIt<CurrencyService>();
-          double toplam = 0;
-          final baslangicGun = DateTime(
-            baslangic.year,
-            baslangic.month,
-            baslangic.day,
-          );
-          final bitisGun = DateTime(bitis.year, bitis.month, bitis.day);
-          for (var h in widget.tumHarcamalar) {
-            if (h['silindi'] == true) continue;
-            DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-            if (tarih != null) {
-              final harcamaTarihi = DateTime(
-                tarih.year,
-                tarih.month,
-                tarih.day,
-              );
-              if ((harcamaTarihi.isAtSameMomentAs(baslangicGun) ||
-                      harcamaTarihi.isAfter(baslangicGun)) &&
-                  (harcamaTarihi.isAtSameMomentAs(bitisGun) ||
-                      harcamaTarihi.isBefore(bitisGun))) {
-                final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
-                final pb = h['paraBirimi']?.toString() ?? 'TRY';
-                toplam += cur.convert(tutar, pb, cur.currentCurrency);
-              }
-            }
-          }
-          return toplam;
-        },
-        onGetDateRangeCategoryTotal:
-            (DateTime baslangic, DateTime bitis, String kategori) {
-              final cur = getIt<CurrencyService>();
-              double toplam = 0;
-              final baslangicGun = DateTime(
-                baslangic.year,
-                baslangic.month,
-                baslangic.day,
-              );
-              final bitisGun = DateTime(bitis.year, bitis.month, bitis.day);
-              for (var h in widget.tumHarcamalar) {
-                if (h['silindi'] == true) continue;
-                if (h['kategori'] != kategori) continue;
-                DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-                if (tarih != null) {
-                  final harcamaTarihi = DateTime(
-                    tarih.year,
-                    tarih.month,
-                    tarih.day,
-                  );
-                  if ((harcamaTarihi.isAtSameMomentAs(baslangicGun) ||
-                          harcamaTarihi.isAfter(baslangicGun)) &&
-                      (harcamaTarihi.isAtSameMomentAs(bitisGun) ||
-                          harcamaTarihi.isBefore(bitisGun))) {
-                    final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
-                    final pb = h['paraBirimi']?.toString() ?? 'TRY';
-                    toplam += cur.convert(tutar, pb, cur.currentCurrency);
-                  }
-                }
-              }
-              return toplam;
-            },
+        onDeleteLastExpense: () async => callbacks.deleteLastExpense(),
+        onGetMonthlyTotal: () => callbacks.monthlyTotal,
+        onGetTopCategory: () => callbacks.topCategory,
+        onGetWeeklyTotal: () => callbacks.weeklyTotal,
+        onGetDailyTotal: () => callbacks.dailyTotal,
+        onGetLastExpenses: () => callbacks.lastExpenses,
+        onCheckBudget: () => callbacks.budgetStatus,
+        onGetCategoryTotal: (kategori) => callbacks.categoryTotal(kategori),
+        onAddFixedExpenses: () async => callbacks.addFixedExpenses(),
+        onEditLastExpense: (yeniTutar) async => callbacks.editLastExpense(yeniTutar),
+        onGetDateRangeTotal: (baslangic, bitis) => callbacks.dateRangeTotal(baslangic, bitis),
+        onGetDateRangeCategoryTotal: (baslangic, bitis, kategori) => callbacks.dateRangeCategoryTotal(baslangic, bitis, kategori),
       ),
     );
   }
