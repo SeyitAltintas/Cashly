@@ -600,7 +600,7 @@ class AuthRepositoryFirestore implements AuthRepository {
   Future<void> sendPinResetEmailLink(String email) async {
     try {
       final actionCodeSettings = ActionCodeSettings(
-        url: 'https://cashly-c0acc.firebaseapp.com/__/auth/action?email=$email',
+        url: 'https://cashly-c0acc.firebaseapp.com/reset?email=$email',
         handleCodeInApp: true,
         androidPackageName: 'com.seyitaltintas.cashly',
         androidInstallApp: true,
