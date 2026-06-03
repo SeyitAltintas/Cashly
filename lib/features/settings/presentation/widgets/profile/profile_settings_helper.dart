@@ -14,6 +14,7 @@ import '../../../../../core/services/image_compression_service.dart';
 import 'image_crop_screen.dart';
 import 'advanced_image_editor.dart';
 import '../../../../../core/utils/image_utils.dart';
+import 'package:bcrypt/bcrypt.dart';
 
 /// Profil ayarları dialog/sheet yardımcı sınıfı
 /// Avatar seçimi, isim değiştirme, PIN değiştirme, hesap silme akışlarını yönetir
@@ -34,6 +35,17 @@ class ProfileSettingsHelper {
 
   ImageProvider _getImageProvider(String path) {
     return ImageUtils.getProfileImageProvider(path);
+  }
+
+  bool _isPinCorrect(String inputPin, String storedPin) {
+    if (storedPin.startsWith(r'$2a$') || storedPin.startsWith(r'$2b$')) {
+      try {
+        return BCrypt.checkpw(inputPin, storedPin);
+      } catch (_) {
+        return false;
+      }
+    }
+    return inputPin == storedPin;
   }
 
   Future<void> _updateUser({
@@ -353,7 +365,7 @@ class ProfileSettingsHelper {
                                   value.length > 6) {
                                 return context.l10n.enterPinDigits;
                               }
-                              if (value != currentUser.pin) {
+                              if (!_isPinCorrect(value, currentUser.pin)) {
                                 return context.l10n.pinIncorrect;
                               }
                               return null;
@@ -514,7 +526,7 @@ class ProfileSettingsHelper {
                             value.length > 6) {
                           return context.l10n.enterPinDigits;
                         }
-                        if (value != currentUser.pin) {
+                        if (!_isPinCorrect(value, currentUser.pin)) {
                           return context.l10n.pinIncorrect;
                         }
                         return null;
@@ -625,7 +637,7 @@ class ProfileSettingsHelper {
                             value.length > 6) {
                           return context.l10n.enterPinDigits;
                         }
-                        if (value != currentUser.pin) {
+                        if (!_isPinCorrect(value, currentUser.pin)) {
                           return context.l10n.pinIncorrect;
                         }
                         return null;
