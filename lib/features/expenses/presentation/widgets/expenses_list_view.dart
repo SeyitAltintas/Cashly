@@ -41,14 +41,14 @@ class ExpensesListView extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         cacheExtent: 500,
         slivers: [
+          // Normal expense items — sabit yükseklik ile O(1) scroll offset hesabı
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            sliver: SliverList(
+            sliver: SliverFixedExtentList(
+              itemExtent: 72, // Card + ListTile(vertical:4) + margin(bottom:6)
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  if (index >= gosterilenHarcamalar.length) {
-                    return buildLoadingIndicator();
-                  }
+                  if (index >= gosterilenHarcamalar.length) return null;
 
                   final harcama = gosterilenHarcamalar[index];
 
@@ -88,10 +88,13 @@ class ExpensesListView extends StatelessWidget {
                     },
                   );
                 },
-                childCount: gosterilenHarcamalar.length + (hasMoreItems ? 1 : 0),
+                childCount: gosterilenHarcamalar.length,
               ),
             ),
           ),
+          // Lazy loading indikatörü (farklı yükseklikte olduğu için ayrı sliver)
+          if (hasMoreItems)
+            SliverToBoxAdapter(child: buildLoadingIndicator()),
         ],
       ),
     );

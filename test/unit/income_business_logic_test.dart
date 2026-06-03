@@ -29,11 +29,18 @@ class MockBatchService implements BatchService {
 
 class MockIncomeRepository implements IncomeRepository {
   @override
-  BatchOperation getAddIncomeOperation(String userId, Map<String, dynamic> income) => DummyBatchOperation();
+  BatchOperation getAddIncomeOperation(
+    String userId,
+    Map<String, dynamic> income,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getUpdateIncomeOperation(String userId, Map<String, dynamic> income) => DummyBatchOperation();
+  BatchOperation getUpdateIncomeOperation(
+    String userId,
+    Map<String, dynamic> income,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getDeleteIncomeOperation(String userId, String id) => DummyBatchOperation();
+  BatchOperation getDeleteIncomeOperation(String userId, String id) =>
+      DummyBatchOperation();
 
   List<Map<String, dynamic>> _incomes = [];
   final List<Map<String, dynamic>> _categories = [];
@@ -43,7 +50,10 @@ class MockIncomeRepository implements IncomeRepository {
   List<Map<String, dynamic>> getIncomes(String userId) => _incomes;
 
   @override
-  Stream<List<Map<String, dynamic>>> watchIncomesByMonth(String userId, DateTime month) {
+  Stream<List<Map<String, dynamic>>> watchIncomesByMonth(
+    String userId,
+    DateTime month,
+  ) {
     return Stream.value(_incomes);
   }
 
@@ -95,13 +105,23 @@ class MockIncomeRepository implements IncomeRepository {
 
 class MockPaymentMethodRepository implements PaymentMethodRepository {
   @override
-  BatchOperation getAddPaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  BatchOperation getAddPaymentMethodOperation(
+    String userId,
+    Map<String, dynamic> method,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getUpdatePaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  BatchOperation getUpdatePaymentMethodOperation(
+    String userId,
+    Map<String, dynamic> method,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getDeletePaymentMethodOperation(String userId, String id) => DummyBatchOperation();
+  BatchOperation getDeletePaymentMethodOperation(String userId, String id) =>
+      DummyBatchOperation();
   @override
-  BatchOperation getAddTransferOperation(String userId, Map<String, dynamic> transfer) => DummyBatchOperation();
+  BatchOperation getAddTransferOperation(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) => DummyBatchOperation();
 
   List<Map<String, dynamic>> _paymentMethods = [];
   final List<Map<String, dynamic>> _deletedPaymentMethods = [];
@@ -113,27 +133,40 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
       _paymentMethods;
 
   @override
-  Future<void> addPaymentMethod(String userId, Map<String, dynamic> method) async {}
+  Future<void> addPaymentMethod(
+    String userId,
+    Map<String, dynamic> method,
+  ) async {}
   @override
-  Future<void> updatePaymentMethod(String userId, Map<String, dynamic> method) async {}
+  Future<void> updatePaymentMethod(
+    String userId,
+    Map<String, dynamic> method,
+  ) async {}
   @override
   Future<void> deletePaymentMethod(String userId, String id) async {}
   @override
-  Future<void> addDeletedPaymentMethod(String userId, Map<String, dynamic> method) async {}
+  Future<void> addDeletedPaymentMethod(
+    String userId,
+    Map<String, dynamic> method,
+  ) async {}
   @override
   Future<void> removeDeletedPaymentMethod(String userId, String id) async {}
   @override
-  Future<void> addTransfer(String userId, Map<String, dynamic> transfer) async {}
+  Future<void> addTransfer(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) async {}
   @override
-  Future<void> updateTransfer(String userId, Map<String, dynamic> transfer) async {}
+  Future<void> updateTransfer(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) async {}
   @override
   Future<void> deleteTransfer(String userId, String transferId) async {}
 
   @override
   List<Map<String, dynamic>> getDeletedPaymentMethods(String userId) =>
       _deletedPaymentMethods;
-
-
 
   @override
   String? getDefaultPaymentMethod(String userId) => _defaultPaymentMethodId;
@@ -146,8 +179,6 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
   @override
   List<Map<String, dynamic>> getTransfers(String userId) => _transfers;
 
-
-
   void setPaymentMethods(List<Map<String, dynamic>> methods) {
     _paymentMethods = methods;
   }
@@ -159,7 +190,11 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
 
 void main() {
   setUpAll(() {
-    if (!GetIt.instance.isRegistered<BatchService>()) { GetIt.instance.registerLazySingleton<BatchService>(() => MockBatchService()); }
+    if (!GetIt.instance.isRegistered<BatchService>()) {
+      GetIt.instance.registerLazySingleton<BatchService>(
+        () => MockBatchService(),
+      );
+    }
 
     if (!GetIt.instance.isRegistered<CurrencyService>()) {
       GetIt.instance.registerLazySingleton<CurrencyService>(
@@ -634,7 +669,9 @@ void main() {
           await controller.loadData();
 
           controller.setBinSilinenGelirler([controller.tumGelirler.first]);
-          await controller.binPermanentDeleteGelir(controller.tumGelirler.first);
+          await controller.binPermanentDeleteGelir(
+            controller.tumGelirler.first,
+          );
 
           expect(controller.tumGelirler, isEmpty);
           expect(controller.binSilinenGelirler, isEmpty);

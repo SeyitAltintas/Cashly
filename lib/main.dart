@@ -37,6 +37,7 @@ import 'core/services/secure_storage_service.dart';
 
 import 'core/widgets/fallback_error_widget.dart';
 import 'core/widgets/offline_sensor.dart';
+import 'core/widgets/shimmer_loading.dart';
 
 void main() {
   runZonedGuarded(
@@ -332,11 +333,12 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
     return Consumer2<ThemeManager, LocaleManager>(
       builder: (context, themeManager, localeManager, child) {
         if (!_isInitialized) {
-          return const MaterialApp(
+          return MaterialApp(
             debugShowCheckedModeBanner: false,
-            home: Scaffold(
+            theme: themeManager.currentTheme,
+            home: const Scaffold(
               backgroundColor: Color(0xFF0D0D0D),
-              body: SizedBox.shrink(),
+              body: DashboardPageSkeleton(),
             ),
           );
         }
