@@ -37,7 +37,6 @@ import 'core/services/secure_storage_service.dart';
 
 import 'core/widgets/fallback_error_widget.dart';
 import 'core/widgets/offline_sensor.dart';
-import 'core/widgets/shimmer_loading.dart';
 
 void main() {
   runZonedGuarded(
@@ -58,8 +57,8 @@ void main() {
 
         // L-004: Firebase App Check Entegrasyonu
         await FirebaseAppCheck.instance.activate(
-          androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
-          appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.deviceCheck,
+          providerAndroid: kDebugMode ? const AndroidDebugProvider() : const AndroidPlayIntegrityProvider(),
+          providerApple: kDebugMode ? const AppleDebugProvider() : const AppleDeviceCheckProvider(),
         );
       } catch (e) {
         if (e is FirebaseException && e.code == 'duplicate-app') {
@@ -333,12 +332,11 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
     return Consumer2<ThemeManager, LocaleManager>(
       builder: (context, themeManager, localeManager, child) {
         if (!_isInitialized) {
-          return MaterialApp(
+          return const MaterialApp(
             debugShowCheckedModeBanner: false,
-            theme: themeManager.currentTheme,
-            home: const Scaffold(
+            home: Scaffold(
               backgroundColor: Color(0xFF0D0D0D),
-              body: DashboardPageSkeleton(),
+              body: SizedBox.shrink(),
             ),
           );
         }
