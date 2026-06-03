@@ -9,11 +9,13 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/batch_service.dart';
 import 'dart:async';
 import '../../../../core/services/currency_service.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 /// Gelirler Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
 /// Bu controller IncomePageState'in yerini alır.
-class IncomesController extends ChangeNotifier {
+class IncomesController extends ChangeNotifier with SafeNotifierMixin {
   final IncomeRepository _incomeRepository;
   final PaymentMethodRepository _paymentMethodRepository;
   final String userId;

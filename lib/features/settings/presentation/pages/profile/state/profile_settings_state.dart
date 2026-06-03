@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import '../../../../../auth/domain/entities/user_entity.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 /// Profil ayarları için ChangeNotifier state yöneticisi
-class ProfileSettingsState extends ChangeNotifier {
+class ProfileSettingsState extends ChangeNotifier with SafeNotifierMixin {
   UserEntity? _currentUser;
   UserEntity? get currentUser => _currentUser;
   set currentUser(UserEntity? value) {

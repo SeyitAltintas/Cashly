@@ -4,11 +4,13 @@ import '../../domain/repositories/asset_repository.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 /// Varlıklar Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
 /// Bu controller AssetPageState'in yerini alır.
-class AssetsController extends ChangeNotifier {
+class AssetsController extends ChangeNotifier with SafeNotifierMixin {
   final AssetRepository _assetRepository;
   final String userId;
 

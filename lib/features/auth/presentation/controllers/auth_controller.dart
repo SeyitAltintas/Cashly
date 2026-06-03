@@ -5,8 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/exceptions/session_expired_exception.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-class AuthController extends ChangeNotifier {
+
+class AuthController extends ChangeNotifier with SafeNotifierMixin {
   final AuthRepository _authRepository;
   UserEntity? _currentUser;
   bool _isLoading = false;

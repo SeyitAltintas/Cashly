@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 /// PDF dışa aktarma için ChangeNotifier state yöneticisi
-class PdfExportState extends ChangeNotifier {
+class PdfExportState extends ChangeNotifier with SafeNotifierMixin {
   DateTime _selectedDate = DateTime.now();
   DateTime get selectedDate => _selectedDate;
   set selectedDate(DateTime value) {

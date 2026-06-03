@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 /// Network bağlantı durumlarını temsil eden enum
 enum NetworkStatus {
@@ -31,7 +33,7 @@ enum NetworkStatus {
 ///   print('Network durumu: $status');
 /// });
 /// ```
-class NetworkService extends ChangeNotifier {
+class NetworkService extends ChangeNotifier with SafeNotifierMixin {
   // Singleton pattern
   static final NetworkService _instance = NetworkService._internal();
   factory NetworkService() => _instance;

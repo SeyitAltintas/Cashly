@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import '../../domain/entities/user_entity.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 /// Login sayfası için ChangeNotifier state yöneticisi
-class LoginPageState extends ChangeNotifier {
+class LoginPageState extends ChangeNotifier with SafeNotifierMixin {
   UserEntity? _targetUser;
   UserEntity? get targetUser => _targetUser;
   set targetUser(UserEntity? value) {

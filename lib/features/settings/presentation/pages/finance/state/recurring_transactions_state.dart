@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import '../../../../../payment_methods/data/models/payment_method_model.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 /// Tekrarlayan işlemler için ChangeNotifier state yöneticisi
-class RecurringTransactionsState extends ChangeNotifier {
+class RecurringTransactionsState extends ChangeNotifier with SafeNotifierMixin {
   List<Map<String, dynamic>> _tekrarlayanIslemler = [];
   List<Map<String, dynamic>> get tekrarlayanIslemler => _tekrarlayanIslemler;
   set tekrarlayanIslemler(List<Map<String, dynamic>> value) {

@@ -12,10 +12,12 @@ import 'package:cashly/core/constants/icon_constants.dart';
 import 'package:cashly/core/services/asset_price_update_service.dart';
 import 'package:cashly/core/services/currency_service.dart';
 import 'package:intl/intl.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 /// Ana sayfa için state yönetimi sağlayan Provider sınıfı.
 /// Harcamalar, gelirler, varlıklar, ödeme yöntemleri ve transferleri yönetir.
-class HomeProvider extends ChangeNotifier {
+class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
   final String userId;
 
   HomeProvider({required this.userId}) {

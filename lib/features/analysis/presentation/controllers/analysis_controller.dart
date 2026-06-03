@@ -5,6 +5,8 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../assets/data/models/asset_model.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 // ===== ISOLATE PAYLOAD & RESULT =====
 
@@ -357,7 +359,7 @@ Future<AnalysisComputeResult> _calculateAnalysisWorker(
 /// Analysis Controller
 /// Analiz sayfası için ChangeNotifier tabanlı state yönetimi sunar.
 /// Performans için Caching (Memoization) ve Isolate kullanır.
-class AnalysisController extends ChangeNotifier {
+class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
   int _currentTabIndex = 0;
   int get currentTabIndex => _currentTabIndex;
 

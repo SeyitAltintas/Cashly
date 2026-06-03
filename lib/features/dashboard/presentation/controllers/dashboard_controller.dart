@@ -7,6 +7,8 @@ import '../../../assets/data/models/asset_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
 import '../../../streak/data/models/streak_model.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 
 // ===== ISOLATE PAYLOAD & RESULT =====
@@ -186,7 +188,7 @@ Future<DashboardComputeResult> _calculateDashboardWorker(
 /// Dashboard sayfası için ChangeNotifier tabanlı state yönetimi sağlar.
 /// Finansal özet hesaplamalarını ve görüntüleme mantığını merkezi olarak yönetir.
 /// Use Case entegrasyonu ile Clean Architecture prensiplerini destekler.
-class DashboardController extends ChangeNotifier {
+class DashboardController extends ChangeNotifier with SafeNotifierMixin {
   // ===== USE CASES =====
   late final GetFinancialSummary _getFinancialSummary;
   late final CalculateTotalBalance _calculateTotalBalance;

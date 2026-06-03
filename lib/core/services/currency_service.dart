@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-class CurrencyService extends ChangeNotifier {
+
+class CurrencyService extends ChangeNotifier with SafeNotifierMixin {
   static const String _boxName = 'settings';
   static const String _currencyKey = 'app_currency';
   static const String _ratesKey = 'exchange_rates';

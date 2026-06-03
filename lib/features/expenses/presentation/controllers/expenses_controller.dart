@@ -12,6 +12,8 @@ import '../../../../core/utils/error_handler.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/services/batch_service.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 /// Harcamalar Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
@@ -46,7 +48,7 @@ List<Map<String, dynamic>> _computeFilterExpenses(ExpenseFilterParams params) {
   return filteredList;
 }
 
-class ExpensesController extends ChangeNotifier with ExpenseFormMixin, ExpenseVoiceMixin, ExpenseCategoryMgmtMixin, ExpenseBinMixin {
+class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseFormMixin, ExpenseVoiceMixin, ExpenseCategoryMgmtMixin, ExpenseBinMixin {
   final ExpenseRepository _expenseRepository;
   final PaymentMethodRepository _paymentMethodRepository;
   @override

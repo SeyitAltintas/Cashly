@@ -15,10 +15,12 @@ import '../../../../core/constants/icon_constants.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/services/asset_price_update_service.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 /// AnaSayfa için ChangeNotifier state yöneticisi
 /// Tüm veri state'lerini ve loading durumunu merkezi olarak yönetir
-class HomePageState extends ChangeNotifier {
+class HomePageState extends ChangeNotifier with SafeNotifierMixin {
   String? _userId;
   StreamSubscription? _expensesSubscription;
   StreamSubscription? _incomesSubscription;

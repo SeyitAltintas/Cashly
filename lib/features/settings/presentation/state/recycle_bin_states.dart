@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../assets/data/models/asset_model.dart';
+import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+
 
 /// Ödeme yöntemleri geri dönüşüm kutusu için state
-class PaymentMethodRecycleBinState extends ChangeNotifier {
+class PaymentMethodRecycleBinState extends ChangeNotifier with SafeNotifierMixin {
   List<PaymentMethod> _deletedPaymentMethods = [];
   List<PaymentMethod> get deletedPaymentMethods => _deletedPaymentMethods;
 
@@ -28,7 +30,7 @@ class PaymentMethodRecycleBinState extends ChangeNotifier {
 }
 
 /// Varlıklar geri dönüşüm kutusu için state
-class AssetRecycleBinState extends ChangeNotifier {
+class AssetRecycleBinState extends ChangeNotifier with SafeNotifierMixin {
   List<Asset> _deletedAssets = [];
   List<Asset> get deletedAssets => _deletedAssets;
 
