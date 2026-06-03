@@ -380,9 +380,6 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
             final gelirAramaModuContext = context.select(
               (IncomesController c) => c.aramaModu,
             );
-            final secilenAyContext = context.select(
-              (IncomesController c) => c.secilenAy,
-            );
             final filteredGelirler = context.select(
               (IncomesController c) => c.filteredGelirler,
             );
