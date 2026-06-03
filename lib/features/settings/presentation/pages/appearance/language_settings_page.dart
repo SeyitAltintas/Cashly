@@ -16,7 +16,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final localeManager = Provider.of<LocaleManager>(context);
+    final currentLocale = context.select((LocaleManager l) => l.locale);
+    final localeManager = context.read<LocaleManager>();
     final l10n = context.l10n;
 
     return Scaffold(
@@ -92,7 +93,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
               child: Column(
                 children: LocaleManager.supportedLocales.map((locale) {
                   final isSelected =
-                      localeManager.locale.languageCode == locale.languageCode;
+                      currentLocale.languageCode == locale.languageCode;
                   final isLast = locale == LocaleManager.supportedLocales.last;
 
                   return Column(
