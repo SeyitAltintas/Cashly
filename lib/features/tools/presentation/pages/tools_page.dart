@@ -44,12 +44,14 @@ class _ToolsPageState extends State<ToolsPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _controller,
-      child: Consumer<ToolsController>(
-        builder: (context, controller, child) {
+      child: Builder(
+        builder: (context) {
+          final isLoading = context.select((ToolsController c) => c.isLoading);
+
           return Scaffold(
             backgroundColor: Colors.transparent,
             body: SafeArea(
-              child: controller.isLoading
+              child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ListView(
                       padding: const EdgeInsets.symmetric(

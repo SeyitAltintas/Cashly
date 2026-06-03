@@ -45,8 +45,12 @@ class _StreakPageState extends State<StreakPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _controller,
-      child: Consumer<StreakController>(
-        builder: (context, controller, child) {
+      child: Builder(
+        builder: (context) {
+          final controller = context.read<StreakController>();
+          context.select((StreakController c) => c.streakData);
+          context.select((StreakController c) => c.nextBadge);
+          
           return Scaffold(
             appBar: AppBar(
               title: Text(context.l10n.streakInfo),

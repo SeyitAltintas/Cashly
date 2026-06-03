@@ -78,8 +78,11 @@ class AnimationsSettingsPage extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Consumer<ThemeManager>(
-                builder: (context, themeManager, child) {
+              child: Builder(
+                builder: (context) {
+                  final isMoneyAnimationEnabled = context.select((ThemeManager t) => t.isMoneyAnimationEnabled);
+                  final themeManager = context.read<ThemeManager>();
+
                   return Column(
                     children: [
                       // Para Animasyonu Switch
@@ -123,7 +126,7 @@ class AnimationsSettingsPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        value: themeManager.isMoneyAnimationEnabled,
+                        value: isMoneyAnimationEnabled,
                         onChanged: (value) {
                           themeManager.toggleMoneyAnimation(value);
                         },

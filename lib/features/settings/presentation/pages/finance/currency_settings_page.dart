@@ -18,8 +18,10 @@ class CurrencySettingsPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Consumer<CurrencyService>(
-        builder: (context, currencyService, child) {
+      body: Builder(
+        builder: (context) {
+          final currentCurrency = context.select((CurrencyService c) => c.currentCurrency);
+          final currencyService = context.read<CurrencyService>();
           const currencies = CurrencyService.supportedCurrencies;
 
           return ListView(
@@ -49,7 +51,7 @@ class CurrencySettingsPage extends StatelessWidget {
                 child: Column(
                   children: currencies.keys.map((code) {
                     final symbol = currencies[code]!;
-                    final isSelected = currencyService.currentCurrency == code;
+                    final isSelected = currentCurrency == code;
                     final isLast = currencies.keys.last == code;
 
                     return Column(
