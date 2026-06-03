@@ -29,13 +29,15 @@ void main() {
           ),
         ),
       );
+      // flutter_animate animasyonlarının pending timer bırakmaması için settle et
+      await tester.pump(const Duration(seconds: 2));
     }
 
     testWidgets('Temel error screen render edilmeli', (tester) async {
       await pumpErrorScreen(tester);
 
-      // Hata ikonu görünmeli
-      expect(find.byIcon(Icons.error_outline), findsOneWidget);
+      // Widget'ta Icons.emergency_outlined kullanılıyor
+      expect(find.byIcon(Icons.emergency_outlined), findsOneWidget);
 
       // Başlık görünmeli
       expect(find.text('Bir Hata Oluştu'), findsOneWidget);
@@ -60,7 +62,8 @@ void main() {
 
       // Tekrar dene butonu görünmeli
       expect(find.text('Tekrar Dene'), findsOneWidget);
-      expect(find.byIcon(Icons.refresh), findsOneWidget);
+      // Widget'ta Icons.refresh_rounded kullanılıyor
+      expect(find.byIcon(Icons.refresh_rounded), findsOneWidget);
 
       // Butona tıkla
       await tester.tap(find.text('Tekrar Dene'));
@@ -85,15 +88,19 @@ void main() {
 
       await pumpErrorScreen(tester, errorDetails: errorDetails);
 
-      // Teknik Detaylar expansion tile görünmeli
+      // Teknik Detaylar butonu görünmeli
       expect(find.text('Teknik Detaylar'), findsOneWidget);
 
       // Expansion tile'ı aç
       await tester.tap(find.text('Teknik Detaylar'));
-      await tester.pumpAndSettle();
+      // Animasyon timer'larını tüket
+      await tester.pump(const Duration(seconds: 2));
 
       // Hata detayı görünmeli
       expect(find.textContaining('Test hatası'), findsOneWidget);
+
+      // Kalan timer'ları temizle
+      await tester.pump(const Duration(seconds: 2));
     });
 
     testWidgets('Scaffold doğru background color ile render edilmeli', (
@@ -105,7 +112,8 @@ void main() {
       expect(scaffoldFinder, findsOneWidget);
 
       final scaffold = tester.widget<Scaffold>(scaffoldFinder);
-      expect(scaffold.backgroundColor, Colors.black);
+      // Widget'ta 0xFF0F1115 kullanılıyor, Colors.black değil
+      expect(scaffold.backgroundColor, const Color(0xFF0F1115));
     });
   });
 }

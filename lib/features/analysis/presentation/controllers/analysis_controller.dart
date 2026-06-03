@@ -404,6 +404,13 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
 
   AnalysisComputeResult? _result;
 
+  /// Sayfa her açıldığında varsayılan filtreye (Bu Ay) sıfırla
+  void resetToDefaultFilter() {
+    _historyLimit = 30;
+    _selectedMonth = DateTime.now();
+    _touchedIndex = -1;
+  }
+
   Future<void> updateData({
     required List<Map<String, dynamic>> harcamalar,
     required List<Income> gelirler,
@@ -415,13 +422,8 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
     _gelirler = gelirler;
     _varliklar = varliklar;
     _odemeYontemleri = odemeYontemleri;
-
-    if (_selectedMonth.year != secilenAy.year ||
-        _selectedMonth.month != secilenAy.month) {
-      _selectedMonth = secilenAy;
-      _historyLimit = -1;
-    }
-
+    // Not: historyLimit artık dışarıdan zorla değiştirilmiyor.
+    // Kullanıcı dropdown'dan seçtiği filtre korunur.
     await _recalculateData();
   }
 
@@ -456,8 +458,17 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
     super.dispose();
   }
 
+  // Devam eden compute'u iptal etmek için kullanılan sayaç
+  int _computeGeneration = 0;
+
   Future<void> _recalculateData() async {
-    setLoading(true);
+    // Bu çağrıya ait nesil numarasını kaydet (race condition önleme)
+    final generation = ++_computeGeneration;
+
+    if (!_isLoading) {
+      _isLoading = true;
+      notifyListeners();
+    }
 
     final cur = getIt<CurrencyService>();
     final payload = AnalysisComputePayload(
@@ -471,10 +482,13 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
       currentCurrency: cur.currentCurrency,
     );
 
-    _result = await compute(_calculateAnalysisWorker, payload);
+    final result = await compute(_calculateAnalysisWorker, payload);
 
-    if (!_isDisposed) {
-      setLoading(false); // Notify listeners after compute
+    // Sadece en son başlatılan compute'un sonucunu kabul et
+    if (!_isDisposed && generation == _computeGeneration) {
+      _result = result;
+      _isLoading = false;
+      notifyListeners(); // Her zaman bildirim gönder
     }
   }
 

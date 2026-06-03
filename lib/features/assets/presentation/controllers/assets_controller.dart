@@ -228,6 +228,10 @@ class AssetsController extends ChangeNotifier with SafeNotifierMixin {
     } else {
       _filtrelenmisVarliklar = _assets.where((a) => !a.isDeleted).toList();
     }
+    
+    // Tarih sırasına göre (en yeni en üstte olacak şekilde) sıralama
+    _filtrelenmisVarliklar.sort((a, b) => b.purchaseDate.compareTo(a.purchaseDate));
+
     notifyListeners();
   }
 

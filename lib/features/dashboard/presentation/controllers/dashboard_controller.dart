@@ -69,9 +69,9 @@ double _isolateConvert(
   return amountInUsd * targetRate;
 }
 
-Future<DashboardComputeResult> _calculateDashboardWorker(
+DashboardComputeResult _calculateDashboardWorker(
   DashboardComputePayload payload,
-) async {
+) {
   final rates = payload.rates;
   final target = payload.currentCurrency;
   
@@ -489,7 +489,7 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
     _recalculateData();
   }
 
-  Future<void> _recalculateData() async {
+  void _recalculateData() {
     final service = getIt<CurrencyService>();
     final payload = DashboardComputePayload(
       harcamalar: _harcamalar,
@@ -502,7 +502,7 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
       currentCurrency: service.currentCurrency,
     );
     
-    _result = await compute(_calculateDashboardWorker, payload);
+    _result = _calculateDashboardWorker(payload);
     if (!_disposed) notifyListeners();
   }
 }
