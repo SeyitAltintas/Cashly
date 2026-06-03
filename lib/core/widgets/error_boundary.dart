@@ -8,14 +8,16 @@ import 'package:cashly/core/widgets/fallback_error_widget.dart';
 /// sarmalamak ve izole etmek için kullanılır.
 class ErrorBoundary extends StatefulWidget {
   final Widget child;
-  final Widget Function(BuildContext context, Object error, StackTrace stackTrace)? fallbackBuilder;
+  final Widget Function(Object error, VoidCallback retry)? errorBuilder;
   final Function(Object error, StackTrace stackTrace)? onError;
+  final bool enableRetry;
 
   const ErrorBoundary({
     super.key,
     required this.child,
-    this.fallbackBuilder,
+    this.errorBuilder,
     this.onError,
+    this.enableRetry = true,
   });
 
   @override
@@ -53,8 +55,8 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
   @override
   Widget build(BuildContext context) {
     if (_error != null) {
-      if (widget.fallbackBuilder != null) {
-        return widget.fallbackBuilder!(context, _error!, _stackTrace!);
+      if (widget.errorBuilder != null) {
+        return widget.errorBuilder!(_error!, resetError);
       }
       return FallbackErrorWidget(
         details: FlutterErrorDetails(
@@ -62,10 +64,38 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
           stack: _stackTrace,
           library: 'ErrorBoundary',
         ),
-        onRetry: resetError,
+        onRetry: widget.enableRetry ? resetError : null,
       );
     }
 
+    // Try-catch build anında işe yaramaz ama future builder benzeri manuel state durumları için kılıf
     return widget.child;
+  }
+}
+
+/// Tüm sayfanın (route) çökmesini engellemek için özelleşmiş ErrorBoundary.
+class PageErrorBoundary extends StatelessWidget {
+  final String pageName;
+  final Widget child;
+  final bool showHomeButton;
+
+  const PageErrorBoundary({
+    super.key,
+    required this.pageName,
+    required this.child,
+    this.showHomeButton = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ErrorBoundary(
+      onError: (error, stackTrace) {
+        ErrorLoggerService.logError(
+          '$pageName sayfası yüklenirken hata oluştu: $error',
+          stackTrace: stackTrace.toString(),
+        );
+      },
+      child: child,
+    );
   }
 }
