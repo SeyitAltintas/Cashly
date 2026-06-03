@@ -359,9 +359,14 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
         backgroundColor: Colors.transparent,
         appBar: IncomesAppBar(
           searchController: tGelirArama,
-          onSearchChanged: () {}, // Handled by ValueListenableBuilder
+          onSearchChanged: () {
+            _searchDebouncer.run(() {
+              _controller.filtreleVeGoster(aramaMetni: tGelirArama.text);
+            });
+          },
           onClearSearch: () {
             tGelirArama.clear();
+            _controller.filtreleVeGoster();
           },
           onGoToToday: () {
             _controller.secilenAy = DateTime.now();
@@ -378,81 +383,65 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
             final secilenAyContext = context.select(
               (IncomesController c) => c.secilenAy,
             );
-            final tumGelirlerContext = context.select(
-              (IncomesController c) => c.tumGelirler,
+            final filteredGelirler = context.select(
+              (IncomesController c) => c.filteredGelirler,
             );
 
-            return ValueListenableBuilder<TextEditingValue>(
-              valueListenable: tGelirArama,
-              builder: (context, aramaValue, _) {
-                String aramaMetni = aramaValue.text.toLowerCase();
-                final gelirler = tumGelirlerContext.where((g) {
-                  if (g.isDeleted) return false;
-                  if (g.date.year != secilenAyContext.year || g.date.month != secilenAyContext.month) {
-                    return false;
-                  }
-                  if (aramaMetni.isEmpty) return true;
-                  return g.name.toLowerCase().contains(aramaMetni) ||
-                      g.category.toLowerCase().contains(aramaMetni);
-                }).toList()..sort((a, b) => b.date.compareTo(a.date));
+            final cur = getIt<CurrencyService>();
+            final hesaplananToplamGelir = filteredGelirler.fold(
+              0.0,
+              (sum, g) => sum + cur.convert(g.amount, g.paraBirimi, cur.currentCurrency),
+            );
 
-                final cur = getIt<CurrencyService>();
-                double hesaplananToplamGelir = 0;
-                for (var g in gelirler) {
-                  hesaplananToplamGelir += cur.convert(g.amount, g.paraBirimi, cur.currentCurrency);
-                }
-
-                return isLoadingContext
-                    ? const IncomePageSkeleton()
-                    : Column(
-                        children: [
-                          // Özet Kartı
-                          if (!gelirAramaModuContext)
-                            IncomeSummaryCard(
-                              ayIsmi: ayIsmi,
-                              toplamGelir: hesaplananToplamGelir,
-                              oncekiAy: oncekiAy,
-                              sonrakiAy: sonrakiAy,
-                              ayYilSeciciAc: _ayYilSeciciAc,
-                              gelirSayisi: gelirler.length,
-                              gelirHedefi: context.select(
-                                (IncomesController c) => c.incomeTarget,
-                              ),
-                            ),
-
-                          // Gelir listesi
-                          Expanded(
-                            child: gelirler.isEmpty
-                                ? gelirAramaModuContext
-                                      ? EmptyStateWidget(
-                                          icon: Icons.search_off,
-                                          title: context.l10n.noResultsFound,
-                                          subtitle: context
-                                              .l10n
-                                              .tryDifferentSearchTerm,
-                                        )
-                                      : EmptyStateWidget.noIncomes(context)
-                                : IncomesListView(
-                                    gelirler: gelirler,
-                                    hasMoreItems: hasMoreItems,
-                                    scrollController: lazyScrollController,
-                                    onRefresh: () async {
-                                      await _controller.loadData(
-                                        isRefresh: true,
-                                      );
-                                    },
-                                    buildLoadingIndicator:
-                                        buildLoadingIndicator,
-                                    onDelete: gelirSil,
-                                    onEdit: gelirDuzenle,
-                                    kategoriIkonlari:
-                                        widget.gelirKategoriIkonlari,
-                                  ),
+            return isLoadingContext
+                ? const IncomePageSkeleton()
+                : Column(
+                    children: [
+                      // Özet Kartı
+                      if (!gelirAramaModuContext)
+                        IncomeSummaryCard(
+                          ayIsmi: ayIsmi,
+                          toplamGelir: hesaplananToplamGelir,
+                          oncekiAy: oncekiAy,
+                          sonrakiAy: sonrakiAy,
+                          ayYilSeciciAc: _ayYilSeciciAc,
+                          gelirSayisi: filteredGelirler.length,
+                          gelirHedefi: context.select(
+                            (IncomesController c) => c.incomeTarget,
                           ),
-                        ],
-                      );
-              },
-            );
+                        ),
+
+                      // Gelir listesi
+                      Expanded(
+                        child: filteredGelirler.isEmpty
+                            ? gelirAramaModuContext
+                                  ? EmptyStateWidget(
+                                      icon: Icons.search_off,
+                                      title: context.l10n.noResultsFound,
+                                      subtitle: context
+                                          .l10n
+                                          .tryDifferentSearchTerm,
+                                    )
+                                  : EmptyStateWidget.noIncomes(context)
+                            : IncomesListView(
+                                gelirler: filteredGelirler,
+                                hasMoreItems: hasMoreItems,
+                                scrollController: lazyScrollController,
+                                onRefresh: () async {
+                                  await _controller.loadData(
+                                    isRefresh: true,
+                                  );
+                                },
+                                buildLoadingIndicator:
+                                    buildLoadingIndicator,
+                                onDelete: gelirSil,
+                                onEdit: gelirDuzenle,
+                                kategoriIkonlari:
+                                    widget.gelirKategoriIkonlari,
+                              ),
+                      ),
+                    ],
+                  );
           },
         ),
         // Modern floating bottom navigation bar - Ortak widget kullanımı

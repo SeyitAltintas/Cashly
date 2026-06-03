@@ -10,6 +10,28 @@ import '../../../../core/services/batch_service.dart';
 import 'dart:async';
 import '../../../../core/services/currency_service.dart';
 
+// ===== ISOLATE PAYLOAD =====
+
+class IncomeFilterParams {
+  final List<Income> tumGelirler;
+  final DateTime secilenAy;
+  final String aramaMetni;
+  const IncomeFilterParams(this.tumGelirler, this.secilenAy, this.aramaMetni);
+}
+
+List<Income> _computeFilterIncomes(IncomeFilterParams params) {
+  final filtered = params.tumGelirler.where((g) {
+    if (g.isDeleted) return false;
+    if (g.date.year != params.secilenAy.year ||
+        g.date.month != params.secilenAy.month) return false;
+    if (params.aramaMetni.isEmpty) return true;
+    return g.name.toLowerCase().contains(params.aramaMetni) ||
+        g.category.toLowerCase().contains(params.aramaMetni);
+  }).toList();
+  filtered.sort((a, b) => b.date.compareTo(a.date));
+  return filtered;
+}
+
 /// Gelirler Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
 /// Bu controller IncomePageState'in yerini alır.
@@ -196,6 +218,9 @@ class IncomesController extends ChangeNotifier {
 
   List<Income> _tumGelirler = [];
 
+  // Mevcut arama metni (UI araması için saklanır)
+  String _aramaMetni = '';
+
   // ===== GETTERS =====
   double get incomeTarget => _incomeRepository.getIncomeTarget(userId);
 
@@ -207,11 +232,27 @@ class IncomesController extends ChangeNotifier {
   List<PaymentMethod> _tumOdemeYontemleri = [];
   List<PaymentMethod> get tumOdemeYontemleri => _tumOdemeYontemleri;
 
+  /// Filtrelenmiş gelirler — senkron hesaplanır (ay ve arama filtresi).
   List<Income> get filteredGelirler {
-    return _tumGelirler.where((g) {
+    final filtered = _tumGelirler.where((g) {
       if (g.isDeleted) return false;
-      return g.date.year == _secilenAy.year && g.date.month == _secilenAy.month;
-    }).toList()..sort((a, b) => b.date.compareTo(a.date));
+      if (g.date.year != _secilenAy.year ||
+          g.date.month != _secilenAy.month) return false;
+      if (_aramaMetni.isEmpty) return true;
+      return g.name.toLowerCase().contains(_aramaMetni) ||
+          g.category.toLowerCase().contains(_aramaMetni);
+    }).toList();
+    filtered.sort((a, b) => b.date.compareTo(a.date));
+    return filtered;
+  }
+
+  /// Arama metnini günceller ve UI'yı yeniden çizer.
+  Future<void> filtreleVeGoster({String aramaMetni = ''}) async {
+    final newSearch = aramaMetni.toLowerCase();
+    if (_aramaMetni != newSearch) {
+      _aramaMetni = newSearch;
+      notifyListeners();
+    }
   }
 
   double get toplamTutar {

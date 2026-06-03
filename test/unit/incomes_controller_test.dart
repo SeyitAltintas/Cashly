@@ -224,6 +224,7 @@ void main() {
 
         await controller.loadData();
         controller.secilenAy = now;
+        await controller.filtreleVeGoster();
 
         expect(controller.filteredGelirler.length, equals(1));
         expect(controller.filteredGelirler.first.name, equals('Aktif'));
@@ -251,6 +252,7 @@ void main() {
 
         await controller.loadData();
         controller.secilenAy = now;
+        await controller.filtreleVeGoster();
 
         expect(controller.filteredGelirler.length, equals(1));
         expect(controller.filteredGelirler.first.name, equals('Bu Ay'));
@@ -279,6 +281,7 @@ void main() {
 
         await controller.loadData();
         controller.secilenAy = now;
+        await controller.filtreleVeGoster();
 
         expect(controller.toplamTutar, equals(6000.0));
       });

@@ -843,6 +843,7 @@ void main() {
         ]);
         await controller.loadData();
         controller.secilenAy = DateTime(2024, 6, 1);
+        await controller.filtreleVeGoster();
 
         expect(controller.filteredGelirler.length, equals(1));
         expect(controller.filteredGelirler.first.name, equals('Bu yıl'));
@@ -874,6 +875,7 @@ void main() {
         ]);
         await controller.loadData();
         controller.secilenAy = DateTime(2024, 6, 1);
+        await controller.filtreleVeGoster();
 
         final filtered = controller.filteredGelirler;
         expect(filtered[0].name, equals('Geç'));

@@ -36,35 +36,23 @@ class ExpensesListView extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: onRefresh,
       color: ColorConstants.kirmiziVurgu,
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
+      child: CustomScrollView(
         controller: scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        physics: const AlwaysScrollableScrollPhysics(),
         cacheExtent: 500,
-        itemCount: gosterilenHarcamalar.length + (hasMoreItems ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index >= gosterilenHarcamalar.length) {
-            return buildLoadingIndicator();
-          }
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  if (index >= gosterilenHarcamalar.length) {
+                    return buildLoadingIndicator();
+                  }
 
-          final harcama = gosterilenHarcamalar[index];
+                  final harcama = gosterilenHarcamalar[index];
 
-          return ExpenseListItem(
-            harcama: harcama,
-            categoryIcon:
-                kategoriIkonlari[harcama['kategori']] ??
-                IconConstants.getIconFromCategoryName(
-                  harcama['kategori'],
-                ),
-            paymentMethods: tumOdemeYontemleri,
-            itemIndex: index,
-            onDelete: () => onDelete(harcama),
-            onTap: () {
-              HapticService.selectionClick();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (ctx) => ExpenseDetailPage(
+                  return ExpenseListItem(
                     harcama: harcama,
                     categoryIcon:
                         kategoriIkonlari[harcama['kategori']] ??
@@ -72,19 +60,39 @@ class ExpensesListView extends StatelessWidget {
                           harcama['kategori'],
                         ),
                     paymentMethods: tumOdemeYontemleri,
-                    kategoriIkonlari: kategoriIkonlari,
-                    onEdit: (updatedHarcama) {
-                      onEdit(harcama, updatedHarcama);
+                    itemIndex: index,
+                    onDelete: () => onDelete(harcama),
+                    onTap: () {
+                      HapticService.selectionClick();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (ctx) => ExpenseDetailPage(
+                            harcama: harcama,
+                            categoryIcon:
+                                kategoriIkonlari[harcama['kategori']] ??
+                                IconConstants.getIconFromCategoryName(
+                                  harcama['kategori'],
+                                ),
+                            paymentMethods: tumOdemeYontemleri,
+                            kategoriIkonlari: kategoriIkonlari,
+                            onEdit: (updatedHarcama) {
+                              onEdit(harcama, updatedHarcama);
+                            },
+                            onDelete: (deletedHarcama) {
+                              onDelete(deletedHarcama);
+                            },
+                          ),
+                        ),
+                      );
                     },
-                    onDelete: (deletedHarcama) {
-                      onDelete(deletedHarcama);
-                    },
-                  ),
-                ),
-              );
-            },
-          );
-        },
+                  );
+                },
+                childCount: gosterilenHarcamalar.length + (hasMoreItems ? 1 : 0),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

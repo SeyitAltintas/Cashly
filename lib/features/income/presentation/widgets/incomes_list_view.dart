@@ -30,26 +30,34 @@ class IncomesListView extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: onRefresh,
       color: Colors.green,
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
+      child: CustomScrollView(
         controller: scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        physics: const AlwaysScrollableScrollPhysics(),
         cacheExtent: 500,
-        itemCount: gelirler.length + (hasMoreItems ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index >= gelirler.length) {
-            return buildLoadingIndicator();
-          }
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  if (index >= gelirler.length) {
+                    return buildLoadingIndicator();
+                  }
 
-          final gelir = gelirler[index];
-          return IncomeListItem(
-            income: gelir,
-            categoryIcon: kategoriIkonlari[gelir.category],
-            itemIndex: index,
-            onDelete: () => onDelete(gelir),
-            onTap: () => onEdit(gelir),
-          );
-        },
+                  final gelir = gelirler[index];
+                  return IncomeListItem(
+                    income: gelir,
+                    categoryIcon: kategoriIkonlari[gelir.category],
+                    itemIndex: index,
+                    onDelete: () => onDelete(gelir),
+                    onTap: () => onEdit(gelir),
+                  );
+                },
+                childCount: gelirler.length + (hasMoreItems ? 1 : 0),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
