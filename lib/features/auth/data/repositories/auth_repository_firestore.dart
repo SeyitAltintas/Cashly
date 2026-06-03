@@ -499,6 +499,11 @@ class AuthRepositoryFirestore implements AuthRepository {
               email: localUser.email,
               password: savedPin,
             );
+            // Re-auth başarılı: yeni session oluştur ve döndür
+            final refreshedUser = await _createAndSaveSession(localUser);
+            await CloudSyncService.syncAllUserData(refreshedUser.id);
+            await StreakService.syncFromCloud(refreshedUser.id);
+            return refreshedUser;
           } catch (e) {
             throw Exception(
               'Güvenlik nedeniyle (oturum süresi doldu) lütfen PIN kodunuz ile manuel giriş yapın.',
@@ -518,11 +523,9 @@ class AuthRepositoryFirestore implements AuthRepository {
 
     if (user == null) return null;
 
-    // firebaseUser null kontrolü yukarıda (FIX-10) yapıldığı için,
-    // buraya ulaşıldığında oturum kesinlikle aktiftir. Sync işlemini direkt yapabiliriz.
+    // firebaseUser null kontrolü yukarıda yapıldığı için oturum aktiftir.
     try {
-      // FIX: Biometric Login Bypassing Single Device Policy (Edge Case)
-      // Biyometrik giriş, cihaz değişikliğini bypass edememeli.
+      // Single Device Policy kontrolü
       final profileDoc = await _firestore
           .collection('users')
           .doc(user.id)
@@ -548,44 +551,37 @@ class AuthRepositoryFirestore implements AuthRepository {
         }
       }
 
-      await CloudSyncService.syncAllUserData(user.id);
-      await StreakService.syncFromCloud(user.id);
-
-      // Başarılı online doğrulama sonrası TTL süresini güncelle
-      await _localHiveRepo.updateLastOnlineSync(user.id);
+      // Yeni session oluştur ve kaydet (her başarılı biyometrik girişte)
+      final sessionUser = await _createAndSaveSession(user);
+      await CloudSyncService.syncAllUserData(sessionUser.id);
+      await StreakService.syncFromCloud(sessionUser.id);
+      return sessionUser;
     } catch (e) {
-      if (e is SessionExpiredException) rethrow; // Hatayı UI'a ilet
+      if (e is SessionExpiredException) rethrow;
       debugPrint('Biyometrik giriş sonrası sync hatası (offline?): $e');
 
-      // ÇEVRİMDIŞI TTL KONTROLÜ (Offline TTL)
+      // ÇEVRİMDIŞI TTL KONTROLÜ
       final lastSync = await _localHiveRepo.getLastOnlineSync(user.id);
       if (lastSync != null) {
         final diff = DateTime.now().difference(lastSync);
         if (diff.isNegative) {
-          // FIX: Saat manipülasyonu / Time Travel kontrolü
           throw SessionExpiredException(
             'Güvenlik nedeniyle (cihaz saati hatalı) lütfen internete bağlanarak giriş yapın.',
           );
         }
         if (diff.inHours > 48) {
-          // 48 saat sınırı (Offline kullanım süresi dolmuş)
           throw SessionExpiredException(
             'Güvenlik nedeniyle (uzun süredir çevrimdışı) lütfen internete bağlanarak veya PIN kodunuzu girerek tekrar giriş yapın.',
           );
         }
       } else {
-        // Hiç sync olmamışsa biyometrik offline girişe izin verme
         throw SessionExpiredException(
           'Güvenlik nedeniyle ilk biyometrik girişinizde internet bağlantısı gereklidir.',
         );
       }
 
-      // FIX: Çevrimdışı durumlarda (TimeoutException vb.) biyometrik girişe izin verilir.
-      // Bu, offline-first mimarinin gereğidir. Kötü niyetli kullanımda dahi (uçak modu ile)
-      // Tek Cihaz Politikası (Single Device Policy) 48 saat ile sınırlandırılmıştır.
+      return user;
     }
-
-    return user;
   }
 
   @override

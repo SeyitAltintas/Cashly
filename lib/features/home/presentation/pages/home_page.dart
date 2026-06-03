@@ -162,12 +162,28 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   }
 
   /// Tüm verileri repository'lerden okur
-  void _verileriOku() {
+  Future<void> _verileriOku() async {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
 
+    // Önce cache'den anında yükle (hızlı ilk görüntü)
     _homeState.loadData(userId);
-    _homeState.updateAssetPrices(userId);
+
+    // Arka planda buluttan güncelle ve UI'yı yenile
+    try {
+      await CloudSyncService.syncAllUserData(userId).timeout(
+        const Duration(seconds: 15),
+      );
+      if (mounted) {
+        _homeState.loadData(userId);
+        _homeState.updateAssetPrices(userId);
+      }
+    } catch (_) {
+      // Offline veya timeout: cache gösterilir, sorun yok
+      if (mounted) {
+        _homeState.updateAssetPrices(userId);
+      }
+    }
   }
 
   // ===== KAYIT METODLARI =====
