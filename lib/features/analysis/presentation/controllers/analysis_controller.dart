@@ -409,11 +409,26 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
 
   AnalysisComputeResult? _result;
 
-  /// Sayfa her açıldığında varsayılan filtreye (Bu Ay) sıfırla
-  void resetToDefaultFilter() {
-    _historyLimit = 30;
-    _selectedMonth = DateTime.now();
+  Future<void> initData({
+    required List<Map<String, dynamic>> harcamalar,
+    required List<Income> gelirler,
+    required List<Asset> varliklar,
+    required List<PaymentMethod> odemeYontemleri,
+    required DateTime secilenAy,
+    required String userId,
+  }) async {
+    if (userId.isNotEmpty) _userId = userId;
+    
+    _historyLimit = -1; // Anasayfadaki ayı temel alıyoruz
+    _selectedMonth = secilenAy;
     _touchedIndex = -1;
+
+    _harcamalar = harcamalar;
+    _gelirler = gelirler;
+    _varliklar = varliklar;
+    _odemeYontemleri = odemeYontemleri;
+
+    await _recalculateData();
   }
 
   Future<void> updateData({
@@ -424,13 +439,20 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
     required DateTime secilenAy,
     String userId = '',
   }) async {
-    _harcamalar = harcamalar;
-    _gelirler = gelirler;
     _varliklar = varliklar;
     _odemeYontemleri = odemeYontemleri;
     if (userId.isNotEmpty) _userId = userId;
-    // Not: historyLimit artık dışarıdan zorla değiştirilmiyor.
-    // Kullanıcı dropdown'dan seçtiği filtre korunur.
+
+    // Sadece eğer kullanıcı anasayfadaki ayı inceliyorsa (özel ay modu ve aylar eşleşiyorsa)
+    // harcamaları ve gelirleri dışarıdan güncelle.
+    // Aksi takdirde (örneğin "Bu Yıl" veya başka bir ay seçilmişse) içerideki fetch verisini KORU!
+    if (_historyLimit == -1 &&
+        _selectedMonth.year == secilenAy.year &&
+        _selectedMonth.month == secilenAy.month) {
+      _harcamalar = harcamalar;
+      _gelirler = gelirler;
+    }
+
     await _recalculateData();
   }
 
@@ -493,12 +515,40 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
   }
 
   Future<void> setSelectedMonth(DateTime month) async {
-    _selectedMonth = month;
-    if (_historyLimit != -1) {
-      _historyLimit = -1;
+    if (_selectedMonth != month) {
+      _selectedMonth = month;
+      if (_historyLimit != -1) {
+        _historyLimit = -1;
+      }
+      _touchedIndex = -1;
+
+      if (_userId.isNotEmpty) {
+        final start = DateTime(month.year, month.month, 1);
+        final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
+
+        if (!_isLoading) {
+          _isLoading = true;
+          notifyListeners();
+        }
+
+        try {
+          final expRepo = getIt<ExpenseRepository>();
+          final incRepo = getIt<IncomeRepository>();
+
+          final results = await Future.wait([
+            expRepo.fetchExpensesForDateRange(_userId, start, end),
+            incRepo.fetchIncomesForDateRange(_userId, start, end),
+          ]);
+
+          _harcamalar = results[0];
+          _gelirler = results[1].map((m) => Income.fromMap(m)).toList();
+        } catch (e) {
+          debugPrint('AnalysisController setSelectedMonth hatası: $e');
+        }
+      }
+
+      await _recalculateData();
     }
-    _touchedIndex = -1;
-    await _recalculateData();
   }
 
   void setLoading(bool value) {

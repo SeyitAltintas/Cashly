@@ -92,11 +92,8 @@ class _AnalysisPageState extends State<AnalysisPage>
     _controller.addListener(_onControllerChanged);
     _tabController = TabController(length: 3, vsync: this);
 
-    // Sayfa her açıldığında varsayılan filtreye (Bu Ay) sıfırla
-    _controller.resetToDefaultFilter();
-
-    // Verileri Controller'a push et
-    _controller.updateData(
+    // Verileri Controller'a push et ve state'i ayarla
+    _controller.initData(
       harcamalar: widget.expenses,
       gelirler: widget.incomes,
       varliklar: widget.assets,
