@@ -28,11 +28,18 @@ class MockBatchService implements BatchService {
 
 class MockExpenseRepository implements ExpenseRepository {
   @override
-  BatchOperation getAddExpenseOperation(String userId, Map<String, dynamic> expense) => DummyBatchOperation();
+  BatchOperation getAddExpenseOperation(
+    String userId,
+    Map<String, dynamic> expense,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getUpdateExpenseOperation(String userId, Map<String, dynamic> expense) => DummyBatchOperation();
+  BatchOperation getUpdateExpenseOperation(
+    String userId,
+    Map<String, dynamic> expense,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getDeleteExpenseOperation(String userId, String id) => DummyBatchOperation();
+  BatchOperation getDeleteExpenseOperation(String userId, String id) =>
+      DummyBatchOperation();
 
   List<Map<String, dynamic>> _expenses = [];
   List<Map<String, dynamic>> _categories = [];
@@ -54,7 +61,10 @@ class MockExpenseRepository implements ExpenseRepository {
   }
 
   @override
-  Stream<List<Map<String, dynamic>>> watchExpensesByMonth(String userId, DateTime month) {
+  Stream<List<Map<String, dynamic>>> watchExpensesByMonth(
+    String userId,
+    DateTime month,
+  ) {
     return Stream.value(_expenses);
   }
 
@@ -76,7 +86,10 @@ class MockExpenseRepository implements ExpenseRepository {
   @override
   Future<void> addExpense(String userId, Map<String, dynamic> expense) async {}
   @override
-  Future<void> updateExpense(String userId, Map<String, dynamic> expense) async {}
+  Future<void> updateExpense(
+    String userId,
+    Map<String, dynamic> expense,
+  ) async {}
   @override
   Future<void> deleteExpense(String userId, String expenseId) async {}
 
@@ -126,13 +139,23 @@ class MockExpenseRepository implements ExpenseRepository {
 
 class MockPaymentMethodRepository implements PaymentMethodRepository {
   @override
-  BatchOperation getAddPaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  BatchOperation getAddPaymentMethodOperation(
+    String userId,
+    Map<String, dynamic> method,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getUpdatePaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  BatchOperation getUpdatePaymentMethodOperation(
+    String userId,
+    Map<String, dynamic> method,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getDeletePaymentMethodOperation(String userId, String id) => DummyBatchOperation();
+  BatchOperation getDeletePaymentMethodOperation(String userId, String id) =>
+      DummyBatchOperation();
   @override
-  BatchOperation getAddTransferOperation(String userId, Map<String, dynamic> transfer) => DummyBatchOperation();
+  BatchOperation getAddTransferOperation(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) => DummyBatchOperation();
 
   List<Map<String, dynamic>> _paymentMethods = [];
   final List<Map<String, dynamic>> _deletedPaymentMethods = [];
@@ -144,27 +167,40 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
       _paymentMethods;
 
   @override
-  Future<void> addPaymentMethod(String userId, Map<String, dynamic> method) async {}
+  Future<void> addPaymentMethod(
+    String userId,
+    Map<String, dynamic> method,
+  ) async {}
   @override
-  Future<void> updatePaymentMethod(String userId, Map<String, dynamic> method) async {}
+  Future<void> updatePaymentMethod(
+    String userId,
+    Map<String, dynamic> method,
+  ) async {}
   @override
   Future<void> deletePaymentMethod(String userId, String id) async {}
   @override
-  Future<void> addDeletedPaymentMethod(String userId, Map<String, dynamic> method) async {}
+  Future<void> addDeletedPaymentMethod(
+    String userId,
+    Map<String, dynamic> method,
+  ) async {}
   @override
   Future<void> removeDeletedPaymentMethod(String userId, String id) async {}
   @override
-  Future<void> addTransfer(String userId, Map<String, dynamic> transfer) async {}
+  Future<void> addTransfer(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) async {}
   @override
-  Future<void> updateTransfer(String userId, Map<String, dynamic> transfer) async {}
+  Future<void> updateTransfer(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) async {}
   @override
   Future<void> deleteTransfer(String userId, String transferId) async {}
 
   @override
   List<Map<String, dynamic>> getDeletedPaymentMethods(String userId) =>
       _deletedPaymentMethods;
-
-
 
   @override
   String? getDefaultPaymentMethod(String userId) => _defaultPaymentMethodId;
@@ -177,8 +213,6 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
   @override
   List<Map<String, dynamic>> getTransfers(String userId) => _transfers;
 
-
-
   void setPaymentMethods(List<Map<String, dynamic>> methods) {
     _paymentMethods = methods;
   }
@@ -190,7 +224,11 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
 
 void main() {
   setUpAll(() {
-    if (!GetIt.instance.isRegistered<BatchService>()) { GetIt.instance.registerLazySingleton<BatchService>(() => MockBatchService()); }
+    if (!GetIt.instance.isRegistered<BatchService>()) {
+      GetIt.instance.registerLazySingleton<BatchService>(
+        () => MockBatchService(),
+      );
+    }
 
     if (!GetIt.instance.isRegistered<CurrencyService>()) {
       GetIt.instance.registerLazySingleton<CurrencyService>(
