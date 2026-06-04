@@ -102,6 +102,7 @@ class _AnalysisPageState extends State<AnalysisPage>
       varliklar: widget.assets,
       odemeYontemleri: widget.paymentMethods,
       secilenAy: widget.selectedDate,
+      userId: widget.userId,
     );
 
     // Sekme değiştiğinde touchedIndex'i sıfırla ve UI'yi (örn. AppBar) güncelle
@@ -127,6 +128,7 @@ class _AnalysisPageState extends State<AnalysisPage>
         varliklar: widget.assets,
         odemeYontemleri: widget.paymentMethods,
         secilenAy: widget.selectedDate,
+        userId: widget.userId,
       );
     }
   }
