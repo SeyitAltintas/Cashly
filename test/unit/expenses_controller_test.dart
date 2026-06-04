@@ -40,6 +40,21 @@ class MockExpenseRepository implements ExpenseRepository {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> fetchExpensesForDateRange(
+    String userId,
+    DateTime start,
+    DateTime end,
+  ) async {
+    return _expenses.where((h) {
+      if (h['silindi'] == true) return false;
+      final tarih = DateTime.tryParse(h['tarih'].toString());
+      if (tarih == null) return false;
+      return tarih.isAfter(start.subtract(const Duration(seconds: 1))) &&
+          tarih.isBefore(end.add(const Duration(seconds: 1)));
+    }).toList();
+  }
+
+  @override
   Future<void> addExpense(String userId, Map<String, dynamic> expense) async {}
   @override
   Future<void> updateExpense(String userId, Map<String, dynamic> expense) async {}

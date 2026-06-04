@@ -482,8 +482,8 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
         incRepo.fetchIncomesForDateRange(_userId, start, end),
       ]);
 
-      _harcamalar = results[0] as List<Map<String, dynamic>>;
-      _gelirler = (results[1] as List<Map<String, dynamic>>)
+      _harcamalar = results[0];
+      _gelirler = results[1]
           .map((m) => Income.fromMap(m))
           .toList();
     } catch (e) {
