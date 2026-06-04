@@ -12,6 +12,13 @@ abstract class IncomeRepository {
     DateTime month,
   );
 
+  /// Belirli tarih aralığındaki gelirleri Firestore'dan çeker
+  Future<List<Map<String, dynamic>>> fetchIncomesForDateRange(
+    String userId,
+    DateTime start,
+    DateTime end,
+  );
+
   /// Yeni bir gelir ekler
   Future<void> addIncome(String userId, Map<String, dynamic> income);
 

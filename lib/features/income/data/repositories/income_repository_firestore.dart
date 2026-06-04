@@ -85,6 +85,32 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> fetchIncomesForDateRange(
+    String userId,
+    DateTime start,
+    DateTime end,
+  ) async {
+    try {
+      final snap = await _userDoc(userId)
+          .collection('incomes')
+          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
+          .where('date', isLessThanOrEqualTo: Timestamp.fromDate(end))
+          .orderBy('date', descending: true)
+          .get();
+      return snap.docs.map((doc) {
+        final data = doc.data();
+        if (data['date'] is Timestamp) {
+          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
+        }
+        return data;
+      }).toList();
+    } catch (e) {
+      debugPrint('fetchIncomesForDateRange hatası: $e');
+      return [];
+    }
+  }
+
+  @override
   Future<void> addIncome(String userId, Map<String, dynamic> income) async {
     try {
       if ((income['id']?.toString() ?? '').isEmpty) {

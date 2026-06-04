@@ -94,6 +94,30 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> fetchExpensesForDateRange(
+    String userId,
+    DateTime start,
+    DateTime end,
+  ) async {
+    try {
+      final snap = await _userDoc(userId)
+          .collection('expenses')
+          .where('tarih', isGreaterThanOrEqualTo: Timestamp.fromDate(start))
+          .where('tarih', isLessThanOrEqualTo: Timestamp.fromDate(end))
+          .orderBy('tarih', descending: true)
+          .get();
+      return snap.docs.map((doc) {
+        final data = doc.data();
+        _convertTimestampToString(data);
+        return data;
+      }).toList();
+    } catch (e) {
+      debugPrint('fetchExpensesForDateRange hatası: $e');
+      return [];
+    }
+  }
+
+  @override
   Future<void> addExpense(String userId, Map<String, dynamic> expense) async {
     try {
       if ((expense['id']?.toString() ?? '').isEmpty) {

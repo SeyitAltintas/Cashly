@@ -6,6 +6,8 @@ import '../../../../core/services/currency_service.dart';
 import '../../../income/data/models/income_model.dart';
 import '../../../assets/data/models/asset_model.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+import '../../../expenses/domain/repositories/expense_repository.dart';
+import '../../../income/domain/repositories/income_repository.dart';
 
 
 // ===== ISOLATE PAYLOAD & RESULT =====
@@ -393,6 +395,9 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
   List<Asset> _varliklar = [];
   List<PaymentMethod> _odemeYontemleri = [];
 
+  // Geniş aralıklı sorgular için tutula userId
+  String _userId = '';
+
   int _historyLimit = 30;
   int get historyLimit => _historyLimit;
 
@@ -417,11 +422,13 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
     required List<Asset> varliklar,
     required List<PaymentMethod> odemeYontemleri,
     required DateTime secilenAy,
+    String userId = '',
   }) async {
     _harcamalar = harcamalar;
     _gelirler = gelirler;
     _varliklar = varliklar;
     _odemeYontemleri = odemeYontemleri;
+    if (userId.isNotEmpty) _userId = userId;
     // Not: historyLimit artık dışarıdan zorla değiştirilmiyor.
     // Kullanıcı dropdown'dan seçtiği filtre korunur.
     await _recalculateData();
@@ -431,8 +438,58 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
     if (_historyLimit != limit) {
       _historyLimit = limit;
       _touchedIndex = -1;
-      await _recalculateData();
+      // Bu ay ve özel ay seçimlerinde mevcut veri yeterli;
+      // diğer filtreler (hafta, çeyrek, yıl vb.) için Firestore'dan geniş aralık çek
+      if (limit != 30 && limit != -1 && _userId.isNotEmpty) {
+        await _fetchWideRangeData(limit);
+      } else {
+        await _recalculateData();
+      }
     }
+  }
+
+  /// Geniş tarih aralığı için Firestore'dan harcama ve gelir çeker
+  Future<void> _fetchWideRangeData(int limit) async {
+    if (!_isLoading) {
+      _isLoading = true;
+      notifyListeners();
+    }
+    try {
+      final today = DateTime.now();
+      DateTime start;
+      final end = DateTime(today.year, today.month, today.day, 23, 59, 59);
+
+      if (limit == 7) {
+        start = today.subtract(const Duration(days: 7));
+      } else if (limit == 90) {
+        start = DateTime(today.year, today.month - 3, 1);
+      } else if (limit == 180) {
+        start = DateTime(today.year, today.month - 6, 1);
+      } else if (limit == 366) {
+        // Bu yıl
+        start = DateTime(today.year, 1, 1);
+      } else if (limit == 365) {
+        start = DateTime(today.year - 1, today.month, today.day);
+      } else {
+        start = today.subtract(Duration(days: limit));
+      }
+
+      final expRepo = getIt<ExpenseRepository>();
+      final incRepo = getIt<IncomeRepository>();
+
+      final results = await Future.wait([
+        expRepo.fetchExpensesForDateRange(_userId, start, end),
+        incRepo.fetchIncomesForDateRange(_userId, start, end),
+      ]);
+
+      _harcamalar = results[0] as List<Map<String, dynamic>>;
+      _gelirler = (results[1] as List<Map<String, dynamic>>)
+          .map((m) => Income.fromMap(m))
+          .toList();
+    } catch (e) {
+      debugPrint('AnalysisController._fetchWideRangeData hatası: $e');
+    }
+    await _recalculateData();
   }
 
   Future<void> setSelectedMonth(DateTime month) async {

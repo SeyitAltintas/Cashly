@@ -58,6 +58,21 @@ class MockIncomeRepository implements IncomeRepository {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> fetchIncomesForDateRange(
+    String userId,
+    DateTime start,
+    DateTime end,
+  ) async {
+    return _incomes.where((i) {
+      if (i['isDeleted'] == true || i['silindi'] == true) return false;
+      final tarih = DateTime.tryParse(i['date']?.toString() ?? i['tarih']?.toString() ?? '');
+      if (tarih == null) return false;
+      return tarih.isAfter(start.subtract(const Duration(seconds: 1))) &&
+          tarih.isBefore(end.add(const Duration(seconds: 1)));
+    }).toList();
+  }
+
+  @override
   Future<void> addIncome(String userId, Map<String, dynamic> income) async {}
   @override
   Future<void> updateIncome(String userId, Map<String, dynamic> income) async {}

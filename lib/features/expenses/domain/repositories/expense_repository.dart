@@ -21,6 +21,13 @@ abstract class ExpenseRepository {
   /// Cache'den belirli aya ait harcamaları getirir (anında)
   List<Map<String, dynamic>> getExpensesByMonth(String userId, DateTime month);
 
+  /// Belirli tarih aralığındaki harcamaları Firestore'dan çeker
+  Future<List<Map<String, dynamic>>> fetchExpensesForDateRange(
+    String userId,
+    DateTime start,
+    DateTime end,
+  );
+
   /// Yeni bir harcama ekler
   /// [userId] - Kullanıcı ID'si
   /// [expense] - Eklenecek harcama verisi

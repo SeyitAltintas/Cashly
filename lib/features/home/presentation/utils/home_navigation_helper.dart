@@ -152,13 +152,9 @@ class HomeNavigationHelper {
         builder: (context) => PageErrorBoundary(
           pageName: context.l10n.analysis,
           child: AnalysisPage(
-            expenses: state.getAllExpensesFromCache(
-              authController.currentUser?.id ?? '',
-            ),
+            expenses: state.tumHarcamalar,
             assets: state.varliklar,
-            incomes: state.getAllIncomesFromCache(
-              authController.currentUser?.id ?? '',
-            ),
+            incomes: state.tumGelirler,
             selectedDate: state.secilenAy,
             userId: authController.currentUser?.id ?? '',
             userName: authController.currentUser?.name ?? context.l10n.user,
