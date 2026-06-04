@@ -25,6 +25,16 @@ class MockExpenseRepository implements ExpenseRepository {
   List<Map<String, dynamic>> getExpenses(String userId) => _expenses;
 
   @override
+  List<Map<String, dynamic>> getExpensesByMonth(String userId, DateTime month) {
+    return _expenses.where((h) {
+      if (h['silindi'] == true) return false;
+      final tarih = DateTime.tryParse(h['tarih'].toString());
+      if (tarih == null) return false;
+      return tarih.year == month.year && tarih.month == month.month;
+    }).toList();
+  }
+
+  @override
   Stream<List<Map<String, dynamic>>> watchExpensesByMonth(String userId, DateTime month) {
     return Stream.value(_expenses);
   }
