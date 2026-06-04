@@ -148,10 +148,20 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
 
   void _startExpensesStream() {
     _expensesSubscription?.cancel();
+
+    // Önce cache'den anında yükle (Firestore stream gelmeden UI dolsun)
+    final cached = _expenseRepository.getExpensesByMonth(userId, _secilenAy);
+    if (cached.isNotEmpty && _tumHarcamalar.isEmpty) {
+      _tumHarcamalar = cached;
+      _isLoading = false;
+      filtreleVeGoster();
+    }
+
     _expensesSubscription = _expenseRepository
         .watchExpensesByMonth(userId, _secilenAy)
         .listen((data) {
           _tumHarcamalar = data;
+          _isLoading = false;
           filtreleVeGoster();
         });
   }

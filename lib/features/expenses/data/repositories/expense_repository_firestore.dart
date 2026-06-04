@@ -32,6 +32,17 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
     return [];
   }
 
+  @override
+  List<Map<String, dynamic>> getExpensesByMonth(String userId, DateTime month) {
+    final all = getExpenses(userId);
+    return all.where((h) {
+      if (h['silindi'] == true) return false;
+      final tarih = DateTime.tryParse(h['tarih'].toString());
+      if (tarih == null) return false;
+      return tarih.year == month.year && tarih.month == month.month;
+    }).toList();
+  }
+
   Stream<List<Map<String, dynamic>>> watchExpenses(String userId) {
     return _userDoc(userId)
         .collection('expenses')

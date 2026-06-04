@@ -35,12 +35,17 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
     }
   }
 
-  // Harcamalar
+  // Harcamalar (aktif ay stream'i)
   List<Map<String, dynamic>> _tumHarcamalar = [];
   List<Map<String, dynamic>> get tumHarcamalar => _tumHarcamalar;
   set tumHarcamalar(List<Map<String, dynamic>> value) {
     _tumHarcamalar = value;
     notifyListeners();
+  }
+
+  /// Tüm harcamalar (cache'den — Analiz sayfası için)
+  List<Map<String, dynamic>> getAllExpensesFromCache(String userId) {
+    return getIt<ExpenseRepository>().getExpenses(userId);
   }
 
   // Gelirler
@@ -49,6 +54,12 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
   set tumGelirler(List<Income> value) {
     _tumGelirler = value;
     notifyListeners();
+  }
+
+  /// Tüm gelirler (cache'den — Analiz sayfası için)
+  List<Income> getAllIncomesFromCache(String userId) {
+    final raw = getIt<IncomeRepository>().getIncomes(userId);
+    return raw.map((m) => Income.fromMap(m)).toList();
   }
 
   // Varlıklar

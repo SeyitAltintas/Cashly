@@ -18,6 +18,9 @@ abstract class ExpenseRepository {
     DateTime month,
   );
 
+  /// Cache'den belirli aya ait harcamaları getirir (anında)
+  List<Map<String, dynamic>> getExpensesByMonth(String userId, DateTime month);
+
   /// Yeni bir harcama ekler
   /// [userId] - Kullanıcı ID'si
   /// [expense] - Eklenecek harcama verisi
