@@ -314,15 +314,6 @@ class AuthRepositoryImpl implements AuthRepository {
     // Sadece Firestore versiyonunda implemente edilir.
   }
 
-  @override
-  Future<bool> verifyOtpAndSetPin(
-    String email,
-    String otp,
-    String newPin,
-  ) async {
-    // Sadece Firestore versiyonunda implemente edilir.
-    return false;
-  }
 
   // --- GÜVENLİK YAMASI: Offline Brute-force Koruma Metodları ---
   Future<int> getFailedOfflineAttempts(String userId) async {

@@ -206,23 +206,7 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
     }
   }
 
-  /// OTP ve yeni PIN'i doğrula ve kaydet
-  Future<bool> verifyOtpAndSetPin(
-    String email,
-    String otp,
-    String newPin,
-  ) async {
-    _setLoading(true);
-    _error = null;
-    try {
-      return await _authRepository.verifyOtpAndSetPin(email, otp, newPin);
-    } catch (e) {
-      _error = e.toString();
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
+
 
   /// Kullanıcının PIN'ini güncelle (Şifremi Unuttum için)
   Future<void> updateUserPin(String userId, String newPin) async {

@@ -146,23 +146,6 @@ class MockAuthRepository implements AuthRepository {
   @override
   Future<void> sendPinResetOtp(String email) async {}
 
-  @override
-  Future<bool> verifyOtpAndSetPin(String email, String otp, String newPin) async {
-    final index = _users.indexWhere((u) => u.email.toLowerCase() == email.toLowerCase());
-    if (index != -1) {
-      final user = _users[index];
-      _users[index] = UserEntity(
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        pin: newPin,
-        createdAt: user.createdAt,
-        biometricEnabled: user.biometricEnabled,
-      );
-      return true;
-    }
-    return false;
-  }
 }
 
 void main() {
@@ -289,43 +272,6 @@ void main() {
       });
     });
 
-    group('verifyOtpAndSetPin', () {
-      setUp(() async {
-        await authController.register(
-          'Güvenlik Testi',
-          'guvenlik@example.com',
-          '1234',
-        );
-        await authController.logout();
-      });
-
-      test('doğru OTP ile PIN sıfırlanır', () async {
-        final result = await authController.verifyOtpAndSetPin(
-          'guvenlik@example.com',
-          '123456',
-          '5678',
-        );
-
-        expect(result, isTrue);
-
-        // Yeni PIN ile giriş yapabilmeli
-        final loginResult = await authController.loginByEmail(
-          'guvenlik@example.com',
-          '5678',
-        );
-        expect(loginResult, isTrue);
-      });
-
-      test('yanlış email ile PIN sıfırlanmaz', () async {
-        final result = await authController.verifyOtpAndSetPin(
-          'farkli@email.com',
-          '123456',
-          '5678',
-        );
-
-        expect(result, isFalse);
-      });
-    });
 
     group('biometric', () {
       test('biyometrik tercih güncellenebilir', () async {
