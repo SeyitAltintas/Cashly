@@ -291,7 +291,18 @@ class AuthRepositoryImpl implements AuthRepository {
       if (userData != null) {
         final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
         if (user.email.toLowerCase() == email.toLowerCase()) {
-          return user;
+          // FIX-11: PIN'i bellekte (RAM) sızdırmamak için temizliyoruz
+          return UserModel(
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            pin: '',
+            profileImage: user.profileImage,
+            createdAt: user.createdAt,
+            lastLoginAt: user.lastLoginAt,
+            biometricEnabled: user.biometricEnabled,
+            activeSessionId: user.activeSessionId,
+          );
         }
       }
     }

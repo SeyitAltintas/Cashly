@@ -111,14 +111,6 @@ class AuthRepositoryFirestore implements AuthRepository {
       
       if (isPinChanged) {
         await _localHiveRepo.updateUserPin(localUser.id, '', pin);
-        if (firebaseUid != null) {
-          try {
-            await _firestore.collection('users').doc(firebaseUid).update({
-              'pin': BCrypt.hashpw(pin, BCrypt.gensalt()),
-              'updatedAt': FieldValue.serverTimestamp(),
-            });
-          } catch (_) {}
-        }
       }
 
       // Firebase'in gerçek UID'sini alıyoruz.

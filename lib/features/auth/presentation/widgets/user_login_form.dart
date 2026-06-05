@@ -170,14 +170,6 @@ class _UserLoginFormState extends State<UserLoginForm> {
               _buildLoginButton(),
               const SizedBox(height: 24),
 
-              // "veya" ayırıcısı
-              _buildDivider(),
-              const SizedBox(height: 24),
-
-              // Google butonu
-              _buildGoogleButton(),
-              const SizedBox(height: 24),
-
               // Başka Hesap / Şifremi Unuttum
               _buildActionButtons(),
             ],
@@ -283,6 +275,11 @@ class _UserLoginFormState extends State<UserLoginForm> {
                 ),
                 counterText: "",
                 border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
                 suffixIcon: IconButton(
                   icon: Icon(
                     _isPinVisible ? Icons.visibility : Icons.visibility_off,
@@ -395,83 +392,6 @@ class _UserLoginFormState extends State<UserLoginForm> {
     );
   }
 
-  Widget _buildDivider() {
-    return Row(
-      children: [
-        Expanded(
-          child: Divider(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.2),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            context.l10n.orDivider,
-            style: TextStyle(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.5),
-              fontSize: 14,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Divider(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.2),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGoogleButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: OutlinedButton(
-        onPressed: () {
-          // Backend bağlantısı yok
-        },
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.3),
-            width: 1.5,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
-          ),
-        ),
-        child: Row(
-          children: [
-            Text(
-              "G",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            Expanded(
-              child: Text(
-                context.l10n.loginWithGoogle,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildActionButtons() {
     return Row(
