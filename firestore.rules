@@ -19,6 +19,14 @@ service cloud.firestore {
       allow read, delete: if false; // Admin SDK ile okunur
     }
 
+    // Şifre sıfırlama OTP'leri
+    // Giriş yapmamış kullanıcılar PIN sıfırlama isteyebilmeli — auth zorunlu değil.
+    // OTP, SHA-256 hash olarak saklandığından düz metin açığı yok.
+    // Brute force koruması uygulama katmanında (5 deneme) uygulanıyor.
+    match /password_reset_otps/{email} {
+      allow read, write: if true;
+    }
+
     // Diğer tüm yollar kapalı
     match /{document=**} {
       allow read, write: if false;

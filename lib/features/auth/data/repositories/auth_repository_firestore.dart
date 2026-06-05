@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -11,6 +14,7 @@ import '../models/user_model.dart';
 import 'auth_repository_impl.dart';
 import '../../../../core/services/network_service.dart';
 import '../../../../core/services/secure_storage_service.dart';
+
 
 class AuthRepositoryFirestore implements AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -616,14 +620,33 @@ class AuthRepositoryFirestore implements AuthRepository {
   }
 
   @override
-  Future<void> sendPinResetEmailLink(String email) async {
+  Future<void> sendPinResetOtp(String email) async {
     try {
+      // Kriptografik olarak güvenli 6 haneli OTP üret
+      final rng = math.Random.secure();
+      final otp = (100000 + rng.nextInt(900000)).toString();
+
+      // OTP'yi SHA-256 ile hash'le (Firestore'da düz metin saklanmasın)
+      final otpHash = _hashOtp(otp);
+      final expiry = DateTime.now().add(const Duration(minutes: 15));
+
+      // Firestore'a OTP hash'ini kaydet
+      await _firestore.collection('password_reset_otps').doc(email).set({
+        'otpHash': otpHash,
+        'expiresAt': expiry.toIso8601String(),
+        'createdAt': DateTime.now().toIso8601String(),
+        'email': email,
+        'attempts': 0, // Brute force koruması için deneme sayıcısı
+      });
+
+      // OTP'yi email içeriğinde gönder (continueUrl sadece yer tutucu)
+      final encodedEmail = Uri.encodeComponent(email);
       final actionCodeSettings = ActionCodeSettings(
-        url: 'https://cashly-c0acc.firebaseapp.com/reset?email=$email',
+        url: 'https://cashly-c0acc.web.app/reset?email=$encodedEmail&code=$otp',
         handleCodeInApp: true,
         androidPackageName: 'com.seyitaltintas.cashly',
-        androidInstallApp: true,
-        androidMinimumVersion: "1",
+        androidInstallApp: false,
+        androidMinimumVersion: '1',
       );
 
       await _firebaseAuth.sendSignInLinkToEmail(
@@ -631,101 +654,129 @@ class AuthRepositoryFirestore implements AuthRepository {
         actionCodeSettings: actionCodeSettings,
       );
     } catch (e) {
-      throw Exception("E-posta bağlantısı gönderilemedi: ${e.toString()}");
+      throw Exception('Doğrulama kodu gönderilemedi: ${e.toString()}');
     }
   }
 
+  /// OTP'yi SHA-256 ile hash'ler
+  String _hashOtp(String otp) {
+    final bytes = utf8.encode(otp);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
   @override
-  Future<bool> verifyEmailLinkAndSetPin(
+  Future<bool> verifyOtpAndSetPin(
     String email,
-    String emailLink,
+    String otp,
     String newPin,
   ) async {
     try {
-      if (_firebaseAuth.isSignInWithEmailLink(emailLink)) {
-        final credential = await _firebaseAuth.signInWithEmailLink(
-          email: email,
-          emailLink: emailLink,
+      // Firestore'dan OTP kaydını çek
+      final docRef = _firestore.collection('password_reset_otps').doc(email);
+      final doc = await docRef.get();
+
+      if (!doc.exists || doc.data() == null) {
+        throw Exception('Doğrulama kodu bulunamadı. Lütfen yeni bir kod isteyin.');
+      }
+
+      final data = doc.data()!;
+      final storedHash = data['otpHash'] as String?;
+      final expiresAtStr = data['expiresAt'] as String?;
+      final attempts = (data['attempts'] as int?) ?? 0;
+
+      if (storedHash == null || expiresAtStr == null) {
+        throw Exception('Geçersiz doğrulama kodu verisi.');
+      }
+
+      // Brute force koruması: 5 deneme hakkı
+      if (attempts >= 5) {
+        await docRef.delete();
+        throw Exception('Fazla sayıda hatalı deneme. Lütfen yeni bir kod isteyin.');
+      }
+
+      // Süre kontrolü
+      final expiresAt = DateTime.parse(expiresAtStr);
+      if (DateTime.now().isAfter(expiresAt)) {
+        await docRef.delete();
+        throw Exception('Doğrulama kodunun süresi doldu. Lütfen yeni bir kod isteyin.');
+      }
+
+      // OTP hash karşılaştırması
+      final inputHash = _hashOtp(otp.trim());
+      if (storedHash != inputHash) {
+        // Yanlış denemede sayıcıyı artır
+        await docRef.update({'attempts': attempts + 1});
+        final remaining = 5 - (attempts + 1);
+        throw Exception(
+          remaining > 0
+              ? 'Girdiğiniz kod hatalı. $remaining deneme hakkınız kaldı.'
+              : 'Fazla sayıda hatalı deneme. Lütfen yeni bir kod isteyin.',
         );
+      }
 
-        final user = credential.user;
-        if (user != null) {
-          // Yeni şifreyi Firebase Auth'ta güncelle
-          await user.updatePassword(newPin);
+      // OTP doğru — Firestore'dan userId bul
+      final userQuery = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
 
-          // FIX-3: Lokal PIN güncelle
-          await _localHiveRepo.updateUserPin(user.uid, newPin);
-          await SecureStorageService.saveBiometricPin(user.uid, newPin);
+      if (userQuery.docs.isEmpty) {
+        throw Exception('Bu e-posta adresine kayıtlı kullanıcı bulunamadı.');
+      }
 
-          // FIX-3: Oturum state tutarlılığı — Firestore'dan profili çek ve
-          // lokal Hive'da aktif oturum aç. Böylece AuthController güncel kullanıcıyı
-          // checkAuth() sonrası doğru bulur.
-          try {
-            final doc = await _firestore
-                .collection('users')
-                .doc(user.uid)
-                .collection('profile')
-                .doc('info')
-                .get(
-                  NetworkService().isOffline
-                      ? const GetOptions(source: Source.cache)
-                      : const GetOptions(),
-                )
-                .timeout(const Duration(seconds: 5));
+      final userId = userQuery.docs.first.id;
 
-            if (doc.exists && doc.data() != null) {
-              final profile = UserModel.fromMap(doc.data()!);
-              final syncedUser = UserEntity(
-                id: profile.id.isEmpty ? user.uid : profile.id,
-                name: profile.name,
-                email: profile.email,
-                pin: newPin, // Yeni PIN burada ekleniyor
-                profileImage: profile.profileImage,
-                createdAt: profile.createdAt,
-                lastLoginAt: DateTime.now(),
-                biometricEnabled: profile.biometricEnabled,
-              );
-              // Çoklu hesap senaryosu: lokal profile kaydet ve yeni oturum aç
-              final userWithSession = await _createAndSaveSession(syncedUser);
-              await _localHiveRepo.setCurrentUser(userWithSession.id);
-            } else {
-              // GÜVENLİK YAMASI (Edge Case 1): Kullanıcı profili Firestore'da yoksa, bu
-              // kayıtlı olmayan bir mail üzerinden sıfırlama yapılmaya çalışıldığını gösterir.
-              // Firebase Auth'ta oluşan bu hayalet hesabı silip işlemi reddediyoruz.
-              await user.delete();
-              throw Exception(
-                'Bu e-posta adresi sistemde kayıtlı değil. Lütfen önce kayıt olun.',
-              );
-            }
-          } catch (e) {
-            if (e.toString().contains('kayıtlı değil')) rethrow;
-
-            debugPrint(
-              'verifyEmailLinkAndSetPin: Profil sync hatası (offline?): $e',
-            );
-
-            // Eğer profil çekilirken ağ hatası alındıysa (doc.exists değil de catch'e düştüyse),
-            // sadece yerelde varsa işleme devam edelim (kayıtlı olduğundan eminizdir).
-            final localUserCheck = await _localHiveRepo.loginUser(
-              user.uid,
-              newPin,
-            );
-            if (localUserCheck != null) {
-              await _localHiveRepo.setCurrentUser(user.uid);
-            } else {
-              // Lokal de yoksa ve ağ hatası varsa, güvenli tarafta kalıp işlemi iptal edelim.
-              throw Exception(
-                'Ağ hatası nedeniyle profil doğrulanamadı. Lütfen bağlantınızı kontrol edip tekrar deneyin.',
-              );
-            }
-          }
-
-          return true;
+      // Firebase Auth şifresi (opsiyonel — sadece aktif oturum varsa)
+      final fbUser = _firebaseAuth.currentUser;
+      if (fbUser != null && fbUser.email == email) {
+        try {
+          await fbUser.updatePassword(newPin);
+        } catch (e) {
+          debugPrint('verifyOtpAndSetPin: Firebase Auth şifre güncelleme hatası (devam ediliyor): $e');
         }
       }
-      return false;
+
+      // Lokal PIN güncelle
+      await _localHiveRepo.updateUserPin(userId, newPin);
+      await SecureStorageService.saveBiometricPin(userId, newPin);
+
+      // Profil bilgileriyle oturum güncelle
+      try {
+        final profileDoc = await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('profile')
+            .doc('info')
+            .get()
+            .timeout(const Duration(seconds: 5));
+
+        if (profileDoc.exists && profileDoc.data() != null) {
+          final profile = UserModel.fromMap(profileDoc.data()!);
+          final syncedUser = UserEntity(
+            id: userId,
+            name: profile.name,
+            email: profile.email,
+            pin: newPin,
+            profileImage: profile.profileImage,
+            createdAt: profile.createdAt,
+            lastLoginAt: DateTime.now(),
+            biometricEnabled: profile.biometricEnabled,
+          );
+          await _createAndSaveSession(syncedUser);
+          await _localHiveRepo.setCurrentUser(userId);
+        }
+      } catch (e) {
+        debugPrint('verifyOtpAndSetPin: Profil sync hatası (devam ediliyor): $e');
+      }
+
+      // Kullanılan OTP'yi temizle
+      await docRef.delete();
+
+      return true;
     } catch (e) {
-      throw Exception("E-posta bağlantısı doğrulanamadı: ${e.toString()}");
+      throw Exception('PIN sıfırlama başarısız: ${e.toString()}');
     }
   }
 

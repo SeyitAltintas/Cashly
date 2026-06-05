@@ -1,4 +1,4 @@
-package com.example.cashly
+package com.seyitaltintas.cashly
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

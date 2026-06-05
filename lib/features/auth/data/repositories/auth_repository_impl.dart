@@ -308,15 +308,16 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+
   @override
-  Future<void> sendPinResetEmailLink(String email) async {
+  Future<void> sendPinResetOtp(String email) async {
     // Sadece Firestore versiyonunda implemente edilir.
   }
 
   @override
-  Future<bool> verifyEmailLinkAndSetPin(
+  Future<bool> verifyOtpAndSetPin(
     String email,
-    String emailLink,
+    String otp,
     String newPin,
   ) async {
     // Sadece Firestore versiyonunda implemente edilir.

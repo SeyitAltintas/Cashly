@@ -49,6 +49,8 @@ dependencies:
   firebase_crashlytics: ^5.1.0
   app_links: ^7.0.0
   bcrypt: ^1.2.0
+  crypto: ^3.0.6
+
   firebase_app_check: ^0.4.4+1
 
 dev_dependencies:

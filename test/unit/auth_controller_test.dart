@@ -144,10 +144,10 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> sendPinResetEmailLink(String email) async {}
+  Future<void> sendPinResetOtp(String email) async {}
 
   @override
-  Future<bool> verifyEmailLinkAndSetPin(String email, String emailLink, String newPin) async {
+  Future<bool> verifyOtpAndSetPin(String email, String otp, String newPin) async {
     final index = _users.indexWhere((u) => u.email.toLowerCase() == email.toLowerCase());
     if (index != -1) {
       final user = _users[index];
@@ -289,7 +289,7 @@ void main() {
       });
     });
 
-    group('verifyEmailLinkAndSetPin', () {
+    group('verifyOtpAndSetPin', () {
       setUp(() async {
         await authController.register(
           'Güvenlik Testi',
@@ -299,10 +299,10 @@ void main() {
         await authController.logout();
       });
 
-      test('doğru link ile PIN sıfırlanır', () async {
-        final result = await authController.verifyEmailLinkAndSetPin(
+      test('doğru OTP ile PIN sıfırlanır', () async {
+        final result = await authController.verifyOtpAndSetPin(
           'guvenlik@example.com',
-          'https://test.com/link',
+          '123456',
           '5678',
         );
 
@@ -317,9 +317,9 @@ void main() {
       });
 
       test('yanlış email ile PIN sıfırlanmaz', () async {
-        final result = await authController.verifyEmailLinkAndSetPin(
+        final result = await authController.verifyOtpAndSetPin(
           'farkli@email.com',
-          'https://test.com/link',
+          '123456',
           '5678',
         );
 

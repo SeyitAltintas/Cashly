@@ -2,27 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../controllers/auth_controller.dart';
 
-/// Şifremi Unuttum akışı yardımcı sınıfı
-/// E-posta → Email Link → Yeni PIN akışını yönetir
+/// Şifremi Unuttum akışı — OTP tabanlı (deep link gerektirmez)
+/// Adım 1: E-posta gir → Adım 2: Kodu gir + Yeni PIN belirle
 class ForgotPasswordHelper {
   final AuthController authController;
   final BuildContext context;
 
   ForgotPasswordHelper({required this.authController, required this.context});
 
-  /// Şifremi Unuttum akışını başlat (E-posta sorma aşaması)
   void showForgotPasswordSheet() {
     _showEmailStepSheet();
   }
 
-  /// Adım 1: E-posta girişi ve Magic Link Gönderimi
+  // ──────────────────────────────────────────────────────────
+  // ADIM 1: E-posta girişi ve OTP gönderimi
+  // ──────────────────────────────────────────────────────────
   void _showEmailStepSheet() {
     final emailController = TextEditingController();
     final formKey = GlobalKey<FormState>();
     String? errorMessage;
-    String? successMessage;
     bool isSending = false;
-    bool isSent = false; // Başarılı gönderimlerde butonu kilitle
 
     showModalBottomSheet(
       context: context,
@@ -58,80 +57,57 @@ class ForgotPasswordHelper {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Kayıtlı e-posta adresinize bir şifre sıfırlama bağlantısı göndereceğiz.",
+                      "Kayıtlı e-posta adresinize 6 haneli bir doğrulama kodu göndereceğiz.",
                       style: TextStyle(
                         fontSize: 14,
-                        color: Theme.of(
-                          sheetContext,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Theme.of(sheetContext).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                     const SizedBox(height: 24),
                     _buildEmailField(sheetContext, emailController, () {
-                      if (errorMessage != null || successMessage != null) {
-                        setSheetState(() {
-                          errorMessage = null;
-                          successMessage = null;
-                        });
+                      if (errorMessage != null) {
+                        setSheetState(() => errorMessage = null);
                       }
                     }),
-                    if (errorMessage != null || successMessage != null)
-                      _buildMessageBox(
-                        builderContext,
-                        successMessage,
-                        errorMessage,
-                      ),
+                    if (errorMessage != null)
+                      _buildMessageBox(builderContext, null, errorMessage),
                     const SizedBox(height: 24),
-                    // FIX-1: isSending VEYA isSent iken spinner/disabled göster
                     isSending
                         ? const Center(child: CircularProgressIndicator())
-                        : _buildContinueButton(
+                        : _buildPrimaryButton(
                             sheetContext,
-                            // FIX-2: Başarılı gönderi sonrası buton kilitleniyor
-                            enabled: !isSent,
+                            label: "Kod Gönder",
                             onPressed: () async {
                               if (!formKey.currentState!.validate()) return;
-
                               final email = emailController.text.trim();
 
-                              // FIX-1: Race condition önleme — önce gönderiliyor bayrağını kıl,
-                              // getUserByEmail async bekleme süresinde ikinci tap mümkün olmasın.
                               setSheetState(() => isSending = true);
 
-                              final user = await authController.getUserByEmail(
-                                email,
-                              );
-
+                              final user = await authController.getUserByEmail(email);
                               if (!context.mounted) return;
 
                               if (user == null) {
                                 setSheetState(() {
                                   isSending = false;
-                                  errorMessage =
-                                      context.l10n.userNotFoundWithEmail;
+                                  errorMessage = context.l10n.userNotFoundWithEmail;
                                 });
                                 return;
                               }
 
-                              final sent = await authController
-                                  .sendPinResetEmailLink(email);
-
+                              final sent = await authController.sendPinResetOtp(email);
                               if (!context.mounted) return;
 
-                              setSheetState(() {
-                                isSending = false;
-                                if (sent) {
-                                  isSent = true; // FIX-2: Butonu kilitle
-                                  successMessage =
-                                      "Bağlantı e-posta adresinize gönderildi. Lütfen e-postasınızı kontrol edin.";
-                                  errorMessage = null;
-                                } else {
-                                  errorMessage =
-                                      authController.error ??
-                                      "Bağlantı gönderilemedi.";
-                                  successMessage = null;
-                                }
-                              });
+                              setSheetState(() => isSending = false);
+
+                              if (sent) {
+                                // Adım 2'ye geç
+                                Navigator.of(sheetContext).pop();
+                                _showOtpAndPinStepSheet(email);
+                              } else {
+                                setSheetState(() {
+                                  errorMessage = authController.error ?? "Kod gönderilemedi. Lütfen tekrar deneyin.";
+                                });
+                              }
                             },
                           ),
                     const SizedBox(height: 12),
@@ -145,14 +121,11 @@ class ForgotPasswordHelper {
     );
   }
 
-  /// Adım 2: Magic Link ile App açıldıktan sonra Yeni PIN belirleme ekranı
-  /// Bu metod AppLinks listener tarafından tetiklenir
-  static void showSetNewPinSheet(
-    BuildContext context,
-    AuthController authController,
-    String email,
-    String emailLink,
-  ) {
+  // ──────────────────────────────────────────────────────────
+  // ADIM 2: OTP kodu + Yeni PIN belirleme
+  // ──────────────────────────────────────────────────────────
+  void _showOtpAndPinStepSheet(String email) {
+    final otpController = TextEditingController();
     final pinController = TextEditingController();
     final confirmPinController = TextEditingController();
     final formKey = GlobalKey<FormState>();
@@ -164,154 +137,215 @@ class ForgotPasswordHelper {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      isDismissible: false,
-      enableDrag: false,
+      isDismissible: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (sheetContext) {
-        return PopScope(
-          canPop: false,
-          child: StatefulBuilder(
-            builder: (builderContext, setSheetState) {
-              return Padding(
-                padding: EdgeInsets.only(
-                  left: 24,
-                  right: 24,
-                  top: 24,
-                  bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
-                ),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildStaticHandle(builderContext),
-                      Text(
-                        context.l10n.setNewPin,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(builderContext).colorScheme.onSurface,
-                        ),
+        return StatefulBuilder(
+          builder: (builderContext, setSheetState) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
+              ),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHandle(sheetContext),
+                    Text(
+                      "Kodu Doğrula",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(sheetContext).colorScheme.onSurface,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Doğrulama başarılı! Lütfen 6 haneli yeni PIN kodunuzu oluşturun.",
+                    ),
+                    const SizedBox(height: 8),
+                    RichText(
+                      text: TextSpan(
                         style: TextStyle(
                           fontSize: 14,
-                          color: Theme.of(
-                            builderContext,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: Theme.of(sheetContext).colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      _buildPinField(
-                        builderContext,
-                        pinController,
-                        isPinVisible,
-                        context.l10n.newPinLabel,
-                        Icons.lock_outline,
-                        onVisibilityToggle: () {
-                          setSheetState(() => isPinVisible = !isPinVisible);
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      _buildConfirmPinField(
-                        builderContext,
-                        confirmPinController,
-                        pinController,
-                        isPinVisible,
-                        context,
-                      ),
-                      if (errorMessage != null || successMessage != null)
-                        _buildMessageBoxInstance(
-                          builderContext,
-                          successMessage,
-                          errorMessage,
-                        ),
-                      const SizedBox(height: 24),
-                      isSaving
-                          ? const Center(child: CircularProgressIndicator())
-                          : _buildUpdatePinButton(
-                              builderContext,
-                              context,
-                              onPressed: () async {
-                                if (!formKey.currentState!.validate()) return;
-
-                                final newPin = pinController.text;
-
-                                setSheetState(() => isSaving = true);
-
-                                final success = await authController
-                                    .verifyEmailLinkAndSetPin(
-                                      email,
-                                      emailLink,
-                                      newPin,
-                                    );
-
-                                if (!context.mounted) return;
-
-                                setSheetState(() => isSaving = false);
-
-                                if (success) {
-                                  setSheetState(() {
-                                    successMessage =
-                                        context.l10n.pinUpdatedSuccess;
-                                    errorMessage = null;
-                                  });
-
-                                  await Future.delayed(
-                                    const Duration(milliseconds: 1500),
-                                  );
-                                  if (!context.mounted) return;
-
-                                  // FIX-5: Sheet kapatılıp login sayfasına yönlendir.
-                                  // Kullanıcı yeni PIN ile giriş yapmalı (verifyEmailLink zaten oturum açtı
-                                  // ama AuthController'da checkAuth yapılması için route sıfırlanır).
-                                  Navigator.of(
-                                    context,
-                                  ).popUntil((route) => route.isFirst);
-                                } else {
-                                  setSheetState(
-                                    () => errorMessage =
-                                        authController.error ??
-                                        "Güncelleme başarısız oldu.",
-                                  );
-                                }
-                              },
+                        children: [
+                          const TextSpan(text: "E-postanıza gönderilen 6 haneli kodu ve yeni PIN'inizi girin.\n\n"),
+                          TextSpan(
+                            text: email,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(sheetContext).colorScheme.primary,
                             ),
-                      const SizedBox(height: 12),
-                    ],
-                  ),
+                          ),
+                          const TextSpan(text: " adresine kod gönderildi."),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // OTP alanı
+                    TextFormField(
+                      controller: otpController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      style: TextStyle(
+                        color: Theme.of(sheetContext).colorScheme.onSurface,
+                        letterSpacing: 8,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        labelText: "Doğrulama Kodu",
+                        labelStyle: TextStyle(
+                          color: Theme.of(sheetContext).colorScheme.onSurface.withAlpha(180),
+                        ),
+                        prefixIcon: Icon(
+                          Icons.verified_outlined,
+                          color: Theme.of(sheetContext).colorScheme.primary,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: Theme.of(sheetContext).colorScheme.primary.withAlpha(80),
+                            width: 2,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: Theme.of(sheetContext).colorScheme.primary,
+                            width: 2,
+                          ),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: Theme.of(sheetContext).colorScheme.error),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: Theme.of(sheetContext).colorScheme.error),
+                        ),
+                        counterText: "",
+                        filled: true,
+                        fillColor: Theme.of(sheetContext).colorScheme.primary.withAlpha(10),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return "Lütfen doğrulama kodunu girin";
+                        if (value.length < 6) return "Kod 6 haneli olmalıdır";
+                        if (!RegExp(r'^\d{6}$').hasMatch(value)) return "Kod sadece rakamlardan oluşmalıdır";
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Yeni PIN alanı
+                    _buildPinField(
+                      sheetContext,
+                      pinController,
+                      isPinVisible,
+                      context.l10n.newPinLabel,
+                      Icons.lock_outline,
+                      onVisibilityToggle: () {
+                        setSheetState(() => isPinVisible = !isPinVisible);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // PIN tekrar
+                    _buildConfirmPinField(
+                      sheetContext,
+                      confirmPinController,
+                      pinController,
+                      isPinVisible,
+                      context,
+                    ),
+
+                    if (errorMessage != null || successMessage != null)
+                      _buildMessageBox(builderContext, successMessage, errorMessage),
+                    const SizedBox(height: 24),
+
+                    // Yeniden gönder butonu
+                    Center(
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.refresh, size: 16),
+                        label: const Text("Kodu tekrar gönder"),
+                        onPressed: isSaving
+                            ? null
+                            : () async {
+                                final sent = await authController.sendPinResetOtp(email);
+                                if (!context.mounted) return;
+                                setSheetState(() {
+                                  if (sent) {
+                                    successMessage = "Yeni kod gönderildi!";
+                                    errorMessage = null;
+                                  } else {
+                                    errorMessage = authController.error ?? "Kod gönderilemedi.";
+                                    successMessage = null;
+                                  }
+                                });
+                              },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    isSaving
+                        ? const Center(child: CircularProgressIndicator())
+                        : _buildPrimaryButton(
+                            sheetContext,
+                            label: context.l10n.updatePinButton,
+                            onPressed: () async {
+                              if (!formKey.currentState!.validate()) return;
+
+                              setSheetState(() => isSaving = true);
+
+                              final success = await authController.verifyOtpAndSetPin(
+                                email,
+                                otpController.text.trim(),
+                                pinController.text,
+                              );
+
+                              if (!context.mounted) return;
+                              setSheetState(() => isSaving = false);
+
+                              if (success) {
+                                setSheetState(() {
+                                  successMessage = context.l10n.pinUpdatedSuccess;
+                                  errorMessage = null;
+                                });
+                                await Future.delayed(const Duration(milliseconds: 1500));
+                                if (!context.mounted) return;
+                                Navigator.of(context).popUntil((route) => route.isFirst);
+                              } else {
+                                setSheetState(() {
+                                  errorMessage = authController.error ?? "Güncelleme başarısız oldu.";
+                                  successMessage = null;
+                                });
+                              }
+                            },
+                          ),
+                    const SizedBox(height: 12),
+                  ],
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         );
       },
     );
   }
 
-  // === Yardımcı Widget Builder'lar ===
+  // ──────────────────────────────────────────────────────────
+  // Widget Builder'lar
+  // ──────────────────────────────────────────────────────────
 
   Widget _buildHandle(BuildContext ctx) {
-    return Center(
-      child: Container(
-        width: 40,
-        height: 4,
-        margin: const EdgeInsets.only(bottom: 20),
-        decoration: BoxDecoration(
-          color: Theme.of(ctx).colorScheme.onSurface.withAlpha(70),
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ),
-    );
-  }
-
-  static Widget _buildStaticHandle(BuildContext ctx) {
     return Center(
       child: Container(
         width: 40,
@@ -335,20 +369,11 @@ class ForgotPasswordHelper {
       keyboardType: TextInputType.emailAddress,
       style: TextStyle(color: Theme.of(ctx).colorScheme.onSurface),
       onChanged: (_) => onChanged(),
-      decoration: _inputDecoration(
-        ctx,
-        context.l10n.emailLabel,
-        Icons.email_outlined,
-      ),
+      decoration: _inputDecoration(ctx, context.l10n.emailLabel, Icons.email_outlined),
       validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return context.l10n.pleaseEnterEmail;
-        }
-        // FIX-3: Gerçek e-posta formatı kontrolü
+        if (value == null || value.trim().isEmpty) return context.l10n.pleaseEnterEmail;
         final emailRegex = RegExp(r'^[\w.+\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}');
-        if (!emailRegex.hasMatch(value.trim())) {
-          return context.l10n.enterValidEmail;
-        }
+        if (!emailRegex.hasMatch(value.trim())) return context.l10n.enterValidEmail;
         return null;
       },
     );
@@ -373,15 +398,11 @@ class ForgotPasswordHelper {
       ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(
-          color: Theme.of(ctx).colorScheme.onSurface.withAlpha(180),
-        ),
+        labelStyle: TextStyle(color: Theme.of(ctx).colorScheme.onSurface.withAlpha(180)),
         prefixIcon: Icon(icon, color: Theme.of(ctx).colorScheme.secondary),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
-          borderSide: BorderSide(
-            color: Theme.of(ctx).colorScheme.onSurface.withAlpha(60),
-          ),
+          borderSide: BorderSide(color: Theme.of(ctx).colorScheme.onSurface.withAlpha(60)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
@@ -407,15 +428,9 @@ class ForgotPasswordHelper {
             : null,
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) {
-          return ctx.l10n.pleaseEnterNewPin;
-        }
-        if (value.length < 6) {
-          return "PIN en az 6 haneli olmalıdır";
-        }
-        if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-          return ctx.l10n.pinOnlyNumbers;
-        }
+        if (value == null || value.isEmpty) return ctx.l10n.pleaseEnterNewPin;
+        if (value.length < 6) return "PIN en az 6 haneli olmalıdır";
+        if (!RegExp(r'^[0-9]+$').hasMatch(value)) return ctx.l10n.pinOnlyNumbers;
         return null;
       },
     );
@@ -433,24 +448,14 @@ class ForgotPasswordHelper {
       keyboardType: TextInputType.number,
       obscureText: !isVisible,
       maxLength: 6,
-      style: TextStyle(
-        color: Theme.of(ctx).colorScheme.onSurface,
-        letterSpacing: 4,
-      ),
+      style: TextStyle(color: Theme.of(ctx).colorScheme.onSurface, letterSpacing: 4),
       decoration: InputDecoration(
         labelText: l10nCtx.l10n.pinRepeatLabel,
-        labelStyle: TextStyle(
-          color: Theme.of(ctx).colorScheme.onSurface.withAlpha(180),
-        ),
-        prefixIcon: Icon(
-          Icons.lock_reset,
-          color: Theme.of(ctx).colorScheme.secondary,
-        ),
+        labelStyle: TextStyle(color: Theme.of(ctx).colorScheme.onSurface.withAlpha(180)),
+        prefixIcon: Icon(Icons.lock_reset, color: Theme.of(ctx).colorScheme.secondary),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
-          borderSide: BorderSide(
-            color: Theme.of(ctx).colorScheme.onSurface.withAlpha(60),
-          ),
+          borderSide: BorderSide(color: Theme.of(ctx).colorScheme.onSurface.withAlpha(60)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
@@ -474,22 +479,14 @@ class ForgotPasswordHelper {
     );
   }
 
-  InputDecoration _inputDecoration(
-    BuildContext ctx,
-    String label,
-    IconData icon,
-  ) {
+  InputDecoration _inputDecoration(BuildContext ctx, String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(
-        color: Theme.of(ctx).colorScheme.onSurface.withAlpha(180),
-      ),
+      labelStyle: TextStyle(color: Theme.of(ctx).colorScheme.onSurface.withAlpha(180)),
       prefixIcon: Icon(icon, color: Theme.of(ctx).colorScheme.secondary),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
-        borderSide: BorderSide(
-          color: Theme.of(ctx).colorScheme.onSurface.withAlpha(60),
-        ),
+        borderSide: BorderSide(color: Theme.of(ctx).colorScheme.onSurface.withAlpha(60)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
@@ -507,14 +504,6 @@ class ForgotPasswordHelper {
   }
 
   Widget _buildMessageBox(BuildContext ctx, String? success, String? error) {
-    return _buildMessageBoxInstance(ctx, success, error);
-  }
-
-  static Widget _buildMessageBoxInstance(
-    BuildContext ctx,
-    String? success,
-    String? error,
-  ) {
     final isSuccess = success != null;
     return Padding(
       padding: const EdgeInsets.only(top: 12),
@@ -543,9 +532,7 @@ class ForgotPasswordHelper {
               child: Text(
                 success ?? error!,
                 style: TextStyle(
-                  color: isSuccess
-                      ? Colors.green
-                      : Theme.of(ctx).colorScheme.error,
+                  color: isSuccess ? Colors.green : Theme.of(ctx).colorScheme.error,
                   fontSize: 14,
                 ),
               ),
@@ -556,10 +543,11 @@ class ForgotPasswordHelper {
     );
   }
 
-  Widget _buildContinueButton(
+  Widget _buildPrimaryButton(
     BuildContext ctx, {
+    required String label,
     required VoidCallback onPressed,
-    bool enabled = true, // FIX-2: enabled parametresi eklendi
+    bool enabled = true,
   }) {
     return SizedBox(
       width: double.infinity,
@@ -570,46 +558,14 @@ class ForgotPasswordHelper {
           backgroundColor: enabled
               ? Theme.of(ctx).colorScheme.primary
               : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         ),
         child: Text(
-          context.l10n.continueButton,
+          label,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: enabled
-                ? Colors.white
-                : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.38),
-          ),
-        ),
-      ),
-    );
-  }
-
-  static Widget _buildUpdatePinButton(
-    BuildContext ctx,
-    BuildContext originalCtx, {
-    required VoidCallback onPressed,
-  }) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(ctx).colorScheme.primary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
-          ),
-        ),
-        child: Text(
-          originalCtx.l10n.updatePinButton,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: enabled ? Colors.white : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.38),
           ),
         ),
       ),

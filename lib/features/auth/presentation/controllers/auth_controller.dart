@@ -20,6 +20,7 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
     _initAuthListener();
   }
 
+
   void _initAuthListener() {
     try {
       _authListenerSub = FirebaseAuth.instance.userChanges().listen((
@@ -190,12 +191,12 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
     return await _authRepository.getUserByEmail(email);
   }
 
-  /// E-posta doğrulama bağlantısı gönder (Şifremi Unuttum)
-  Future<bool> sendPinResetEmailLink(String email) async {
+  /// OTP doğrulama kodu gönder (Şifremi Unuttum)
+  Future<bool> sendPinResetOtp(String email) async {
     _setLoading(true);
     _error = null;
     try {
-      await _authRepository.sendPinResetEmailLink(email);
+      await _authRepository.sendPinResetOtp(email);
       return true;
     } catch (e) {
       _error = e.toString();
@@ -205,20 +206,16 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
     }
   }
 
-  /// E-posta bağlantısını doğrula ve yeni PIN'i kaydet
-  Future<bool> verifyEmailLinkAndSetPin(
+  /// OTP ve yeni PIN'i doğrula ve kaydet
+  Future<bool> verifyOtpAndSetPin(
     String email,
-    String emailLink,
+    String otp,
     String newPin,
   ) async {
     _setLoading(true);
     _error = null;
     try {
-      return await _authRepository.verifyEmailLinkAndSetPin(
-        email,
-        emailLink,
-        newPin,
-      );
+      return await _authRepository.verifyOtpAndSetPin(email, otp, newPin);
     } catch (e) {
       _error = e.toString();
       return false;

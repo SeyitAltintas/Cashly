@@ -30,8 +30,7 @@ import 'core/services/network_service.dart';
 import 'core/router/app_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:app_links/app_links.dart';
-import 'features/auth/presentation/widgets/forgot_password_helper.dart';
+
 
 import 'core/services/secure_storage_service.dart';
 
@@ -170,23 +169,18 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
   bool _isInitialized = false;
   String? _initError;
 
-  late AppLinks _appLinks;
-  StreamSubscription<Uri>? _linkSubscription;
+
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initializeApp();
-
-    _appLinks = AppLinks();
-    _initAppLinks();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _linkSubscription?.cancel();
     super.dispose();
   }
 
@@ -252,80 +246,6 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _initAppLinks() async {
-    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-      debugPrint('Uygulama linki alındı (stream): $uri');
-      _handleDeepLink(uri);
-    });
-
-    try {
-      final initialLink = await _appLinks.getInitialLink();
-      if (initialLink != null) {
-        debugPrint('Uygulama linki alındı (initial): $initialLink');
-        _handleDeepLink(initialLink);
-      }
-    } catch (_) {}
-  }
-
-  void _handleDeepLink(Uri uri) {
-    if (uri.path.contains('/__/auth/action') ||
-        uri.path.contains('/__/auth/links')) {
-      String? email = uri.queryParameters['email'];
-
-      if (email == null || email.isEmpty) {
-        final continueUrlStr = uri.queryParameters['continueUrl'];
-        if (continueUrlStr != null && continueUrlStr.isNotEmpty) {
-          try {
-            final continueUri = Uri.parse(continueUrlStr);
-            email = continueUri.queryParameters['email'];
-          } catch (_) {}
-        }
-      }
-
-      debugPrint('Deep link alındı: ${uri.path}. Bulunan Email: $email');
-
-      if (email != null && email.isNotEmpty) {
-        final capturedEmail = email;
-        final capturedUri = uri.toString();
-
-        // FIX-4: Hardcoded 1500ms yerine retry loop.
-        // AppRouter hazır olana kadar (max 5 saniye) context'i bekle.
-        _waitForContextAndShowSheet(capturedEmail, capturedUri);
-      }
-    }
-  }
-
-  /// Navigator context hazır olana kadar 200ms aralıklarla tekrar dener (max 25 kez = 5 sn).
-  void _waitForContextAndShowSheet(
-    String email,
-    String emailLink, {
-    int attempt = 0,
-  }) {
-    const maxAttempts = 25;
-    const retryDelay = Duration(milliseconds: 200);
-
-    final context = AppRouter.navigatorKey.currentContext;
-    if (context != null && context.mounted) {
-      ForgotPasswordHelper.showSetNewPinSheet(
-        context,
-        getIt<AuthController>(),
-        email,
-        emailLink,
-      );
-      return;
-    }
-
-    if (attempt >= maxAttempts) {
-      debugPrint(
-        'Deep Link işlenemedi: Navigator context $maxAttempts denemede hazır olmadı.',
-      );
-      return;
-    }
-
-    Future.delayed(retryDelay, () {
-      _waitForContextAndShowSheet(email, emailLink, attempt: attempt + 1);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

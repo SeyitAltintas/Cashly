@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cashly — Doğrulama Kodu</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0D0D0D;
+      color: #FFFFFF;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #1A1A1A;
+      border: 1px solid #2A2A2A;
+      border-radius: 24px;
+      padding: 40px 32px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #4CAF50, #81C784);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 36px;
+    }
+
+    .label {
+      color: #888;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .otp-box {
+      background: #111;
+      border: 2px solid #4CAF50;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .otp-code {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: 12px;
+      color: #4CAF50;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .copy-btn {
+      background: #4CAF50;
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .copy-btn:hover { opacity: 0.85; }
+    .copy-btn:active { opacity: 0.7; }
+
+    .copy-btn.copied {
+      background: #388E3C;
+    }
+
+    .info {
+      color: #555;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .info span {
+      color: #888;
+    }
+
+    .timer {
+      color: #FF7043;
+      font-weight: 600;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    .error-card {
+      display: none;
+      background: #1A0A0A;
+      border: 1px solid #5D1A1A;
+      border-radius: 16px;
+      padding: 24px;
+      color: #FF7043;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="main-card">
+    <div class="logo">Cashly</div>
+    <div class="subtitle">PIN Sıfırlama — Doğrulama Kodu</div>
+
+    <div class="label">6 Haneli Kodunuz</div>
+    <div class="otp-box">
+      <div class="otp-code" id="otp-display">------</div>
+    </div>
+
+    <button class="copy-btn" id="copy-btn" onclick="copyCode()">
+      Kodu Kopyala
+    </button>
+
+    <p class="info">
+      Bu kodu Cashly uygulamasındaki<br />
+      <span>"Şifremi Unuttum"</span> ekranına girin.
+    </p>
+    <div class="timer" id="timer"></div>
+  </div>
+
+  <div class="card error-card" id="error-card">
+    <div style="font-size:32px; margin-bottom:16px;">⚠️</div>
+    <div style="font-size:18px; font-weight:700; margin-bottom:8px;">Geçersiz Bağlantı</div>
+    <div style="color:#888; font-size:14px;">Bu bağlantı geçersiz veya süresi dolmuş. Lütfen uygulamadan yeni bir kod isteyin.</div>
+  </div>
+
+  <script>
+    let otpCode = '';
+
+    function getParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    function copyCode() {
+      if (!otpCode) return;
+      navigator.clipboard.writeText(otpCode).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = '✓ Kopyalandı!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Kodu Kopyala';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    function startTimer(minutes) {
+      let total = minutes * 60;
+      const el = document.getElementById('timer');
+      const interval = setInterval(() => {
+        const m = Math.floor(total / 60).toString().padStart(2, '0');
+        const s = (total % 60).toString().padStart(2, '0');
+        el.textContent = `Kodun geçerlilik süresi: ${m}:${s}`;
+        if (total <= 0) {
+          clearInterval(interval);
+          el.textContent = 'Kodun süresi doldu. Lütfen yeni kod isteyin.';
+          el.style.color = '#555';
+        }
+        total--;
+      }, 1000);
+    }
+
+    // Kodu URL'den oku
+    const code = getParam('code');
+
+    if (code && /^\d{6}$/.test(code)) {
+      otpCode = code;
+      // Aralarına boşluk ekle: 123 456
+      document.getElementById('otp-display').textContent =
+        code.slice(0, 3) + ' ' + code.slice(3);
+      startTimer(15);
+    } else {
+      document.getElementById('main-card').style.display = 'none';
+      document.getElementById('error-card').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
