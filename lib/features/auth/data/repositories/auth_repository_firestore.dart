@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,6 +14,7 @@ import '../models/user_model.dart';
 import 'auth_repository_impl.dart';
 import '../../../../core/services/network_service.dart';
 import '../../../../core/services/secure_storage_service.dart';
+import 'package:bcrypt/bcrypt.dart';
 
 
 class AuthRepositoryFirestore implements AuthRepository {
@@ -100,11 +101,31 @@ class AuthRepositoryFirestore implements AuthRepository {
           .signInWithEmailAndPassword(email: localUser.email, password: pin)
           .timeout(const Duration(seconds: 10));
 
-      // Firebase'in gerçek UID'sini alıyoruz.
-      // Hive'daki eski UUID bununla eşleşmiyorsa, Firestore'un kural denetimi
-      // request.auth.uid != userId nedeniyle permission-denied fırlatacaktır.
-      // Çözüm: Hive kaydını her girişte Firebase UID ile eşitleyelim.
       final firebaseUid = credential.user?.uid;
+      
+      // Şifre dışarıdan (Şifremi Unuttum ile) sıfırlanmışsa lokal DB'yi güncelle
+      bool isPinChanged = false;
+      try {
+        isPinChanged = !BCrypt.checkpw(pin, localUser.pin);
+      } catch (_) {
+        // Hashing error means pin format is wrong, so it must be changed
+        isPinChanged = true;
+      }
+      
+      if (isPinChanged) {
+        await _localHiveRepo.updateUserPin(localUser.id, pin);
+        if (firebaseUid != null) {
+          try {
+            await _firestore.collection('users').doc(firebaseUid).update({
+              'pin': BCrypt.hashpw(pin, BCrypt.gensalt()),
+              'updatedAt': FieldValue.serverTimestamp(),
+            });
+          } catch (_) {}
+        }
+      }
+
+      // Firebase'in gerçek UID'sini alıyoruz.
+      // Hive'daki eski UUID bununla eşleşmiyorsa güncelleniyor.
       if (firebaseUid != null && firebaseUid != localUser.id) {
         if (kDebugMode) {
           debugPrint(
@@ -115,7 +136,7 @@ class AuthRepositoryFirestore implements AuthRepository {
           id: firebaseUid,
           name: localUser.name,
           email: localUser.email,
-          pin: localUser.pin,
+          pin: BCrypt.hashpw(pin, BCrypt.gensalt()),
           profileImage: localUser.profileImage,
           createdAt: localUser.createdAt,
           biometricEnabled: localUser.biometricEnabled,
@@ -126,7 +147,6 @@ class AuthRepositoryFirestore implements AuthRepository {
           await _localHiveRepo.deleteUser(localUser.id);
         } catch (_) {}
 
-        // UID düzeltmesinin ardından bulut verisini hemen çek
         await CloudSyncService.syncAllUserData(firebaseUid);
         return await _createAndSaveSession(correctedUser);
       }
@@ -622,39 +642,12 @@ class AuthRepositoryFirestore implements AuthRepository {
   @override
   Future<void> sendPinResetOtp(String email) async {
     try {
-      // Kriptografik olarak güvenli 6 haneli OTP üret
-      final rng = math.Random.secure();
-      final otp = (100000 + rng.nextInt(900000)).toString();
-
-      // OTP'yi SHA-256 ile hash'le (Firestore'da düz metin saklanmasın)
-      final otpHash = _hashOtp(otp);
-      final expiry = DateTime.now().add(const Duration(minutes: 15));
-
-      // Firestore'a OTP hash'ini kaydet
-      await _firestore.collection('password_reset_otps').doc(email).set({
-        'otpHash': otpHash,
-        'expiresAt': expiry.toIso8601String(),
-        'createdAt': DateTime.now().toIso8601String(),
-        'email': email,
-        'attempts': 0, // Brute force koruması için deneme sayıcısı
-      });
-
-      // OTP'yi email içeriğinde gönder (continueUrl sadece yer tutucu)
-      final encodedEmail = Uri.encodeComponent(email);
-      final actionCodeSettings = ActionCodeSettings(
-        url: 'https://cashly-c0acc.web.app/reset?email=$encodedEmail&code=$otp',
-        handleCodeInApp: true,
-        androidPackageName: 'com.seyitaltintas.cashly',
-        androidInstallApp: false,
-        androidMinimumVersion: '1',
-      );
-
-      await _firebaseAuth.sendSignInLinkToEmail(
-        email: email,
-        actionCodeSettings: actionCodeSettings,
-      );
+      // 1. Firebase üzerinden Şifre Sıfırlama e-postası gönder
+      // Bu, Firebase'in kendi güvenli web arayüzünü (Şifre yenileme sayfası) açacak.
+      // Kullanıcı buraya yeni PIN'ini girecek.
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
     } catch (e) {
-      throw Exception('Doğrulama kodu gönderilemedi: ${e.toString()}');
+      throw Exception('Şifre sıfırlama e-postası gönderilemedi: ${e.toString()}');
     }
   }
 
