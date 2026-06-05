@@ -1,13 +1,10 @@
-
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+import '../../../../core/exceptions/session_expired_exception.dart';
 import '../../../../core/services/cloud_sync_service.dart';
 import '../../../../features/streak/data/services/streak_service.dart';
-import '../../../../core/exceptions/session_expired_exception.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
@@ -113,7 +110,7 @@ class AuthRepositoryFirestore implements AuthRepository {
       }
       
       if (isPinChanged) {
-        await _localHiveRepo.updateUserPin(localUser.id, pin);
+        await _localHiveRepo.updateUserPin(localUser.id, '', pin);
         if (firebaseUid != null) {
           try {
             await _firestore.collection('users').doc(firebaseUid).update({
@@ -654,7 +651,7 @@ class AuthRepositoryFirestore implements AuthRepository {
 
 
   @override
-  Future<void> updateUserPin(String userId, String newPin) async {
+  Future<void> updateUserPin(String userId, String currentPin, String newPin) async {
     try {
       // GÜVENLİK YAMASI: PIN değişikliği (State Inconsistency önleme)
       // PIN değişimi Firebase Auth ve yerel Hive'da eşzamanlı yapılmalıdır.
@@ -668,10 +665,23 @@ class AuthRepositoryFirestore implements AuthRepository {
       }
 
       // 1. Firebase Auth şifresi güncelle
-      await user.updatePassword(newPin);
+      try {
+        await user.updatePassword(newPin);
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'requires-recent-login' && user.email != null) {
+          final credential = EmailAuthProvider.credential(
+            email: user.email!,
+            password: currentPin,
+          );
+          await user.reauthenticateWithCredential(credential);
+          await user.updatePassword(newPin);
+        } else {
+          rethrow;
+        }
+      }
 
       // 2. Lokal Hive güncelle
-      await _localHiveRepo.updateUserPin(userId, newPin);
+      await _localHiveRepo.updateUserPin(userId, currentPin, newPin);
       await SecureStorageService.saveBiometricPin(userId, newPin);
     } catch (e) {
       throw Exception("PIN güncellenemedi: ${e.toString()}");

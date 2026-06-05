@@ -20,5 +20,5 @@ abstract class AuthRepository {
   // Şifremi Unuttum metodları
   Future<UserEntity?> getUserByEmail(String email);
   Future<void> sendPinResetOtp(String email);
-  Future<void> updateUserPin(String userId, String newPin);
+  Future<void> updateUserPin(String userId, String currentPin, String newPin);
 }

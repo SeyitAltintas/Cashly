@@ -209,7 +209,11 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
 
 
   /// Kullanıcının PIN'ini güncelle (Şifremi Unuttum için)
-  Future<void> updateUserPin(String userId, String newPin) async {
-    await _authRepository.updateUserPin(userId, newPin);
+  Future<void> updateUserPin(String userId, String currentPin, String newPin) async {
+    await _authRepository.updateUserPin(userId, currentPin, newPin);
+    if (_currentUser != null && _currentUser!.id == userId) {
+      _currentUser = await _authRepository.getCurrentUser();
+      notifyListeners();
+    }
   }
 }

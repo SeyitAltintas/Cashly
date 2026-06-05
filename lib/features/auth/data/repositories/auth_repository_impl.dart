@@ -38,7 +38,18 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<UserEntity> registerUser(UserEntity user) async {
     final box = await _getUsersBox();
     final userModel = UserModel.fromEntity(user);
-    await box.put(user.id, userModel.toMap());
+    final userWithHashedPin = UserModel(
+      id: userModel.id,
+      name: userModel.name,
+      email: userModel.email,
+      pin: _hashPinIfNeeded(userModel.pin),
+      profileImage: userModel.profileImage,
+      createdAt: userModel.createdAt,
+      lastLoginAt: userModel.lastLoginAt,
+      biometricEnabled: userModel.biometricEnabled,
+      activeSessionId: userModel.activeSessionId,
+    );
+    await box.put(user.id, userWithHashedPin.toMap());
     await setCurrentUser(user.id);
     return user;
   }
@@ -288,7 +299,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> updateUserPin(String userId, String newPin) async {
+  Future<void> updateUserPin(String userId, String currentPin, String newPin) async {
     final box = await _getUsersBox();
     final userData = box.get(userId);
 

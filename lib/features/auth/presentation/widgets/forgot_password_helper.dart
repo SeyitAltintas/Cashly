@@ -57,7 +57,7 @@ class ForgotPasswordHelper {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Kayıtlı e-posta adresinize 6 haneli bir doğrulama kodu göndereceğiz.",
+                      "Kayıtlı e-posta adresinize şifrenizi sıfırlayabileceğiniz bir bağlantı göndereceğiz.",
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(sheetContext).colorScheme.onSurface.withValues(alpha: 0.7),
@@ -76,7 +76,7 @@ class ForgotPasswordHelper {
                         ? const Center(child: CircularProgressIndicator())
                         : _buildPrimaryButton(
                             sheetContext,
-                            label: "Kod Gönder",
+                            label: "Bağlantı Gönder",
                             onPressed: () async {
                               if (!formKey.currentState!.validate()) return;
                               final email = emailController.text.trim();

@@ -128,7 +128,7 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> updateUserPin(String userId, String newPin) async {
+  Future<void> updateUserPin(String userId, String currentPin, String newPin) async {
     final index = _users.indexWhere((u) => u.id == userId);
     if (index != -1) {
       final user = _users[index];

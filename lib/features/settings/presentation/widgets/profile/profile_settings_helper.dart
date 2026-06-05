@@ -256,52 +256,62 @@ class ProfileSettingsHelper {
     );
     final formKey = GlobalKey<FormState>();
 
+    bool isLoading = false;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(ctx).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildSheetHeader(ctx, context.l10n.changeName),
-              const SizedBox(height: 24),
-              Form(
-                key: formKey,
-                child: TextFormField(
-                  controller: nameController,
-                  style: TextStyle(color: Theme.of(ctx).colorScheme.onSurface),
-                  decoration: _inputDecoration(ctx, context.l10n.newNameLabel),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return context.l10n.nameCannotBeEmpty;
-                    }
-                    return null;
-                  },
-                ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setStateBottomSheet) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(ctx).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
-              const SizedBox(height: 24),
-              _buildPrimaryButton(ctx, context.l10n.save, () {
-                if (formKey.currentState!.validate()) {
-                  _updateUser(
-                    name: nameController.text.trim(),
-                    successMessage: context.l10n.nameUpdated,
-                  );
-                  Navigator.pop(ctx);
-                }
-              }),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSheetHeader(ctx, context.l10n.changeName),
+                  const SizedBox(height: 24),
+                  Form(
+                    key: formKey,
+                    child: TextFormField(
+                      controller: nameController,
+                      style: TextStyle(color: Theme.of(ctx).colorScheme.onSurface),
+                      decoration: _inputDecoration(ctx, context.l10n.newNameLabel),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return context.l10n.nameCannotBeEmpty;
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildPrimaryButton(ctx, context.l10n.save, () async {
+                    if (formKey.currentState!.validate()) {
+                      setStateBottomSheet(() => isLoading = true);
+                      await _updateUser(
+                        name: nameController.text.trim(),
+                        successMessage: context.l10n.nameUpdated,
+                      );
+                      if (ctx.mounted) {
+                        setStateBottomSheet(() => isLoading = false);
+                        Navigator.pop(ctx);
+                      }
+                    }
+                  }, isLoading: isLoading),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -316,6 +326,7 @@ class ProfileSettingsHelper {
     bool isCurrentPinVisible = false;
     bool isNewPinVisible = false;
     bool isConfirmPinVisible = false;
+    bool isLoading = false;
 
     showModalBottomSheet(
       context: context,
@@ -360,9 +371,7 @@ class ProfileSettingsHelper {
                               () => isCurrentPinVisible = !isCurrentPinVisible,
                             ),
                             validator: (value) {
-                              if (value == null ||
-                                  value.length < 4 ||
-                                  value.length > 6) {
+                              if (value == null || value.length != 6) {
                                 return context.l10n.enterPinDigits;
                               }
                               if (!_isPinCorrect(value, currentUser.pin)) {
@@ -382,9 +391,7 @@ class ProfileSettingsHelper {
                             ),
                             autofocus: true,
                             validator: (value) {
-                              if (value == null ||
-                                  value.length < 4 ||
-                                  value.length > 6) {
+                              if (value == null || value.length != 6) {
                                 return context.l10n.enterPinDigits;
                               }
                               return null;
@@ -419,17 +426,21 @@ class ProfileSettingsHelper {
                         if (step == 1) {
                           setStateBottomSheet(() => step = 2);
                         } else {
-                          // FIX-8: PIN değişimi sadece profil güncellemesi değildir.
-                          // Firebase Auth şifresi de güncellenmelidir. Bu yüzden _updateUser
-                          // yerine özel updateUserPin çağrılmalıdır.
+                          setStateBottomSheet(() => isLoading = true);
                           try {
                             authController
                                 .updateUserPin(
                                   currentUser.id,
+                                  currentPinController.text,
                                   newPinController.text,
                                 )
                                 .then((_) {
                                   if (ctx.mounted) {
+                                    currentPinController.clear();
+                                    newPinController.clear();
+                                    confirmPinController.clear();
+                                    onUserUpdated?.call();
+                                    
                                     AppSnackBar.success(
                                       ctx,
                                       context.l10n.pinUpdated,
@@ -439,6 +450,7 @@ class ProfileSettingsHelper {
                                 })
                                 .catchError((e) {
                                   if (ctx.mounted) {
+                                    setStateBottomSheet(() => isLoading = false);
                                     final isRecentLoginRequired = e
                                         .toString()
                                         .contains('requires-recent-login');
@@ -454,10 +466,14 @@ class ProfileSettingsHelper {
                                 });
                           } catch (e) {
                             debugPrint('PIN Change Error: $e');
+                            if (ctx.mounted) {
+                              setStateBottomSheet(() => isLoading = false);
+                            }
                           }
                         }
                       }
                     },
+                    isLoading: isLoading,
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -896,12 +912,13 @@ class ProfileSettingsHelper {
   Widget _buildPrimaryButton(
     BuildContext ctx,
     String label,
-    VoidCallback onPressed,
-  ) {
+    VoidCallback? onPressed, {
+    bool isLoading = false,
+  }) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(ctx).colorScheme.primary,
           foregroundColor: Colors.white,
@@ -909,11 +926,21 @@ class ProfileSettingsHelper {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+          disabledBackgroundColor: Theme.of(ctx).colorScheme.primary.withValues(alpha: 0.5),
         ),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
+        child: isLoading
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : Text(
+                label,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
       ),
     );
   }
