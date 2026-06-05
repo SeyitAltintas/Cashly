@@ -356,11 +356,51 @@ class AuthRepositoryFirestore implements AuthRepository {
     }
   }
 
+  Future<void> _deleteUserFirestoreData(String userId) async {
+    try {
+      final batch = _firestore.batch();
+      final userDoc = _firestore.collection('users').doc(userId);
+
+      // Silinmesi gereken bilinen alt koleksiyonlar
+      final collections = [
+        'expenses',
+        'incomes',
+        'assets',
+        'paymentMethods',
+        'transfers',
+        'expenseCategories',
+        'incomeCategories',
+        'settings',
+        'profile',
+      ];
+
+      for (final collectionName in collections) {
+        final querySnapshot = await userDoc.collection(collectionName).get();
+        for (final doc in querySnapshot.docs) {
+          batch.delete(doc.reference);
+        }
+      }
+
+      // Kök kullanıcı dokümanını sil
+      batch.delete(userDoc);
+
+      await batch.commit();
+      debugPrint('Cloud verileri başarıyla silindi (Ghost Data temizlendi).');
+    } catch (e) {
+      debugPrint('Kullanıcı verilerini silerken hata oluştu: $e');
+      throw Exception('Kullanıcı verileri silinemedi. Lütfen internet bağlantınızı kontrol edin.');
+    }
+  }
+
   @override
   Future<void> deleteUser(String userId) async {
     final firebaseUser = _firebaseAuth.currentUser;
     if (firebaseUser != null && firebaseUser.uid == userId) {
       try {
+        // GHOST DATA VULNERABILITY FIX: 
+        // Firebase Auth kimliği silinmeden önce Firestore verilerini temizle.
+        await _deleteUserFirestoreData(userId);
+
         await firebaseUser.delete();
       } on FirebaseAuthException catch (e) {
         if (e.code == 'requires-recent-login') {
