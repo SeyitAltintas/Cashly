@@ -357,6 +357,10 @@ class AuthRepositoryFirestore implements AuthRepository {
   }
 
   Future<void> _deleteUserFirestoreData(String userId) async {
+    if (NetworkService().isOffline) {
+      throw Exception('Hesabınızı tamamen silebilmemiz için internet bağlantısı gereklidir. Lütfen internetinizi kontrol edip tekrar deneyin.');
+    }
+
     try {
       final userDoc = _firestore.collection('users').doc(userId);
 
@@ -369,8 +373,13 @@ class AuthRepositoryFirestore implements AuthRepository {
         'transfers',
         'expenseCategories',
         'incomeCategories',
+        'recurringExpenses',
+        'recurringIncomes',
+        'deletedPaymentMethods',
+        'deletedAssets',
         'settings',
         'profile',
+        'streak',
       ];
 
       final List<DocumentReference> allDocsToDelete = [];
