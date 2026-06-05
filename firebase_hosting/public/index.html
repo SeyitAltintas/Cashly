@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashly - PIN Yenileme</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.5);
+            --bg-dark: #020617;
+            --surface: rgba(15, 23, 42, 0.6);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --error: #ef4444;
+            --error-bg: rgba(239, 68, 68, 0.1);
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Arkaplan Efektleri (Blob) */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: -1;
+            animation: float 10s ease-in-out infinite alternate;
+        }
+
+        .blob-1 {
+            width: 300px;
+            height: 300px;
+            background-color: var(--primary);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background-color: #3b82f6;
+            bottom: -150px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(30px, 50px) scale(1.1);
+            }
+        }
+
+        /* Ana Kutu (Glassmorphism) */
+        .glass-panel {
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--surface-border);
+            padding: 3rem 2.5rem;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 420px;
+            box-sizing: border-box;
+            text-align: center;
+            z-index: 10;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .logo-container {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--primary) 0%, #059669 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 10px 25px var(--primary-glow);
+            position: relative;
+        }
+
+        .logo-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin: 0 0 2rem;
+            line-height: 1.5;
+            font-weight: 300;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.6rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Modern PIN Input */
+        .pin-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .pin-wrapper i {
+            position: absolute;
+            left: 1rem;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--text-muted);
+            transition: background-color 0.3s;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--surface-border);
+            background-color: rgba(0, 0, 0, 0.2);
+            color: var(--text-main);
+            font-size: 1.5rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 0.8rem;
+            font-weight: 600;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background-color: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+        }
+
+        input:focus+i {
+            background-color: var(--primary);
+            box-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        /* Buton */
+        button {
+            width: 100%;
+            padding: 1.1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Outfit', sans-serif;
+            margin-top: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        button:hover:not(:disabled)::after {
+            left: 100%;
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Mesaj Kutusu */
+        .message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.error {
+            display: block;
+            background-color: var(--error-bg);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .message.success {
+            display: block;
+            background-color: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* Spinner */
+        .loading-spinner {
+            display: none;
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* App Yönlendirme Kartı */
+        .app-redirect {
+            display: none;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--surface-border);
+        }
+
+        .open-app-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            box-shadow: none;
+            border: 1px solid var(--surface-border);
+        }
+
+        .open-app-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Arkaplan Animasyonları -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="glass-panel" id="mainContainer">
+        <div class="logo-container">C</div>
+        <h1>Parolanı Yenile</h1>
+        <p class="subtitle">Hesabınız için 6 haneli yeni bir PIN belirleyin.</p>
+
+        <form id="resetForm">
+            <div class="input-group">
+                <label for="newPin">Yeni PIN Kodunuz</label>
+                <div class="pin-wrapper">
+                    <input type="password" id="newPin" pattern="\d{6}" maxlength="6" inputmode="numeric" required
+                        placeholder="••••••" autocomplete="new-password">
+                    <i></i>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="confirmPin">PIN Kodunu Tekrarla</label>
+                <div class="pin-wrapper">
+                    <input type="password" id="confirmPin" pattern="\d{6}" maxlength="6" inputmode="numeric" required
+                        placeholder="••••••" autocomplete="new-password">
+                    <i></i>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn">
+                <span id="btnText">PIN'i Güncelle</span>
+                <div class="loading-spinner" id="spinner"></div>
+            </button>
+        </form>
+
+        <div id="messageBox" class="message"></div>
+
+        <div class="app-redirect" id="appRedirect">
+            <button type="button" class="open-app-btn" onclick="window.location.href='cashly://'">
+                Cashly Uygulamasına Dön
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Konfigürasyonu
+        const firebaseConfig = {
+            apiKey: "AIzaSyCvVwGzrheQrNDuxi7jbt34Zd9cdVG0T4w",
+            authDomain: "cashly-c0acc.firebaseapp.com",
+            projectId: "cashly-c0acc",
+            storageBucket: "cashly-c0acc.firebasestorage.app",
+            messagingSenderId: "305566117552",
+            appId: "1:305566117552:web:568ba044ee572a03e95575",
+            measurementId: "G-CEBS35TBMP"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode');
+        const actionCode = urlParams.get('oobCode');
+
+        const messageBox = document.getElementById('messageBox');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const spinner = document.getElementById('spinner');
+        const resetForm = document.getElementById('resetForm');
+        const appRedirect = document.getElementById('appRedirect');
+
+        function showMessage(msg, type) {
+            messageBox.textContent = msg;
+            messageBox.className = 'message ' + type;
+        }
+
+        if (!actionCode || mode !== 'resetPassword') {
+            showMessage("Güvenlik kodu eksik veya hatalı. Lütfen uygulamadan tekrar şifre sıfırlama talebi gönderin.", "error");
+            resetForm.style.display = 'none';
+            appRedirect.style.display = 'block';
+        } else {
+            // Check code validity silently
+            auth.verifyPasswordResetCode(actionCode).catch(function () {
+                showMessage("Bu bağlantının süresi dolmuş veya zaten kullanılmış.", "error");
+                resetForm.style.display = 'none';
+                appRedirect.style.display = 'block';
+            });
+        }
+
+        resetForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const newPin = document.getElementById('newPin').value;
+            const confirmPin = document.getElementById('confirmPin').value;
+
+            if (newPin.length !== 6 || !/^\d+$/.test(newPin)) {
+                showMessage("PIN kodu tam 6 haneli ve sadece rakamlardan oluşmalıdır.", "error");
+                return;
+            }
+
+            if (newPin !== confirmPin) {
+                showMessage("Girdiğiniz PIN kodları birbiriyle eşleşmiyor.", "error");
+                return;
+            }
+
+            btnText.style.display = 'none';
+            spinner.style.display = 'block';
+            submitBtn.disabled = true;
+
+            auth.confirmPasswordReset(actionCode, newPin).then(function () {
+                resetForm.style.display = 'none';
+                showMessage("Harika! PIN kodunuz başarıyla güncellendi. Artık güvenle giriş yapabilirsiniz.", "success");
+                appRedirect.style.display = 'block';
+            }).catch(function (error) {
+                let errorMsg = "Bilinmeyen bir hata oluştu. Lütfen tekrar deneyin.";
+                if (error.code === 'auth/expired-action-code') errorMsg = "Bu bağlantının süresi dolmuş.";
+                if (error.code === 'auth/invalid-action-code') errorMsg = "Bu bağlantı geçersiz veya zaten kullanılmış.";
+
+                showMessage(errorMsg, "error");
+                btnText.style.display = 'block';
+                spinner.style.display = 'none';
+                submitBtn.disabled = false;
+            });
+        });
+    </script>
+</body>
+
+</html>
