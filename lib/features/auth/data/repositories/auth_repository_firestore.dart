@@ -20,6 +20,27 @@ class AuthRepositoryFirestore implements AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final AuthRepositoryImpl _localHiveRepo = AuthRepositoryImpl();
+  
+  StreamSubscription<DocumentSnapshot>? _sessionRevocationSub;
+
+  void _startSessionRevocationListener(String userId, String currentSessionId) {
+    _sessionRevocationSub?.cancel();
+    _sessionRevocationSub = _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('profile')
+        .doc('info')
+        .snapshots()
+        .listen((snapshot) async {
+      if (snapshot.exists) {
+        final firestoreSessionId = snapshot.data()?['activeSessionId'] as String?;
+        if (firestoreSessionId != null && firestoreSessionId != currentSessionId) {
+          debugPrint('Güvenlik Uyarısı: Başka bir cihazda oturum açıldı. Bu cihazdaki oturum sonlandırılıyor.');
+          await logout();
+        }
+      }
+    });
+  }
   @override
   Future<UserEntity> registerUser(UserEntity user) async {
     try {
@@ -517,6 +538,10 @@ class AuthRepositoryFirestore implements AuthRepository {
           }
         }
 
+        if (user.activeSessionId != null) {
+          _startSessionRevocationListener(user.id, user.activeSessionId!);
+        }
+
         await CloudSyncService.syncAllUserData(
           user.id,
         ).timeout(const Duration(seconds: 15));
@@ -555,7 +580,9 @@ class AuthRepositoryFirestore implements AuthRepository {
 
   @override
   Future<void> logout() async {
-    await _firebaseAuth.signOut();
+    _sessionRevocationSub?.cancel();
+    _sessionRevocationSub = null;
+    final currentUser = _firebaseAuth.currentUser;
     await _localHiveRepo.logout();
   }
 
@@ -790,6 +817,7 @@ class AuthRepositoryFirestore implements AuthRepository {
       debugPrint("Firestore activeSessionId update failed (offline?): $e");
     }
 
+    _startSessionRevocationListener(updatedUser.id, sessionId);
     return updatedUser;
   }
 }
