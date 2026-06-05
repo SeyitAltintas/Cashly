@@ -667,11 +667,16 @@ class AuthRepositoryFirestore implements AuthRepository {
         }
       }
 
-      // Yeni session oluştur ve kaydet (her başarılı biyometrik girişte)
-      final sessionUser = await _createAndSaveSession(user);
-      await CloudSyncService.syncAllUserData(sessionUser.id);
-      await StreakService.syncFromCloud(sessionUser.id);
-      return sessionUser;
+      // GÜVENLİK YAMASI: Biyometrik sadece ekran kilidini açar.
+      // Yeni bir session oluşturmak offline girişlerde Cloud ile uyumsuzluğa sebep olur
+      // ve cihaz online olduğunda Single Device Policy gereği kullanıcıyı zorla çıkarır!
+      await CloudSyncService.syncAllUserData(user.id);
+      await StreakService.syncFromCloud(user.id);
+      
+      if (user.activeSessionId != null) {
+        _startSessionRevocationListener(user.id, user.activeSessionId!);
+      }
+      return user;
     } catch (e) {
       if (e is SessionExpiredException) rethrow;
       debugPrint('Biyometrik giriş sonrası sync hatası (offline?): $e');
