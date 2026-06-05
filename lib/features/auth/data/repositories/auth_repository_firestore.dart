@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -583,7 +584,7 @@ class AuthRepositoryFirestore implements AuthRepository {
   Future<void> logout() async {
     _sessionRevocationSub?.cancel();
     _sessionRevocationSub = null;
-    final currentUser = _firebaseAuth.currentUser;
+    await _firebaseAuth.signOut();
     await _localHiveRepo.logout();
   }
 

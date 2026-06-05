@@ -439,7 +439,7 @@ class ProfileSettingsHelper {
                                     currentPinController.clear();
                                     newPinController.clear();
                                     confirmPinController.clear();
-                                    onUserUpdated?.call();
+                                    onUserUpdated();
                                     
                                     AppSnackBar.success(
                                       ctx,
