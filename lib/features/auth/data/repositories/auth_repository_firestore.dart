@@ -509,6 +509,11 @@ class AuthRepositoryFirestore implements AuthRepository {
     // Eğer ortada geçerli bir kullanıcı varsa, in-memory cache olan
     // CacheService'in uygulama açılır açılmaz Firestore'dan dolması ŞARTTIR.
     if (user != null) {
+      // Dinleyici offline da olsa başlatılmalı, online olunca anında tetiklenir
+      if (user.activeSessionId != null) {
+        _startSessionRevocationListener(user.id, user.activeSessionId!);
+      }
+
       try {
         // FIX: Tekil oturum kontrolü (Single Device Policy)
         // Kullanıcı internete bağlıysa Firestore'daki aktif oturum ID'sini kontrol et.
@@ -536,10 +541,6 @@ class AuthRepositoryFirestore implements AuthRepository {
               'Hesabınıza başka bir cihazdan giriş yapıldığı için güvenlik nedeniyle bu cihazdaki oturumunuz sonlandırılmıştır.',
             );
           }
-        }
-
-        if (user.activeSessionId != null) {
-          _startSessionRevocationListener(user.id, user.activeSessionId!);
         }
 
         await CloudSyncService.syncAllUserData(
@@ -639,6 +640,11 @@ class AuthRepositoryFirestore implements AuthRepository {
 
     if (user == null) return null;
 
+    // Dinleyici offline da olsa başlatılmalı
+    if (user.activeSessionId != null) {
+      _startSessionRevocationListener(user.id, user.activeSessionId!);
+    }
+
     // firebaseUser null kontrolü yukarıda yapıldığı için oturum aktiftir.
     try {
       // Single Device Policy kontrolü
@@ -672,10 +678,6 @@ class AuthRepositoryFirestore implements AuthRepository {
       // ve cihaz online olduğunda Single Device Policy gereği kullanıcıyı zorla çıkarır!
       await CloudSyncService.syncAllUserData(user.id);
       await StreakService.syncFromCloud(user.id);
-      
-      if (user.activeSessionId != null) {
-        _startSessionRevocationListener(user.id, user.activeSessionId!);
-      }
       return user;
     } catch (e) {
       if (e is SessionExpiredException) rethrow;
