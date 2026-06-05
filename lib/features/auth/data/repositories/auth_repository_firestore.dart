@@ -415,6 +415,20 @@ class AuthRepositoryFirestore implements AuthRepository {
   Future<void> deleteUser(String userId) async {
     final firebaseUser = _firebaseAuth.currentUser;
     if (firebaseUser != null && firebaseUser.uid == userId) {
+      // GÜVENLİK YAMASI (Data Loss Prevention):
+      // Eğer kullanıcı uzun süredir oturum açıksa, firebaseUser.delete() işlemi
+      // 'requires-recent-login' hatası fırlatır. Fakat bu hata fırlatılmadan ÖNCE
+      // Firestore verilerini silersek, kullanıcının hesabı silinmez ama TÜM VERİLERİ SİLİNİR!
+      // Bunu engellemek için, kullanıcının son giriş zamanını kontrol edip 5 dakikadan
+      // eskiyse işlemi baştan reddediyoruz.
+      final lastSignIn = firebaseUser.metadata.lastSignInTime;
+      if (lastSignIn != null && DateTime.now().difference(lastSignIn).inMinutes > 5) {
+        throw FirebaseAuthException(
+          code: 'requires-recent-login',
+          message: 'This operation is sensitive and requires recent authentication. Log in again before retrying this request.',
+        );
+      }
+
       try {
         // GHOST DATA VULNERABILITY FIX: 
         // Firebase Auth kimliği silinmeden önce Firestore verilerini temizle.
