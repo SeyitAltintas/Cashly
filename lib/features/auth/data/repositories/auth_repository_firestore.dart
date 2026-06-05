@@ -9,6 +9,8 @@ import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
 import 'auth_repository_impl.dart';
+import '../../../../core/services/batch_service.dart';
+import '../../../../core/services/database_helper.dart';
 import '../../../../core/services/network_service.dart';
 import '../../../../core/services/secure_storage_service.dart';
 import 'package:bcrypt/bcrypt.dart';
@@ -469,6 +471,7 @@ class AuthRepositoryFirestore implements AuthRepository {
     // Firebase hesabı başarıyla silindiyse (veya zaten yoksa) lokal veriyi temizle.
     // Hata fırlatılan durumlarda buraya ulaşılmaz.
     await SecureStorageService.deleteBiometricPin(userId);
+    await DatabaseHelper.deleteUserData(userId);
     await _localHiveRepo.deleteUser(userId);
   }
 
