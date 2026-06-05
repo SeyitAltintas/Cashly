@@ -358,7 +358,6 @@ class AuthRepositoryFirestore implements AuthRepository {
 
   Future<void> _deleteUserFirestoreData(String userId) async {
     try {
-      final batch = _firestore.batch();
       final userDoc = _firestore.collection('users').doc(userId);
 
       // Silinmesi gereken bilinen alt koleksiyonlar
@@ -374,18 +373,29 @@ class AuthRepositoryFirestore implements AuthRepository {
         'profile',
       ];
 
+      final List<DocumentReference> allDocsToDelete = [];
+
       for (final collectionName in collections) {
         final querySnapshot = await userDoc.collection(collectionName).get();
         for (final doc in querySnapshot.docs) {
-          batch.delete(doc.reference);
+          allDocsToDelete.add(doc.reference);
         }
       }
+      allDocsToDelete.add(userDoc);
 
-      // Kök kullanıcı dokümanını sil
-      batch.delete(userDoc);
+      // GÜVENLİK/PERFORMANS YAMASI: Firestore batch limiti maksimum 500 işlemdir.
+      // 500'erlik parçalara bölerek Ghost Data temizliğini gerçekleştiriyoruz.
+      const int batchSize = 500;
+      for (int i = 0; i < allDocsToDelete.length; i += batchSize) {
+        final batch = _firestore.batch();
+        final end = (i + batchSize < allDocsToDelete.length) ? i + batchSize : allDocsToDelete.length;
+        for (int j = i; j < end; j++) {
+          batch.delete(allDocsToDelete[j]);
+        }
+        await batch.commit();
+      }
 
-      await batch.commit();
-      debugPrint('Cloud verileri başarıyla silindi (Ghost Data temizlendi).');
+      debugPrint('Cloud verileri başarıyla silindi (Ghost Data temizlendi). Toplam silinen belge: ${allDocsToDelete.length}');
     } catch (e) {
       debugPrint('Kullanıcı verilerini silerken hata oluştu: $e');
       throw Exception('Kullanıcı verileri silinemedi. Lütfen internet bağlantınızı kontrol edin.');
