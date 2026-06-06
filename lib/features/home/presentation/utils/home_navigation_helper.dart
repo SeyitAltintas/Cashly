@@ -336,6 +336,9 @@ class HomeNavigationHelper {
             
             final pmList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
             
+            double deltaFrom = 0.0;
+            double deltaTo = 0.0;
+            
             if (!isScheduled) {
               final cur = getIt<CurrencyService>();
               final fromIndex = pmList.indexWhere((pm) => pm.id == fromId);
@@ -343,7 +346,8 @@ class HomeNavigationHelper {
               if (fromIndex != -1) {
                 final fromPm = pmList[fromIndex];
                 final convertedFromAmount = cur.convert(amount, cur.currentCurrency, fromPm.paraBirimi);
-                double yeniBakiye = fromPm.type == 'kredi' ? fromPm.balance + convertedFromAmount : fromPm.balance - convertedFromAmount;
+                deltaFrom = fromPm.type == 'kredi' ? convertedFromAmount : -convertedFromAmount;
+                double yeniBakiye = fromPm.balance + deltaFrom;
                 pmList[fromIndex] = fromPm.copyWith(balance: yeniBakiye);
               }
               final toIndex = pmList.indexWhere((pm) => pm.id == toId);
@@ -351,7 +355,8 @@ class HomeNavigationHelper {
               if (toIndex != -1) {
                 final toPm = pmList[toIndex];
                 final convertedToAmount = cur.convert(amount, cur.currentCurrency, toPm.paraBirimi);
-                double yeniBakiye = toPm.type == 'kredi' ? toPm.balance - convertedToAmount : toPm.balance + convertedToAmount;
+                deltaTo = toPm.type == 'kredi' ? -convertedToAmount : convertedToAmount;
+                double yeniBakiye = toPm.balance + deltaTo;
                 pmList[toIndex] = toPm.copyWith(balance: yeniBakiye);
               }
               state.tumOdemeYontemleri = pmList;
@@ -377,15 +382,17 @@ class HomeNavigationHelper {
                 final operations = <BatchOperation>[];
                 if (!isScheduled) {
                   if (finalFromIndex != -1) {
-                    operations.add(getIt<PaymentMethodRepository>().getUpdatePaymentMethodOperation(
+                    operations.add(getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
                       authController.currentUser!.id,
-                      pmList[finalFromIndex].toMap(),
+                      fromId,
+                      deltaFrom,
                     ));
                   }
                   if (finalToIndex != -1) {
-                    operations.add(getIt<PaymentMethodRepository>().getUpdatePaymentMethodOperation(
+                    operations.add(getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
                       authController.currentUser!.id,
-                      pmList[finalToIndex].toMap(),
+                      toId,
+                      deltaTo,
                     ));
                   }
                 }

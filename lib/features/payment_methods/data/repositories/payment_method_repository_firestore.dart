@@ -156,6 +156,28 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
   }
 
   @override
+  BatchOperation getIncrementBalanceOperation(
+    String userId,
+    String methodId,
+    double amountDelta,
+  ) {
+    if (methodId.isEmpty) {
+      throw Exception('Ödeme yöntemi güncellenirken ID eksik!');
+    }
+
+    return FirestoreBatchOperation(
+      collectionPath: 'users/$userId/paymentMethods',
+      documentId: methodId,
+      type: BatchOperationType.set, 
+      merge: true,
+      data: {
+        'balance': FieldValue.increment(amountDelta),
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+    );
+  }
+
+  @override
   BatchOperation getDeletePaymentMethodOperation(
     String userId,
     String methodId,

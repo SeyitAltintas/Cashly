@@ -527,10 +527,13 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
               (p) => p.id == eskiOdemeYontemiId,
             );
             if (pmIdx != -1) {
+              final pm = _tumOdemeYontemleri[pmIdx];
+              final delta = pm.type == 'kredi' ? -(eskiTutar ?? 0) : (eskiTutar ?? 0);
               operations.add(
-                _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
-                  _tumOdemeYontemleri[pmIdx].toMap(),
+                  pm.id,
+                  delta,
                 ),
               );
             }
@@ -542,10 +545,13 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
               (p) => p.id == paymentMethodId,
             );
             if (pmIdx != -1) {
+              final pm = _tumOdemeYontemleri[pmIdx];
+              final delta = pm.type == 'kredi' ? amount : -amount;
               operations.add(
-                _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
-                  _tumOdemeYontemleri[pmIdx].toMap(),
+                  pm.id,
+                  delta,
                 ),
               );
             }
@@ -669,10 +675,17 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
               (p) => p.id == paymentMethodId,
             );
             if (pmIdx != -1) {
+              final pm = _tumOdemeYontemleri[pmIdx];
+              final amountStr = harcama['tutar'].toString();
+              final amount = double.tryParse(amountStr) ?? 0.0;
+              final amountCurrency = harcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+              final convertedAmount = getIt<CurrencyService>().convert(amount, amountCurrency, pm.paraBirimi);
+              final delta = pm.type == 'kredi' ? -convertedAmount : convertedAmount;
               operations.add(
-                _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
-                  _tumOdemeYontemleri[pmIdx].toMap(),
+                  pm.id,
+                  delta,
                 ),
               );
             }
@@ -764,10 +777,17 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
               (p) => p.id == paymentMethodId,
             );
             if (restorePmIndex != -1) {
+              final pm = _tumOdemeYontemleri[restorePmIndex];
+              final amountStr = harcama['tutar'].toString();
+              final amount = double.tryParse(amountStr) ?? 0.0;
+              final amountCurrency = harcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+              final convertedAmount = getIt<CurrencyService>().convert(amount, amountCurrency, pm.paraBirimi);
+              final delta = pm.type == 'kredi' ? convertedAmount : -convertedAmount;
               operations.add(
-                _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
-                  _tumOdemeYontemleri[restorePmIndex].toMap(),
+                  pm.id,
+                  delta,
                 ),
               );
             }
@@ -958,10 +978,15 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
               (p) => p.id == eskiOdemeYontemiId,
             );
             if (pmIdx != -1) {
+              final pm = _tumOdemeYontemleri[pmIdx];
+              final eskiParaBirimi = duzenlenecekHarcama?['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+              final convertedAmount = getIt<CurrencyService>().convert(-(eskiTutar ?? 0), eskiParaBirimi, pm.paraBirimi);
+              final delta = pm.type == 'kredi' ? convertedAmount : -convertedAmount;
               operations.add(
-                _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
-                  _tumOdemeYontemleri[pmIdx].toMap(),
+                  pm.id,
+                  delta,
                 ),
               );
             }
@@ -973,10 +998,15 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
               (p) => p.id == paymentMethodId,
             );
             if (pmIdx != -1) {
+              final pm = _tumOdemeYontemleri[pmIdx];
+              final yeniParaBirimi = duzenlenecekHarcama?['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
+              final convertedAmount = getIt<CurrencyService>().convert(amount, yeniParaBirimi, pm.paraBirimi);
+              final delta = pm.type == 'kredi' ? convertedAmount : -convertedAmount;
               operations.add(
-                _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
-                  _tumOdemeYontemleri[pmIdx].toMap(),
+                  pm.id,
+                  delta,
                 ),
               );
             }

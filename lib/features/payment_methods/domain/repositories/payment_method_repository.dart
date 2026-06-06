@@ -33,6 +33,14 @@ abstract class PaymentMethodRepository {
     Map<String, dynamic> method,
   );
 
+  /// Çevrimdışı senkronizasyonda veri kaybını (race condition) önlemek için 
+  /// mutlak bakiye yerine delta (artış/azalış) miktarını kullanan batch operasyonu döndürür
+  BatchOperation getIncrementBalanceOperation(
+    String userId,
+    String methodId,
+    double amountDelta,
+  );
+
   /// Silinen ödeme yöntemlerini getirir
   List<Map<String, dynamic>> getDeletedPaymentMethods(String userId);
 

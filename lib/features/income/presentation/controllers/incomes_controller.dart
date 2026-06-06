@@ -358,10 +358,15 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
               (p) => p.id == gelir.paymentMethodId,
             );
             if (pmIdx != -1) {
+              final pm = _tumOdemeYontemleri[pmIdx];
+              final amountCurrency = gelir.paraBirimi;
+              final convertedAmount = getIt<CurrencyService>().convert(gelir.amount, amountCurrency, pm.paraBirimi);
+              final delta = pm.type == 'kredi' ? -convertedAmount : convertedAmount;
               operations.add(
-                _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
-                  _tumOdemeYontemleri[pmIdx].toMap(),
+                  pm.id,
+                  delta,
                 ),
               );
             }
@@ -586,10 +591,15 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
               (p) => p.id == income.paymentMethodId,
             );
             if (pmIdx != -1) {
+              final pm = _tumOdemeYontemleri[pmIdx];
+              final amountCurrency = income.paraBirimi;
+              final convertedAmount = getIt<CurrencyService>().convert(income.amount, amountCurrency, pm.paraBirimi);
+              final delta = pm.type == 'kredi' ? convertedAmount : -convertedAmount;
               operations.add(
-                _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
-                  _tumOdemeYontemleri[pmIdx].toMap(),
+                  pm.id,
+                  delta,
                 ),
               );
             }
@@ -600,10 +610,15 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
               (p) => p.id == paymentMethodId,
             );
             if (pmIdx != -1) {
+              final pm = _tumOdemeYontemleri[pmIdx];
+              final amountCurrency = paraBirimi ?? income.paraBirimi;
+              final convertedAmount = getIt<CurrencyService>().convert(amount, amountCurrency, pm.paraBirimi);
+              final delta = pm.type == 'kredi' ? -convertedAmount : convertedAmount;
               operations.add(
-                _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
-                  _tumOdemeYontemleri[pmIdx].toMap(),
+                  pm.id,
+                  delta,
                 ),
               );
             }

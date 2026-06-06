@@ -115,6 +115,11 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
   @override
   BatchOperation getUpdatePaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
   @override
+  BatchOperation getIncrementBalanceOperation(String userId, String methodId, double amountDelta) {
+    return DummyBatchOperation();
+  }
+
+  @override
   BatchOperation getDeletePaymentMethodOperation(String userId, String id) => DummyBatchOperation();
   @override
   BatchOperation getAddTransferOperation(String userId, Map<String, dynamic> transfer) => DummyBatchOperation();
