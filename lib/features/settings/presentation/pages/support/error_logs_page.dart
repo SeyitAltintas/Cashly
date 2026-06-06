@@ -137,11 +137,26 @@ class _ErrorLogsPageState extends State<ErrorLogsPage> {
                         ? DateFormat('dd.MM.yyyy HH:mm:ss').format(date)
                         : 'Bilinmeyen Zaman';
 
+                    final isDark = Theme.of(context).brightness == Brightness.dark;
+                    
+                    // StackTrace'i ekranda 10 satırla sınırla
+                    String displayStack = '';
+                    if (log['stackTrace'] != null && log['stackTrace']!.isNotEmpty) {
+                      final lines = log['stackTrace']!.split('\n');
+                      if (lines.length > 10) {
+                        displayStack = '${lines.take(10).join('\n')}\n\n... (Tüm metni görmek için kopyalayın)';
+                      } else {
+                        displayStack = log['stackTrace']!;
+                      }
+                    }
+
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.red.shade100),
+                        side: BorderSide(
+                          color: isDark ? Colors.red.withValues(alpha: 0.3) : Colors.red.shade100,
+                        ),
                       ),
                       child: ExpansionTile(
                         leading: const Icon(Icons.bug_report, color: Colors.red),
@@ -156,7 +171,7 @@ class _ErrorLogsPageState extends State<ErrorLogsPage> {
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(16),
-                            color: Colors.grey.shade50,
+                            color: isDark ? Colors.black12 : Colors.grey.shade50,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -170,12 +185,16 @@ class _ErrorLogsPageState extends State<ErrorLogsPage> {
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.shade200,
+                                      color: isDark ? Colors.black45 : Colors.grey.shade200,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: SelectableText(
-                                      log['stackTrace']!,
-                                      style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
+                                      displayStack,
+                                      style: TextStyle(
+                                        fontFamily: 'monospace', 
+                                        fontSize: 11,
+                                        color: isDark ? Colors.grey.shade300 : Colors.black87,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 12),

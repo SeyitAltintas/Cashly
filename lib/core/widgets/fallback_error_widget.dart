@@ -26,98 +26,69 @@ class _FallbackErrorWidgetState extends State<FallbackErrorWidget> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
-    // Glassmorphism stili için renkler
-    final bgColor = isDark 
-        ? Colors.red.withValues(alpha: 0.1) 
-        : Colors.red.withValues(alpha: 0.05);
-    final borderColor = Colors.red.withValues(alpha: 0.2);
-    final iconBgColor = Colors.red.withValues(alpha: 0.2);
-    final textColor = isDark ? Colors.white : Colors.black87;
-    final subTextColor = isDark ? Colors.white70 : Colors.black54;
+    // Sade, modern, pastel renkler
+    final iconColor = isDark ? Colors.grey.shade400 : Colors.grey.shade500;
+    final textColor = isDark ? Colors.grey.shade300 : Colors.grey.shade800;
+    final subTextColor = isDark ? Colors.grey.shade500 : Colors.grey.shade600;
 
     return Material(
       color: Colors.transparent,
       child: Center(
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          margin: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: borderColor, width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.red.withValues(alpha: 0.05),
-                blurRadius: 20,
-                spreadRadius: -5,
-              ),
-            ],
-          ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Uyarı İkonu
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.warning_rounded,
-                  color: Colors.redAccent,
-                  size: 36,
-                ),
-              ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-               .scaleXY(begin: 1.0, end: 1.05, duration: 2.seconds, curve: Curves.easeInOut),
+              // Minimalist İkon
+              Icon(
+                Icons.error_outline_rounded,
+                color: iconColor,
+                size: 32,
+              ).animate().fade(duration: 400.ms).scaleXY(begin: 0.9, end: 1.0),
               
               const SizedBox(height: 16),
               
               // Başlık
               Text(
-                'Bir Sorun Oluştu',
+                'Beklenmeyen Bir Durum',
                 style: TextStyle(
                   color: textColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -0.5,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               
               // Alt Metin
               Text(
-                'Bu içerik şu an yüklenemiyor.\nUygulama çalışmaya devam ediyor.',
+                'Bu içerik şu an yüklenemedi.\nUygulamanın geri kalanı çalışmaya devam ediyor.',
                 style: TextStyle(
                   color: subTextColor, 
                   fontSize: 13,
-                  height: 1.4,
+                  height: 1.5,
                 ),
                 textAlign: TextAlign.center,
               ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
-              // Aksiyon Butonları (Tekrar Dene & Detaylar)
+              // Aksiyon Butonları
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (widget.onRetry != null) ...[
-                    ElevatedButton.icon(
+                    FilledButton.tonalIcon(
                       onPressed: widget.onRetry,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       ),
-                      icon: const Icon(Icons.refresh_rounded, size: 18),
-                      label: const Text('Tekrar Dene', style: TextStyle(fontWeight: FontWeight.w600)),
+                      icon: const Icon(Icons.refresh_rounded, size: 16),
+                      label: const Text('Tekrar Dene', style: TextStyle(fontWeight: FontWeight.w500)),
                     ),
                     const SizedBox(width: 8),
                   ],
@@ -129,17 +100,17 @@ class _FallbackErrorWidgetState extends State<FallbackErrorWidget> {
                         });
                       },
                       style: TextButton.styleFrom(
-                        foregroundColor: isDark ? Colors.red.shade300 : Colors.red.shade700,
+                        foregroundColor: subTextColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       ),
                       icon: Icon(
-                        _showDetails ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                        _showDetails ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
                         size: 18,
                       ),
-                      label: const Text('Detaylar', style: TextStyle(fontWeight: FontWeight.w600)),
+                      label: const Text('Detaylar', style: TextStyle(fontWeight: FontWeight.w500)),
                     ),
                 ],
               ),
@@ -151,23 +122,18 @@ class _FallbackErrorWidgetState extends State<FallbackErrorWidget> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isDark ? Colors.white12 : Colors.black12,
+                    color: isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.03),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: SelectableText(
+                    widget.details!.exceptionAsString(),
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 11,
+                      color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                     ),
                   ),
-                  child: SingleChildScrollView(
-                    child: Text(
-                      widget.details!.exceptionAsString(),
-                      style: TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 11,
-                        color: isDark ? Colors.red.shade200 : Colors.red.shade900,
-                      ),
-                    ),
-                  ),
-                ).animate().fade(duration: 300.ms).slideY(begin: -0.1, end: 0),
+                ).animate().fade(duration: 200.ms).slideY(begin: -0.05, end: 0),
               ],
             ],
           ),
