@@ -444,9 +444,10 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
     if (userId.isNotEmpty) _userId = userId;
 
     // Sadece eğer kullanıcı anasayfadaki ayı inceliyorsa (özel ay modu ve aylar eşleşiyorsa)
+    // veya "Son 30 Gün" modundaysa (bu ikisi anasayfa verisini kullanır)
     // harcamaları ve gelirleri dışarıdan güncelle.
     // Aksi takdirde (örneğin "Bu Yıl" veya başka bir ay seçilmişse) içerideki fetch verisini KORU!
-    if (_historyLimit == -1 &&
+    if ((_historyLimit == -1 || _historyLimit == 30) &&
         _selectedMonth.year == secilenAy.year &&
         _selectedMonth.month == secilenAy.month) {
       _harcamalar = harcamalar;
