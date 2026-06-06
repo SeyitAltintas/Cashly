@@ -420,11 +420,23 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
     try {
       final priceUpdateService = AssetPriceUpdateService();
       final updatedAssets = await priceUpdateService.updateAllAssetPrices(_varliklar);
-      _varliklar = updatedAssets;
-      for (var asset in updatedAssets) {
-        getIt<AssetRepository>().updateAsset(userId, asset.toMap());
+      
+      bool anyChanged = false;
+      for (var newAsset in updatedAssets) {
+        final oldAsset = _varliklar.firstWhere((a) => a.id == newAsset.id, orElse: () => newAsset);
+        // Sadece fiyatı gerçekten değişenleri Firestore'a yaz
+        // Offline'da gereksiz yazmaları ve fatura şişmesini engeller
+        if (newAsset.amount != oldAsset.amount) {
+          anyChanged = true;
+          getIt<AssetRepository>().updateAsset(userId, newAsset.toMap());
+        }
       }
-      notifyListeners();
+      
+      // Eğer değişiklik olduysa, Stream zaten dinleyiciyi tetikleyecektir.
+      // Ancak lokal durumu da güncelleyelim.
+      if (anyChanged) {
+        _varliklar = updatedAssets;
+      }
     } catch (e) {
       // Sessizce geç, kullanıcıyı rahatsız etme
     }
