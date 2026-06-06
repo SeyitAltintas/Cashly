@@ -86,11 +86,15 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     _currentDate = widget.initialDate;
     _selectedYear = widget.initialDate.year;
     _selectedMonthIndex = widget.initialDate.month - 1;
+    final int startYear = widget.minimumDate?.year ?? 2000;
+    int initialYearItem = _selectedYear - startYear;
+    if (initialYearItem < 0) initialYearItem = 0;
+
     _monthController = FixedExtentScrollController(
       initialItem: _selectedMonthIndex,
     );
     _yearController = FixedExtentScrollController(
-      initialItem: _selectedYear - 2000,
+      initialItem: initialYearItem,
     );
 
     _pickerState = MonthYearPickerState();
@@ -360,12 +364,14 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
             itemExtent: 40,
             onSelectedItemChanged: (index) {
               HapticService.selectionClick();
-              _pickerState.setYear(2000 + index);
+              final startYear = widget.minimumDate?.year ?? 2000;
+              _pickerState.setYear(startYear + index);
             },
-            children: List.generate(101, (index) {
+            children: List.generate((widget.maximumDate?.year ?? 2100) - (widget.minimumDate?.year ?? 2000) + 1, (index) {
+              final startYear = widget.minimumDate?.year ?? 2000;
               return Center(
                 child: Text(
-                  "${2000 + index}",
+                  "${startYear + index}",
                   style: TextStyle(
                     color: isDark ? Colors.white : Colors.black,
                     fontSize: 20,

@@ -381,7 +381,6 @@ class _TransferPageState extends State<TransferPage> {
       initialDate: _selectedDate,
       accentColor: _primaryColor,
       mode: PickerMode.dateTime,
-      minimumDate: DateTime(2026, 1, 1), // 2026 Öncesi görünmemeli
     );
 
     if (picked != null && picked != _selectedDate) {
