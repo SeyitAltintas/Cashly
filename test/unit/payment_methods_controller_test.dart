@@ -101,6 +101,8 @@ class DummyBatchOperation implements BatchOperation {
   String get documentId => '';
   @override
   Map<String, dynamic>? get data => null;
+  @override
+  bool get merge => false;
 }
 
 class MockBatchService implements BatchService {

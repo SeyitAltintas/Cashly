@@ -172,6 +172,10 @@ class AuthRepositoryFirestore implements AuthRepository {
         final userWithSession = await _createAndSaveSession(loggedInUser);
         await CloudSyncService.syncAllUserData(userWithSession.id);
         await StreakService.syncFromCloud(userWithSession.id);
+        
+        // GÜVENLİK YAMASI: Başarılı online girişte offline lockout sayacını sıfırla
+        await _localHiveRepo.resetFailedOfflineAttempts(userWithSession.id);
+        
         return userWithSession;
       }
       return null;
@@ -299,6 +303,10 @@ class AuthRepositoryFirestore implements AuthRepository {
           final userWithSession = await _createAndSaveSession(userModel);
           await CloudSyncService.syncAllUserData(userWithSession.id);
           await StreakService.syncFromCloud(userWithSession.id);
+          
+          // GÜVENLİK YAMASI: Başarılı online girişte offline lockout sayacını sıfırla
+          await _localHiveRepo.resetFailedOfflineAttempts(userWithSession.id);
+
           return userWithSession;
         } else {
           // FIX: Phantom Registration
@@ -335,6 +343,10 @@ class AuthRepositoryFirestore implements AuthRepository {
           final userWithSession = await _createAndSaveSession(userModel);
           // Sync service will just create empty folders locally for new accounts
           await CloudSyncService.syncAllUserData(userWithSession.id);
+          
+          // GÜVENLİK YAMASI: Başarılı online girişte offline lockout sayacını sıfırla
+          await _localHiveRepo.resetFailedOfflineAttempts(userWithSession.id);
+
           return userWithSession;
         }
       }

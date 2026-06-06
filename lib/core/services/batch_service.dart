@@ -7,12 +7,14 @@ abstract class BatchOperation {
   final String documentId;
   final Map<String, dynamic>? data;
   final BatchOperationType type;
+  final bool merge;
 
   const BatchOperation({
     required this.collectionPath,
     required this.documentId,
     required this.type,
     this.data,
+    this.merge = false,
   });
 }
 
@@ -25,6 +27,7 @@ class FirestoreBatchOperation extends BatchOperation {
     required super.documentId,
     required super.type,
     super.data,
+    super.merge,
   });
 }
 
@@ -56,7 +59,11 @@ class FirestoreBatchService implements BatchService {
       switch (op.type) {
         case BatchOperationType.set:
           if (op.data != null) {
-            batch.set(docRef, op.data!);
+            if (op.merge) {
+              batch.set(docRef, op.data!, SetOptions(merge: true));
+            } else {
+              batch.set(docRef, op.data!);
+            }
           }
           break;
         case BatchOperationType.update:

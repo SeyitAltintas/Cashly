@@ -31,6 +31,8 @@ class CloudSyncService {
         userDoc.collection('expenseCategories').get(), // 3
         userDoc.collection('incomeCategories').get(), // 4
         userDoc.collection('settings').get(), // 5
+        userDoc.collection('deletedPaymentMethods').get(), // 6
+        userDoc.collection('deletedAssets').get(), // 7
       ]).timeout(const Duration(seconds: 20));
 
       // 1. Varlıklar
@@ -134,6 +136,49 @@ class CloudSyncService {
             );
           }
         }
+      }
+
+      // 7. Silinen Ödeme Yöntemleri ve Varlıklar (Soft Deletes)
+      final dPaymentSnap = results[6];
+      if (dPaymentSnap.docs.isNotEmpty) {
+        final methods = dPaymentSnap.docs
+            .map((d) {
+              final data = Map<String, dynamic>.from(d.data());
+              if (data['createdAt'] is Timestamp) {
+                data['createdAt'] = (data['createdAt'] as Timestamp)
+                    .toDate()
+                    .toIso8601String();
+              }
+              if (data['updatedAt'] is Timestamp) {
+                data['updatedAt'] = (data['updatedAt'] as Timestamp)
+                    .toDate()
+                    .toIso8601String();
+              }
+              return data;
+            })
+            .toList();
+        CacheService.set('deleted_payment_methods_$userId', methods, ttl: _cloudSyncTtl);
+      }
+
+      final dAssetSnap = results[7];
+      if (dAssetSnap.docs.isNotEmpty) {
+        final assetsList = dAssetSnap.docs
+            .map((d) {
+              final data = Map<String, dynamic>.from(d.data());
+              if (data['lastUpdated'] is Timestamp) {
+                data['lastUpdated'] = (data['lastUpdated'] as Timestamp)
+                    .toDate()
+                    .toIso8601String();
+              }
+              if (data['createdAt'] is Timestamp) {
+                data['createdAt'] = (data['createdAt'] as Timestamp)
+                    .toDate()
+                    .toIso8601String();
+              }
+              return data;
+            })
+            .toList();
+        CacheService.set('deleted_assets_$userId', assetsList, ttl: _cloudSyncTtl);
       }
 
       debugPrint(

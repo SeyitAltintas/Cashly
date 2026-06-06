@@ -60,7 +60,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       ).collection('paymentMethods').doc(method['id'].toString());
       final data = Map<String, dynamic>.from(method);
       data['updatedAt'] = FieldValue.serverTimestamp();
-      await docRef.set(data);
+      await docRef.set(data, SetOptions(merge: true));
 
       final cacheKey = 'payment_methods_$userId';
       final cached =
@@ -127,6 +127,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       collectionPath: 'users/$userId/paymentMethods',
       documentId: method['id'].toString(),
       type: BatchOperationType.set, // GÜVENLİK YAMASI: Default methodlar db'de olmayabilir, set(merge) davranışı gerekir
+      merge: true,
       data: data,
     );
   }
@@ -159,6 +160,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       collectionPath: 'users/$userId/paymentMethods',
       documentId: method['id'].toString(),
       type: BatchOperationType.set,
+      merge: true,
       data: data,
     );
   }
