@@ -624,7 +624,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
           Map<String, dynamic>? result;
           try {
             result = await widget.onEditLastExpense!(yeniTutar);
-          } catch (e) {
+          } catch (e, stackTrace) {
             // Hata durumunda (harcama bulunamadı vb.)
             debugPrint('Harcama düzenleme hatası: $e');
             await _ttsService.harcamaBulunamadiBildirimi(userId: widget.userId);
@@ -926,7 +926,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               );
               Navigator.pop(context);
             }
-          } catch (e) {
+          } catch (e, stackTrace) {
             debugPrint('Limit güncelleme hatası: $e');
             if (!mounted) return;
             await _ttsService.speak(
@@ -1004,7 +1004,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
           userId: widget.userId,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('_handleTasarrufHesapla hatası: $e');
       await _ttsService.speak('Bir hata oluştu', userId: widget.userId);
     } finally {

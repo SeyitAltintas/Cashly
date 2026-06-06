@@ -34,7 +34,7 @@ class RecurringRepositoryFirestore implements RecurringRepository {
       final data = doc.data() as Map<String, dynamic>?;
       final list = data?['templates'] as List<dynamic>? ?? [];
       return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore sabit gider şablonları getirilirken hata: $e');
       return [];
     }
@@ -50,7 +50,7 @@ class RecurringRepositoryFirestore implements RecurringRepository {
         'templates': templates,
         'updatedAt': FieldValue.serverTimestamp(),
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore sabit gider şablonları kaydedilirken hata: $e');
       rethrow;
     }
@@ -73,7 +73,7 @@ class RecurringRepositoryFirestore implements RecurringRepository {
       final data = doc.data() as Map<String, dynamic>?;
       final list = data?['incomes'] as List<dynamic>? ?? [];
       return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore tekrarlayan gelirler getirilirken hata: $e');
       return [];
     }
@@ -89,7 +89,7 @@ class RecurringRepositoryFirestore implements RecurringRepository {
         userId,
         'recurring_incomes',
       ).set({'incomes': incomes, 'updatedAt': FieldValue.serverTimestamp()});
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore tekrarlayan gelirler kaydedilirken hata: $e');
       rethrow;
     }

@@ -67,7 +67,7 @@ class AssetRepositoryFirestore implements AssetRepository {
         cached.add(asset);
         CacheService.set(cacheKey, cached);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore varlık ekleme hatası: $e');
       rethrow;
     }
@@ -94,7 +94,7 @@ class AssetRepositoryFirestore implements AssetRepository {
         cached[index] = asset;
         CacheService.set(cacheKey, cached);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore varlık güncelleme hatası: $e');
       rethrow;
     }
@@ -111,7 +111,7 @@ class AssetRepositoryFirestore implements AssetRepository {
           CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       cached.removeWhere((a) => a['id'] == assetId);
       CacheService.set(cacheKey, cached);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore varlık silme hatası: $e');
       rethrow;
     }
@@ -146,7 +146,7 @@ class AssetRepositoryFirestore implements AssetRepository {
         cached.add(asset);
         CacheService.set(cacheKey, cached);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Silinen varlık ekleme hatası: $e');
       rethrow;
     }
@@ -163,7 +163,7 @@ class AssetRepositoryFirestore implements AssetRepository {
           CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       cached.removeWhere((a) => a['id'] == assetId);
       CacheService.set(cacheKey, cached);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Silinen varlık kalıcı silme hatası: $e');
       rethrow;
     }

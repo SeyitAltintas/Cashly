@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/payment_method_repository.dart';
 import '../../../../core/services/batch_service.dart';
+import 'package:cashly/core/services/error_logger_service.dart';
 
 /// Ödeme yöntemi repository implementasyonu (Firestore)
 class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
@@ -93,8 +94,9 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         cached.add(method);
         CacheService.set(cacheKey, cached);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore ödeme yöntemi ekleme hatası: $e');
+      ErrorLoggerService.logError('Firestore ödeme yöntemi ekleme hatası: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -124,8 +126,9 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         cached[index] = method;
         CacheService.set(cacheKey, cached);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore ödeme yöntemi güncelleme hatası: $e');
+      ErrorLoggerService.logError('Firestore ödeme yöntemi güncelleme hatası: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -224,8 +227,9 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
           _defaultPaymentMethods;
       cached.removeWhere((m) => m['id'] == methodId);
       CacheService.set(cacheKey, cached);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore ödeme yöntemi silme hatası: $e');
+      ErrorLoggerService.logError('Firestore ödeme yöntemi silme hatası: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -259,8 +263,9 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         cached.add(method);
         CacheService.set(cacheKey, cached);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Silinen ödeme yöntemi ekleme hatası: $e');
+      ErrorLoggerService.logError('Silinen ödeme yöntemi ekleme hatası: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -281,8 +286,9 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
           CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       cached.removeWhere((m) => m['id'] == methodId);
       CacheService.set(cacheKey, cached);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Silinen ödeme yöntemi kalıcı silme hatası: $e');
+      ErrorLoggerService.logError('Silinen ödeme yöntemi kalıcı silme hatası: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -301,8 +307,9 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       if (methodId != null) {
         CacheService.set('default_payment_method_$userId', methodId);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Varsayılan ödeme yöntemi kaydedilirken hata: $e');
+      ErrorLoggerService.logError('Varsayılan ödeme yöntemi kaydedilirken hata: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -362,8 +369,9 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         cached.add(transfer);
         CacheService.set(cacheKey, cached);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore transfer ekleme hatası: $e');
+      ErrorLoggerService.logError('Firestore transfer ekleme hatası: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -392,8 +400,9 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         cached[index] = transfer;
         CacheService.set(cacheKey, cached);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore transfer güncelleme hatası: $e');
+      ErrorLoggerService.logError('Firestore transfer güncelleme hatası: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -409,8 +418,9 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
           CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       cached.removeWhere((t) => t['id'] == transferId);
       CacheService.set(cacheKey, cached);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore transfer silme hatası: $e');
+      ErrorLoggerService.logError('Firestore transfer silme hatası: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }

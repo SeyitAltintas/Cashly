@@ -45,7 +45,7 @@ class ImageCacheService {
       if (!await cacheDir.exists()) {
         await cacheDir.create(recursive: true);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('ImageCacheService initialize hatası: $e');
     }
   }
@@ -83,7 +83,7 @@ class ImageCacheService {
           _addToMemoryCache(key, bytes);
           return bytes;
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
         debugPrint('ImageCacheService get hatası: $e');
       }
     }
@@ -103,7 +103,7 @@ class ImageCacheService {
       try {
         final file = File('$_cacheDirPath/$key');
         await file.writeAsBytes(bytes);
-      } catch (e) {
+      } catch (e, stackTrace) {
         debugPrint('ImageCacheService put hatası: $e');
       }
     }
@@ -168,7 +168,7 @@ class ImageCacheService {
         if (await file.exists()) {
           await file.delete();
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
         debugPrint('ImageCacheService remove hatası: $e');
       }
     }
@@ -193,7 +193,7 @@ class ImageCacheService {
           await cacheDir.delete(recursive: true);
           await cacheDir.create();
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
         debugPrint('ImageCacheService clear hatası: $e');
       }
     }
@@ -214,7 +214,7 @@ class ImageCacheService {
             }
           }
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
         debugPrint('ImageCacheService getCacheSize hatası: $e');
       }
     }

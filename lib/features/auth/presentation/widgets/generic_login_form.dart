@@ -79,7 +79,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
           context.l10n.loginFailed(widget.authController.error ?? ''),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (mounted) {
         ErrorHandler.handleDatabaseError(context, e);
       }

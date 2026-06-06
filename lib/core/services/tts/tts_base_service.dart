@@ -31,7 +31,7 @@ class TtsBaseService {
 
       _isInitialized = true;
       debugPrint('TTS Service initialized successfully');
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('TTS initialization error: $e');
     }
   }
@@ -55,7 +55,7 @@ class TtsBaseService {
 
     try {
       await _flutterTts.speak(text);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('TTS speak error: $e');
     }
   }
@@ -64,7 +64,7 @@ class TtsBaseService {
   Future<void> stop() async {
     try {
       await _flutterTts.stop();
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('TTS stop error: $e');
     }
   }

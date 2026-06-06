@@ -39,7 +39,7 @@ class HapticService {
   static bool getSetting(String key, {bool defaultValue = true}) {
     try {
       return _settings.get(key, defaultValue: defaultValue) as bool;
-    } catch (e) {
+    } catch (e, stackTrace) {
       return defaultValue;
     }
   }
@@ -48,7 +48,7 @@ class HapticService {
   static Future<void> setSetting(String key, bool value) async {
     try {
       await _settings.put(key, value);
-    } catch (e) {
+    } catch (e, stackTrace) {
       // Hata durumunda sessizce devam et
     }
   }
@@ -77,7 +77,7 @@ class HapticService {
   static Future<bool> hasVibrator() async {
     try {
       return await Vibration.hasVibrator() == true;
-    } catch (e) {
+    } catch (e, stackTrace) {
       return false;
     }
   }

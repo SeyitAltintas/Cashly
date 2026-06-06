@@ -322,7 +322,7 @@ class ExportService {
         filePath: file.path,
         message: lReportGenerated,
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
       return ExportResult(
         success: false,
         message:

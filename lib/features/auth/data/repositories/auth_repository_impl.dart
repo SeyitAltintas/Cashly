@@ -107,7 +107,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (_isHashed(user.pin)) {
         try {
           isMatch = BCrypt.checkpw(pin, user.pin);
-        } catch (_) {
+        } catch (_, stackTrace) {
           isMatch = false;
         }
       } else {
@@ -150,7 +150,7 @@ class AuthRepositoryImpl implements AuthRepository {
           if (_isHashed(user.pin)) {
             try {
               isMatch = BCrypt.checkpw(pin, user.pin);
-            } catch (_) {}
+            } catch (_, stackTrace) {}
           } else {
             isMatch = (user.pin == pin);
           }
@@ -323,7 +323,7 @@ class AuthRepositoryImpl implements AuthRepository {
         if (_isHashed(user.pin)) {
           try {
             isMatch = BCrypt.checkpw(currentPin, user.pin);
-          } catch (_) {}
+          } catch (_, stackTrace) {}
         } else {
           isMatch = (user.pin == currentPin);
         }

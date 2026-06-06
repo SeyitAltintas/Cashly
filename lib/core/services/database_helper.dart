@@ -17,7 +17,7 @@ class DatabaseHelper {
     try {
       await Hive.initFlutter();
       await SecureStorageService.openSecureBox(_boxName);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Database initialization error: $e');
       rethrow;
     }
@@ -29,7 +29,7 @@ class DatabaseHelper {
   static bool sesliGeriBildirimAktifMi(String userId) {
     try {
       return _box.get('sesli_geri_bildirim_$userId', defaultValue: true);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Error getting voice feedback setting: $e');
       return true;
     }
@@ -39,7 +39,7 @@ class DatabaseHelper {
   static Future<void> sesliGeriBildirimKaydet(String userId, bool aktif) async {
     try {
       await _box.put('sesli_geri_bildirim_$userId', aktif);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Error saving voice feedback setting: $e');
       rethrow;
     }
@@ -76,7 +76,7 @@ class DatabaseHelper {
       await _box.delete('sesli_geri_bildirim_$userId');
 
       debugPrint('✓ Tüm kullanıcı verileri silindi: $userId');
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Kullanıcı verileri silinirken hata: $e');
       rethrow;
     }

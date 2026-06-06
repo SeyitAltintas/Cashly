@@ -75,7 +75,7 @@ class NetworkService extends ChangeNotifier with SafeNotifierMixin {
           _setStatus(NetworkStatus.unknown);
         },
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
       _setStatus(NetworkStatus.unknown);
     }
   }
@@ -112,7 +112,7 @@ class NetworkService extends ChangeNotifier with SafeNotifierMixin {
       final results = await _connectivity.checkConnectivity();
       _updateStatus(results);
       return _status;
-    } catch (e) {
+    } catch (e, stackTrace) {
       return NetworkStatus.unknown;
     }
   }

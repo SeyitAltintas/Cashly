@@ -781,7 +781,7 @@ class PdfVisualSummaryBuilder {
                 final tarih = DateTime.parse(tarihStr);
                 formattedTarih =
                     '${tarih.day.toString().padLeft(2, '0')}.${tarih.month.toString().padLeft(2, '0')}.${tarih.year}';
-              } catch (_) {
+              } catch (_, stackTrace) {
                 formattedTarih = tarihStr;
               }
             }

@@ -6,6 +6,7 @@ import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/expense_repository.dart';
 import '../../../../core/services/network_service.dart';
 import '../../../../core/services/batch_service.dart';
+import 'package:cashly/core/services/error_logger_service.dart';
 
 /// Harcama repository implementasyonu (Firestore)
 /// Clean Architecture: ExpenseRepository interface'ini Firestore ile uygular.
@@ -111,8 +112,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         _convertTimestampToString(data);
         return data;
       }).toList();
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('fetchExpensesForDateRange hatası: $e');
+      ErrorLoggerService.logError('fetchExpensesForDateRange hatası: $e', stackTrace: stackTrace?.toString());
       return [];
     }
   }
@@ -138,8 +140,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         cached.add(expense);
         CacheService.set(cacheKey, cached);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore harcama ekleme hatası: $e');
+      ErrorLoggerService.logError('Firestore harcama ekleme hatası: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -168,8 +171,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         cached[index] = expense;
         CacheService.set(cacheKey, cached);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore harcama güncelleme hatası: $e');
+      ErrorLoggerService.logError('Firestore harcama güncelleme hatası: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -186,8 +190,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
           CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
       cached.removeWhere((e) => e['id'] == expenseId);
       CacheService.set(cacheKey, cached);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore harcama silme hatası: $e');
+      ErrorLoggerService.logError('Firestore harcama silme hatası: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -262,8 +267,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         'budget': limit,
       }, SetOptions(merge: true));
       CacheService.set('budget_$userId', limit);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore bütçe kaydetme hatası: $e');
+      ErrorLoggerService.logError('Firestore bütçe kaydetme hatası: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -275,8 +281,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
             'fixed_templates_$userId',
           ) ??
           [];
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Sabit gider şablonları getirilirken hata: $e');
+      ErrorLoggerService.logError('Sabit gider şablonları getirilirken hata: $e', stackTrace: stackTrace?.toString());
       return [];
     }
   }
@@ -291,8 +298,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         'fixedExpenseTemplates': templates,
       }, SetOptions(merge: true));
       CacheService.set('fixed_templates_$userId', templates);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Sabit gider şablonları kaydedilirken hata: $e');
+      ErrorLoggerService.logError('Sabit gider şablonları kaydedilirken hata: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -311,8 +319,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         });
       }
       return defaultCategories;
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Kategoriler getirilirken hata: $e');
+      ErrorLoggerService.logError('Kategoriler getirilirken hata: $e', stackTrace: stackTrace?.toString());
       return defaultCategories;
     }
   }
@@ -366,8 +375,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
       CacheService.set('expense_categories_$userId', categories);
     } on TimeoutException {
       debugPrint('Kategori kaydetme zaman aşımına uğradı.');
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Kategoriler kaydedilirken hata: $e');
+      ErrorLoggerService.logError('Kategoriler kaydedilirken hata: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -390,8 +400,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         'categoryBudgets': budgets,
       }, SetOptions(merge: true));
       CacheService.set('category_budgets_$userId', budgets);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Kategori bütçeleri kaydedilirken hata: $e');
+      ErrorLoggerService.logError('Kategori bütçeleri kaydedilirken hata: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }

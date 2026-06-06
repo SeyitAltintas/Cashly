@@ -490,7 +490,7 @@ class _TransferPageState extends State<TransferPage> {
         historyLimit = getIt<SettingsRepository>().getTransferHistoryLimit(
           widget.userId!,
         );
-      } catch (e) {
+      } catch (e, stackTrace) {
         // Hata durumunda varsayılanı kullan
       }
     }

@@ -117,7 +117,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
             _expState.savedMessage = null;
           }
         });
-      } catch (e) {
+      } catch (e, stackTrace) {
         ErrorHandler.handleDatabaseError(context, e);
       }
     }

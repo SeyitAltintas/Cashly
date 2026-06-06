@@ -72,7 +72,7 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
         Future.delayed(const Duration(seconds: 4), () {
           if (mounted) setState(() => _isSaved = false);
         });
-      } catch (e) {
+      } catch (e, stackTrace) {
         ErrorHandler.handleDatabaseError(context, e);
       }
     }

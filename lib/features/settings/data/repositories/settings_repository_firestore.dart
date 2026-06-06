@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/services/cache_service.dart';
 import '../../domain/repositories/settings_repository.dart';
 import '../../../../core/services/network_service.dart';
+import 'package:cashly/core/services/error_logger_service.dart';
 
 /// Ayarlar repository - Firestore implementasyonu
 ///
@@ -43,8 +44,9 @@ class SettingsRepositoryFirestore implements SettingsRepository {
           true;
       CacheService.set('voice_feedback_$userId', value);
       return value;
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore sesli geri bildirim ayarı okunurken hata: $e');
+      ErrorLoggerService.logError('Firestore sesli geri bildirim ayarı okunurken hata: $e', stackTrace: stackTrace?.toString());
       return true;
     }
   }
@@ -56,8 +58,9 @@ class SettingsRepositoryFirestore implements SettingsRepository {
         userId,
       ).set({'voiceFeedback': enabled}, SetOptions(merge: true));
       CacheService.set('voice_feedback_$userId', enabled);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore sesli geri bildirim ayarı kaydedilirken hata: $e');
+      ErrorLoggerService.logError('Firestore sesli geri bildirim ayarı kaydedilirken hata: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -88,8 +91,9 @@ class SettingsRepositoryFirestore implements SettingsRepository {
       }
       CacheService.set('transfer_limit_$userId', limit);
       return limit;
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore transfer geçmişi limiti okunurken hata: $e');
+      ErrorLoggerService.logError('Firestore transfer geçmişi limiti okunurken hata: $e', stackTrace: stackTrace?.toString());
       return 30;
     }
   }
@@ -105,8 +109,9 @@ class SettingsRepositoryFirestore implements SettingsRepository {
         userId,
       ).set({'transferHistoryLimit': safeLimit}, SetOptions(merge: true));
       CacheService.set('transfer_limit_$userId', safeLimit);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore transfer geçmişi limiti kaydedilirken hata: $e');
+      ErrorLoggerService.logError('Firestore transfer geçmişi limiti kaydedilirken hata: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }
@@ -161,8 +166,9 @@ class SettingsRepositoryFirestore implements SettingsRepository {
       CacheService.clear();
 
       debugPrint('✓ Tüm Firestore kullanıcı verileri silindi: $userId');
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore kullanıcı verileri silinirken hata: $e');
+      ErrorLoggerService.logError('Firestore kullanıcı verileri silinirken hata: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }

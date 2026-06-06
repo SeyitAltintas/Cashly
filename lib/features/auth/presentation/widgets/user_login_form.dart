@@ -90,7 +90,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
           );
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (mounted) {
         AppSnackBar.error(
           context,

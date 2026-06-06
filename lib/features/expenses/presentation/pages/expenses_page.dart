@@ -243,7 +243,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                 '${context.l10n.expense} ${context.l10n.restored} ✅',
               );
             }
-          } catch (e) {
+          } catch (e, stackTrace) {
             if (!mounted) return;
             if (e is AppException) {
               ErrorHandler.handleAppException(context, e);
@@ -254,7 +254,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
 
       // Hataları arka planda dinle
       await deleteFuture;
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (!mounted) return;
       if (e is AppException) {
         ErrorHandler.handleAppException(context, e);
@@ -342,7 +342,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                       MoneyAnimationOverlay.show(context);
                     }
                   }
-                } catch (e) {
+                } catch (e, stackTrace) {
                   if (!mounted) return;
                   if (e is AppException) {
                     ErrorHandler.handleAppException(context, e);

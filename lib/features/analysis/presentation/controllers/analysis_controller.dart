@@ -8,6 +8,7 @@ import '../../../assets/data/models/asset_model.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 import '../../../expenses/domain/repositories/expense_repository.dart';
 import '../../../income/domain/repositories/income_repository.dart';
+import 'package:cashly/core/services/error_logger_service.dart';
 
 
 // ===== ISOLATE PAYLOAD & RESULT =====
@@ -524,8 +525,9 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
       _gelirler = results[1]
           .map((m) => Income.fromMap(m))
           .toList();
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('AnalysisController._fetchWideRangeData hatası: $e');
+      ErrorLoggerService.logError('AnalysisController._fetchWideRangeData hatası: $e', stackTrace: stackTrace?.toString());
     }
     await _recalculateData();
   }
@@ -558,8 +560,9 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
 
           _harcamalar = results[0];
           _gelirler = results[1].map((m) => Income.fromMap(m)).toList();
-        } catch (e) {
+        } catch (e, stackTrace) {
           debugPrint('AnalysisController setSelectedMonth hatası: $e');
+          ErrorLoggerService.logError('AnalysisController setSelectedMonth hatası: $e', stackTrace: stackTrace?.toString());
         }
       }
 

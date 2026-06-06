@@ -58,7 +58,7 @@ class NotificationScheduler {
             todayHasTransaction = true;
           }
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
         notificationLogger.warning(
           'Seri verisi alınamadı',
           data: {'error': e.toString()},
@@ -166,7 +166,7 @@ class NotificationScheduler {
           }
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       notificationLogger.warning(
         'Aylık harcama hesaplanamadı',
         data: {'error': e.toString()},
@@ -336,7 +336,7 @@ class NotificationScheduler {
             todayHasTransaction = true;
           }
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
         notificationLogger.warning(
           'Seri verisi alınamadı',
           data: {'error': e.toString()},
@@ -442,7 +442,7 @@ class NotificationScheduler {
         topCategory = sorted.first.key;
         topAmount = sorted.first.value;
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       notificationLogger.warning(
         'Haftalık kategori hesaplanamadı',
         data: {'error': e.toString()},

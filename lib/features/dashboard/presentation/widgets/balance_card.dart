@@ -90,7 +90,7 @@ class _BalanceCardState extends State<BalanceCard> {
         }
       }
       return cashBalance;
-    } catch (e) {
+    } catch (e, stackTrace) {
       return 0.0;
     }
   }

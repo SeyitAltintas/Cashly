@@ -358,7 +358,7 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
         getIt<AssetRepository>().updateAsset(userId, asset.toMap());
       }
       notifyListeners();
-    } catch (e) {
+    } catch (e, stackTrace) {
       // Sessizce geç, kullanıcıyı rahatsız etme
     }
   }

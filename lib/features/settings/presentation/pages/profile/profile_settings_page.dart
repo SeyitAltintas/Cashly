@@ -60,7 +60,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     _profileState.isLoading = true;
     try {
       _profileState.currentUser = widget.authController.currentUser;
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (mounted) {
         ErrorHandler.showErrorSnackBar(context, context.l10n.userLoadError);
       }

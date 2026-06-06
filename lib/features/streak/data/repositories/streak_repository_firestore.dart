@@ -4,6 +4,7 @@ import '../../domain/repositories/streak_repository.dart';
 import '../models/streak_model.dart';
 import '../services/streak_service.dart';
 import '../../../../core/services/network_service.dart';
+import 'package:cashly/core/services/error_logger_service.dart';
 
 /// Streak repository - Firestore implementasyonu
 ///
@@ -37,8 +38,9 @@ class StreakRepositoryFirestore implements StreakRepository {
       // Firestore'a özgü alanları temizle
       data.remove('updatedAt');
       return StreakData.fromMap(data);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore streak verisi getirilirken hata: $e');
+      ErrorLoggerService.logError('Firestore streak verisi getirilirken hata: $e', stackTrace: stackTrace?.toString());
       return StreakData.empty();
     }
   }
@@ -49,8 +51,9 @@ class StreakRepositoryFirestore implements StreakRepository {
       final map = data.toMap();
       map['updatedAt'] = FieldValue.serverTimestamp();
       await _streakDoc(userId).set(map);
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore streak verisi kaydedilirken hata: $e');
+      ErrorLoggerService.logError('Firestore streak verisi kaydedilirken hata: $e', stackTrace: stackTrace?.toString());
       rethrow;
     }
   }

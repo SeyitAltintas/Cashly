@@ -57,7 +57,7 @@ class CategoryRepositoryFirestore implements CategoryRepository {
       final data = doc.data() as Map<String, dynamic>?;
       final list = data?['categories'] as List<dynamic>? ?? [];
       return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore harcama kategorileri getirilirken hata: $e');
       return _defaultExpenseCategories;
     }
@@ -73,7 +73,7 @@ class CategoryRepositoryFirestore implements CategoryRepository {
         'categories': categories,
         'updatedAt': FieldValue.serverTimestamp(),
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore harcama kategorileri kaydedilirken hata: $e');
       rethrow;
     }
@@ -99,7 +99,7 @@ class CategoryRepositoryFirestore implements CategoryRepository {
       final data = doc.data() as Map<String, dynamic>?;
       final list = data?['categories'] as List<dynamic>? ?? [];
       return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore gelir kategorileri getirilirken hata: $e');
       return _defaultIncomeCategories;
     }
@@ -115,7 +115,7 @@ class CategoryRepositoryFirestore implements CategoryRepository {
         'categories': categories,
         'updatedAt': FieldValue.serverTimestamp(),
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Firestore gelir kategorileri kaydedilirken hata: $e');
       rethrow;
     }

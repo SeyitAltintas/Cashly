@@ -67,7 +67,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
         widget.userId,
         _tekrarlayanIslemler,
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (!mounted) return;
       if (e is AppException) {
         ErrorHandler.handleAppException(context, e);

@@ -20,7 +20,7 @@ class PriceService {
       if (response.statusCode == 200) {
         return json.decode(response.body);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       // API hatası - cache'ten okunacak
     }
     return null;
@@ -43,7 +43,7 @@ class PriceService {
       priceStr = priceStr.replaceAll(',', '.');
 
       return double.tryParse(priceStr);
-    } catch (e) {
+    } catch (e, stackTrace) {
       return null;
     }
   }
@@ -90,7 +90,7 @@ class PriceService {
           return price;
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       // API hatası - cache'ten okunacak
     }
 

@@ -33,7 +33,7 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
           await logout();
         }
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint(
         'Firebase Auth Listener başlatılamadı (Test ortamı olabilir): $e',
       );
@@ -48,7 +48,7 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
     _setLoading(true);
     try {
       _currentUser = await _authRepository.getCurrentUser();
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (e is SessionExpiredException) {
         _currentUser = null; // Session expired, so clear current user
       }
@@ -70,7 +70,7 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
         _error = "Hatalı PIN veya kullanıcı bulunamadı.";
         return false;
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       _error = e.toString();
       return false;
     } finally {
@@ -93,7 +93,7 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
       final registeredUser = await _authRepository.registerUser(newUser);
       _currentUser = registeredUser;
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
       _error = e.toString();
       return false;
     } finally {
@@ -131,7 +131,7 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
         _error = "Hatalı e-posta veya PIN";
         return false;
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       _error = "Giriş yapılamadı: $e";
       return false;
     } finally {
@@ -161,7 +161,7 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
         _error = "Biyometrik giriş başarısız.";
         return false;
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       _error = e.toString();
       return false;
     } finally {
@@ -178,7 +178,7 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
         _currentUser = await _authRepository.getCurrentUser();
         notifyListeners();
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       _error = e.toString();
     }
   }
@@ -198,7 +198,7 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
     try {
       await _authRepository.sendPinResetOtp(email);
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
       _error = e.toString();
       return false;
     } finally {

@@ -178,7 +178,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         _homeState.loadData(userId);
         _homeState.updateAssetPrices(userId);
       }
-    } catch (_) {
+    } catch (_, stackTrace) {
       // Offline veya timeout: cache gösterilir, sorun yok
       if (mounted) {
         _homeState.updateAssetPrices(userId);
@@ -324,7 +324,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       if (mounted) {
         AppSnackBar.warning(context, context.l10n.offlineDataShown);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       // Diger hatalar (permission-denied vb.)
       _verileriOku();
       if (mounted) {

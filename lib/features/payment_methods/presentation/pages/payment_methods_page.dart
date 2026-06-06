@@ -174,7 +174,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                             try {
                               await _controller.restoreMethod(pm);
                               widget.onRestore(pm);
-                            } catch (e) {
+                            } catch (e, stackTrace) {
                               if (!mounted) return;
                               if (e is AppException) {
                                 ErrorHandler.handleAppException(context, e);
@@ -185,7 +185,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                             try {
                               await _controller.permanentDelete(pm);
                               widget.onPermanentDelete(pm);
-                            } catch (e) {
+                            } catch (e, stackTrace) {
                               if (!mounted) return;
                               if (e is AppException) {
                                 ErrorHandler.handleAppException(context, e);
@@ -196,7 +196,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                             try {
                               await _controller.emptyBin();
                               widget.onEmptyBin();
-                            } catch (e) {
+                            } catch (e, stackTrace) {
                               if (!mounted) return;
                               if (e is AppException) {
                                 ErrorHandler.handleAppException(context, e);
@@ -290,7 +290,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                                 limit,
                                 colorIndex,
                               );
-                            } catch (e) {
+                            } catch (e, stackTrace) {
                               if (!mounted) return;
                               if (e is AppException) {
                                 ErrorHandler.handleAppException(context, e);
@@ -399,7 +399,7 @@ class _PaymentMethodCard extends StatelessWidget {
           try {
             await controller.moveToBin(pm);
             onDelete(pm);
-          } catch (e) {
+          } catch (e, stackTrace) {
             if (!context.mounted) return;
             if (e is AppException) {
               ErrorHandler.handleAppException(context, e);
@@ -437,7 +437,7 @@ class _PaymentMethodCard extends StatelessWidget {
                       );
                       await controller.updateMethod(updatedPm);
                       onEdit(updatedPm);
-                    } catch (e) {
+                    } catch (e, stackTrace) {
                       if (!context.mounted) return;
                       if (e is AppException) {
                         ErrorHandler.handleAppException(context, e);

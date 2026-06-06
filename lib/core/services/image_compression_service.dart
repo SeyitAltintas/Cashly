@@ -75,7 +75,7 @@ class ImageCompressionService {
       // Hata durumunda orijinal dosyayı oku ve döndür
       try {
         return await imageFile.readAsBytes();
-      } catch (_) {
+      } catch (_, stackTrace) {
         return null;
       }
     }
@@ -126,7 +126,7 @@ class ImageCompressionService {
 
       debugPrint('ImageCompressionService: Profil resmi kaydedildi - $newPath');
       return newPath;
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('ImageCompressionService: Profil kaydetme hatası - $e');
       return null;
     }
@@ -154,7 +154,7 @@ class ImageCompressionService {
       final codec = await ui.instantiateImageCodec(bytes);
       final frame = await codec.getNextFrame();
       return Size(frame.image.width.toDouble(), frame.image.height.toDouble());
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('ImageCompressionService: Boyut alınamadı - $e');
       return null;
     }
@@ -183,7 +183,7 @@ class ImageCompressionService {
       }
 
       return false;
-    } catch (e) {
+    } catch (e, stackTrace) {
       return false;
     }
   }
@@ -195,7 +195,7 @@ class ImageCompressionService {
         return true;
       }
       return false;
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Klasör silme hatası: $e');
       return false;
     }
@@ -222,7 +222,7 @@ Uint8List? _compressWithImagePackage(Map<String, dynamic> args) {
     final List<int> jpegBytes = img.encodeJpg(resized, quality: quality);
 
     return Uint8List.fromList(jpegBytes);
-  } catch (e) {
+  } catch (e, stackTrace) {
     debugPrint('Isolate sıkıştırma hatası: $e');
     return null;
   }
