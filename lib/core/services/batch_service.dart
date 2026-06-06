@@ -49,36 +49,47 @@ class FirestoreBatchService implements BatchService {
   Future<void> commit(List<BatchOperation> operations) async {
     if (operations.isEmpty) return;
 
-    final batch = _firestore.batch();
+    // Firestore limiti gereği bir batch en fazla 500 işlem alabilir.
+    const int chunkSize = 500;
+    final List<Future<void>> futures = [];
 
-    for (final op in operations) {
-      final docRef = _firestore
-          .collection(op.collectionPath)
-          .doc(op.documentId);
+    for (var i = 0; i < operations.length; i += chunkSize) {
+      final end = (i + chunkSize < operations.length) ? i + chunkSize : operations.length;
+      final chunk = operations.sublist(i, end);
 
-      switch (op.type) {
-        case BatchOperationType.set:
-          if (op.data != null) {
-            if (op.merge) {
-              batch.set(docRef, op.data!, SetOptions(merge: true));
-            } else {
-              batch.set(docRef, op.data!);
+      final batch = _firestore.batch();
+
+      for (final op in chunk) {
+        final docRef = _firestore
+            .collection(op.collectionPath)
+            .doc(op.documentId);
+
+        switch (op.type) {
+          case BatchOperationType.set:
+            if (op.data != null) {
+              if (op.merge) {
+                batch.set(docRef, op.data!, SetOptions(merge: true));
+              } else {
+                batch.set(docRef, op.data!);
+              }
             }
-          }
-          break;
-        case BatchOperationType.update:
-          if (op.data != null) {
-            batch.update(docRef, op.data!);
-          }
-          break;
-        case BatchOperationType.delete:
-          batch.delete(docRef);
-          break;
+            break;
+          case BatchOperationType.update:
+            if (op.data != null) {
+              batch.update(docRef, op.data!);
+            }
+            break;
+          case BatchOperationType.delete:
+            batch.delete(docRef);
+            break;
+        }
       }
+
+      futures.add(batch.commit());
     }
 
-    // Toplu işlemi gerçekleştir. Herhangi bir ağ bağlantı problemi veya hata durumunda
-    // catch bloğuna düşecek ve hiçbir işlem sunucuya yansımayacaktır.
-    await batch.commit();
+    // Toplu işlemleri gerçekleştir. Herhangi bir ağ bağlantı problemi veya hata durumunda
+    // catch bloğuna düşecek ve hatalı chunklar yakalanabilecektir.
+    await Future.wait(futures);
   }
 }
