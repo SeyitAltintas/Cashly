@@ -7679,6 +7679,144 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Detay bulunamadı.'**
   String get noDetailsFound;
+
+  /// No description provided for @errUnknown.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bilinmeyen bir hata oluştu. Lütfen tekrar deneyin.'**
+  String get errUnknown;
+
+  /// No description provided for @errNetworkOffline.
+  ///
+  /// In tr, this message translates to:
+  /// **'İnternet bağlantınız koptu veya sunucuya ulaşılamıyor. Lütfen bağlantınızı kontrol edin.'**
+  String get errNetworkOffline;
+
+  /// No description provided for @errDataFormat.
+  ///
+  /// In tr, this message translates to:
+  /// **'Beklenmeyen bir veri formatı alındı. İşlem tamamlanamadı.'**
+  String get errDataFormat;
+
+  /// No description provided for @errDeviceIssue.
+  ///
+  /// In tr, this message translates to:
+  /// **'Cihaz tabanlı bir sorun oluştu: {message}'**
+  String errDeviceIssue(String message);
+
+  /// No description provided for @errInvalidInput.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçersiz bir bilgi girdiniz. Lütfen alanları kontrol edin.'**
+  String get errInvalidInput;
+
+  /// No description provided for @errPermissionDenied.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu işlemi gerçekleştirmek için yeterli yetkiniz bulunmuyor.'**
+  String get errPermissionDenied;
+
+  /// No description provided for @errFallbackSummary.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir sorun oluştu. Daha fazla detay için Hata Kayıtları ekranına bakabilirsiniz.'**
+  String get errFallbackSummary;
+
+  /// No description provided for @errAuthUserNotFound.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu e-posta adresine ait bir kullanıcı bulunamadı.'**
+  String get errAuthUserNotFound;
+
+  /// No description provided for @errAuthWrongPassword.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hatalı şifre girdiniz. Lütfen tekrar deneyin.'**
+  String get errAuthWrongPassword;
+
+  /// No description provided for @errAuthEmailInUse.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu e-posta adresi zaten kullanımda.'**
+  String get errAuthEmailInUse;
+
+  /// No description provided for @errAuthInvalidEmail.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçersiz bir e-posta adresi girdiniz.'**
+  String get errAuthInvalidEmail;
+
+  /// No description provided for @errAuthUserDisabled.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu kullanıcı hesabı askıya alınmış.'**
+  String get errAuthUserDisabled;
+
+  /// No description provided for @errAuthNotAllowed.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu giriş yöntemine şu an izin verilmiyor.'**
+  String get errAuthNotAllowed;
+
+  /// No description provided for @errAuthWeakPassword.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifreniz çok zayıf. Lütfen daha güçlü bir şifre belirleyin.'**
+  String get errAuthWeakPassword;
+
+  /// No description provided for @errAuthNetwork.
+  ///
+  /// In tr, this message translates to:
+  /// **'İnternet bağlantınızda bir sorun var. Lütfen kontrol edip tekrar deneyin.'**
+  String get errAuthNetwork;
+
+  /// No description provided for @errAuthDefault.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kimlik doğrulama sırasında bir hata oluştu: {message}'**
+  String errAuthDefault(String message);
+
+  /// No description provided for @errDbUnavailable.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şu anda sunucuya ulaşılamıyor (Çevrimdışı olabilirsiniz).'**
+  String get errDbUnavailable;
+
+  /// No description provided for @errDbNotFound.
+  ///
+  /// In tr, this message translates to:
+  /// **'Erişmeye çalıştığınız veri bulunamadı.'**
+  String get errDbNotFound;
+
+  /// No description provided for @errDbAlreadyExists.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu kayıt zaten mevcut.'**
+  String get errDbAlreadyExists;
+
+  /// No description provided for @errDbResourceExhausted.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sistem yoğunluğu nedeniyle işlem yapılamadı, daha sonra tekrar deneyin.'**
+  String get errDbResourceExhausted;
+
+  /// No description provided for @errDbCancelled.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlem iptal edildi.'**
+  String get errDbCancelled;
+
+  /// No description provided for @errDbDeadlineExceeded.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlem zaman aşımına uğradı. Bağlantınız yavaş olabilir.'**
+  String get errDbDeadlineExceeded;
+
+  /// No description provided for @errDbDefault.
+  ///
+  /// In tr, this message translates to:
+  /// **'Veritabanı işlemi sırasında bir sorun oluştu: {message}'**
+  String errDbDefault(String message);
 }
 
 class _AppLocalizationsDelegate

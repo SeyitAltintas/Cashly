@@ -7,6 +7,9 @@ abstract class AssetRepository {
   /// Kullanıcının tüm varlıklarını getirir
   List<Map<String, dynamic>> getAssets(String userId);
 
+  /// Kullanıcının varlıklarını dinler
+  Stream<List<Map<String, dynamic>>> watchAssets(String userId);
+
   /// Yeni bir varlık ekler
   Future<void> addAsset(String userId, Map<String, dynamic> asset);
 

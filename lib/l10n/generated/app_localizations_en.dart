@@ -4118,4 +4118,91 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noDetailsFound => 'No details found.';
+
+  @override
+  String get errUnknown => 'An unknown error occurred. Please try again.';
+
+  @override
+  String get errNetworkOffline =>
+      'Internet connection lost or server unreachable. Please check your connection.';
+
+  @override
+  String get errDataFormat =>
+      'Unexpected data format received. Operation could not be completed.';
+
+  @override
+  String errDeviceIssue(String message) {
+    return 'A device-based issue occurred: $message';
+  }
+
+  @override
+  String get errInvalidInput =>
+      'Invalid information entered. Please check the fields.';
+
+  @override
+  String get errPermissionDenied =>
+      'You do not have sufficient permissions to perform this action.';
+
+  @override
+  String get errFallbackSummary =>
+      'An issue occurred. Check Error Logs for more details.';
+
+  @override
+  String get errAuthUserNotFound => 'No user found for this email address.';
+
+  @override
+  String get errAuthWrongPassword => 'Incorrect password. Please try again.';
+
+  @override
+  String get errAuthEmailInUse => 'This email address is already in use.';
+
+  @override
+  String get errAuthInvalidEmail => 'You entered an invalid email address.';
+
+  @override
+  String get errAuthUserDisabled => 'This user account has been disabled.';
+
+  @override
+  String get errAuthNotAllowed =>
+      'This sign-in method is not allowed right now.';
+
+  @override
+  String get errAuthWeakPassword =>
+      'Your password is too weak. Please choose a stronger one.';
+
+  @override
+  String get errAuthNetwork =>
+      'There is an issue with your internet connection. Please check and try again.';
+
+  @override
+  String errAuthDefault(String message) {
+    return 'An error occurred during authentication: $message';
+  }
+
+  @override
+  String get errDbUnavailable =>
+      'The server is currently unreachable (You might be offline).';
+
+  @override
+  String get errDbNotFound =>
+      'The data you are trying to access was not found.';
+
+  @override
+  String get errDbAlreadyExists => 'This record already exists.';
+
+  @override
+  String get errDbResourceExhausted =>
+      'Operation could not be processed due to system overload, try again later.';
+
+  @override
+  String get errDbCancelled => 'Operation was cancelled.';
+
+  @override
+  String get errDbDeadlineExceeded =>
+      'Operation timed out. Your connection might be slow.';
+
+  @override
+  String errDbDefault(String message) {
+    return 'An issue occurred during the database operation: $message';
+  }
 }

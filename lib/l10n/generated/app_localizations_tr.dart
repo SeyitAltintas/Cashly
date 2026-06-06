@@ -4117,4 +4117,91 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get noDetailsFound => 'Detay bulunamadı.';
+
+  @override
+  String get errUnknown => 'Bilinmeyen bir hata oluştu. Lütfen tekrar deneyin.';
+
+  @override
+  String get errNetworkOffline =>
+      'İnternet bağlantınız koptu veya sunucuya ulaşılamıyor. Lütfen bağlantınızı kontrol edin.';
+
+  @override
+  String get errDataFormat =>
+      'Beklenmeyen bir veri formatı alındı. İşlem tamamlanamadı.';
+
+  @override
+  String errDeviceIssue(String message) {
+    return 'Cihaz tabanlı bir sorun oluştu: $message';
+  }
+
+  @override
+  String get errInvalidInput =>
+      'Geçersiz bir bilgi girdiniz. Lütfen alanları kontrol edin.';
+
+  @override
+  String get errPermissionDenied =>
+      'Bu işlemi gerçekleştirmek için yeterli yetkiniz bulunmuyor.';
+
+  @override
+  String get errFallbackSummary =>
+      'Bir sorun oluştu. Daha fazla detay için Hata Kayıtları ekranına bakabilirsiniz.';
+
+  @override
+  String get errAuthUserNotFound =>
+      'Bu e-posta adresine ait bir kullanıcı bulunamadı.';
+
+  @override
+  String get errAuthWrongPassword =>
+      'Hatalı şifre girdiniz. Lütfen tekrar deneyin.';
+
+  @override
+  String get errAuthEmailInUse => 'Bu e-posta adresi zaten kullanımda.';
+
+  @override
+  String get errAuthInvalidEmail => 'Geçersiz bir e-posta adresi girdiniz.';
+
+  @override
+  String get errAuthUserDisabled => 'Bu kullanıcı hesabı askıya alınmış.';
+
+  @override
+  String get errAuthNotAllowed => 'Bu giriş yöntemine şu an izin verilmiyor.';
+
+  @override
+  String get errAuthWeakPassword =>
+      'Şifreniz çok zayıf. Lütfen daha güçlü bir şifre belirleyin.';
+
+  @override
+  String get errAuthNetwork =>
+      'İnternet bağlantınızda bir sorun var. Lütfen kontrol edip tekrar deneyin.';
+
+  @override
+  String errAuthDefault(String message) {
+    return 'Kimlik doğrulama sırasında bir hata oluştu: $message';
+  }
+
+  @override
+  String get errDbUnavailable =>
+      'Şu anda sunucuya ulaşılamıyor (Çevrimdışı olabilirsiniz).';
+
+  @override
+  String get errDbNotFound => 'Erişmeye çalıştığınız veri bulunamadı.';
+
+  @override
+  String get errDbAlreadyExists => 'Bu kayıt zaten mevcut.';
+
+  @override
+  String get errDbResourceExhausted =>
+      'Sistem yoğunluğu nedeniyle işlem yapılamadı, daha sonra tekrar deneyin.';
+
+  @override
+  String get errDbCancelled => 'İşlem iptal edildi.';
+
+  @override
+  String get errDbDeadlineExceeded =>
+      'İşlem zaman aşımına uğradı. Bağlantınız yavaş olabilir.';
+
+  @override
+  String errDbDefault(String message) {
+    return 'Veritabanı işlemi sırasında bir sorun oluştu: $message';
+  }
 }

@@ -6,6 +6,9 @@ abstract class PaymentMethodRepository {
   /// Kullanıcının tüm ödeme yöntemlerini getirir
   List<Map<String, dynamic>> getPaymentMethods(String userId);
 
+  /// Kullanıcının ödeme yöntemlerini dinler
+  Stream<List<Map<String, dynamic>>> watchPaymentMethods(String userId);
+
   /// Yeni bir ödeme yöntemi ekler
   Future<void> addPaymentMethod(String userId, Map<String, dynamic> method);
 
@@ -59,8 +62,11 @@ abstract class PaymentMethodRepository {
   /// Varsayılan ödeme yöntemini kaydeder
   Future<void> saveDefaultPaymentMethod(String userId, String? methodId);
 
-  /// Kullanıcının transferlerini getirir
+  /// Kullanıcının tüm transferlerini getirir
   List<Map<String, dynamic>> getTransfers(String userId);
+
+  /// Kullanıcının tüm transferlerini dinler
+  Stream<List<Map<String, dynamic>>> watchTransfers(String userId);
 
   /// Yeni bir transfer ekler
   Future<void> addTransfer(String userId, Map<String, dynamic> transfer);

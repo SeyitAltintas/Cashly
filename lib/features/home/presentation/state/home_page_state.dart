@@ -24,6 +24,9 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
   String? _userId;
   StreamSubscription? _expensesSubscription;
   StreamSubscription? _incomesSubscription;
+  StreamSubscription? _assetsSubscription;
+  StreamSubscription? _paymentMethodsSubscription;
+  StreamSubscription? _transfersSubscription;
 
   // Loading durumu
   bool _isLoading = true;
@@ -228,9 +231,14 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
   void _startStreams(String userId) {
     _expensesSubscription?.cancel();
     _incomesSubscription?.cancel();
+    _assetsSubscription?.cancel();
+    _paymentMethodsSubscription?.cancel();
+    _transfersSubscription?.cancel();
 
     final expenseRepo = getIt<ExpenseRepository>();
     final incomeRepo = getIt<IncomeRepository>();
+    final assetRepo = getIt<AssetRepository>();
+    final paymentRepo = getIt<PaymentMethodRepository>();
 
     _expensesSubscription = expenseRepo
         .watchExpensesByMonth(userId, _secilenAy)
@@ -243,6 +251,27 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
         .watchIncomesByMonth(userId, _secilenAy)
         .listen((incomesMap) {
           _tumGelirler = incomesMap.map((map) => Income.fromMap(map)).toList();
+          notifyListeners();
+        });
+
+    _assetsSubscription = assetRepo
+        .watchAssets(userId)
+        .listen((assetsMap) {
+          _varliklar = assetsMap.map((map) => Asset.fromMap(map)).toList();
+          notifyListeners();
+        });
+
+    _paymentMethodsSubscription = paymentRepo
+        .watchPaymentMethods(userId)
+        .listen((methodsMap) {
+          _tumOdemeYontemleri = methodsMap.map((map) => PaymentMethod.fromMap(map)).toList();
+          notifyListeners();
+        });
+
+    _transfersSubscription = paymentRepo
+        .watchTransfers(userId)
+        .listen((transfersMap) {
+          _tumTransferler = transfersMap.map((map) => Transfer.fromMap(map)).toList();
           notifyListeners();
         });
   }
@@ -367,6 +396,9 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
   void dispose() {
     _expensesSubscription?.cancel();
     _incomesSubscription?.cancel();
+    _assetsSubscription?.cancel();
+    _paymentMethodsSubscription?.cancel();
+    _transfersSubscription?.cancel();
     super.dispose();
   }
 }

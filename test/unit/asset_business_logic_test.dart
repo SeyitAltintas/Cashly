@@ -31,6 +31,9 @@ class MockBatchService implements BatchService {
 
 class MockAssetRepository implements AssetRepository {
   @override
+  Stream<List<Map<String, dynamic>>> watchAssets(String userId) => const Stream.empty();
+
+  @override
   BatchOperation getAddAssetOperation(String userId, Map<String, dynamic> asset) => DummyBatchOperation();
   @override
   BatchOperation getUpdateAssetOperation(String userId, Map<String, dynamic> asset) => DummyBatchOperation();
