@@ -90,7 +90,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       ).collection('paymentMethods').doc(method['id'].toString());
       final data = Map<String, dynamic>.from(method);
       data['updatedAt'] = FieldValue.serverTimestamp();
-      await docRef.update(data);
+      await docRef.set(data, SetOptions(merge: true));
 
       final cacheKey = 'payment_methods_$userId';
       final cached =
@@ -126,7 +126,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
     return FirestoreBatchOperation(
       collectionPath: 'users/$userId/paymentMethods',
       documentId: method['id'].toString(),
-      type: BatchOperationType.update,
+      type: BatchOperationType.set, // GÜVENLİK YAMASI: Default methodlar db'de olmayabilir, set(merge) davranışı gerekir
       data: data,
     );
   }

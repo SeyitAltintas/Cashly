@@ -4,24 +4,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/exceptions/session_expired_exception.dart';
+import '../../../../core/services/cache_service.dart';
 import '../../../../core/services/cloud_sync_service.dart';
 import '../../../../features/streak/data/services/streak_service.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_model.dart';
 import 'auth_repository_impl.dart';
-import '../../../../core/services/batch_service.dart';
 import '../../../../core/services/database_helper.dart';
 import '../../../../core/services/network_service.dart';
 import '../../../../core/services/secure_storage_service.dart';
 import 'package:bcrypt/bcrypt.dart';
 
-
 class AuthRepositoryFirestore implements AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final AuthRepositoryImpl _localHiveRepo = AuthRepositoryImpl();
-  
+
   StreamSubscription<DocumentSnapshot>? _sessionRevocationSub;
 
   void _startSessionRevocationListener(String userId, String currentSessionId) {
@@ -33,15 +32,20 @@ class AuthRepositoryFirestore implements AuthRepository {
         .doc('info')
         .snapshots()
         .listen((snapshot) async {
-      if (snapshot.exists) {
-        final firestoreSessionId = snapshot.data()?['activeSessionId'] as String?;
-        if (firestoreSessionId != null && firestoreSessionId != currentSessionId) {
-          debugPrint('Güvenlik Uyarısı: Başka bir cihazda oturum açıldı. Bu cihazdaki oturum sonlandırılıyor.');
-          await logout();
-        }
-      }
-    });
+          if (snapshot.exists) {
+            final firestoreSessionId =
+                snapshot.data()?['activeSessionId'] as String?;
+            if (firestoreSessionId != null &&
+                firestoreSessionId != currentSessionId) {
+              debugPrint(
+                'Güvenlik Uyarısı: Başka bir cihazda oturum açıldı. Bu cihazdaki oturum sonlandırılıyor.',
+              );
+              await logout();
+            }
+          }
+        });
   }
+
   @override
   Future<UserEntity> registerUser(UserEntity user) async {
     try {
@@ -123,7 +127,7 @@ class AuthRepositoryFirestore implements AuthRepository {
           .timeout(const Duration(seconds: 10));
 
       final firebaseUid = credential.user?.uid;
-      
+
       // Şifre dışarıdan (Şifremi Unuttum ile) sıfırlanmışsa lokal DB'yi güncelle
       bool isPinChanged = false;
       try {
@@ -132,7 +136,7 @@ class AuthRepositoryFirestore implements AuthRepository {
         // Hashing error means pin format is wrong, so it must be changed
         isPinChanged = true;
       }
-      
+
       if (isPinChanged) {
         await _localHiveRepo.updateUserPin(localUser.id, '', pin);
       }
@@ -141,9 +145,7 @@ class AuthRepositoryFirestore implements AuthRepository {
       // Hive'daki eski UUID bununla eşleşmiyorsa güncelleniyor.
       if (firebaseUid != null && firebaseUid != localUser.id) {
         if (kDebugMode) {
-          debugPrint(
-            'loginUser: Hive UID != Firebase UID — güncelleniyor.',
-          );
+          debugPrint('loginUser: Hive UID != Firebase UID — güncelleniyor.');
         }
         final correctedUser = UserEntity(
           id: firebaseUid,
@@ -382,7 +384,9 @@ class AuthRepositoryFirestore implements AuthRepository {
 
   Future<void> _deleteUserFirestoreData(String userId) async {
     if (NetworkService().isOffline) {
-      throw Exception('Hesabınızı tamamen silebilmemiz için internet bağlantısı gereklidir. Lütfen internetinizi kontrol edip tekrar deneyin.');
+      throw Exception(
+        'Hesabınızı tamamen silebilmemiz için internet bağlantısı gereklidir. Lütfen internetinizi kontrol edip tekrar deneyin.',
+      );
     }
 
     try {
@@ -421,17 +425,23 @@ class AuthRepositoryFirestore implements AuthRepository {
       const int batchSize = 500;
       for (int i = 0; i < allDocsToDelete.length; i += batchSize) {
         final batch = _firestore.batch();
-        final end = (i + batchSize < allDocsToDelete.length) ? i + batchSize : allDocsToDelete.length;
+        final end = (i + batchSize < allDocsToDelete.length)
+            ? i + batchSize
+            : allDocsToDelete.length;
         for (int j = i; j < end; j++) {
           batch.delete(allDocsToDelete[j]);
         }
         await batch.commit();
       }
 
-      debugPrint('Cloud verileri başarıyla silindi (Ghost Data temizlendi). Toplam silinen belge: ${allDocsToDelete.length}');
+      debugPrint(
+        'Cloud verileri başarıyla silindi (Ghost Data temizlendi). Toplam silinen belge: ${allDocsToDelete.length}',
+      );
     } catch (e) {
       debugPrint('Kullanıcı verilerini silerken hata oluştu: $e');
-      throw Exception('Kullanıcı verileri silinemedi. Lütfen internet bağlantınızı kontrol edin.');
+      throw Exception(
+        'Kullanıcı verileri silinemedi. Lütfen internet bağlantınızı kontrol edin.',
+      );
     }
   }
 
@@ -446,15 +456,17 @@ class AuthRepositoryFirestore implements AuthRepository {
       // Bunu engellemek için, kullanıcının son giriş zamanını kontrol edip 5 dakikadan
       // eskiyse işlemi baştan reddediyoruz.
       final lastSignIn = firebaseUser.metadata.lastSignInTime;
-      if (lastSignIn != null && DateTime.now().difference(lastSignIn).inMinutes > 5) {
+      if (lastSignIn != null &&
+          DateTime.now().difference(lastSignIn).inMinutes > 5) {
         throw FirebaseAuthException(
           code: 'requires-recent-login',
-          message: 'This operation is sensitive and requires recent authentication. Log in again before retrying this request.',
+          message:
+              'This operation is sensitive and requires recent authentication. Log in again before retrying this request.',
         );
       }
 
       try {
-        // GHOST DATA VULNERABILITY FIX: 
+        // GHOST DATA VULNERABILITY FIX:
         // Firebase Auth kimliği silinmeden önce Firestore verilerini temizle.
         await _deleteUserFirestoreData(userId);
 
@@ -586,6 +598,7 @@ class AuthRepositoryFirestore implements AuthRepository {
     _sessionRevocationSub = null;
     await _firebaseAuth.signOut();
     await _localHiveRepo.logout();
+    CacheService.clear();
   }
 
   @override
@@ -747,14 +760,18 @@ class AuthRepositoryFirestore implements AuthRepository {
       // Kullanıcı buraya yeni PIN'ini girecek.
       await _firebaseAuth.sendPasswordResetEmail(email: email);
     } catch (e) {
-      throw Exception('Şifre sıfırlama e-postası gönderilemedi: ${e.toString()}');
+      throw Exception(
+        'Şifre sıfırlama e-postası gönderilemedi: ${e.toString()}',
+      );
     }
   }
 
-
-
   @override
-  Future<void> updateUserPin(String userId, String currentPin, String newPin) async {
+  Future<void> updateUserPin(
+    String userId,
+    String currentPin,
+    String newPin,
+  ) async {
     try {
       // GÜVENLİK YAMASI: PIN değişikliği (State Inconsistency önleme)
       // PIN değişimi Firebase Auth ve yerel Hive'da eşzamanlı yapılmalıdır.
