@@ -79,16 +79,32 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
   late FixedExtentScrollController _monthController;
   late FixedExtentScrollController _yearController;
   late MonthYearPickerState _pickerState;
+  late int _startYear;
+  late int _endYear;
 
   @override
   void initState() {
     super.initState();
     _currentDate = widget.initialDate;
-    _selectedYear = widget.initialDate.year;
-    _selectedMonthIndex = widget.initialDate.month - 1;
-    final int startYear = widget.minimumDate?.year ?? 2000;
-    int initialYearItem = _selectedYear - startYear;
+
+    // Safety: Ensure _currentDate is within bounds
+    if (widget.minimumDate != null && _currentDate.isBefore(widget.minimumDate!)) {
+      _currentDate = widget.minimumDate!;
+    }
+    if (widget.maximumDate != null && _currentDate.isAfter(widget.maximumDate!)) {
+      _currentDate = widget.maximumDate!;
+    }
+
+    _selectedYear = _currentDate.year;
+    _selectedMonthIndex = _currentDate.month - 1;
+    
+    _startYear = widget.minimumDate?.year ?? (_selectedYear < 2000 ? _selectedYear : 2000);
+    _endYear = widget.maximumDate?.year ?? (_selectedYear > 2100 ? _selectedYear : 2100);
+    if (_endYear < _startYear) _endYear = _startYear;
+
+    int initialYearItem = _selectedYear - _startYear;
     if (initialYearItem < 0) initialYearItem = 0;
+    if (initialYearItem > (_endYear - _startYear)) initialYearItem = _endYear - _startYear;
 
     _monthController = FixedExtentScrollController(
       initialItem: _selectedMonthIndex,
@@ -201,11 +217,23 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                   onPressed: () {
                     // MonthYear modunda özel işlem, diğerlerinde _currentDate
                     if (widget.mode == PickerMode.monthYear) {
-                      widget.onDateSelected(
-                        DateTime(_selectedYear, _selectedMonthIndex + 1),
-                      );
+                      DateTime finalDate = DateTime(_selectedYear, _selectedMonthIndex + 1);
+                      if (widget.minimumDate != null && finalDate.isBefore(widget.minimumDate!)) {
+                        finalDate = widget.minimumDate!;
+                      }
+                      if (widget.maximumDate != null && finalDate.isAfter(widget.maximumDate!)) {
+                        finalDate = widget.maximumDate!;
+                      }
+                      widget.onDateSelected(finalDate);
                     } else {
-                      widget.onDateSelected(_currentDate);
+                      DateTime finalDate = _currentDate;
+                      if (widget.minimumDate != null && finalDate.isBefore(widget.minimumDate!)) {
+                        finalDate = widget.minimumDate!;
+                      }
+                      if (widget.maximumDate != null && finalDate.isAfter(widget.maximumDate!)) {
+                        finalDate = widget.maximumDate!;
+                      }
+                      widget.onDateSelected(finalDate);
                     }
                   },
                   child: Text(
@@ -364,14 +392,12 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
             itemExtent: 40,
             onSelectedItemChanged: (index) {
               HapticService.selectionClick();
-              final startYear = widget.minimumDate?.year ?? 2000;
-              _pickerState.setYear(startYear + index);
+              _pickerState.setYear(_startYear + index);
             },
-            children: List.generate((widget.maximumDate?.year ?? 2100) - (widget.minimumDate?.year ?? 2000) + 1, (index) {
-              final startYear = widget.minimumDate?.year ?? 2000;
+            children: List.generate(_endYear - _startYear + 1, (index) {
               return Center(
                 child: Text(
-                  "${startYear + index}",
+                  "${_startYear + index}",
                   style: TextStyle(
                     color: isDark ? Colors.white : Colors.black,
                     fontSize: 20,
@@ -422,7 +448,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
           minimumDate: widget.minimumDate,
           maximumDate: widget.maximumDate,
           minimumYear: widget.minimumDate?.year ?? 1, // Yıl tekerleğini kısıtla
-          maximumYear: 2100, // Max yıl 2100
+          maximumYear: widget.maximumDate?.year ?? ((widget.minimumDate?.year ?? 0) > 2100 ? widget.minimumDate!.year : 2100), // Max yıl çökmesini önle
           use24hFormat: true,
           onDateTimeChanged: (date) {
             HapticService.selectionClick();
