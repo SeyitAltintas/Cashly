@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/exceptions/app_exceptions.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/core/services/error_logger_service.dart';
+import 'package:cashly/core/utils/error_translator.dart';
 
 /// Error handling ve kullanıcı feedback yardımcı fonksiyonları
 class ErrorHandler {
@@ -54,23 +55,10 @@ class ErrorHandler {
   ///
   /// Örnek: ErrorHandler.handleDatabaseError(context, exception);
   static void handleDatabaseError(BuildContext context, dynamic error) {
-    String userMessage = 'Bir hata oluştu. Lütfen tekrar deneyin.';
-
     // Log error for debugging
     debugPrint('Database Error: $error');
 
-    // Özel hata mesajları
-    final errorString = error.toString().toLowerCase();
-    if (errorString.contains('not found')) {
-      userMessage = 'Veri bulunamadı';
-    } else if (errorString.contains('connection')) {
-      userMessage = 'Bağlantı hatası. İnternet bağlantınızı kontrol edin.';
-    } else if (errorString.contains('timeout')) {
-      userMessage = 'İşlem zaman aşımına uğradı. Lütfen tekrar deneyin.';
-    } else if (errorString.contains('permission')) {
-      userMessage = 'Erişim izni hatası';
-    }
-
+    final userMessage = ErrorTranslator.translate(error);
     showErrorSnackBar(context, userMessage);
   }
 
