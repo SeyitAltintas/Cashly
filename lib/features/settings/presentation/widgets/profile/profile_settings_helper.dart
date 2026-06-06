@@ -736,7 +736,10 @@ class ProfileSettingsHelper {
             if (confirmed == true) {
               try {
                 final userId = currentUser.id;
-                await getIt<SettingsRepository>().deleteAllUserData(userId);
+                // GÜVENLİK YAMASI: deleteAllUserData BURADA ÇAĞRILMAZ!
+                // Eğer burada çağırırsak ve deleteUser (requires-recent-login) hatası fırlatırsa,
+                // hesap silinmez ama veriler kalıcı olarak silinmiş olur (Data Loss).
+                // Silme işlemi güvenli bir şekilde authRepository.deleteUser içinde yapılır.
                 await authRepository.deleteUser(userId);
                 await authController.logout();
 
