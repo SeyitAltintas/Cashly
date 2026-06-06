@@ -4,6 +4,7 @@ import '../services/haptic_service.dart';
 import '../state/month_year_picker_state.dart';
 import '../extensions/l10n_extensions.dart';
 import 'package:intl/intl.dart';
+import 'dart:ui';
 
 /// Picker Modları
 enum PickerMode {
@@ -149,19 +150,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     final useNeutral = widget.useNeutralSelectedStyle;
 
     return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
-      ),
-      height: 400 + MediaQuery.of(context).padding.bottom,
       decoration: BoxDecoration(
-        // Glassmorphism efekti
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: isDark
-              ? [const Color(0xFF1E1E2E), const Color(0xFF141420)]
-              : [Colors.white, Colors.grey.shade50],
-        ),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(28),
           topRight: Radius.circular(28),
@@ -174,6 +163,42 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
           ),
         ],
       ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(28),
+          topRight: Radius.circular(28),
+        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.85,
+            ),
+            height: 400 + MediaQuery.of(context).padding.bottom,
+            decoration: BoxDecoration(
+              // Gerçek Glassmorphism efekti
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isDark
+                    ? [
+                        const Color(0xFF1E1E2E).withValues(alpha: 0.85),
+                        const Color(0xFF141420).withValues(alpha: 0.95),
+                      ]
+                    : [
+                        Colors.white.withValues(alpha: 0.85),
+                        Colors.grey.shade50.withValues(alpha: 0.95),
+                      ],
+              ),
+              border: Border(
+                top: BorderSide(
+                  color: isDark 
+                      ? Colors.white.withValues(alpha: 0.1) 
+                      : Colors.white.withValues(alpha: 0.8),
+                  width: 1.5,
+                ),
+              ),
+            ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -312,6 +337,8 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
           // Alt padding (iOS safe area)
           SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
+      ),
+        ),
       ),
     );
   }
