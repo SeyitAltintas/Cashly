@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/exceptions/app_exceptions.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
+import 'package:cashly/core/services/error_logger_service.dart';
 
 /// Error handling ve kullanıcı feedback yardımcı fonksiyonları
 class ErrorHandler {
@@ -73,7 +74,7 @@ class ErrorHandler {
     showErrorSnackBar(context, userMessage);
   }
 
-  /// Genel hata loglama (development için)
+  /// Genel hata loglama (development ve production için)
   ///
   /// Örnek: ErrorHandler.logError("API Hatası", exception, stackTrace);
   static void logError(
@@ -88,6 +89,12 @@ class ErrorHandler {
       debugPrint('StackTrace: $stackTrace');
     }
     debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    // Hataları ErrorLoggerService aracılığıyla Crashlytics'e veya lokale yolla
+    ErrorLoggerService.logError(
+      'Error in $context: $error',
+      stackTrace: stackTrace?.toString(),
+    );
   }
 
   /// Onay dialogu gösterir

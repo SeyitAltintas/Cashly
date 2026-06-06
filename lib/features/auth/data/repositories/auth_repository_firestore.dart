@@ -14,6 +14,7 @@ import 'auth_repository_impl.dart';
 import '../../../../core/services/database_helper.dart';
 import '../../../../core/services/network_service.dart';
 import '../../../../core/services/secure_storage_service.dart';
+import '../../../../core/services/error_logger_service.dart';
 import 'package:bcrypt/bcrypt.dart';
 
 class AuthRepositoryFirestore implements AuthRepository {
@@ -639,6 +640,7 @@ class AuthRepositoryFirestore implements AuthRepository {
     await _firebaseAuth.signOut();
     await _localHiveRepo.logout();
     CacheService.clear();
+    await ErrorLoggerService.setUser(''); // Temizle
   }
 
   @override
@@ -908,6 +910,10 @@ class AuthRepositoryFirestore implements AuthRepository {
     }
 
     _startSessionRevocationListener(updatedUser.id, sessionId);
+    
+    // Crashlytics ve loglar için kullanıcıyı tanımla
+    await ErrorLoggerService.setUser(updatedUser.id, userName: updatedUser.name);
+    
     return updatedUser;
   }
 }

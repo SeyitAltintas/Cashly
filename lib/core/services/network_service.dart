@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+import 'package:cashly/core/services/error_logger_service.dart';
 
 
 /// Network bağlantı durumlarını temsil eden enum
@@ -96,6 +97,11 @@ class NetworkService extends ChangeNotifier with SafeNotifierMixin {
     if (_status != newStatus) {
       _status = newStatus;
       _statusController.add(_status);
+      
+      if (_status == NetworkStatus.online) {
+        ErrorLoggerService.flushLogsToCloud();
+      }
+      
       notifyListeners();
     }
   }
