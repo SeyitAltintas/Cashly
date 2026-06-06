@@ -104,7 +104,7 @@ bool _isolateIsWithinLimit(
     return date.year == selectedMonth.year && date.month == selectedMonth.month;
   }
   final todayStart = DateTime(todayDate.year, todayDate.month, todayDate.day);
-  final tomorrow = todayStart.add(const Duration(days: 1));
+  final nextMonthStart = DateTime(todayDate.year, todayDate.month + 1, 1);
 
   if (historyLimit == 30) {
     return date.year == todayDate.year && date.month == todayDate.month;
@@ -127,9 +127,16 @@ bool _isolateIsWithinLimit(
     } else {
       thresholdDate = todayStart.subtract(Duration(days: historyLimit));
     }
+    
+    // "Bu Hafta" (7) veya özel gün sayılarında yarına kadar (rolling window), 
+    // "Son 3 Ay" vb. calendar window'larda ise bu ayın sonuna kadar dahil edelim.
+    final upperBound = (historyLimit == 7) 
+        ? todayStart.add(const Duration(days: 1))
+        : nextMonthStart;
+        
     return (date.isAfter(thresholdDate) ||
             date.isAtSameMomentAs(thresholdDate)) &&
-        date.isBefore(tomorrow);
+        date.isBefore(upperBound);
   }
 }
 
@@ -214,9 +221,12 @@ Future<AnalysisComputeResult> _calculateAnalysisWorker(
     final deger = _isolateConvert(tutar, pb, targetCurrency, rates);
 
     totalExp += deger;
-    final kat = h['kategori']?.toString() ?? 'Diğer';
+    final katStr = h['kategori']?.toString() ?? '';
+    final kat = katStr.isEmpty ? 'Diğer' : katStr;
     catExpTotals[kat] = (catExpTotals[kat] ?? 0) + deger;
-    final pmId = h['odemeYontemiId']?.toString() ?? 'nakit';
+    
+    final pmStr = h['odemeYontemiId']?.toString() ?? '';
+    final pmId = pmStr.isEmpty ? 'nakit' : pmStr;
     pmExpTotals[pmId] = (pmExpTotals[pmId] ?? 0) + deger;
 
     DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
@@ -302,9 +312,10 @@ Future<AnalysisComputeResult> _calculateAnalysisWorker(
   final categoryMonths = <String, Set<String>>{};
   for (var g in payload.gelirler) {
     if (g.isDeleted) continue;
+    final kat = g.category.isEmpty ? 'Diğer' : g.category;
     final monthKey = "${g.date.year}-${g.date.month}";
-    categoryMonths.putIfAbsent(g.category, () => <String>{});
-    categoryMonths[g.category]!.add(monthKey);
+    categoryMonths.putIfAbsent(kat, () => <String>{});
+    categoryMonths[kat]!.add(monthKey);
   }
   final regIncomes = categoryMonths.entries
       .where((e) => e.value.length >= 2)
@@ -480,19 +491,23 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
     try {
       final today = DateTime.now();
       DateTime start;
-      final end = DateTime(today.year, today.month, today.day, 23, 59, 59);
+      DateTime end = DateTime(today.year, today.month, today.day, 23, 59, 59);
 
       if (limit == 7) {
         start = today.subtract(const Duration(days: 7));
       } else if (limit == 90) {
         start = DateTime(today.year, today.month - 3, 1);
+        end = DateTime(today.year, today.month + 1, 0, 23, 59, 59); // Bu ayın son günü
       } else if (limit == 180) {
         start = DateTime(today.year, today.month - 6, 1);
+        end = DateTime(today.year, today.month + 1, 0, 23, 59, 59);
       } else if (limit == 366) {
         // Bu yıl
         start = DateTime(today.year, 1, 1);
+        end = DateTime(today.year, today.month + 1, 0, 23, 59, 59);
       } else if (limit == 365) {
         start = DateTime(today.year - 1, today.month, today.day);
+        end = DateTime(today.year, today.month + 1, 0, 23, 59, 59);
       } else {
         start = today.subtract(Duration(days: limit));
       }
