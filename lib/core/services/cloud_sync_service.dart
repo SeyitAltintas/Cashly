@@ -30,76 +30,71 @@ class CloudSyncService {
 
       // 1. Gider Kategorileri
       final eCategorySnap = results[0];
-      if (eCategorySnap.docs.isNotEmpty) {
-        final cats = eCategorySnap.docs.map((d) => _sanitizeFirestoreMap(d.data())).toList();
-        CacheService.set('expense_categories_$userId', cats, ttl: _cloudSyncTtl);
-      }
+      final eCats = eCategorySnap.docs.map((d) => _sanitizeFirestoreMap(d.data())).toList();
+      CacheService.set('expense_categories_$userId', eCats, ttl: _cloudSyncTtl);
 
       // 2. Gelir Kategorileri
       final iCategorySnap = results[1];
-      if (iCategorySnap.docs.isNotEmpty) {
-        final cats = iCategorySnap.docs.map((d) => _sanitizeFirestoreMap(d.data())).toList();
-        CacheService.set('income_categories_$userId', cats, ttl: _cloudSyncTtl);
-      }
+      final iCats = iCategorySnap.docs.map((d) => _sanitizeFirestoreMap(d.data())).toList();
+      CacheService.set('income_categories_$userId', iCats, ttl: _cloudSyncTtl);
 
       // 3. Ayarlar (Bütçe, Gelir Hedefi, Tekrarlayanlar vb.)
       final settingsSnap = results[2];
       for (final doc in settingsSnap.docs) {
         final data = _sanitizeFirestoreMap(doc.data());
         if (doc.id == 'general') {
-          if (data.containsKey('budget')) {
-            CacheService.set(
-              'budget_$userId',
-              (data['budget'] as num).toDouble(),
-              ttl: _cloudSyncTtl,
-            );
+          final budget = data['budget'];
+          if (budget is num) {
+            CacheService.set('budget_$userId', budget.toDouble(), ttl: _cloudSyncTtl);
           }
-          if (data.containsKey('categoryBudgets')) {
+
+          final categoryBudgets = data['categoryBudgets'];
+          if (categoryBudgets is Map) {
             CacheService.set(
               'category_budgets_$userId',
               Map<String, double>.from(
-                (data['categoryBudgets'] as Map).map(
+                categoryBudgets.map(
                   (k, v) => MapEntry(k.toString(), (v as num).toDouble()),
                 ),
               ),
               ttl: _cloudSyncTtl,
             );
           }
-          if (data.containsKey('fixedExpenseTemplates')) {
+
+          final fixedExpenseTemplates = data['fixedExpenseTemplates'];
+          if (fixedExpenseTemplates is List) {
             CacheService.set(
               'fixed_templates_$userId',
-              List<Map<String, dynamic>>.from(
-                data['fixedExpenseTemplates'] as List,
-              ),
+              List<Map<String, dynamic>>.from(fixedExpenseTemplates),
               ttl: _cloudSyncTtl,
             );
           }
-          if (data.containsKey('voiceFeedback')) {
-            CacheService.set(
-              'voice_feedback_$userId',
-              data['voiceFeedback'] as bool,
-              ttl: _cloudSyncTtl,
-            );
+
+          final voiceFeedback = data['voiceFeedback'];
+          if (voiceFeedback is bool) {
+            CacheService.set('voice_feedback_$userId', voiceFeedback, ttl: _cloudSyncTtl);
           }
-          if (data.containsKey('transferHistoryLimit')) {
-            CacheService.set(
-              'transfer_limit_$userId',
-              (data['transferHistoryLimit'] as num).toInt(),
-              ttl: _cloudSyncTtl,
-            );
+
+          final transferHistoryLimit = data['transferHistoryLimit'];
+          if (transferHistoryLimit is num) {
+            CacheService.set('transfer_limit_$userId', transferHistoryLimit.toInt(), ttl: _cloudSyncTtl);
+          }
+
+          final defaultPaymentMethod = data['defaultPaymentMethod'];
+          if (defaultPaymentMethod is String) {
+            CacheService.set('default_payment_method_$userId', defaultPaymentMethod, ttl: _cloudSyncTtl);
           }
         } else if (doc.id == 'income') {
-          if (data.containsKey('monthlyIncomeTarget')) {
-            CacheService.set(
-              'income_target_$userId',
-              (data['monthlyIncomeTarget'] as num).toDouble(),
-              ttl: _cloudSyncTtl,
-            );
+          final monthlyIncomeTarget = data['monthlyIncomeTarget'];
+          if (monthlyIncomeTarget is num) {
+            CacheService.set('income_target_$userId', monthlyIncomeTarget.toDouble(), ttl: _cloudSyncTtl);
           }
-          if (data.containsKey('recurringIncomes')) {
+
+          final recurringIncomes = data['recurringIncomes'];
+          if (recurringIncomes is List) {
             CacheService.set(
               'income_templates_$userId',
-              List<Map<String, dynamic>>.from(data['recurringIncomes'] as List),
+              List<Map<String, dynamic>>.from(recurringIncomes),
               ttl: _cloudSyncTtl,
             );
           }
