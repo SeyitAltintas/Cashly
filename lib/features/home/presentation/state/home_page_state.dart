@@ -245,17 +245,25 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
 
     _expensesSubscription = expenseRepo
         .watchExpensesByMonth(userId, _secilenAy)
-        .listen((expenses) {
-          _tumHarcamalar = expenses;
-          notifyListeners();
-        });
+        .listen(
+          (expenses) {
+            _tumHarcamalar = expenses;
+            notifyListeners();
+          },
+          onError: (e, s) => _logStreamError('watchExpensesByMonth', e, s),
+          cancelOnError: false,
+        );
 
     _incomesSubscription = incomeRepo
         .watchIncomesByMonth(userId, _secilenAy)
-        .listen((incomesMap) {
-          _tumGelirler = incomesMap.map((map) => Income.fromMap(map)).toList();
-          notifyListeners();
-        });
+        .listen(
+          (incomesMap) {
+            _tumGelirler = incomesMap.map((map) => Income.fromMap(map)).toList();
+            notifyListeners();
+          },
+          onError: (e, s) => _logStreamError('watchIncomesByMonth', e, s),
+          cancelOnError: false,
+        );
   }
 
   /// Statik stream'ler — aya bağlı değil, sadece bir kez başlatılır
@@ -269,24 +277,41 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
 
     _assetsSubscription = assetRepo
         .watchAssets(userId)
-        .listen((assetsMap) {
-          _varliklar = assetsMap.map((map) => Asset.fromMap(map)).toList();
-          notifyListeners();
-        });
+        .listen(
+          (assetsMap) {
+            _varliklar = assetsMap.map((map) => Asset.fromMap(map)).toList();
+            notifyListeners();
+          },
+          onError: (e, s) => _logStreamError('watchAssets', e, s),
+          cancelOnError: false,
+        );
 
     _paymentMethodsSubscription = paymentRepo
         .watchPaymentMethods(userId)
-        .listen((methodsMap) {
-          _tumOdemeYontemleri = methodsMap.map((map) => PaymentMethod.fromMap(map)).toList();
-          notifyListeners();
-        });
+        .listen(
+          (methodsMap) {
+            _tumOdemeYontemleri = methodsMap.map((map) => PaymentMethod.fromMap(map)).toList();
+            notifyListeners();
+          },
+          onError: (e, s) => _logStreamError('watchPaymentMethods', e, s),
+          cancelOnError: false,
+        );
 
     _transfersSubscription = paymentRepo
         .watchTransfers(userId)
-        .listen((transfersMap) {
-          _tumTransferler = transfersMap.map((map) => Transfer.fromMap(map)).toList();
-          notifyListeners();
-        });
+        .listen(
+          (transfersMap) {
+            _tumTransferler = transfersMap.map((map) => Transfer.fromMap(map)).toList();
+            notifyListeners();
+          },
+          onError: (e, s) => _logStreamError('watchTransfers', e, s),
+          cancelOnError: false,
+        );
+  }
+
+  void _logStreamError(String streamName, Object error, StackTrace stackTrace) {
+    debugPrint('HomePageState: $streamName stream hatası (veri korundu): $error');
+    // Stream ölmez (cancelOnError: false), son veri UI'da kalmaya devam eder.
   }
 
   /// Zamanlanmış transferleri kontrol eder ve tarihi gelenleri uygular

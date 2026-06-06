@@ -161,25 +161,23 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  /// Tüm verileri repository'lerden okur
   Future<void> _verileriOku() async {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
 
-    // Önce cache'den anında yükle (hızlı ilk görüntü)
+    // Cache'den anında yükle + stream'leri başlat (hızlı ilk görüntü)
     _homeState.loadData(userId);
 
-    // Arka planda buluttan güncelle ve UI'yı yenile
+    // Arka planda kategorileri/ayarları güncelle (CloudSyncService kendi timeout'unu yönetir)
+    // Stream'ler zaten Firestore offline cache'ten anlık güncelleme yapıyor,
+    // bu yüzden sync sonrası loadData() tekrar çağrılmıyor.
     try {
-      await CloudSyncService.syncAllUserData(userId).timeout(
-        const Duration(seconds: 15),
-      );
+      await CloudSyncService.syncAllUserData(userId);
       if (mounted) {
-        _homeState.loadData(userId);
         _homeState.updateAssetPrices(userId);
       }
     } catch (_) {
-      // Offline veya timeout: cache gösterilir, sorun yok
+      // Offline veya hata: stream'ler mevcut cache'i göstermeye devam eder
       if (mounted) {
         _homeState.updateAssetPrices(userId);
       }

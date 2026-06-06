@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('ErrorHandler', () {
     group('logError', () {
       test('debug mesajı yazdırır (hata atmaz)', () {

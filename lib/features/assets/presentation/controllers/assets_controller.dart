@@ -176,12 +176,17 @@ class AssetsController extends ChangeNotifier with SafeNotifierMixin {
     }
 
     try {
-      final assetsData = _assetRepository.getAssets(userId);
-      _assets = assetsData.map((m) => Asset.fromMap(m)).toList();
+      if (!isRefresh) {
+        // İlk yükleme: CacheService'den oku (stream henüz ısınmamış olabilir)
+        final assetsData = _assetRepository.getAssets(userId);
+        _assets = assetsData.map((m) => Asset.fromMap(m)).toList();
 
-      final deletedData = _assetRepository.getDeletedAssets(userId);
-      _deletedAssets = deletedData.map((m) => Asset.fromMap(m)).toList();
-
+        final deletedData = _assetRepository.getDeletedAssets(userId);
+        _deletedAssets = deletedData.map((m) => Asset.fromMap(m)).toList();
+      }
+      // isRefresh=true durumunda stream zaten güncel veriyi push'luyor;
+      // _assets widget prop'larından güncelleniyor (didUpdateWidget).
+      // CacheService'den okumak stream verisini ezebilir, bu yüzden atlanır.
       filtrele('');
     } catch (e, s) {
       ErrorHandler.logError('AssetsController.loadData', e, s);

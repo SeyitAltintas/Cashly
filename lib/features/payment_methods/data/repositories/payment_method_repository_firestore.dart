@@ -63,9 +63,13 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
     return _userDoc(userId).collection('paymentMethods').snapshots().map((
       snapshot,
     ) {
-      final methods = snapshot.docs.isEmpty
-          ? _defaultPaymentMethods
-          : snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();
+      if (snapshot.docs.isEmpty) {
+        // Boş snapshot: Firestore offline cache henüz ısınmamış olabilir veya
+        // kullanıcının gerçekten hiç ödeme yöntemi yok. CacheService'e yazmıyoruz
+        // (mevcut cache'i koruyoruz), UI için default değer döndürüyoruz.
+        return _defaultPaymentMethods;
+      }
+      final methods = snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();
       CacheService.set('payment_methods_$userId', methods);
       return methods;
     });
