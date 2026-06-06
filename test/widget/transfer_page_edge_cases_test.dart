@@ -79,6 +79,14 @@ class _MockPaymentMethodRepository implements PaymentMethodRepository {
     String userId,
     Map<String, dynamic> transfer,
   ) async {}
+
+  @override
+  Stream<List<Map<String, dynamic>>> watchPaymentMethods(String userId) =>
+      const Stream.empty();
+
+  @override
+  Stream<List<Map<String, dynamic>>> watchTransfers(String userId) =>
+      const Stream.empty();
 }
 
 class DummyBatchOperation implements BatchOperation {

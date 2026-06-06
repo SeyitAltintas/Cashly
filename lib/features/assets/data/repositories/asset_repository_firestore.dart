@@ -39,6 +39,7 @@ class AssetRepositoryFirestore implements AssetRepository {
     return sanitized;
   }
 
+  @override
   Stream<List<Map<String, dynamic>>> watchAssets(String userId) {
     return _userDoc(userId).collection('assets').snapshots().map((snapshot) {
       final assets = snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();

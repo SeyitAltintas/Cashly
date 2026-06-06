@@ -28,48 +28,24 @@ class CloudSyncService {
         userDoc.collection('settings').get(), // 2
       ]).timeout(const Duration(seconds: 10));
 
-      // GÜVENLİK/KARARLILIK YAMASI: 
-      // Firestore'dan dönen verilerin içindeki 'createdAt', 'updatedAt' gibi her türlü 
-      // Timestamp değişkeni Hive (CacheService) tarafından desteklenmediği için 
-      // uygulama çökmelerine sebep olabilir. Bunu engellemek için genel bir çevirici kullanıyoruz.
-      Map<String, dynamic> sanitizeMap(Map<String, dynamic> map) {
-        final sanitized = <String, dynamic>{};
-        map.forEach((key, value) {
-          if (value is Timestamp) {
-            sanitized[key] = value.toDate().toIso8601String();
-          } else if (value is Map) {
-            sanitized[key] = sanitizeMap(Map<String, dynamic>.from(value));
-          } else if (value is List) {
-            sanitized[key] = value.map((e) {
-              if (e is Timestamp) return e.toDate().toIso8601String();
-              if (e is Map) return sanitizeMap(Map<String, dynamic>.from(e));
-              return e;
-            }).toList();
-          } else {
-            sanitized[key] = value;
-          }
-        });
-        return sanitized;
-      }
-
       // 1. Gider Kategorileri
       final eCategorySnap = results[0];
       if (eCategorySnap.docs.isNotEmpty) {
-        final cats = eCategorySnap.docs.map((d) => sanitizeMap(d.data())).toList();
+        final cats = eCategorySnap.docs.map((d) => _sanitizeFirestoreMap(d.data())).toList();
         CacheService.set('expense_categories_$userId', cats, ttl: _cloudSyncTtl);
       }
 
       // 2. Gelir Kategorileri
       final iCategorySnap = results[1];
       if (iCategorySnap.docs.isNotEmpty) {
-        final cats = iCategorySnap.docs.map((d) => sanitizeMap(d.data())).toList();
+        final cats = iCategorySnap.docs.map((d) => _sanitizeFirestoreMap(d.data())).toList();
         CacheService.set('income_categories_$userId', cats, ttl: _cloudSyncTtl);
       }
 
       // 3. Ayarlar (Bütçe, Gelir Hedefi, Tekrarlayanlar vb.)
       final settingsSnap = results[2];
       for (final doc in settingsSnap.docs) {
-        final data = sanitizeMap(doc.data());
+        final data = _sanitizeFirestoreMap(doc.data());
         if (doc.id == 'general') {
           if (data.containsKey('budget')) {
             CacheService.set(
@@ -108,7 +84,7 @@ class CloudSyncService {
       debugPrint('CloudSyncService: Senkronizasyon BASARILI (Kategoriler & Ayarlar)');
     } on TimeoutException {
       debugPrint(
-        'CloudSyncService: Zaman aşımı (20s). Var olan cache korundu.',
+        'CloudSyncService: Zaman aşımı (10s). Var olan cache korundu.',
       );
     } catch (e, stackTrace) {
       debugPrint('CloudSyncService: HATA: $e\n$stackTrace');
@@ -117,6 +93,28 @@ class CloudSyncService {
 }
 
 /// Buluttan gelen verilerin cache'de 24 saat boyunca canlı kalmasını sağlar.
-/// Böylece kullanıcı uygulama içinde dolaşırken 5 dakikalık TTL nedeniyle
-/// veri kaybolmaz. Veri, bir sonraki girişte veya uygulama yeniden başlatıldığında yenilenir.
+/// (CacheService default TTL'i 5dk olduğundan uzun süreli oturumlarda
+/// kategori/ayar verilerinin kaybolmaması için ayrı bir TTL kullanılır.)
 const _cloudSyncTtl = Duration(hours: 24);
+
+/// Firestore Timestamp ve iç içe Map/List'leri güvenle String/primitive'e çevirir.
+/// CacheService'in Timestamp desteklememesinden kaynaklanan çökmeleri önler.
+Map<String, dynamic> _sanitizeFirestoreMap(Map<String, dynamic> map) {
+  final sanitized = <String, dynamic>{};
+  map.forEach((key, value) {
+    if (value is Timestamp) {
+      sanitized[key] = value.toDate().toIso8601String();
+    } else if (value is Map) {
+      sanitized[key] = _sanitizeFirestoreMap(Map<String, dynamic>.from(value));
+    } else if (value is List) {
+      sanitized[key] = value.map((e) {
+        if (e is Timestamp) return e.toDate().toIso8601String();
+        if (e is Map) return _sanitizeFirestoreMap(Map<String, dynamic>.from(e));
+        return e;
+      }).toList();
+    } else {
+      sanitized[key] = value;
+    }
+  });
+  return sanitized;
+}

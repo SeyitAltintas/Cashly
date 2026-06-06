@@ -115,7 +115,9 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
       _secilenAy = value;
       notifyListeners();
       if (_userId != null) {
-        _startStreams(_userId!);
+        // Sadece aylık stream'ler (expenses/incomes) yeniden başlatılır.
+        // Statik stream'ler (assets/payment/transfers) ay değişiminden etkilenmez.
+        _startMonthlyStreams(_userId!);
       }
     }
   }
@@ -229,16 +231,17 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
   void notifyAll() => notifyListeners();
 
   void _startStreams(String userId) {
+    _startMonthlyStreams(userId);
+    _startStaticStreams(userId);
+  }
+
+  /// Aylık filtreli stream'ler (ay değişince yeniden başlatılır)
+  void _startMonthlyStreams(String userId) {
     _expensesSubscription?.cancel();
     _incomesSubscription?.cancel();
-    _assetsSubscription?.cancel();
-    _paymentMethodsSubscription?.cancel();
-    _transfersSubscription?.cancel();
 
     final expenseRepo = getIt<ExpenseRepository>();
     final incomeRepo = getIt<IncomeRepository>();
-    final assetRepo = getIt<AssetRepository>();
-    final paymentRepo = getIt<PaymentMethodRepository>();
 
     _expensesSubscription = expenseRepo
         .watchExpensesByMonth(userId, _secilenAy)
@@ -253,6 +256,16 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
           _tumGelirler = incomesMap.map((map) => Income.fromMap(map)).toList();
           notifyListeners();
         });
+  }
+
+  /// Statik stream'ler — aya bağlı değil, sadece bir kez başlatılır
+  void _startStaticStreams(String userId) {
+    _assetsSubscription?.cancel();
+    _paymentMethodsSubscription?.cancel();
+    _transfersSubscription?.cancel();
+
+    final assetRepo = getIt<AssetRepository>();
+    final paymentRepo = getIt<PaymentMethodRepository>();
 
     _assetsSubscription = assetRepo
         .watchAssets(userId)

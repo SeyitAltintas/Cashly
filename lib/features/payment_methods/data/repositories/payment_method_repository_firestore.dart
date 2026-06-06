@@ -58,6 +58,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
     return sanitized;
   }
 
+  @override
   Stream<List<Map<String, dynamic>>> watchPaymentMethods(String userId) {
     return _userDoc(userId).collection('paymentMethods').snapshots().map((
       snapshot,
@@ -320,6 +321,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         [];
   }
 
+  @override
   Stream<List<Map<String, dynamic>>> watchTransfers(String userId) {
     return _userDoc(userId)
         .collection('transfers')
