@@ -16,9 +16,32 @@ class AssetRepositoryFirestore implements AssetRepository {
     return CacheService.get<List<Map<String, dynamic>>>('assets_$userId') ?? [];
   }
 
+  // GÜVENLİK/KARARLILIK YAMASI: 
+  // Firestore verisi içindeki Timestamp'ler Hive'da desteklenmediğinden
+  // okunurken her zaman String (ISO-8601) formatına dönüştürülmelidir.
+  Map<String, dynamic> _sanitizeMap(Map<String, dynamic> map) {
+    final sanitized = <String, dynamic>{};
+    map.forEach((key, value) {
+      if (value is Timestamp) {
+        sanitized[key] = value.toDate().toIso8601String();
+      } else if (value is Map) {
+        sanitized[key] = _sanitizeMap(Map<String, dynamic>.from(value));
+      } else if (value is List) {
+        sanitized[key] = value.map((e) {
+          if (e is Timestamp) return e.toDate().toIso8601String();
+          if (e is Map) return _sanitizeMap(Map<String, dynamic>.from(e));
+          return e;
+        }).toList();
+      } else {
+        sanitized[key] = value;
+      }
+    });
+    return sanitized;
+  }
+
   Stream<List<Map<String, dynamic>>> watchAssets(String userId) {
     return _userDoc(userId).collection('assets').snapshots().map((snapshot) {
-      final assets = snapshot.docs.map((doc) => doc.data()).toList();
+      final assets = snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();
       CacheService.set('assets_$userId', assets);
       return assets;
     });

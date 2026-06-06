@@ -7,8 +7,6 @@ import '../../../../auth/domain/entities/user_entity.dart';
 import '../../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../../auth/domain/repositories/auth_repository.dart';
 import '../../../../auth/presentation/pages/login_page.dart';
-import '../../../../../core/di/injection_container.dart';
-import '../../../../settings/domain/repositories/settings_repository.dart';
 import '../../../../../core/widgets/app_snackbar.dart';
 import '../../../../../core/services/image_compression_service.dart';
 import 'image_crop_screen.dart';

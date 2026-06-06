@@ -35,74 +35,63 @@ class CloudSyncService {
         userDoc.collection('deletedAssets').get(), // 7
       ]).timeout(const Duration(seconds: 20));
 
+      // GÜVENLİK/KARARLILIK YAMASI: 
+      // Firestore'dan dönen verilerin içindeki 'createdAt', 'updatedAt' gibi her türlü 
+      // Timestamp değişkeni Hive (CacheService) tarafından desteklenmediği için 
+      // uygulama çökmelerine sebep olabilir. Bunu engellemek için genel bir çevirici kullanıyoruz.
+      Map<String, dynamic> _sanitizeMap(Map<String, dynamic> map) {
+        final sanitized = <String, dynamic>{};
+        map.forEach((key, value) {
+          if (value is Timestamp) {
+            sanitized[key] = value.toDate().toIso8601String();
+          } else if (value is Map) {
+            sanitized[key] = _sanitizeMap(Map<String, dynamic>.from(value));
+          } else if (value is List) {
+            sanitized[key] = value.map((e) {
+              if (e is Timestamp) return e.toDate().toIso8601String();
+              if (e is Map) return _sanitizeMap(Map<String, dynamic>.from(e));
+              return e;
+            }).toList();
+          } else {
+            sanitized[key] = value;
+          }
+        });
+        return sanitized;
+      }
+
       // 1. Varlıklar
       final assetsSnap = results[0];
-      final assets = assetsSnap.docs.map((d) {
-        final data = Map<String, dynamic>.from(d.data());
-        if (data['lastUpdated'] is Timestamp) {
-          data['lastUpdated'] = (data['lastUpdated'] as Timestamp)
-              .toDate()
-              .toIso8601String();
-        }
-        return data;
-      }).toList();
+      final assets = assetsSnap.docs.map((d) => _sanitizeMap(d.data())).toList();
       CacheService.set('assets_$userId', assets, ttl: _cloudSyncTtl);
 
       // 2. Ödeme Yöntemleri
       final paymentSnap = results[1];
-      final methods = paymentSnap.docs.map((d) {
-        final data = Map<String, dynamic>.from(d.data());
-        if (data['createdAt'] is Timestamp) {
-          data['createdAt'] = (data['createdAt'] as Timestamp)
-              .toDate()
-              .toIso8601String();
-        }
-        return data;
-      }).toList();
+      final methods = paymentSnap.docs.map((d) => _sanitizeMap(d.data())).toList();
       CacheService.set('payment_methods_$userId', methods, ttl: _cloudSyncTtl);
 
-      // 3. Transferler (EC-5: Timestamp dönüşümü eklendi)
+      // 3. Transferler
       final transferSnap = results[2];
-      final transfers = transferSnap.docs.map((d) {
-        final data = Map<String, dynamic>.from(d.data());
-        if (data['date'] is Timestamp) {
-          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
-        }
-        if (data['tarih'] is Timestamp) {
-          data['tarih'] = (data['tarih'] as Timestamp)
-              .toDate()
-              .toIso8601String();
-        }
-        return data;
-      }).toList();
+      final transfers = transferSnap.docs.map((d) => _sanitizeMap(d.data())).toList();
       CacheService.set('transfers_$userId', transfers, ttl: _cloudSyncTtl);
 
       // 4. Gider Kategorileri
       final eCategorySnap = results[3];
       if (eCategorySnap.docs.isNotEmpty) {
-        final cats = eCategorySnap.docs
-            .map((d) => Map<String, dynamic>.from(d.data()))
-            .toList();
-        CacheService.set(
-          'expense_categories_$userId',
-          cats,
-          ttl: _cloudSyncTtl,
-        );
+        final cats = eCategorySnap.docs.map((d) => _sanitizeMap(d.data())).toList();
+        CacheService.set('expense_categories_$userId', cats, ttl: _cloudSyncTtl);
       }
 
       // 5. Gelir Kategorileri
       final iCategorySnap = results[4];
       if (iCategorySnap.docs.isNotEmpty) {
-        final cats = iCategorySnap.docs
-            .map((d) => Map<String, dynamic>.from(d.data()))
-            .toList();
+        final cats = iCategorySnap.docs.map((d) => _sanitizeMap(d.data())).toList();
         CacheService.set('income_categories_$userId', cats, ttl: _cloudSyncTtl);
       }
 
       // 6. Ayarlar (Bütçe, Gelir Hedefi, Tekrarlayanlar vb.)
       final settingsSnap = results[5];
       for (final doc in settingsSnap.docs) {
-        final data = doc.data();
+        final data = _sanitizeMap(doc.data());
         if (doc.id == 'general') {
           if (data.containsKey('budget')) {
             CacheService.set(
@@ -141,43 +130,13 @@ class CloudSyncService {
       // 7. Silinen Ödeme Yöntemleri ve Varlıklar (Soft Deletes)
       final dPaymentSnap = results[6];
       if (dPaymentSnap.docs.isNotEmpty) {
-        final methods = dPaymentSnap.docs
-            .map((d) {
-              final data = Map<String, dynamic>.from(d.data());
-              if (data['createdAt'] is Timestamp) {
-                data['createdAt'] = (data['createdAt'] as Timestamp)
-                    .toDate()
-                    .toIso8601String();
-              }
-              if (data['updatedAt'] is Timestamp) {
-                data['updatedAt'] = (data['updatedAt'] as Timestamp)
-                    .toDate()
-                    .toIso8601String();
-              }
-              return data;
-            })
-            .toList();
-        CacheService.set('deleted_payment_methods_$userId', methods, ttl: _cloudSyncTtl);
+        final dMethods = dPaymentSnap.docs.map((d) => _sanitizeMap(d.data())).toList();
+        CacheService.set('deleted_payment_methods_$userId', dMethods, ttl: _cloudSyncTtl);
       }
 
       final dAssetSnap = results[7];
       if (dAssetSnap.docs.isNotEmpty) {
-        final assetsList = dAssetSnap.docs
-            .map((d) {
-              final data = Map<String, dynamic>.from(d.data());
-              if (data['lastUpdated'] is Timestamp) {
-                data['lastUpdated'] = (data['lastUpdated'] as Timestamp)
-                    .toDate()
-                    .toIso8601String();
-              }
-              if (data['createdAt'] is Timestamp) {
-                data['createdAt'] = (data['createdAt'] as Timestamp)
-                    .toDate()
-                    .toIso8601String();
-              }
-              return data;
-            })
-            .toList();
+        final assetsList = dAssetSnap.docs.map((d) => _sanitizeMap(d.data())).toList();
         CacheService.set('deleted_assets_$userId', assetsList, ttl: _cloudSyncTtl);
       }
 

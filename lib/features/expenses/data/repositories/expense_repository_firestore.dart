@@ -399,9 +399,23 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
   // -- Yardımcı metodlar --
 
   void _convertTimestampToString(Map<String, dynamic> data) {
-    if (data['tarih'] is Timestamp) {
-      data['tarih'] = (data['tarih'] as Timestamp).toDate().toIso8601String();
-    }
+    data.forEach((key, value) {
+      if (value is Timestamp) {
+        data[key] = value.toDate().toIso8601String();
+      } else if (value is Map) {
+        _convertTimestampToString(Map<String, dynamic>.from(value));
+      } else if (value is List) {
+        data[key] = value.map((e) {
+          if (e is Timestamp) return e.toDate().toIso8601String();
+          if (e is Map) {
+            final m = Map<String, dynamic>.from(e);
+            _convertTimestampToString(m);
+            return m;
+          }
+          return e;
+        }).toList();
+      }
+    });
   }
 
   Map<String, dynamic> _convertStringToTimestamp(Map<String, dynamic> source) {

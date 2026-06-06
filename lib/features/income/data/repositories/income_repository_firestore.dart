@@ -31,19 +31,36 @@ class IncomeRepositoryFirestore implements IncomeRepository {
     return [];
   }
 
+  // GÜVENLİK/KARARLILIK YAMASI: 
+  // Firestore verisi içinde 'date' harici (örneğin 'updatedAt') dönen herhangi bir Timestamp
+  // Hive tarafında desteklenmediği için çökmeye sebep olur. Hepsini bulup String'e çeviren yardımcı:
+  Map<String, dynamic> _sanitizeMap(Map<String, dynamic> map) {
+    final sanitized = <String, dynamic>{};
+    map.forEach((key, value) {
+      if (value is Timestamp) {
+        sanitized[key] = value.toDate().toIso8601String();
+      } else if (value is Map) {
+        sanitized[key] = _sanitizeMap(Map<String, dynamic>.from(value));
+      } else if (value is List) {
+        sanitized[key] = value.map((e) {
+          if (e is Timestamp) return e.toDate().toIso8601String();
+          if (e is Map) return _sanitizeMap(Map<String, dynamic>.from(e));
+          return e;
+        }).toList();
+      } else {
+        sanitized[key] = value;
+      }
+    });
+    return sanitized;
+  }
+
   Stream<List<Map<String, dynamic>>> watchIncomes(String userId) {
     return _userDoc(
       userId,
     ).collection('incomes').orderBy('date', descending: true).snapshots().map((
       snapshot,
     ) {
-      final incomes = snapshot.docs.map((doc) {
-        final data = doc.data();
-        if (data['date'] is Timestamp) {
-          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
-        }
-        return data;
-      }).toList();
+      final incomes = snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();
       CacheService.set('incomes_$userId', incomes);
       return incomes;
     });
@@ -72,15 +89,7 @@ class IncomeRepositoryFirestore implements IncomeRepository {
         .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = doc.data();
-            if (data['date'] is Timestamp) {
-              data['date'] = (data['date'] as Timestamp)
-                  .toDate()
-                  .toIso8601String();
-            }
-            return data;
-          }).toList();
+          return snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();
         });
   }
 
@@ -97,13 +106,7 @@ class IncomeRepositoryFirestore implements IncomeRepository {
           .where('date', isLessThanOrEqualTo: Timestamp.fromDate(end))
           .orderBy('date', descending: true)
           .get();
-      return snap.docs.map((doc) {
-        final data = doc.data();
-        if (data['date'] is Timestamp) {
-          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
-        }
-        return data;
-      }).toList();
+      return snap.docs.map((doc) => _sanitizeMap(doc.data())).toList();
     } catch (e) {
       debugPrint('fetchIncomesForDateRange hatası: $e');
       return [];
