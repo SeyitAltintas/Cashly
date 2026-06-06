@@ -796,6 +796,16 @@ class AuthRepositoryFirestore implements AuthRepository {
         );
       }
 
+      // GÜVENLİK YAMASI: Firebase 'updatePassword' mevcut şifreyi kontrol etmeden, 
+      // sadece oturum taze ise doğrudan günceller. Başka biri telefonu açık 
+      // bulduğunda mevcut şifreyi bilmese de değiştirebilir!
+      // Bu yüzden önce lokalde doğrulama yapıyoruz:
+      if (currentPin.isEmpty) throw Exception("Mevcut PIN boş olamaz.");
+      final verifiedUser = await _localHiveRepo.loginUser(userId, currentPin);
+      if (verifiedUser == null) {
+        throw Exception("Mevcut PIN hatalı.");
+      }
+
       // 1. Firebase Auth şifresi güncelle
       try {
         await user.updatePassword(newPin);

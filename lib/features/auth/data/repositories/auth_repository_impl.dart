@@ -316,6 +316,22 @@ class AuthRepositoryImpl implements AuthRepository {
 
     if (userData != null) {
       final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
+
+      // GÜVENLİK YAMASI: Mevcut PIN doğrulama
+      if (currentPin.isNotEmpty) {
+        bool isMatch = false;
+        if (_isHashed(user.pin)) {
+          try {
+            isMatch = BCrypt.checkpw(currentPin, user.pin);
+          } catch (_) {}
+        } else {
+          isMatch = (user.pin == currentPin);
+        }
+        if (!isMatch) {
+          throw Exception("Mevcut PIN hatalı.");
+        }
+      }
+
       final updatedUser = UserModel(
         id: user.id,
         name: user.name,
