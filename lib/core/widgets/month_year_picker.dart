@@ -337,10 +337,11 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
           // Alt padding (iOS safe area)
           SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
-      ),
-        ),
-      ),
-    );
+      ), // Column
+          ), // Container
+        ), // BackdropFilter
+      ), // ClipRRect
+    ); // Outer Container
   }
 
   IconData _getIconForMode(PickerMode mode) {
