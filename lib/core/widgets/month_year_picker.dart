@@ -35,7 +35,6 @@ class MonthYearPicker extends StatefulWidget {
     this.mode = PickerMode.monthYear,
   });
 
-  /// Bottom sheet olarak göster ve seçilen tarihi döndür
   static Future<DateTime?> show(
     BuildContext context, {
     required DateTime initialDate,
@@ -44,15 +43,20 @@ class MonthYearPicker extends StatefulWidget {
     Color? accentColor,
     bool useNeutralSelectedStyle = false,
     PickerMode mode = PickerMode.monthYear,
-  }) async {
-    DateTime? selectedDate;
+  }) {
+    // Sınır koruması: minimum > maximum ise düzelt
+    if (minimumDate != null && maximumDate != null && minimumDate.isAfter(maximumDate)) {
+      final temp = minimumDate;
+      minimumDate = maximumDate;
+      maximumDate = temp;
+    }
 
-    bool isPopped = false;
-
-    await showModalBottomSheet(
+    return showModalBottomSheet<DateTime>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      useSafeArea: true,
+      useRootNavigator: true,
       builder: (sheetContext) => MonthYearPicker(
         initialDate: initialDate,
         minimumDate: minimumDate,
@@ -61,15 +65,12 @@ class MonthYearPicker extends StatefulWidget {
         useNeutralSelectedStyle: useNeutralSelectedStyle,
         mode: mode,
         onDateSelected: (date) {
-          if (isPopped) return;
-          isPopped = true;
-          selectedDate = date;
-          Navigator.pop(sheetContext);
+          if (sheetContext.mounted) {
+            Navigator.of(sheetContext).pop(date);
+          }
         },
       ),
     );
-
-    return selectedDate;
   }
 
   @override
