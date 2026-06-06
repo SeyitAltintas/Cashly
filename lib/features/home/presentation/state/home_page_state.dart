@@ -14,6 +14,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/constants/icon_constants.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/services/asset_price_update_service.dart';
+import '../../../../core/services/batch_service.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
@@ -350,6 +351,8 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
     List<String> basarisizTransferler = [];
     final currencyService = getIt<CurrencyService>();
     final pmRepo = getIt<PaymentMethodRepository>();
+    final batchService = getIt<BatchService>();
+    final List<BatchOperation> operations = [];
 
     for (int i = 0; i < _tumTransferler.length; i++) {
       final transfer = _tumTransferler[i];
@@ -360,7 +363,7 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
 
         if (fromIndex == -1) {
           _tumTransferler[i] = transfer.copyWith(isFailed: true, failureReason: context.l10n.senderAccountNotFound);
-          pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+          operations.add(pmRepo.getUpdateTransferOperation(userId, _tumTransferler[i].toMap()));
           basarisizTransferler.add(context.l10n.senderAccountNotFound);
           transferDegisti = true;
           continue;
@@ -368,7 +371,7 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
 
         if (toIndex == -1) {
           _tumTransferler[i] = transfer.copyWith(isFailed: true, failureReason: context.l10n.receiverAccountNotFound);
-          pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+          operations.add(pmRepo.getUpdateTransferOperation(userId, _tumTransferler[i].toMap()));
           basarisizTransferler.add(context.l10n.receiverAccountNotFound);
           transferDegisti = true;
           continue;
@@ -379,7 +382,7 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
 
         if (fromPm.isDeleted) {
           _tumTransferler[i] = transfer.copyWith(isFailed: true, failureReason: context.l10n.accountDeleted(fromPm.name));
-          pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+          operations.add(pmRepo.getUpdateTransferOperation(userId, _tumTransferler[i].toMap()));
           basarisizTransferler.add(context.l10n.accountDeleted(fromPm.name));
           transferDegisti = true;
           continue;
@@ -387,7 +390,7 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
 
         if (toPm.isDeleted) {
           _tumTransferler[i] = transfer.copyWith(isFailed: true, failureReason: context.l10n.accountDeleted(toPm.name));
-          pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+          operations.add(pmRepo.getUpdateTransferOperation(userId, _tumTransferler[i].toMap()));
           basarisizTransferler.add(context.l10n.accountDeleted(toPm.name));
           transferDegisti = true;
           continue;
@@ -405,7 +408,7 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
 
         if (limitVeyaBakiyeAsildi) {
           _tumTransferler[i] = transfer.copyWith(isFailed: true, failureReason: context.l10n.insufficientBalanceAccount(fromPm.name));
-          pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+          operations.add(pmRepo.getUpdateTransferOperation(userId, _tumTransferler[i].toMap()));
           basarisizTransferler.add(context.l10n.insufficientBalanceAccount(fromPm.name));
           transferDegisti = true;
           continue;
@@ -413,7 +416,7 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
 
         if (toPm.type == 'kredi' && toPm.balance <= 0) {
           _tumTransferler[i] = transfer.copyWith(isFailed: true, failureReason: context.l10n.noDebtToPay(toPm.name));
-          pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+          operations.add(pmRepo.getUpdateTransferOperation(userId, _tumTransferler[i].toMap()));
           basarisizTransferler.add(context.l10n.noDebtToPay(toPm.name));
           transferDegisti = true;
           continue;
@@ -421,17 +424,23 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
 
         double fromYeniBakiye = fromPm.type == 'kredi' ? fromPm.balance + convertedTransferAmountFrom : fromPm.balance - convertedTransferAmountFrom;
         _tumOdemeYontemleri[fromIndex] = fromPm.copyWith(balance: fromYeniBakiye);
-        pmRepo.updatePaymentMethod(userId, _tumOdemeYontemleri[fromIndex].toMap());
+        operations.add(pmRepo.getUpdatePaymentMethodOperation(userId, _tumOdemeYontemleri[fromIndex].toMap()));
 
         final convertedTransferAmountTo = currencyService.convert(transfer.amount, transfer.paraBirimi, toPm.paraBirimi);
         double toYeniBakiye = toPm.type == 'kredi' ? toPm.balance - convertedTransferAmountTo : toPm.balance + convertedTransferAmountTo;
         _tumOdemeYontemleri[toIndex] = toPm.copyWith(balance: toYeniBakiye);
-        pmRepo.updatePaymentMethod(userId, _tumOdemeYontemleri[toIndex].toMap());
+        operations.add(pmRepo.getUpdatePaymentMethodOperation(userId, _tumOdemeYontemleri[toIndex].toMap()));
 
         _tumTransferler[i] = transfer.copyWith(isExecuted: true);
-        pmRepo.updateTransfer(userId, _tumTransferler[i].toMap());
+        operations.add(pmRepo.getUpdateTransferOperation(userId, _tumTransferler[i].toMap()));
         transferDegisti = true;
       }
+    }
+
+    if (operations.isNotEmpty) {
+      batchService.commit(operations).catchError((e) {
+        debugPrint('Toplu transfer güncellemeleri işlenirken hata: $e');
+      });
     }
 
     if (transferDegisti) {

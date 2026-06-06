@@ -356,6 +356,23 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
   }
 
   @override
+  BatchOperation getUpdateTransferOperation(String userId, Map<String, dynamic> transfer) {
+    if ((transfer['id']?.toString() ?? '').isEmpty) {
+      throw Exception('Transfer güncellenirken ID eksik!');
+    }
+    
+    final data = Map<String, dynamic>.from(transfer);
+    data['updatedAt'] = FieldValue.serverTimestamp();
+    
+    return FirestoreBatchOperation(
+      collectionPath: 'users/$userId/transfers',
+      documentId: transfer['id'].toString(),
+      type: BatchOperationType.update,
+      data: data,
+    );
+  }
+
+  @override
   Future<void> addTransfer(String userId, Map<String, dynamic> transfer) async {
     try {
       if ((transfer['id']?.toString() ?? '').isEmpty) {
