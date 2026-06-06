@@ -47,11 +47,13 @@ class MonthYearPicker extends StatefulWidget {
   }) async {
     DateTime? selectedDate;
 
+    bool isPopped = false;
+
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => MonthYearPicker(
+      builder: (sheetContext) => MonthYearPicker(
         initialDate: initialDate,
         minimumDate: minimumDate,
         maximumDate: maximumDate,
@@ -59,8 +61,10 @@ class MonthYearPicker extends StatefulWidget {
         useNeutralSelectedStyle: useNeutralSelectedStyle,
         mode: mode,
         onDateSelected: (date) {
+          if (isPopped) return;
+          isPopped = true;
           selectedDate = date;
-          Navigator.pop(context);
+          Navigator.pop(sheetContext);
         },
       ),
     );
@@ -144,6 +148,9 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     final useNeutral = widget.useNeutralSelectedStyle;
 
     return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       height: 400 + MediaQuery.of(context).padding.bottom,
       decoration: BoxDecoration(
         // Glassmorphism efekti
@@ -447,7 +454,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
           initialDateTime: _currentDate,
           minimumDate: widget.minimumDate,
           maximumDate: widget.maximumDate,
-          minimumYear: widget.minimumDate?.year ?? 1, // Yıl tekerleğini kısıtla
+          minimumYear: widget.minimumDate?.year ?? (_currentDate.year < 1 ? _currentDate.year : 1), // Yıl tekerleğini kısıtla
           maximumYear: widget.maximumDate?.year ?? ((widget.minimumDate?.year ?? 0) > 2100 ? widget.minimumDate!.year : 2100), // Max yıl çökmesini önle
           use24hFormat: true,
           onDateTimeChanged: (date) {
