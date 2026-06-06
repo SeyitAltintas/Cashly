@@ -252,6 +252,17 @@ class AuthRepositoryFirestore implements AuthRepository {
     }
   }
 
+  /// GÜVENLİK YAMASI: E-posta ile giriş esnasında ağ bağlantısı koparsa,
+  /// doğrudan _localHiveRepo.loginByEmail çağırmak Brute-Force (Kaba kuvvet) korumasını (5 deneme hakkı)
+  /// tamamen bypass ederdi. Artık önce kullanıcıyı bulup sonra ortak kilit mekanizmasına yönlendiriyoruz.
+  Future<UserEntity?> _offlineEmailPinFallback(String email, String pin) async {
+    final localUser = await _localHiveRepo.getUserByEmail(email);
+    if (localUser != null) {
+      return _offlinePinFallback(localUser, pin);
+    }
+    return null;
+  }
+
   @override
   Future<UserEntity?> loginByEmail(String email, String pin) async {
     try {
@@ -356,7 +367,7 @@ class AuthRepositoryFirestore implements AuthRepository {
         debugPrint(
           'loginByEmail: Ağ bağlantısı yok, yerel PIN doğrulamasına geçiliyor...',
         );
-        return await _localHiveRepo.loginByEmail(email, pin);
+        return await _offlineEmailPinFallback(email, pin);
       }
       debugPrint("Firebase loginByEmail Error: ${e.message}");
       return null;
@@ -368,7 +379,7 @@ class AuthRepositoryFirestore implements AuthRepository {
         debugPrint(
           'loginByEmail: Bağlantı zaman aşımı, yerel PIN doğrulamasına geçiliyor...',
         );
-        return await _localHiveRepo.loginByEmail(email, pin);
+        return await _offlineEmailPinFallback(email, pin);
       }
       return null;
     }

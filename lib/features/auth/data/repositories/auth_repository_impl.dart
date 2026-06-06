@@ -26,7 +26,7 @@ class AuthRepositoryImpl implements AuthRepository {
     return Hive.box(_sessionBoxName);
   }
 
-  bool _isHashed(String pin) => pin.startsWith(r'$2a$') || pin.startsWith(r'$2b$');
+  bool _isHashed(String pin) => (pin.startsWith(r'$2a$') || pin.startsWith(r'$2b$')) && pin.length == 60;
 
   String _hashPinIfNeeded(String pin) {
     if (pin.isEmpty) return pin; // Empty pins (e.g. from getAllUsers ghost list) shouldn't be hashed
