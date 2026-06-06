@@ -210,6 +210,28 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
     notifyListeners();
   }
 
+  void refreshCategoriesAndSettings(String userId) {
+    final expenseRepo = getIt<ExpenseRepository>();
+    final incomeRepo = getIt<IncomeRepository>();
+    
+    _butceLimiti = expenseRepo.getBudget(userId);
+    _categoryBudgets = expenseRepo.getCategoryBudgets(userId);
+
+    final harcamaKategorileri = expenseRepo.getCategories(userId);
+    _kategoriIkonlari = {};
+    for (var kategori in harcamaKategorileri) {
+      _kategoriIkonlari[kategori['isim']] = IconConstants.getHarcamaIkonu(kategori['ikon']);
+    }
+
+    final gelirKategorileri = incomeRepo.getCategories(userId);
+    _gelirKategoriIkonlari = {};
+    for (var kategori in gelirKategorileri) {
+      _gelirKategoriIkonlari[kategori['isim']] = IconConstants.getGelirIkonu(kategori['ikon']);
+    }
+    
+    notifyListeners();
+  }
+
   /// State'i bildirim olmadan günceller (batch update için)
   void updateWithoutNotify({
     List<Map<String, dynamic>>? harcamalar,

@@ -54,6 +54,17 @@ class CloudSyncService {
               ttl: _cloudSyncTtl,
             );
           }
+          if (data.containsKey('categoryBudgets')) {
+            CacheService.set(
+              'category_budgets_$userId',
+              Map<String, double>.from(
+                (data['categoryBudgets'] as Map).map(
+                  (k, v) => MapEntry(k.toString(), (v as num).toDouble()),
+                ),
+              ),
+              ttl: _cloudSyncTtl,
+            );
+          }
           if (data.containsKey('fixedExpenseTemplates')) {
             CacheService.set(
               'fixed_templates_$userId',

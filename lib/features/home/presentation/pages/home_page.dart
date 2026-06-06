@@ -174,6 +174,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     try {
       await CloudSyncService.syncAllUserData(userId);
       if (mounted) {
+        _homeState.refreshCategoriesAndSettings(userId);
         _homeState.updateAssetPrices(userId);
       }
     } catch (_) {
