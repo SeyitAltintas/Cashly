@@ -469,15 +469,31 @@ class AuthRepositoryFirestore implements AuthRepository {
   }
 
   @override
-  Future<void> deleteUser(String userId) async {
+  Future<void> deleteUser(String userId, {String? pin}) async {
     final firebaseUser = _firebaseAuth.currentUser;
-    if (firebaseUser != null && firebaseUser.uid == userId) {
-      // GÜVENLİK YAMASI (Data Loss Prevention):
-      // Eğer kullanıcı uzun süredir oturum açıksa, firebaseUser.delete() işlemi
-      // 'requires-recent-login' hatası fırlatır. Fakat bu hata fırlatılmadan ÖNCE
-      // Firestore verilerini silersek, kullanıcının hesabı silinmez ama TÜM VERİLERİ SİLİNİR!
-      // Bunu engellemek için, kullanıcının son giriş zamanını kontrol edip 5 dakikadan
-      // eskiyse işlemi baştan reddediyoruz.
+    if (firebaseUser == null || firebaseUser.uid != userId) {
+      throw Exception(
+        'Hesabınızı silebilmemiz için önce internete bağlı şekilde giriş yapmanız gereklidir.',
+      );
+    }
+    
+    // GÜVENLİK YAMASI (Data Loss Prevention):
+    // Firebase delete() işlemi 'requires-recent-login' atarsa veriler silindiği halde hesap silinemiyordu.
+    // Bunu önlemek için, eğer PIN verilmişse silmeden hemen önce Re-Auth yaparak token'ı tazeliyoruz.
+    if (pin != null && firebaseUser.email != null) {
+      try {
+        final credential = EmailAuthProvider.credential(
+          email: firebaseUser.email!,
+          password: pin,
+        );
+        await firebaseUser.reauthenticateWithCredential(credential);
+      } catch (e) {
+        debugPrint('deleteUser reauth error: $e');
+        // Eğer reauth başarısız olursa (örneğin PIN değişmişse vs), işlemi baştan kes.
+        throw Exception('Oturumunuz doğrulanamadı. Lütfen doğru PIN girdiğinizden emin olun.');
+      }
+    } else {
+      // PIN yoksa eski korumayı (5 dakika kuralını) uygula
       final lastSignIn = firebaseUser.metadata.lastSignInTime;
       if (lastSignIn != null &&
           DateTime.now().difference(lastSignIn).inMinutes > 5) {
@@ -487,6 +503,7 @@ class AuthRepositoryFirestore implements AuthRepository {
               'This operation is sensitive and requires recent authentication. Log in again before retrying this request.',
         );
       }
+    }
 
       try {
         // GHOST DATA VULNERABILITY FIX:
@@ -524,7 +541,7 @@ class AuthRepositoryFirestore implements AuthRepository {
           'Hesabınızı silerken bir ağ hatası oluştu. İşlem tamamlanmış olabilir, emin olmak için tekrar giriş yapmayı deneyin.',
         );
       }
-    }
+    
     // Firebase hesabı başarıyla silindiyse (veya zaten yoksa) lokal veriyi temizle.
     // Hata fırlatılan durumlarda buraya ulaşılmaz.
     await SecureStorageService.deleteBiometricPin(userId);
@@ -658,7 +675,22 @@ class AuthRepositoryFirestore implements AuthRepository {
             await CloudSyncService.syncAllUserData(refreshedUser.id);
             await StreakService.syncFromCloud(refreshedUser.id);
             return refreshedUser;
+          } on FirebaseAuthException catch (e) {
+            if (e.code == 'network-request-failed') {
+              debugPrint('Biyometrik Re-auth: Ağ yok, offline fallback...');
+              return _offlinePinFallback(localUser, savedPin);
+            }
+            throw Exception(
+              'Güvenlik nedeniyle (oturum süresi doldu) lütfen PIN kodunuz ile manuel giriş yapın.',
+            );
           } catch (e) {
+            final msg = e.toString().toLowerCase();
+            if (msg.contains('timeout') ||
+                msg.contains('socketexception') ||
+                msg.contains('failed host lookup')) {
+              debugPrint('Biyometrik Re-auth: Zaman aşımı, offline fallback...');
+              return _offlinePinFallback(localUser, savedPin);
+            }
             throw Exception(
               'Güvenlik nedeniyle (oturum süresi doldu) lütfen PIN kodunuz ile manuel giriş yapın.',
             );

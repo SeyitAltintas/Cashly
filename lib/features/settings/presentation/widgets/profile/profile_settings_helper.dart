@@ -36,7 +36,7 @@ class ProfileSettingsHelper {
   }
 
   bool _isPinCorrect(String inputPin, String storedPin) {
-    if (storedPin.startsWith(r'$2a$') || storedPin.startsWith(r'$2b$')) {
+    if ((storedPin.startsWith(r'$2a$') || storedPin.startsWith(r'$2b$')) && storedPin.length == 60) {
       try {
         return BCrypt.checkpw(inputPin, storedPin);
       } catch (_) {
@@ -738,7 +738,7 @@ class ProfileSettingsHelper {
                 // Eğer burada çağırırsak ve deleteUser (requires-recent-login) hatası fırlatırsa,
                 // hesap silinmez ama veriler kalıcı olarak silinmiş olur (Data Loss).
                 // Silme işlemi güvenli bir şekilde authRepository.deleteUser içinde yapılır.
-                await authRepository.deleteUser(userId);
+                await authRepository.deleteUser(userId, pin: pinController.text);
                 await authController.logout();
 
                 navigator.pushAndRemoveUntil(

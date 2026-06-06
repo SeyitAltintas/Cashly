@@ -80,7 +80,7 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> deleteUser(String userId) async {
+  Future<void> deleteUser(String userId, {String? pin}) async {
     _users.removeWhere((u) => u.id == userId);
     if (_currentUserId == userId) {
       _currentUserId = null;

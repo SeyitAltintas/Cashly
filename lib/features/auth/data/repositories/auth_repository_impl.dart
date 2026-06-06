@@ -75,7 +75,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> deleteUser(String userId) async {
+  Future<void> deleteUser(String userId, {String? pin}) async {
     final box = await _getUsersBox();
     await box.delete(userId);
 
