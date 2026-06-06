@@ -114,7 +114,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     );
 
     _pickerState = MonthYearPickerState();
-    _pickerState.initialize(widget.initialDate);
+    _pickerState.initialize(_currentDate);
     _pickerState.addListener(_onStateChanged);
   }
 
