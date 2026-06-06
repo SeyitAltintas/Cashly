@@ -74,6 +74,20 @@ class CloudSyncService {
               ttl: _cloudSyncTtl,
             );
           }
+          if (data.containsKey('voiceFeedback')) {
+            CacheService.set(
+              'voice_feedback_$userId',
+              data['voiceFeedback'] as bool,
+              ttl: _cloudSyncTtl,
+            );
+          }
+          if (data.containsKey('transferHistoryLimit')) {
+            CacheService.set(
+              'transfer_limit_$userId',
+              (data['transferHistoryLimit'] as num).toInt(),
+              ttl: _cloudSyncTtl,
+            );
+          }
         } else if (doc.id == 'income') {
           if (data.containsKey('monthlyIncomeTarget')) {
             CacheService.set(

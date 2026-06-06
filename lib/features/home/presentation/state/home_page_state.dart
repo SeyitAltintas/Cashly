@@ -262,6 +262,11 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
     _expensesSubscription?.cancel();
     _incomesSubscription?.cancel();
 
+    // EC-10: Ay değiştiğinde, eski ayın verilerinin yeni ay yüklenene kadar ekranda kalmasını (Data Bleeding) engelle.
+    _tumHarcamalar = [];
+    _tumGelirler = [];
+    notifyListeners();
+
     final expenseRepo = getIt<ExpenseRepository>();
     final incomeRepo = getIt<IncomeRepository>();
 
