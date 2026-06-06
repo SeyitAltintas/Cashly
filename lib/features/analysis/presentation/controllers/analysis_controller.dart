@@ -527,7 +527,7 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
           .toList();
     } catch (e, stackTrace) {
       debugPrint('AnalysisController._fetchWideRangeData hatası: $e');
-      ErrorLoggerService.logError('AnalysisController._fetchWideRangeData hatası: $e', stackTrace: stackTrace?.toString());
+      ErrorLoggerService.logError('AnalysisController._fetchWideRangeData hatası: $e', stackTrace: stackTrace.toString());
     }
     await _recalculateData();
   }
@@ -562,7 +562,7 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
           _gelirler = results[1].map((m) => Income.fromMap(m)).toList();
         } catch (e, stackTrace) {
           debugPrint('AnalysisController setSelectedMonth hatası: $e');
-          ErrorLoggerService.logError('AnalysisController setSelectedMonth hatası: $e', stackTrace: stackTrace?.toString());
+          ErrorLoggerService.logError('AnalysisController setSelectedMonth hatası: $e', stackTrace: stackTrace.toString());
         }
       }
 

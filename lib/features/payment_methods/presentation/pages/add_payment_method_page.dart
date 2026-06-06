@@ -143,7 +143,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
         );
         if (!mounted) return;
         Navigator.pop(context);
-      } catch (e, stackTrace) {
+      } catch (e) {
         if (!mounted) return;
         if (e is AppException) {
           ErrorHandler.handleAppException(context, e);

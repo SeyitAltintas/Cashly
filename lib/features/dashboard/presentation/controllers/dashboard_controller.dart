@@ -271,7 +271,7 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
       _getFinancialSummary = getIt<GetFinancialSummary>();
       _calculateTotalBalance = getIt<CalculateTotalBalance>();
       _calculateTotalDebt = getIt<CalculateTotalDebt>();
-    } catch (e, stackTrace) {
+    } catch (e) {
       // DI henüz hazır değilse (test ortamı vb.)
       debugPrint('DashboardController: Use case init hatası - $e');
     }
@@ -287,7 +287,7 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
         return _calculateTotalBalance(
           CalculateTotalBalanceParams(userId: _userId!),
         );
-      } catch (_, stackTrace) {
+      } catch (_) {
         // Fallback: yerel hesaplama
       }
     }
@@ -301,7 +301,7 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
     if (_userId != null) {
       try {
         return _calculateTotalDebt(CalculateTotalDebtParams(userId: _userId!));
-      } catch (_, stackTrace) {
+      } catch (_) {
         // Fallback: yerel hesaplama
       }
     }
@@ -365,7 +365,7 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
         GetFinancialSummaryParams(userId: _userId!),
       );
       return _cachedSummary;
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('DashboardController: Finansal özet hatası - $e');
       return null;
     }

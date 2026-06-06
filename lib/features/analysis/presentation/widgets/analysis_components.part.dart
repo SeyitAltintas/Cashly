@@ -249,7 +249,7 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
       try {
         final locale = Localizations.localeOf(context).languageCode;
         return DateFormat.MMM(locale).format(DateTime(2024, month, 1));
-      } catch (_, stackTrace) {
+      } catch (_) {
         // Fallback works natively internally or below
       }
     }

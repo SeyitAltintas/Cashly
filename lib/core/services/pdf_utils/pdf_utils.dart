@@ -41,7 +41,7 @@ class PdfUtils {
     try {
       final fontData = await rootBundle.load('assets/fonts/Inter-Bold.ttf');
       _turkishFontBold = pw.Font.ttf(fontData);
-    } catch (_, stackTrace) {
+    } catch (_) {
       // Bold font bulunamazsa regular font kullan
       _turkishFontBold = await loadTurkishFont();
     }

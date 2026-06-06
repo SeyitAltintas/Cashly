@@ -294,7 +294,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                   );
                   _controller.addAsset(newAsset);
                   widget.onAdd(name, amount, quantity, category, type);
-                } catch (e, stackTrace) {
+                } catch (e) {
                   if (!mounted) return;
                   if (e is AppException) {
                     ErrorHandler.handleAppException(context, e);

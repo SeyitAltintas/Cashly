@@ -1168,7 +1168,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   TextOverlay? _getSelectedTextOverlay() {
     try {
       return _state.textOverlays.firstWhere((t) => t.id == _selectedOverlayId);
-    } catch (_, stackTrace) {
+    } catch (_) {
       return null;
     }
   }
@@ -1438,7 +1438,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
       return _state.stickerOverlays.firstWhere(
         (s) => s.id == _selectedOverlayId,
       );
-    } catch (_, stackTrace) {
+    } catch (_) {
       return null;
     }
   }
@@ -1843,7 +1843,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
       await editedFile.writeAsBytes(bytes);
 
       if (mounted) Navigator.pop(context, editedFile);
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (mounted) Navigator.pop(context, widget.imageFile);
     }
   }

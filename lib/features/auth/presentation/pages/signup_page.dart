@@ -386,7 +386,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                       context.l10n.signupError,
                                 );
                               }
-                            } catch (e, stackTrace) {
+                            } catch (e) {
                               if (!context.mounted) return;
                               AppSnackBar.errorWithMessenger(
                                 messenger,

@@ -131,7 +131,7 @@ class StreakBadges {
   static StreakBadge? getBadgeById(String id) {
     try {
       return allBadges.firstWhere((badge) => badge.id == id);
-    } catch (_, stackTrace) {
+    } catch (_) {
       return null;
     }
   }
@@ -149,7 +149,7 @@ class StreakBadges {
       return allBadges.firstWhere(
         (badge) => streakCount < badge.requiredStreak,
       );
-    } catch (_, stackTrace) {
+    } catch (_) {
       return null; // Tüm rozetler kazanıldı
     }
   }

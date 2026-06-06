@@ -47,7 +47,7 @@ Uint8List? _transformImageIsolate(_ImageTransformParams params) {
     }
 
     return Uint8List.fromList(img.encodeJpg(image, quality: 90));
-  } catch (e, stackTrace) {
+  } catch (e) {
     return null;
   }
 }
@@ -415,7 +415,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
       if (mounted) {
         Navigator.pop(context, croppedFile);
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       setState(() => _isCropping = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

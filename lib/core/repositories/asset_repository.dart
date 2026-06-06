@@ -19,7 +19,7 @@ class AssetRepository {
       return List<Map<String, dynamic>>.from(
         veri.map((e) => Map<String, dynamic>.from(e)),
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Varlıklar getirilirken hata: $e');
       return [];
     }
@@ -32,7 +32,7 @@ class AssetRepository {
   ) async {
     try {
       await _box.put('varliklar_$userId', varliklar);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Varlıklar kaydedilirken hata: $e');
       rethrow;
     }
@@ -47,7 +47,7 @@ class AssetRepository {
       return List<Map<String, dynamic>>.from(
         veri.map((e) => Map<String, dynamic>.from(e)),
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Silinen varlıklar getirilirken hata: $e');
       return [];
     }
@@ -60,7 +60,7 @@ class AssetRepository {
   ) async {
     try {
       await _box.put('silinen_varliklar_$userId', varliklar);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Silinen varlıklar kaydedilirken hata: $e');
       rethrow;
     }

@@ -29,7 +29,7 @@ class ExpenseRepository {
       return List<Map<String, dynamic>>.from(
         veri.map((e) => Map<String, dynamic>.from(e)),
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Error getting expenses: $e');
       return [];
     }
@@ -42,7 +42,7 @@ class ExpenseRepository {
   ) async {
     try {
       await _box.put('harcamalar_$userId', harcamalar);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Error saving expenses: $e');
       rethrow;
     }
@@ -54,7 +54,7 @@ class ExpenseRepository {
   static double butceGetir(String userId) {
     try {
       return _box.get('butce_limiti_$userId', defaultValue: 8000.0);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Error getting budget: $e');
       return 8000.0;
     }
@@ -64,7 +64,7 @@ class ExpenseRepository {
   static Future<void> butceKaydet(String userId, double yeniLimit) async {
     try {
       await _box.put('butce_limiti_$userId', yeniLimit);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Error saving budget: $e');
       rethrow;
     }
@@ -79,7 +79,7 @@ class ExpenseRepository {
       return List<Map<String, dynamic>>.from(
         veri.map((e) => Map<String, dynamic>.from(e)),
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Error getting fixed expenses: $e');
       return [];
     }
@@ -92,7 +92,7 @@ class ExpenseRepository {
   ) async {
     try {
       await _box.put('sabit_gider_sablonlari_$userId', sablonlar);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Error saving fixed expenses: $e');
       rethrow;
     }
@@ -111,7 +111,7 @@ class ExpenseRepository {
       return List<Map<String, dynamic>>.from(
         veri.map((e) => Map<String, dynamic>.from(e)),
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Error getting categories: $e');
       return defaultKategoriler;
     }
@@ -124,7 +124,7 @@ class ExpenseRepository {
   ) async {
     try {
       await _box.put('kategoriler_$userId', kategoriler);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Error saving categories: $e');
       rethrow;
     }

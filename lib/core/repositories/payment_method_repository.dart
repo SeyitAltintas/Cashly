@@ -38,7 +38,7 @@ class PaymentMethodRepository {
       return List<Map<String, dynamic>>.from(
         veri.map((e) => Map<String, dynamic>.from(e)),
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Ödeme yöntemleri getirilirken hata: $e');
       return defaultOdemeYontemleri;
     }
@@ -51,7 +51,7 @@ class PaymentMethodRepository {
   ) async {
     try {
       await _box.put('odeme_yontemleri_$userId', yontemler);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Ödeme yöntemleri kaydedilirken hata: $e');
       rethrow;
     }
@@ -69,7 +69,7 @@ class PaymentMethodRepository {
       return List<Map<String, dynamic>>.from(
         veri.map((e) => Map<String, dynamic>.from(e)),
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Silinen ödeme yöntemleri getirilirken hata: $e');
       return [];
     }
@@ -82,7 +82,7 @@ class PaymentMethodRepository {
   ) async {
     try {
       await _box.put('silinen_odeme_yontemleri_$userId', yontemler);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Silinen ödeme yöntemleri kaydedilirken hata: $e');
       rethrow;
     }
@@ -94,7 +94,7 @@ class PaymentMethodRepository {
   static String? varsayilanOdemeYontemiGetir(String userId) {
     try {
       return _box.get('varsayilan_odeme_yontemi_$userId');
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Varsayılan ödeme yöntemi getirilirken hata: $e');
       return null;
     }
@@ -111,7 +111,7 @@ class PaymentMethodRepository {
       } else {
         await _box.put('varsayilan_odeme_yontemi_$userId', paymentMethodId);
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Varsayılan ödeme yöntemi kaydedilirken hata: $e');
       rethrow;
     }
@@ -126,7 +126,7 @@ class PaymentMethodRepository {
       return List<Map<String, dynamic>>.from(
         veri.map((e) => Map<String, dynamic>.from(e)),
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Error getting transfers: $e');
       return [];
     }
@@ -139,7 +139,7 @@ class PaymentMethodRepository {
   ) async {
     try {
       await _box.put('transferler_$userId', transferler);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Error saving transfers: $e');
       rethrow;
     }

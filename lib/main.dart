@@ -59,7 +59,7 @@ void main() {
           providerAndroid: kDebugMode ? const AndroidDebugProvider() : const AndroidPlayIntegrityProvider(),
           providerApple: kDebugMode ? const AppleDebugProvider() : const AppleDeviceCheckProvider(),
         );
-      } catch (e, stackTrace) {
+      } catch (e) {
         if (e is FirebaseException && e.code == 'duplicate-app') {
           debugPrint(
             'Firebase [DEFAULT] zaten arka planda başlatılmış, devam ediliyor...',
@@ -218,7 +218,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
           _isInitialized = true;
         });
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint("Başlatma hatası: $e");
       if (mounted) {
         setState(() {

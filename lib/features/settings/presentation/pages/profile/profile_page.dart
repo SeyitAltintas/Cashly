@@ -47,7 +47,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
         );
         widget.onRefresh?.call();
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red),
@@ -97,7 +97,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
         );
         widget.onRefresh?.call();
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red),

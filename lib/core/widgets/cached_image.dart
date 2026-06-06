@@ -102,7 +102,7 @@ class _CachedImageState extends State<CachedImage> {
           throw Exception('File not found');
         }
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _hasError = true;

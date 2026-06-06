@@ -235,7 +235,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                 '${context.l10n.income} ${context.l10n.restored} ✅',
               );
             }
-          } catch (e, stackTrace) {
+          } catch (e) {
             if (!mounted) return;
             if (e is AppException) {
               ErrorHandler.handleAppException(context, e);
@@ -246,7 +246,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
 
       // Hataları arka planda dinle
       await deleteFuture;
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (!mounted) return;
       if (e is AppException) {
         ErrorHandler.handleAppException(context, e);
@@ -288,7 +288,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                   widget.onOdemeYontemleriChanged(
                     _controller.tumOdemeYontemleri,
                   );
-                } catch (e, stackTrace) {
+                } catch (e) {
                   if (!mounted) return;
                   if (e is AppException) {
                     ErrorHandler.handleAppException(context, e);
@@ -339,7 +339,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                     context,
                     '${context.l10n.income} ${context.l10n.added}: $name - ${CurrencyFormatter.format(amount)}',
                   );
-                } catch (e, stackTrace) {
+                } catch (e) {
                   if (!mounted) return;
                   if (e is AppException) {
                     ErrorHandler.handleAppException(context, e);

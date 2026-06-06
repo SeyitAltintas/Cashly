@@ -49,7 +49,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
           _appVersion = info.version;
         });
       }
-    } catch (_, stackTrace) {
+    } catch (_) {
       // Native plugin yüklenemezse fallback değerler kullanılır
     }
   }

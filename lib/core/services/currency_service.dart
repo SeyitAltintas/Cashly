@@ -101,7 +101,7 @@ class CurrencyService extends ChangeNotifier with SafeNotifierMixin {
           await _box.put(_lastUpdateKey, DateTime.now().toIso8601String());
         }
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Döviz kurları alınamadı: $e');
     } finally {
       _isLoading = false;

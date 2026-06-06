@@ -43,7 +43,7 @@ class ErrorLoggerService {
       if (kDebugMode) {
         debugPrint('📝 Hata Loglandı: $message');
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Lokal loglama hatası: $e');
     }
 
@@ -56,7 +56,7 @@ class ErrorLoggerService {
         reason: message,
         fatal: false,
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       // Firebase henüz başlatılmadıysa veya Crashlytics erişilemezse sessizce devam et
       if (kDebugMode) {
         debugPrint('Crashlytics gönderim hatası: $e');
@@ -79,7 +79,7 @@ class ErrorLoggerService {
           '✅ ${logs.length} log Crashlytics\'e gönderildi ve lokal temizlendi',
         );
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Toplu log gönderim hatası: $e');
     }
   }
@@ -91,7 +91,7 @@ class ErrorLoggerService {
       if (userName != null) {
         await FirebaseCrashlytics.instance.setCustomKey('userName', userName);
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Crashlytics kullanıcı ayarlama hatası: $e');
     }
   }
@@ -102,7 +102,7 @@ class ErrorLoggerService {
     try {
       final box = Hive.box<String>(_boxName);
       return box.values.toList();
-    } catch (e, stackTrace) {
+    } catch (e) {
       return [];
     }
   }
@@ -113,7 +113,7 @@ class ErrorLoggerService {
     try {
       final box = Hive.box<String>(_boxName);
       await box.clear();
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Log temizleme hatası: $e');
     }
   }

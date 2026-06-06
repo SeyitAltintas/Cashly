@@ -78,7 +78,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
         widget.userId,
         _tekrarlayanGelirler,
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (!mounted) return;
       if (e is AppException) {
         ErrorHandler.handleAppException(context, e);

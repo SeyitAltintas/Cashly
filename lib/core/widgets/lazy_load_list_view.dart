@@ -177,7 +177,7 @@ class PaginationController<T> extends ChangeNotifier {
 
       _items.addAll(newItems);
       _currentPage++;
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('PaginationController loadMore hatası: $e');
     } finally {
       _isLoading = false;

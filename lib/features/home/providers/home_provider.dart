@@ -186,7 +186,7 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
 
       varliklar = updatedAssets;
       varliklariKaydet();
-    } catch (e, stackTrace) {
+    } catch (e) {
       // Sessizce geç
     } finally {
       isUpdatingAssetPrices = false;

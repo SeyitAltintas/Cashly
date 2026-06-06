@@ -38,7 +38,7 @@ class AssetPriceUpdateService {
           // Fiyat alınamadıysa mevcut değeri koru
           updatedAssets.add(asset);
         }
-      } catch (e, stackTrace) {
+      } catch (e) {
         // Hata durumunda mevcut değeri koru
         updatedAssets.add(asset);
       }

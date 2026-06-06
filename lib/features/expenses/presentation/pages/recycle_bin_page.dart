@@ -103,7 +103,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
         _localSilinenHarcamalar = silinen;
         if (mounted) setState(() {});
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint("Error loading deleted expenses: $e");
     }
   }

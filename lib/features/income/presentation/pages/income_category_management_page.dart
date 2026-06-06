@@ -102,7 +102,7 @@ class _GelirKategoriYonetimiSayfasiState
           incomeRepo.saveCategories(widget.userId, kategoriler);
         }
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       ErrorHandler.handleDatabaseError(context, e);
       ErrorHandler.logError('Gelir kategorileri yüklenirken hata', e);
     }
@@ -117,7 +117,7 @@ class _GelirKategoriYonetimiSayfasiState
         _localHasChanges = true;
       }
       ErrorHandler.showSuccessSnackBar(context, "Kategoriler kaydedildi ✅");
-    } catch (e, stackTrace) {
+    } catch (e) {
       ErrorHandler.handleDatabaseError(context, e);
       ErrorHandler.logError('Gelir kategorileri kaydedilirken hata', e);
     }

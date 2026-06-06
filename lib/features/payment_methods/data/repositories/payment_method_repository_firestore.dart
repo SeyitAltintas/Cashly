@@ -96,7 +96,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore ödeme yöntemi ekleme hatası: $e');
-      ErrorLoggerService.logError('Firestore ödeme yöntemi ekleme hatası: $e', stackTrace: stackTrace?.toString());
+      ErrorLoggerService.logError('Firestore ödeme yöntemi ekleme hatası: $e', stackTrace: stackTrace.toString());
       rethrow;
     }
   }
@@ -128,7 +128,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore ödeme yöntemi güncelleme hatası: $e');
-      ErrorLoggerService.logError('Firestore ödeme yöntemi güncelleme hatası: $e', stackTrace: stackTrace?.toString());
+      ErrorLoggerService.logError('Firestore ödeme yöntemi güncelleme hatası: $e', stackTrace: stackTrace.toString());
       rethrow;
     }
   }
@@ -229,7 +229,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       CacheService.set(cacheKey, cached);
     } catch (e, stackTrace) {
       debugPrint('Firestore ödeme yöntemi silme hatası: $e');
-      ErrorLoggerService.logError('Firestore ödeme yöntemi silme hatası: $e', stackTrace: stackTrace?.toString());
+      ErrorLoggerService.logError('Firestore ödeme yöntemi silme hatası: $e', stackTrace: stackTrace.toString());
       rethrow;
     }
   }
@@ -265,7 +265,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Silinen ödeme yöntemi ekleme hatası: $e');
-      ErrorLoggerService.logError('Silinen ödeme yöntemi ekleme hatası: $e', stackTrace: stackTrace?.toString());
+      ErrorLoggerService.logError('Silinen ödeme yöntemi ekleme hatası: $e', stackTrace: stackTrace.toString());
       rethrow;
     }
   }
@@ -288,7 +288,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       CacheService.set(cacheKey, cached);
     } catch (e, stackTrace) {
       debugPrint('Silinen ödeme yöntemi kalıcı silme hatası: $e');
-      ErrorLoggerService.logError('Silinen ödeme yöntemi kalıcı silme hatası: $e', stackTrace: stackTrace?.toString());
+      ErrorLoggerService.logError('Silinen ödeme yöntemi kalıcı silme hatası: $e', stackTrace: stackTrace.toString());
       rethrow;
     }
   }
@@ -309,7 +309,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Varsayılan ödeme yöntemi kaydedilirken hata: $e');
-      ErrorLoggerService.logError('Varsayılan ödeme yöntemi kaydedilirken hata: $e', stackTrace: stackTrace?.toString());
+      ErrorLoggerService.logError('Varsayılan ödeme yöntemi kaydedilirken hata: $e', stackTrace: stackTrace.toString());
       rethrow;
     }
   }
@@ -371,7 +371,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore transfer ekleme hatası: $e');
-      ErrorLoggerService.logError('Firestore transfer ekleme hatası: $e', stackTrace: stackTrace?.toString());
+      ErrorLoggerService.logError('Firestore transfer ekleme hatası: $e', stackTrace: stackTrace.toString());
       rethrow;
     }
   }
@@ -402,7 +402,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore transfer güncelleme hatası: $e');
-      ErrorLoggerService.logError('Firestore transfer güncelleme hatası: $e', stackTrace: stackTrace?.toString());
+      ErrorLoggerService.logError('Firestore transfer güncelleme hatası: $e', stackTrace: stackTrace.toString());
       rethrow;
     }
   }
@@ -420,7 +420,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       CacheService.set(cacheKey, cached);
     } catch (e, stackTrace) {
       debugPrint('Firestore transfer silme hatası: $e');
-      ErrorLoggerService.logError('Firestore transfer silme hatası: $e', stackTrace: stackTrace?.toString());
+      ErrorLoggerService.logError('Firestore transfer silme hatası: $e', stackTrace: stackTrace.toString());
       rethrow;
     }
   }

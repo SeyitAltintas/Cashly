@@ -40,7 +40,7 @@ class StreakController extends ChangeNotifier with SafeNotifierMixin {
       _getStreakData = getIt<GetStreakData>();
       _checkAndUpdateStreak = getIt<CheckAndUpdateStreak>();
       _useFreeze = getIt<UseFreeze>();
-    } catch (e, stackTrace) {
+    } catch (e) {
       // DI henüz hazır değilse (test ortamı vb.)
       debugPrint('StreakController: Use case init hatası - $e');
     }
@@ -137,7 +137,7 @@ class StreakController extends ChangeNotifier with SafeNotifierMixin {
     try {
       _streakData = _getStreakData(GetStreakDataParams(userId: userId));
       notifyListeners();
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('StreakController: loadStreakData hatası - $e');
     }
   }
@@ -158,7 +158,7 @@ class StreakController extends ChangeNotifier with SafeNotifierMixin {
       loadStreakData(_userId!);
 
       return result;
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('StreakController: checkAndUpdate hatası - $e');
       return null;
     } finally {
@@ -183,7 +183,7 @@ class StreakController extends ChangeNotifier with SafeNotifierMixin {
         return true;
       }
       return false;
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('StreakController: useFreeze hatası - $e');
       return false;
     } finally {

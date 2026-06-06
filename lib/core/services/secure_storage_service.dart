@@ -27,7 +27,7 @@ class SecureStorageService {
 
     try {
       return await Hive.openBox<E>(name, encryptionCipher: HiveAesCipher(key));
-    } catch (e, stackTrace) {
+    } catch (e) {
       // Mevcut şifresiz kutuyu şifreli açmaya çalışınca Hive hata fırlatır.
       // Development verilerini veya eski şifresiz verileri silip, güvenli kutuyu baştan açıyoruz.
       await Hive.deleteBoxFromDisk(name);

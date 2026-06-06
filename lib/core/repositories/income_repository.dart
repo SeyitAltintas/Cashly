@@ -29,7 +29,7 @@ class IncomeRepository {
       return List<Map<String, dynamic>>.from(
         veri.map((e) => Map<String, dynamic>.from(e)),
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Gelirler getirilirken hata: $e');
       return [];
     }
@@ -42,7 +42,7 @@ class IncomeRepository {
   ) async {
     try {
       await _box.put('gelirler_$userId', gelirler);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Gelirler kaydedilirken hata: $e');
       rethrow;
     }
@@ -61,7 +61,7 @@ class IncomeRepository {
       return List<Map<String, dynamic>>.from(
         veri.map((e) => Map<String, dynamic>.from(e)),
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Gelir kategorileri getirilirken hata: $e');
       return defaultGelirKategorileri;
     }
@@ -74,7 +74,7 @@ class IncomeRepository {
   ) async {
     try {
       await _box.put('gelir_kategorileri_$userId', kategoriler);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Gelir kategorileri kaydedilirken hata: $e');
       rethrow;
     }
@@ -89,7 +89,7 @@ class IncomeRepository {
       return List<Map<String, dynamic>>.from(
         veri.map((e) => Map<String, dynamic>.from(e)),
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Error getting recurring incomes: $e');
       return [];
     }
@@ -102,7 +102,7 @@ class IncomeRepository {
   ) async {
     try {
       await _box.put('tekrarlayan_gelirler_$userId', gelirler);
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('Error saving recurring incomes: $e');
       rethrow;
     }

@@ -303,7 +303,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
           setState(() {});
         }
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (mounted) {
         if (_controller != null) {
           _controller!.setFormLoading(false);

@@ -827,7 +827,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
       await editedFile.writeAsBytes(bytes);
 
       if (mounted) Navigator.pop(context, editedFile);
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (mounted) Navigator.pop(context, widget.imageFile);
     }
   }

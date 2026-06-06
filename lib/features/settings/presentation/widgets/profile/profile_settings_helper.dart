@@ -39,7 +39,7 @@ class ProfileSettingsHelper {
     if ((storedPin.startsWith(r'$2a$') || storedPin.startsWith(r'$2b$')) && storedPin.length == 60) {
       try {
         return BCrypt.checkpw(inputPin, storedPin);
-      } catch (_, stackTrace) {
+      } catch (_) {
         return false;
       }
     }
@@ -73,7 +73,7 @@ class ProfileSettingsHelper {
           successMessage ?? context.l10n.profileUpdated,
         );
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (context.mounted) {
         AppSnackBar.error(context, context.l10n.updateFailed(e.toString()));
       }
@@ -462,7 +462,7 @@ class ProfileSettingsHelper {
                                     );
                                   }
                                 });
-                          } catch (e, stackTrace) {
+                          } catch (e) {
                             debugPrint('PIN Change Error: $e');
                             if (ctx.mounted) {
                               setStateBottomSheet(() => isLoading = false);
@@ -755,7 +755,7 @@ class ProfileSettingsHelper {
                   ),
                   (route) => false,
                 );
-              } catch (e, stackTrace) {
+              } catch (e) {
                 if (context.mounted) {
                   // FIX-6: requires-recent-login → kullanıcıya anlaşılır yönlendirme
                   final isRecentLoginRequired = e.toString().contains(

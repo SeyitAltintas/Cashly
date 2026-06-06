@@ -95,7 +95,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         _localSilinenGelirler = silinen;
         if (mounted) setState(() {});
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (mounted) ErrorHandler.handleDatabaseError(context, e);
       ErrorHandler.logError('Silinen gelirler yüklenirken hata', e);
     }

@@ -136,7 +136,7 @@ class StreakService {
           );
         }
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       developer.log('Streak sync hatasi (offline?): $e', name: _logName);
     }
   }

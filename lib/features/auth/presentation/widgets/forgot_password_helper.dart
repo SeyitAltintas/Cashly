@@ -96,7 +96,7 @@ class ForgotPasswordHelper {
 
                               try {
                                 await authController.sendPinResetOtp(email);
-                              } catch (e, stackTrace) {
+                              } catch (e) {
                                 if (context.mounted) {
                                   setSheetState(() {
                                     isSending = false;
