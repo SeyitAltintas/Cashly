@@ -300,14 +300,14 @@
   "incomeStabilityDetailTitle": "What is Income Stability?",
   "incomeStabilityDetailBody": "Income stability shows how much of your income is regular versus variable. If a category has 2 or more transactions in the period, it's classified as 'regular'. One-time transactions are classified as 'variable'.\n\nWhy does it matter? If all your income depends on a single source, your financial security is at risk if that source stops. Diversifying your income sources increases your financial safety.",
   "dailyEarningRateDetailTitle": "What is Daily Earning Rate?",
-  "dailyEarningRateDetailBody": "This card calculates your daily average earning rate by dividing your total income by the total number of days in the selected period.\n\nFor example: If you earned 30,000\u20ba this month and the month has 31 days, your daily average is approximately 968\u20ba. This calculation gives accurate results regardless of which day you received your salary.",
+  "dailyEarningRateDetailBody": "This card calculates your daily average earning rate by dividing your total income by the total number of days in the selected period.\n\nFor example: If you earned 30,000₺ this month and the month has 31 days, your daily average is approximately 968₺. This calculation gives accurate results regardless of which day you received your salary.",
   "savingsPotentialDetailTitle": "What is Savings Potential?",
-  "savingsPotentialDetailBody": "This card shows how much money you have left by subtracting your total expenses from your total income in the selected period.\n\nThere are three states:\n\u2022 Green: Your income exceeds your expenses, great job!\n\u2022 Red: Your expenses exceeded your income, review your budget.\n\u2022 No expenses yet: All your income is in hand!",
+  "savingsPotentialDetailBody": "This card shows how much money you have left by subtracting your total expenses from your total income in the selected period.\n\nThere are three states:\n• Green: Your income exceeds your expenses, great job!\n• Red: Your expenses exceeded your income, review your budget.\n• No expenses yet: All your income is in hand!",
   "topPerformers": "Top Performers",
   "topPerformersDesc": "Your assets with the highest return on investment (ROI).",
   "topPerformersAllLoss": "None of your assets are currently in profit.",
   "topPerformersDetailTitle": "What is Top Performers?",
-  "topPerformersDetailBody": "This card shows your top 3 assets with the highest return on investment (ROI).\n\nFormula: (Current Value - Purchase Price) / Purchase Price \u00d7 100\n\nFor example, if you bought gold for 1,000\u20ba and it's now worth 1,500\u20ba, your ROI is 50%.",
+  "topPerformersDetailBody": "This card shows your top 3 assets with the highest return on investment (ROI).\n\nFormula: (Current Value - Purchase Price) / Purchase Price × 100\n\nFor example, if you bought gold for 1,000₺ and it's now worth 1,500₺, your ROI is 50%.",
   "roi": "ROI",
   "profit": "Profit",
   "loss": "Loss",
@@ -608,8 +608,8 @@
       }
     }
   },
-  "offlineDataShown": "No connection \u2014 showing last saved data",
-  "dataRefreshFailed": "Could not refresh \u2014 using cached data",
+  "offlineDataShown": "No connection — showing last saved data",
+  "dataRefreshFailed": "Could not refresh — using cached data",
   "streakCelebrationBarrierLabel": "Streak Celebration",
   "streakCelebrationDayLabel": "DAY",
   "streakMsg1": "A new beginning!",
@@ -1940,5 +1940,49 @@
   },
   "assetNoChange": "No value change",
   "fxImpactNotice": "Market and FX impact",
-  "assetTypes": "Asset Types"
+  "assetTypes": "Asset Types",
+  "errUnknown": "An unknown error occurred. Please try again.",
+  "errNetworkOffline": "Internet connection lost or server unreachable. Please check your connection.",
+  "errDataFormat": "Unexpected data format received. Operation could not be completed.",
+  "errDeviceIssue": "A device-based issue occurred: {message}",
+  "@errDeviceIssue": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "errInvalidInput": "Invalid information entered. Please check the fields.",
+  "errPermissionDenied": "You do not have sufficient permissions to perform this action.",
+  "errFallbackSummary": "An issue occurred. Check Error Logs for more details.",
+  "errAuthUserNotFound": "No user found for this email address.",
+  "errAuthWrongPassword": "Incorrect password. Please try again.",
+  "errAuthEmailInUse": "This email address is already in use.",
+  "errAuthInvalidEmail": "You entered an invalid email address.",
+  "errAuthUserDisabled": "This user account has been disabled.",
+  "errAuthNotAllowed": "This sign-in method is not allowed right now.",
+  "errAuthWeakPassword": "Your password is too weak. Please choose a stronger one.",
+  "errAuthNetwork": "There is an issue with your internet connection. Please check and try again.",
+  "errAuthDefault": "An error occurred during authentication: {message}",
+  "@errAuthDefault": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "errDbUnavailable": "The server is currently unreachable (You might be offline).",
+  "errDbNotFound": "The data you are trying to access was not found.",
+  "errDbAlreadyExists": "This record already exists.",
+  "errDbResourceExhausted": "Operation could not be processed due to system overload, try again later.",
+  "errDbCancelled": "Operation was cancelled.",
+  "errDbDeadlineExceeded": "Operation timed out. Your connection might be slow.",
+  "errDbDefault": "An issue occurred during the database operation: {message}",
+  "@errDbDefault": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  }
 }

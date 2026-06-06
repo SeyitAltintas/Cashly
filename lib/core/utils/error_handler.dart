@@ -58,7 +58,7 @@ class ErrorHandler {
     // Log error for debugging
     debugPrint('Database Error: $error');
 
-    final userMessage = ErrorTranslator.translate(error);
+    final userMessage = ErrorTranslator.translate(error, context: context);
     showErrorSnackBar(context, userMessage);
   }
 

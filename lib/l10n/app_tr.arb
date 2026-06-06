@@ -303,32 +303,47 @@
   "dailyEarningRateDetailBody": "Bu kart, seçili dönemdeki toplam gelirinizi dönemin toplam gün sayısına bölerek günlük ortalama kazanç hızınızı hesaplar.\n\nÖrneğin: Bu ay toplam 30.000₺ kazandıysanız ve ay 31 günse, günlük ortalamanız yaklaşık 968₺ olur. Bu hesaplama, maaşınızı ayın hangi günü aldığınızdan bağımsız olarak doğru sonuç verir.",
   "savingsPotentialDetailTitle": "Tasarruf Potansiyeli Nedir?",
   "savingsPotentialDetailBody": "Bu kart, seçili dönemdeki toplam gelirinizden toplam harcamanızı çıkararak elinizde ne kadar para kaldığını gösterir.\n\nÜç durum vardır:\n• Yeşil: Geliriniz harcamalarınızdan fazla, harika gidiyorsunuz!\n• Kırmızı: Harcamalarınız gelirinizi aştı, bütçenizi gözden geçirin.\n• Henüz harcama yoksa: Tüm geliriniz elinizde!",
-  "topPerformers": "K\u00e2rl\u0131l\u0131k Liderleri",
-  "topPerformersDesc": "Yat\u0131r\u0131m getirisi (ROI) en y\u00fcksek varl\u0131klar\u0131n\u0131z.",
-  "topPerformersAllLoss": "\u015eu an k\u00e2rdaki varl\u0131\u011f\u0131n\u0131z bulunmuyor.",
-  "topPerformersDetailTitle": "K\u00e2rl\u0131l\u0131k Liderleri Nedir?",
-  "topPerformersDetailBody": "Bu kart, varl\u0131klar\u0131n\u0131z aras\u0131nda yat\u0131r\u0131m getirisi (ROI) en y\u00fcksek olan 3 tanesini g\u00f6sterir.\n\nHesaplama: (G\u00fcncel De\u011fer - Al\u0131\u015f De\u011feri) / Al\u0131\u015f De\u011feri \u00d7 100\n\n\u00d6rne\u011fin 1.000\u20ba'ye ald\u0131\u011f\u0131n\u0131z alt\u0131n \u015fu an 1.500\u20ba de\u011ferindeyse, ROI oran\u0131 %50'dir.",
+  "topPerformers": "Kârlılık Liderleri",
+  "topPerformersDesc": "Yatırım getirisi (ROI) en yüksek varlıklarınız.",
+  "topPerformersAllLoss": "Şu an kârdaki varlığınız bulunmuyor.",
+  "topPerformersDetailTitle": "Kârlılık Liderleri Nedir?",
+  "topPerformersDetailBody": "Bu kart, varlıklarınız arasında yatırım getirisi (ROI) en yüksek olan 3 tanesini gösterir.\n\nHesaplama: (Güncel Değer - Alış Değeri) / Alış Değeri × 100\n\nÖrneğin 1.000₺'ye aldığınız altın şu an 1.500₺ değerindeyse, ROI oranı %50'dir.",
   "roi": "ROI",
-  "profit": "K\u00e2r",
+  "profit": "Kâr",
   "loss": "Zarar",
-  "portfolioDiversification": "Portf\u00f6y \u00c7e\u015fitlili\u011fi",
-  "diversifiedPortfolio": "\u00c7e\u015fitlendirilmi\u015f Portf\u00f6y",
-  "diversifiedPortfolioDesc": "Varl\u0131klar\u0131n\u0131z farkl\u0131 t\u00fcrlere da\u011f\u0131lm\u0131\u015f durumda. Bu, riskinizi azalt\u0131r.",
-  "concentratedPortfolio": "Yo\u011funla\u015fm\u0131\u015f Portf\u00f6y",
-  "concentratedPortfolioDesc": "{category} toplam portf\u00f6y\u00fcn\u00fczün %{percent}'ini olu\u015fturuyor. Riskinizi da\u011f\u0131tmak i\u00e7in \u00e7e\u015fitlendirmeyi d\u00fc\u015f\u00fcnebilirsiniz.",
-  "@concentratedPortfolioDesc": { "placeholders": { "category": { "type": "String" }, "percent": { "type": "String" } } },
-  "singleAssetType": "Tek T\u00fcr Portf\u00f6y",
-  "singleAssetTypeDesc": "T\u00fcm varl\u0131klar\u0131n\u0131z tek bir t\u00fcrde. Farkl\u0131 varl\u0131k t\u00fcrlerine yat\u0131r\u0131m yaparak riskinizi da\u011f\u0131tabilirsiniz.",
-  "portfolioDiversificationDetailTitle": "Portf\u00f6y \u00c7e\u015fitlili\u011fi Nedir?",
-  "portfolioDiversificationDetailBody": "Portf\u00f6y \u00e7e\u015fitlili\u011fi, yat\u0131r\u0131mlar\u0131n\u0131z\u0131n farkl\u0131 varl\u0131k t\u00fcrlerine ne kadar dengeli da\u011f\u0131ld\u0131\u011f\u0131n\u0131 g\u00f6sterir.\n\n\u0130deal durum: Hi\u00e7bir varl\u0131k t\u00fcr\u00fc toplam portf\u00f6y\u00fcn %70'inden fazlas\u0131n\u0131 olu\u015fturmamal\u0131d\u0131r.",
+  "portfolioDiversification": "Portföy Çeşitliliği",
+  "diversifiedPortfolio": "Çeşitlendirilmiş Portföy",
+  "diversifiedPortfolioDesc": "Varlıklarınız farklı türlere dağılmış durumda. Bu, riskinizi azaltır.",
+  "concentratedPortfolio": "Yoğunlaşmış Portföy",
+  "concentratedPortfolioDesc": "{category} toplam portföyünüzün %{percent}'ini oluşturuyor. Riskinizi dağıtmak için çeşitlendirmeyi düşünebilirsiniz.",
+  "@concentratedPortfolioDesc": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "singleAssetType": "Tek Tür Portföy",
+  "singleAssetTypeDesc": "Tüm varlıklarınız tek bir türde. Farklı varlık türlerine yatırım yaparak riskinizi dağıtabilirsiniz.",
+  "portfolioDiversificationDetailTitle": "Portföy Çeşitliliği Nedir?",
+  "portfolioDiversificationDetailBody": "Portföy çeşitliliği, yatırımlarınızın farklı varlık türlerine ne kadar dengeli dağıldığını gösterir.\n\nİdeal durum: Hiçbir varlık türü toplam portföyün %70'inden fazlasını oluşturmamalıdır.",
   "liquidityCheck": "Likidite Durumu",
-  "highLiquidity": "Y\u00fcksek Likidite",
-  "lowLiquidity": "D\u00fc\u015f\u00fck Likidite",
-  "liquidityHealthy": "Varl\u0131klar\u0131n\u0131z\u0131n %{percent}'i h\u0131zlıca nakde \u00e7evrilebilir durumda.",
-  "@liquidityHealthy": { "placeholders": { "percent": { "type": "String" } } },
-  "liquidityWarning": "Varl\u0131klar\u0131n\u0131z\u0131n b\u00fcy\u00fck k\u0131sm\u0131 d\u00fc\u015f\u00fck likiditeli. Acil durumda nakde \u00e7evirmek zor olabilir.",
+  "highLiquidity": "Yüksek Likidite",
+  "lowLiquidity": "Düşük Likidite",
+  "liquidityHealthy": "Varlıklarınızın %{percent}'i hızlıca nakde çevrilebilir durumda.",
+  "@liquidityHealthy": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "liquidityWarning": "Varlıklarınızın büyük kısmı düşük likiditeli. Acil durumda nakde çevirmek zor olabilir.",
   "liquidityDetailTitle": "Likidite Durumu Nedir?",
-  "liquidityDetailBody": "Likidite, bir varl\u0131\u011f\u0131n ne kadar h\u0131zl\u0131 nakde \u00e7evrilebilece\u011fini g\u00f6sterir.\n\nY\u00fcksek: Alt\u0131n, D\u00f6viz, Kripto, Banka.\nD\u00fc\u015f\u00fck: Gayrimenkul, Ara\u00e7, Hisse Senedi.\n\nAcil durumda eri\u015febilece\u011finiz varl\u0131klar\u0131n oran\u0131n\u0131 bilmek \u00f6nemlidir.",
+  "liquidityDetailBody": "Likidite, bir varlığın ne kadar hızlı nakde çevrilebileceğini gösterir.\n\nYüksek: Altın, Döviz, Kripto, Banka.\nDüşük: Gayrimenkul, Araç, Hisse Senedi.\n\nAcil durumda erişebileceğiniz varlıkların oranını bilmek önemlidir.",
   "financialReport": "Finansal Rapor",
   "exportPdf": "PDF Olarak Dışa Aktar",
   "exportCsv": "CSV Olarak Dışa Aktar",
@@ -593,30 +608,30 @@
       }
     }
   },
-  "offlineDataShown": "Ba\u011flant\u0131 yok \u2014 son kaydedilen veriler g\u00f6steriliyor",
-  "dataRefreshFailed": "Veriler yenilenemedi \u2014 \u00f6nbelle\u011f kullan\u0131l\u0131yor",
+  "offlineDataShown": "Bağlantı yok — son kaydedilen veriler gösteriliyor",
+  "dataRefreshFailed": "Veriler yenilenemedi — önbelleğ kullanılıyor",
   "streakCelebrationBarrierLabel": "Seri Kutlama",
-  "streakCelebrationDayLabel": "G\u00dcN",
-  "streakMsg1": "Yeni bir ba\u015flang\u0131\u00e7!",
+  "streakCelebrationDayLabel": "GÜN",
+  "streakMsg1": "Yeni bir başlangıç!",
   "streakMsg3": "Harika gidiyorsun!",
-  "streakMsg7": "Bir haftal\u0131k seri!",
-  "streakMsg14": "\u0130ki haftal\u0131k \u015fampiyon!",
-  "streakMsg30": "Bir ayl\u0131k efsane!",
-  "streakMsg100": "Y\u00fcz g\u00fcnl\u00fck destan!",
-  "streakMsg365": "Bir y\u0131ll\u0131k efsane!",
-  "streakMsgMultiple100": "\u0130nan\u0131lmaz ba\u015far\u0131!",
-  "streakMsgMultiple30": "Muhte\u015fem devam!",
-  "streakMsgMultiple7": "Haftal\u0131k hedef tamam!",
+  "streakMsg7": "Bir haftalık seri!",
+  "streakMsg14": "İki haftalık şampiyon!",
+  "streakMsg30": "Bir aylık efsane!",
+  "streakMsg100": "Yüz günlük destan!",
+  "streakMsg365": "Bir yıllık efsane!",
+  "streakMsgMultiple100": "İnanılmaz başarı!",
+  "streakMsgMultiple30": "Muhteşem devam!",
+  "streakMsgMultiple7": "Haftalık hedef tamam!",
   "streakMsgDefault": "Seri devam ediyor!",
-  "securityQuestionPet": "\u0130lk evcil hayvan\u0131n\u0131n ad\u0131 nedir?",
-  "securityQuestionTeacher": "\u0130lkokul \u00f6\u011fretmeninin ad\u0131 nedir?",
-  "securityQuestionCity": "Do\u011fdu\u011fun \u015fehir neresi?",
-  "securityQuestionBook": "En sevdi\u011fin kitap hangisi?",
-  "securityQuestionMaiden": "Annenin k\u0131zl\u0131k soyad\u0131 nedir?",
-  "securityQuestionFriend": "\u00c7ocukluk arkada\u015f\u0131n\u0131n ad\u0131 nedir?",
-  "pleaseSelectSecurityQuestion": "L\u00fctfen bir g\u00fcvenlik sorusu se\u00e7in",
-  "pleaseEnterSecurityAnswer": "L\u00fctfen g\u00fcvenlik sorusunun cevab\u0131n\u0131 girin",
-  "unknownUser": "Kullan\u0131c\u0131",
+  "securityQuestionPet": "İlk evcil hayvanının adı nedir?",
+  "securityQuestionTeacher": "İlkokul öğretmeninin adı nedir?",
+  "securityQuestionCity": "Doğduğun şehir neresi?",
+  "securityQuestionBook": "En sevdiğin kitap hangisi?",
+  "securityQuestionMaiden": "Annenin kızlık soyadı nedir?",
+  "securityQuestionFriend": "Çocukluk arkadaşının adı nedir?",
+  "pleaseSelectSecurityQuestion": "Lütfen bir güvenlik sorusu seçin",
+  "pleaseEnterSecurityAnswer": "Lütfen güvenlik sorusunun cevabını girin",
+  "unknownUser": "Kullanıcı",
   "user": "Kullanıcı",
   "account": "Hesap",
   "userInfo": "Kullanıcı Bilgileri",
@@ -1925,5 +1940,49 @@
     }
   },
   "earnedSameAsLastMonth": "Geçen ayla aynı oranda kazanıyorsunuz.",
-  "noDetailsFound": "Detay bulunamadı."
+  "noDetailsFound": "Detay bulunamadı.",
+  "errUnknown": "Bilinmeyen bir hata oluştu. Lütfen tekrar deneyin.",
+  "errNetworkOffline": "İnternet bağlantınız koptu veya sunucuya ulaşılamıyor. Lütfen bağlantınızı kontrol edin.",
+  "errDataFormat": "Beklenmeyen bir veri formatı alındı. İşlem tamamlanamadı.",
+  "errDeviceIssue": "Cihaz tabanlı bir sorun oluştu: {message}",
+  "@errDeviceIssue": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "errInvalidInput": "Geçersiz bir bilgi girdiniz. Lütfen alanları kontrol edin.",
+  "errPermissionDenied": "Bu işlemi gerçekleştirmek için yeterli yetkiniz bulunmuyor.",
+  "errFallbackSummary": "Bir sorun oluştu. Daha fazla detay için Hata Kayıtları ekranına bakabilirsiniz.",
+  "errAuthUserNotFound": "Bu e-posta adresine ait bir kullanıcı bulunamadı.",
+  "errAuthWrongPassword": "Hatalı şifre girdiniz. Lütfen tekrar deneyin.",
+  "errAuthEmailInUse": "Bu e-posta adresi zaten kullanımda.",
+  "errAuthInvalidEmail": "Geçersiz bir e-posta adresi girdiniz.",
+  "errAuthUserDisabled": "Bu kullanıcı hesabı askıya alınmış.",
+  "errAuthNotAllowed": "Bu giriş yöntemine şu an izin verilmiyor.",
+  "errAuthWeakPassword": "Şifreniz çok zayıf. Lütfen daha güçlü bir şifre belirleyin.",
+  "errAuthNetwork": "İnternet bağlantınızda bir sorun var. Lütfen kontrol edip tekrar deneyin.",
+  "errAuthDefault": "Kimlik doğrulama sırasında bir hata oluştu: {message}",
+  "@errAuthDefault": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "errDbUnavailable": "Şu anda sunucuya ulaşılamıyor (Çevrimdışı olabilirsiniz).",
+  "errDbNotFound": "Erişmeye çalıştığınız veri bulunamadı.",
+  "errDbAlreadyExists": "Bu kayıt zaten mevcut.",
+  "errDbResourceExhausted": "Sistem yoğunluğu nedeniyle işlem yapılamadı, daha sonra tekrar deneyin.",
+  "errDbCancelled": "İşlem iptal edildi.",
+  "errDbDeadlineExceeded": "İşlem zaman aşımına uğradı. Bağlantınız yavaş olabilir.",
+  "errDbDefault": "Veritabanı işlemi sırasında bir sorun oluştu: {message}",
+  "@errDbDefault": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  }
 }
