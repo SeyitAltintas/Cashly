@@ -7,6 +7,24 @@ class SecureStorageService {
   static const _encryptionKeyName = 'hive_encryption_key';
 
   static Future<List<int>> getEncryptionKey() async {
+    try {
+      return await _getOrGenerateKey();
+    } catch (e) {
+      // GÜVENLİK/KARARLILIK YAMASI (Edge Case):
+      // Android Keystore bozulmaları (OS güncellemesi vb.) nedeniyle FlutterSecureStorage 
+      // PlatformException fırlatabilir. Bu durumda uygulama tamamen kullanılamaz hale gelir.
+      // Kurtarmak için şifreleme anahtarını silip yeniden oluşturuyoruz. (Yerel veri sıfırlanır 
+      // ama uygulama çökmekten kurtulur, bulut verisi zaten geri yüklenir).
+      try {
+        await _storage.delete(key: _encryptionKeyName);
+      } catch (_) {
+        await _storage.deleteAll();
+      }
+      return await _getOrGenerateKey();
+    }
+  }
+
+  static Future<List<int>> _getOrGenerateKey() async {
     final containsEncryptionKey = await _storage.containsKey(
       key: _encryptionKeyName,
     );
