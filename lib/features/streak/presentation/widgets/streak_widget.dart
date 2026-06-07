@@ -85,9 +85,14 @@ class _StreakWidgetState extends State<StreakWidget>
                 SizedBox(
                   width: 32,
                   height: 32,
-                  child: Lottie.asset(
-                    'assets/lottie/money_flame.json',
-                    fit: BoxFit.contain,
+                  // FPS Optimizasyonu: Animasyonun tüm parent widget'ı repaint etmesini engeller
+                  child: RepaintBoundary(
+                    child: Lottie.asset(
+                      'assets/lottie/money_flame.json',
+                      fit: BoxFit.contain,
+                      // FPS Optimizasyonu: Animasyonu 60 FPS'e sabitleyerek aşırı CPU ve batarya tüketimini engeller
+                      frameRate: FrameRate(60),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 6),

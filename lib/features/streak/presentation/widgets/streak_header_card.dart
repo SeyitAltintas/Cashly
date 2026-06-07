@@ -42,9 +42,12 @@ class StreakHeaderCard extends StatelessWidget {
                 SizedBox(
                   width: 80,
                   height: 80,
-                  child: Lottie.asset(
-                    'assets/lottie/money_flame.json',
-                    fit: BoxFit.contain,
+                  child: RepaintBoundary(
+                    child: Lottie.asset(
+                      'assets/lottie/money_flame.json',
+                      fit: BoxFit.contain,
+                      frameRate: FrameRate(60),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),

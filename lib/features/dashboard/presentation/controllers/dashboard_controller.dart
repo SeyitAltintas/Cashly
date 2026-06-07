@@ -489,7 +489,7 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
     _recalculateData();
   }
 
-  void _recalculateData() {
+  Future<void> _recalculateData() async {
     final service = getIt<CurrencyService>();
     final payload = DashboardComputePayload(
       harcamalar: _harcamalar,
@@ -502,7 +502,9 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
       currentCurrency: service.currentCurrency,
     );
     
-    _result = _calculateDashboardWorker(payload);
+    // FPS Optimizasyonu: Main thread'i bloklamamak için hesaplamaları arka plan isolate'ine gönderiyoruz.
+    _result = await compute(_calculateDashboardWorker, payload);
+    
     if (!_disposed) notifyListeners();
   }
 }

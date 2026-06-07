@@ -87,6 +87,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    
+    // FPS Optimizasyonu: Sık kullanılan logoyu uygulama genelinde belleğe al.
+    precacheImage(const AssetImage('assets/image/seffaflogo.png'), context);
+    
     if (!_transferKontrolYapildi) {
       _transferKontrolYapildi = true;
       final userId = widget.authController.currentUser?.id;
@@ -217,24 +221,19 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       child: Scaffold(
         // ValueListenableBuilder ile sadece AppBar değişikliklerinde rebuild
         appBar: _buildAppBarWithNotifier(),
-        body: ListenableBuilder(
-          listenable: _homeState,
-          builder: (context, _) {
-            return PageView(
-              controller: _pageController,
-              // setState yerine ValueNotifier kullanarak gereksiz rebuild'leri önle
-              onPageChanged: (index) => _selectedIndexNotifier.value = index,
-              children: [
-                _buildToolsPage(),
-                _buildDashboardPage(userName),
-                ProfilSayfasi(
-                  authController: widget.authController,
-                  onRefresh: _verileriOku,
-                  onNavigationReturn: _showCelebrationIfPending,
-                ),
-              ],
-            );
-          },
+        body: PageView(
+          controller: _pageController,
+          // setState yerine ValueNotifier kullanarak gereksiz rebuild'leri önle
+          onPageChanged: (index) => _selectedIndexNotifier.value = index,
+          children: [
+            _buildToolsPage(),
+            _buildDashboardPage(userName),
+            ProfilSayfasi(
+              authController: widget.authController,
+              onRefresh: _verileriOku,
+              onNavigationReturn: _showCelebrationIfPending,
+            ),
+          ],
         ),
         // ValueListenableBuilder ile sadece navigation değişikliklerinde rebuild
         bottomNavigationBar: ValueListenableBuilder<int>(
@@ -334,30 +333,36 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   }
 
   Widget _buildDashboardPage(String userName) {
-    if (_isLoading) return const DashboardPageSkeleton();
+    // FPS Optimizasyonu: Sadece Dashboard sayfası değiştiğinde bu bloğu yeniden çiz.
+    return ListenableBuilder(
+      listenable: _homeState,
+      builder: (context, _) {
+        if (_isLoading) return const DashboardPageSkeleton();
 
-    // Mor-mavi ton (varsayılan tema için)
-    const refreshColor = Color(0xFF6C63FF);
+        // Mor-mavi ton (varsayılan tema için)
+        const refreshColor = Color(0xFF6C63FF);
 
-    return RefreshIndicator(
-      onRefresh: _yenile,
-      color: refreshColor,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      child: DashboardPage(
-        userName: userName,
-        harcamalar: tumHarcamalar,
-        gelirler: tumGelirler,
-        varliklar: varliklar,
-        odemeYontemleri: tumOdemeYontemleri,
-        butceLimiti: butceLimiti,
-        secilenAy: secilenAy,
-        streakData: _streakData,
-        transferler: tumTransferler,
-        categoryBudgets: categoryBudgets,
-        onAssetsPressed: ({bool replace = false, DateTime? initialDate}) => HomeNavigationHelper.navigateToAssets(
-          context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending, replace: replace, initialDate: initialDate
-        ),
-      ),
+        return RefreshIndicator(
+          onRefresh: _yenile,
+          color: refreshColor,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          child: DashboardPage(
+            userName: userName,
+            harcamalar: tumHarcamalar,
+            gelirler: tumGelirler,
+            varliklar: varliklar,
+            odemeYontemleri: tumOdemeYontemleri,
+            butceLimiti: butceLimiti,
+            secilenAy: secilenAy,
+            streakData: _streakData,
+            transferler: tumTransferler,
+            categoryBudgets: categoryBudgets,
+            onAssetsPressed: ({bool replace = false, DateTime? initialDate}) => HomeNavigationHelper.navigateToAssets(
+              context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending, replace: replace, initialDate: initialDate
+            ),
+          ),
+        );
+      },
     );
   }
 
