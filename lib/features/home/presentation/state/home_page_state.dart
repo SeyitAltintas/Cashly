@@ -157,80 +157,92 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
 
   void loadData(String userId) {
     _userId = userId;
-    final expenseRepo = getIt<ExpenseRepository>();
-    final incomeRepo = getIt<IncomeRepository>();
-    final assetRepo = getIt<AssetRepository>();
-    final paymentRepo = getIt<PaymentMethodRepository>();
-    final streakRepo = getIt<StreakRepository>();
+    try {
+      final expenseRepo = getIt<ExpenseRepository>();
+      final incomeRepo = getIt<IncomeRepository>();
+      final assetRepo = getIt<AssetRepository>();
+      final paymentRepo = getIt<PaymentMethodRepository>();
+      final streakRepo = getIt<StreakRepository>();
 
-    _startStreams(userId);
+      _startStreams(userId);
 
-    _butceLimiti = expenseRepo.getBudget(userId);
-    _categoryBudgets = expenseRepo.getCategoryBudgets(userId);
+      _butceLimiti = expenseRepo.getBudget(userId);
+      _categoryBudgets = expenseRepo.getCategoryBudgets(userId);
 
-    // Harcama kategorilerini yükle
-    final harcamaKategorileri = expenseRepo.getCategories(userId);
-    _kategoriIkonlari = {};
-    for (var kategori in harcamaKategorileri) {
-      String isim = kategori['isim'];
-      String ikonAdi = kategori['ikon'];
-      _kategoriIkonlari[isim] = IconConstants.getHarcamaIkonu(ikonAdi);
+      // Harcama kategorilerini yükle
+      final harcamaKategorileri = expenseRepo.getCategories(userId);
+      _kategoriIkonlari = {};
+      for (var kategori in harcamaKategorileri) {
+        String isim = kategori['isim']?.toString() ?? 'Bilinmeyen';
+        String ikonAdi = kategori['ikon']?.toString() ?? 'diger';
+        _kategoriIkonlari[isim] = IconConstants.getHarcamaIkonu(ikonAdi);
+      }
+
+      // Gelir kategorilerini yükle
+      final gelirKategorileri = incomeRepo.getCategories(userId);
+      _gelirKategoriIkonlari = {};
+      for (var kategori in gelirKategorileri) {
+        String isim = kategori['isim']?.toString() ?? 'Bilinmeyen';
+        String ikonAdi = kategori['ikon']?.toString() ?? 'diger';
+        _gelirKategoriIkonlari[isim] = IconConstants.getGelirIkonu(ikonAdi);
+      }
+
+      // Varlıklar
+      final varlikVerileri = assetRepo.getAssets(userId);
+      _varliklar = varlikVerileri.map((map) => Asset.fromMap(map)).toList();
+
+      // Ödeme yöntemleri
+      final odemeVerileri = paymentRepo.getPaymentMethods(userId);
+      _tumOdemeYontemleri = odemeVerileri
+          .map((map) => PaymentMethod.fromMap(map))
+          .toList();
+
+      // Transferler
+      final transferVerileri = paymentRepo.getTransfers(userId);
+      _tumTransferler = transferVerileri
+          .map((map) => Transfer.fromMap(map))
+          .toList();
+
+      _varsayilanOdemeYontemiId = paymentRepo.getDefaultPaymentMethod(userId);
+
+      // Streak verisi
+      _streakData = streakRepo.getStreakData(userId);
+    } catch (e, stack) {
+      debugPrint('HomePageState loadData Edge Case Hatası: $e\n$stack');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    // Gelir kategorilerini yükle
-    final gelirKategorileri = incomeRepo.getCategories(userId);
-    _gelirKategoriIkonlari = {};
-    for (var kategori in gelirKategorileri) {
-      String isim = kategori['isim'];
-      String ikonAdi = kategori['ikon'];
-      _gelirKategoriIkonlari[isim] = IconConstants.getGelirIkonu(ikonAdi);
-    }
-
-    // Varlıklar
-    final varlikVerileri = assetRepo.getAssets(userId);
-    _varliklar = varlikVerileri.map((map) => Asset.fromMap(map)).toList();
-
-    // Ödeme yöntemleri
-    final odemeVerileri = paymentRepo.getPaymentMethods(userId);
-    _tumOdemeYontemleri = odemeVerileri
-        .map((map) => PaymentMethod.fromMap(map))
-        .toList();
-
-    // Transferler
-    final transferVerileri = paymentRepo.getTransfers(userId);
-    _tumTransferler = transferVerileri
-        .map((map) => Transfer.fromMap(map))
-        .toList();
-
-    _varsayilanOdemeYontemiId = paymentRepo.getDefaultPaymentMethod(userId);
-
-    // Streak verisi
-    _streakData = streakRepo.getStreakData(userId);
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   void refreshCategoriesAndSettings(String userId) {
-    final expenseRepo = getIt<ExpenseRepository>();
-    final incomeRepo = getIt<IncomeRepository>();
-    
-    _butceLimiti = expenseRepo.getBudget(userId);
-    _categoryBudgets = expenseRepo.getCategoryBudgets(userId);
+    try {
+      final expenseRepo = getIt<ExpenseRepository>();
+      final incomeRepo = getIt<IncomeRepository>();
+      
+      _butceLimiti = expenseRepo.getBudget(userId);
+      _categoryBudgets = expenseRepo.getCategoryBudgets(userId);
 
-    final harcamaKategorileri = expenseRepo.getCategories(userId);
-    _kategoriIkonlari = {};
-    for (var kategori in harcamaKategorileri) {
-      _kategoriIkonlari[kategori['isim']] = IconConstants.getHarcamaIkonu(kategori['ikon']);
-    }
+      final harcamaKategorileri = expenseRepo.getCategories(userId);
+      _kategoriIkonlari = {};
+      for (var kategori in harcamaKategorileri) {
+        String isim = kategori['isim']?.toString() ?? 'Bilinmeyen';
+        String ikonAdi = kategori['ikon']?.toString() ?? 'diger';
+        _kategoriIkonlari[isim] = IconConstants.getHarcamaIkonu(ikonAdi);
+      }
 
-    final gelirKategorileri = incomeRepo.getCategories(userId);
-    _gelirKategoriIkonlari = {};
-    for (var kategori in gelirKategorileri) {
-      _gelirKategoriIkonlari[kategori['isim']] = IconConstants.getGelirIkonu(kategori['ikon']);
+      final gelirKategorileri = incomeRepo.getCategories(userId);
+      _gelirKategoriIkonlari = {};
+      for (var kategori in gelirKategorileri) {
+        String isim = kategori['isim']?.toString() ?? 'Bilinmeyen';
+        String ikonAdi = kategori['ikon']?.toString() ?? 'diger';
+        _gelirKategoriIkonlari[isim] = IconConstants.getGelirIkonu(ikonAdi);
+      }
+      
+      notifyListeners();
+    } catch (e, stack) {
+      debugPrint('HomePageState refreshCategoriesAndSettings Edge Case Hatası: $e\n$stack');
     }
-    
-    notifyListeners();
   }
 
   /// State'i bildirim olmadan günceller (batch update için)
