@@ -122,6 +122,17 @@ class AuthRepositoryFirestore implements AuthRepository {
 
     final localUser = localUsers[localUserIndex];
 
+    // GÜVENLİK YAMASI (Edge Case 5): Wi-Fi Toggle Brute-Force Bypass Fix
+    // Kullanıcı offline modda 5 kez yanlış girip kilitlendiğinde, interneti açıp online girişi
+    // kullanarak bekleme süresini atlatabiliyordu. Kilidi her koşulda en baştan kontrol ediyoruz.
+    final lockoutUntil = await _localHiveRepo.getOfflineLockoutUntil(id);
+    if (lockoutUntil != null && DateTime.now().isBefore(lockoutUntil)) {
+      final waitMinutes = lockoutUntil.difference(DateTime.now()).inMinutes;
+      throw Exception(
+        'Çok fazla hatalı giriş yaptınız. Güvenlik nedeniyle lütfen ${waitMinutes > 0 ? waitMinutes : 1} dakika bekleyip tekrar deneyin.',
+      );
+    }
+
     try {
       final credential = await _firebaseAuth
           .signInWithEmailAndPassword(email: localUser.email, password: pin)
@@ -266,6 +277,18 @@ class AuthRepositoryFirestore implements AuthRepository {
 
   @override
   Future<UserEntity?> loginByEmail(String email, String pin) async {
+    // GÜVENLİK YAMASI (Edge Case 5): Wi-Fi Toggle Brute-Force Bypass Fix
+    final localUser = await _localHiveRepo.getUserByEmail(email);
+    if (localUser != null) {
+      final lockoutUntil = await _localHiveRepo.getOfflineLockoutUntil(localUser.id);
+      if (lockoutUntil != null && DateTime.now().isBefore(lockoutUntil)) {
+        final waitMinutes = lockoutUntil.difference(DateTime.now()).inMinutes;
+        throw Exception(
+          'Çok fazla hatalı giriş yaptınız. Güvenlik nedeniyle lütfen ${waitMinutes > 0 ? waitMinutes : 1} dakika bekleyip tekrar deneyin.',
+        );
+      }
+    }
+
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
