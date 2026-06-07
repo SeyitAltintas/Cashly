@@ -27,6 +27,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // Kategorileri kullanım oranına göre sırala
     final sortedCategories = _getSortedCategories(context);
+    final unlimitedCategories = _getUnlimitedCategories(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -58,7 +59,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
             ...sortedCategories.map((cat) => _buildCategoryCard(context, cat)),
 
             // Limitsiz kategoriler
-            if (_getUnlimitedCategories(context).isNotEmpty) ...[
+            if (unlimitedCategories.isNotEmpty) ...[
               const SizedBox(height: 24),
               Text(
                 context.l10n.unlimitedCategories,
@@ -71,9 +72,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              ..._getUnlimitedCategories(
-                context,
-              ).map((cat) => _buildUnlimitedCategoryCard(context, cat)),
+              ...unlimitedCategories.map((cat) => _buildUnlimitedCategoryCard(context, cat)),
             ],
 
             const SizedBox(height: 32),
