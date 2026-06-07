@@ -19,6 +19,7 @@ import '../../../../../core/services/database_helper.dart';
 import '../../../../home/presentation/pages/home_page.dart';
 import '../../../../../core/widgets/app_loading_overlay.dart';
 import '../../../../../core/services/notification_scheduler.dart';
+import '../../../../../core/services/notification_service.dart';
 
 /// Profil ayarları dialog/sheet yardımcı sınıfı
 /// Avatar seçimi, isim değiştirme, PIN değiştirme, hesap silme akışlarını yönetir
@@ -750,8 +751,8 @@ class ProfileSettingsHelper {
                 await authController.logout();
 
                 // 🚨 EDGE CASE FIX 3: Kullanıcı silindiğinde bekleyen tüm yerel bildirimleri (hatırlatıcılar vb.) iptal et
-                if (getIt.isRegistered<NotificationScheduler>()) {
-                  await getIt<NotificationScheduler>().rescheduleAll();
+                if (getIt.isRegistered<NotificationService>()) {
+                  await getIt<NotificationService>().cancelAllNotifications();
                 }
 
                 if (context.mounted) AppLoadingOverlay.hide(context);
