@@ -17,4 +17,7 @@ abstract class SettingsRepository {
 
   /// Tüm kullanıcı verilerini siler (hesap silme için)
   Future<void> deleteAllUserData(String userId);
+
+  /// Sadece finansal verileri siler (Tüm Verilerimi Sil işlemi için)
+  Future<void> deleteAllFinancialData(String userId);
 }

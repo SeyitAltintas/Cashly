@@ -81,4 +81,38 @@ class DatabaseHelper {
       rethrow;
     }
   }
+
+  /// Sadece kullanıcının finansal verilerini siler
+  /// "Tüm Verilerimi Sil" işleminde çağrılır
+  static Future<void> deleteUserFinancialData(String userId) async {
+    try {
+      // Harcama verileri
+      await _box.delete('harcamalar_$userId');
+      await _box.delete('butce_limiti_$userId');
+      await _box.delete('sabit_gider_sablonlari_$userId');
+      await _box.delete('kategoriler_$userId');
+
+      // Varlıklar
+      await _box.delete('varliklar_$userId');
+      await _box.delete('silinen_varliklar_$userId');
+
+      // Ödeme yöntemleri
+      await _box.delete('odeme_yontemleri_$userId');
+      await _box.delete('silinen_odeme_yontemleri_$userId');
+      await _box.delete('varsayilan_odeme_yontemi_$userId');
+      await _box.delete('transferler_$userId');
+
+      // Gelirler
+      await _box.delete('gelirler_$userId');
+      await _box.delete('gelir_kategorileri_$userId');
+      await _box.delete('tekrarlayan_gelirler_$userId');
+
+      // NOT: Ayarlar (sesli geri bildirim vb.) silinmez.
+
+      debugPrint('✓ Finansal kullanıcı verileri silindi: $userId');
+    } catch (e) {
+      debugPrint('Finansal kullanıcı verileri silinirken hata: $e');
+      rethrow;
+    }
+  }
 }

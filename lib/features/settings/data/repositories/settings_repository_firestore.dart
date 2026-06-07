@@ -172,4 +172,71 @@ class SettingsRepositoryFirestore implements SettingsRepository {
       rethrow;
     }
   }
+  @override
+  Future<void> deleteAllFinancialData(String userId) async {
+    if (NetworkService().isOffline) {
+      throw Exception(
+        'Verilerinizi tamamen silebilmemiz için internet bağlantısı gereklidir. Lütfen internetinizi kontrol edip tekrar deneyin.',
+      );
+    }
+    
+    try {
+      final userDoc = _firestore.collection('users').doc(userId);
+
+      // Finansal alt koleksiyonlar (profile, settings, streak hariç)
+      final collections = [
+        'expenses',
+        'incomes',
+        'recurringIncomes',
+        'assets',
+        'deletedAssets',
+        'paymentMethods',
+        'deletedPaymentMethods',
+        'transfers',
+        'expenseCategories',
+        'incomeCategories',
+        'categories',
+        'recurring',
+      ];
+
+      for (final col in collections) {
+        final snapshot = await userDoc.collection(col).get();
+        if (snapshot.docs.isEmpty) continue;
+
+        // Batch 500-op limitini aşmamak için chunk'lara böl
+        const chunkSize = 450;
+        final docs = snapshot.docs;
+        for (int i = 0; i < docs.length; i += chunkSize) {
+          final chunk = docs.sublist(i, (i + chunkSize).clamp(0, docs.length));
+          final batch = _firestore.batch();
+          for (final doc in chunk) {
+            batch.delete(doc.reference);
+          }
+          await batch.commit();
+        }
+      }
+
+      // 🚨 EDGE CASE FIX: Ayarlar (settings/general) dokümanındaki finansal referansları temizle
+      // Aksi takdirde, silinen kategorilere ait bütçeler veya silinen ödeme yöntemleri varsayılan olarak kalır
+      try {
+        await _settingsDoc(userId).update({
+          'defaultPaymentMethodId': FieldValue.delete(),
+          'categoryBudgets': FieldValue.delete(),
+          'expenseTemplates': FieldValue.delete(),
+          'budget': FieldValue.delete(),
+        });
+      } catch (_) {
+        // Doküman henüz oluşturulmamışsa update hata verebilir, güvenle yoksayıyoruz
+      }
+
+      // Cache'deki tüm verileri temizle (Sadece in-memory cache olduğu için sorun yok, ayarlar Hive'dan tekrar okunur)
+      CacheService.clear();
+      
+      debugPrint('✓ Tüm Firestore finansal kullanıcı verileri silindi: $userId');
+    } catch (e, stackTrace) {
+      debugPrint('Firestore finansal kullanıcı verileri silinirken hata: $e');
+      ErrorLoggerService.logError('Firestore finansal kullanıcı verileri silinirken hata: $e', stackTrace: stackTrace.toString());
+      rethrow;
+    }
+  }
 }

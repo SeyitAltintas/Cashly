@@ -5,8 +5,13 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 /// Hesap silme butonu
 class DangerZoneSection extends StatelessWidget {
   final VoidCallback onDeleteAccount;
+  final VoidCallback onDeleteAllData;
 
-  const DangerZoneSection({super.key, required this.onDeleteAccount});
+  const DangerZoneSection({
+    super.key,
+    required this.onDeleteAccount,
+    required this.onDeleteAllData,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +67,46 @@ class DangerZoneSection extends StatelessWidget {
               color: Colors.red.withValues(alpha: 0.5),
             ),
             onTap: onDeleteAccount,
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Tüm Verileri Sil
+        Card(
+          color: Colors.orange.withValues(alpha: 0.1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: Colors.orange.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+          child: ListTile(
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.delete_sweep, color: Colors.orange),
+            ),
+            title: Text(
+              context.l10n.deleteAllData,
+              style: const TextStyle(
+                color: Colors.orange,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            subtitle: Text(
+              context.l10n.deleteAllDataWarning,
+              style: TextStyle(color: Colors.orange.withValues(alpha: 0.7)),
+            ),
+            trailing: Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.orange.withValues(alpha: 0.5),
+            ),
+            onTap: onDeleteAllData,
           ),
         ),
       ],

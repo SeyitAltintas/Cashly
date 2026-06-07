@@ -13,6 +13,11 @@ import 'image_crop_screen.dart';
 import 'advanced_image_editor.dart';
 import '../../../../../core/utils/image_utils.dart';
 import 'package:bcrypt/bcrypt.dart';
+import '../../../../../core/di/injection_container.dart';
+import '../../../../settings/domain/repositories/settings_repository.dart';
+import '../../../../../core/services/database_helper.dart';
+import '../../../../home/presentation/pages/home_page.dart';
+import '../../../../../core/widgets/app_loading_overlay.dart';
 
 /// Profil ayarları dialog/sheet yardımcı sınıfı
 /// Avatar seçimi, isim değiştirme, PIN değiştirme, hesap silme akışlarını yönetir
@@ -683,6 +688,7 @@ class ProfileSettingsHelper {
             Navigator.pop(ctx);
 
             final navigator = Navigator.of(context, rootNavigator: true);
+            final successMessage = context.l10n.profileAccountDeleted;
 
             final confirmed = await showDialog<bool>(
               context: context,
@@ -732,6 +738,7 @@ class ProfileSettingsHelper {
             );
 
             if (confirmed == true) {
+              AppLoadingOverlay.show(context);
               try {
                 final userId = currentUser.id;
                 // GÜVENLİK YAMASI: deleteAllUserData BURADA ÇAĞRILMAZ!
@@ -741,7 +748,8 @@ class ProfileSettingsHelper {
                 await authRepository.deleteUser(userId, pin: pinController.text);
                 await authController.logout();
 
-                final successMessage = context.l10n.profileAccountDeleted;
+                if (context.mounted) AppLoadingOverlay.hide(context);
+
                 navigator.pushAndRemoveUntil(
                   MaterialPageRoute(
                     builder: (newCtx) {
@@ -758,6 +766,7 @@ class ProfileSettingsHelper {
                 );
               } catch (e) {
                 if (context.mounted) {
+                  AppLoadingOverlay.hide(context);
                   // FIX-6: requires-recent-login → kullanıcıya anlaşılır yönlendirme
                   final isRecentLoginRequired = e.toString().contains(
                     'requires-recent-login',
@@ -783,6 +792,233 @@ class ProfileSettingsHelper {
         ),
         child: Text(
           context.l10n.deletePermanently,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  void showDeleteAllDataDialog() {
+    final TextEditingController pinController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isPinVisible = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setStateBottomSheet) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(ctx).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+              ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        context.l10n.deleteAllData,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange.shade800,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.orange.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.warning_amber_rounded,
+                          color: Colors.orange.shade800,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            context.l10n.deleteAllDataWarning,
+                            style: TextStyle(
+                              color: Colors.orange.shade800,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Form(
+                    key: formKey,
+                    child: _buildPinField(
+                      ctx,
+                      pinController,
+                      context.l10n.pinVerification,
+                      isPinVisible,
+                      () => setStateBottomSheet(
+                        () => isPinVisible = !isPinVisible,
+                      ),
+                      autofocus: true,
+                      focusColor: Colors.orange.shade800,
+                      validator: (value) {
+                        if (value == null ||
+                            value.length < 4 ||
+                            value.length > 6) {
+                          return context.l10n.enterPinDigits;
+                        }
+                        if (!_isPinCorrect(value, currentUser.pin)) {
+                          return context.l10n.pinIncorrect;
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildDeleteAllDataButton(ctx, formKey, pinController),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDeleteAllDataButton(
+    BuildContext ctx,
+    GlobalKey<FormState> formKey,
+    TextEditingController pinController,
+  ) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () async {
+          if (formKey.currentState!.validate()) {
+            Navigator.pop(ctx);
+
+            final navigator = Navigator.of(context, rootNavigator: true);
+            final successMessage = context.l10n.allDataDeleted;
+
+            final confirmed = await showDialog<bool>(
+              context: context,
+              builder: (dlgCtx) => AlertDialog(
+                backgroundColor: Theme.of(dlgCtx).colorScheme.surface,
+                title: Row(
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.orange.shade800,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.l10n.finalConfirmation,
+                      style: TextStyle(
+                        color: Theme.of(dlgCtx).colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+                content: Text(
+                  context.l10n.deleteAllDataWarning,
+                  style: TextStyle(
+                    color: Theme.of(dlgCtx).colorScheme.onSurface,
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(dlgCtx, false),
+                    child: Text(
+                      context.l10n.cancel,
+                      style: TextStyle(
+                        color: Theme.of(dlgCtx).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(dlgCtx, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange.shade800,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text(context.l10n.deleteAllData),
+                  ),
+                ],
+              ),
+            );
+
+            if (confirmed == true) {
+              AppLoadingOverlay.show(context);
+              try {
+                final userId = currentUser.id;
+                final settingsRepo = getIt<SettingsRepository>();
+                
+                await settingsRepo.deleteAllFinancialData(userId);
+                await DatabaseHelper.deleteUserFinancialData(userId);
+
+                if (context.mounted) AppLoadingOverlay.hide(context);
+
+                navigator.pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (newCtx) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        AppSnackBar.success(
+                          newCtx,
+                          successMessage,
+                        );
+                      });
+                      return AnaSayfa(authController: authController);
+                    },
+                  ),
+                  (route) => false,
+                );
+              } catch (e) {
+                if (context.mounted) {
+                  AppLoadingOverlay.hide(context);
+                  AppSnackBar.error(
+                    context,
+                    e.toString(),
+                  );
+                }
+              }
+            }
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.orange.shade800,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Text(
+          context.l10n.deleteAllData,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),

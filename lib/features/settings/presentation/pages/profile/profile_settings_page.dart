@@ -201,7 +201,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             ),
 
             // Tehlikeli Bölge (Hesap Silme)
-            DangerZoneSection(onDeleteAccount: helper.showDeleteAccountDialog),
+            DangerZoneSection(
+              onDeleteAccount: helper.showDeleteAccountDialog,
+              onDeleteAllData: helper.showDeleteAllDataDialog,
+            ),
           ],
         ),
       ),
