@@ -6,6 +6,9 @@ import '../../../../core/exceptions/session_expired_exception.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/notification_service.dart';
+import '../../../../core/services/notification_scheduler.dart';
 
 
 class AuthController extends ChangeNotifier with SafeNotifierMixin {
@@ -48,6 +51,9 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
     _setLoading(true);
     try {
       _currentUser = await _authRepository.getCurrentUser();
+      if (_currentUser != null && getIt.isRegistered<NotificationScheduler>()) {
+        await getIt<NotificationScheduler>().rescheduleAll();
+      }
     } catch (e) {
       if (e is SessionExpiredException) {
         _currentUser = null; // Session expired, so clear current user
@@ -65,6 +71,9 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
       final user = await _authRepository.loginUser(userId, pin);
       if (user != null) {
         _currentUser = user;
+        if (getIt.isRegistered<NotificationScheduler>()) {
+          await getIt<NotificationScheduler>().rescheduleAll();
+        }
         return true;
       } else {
         _error = "Hatalı PIN veya kullanıcı bulunamadı.";
@@ -92,6 +101,9 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
       );
       final registeredUser = await _authRepository.registerUser(newUser);
       _currentUser = registeredUser;
+      if (getIt.isRegistered<NotificationScheduler>()) {
+        await getIt<NotificationScheduler>().rescheduleAll();
+      }
       return true;
     } catch (e) {
       _error = e.toString();
@@ -108,6 +120,11 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
   }
 
   Future<void> logout() async {
+    // 🚨 EDGE CASE FIX 4: Çoklu Hesap Çakışmasını (Privacy Leak) Önleme
+    // Kullanıcı çıkış yaptığında, işletim sistemindeki tüm kişisel bildirimleri temizle
+    if (getIt.isRegistered<NotificationService>()) {
+      await getIt<NotificationService>().cancelAllNotifications();
+    }
     await _authRepository.logout();
     _currentUser = null;
     notifyListeners();
@@ -126,6 +143,9 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
 
       if (user != null) {
         _currentUser = user;
+        if (getIt.isRegistered<NotificationScheduler>()) {
+          await getIt<NotificationScheduler>().rescheduleAll();
+        }
         return true;
       } else {
         _error = "Hatalı e-posta veya PIN";
@@ -156,6 +176,9 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
       final user = await _authRepository.loginWithBiometric(userId);
       if (user != null) {
         _currentUser = user;
+        if (getIt.isRegistered<NotificationScheduler>()) {
+          await getIt<NotificationScheduler>().rescheduleAll();
+        }
         return true;
       } else {
         _error = "Biyometrik giriş başarısız.";
