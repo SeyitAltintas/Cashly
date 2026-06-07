@@ -201,17 +201,21 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
   Future<void> _initializeApp() async {
     try {
       await DatabaseHelper.baslat();
-      await HapticService.init();
-      await StreakService.initialize();
-      await PriceCacheService().init();
 
       final currencyService = getIt<CurrencyService>();
-      await currencyService.init();
-
-      await NetworkService().initialize();
-
       final notificationService = getIt<NotificationService>();
-      await notificationService.initialize();
+
+      // Performans/Hız Optimizasyonu (Parallel Initialization):
+      // Birbirinden bağımsız servisleri aynı anda başlatarak Splash screen bekleme süresini (app launch time) 
+      // ve I/O darboğazını ciddi ölçüde azaltıyoruz.
+      await Future.wait([
+        HapticService.init(),
+        StreakService.initialize(),
+        PriceCacheService().init(),
+        currencyService.init(),
+        NetworkService().initialize(),
+        notificationService.initialize(),
+      ]);
       
       // Edge Case Fix: Bildirim izni isteme işlemini splash screen kapandıktan sonraya bırakıyoruz.
       // await kullanmıyoruz ve biraz gecikmeli çalıştırıyoruz ki UI donmasın/engellenmesin.
