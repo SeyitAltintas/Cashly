@@ -76,7 +76,7 @@ flutter_native_splash:
   android_12:
     color: "#0D0D0D"
     color_dark: "#0D0D0D"
-    image: "assets/image/seffaflogo.png"
+    image: "assets/image/seffaf1152px.png"
 
 flutter:
   generate: true
