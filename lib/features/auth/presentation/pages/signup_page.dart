@@ -422,7 +422,11 @@ class _SignUpPageState extends State<SignUpPage> {
                 Center(
                   child: TextButton(
                     onPressed: () {
-                      context.go('/login');
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/login');
+                      }
                     },
                     child: Text(
                       context.l10n.alreadyHaveAccount,
