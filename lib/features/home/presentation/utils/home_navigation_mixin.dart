@@ -179,20 +179,8 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
             tumOdemeYontemleri = List.from(tumOdemeYontemleri);
             odemeYontemleriKaydet();
           },
-          onAdd: (name, type, lastFourDigits, balance, limit, colorIndex) {
-            tumOdemeYontemleri.add(
-              PaymentMethod(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                name: name,
-                type: type,
-                lastFourDigits: lastFourDigits,
-                balance: balance,
-                limit: limit,
-                colorIndex: colorIndex,
-                createdAt: DateTime.now(),
-                isDeleted: false,
-              ),
-            );
+          onAdd: (pm) {
+            tumOdemeYontemleri.add(pm);
             tumOdemeYontemleri = List.from(tumOdemeYontemleri);
             odemeYontemleriKaydet();
           },

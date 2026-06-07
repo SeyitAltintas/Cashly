@@ -32,15 +32,7 @@ class PaymentMethodsPage extends StatefulWidget {
   final Function(PaymentMethod)? onCardTap;
   final String? userName;
   final String? userProfileUrl;
-  final Function(
-    String name,
-    String type,
-    String? lastFourDigits,
-    double balance,
-    double? limit,
-    int colorIndex,
-  )
-  onAdd;
+  final Function(PaymentMethod) onAdd;
 
   const PaymentMethodsPage({
     super.key,
@@ -282,14 +274,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                                     getIt<CurrencyService>().currentCurrency,
                               );
                               await _controller.addMethod(newPm);
-                              widget.onAdd(
-                                name,
-                                type,
-                                lastFourDigits,
-                                balance,
-                                limit,
-                                colorIndex,
-                              );
+                              widget.onAdd(newPm);
                             } catch (e) {
                               if (!mounted) return;
                               if (e is AppException) {
@@ -395,16 +380,21 @@ class _PaymentMethodCard extends StatelessWidget {
           ),
           child: const Icon(Icons.delete, color: Colors.white),
         ),
-        onDismissed: (direction) async {
+        confirmDismiss: (direction) async {
           try {
             await controller.moveToBin(pm);
-            onDelete(pm);
+            return true;
           } catch (e) {
-            if (!context.mounted) return;
-            if (e is AppException) {
-              ErrorHandler.handleAppException(context, e);
+            if (context.mounted) {
+              if (e is AppException) {
+                ErrorHandler.handleAppException(context, e);
+              }
             }
+            return false;
           }
+        },
+        onDismissed: (direction) {
+          onDelete(pm);
         },
         child: GestureDetector(
           onTap: onCardTap != null ? () => onCardTap!(pm) : null,

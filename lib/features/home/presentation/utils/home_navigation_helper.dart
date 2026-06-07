@@ -224,10 +224,6 @@ class HomeNavigationHelper {
                 final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
                 newList[i] = deletedPm;
                 state.tumOdemeYontemleri = newList;
-                getIt<PaymentMethodRepository>().updatePaymentMethod(
-                  authController.currentUser!.id,
-                  deletedPm.toMap(),
-                );
               }
             },
             onEdit: (pm) {
@@ -236,10 +232,6 @@ class HomeNavigationHelper {
                 final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
                 newList[i] = pm;
                 state.tumOdemeYontemleri = newList;
-                getIt<PaymentMethodRepository>().updatePaymentMethod(
-                  authController.currentUser!.id,
-                  pm.toMap(),
-                );
               }
             },
             onRestore: (pm) {
@@ -249,52 +241,22 @@ class HomeNavigationHelper {
                 final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
                 newList[i] = restoredPm;
                 state.tumOdemeYontemleri = newList;
-                getIt<PaymentMethodRepository>().updatePaymentMethod(
-                  authController.currentUser!.id,
-                  restoredPm.toMap(),
-                );
               }
             },
             onPermanentDelete: (pm) {
               final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
               newList.removeWhere((p) => p.id == pm.id);
               state.tumOdemeYontemleri = newList;
-              getIt<PaymentMethodRepository>().deletePaymentMethod(
-                authController.currentUser!.id,
-                pm.id,
-              );
             },
             onEmptyBin: () {
-              final deletedMethods = state.tumOdemeYontemleri.where((p) => p.isDeleted).toList();
-              for (var delPm in deletedMethods) {
-                getIt<PaymentMethodRepository>().deletePaymentMethod(
-                  authController.currentUser!.id,
-                  delPm.id,
-                );
-              }
               final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
               newList.removeWhere((p) => p.isDeleted);
               state.tumOdemeYontemleri = newList;
             },
-            onAdd: (name, type, lastFourDigits, balance, limit, colorIndex) {
-              final newPm = PaymentMethod(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                name: name,
-                type: type,
-                lastFourDigits: lastFourDigits,
-                balance: balance,
-                limit: limit,
-                colorIndex: colorIndex,
-                createdAt: DateTime.now(),
-                isDeleted: false,
-              );
+            onAdd: (pm) {
               final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
-              newList.add(newPm);
+              newList.add(pm);
               state.tumOdemeYontemleri = newList;
-              getIt<PaymentMethodRepository>().addPaymentMethod(
-                authController.currentUser!.id,
-                newPm.toMap(),
-              );
             },
             onCardTap: (pm) {
               Navigator.push(
@@ -329,6 +291,22 @@ class HomeNavigationHelper {
           userId: authController.currentUser?.id,
           paymentMethods: state.tumOdemeYontemleri.where((pm) => !pm.isDeleted).toList(),
           transfers: state.tumTransferler,
+          onDeleteTransfer: (transfer) {
+            final transferList = List<Transfer>.from(state.tumTransferler);
+            transferList.removeWhere((t) => t.id == transfer.id);
+            state.tumTransferler = transferList;
+
+            Future.microtask(() async {
+              try {
+                await getIt<PaymentMethodRepository>().deleteTransfer(
+                  authController.currentUser!.id,
+                  transfer.id,
+                );
+              } catch (e, s) {
+                ErrorHandler.logError('HomePage.DeleteTransfer Background', e, s);
+              }
+            });
+          },
           onTransfer: (fromId, toId, amount, date) {
             final isScheduled = TransferSchedulePolicy.isScheduled(selectedDate: date);
             int finalFromIndex = -1;

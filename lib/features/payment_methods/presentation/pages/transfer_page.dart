@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/widgets/month_year_picker.dart';
@@ -14,6 +13,7 @@ import '../../../settings/domain/repositories/settings_repository.dart';
 import '../controllers/payment_methods_controller.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/widgets/balance_warning_dialog.dart';
+import '../../../../core/utils/amount_input_formatter.dart';
 
 class TransferPage extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
@@ -22,6 +22,7 @@ class TransferPage extends StatefulWidget {
   final PaymentMethodsController? controller;
   final Function(String fromId, String toId, double amount, DateTime date)
   onTransfer;
+  final Function(Transfer transfer)? onDeleteTransfer;
 
   const TransferPage({
     super.key,
@@ -30,6 +31,7 @@ class TransferPage extends StatefulWidget {
     required this.onTransfer,
     this.userId,
     this.controller,
+    this.onDeleteTransfer,
   });
 
   @override
@@ -131,8 +133,8 @@ class _TransferPageState extends State<TransferPage> {
       return;
     }
 
-    final double? amount = double.tryParse(
-      _amountController.text.replaceAll(',', '.'),
+    final double? amount = AmountInputFormatter.parseFormattedAmount(
+      _amountController.text,
     );
 
     if (amount == null || amount <= 0) {
@@ -657,32 +659,21 @@ class _TransferPageState extends State<TransferPage> {
               fontWeight: FontWeight.bold,
               letterSpacing: -1,
             ),
-            keyboardType: TextInputType.number,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             textAlign: TextAlign.center,
-            // Sadece rakam girişine izin ver
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            // Otomatik binlik ayraç ekleme
-            onChanged: (value) {
-              _formatAmountWithThousandSeparator(value);
-            },
+            inputFormatters: [AmountInputFormatter()],
             validator: (value) {
-              // Edge case: Boş değer
               if (value == null || value.isEmpty) {
                 return context.l10n.enterAmountHint;
               }
-              // Nokta ve virgülleri temizle
-              final cleanValue = value.replaceAll('.', '').replaceAll(',', '');
-              final amount = double.tryParse(cleanValue);
+              final amount = AmountInputFormatter.parseFormattedAmount(value);
 
-              // Edge case: Geçersiz sayı
               if (amount == null) {
                 return context.l10n.enterValidAmount;
               }
-              // Edge case: Sıfır veya negatif
               if (amount <= 0) {
                 return context.l10n.amountMustBeGreaterThanZero;
               }
-              // Edge case: Çok büyük değer (100 milyon TL üzeri)
               if (amount > 100000000) {
                 return context.l10n.maximumAmountExceeded;
               }
@@ -722,62 +713,6 @@ class _TransferPageState extends State<TransferPage> {
         ),
       ],
     );
-  }
-
-  /// Tutar için binlik ayraç (nokta) ekler
-  /// Edge cases: Boş değer, çok uzun sayı, önde sıfır
-  void _formatAmountWithThousandSeparator(String value) {
-    // Sadece rakamları al
-    String digitsOnly = value.replaceAll('.', '');
-
-    // Edge case: Boş değer
-    if (digitsOnly.isEmpty) {
-      return;
-    }
-
-    // Edge case: Öndeki sıfırları temizle (tek sıfır hariç)
-    digitsOnly = digitsOnly.replaceFirst(RegExp(r'^0+'), '');
-    if (digitsOnly.isEmpty) {
-      digitsOnly = '0';
-    }
-
-    // Edge case: Çok uzun sayı (12 haneden fazla engelle)
-    if (digitsOnly.length > 12) {
-      digitsOnly = digitsOnly.substring(0, 12);
-    }
-
-    // Binlik ayraç ekle
-    final formatted = _addThousandSeparators(digitsOnly);
-
-    // Cursor pozisyonunu koru
-    if (_amountController.text != formatted) {
-      final cursorPosition = _amountController.selection.baseOffset;
-      final oldLength = _amountController.text.length;
-
-      _amountController.value = TextEditingValue(
-        text: formatted,
-        selection: TextSelection.collapsed(
-          offset: cursorPosition + (formatted.length - oldLength),
-        ),
-      );
-    }
-  }
-
-  /// Sayıya binlik ayraç (nokta) ekler
-  String _addThousandSeparators(String value) {
-    if (value.isEmpty) return value;
-
-    final buffer = StringBuffer();
-    final length = value.length;
-
-    for (int i = 0; i < length; i++) {
-      if (i > 0 && (length - i) % 3 == 0) {
-        buffer.write('.');
-      }
-      buffer.write(value[i]);
-    }
-
-    return buffer.toString();
   }
 
   Widget _buildAccountSelection(Color textColor, bool isDark) {
@@ -1276,6 +1211,50 @@ class _TransferPageState extends State<TransferPage> {
               );
             },
           ),
+          // İptal Butonu (Sadece Bekleyen Transferler)
+          if (status == 'pending' && widget.onDeleteTransfer != null) ...[
+            const SizedBox(width: 8),
+            InkWell(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text(context.l10n.cancelTransfer),
+                    content: Text(context.l10n.cancelTransferConfirmation),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: Text(context.l10n.cancel),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          widget.onDeleteTransfer!(transfer);
+                        },
+                        child: Text(
+                          context.l10n.delete,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.close_rounded,
+                  size: 16,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

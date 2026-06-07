@@ -4205,4 +4205,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String errDbDefault(String message) {
     return 'An issue occurred during the database operation: $message';
   }
+
+  @override
+  String get cancelTransfer => 'Cancel Transfer';
+
+  @override
+  String get cancelTransferConfirmation =>
+      'Are you sure you want to cancel this pending transfer?';
 }

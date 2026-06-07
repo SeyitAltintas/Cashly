@@ -7817,6 +7817,18 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Veritabanı işlemi sırasında bir sorun oluştu: {message}'**
   String errDbDefault(String message);
+
+  /// No description provided for @cancelTransfer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Transferi İptal Et'**
+  String get cancelTransfer;
+
+  /// No description provided for @cancelTransferConfirmation.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu bekleyen transferi iptal etmek istediğinize emin misiniz?'**
+  String get cancelTransferConfirmation;
 }
 
 class _AppLocalizationsDelegate

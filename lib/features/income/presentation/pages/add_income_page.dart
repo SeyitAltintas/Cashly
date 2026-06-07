@@ -95,7 +95,10 @@ class _AddIncomePageState extends State<AddIncomePage> {
       final editDate =
           DateTime.tryParse(widget.incomeToEdit!['date'].toString()) ??
           DateTime.now();
-      final editPaymentMethodId = widget.incomeToEdit!['paymentMethodId'];
+      final rawEditPaymentMethodId = widget.incomeToEdit!['paymentMethodId'];
+      final editPaymentMethodId = widget.paymentMethods.any((pm) => pm.id == rawEditPaymentMethodId) 
+          ? rawEditPaymentMethodId 
+          : null;
 
       if (_controller != null) {
         _controller!.initializeFormState(

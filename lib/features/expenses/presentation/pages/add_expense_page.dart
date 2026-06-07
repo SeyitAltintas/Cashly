@@ -106,7 +106,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
       final editDate =
           DateTime.tryParse(widget.expenseToEdit!['tarih'].toString()) ??
           DateTime.now();
-      final editPaymentMethodId = widget.expenseToEdit!['odemeYontemiId'];
+      final rawEditPaymentMethodId = widget.expenseToEdit!['odemeYontemiId'];
+      final editPaymentMethodId = widget.paymentMethods.any((pm) => pm.id == rawEditPaymentMethodId) 
+          ? rawEditPaymentMethodId 
+          : null;
       _localSelectedCurrency =
           widget.expenseToEdit!['paraBirimi']?.toString() ??
           getIt<CurrencyService>().currentCurrency;

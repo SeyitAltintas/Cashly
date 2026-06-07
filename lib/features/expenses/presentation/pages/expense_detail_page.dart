@@ -86,17 +86,19 @@ class ExpenseDetailPage extends StatelessWidget {
                   harcama['kategori'] ?? context.l10n.notSpecified,
                   categoryIcon ?? Icons.category,
                 ),
-                if (pm != null) ...[
+                if (paymentMethodId != null) ...[
                   const SizedBox(height: 12),
                   _buildInfoRow(
                     context,
                     context.l10n.expensePaymentMethod,
-                    pm.lastFourDigits != null
-                        ? '${pm.name} ****${pm.lastFourDigits}'
-                        : pm.name,
-                    pm.type == 'nakit'
+                    pm != null
+                        ? (pm.lastFourDigits != null
+                            ? '${pm.name} ****${pm.lastFourDigits}'
+                            : pm.name)
+                        : context.l10n.unknownAccount,
+                    pm?.type == 'nakit'
                         ? Icons.wallet
-                        : pm.type == 'kredi'
+                        : pm?.type == 'kredi'
                         ? Icons.credit_card
                         : Icons.account_balance,
                   ),

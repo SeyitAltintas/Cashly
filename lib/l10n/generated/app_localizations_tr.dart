@@ -4204,4 +4204,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String errDbDefault(String message) {
     return 'Veritabanı işlemi sırasında bir sorun oluştu: $message';
   }
+
+  @override
+  String get cancelTransfer => 'Transferi İptal Et';
+
+  @override
+  String get cancelTransferConfirmation =>
+      'Bu bekleyen transferi iptal etmek istediğinize emin misiniz?';
 }

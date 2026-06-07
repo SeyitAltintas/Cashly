@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/utils/currency_formatter.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 import '../../data/models/payment_method_model.dart';
 
 /// Carousel Sayfa 2: Borç Analizi
@@ -17,10 +19,14 @@ class DebtAnalysisCardPage extends StatelessWidget {
     final krediKartlar = paymentMethods
         .where((pm) => pm.type == 'kredi')
         .toList();
-    final toplamBorc = krediKartlar.fold(0.0, (sum, pm) => sum + pm.balance);
+    final cur = getIt<CurrencyService>();
+    final toplamBorc = krediKartlar.fold(
+      0.0,
+      (sum, pm) => sum + cur.convert(pm.balance, pm.paraBirimi, cur.currentCurrency),
+    );
     final toplamLimit = krediKartlar.fold(
       0.0,
-      (sum, pm) => sum + (pm.limit ?? 0),
+      (sum, pm) => sum + cur.convert(pm.limit ?? 0, pm.paraBirimi, cur.currentCurrency),
     );
     final kullanimOrani = toplamLimit > 0
         ? (toplamBorc / toplamLimit).clamp(0.0, 1.0)

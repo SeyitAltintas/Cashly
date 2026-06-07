@@ -1984,5 +1984,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "cancelTransfer": "Cancel Transfer",
+  "cancelTransferConfirmation": "Are you sure you want to cancel this pending transfer?"
 }

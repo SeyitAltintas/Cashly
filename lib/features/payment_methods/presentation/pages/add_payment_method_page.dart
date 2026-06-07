@@ -48,6 +48,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
   PaymentMethodsController? _controller;
   String _localSelectedType = 'banka';
   int _localSelectedColorIndex = 0;
+  bool _isLoading = false;
 
   // Getter'lar
   String get _selectedType =>
@@ -119,7 +120,9 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
   }
 
   void _save() async {
+    if (_isLoading) return;
     if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
       try {
         // Türk formatından parse et (1.234,56 -> 1234.56)
         final balance =
@@ -145,6 +148,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
         Navigator.pop(context);
       } catch (e) {
         if (!mounted) return;
+        setState(() => _isLoading = false);
         if (e is AppException) {
           ErrorHandler.handleAppException(context, e);
         } else {
@@ -283,7 +287,9 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  _typeLabels[_types.indexOf(_selectedType)],
+                  _types.contains(_selectedType) 
+                      ? _typeLabels[_types.indexOf(_selectedType)] 
+                      : _selectedType.toUpperCase(),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
@@ -710,9 +716,6 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             if (limit > 1000000000) {
               return context.l10n.maxAmountLimit;
             }
-            if (limit < 100) {
-              return context.l10n.minLimitWarning;
-            }
             return null;
           },
         ),
@@ -820,17 +823,26 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: _save,
+          onTap: _isLoading ? null : _save,
           borderRadius: BorderRadius.circular(16),
           child: Center(
-            child: Text(
-              isEditing ? context.l10n.update : context.l10n.save,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: _isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.black,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    isEditing ? context.l10n.update : context.l10n.save,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
           ),
         ),
       ),

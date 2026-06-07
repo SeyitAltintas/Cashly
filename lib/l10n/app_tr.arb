@@ -1984,5 +1984,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "cancelTransfer": "Transferi İptal Et",
+  "cancelTransferConfirmation": "Bu bekleyen transferi iptal etmek istediğinize emin misiniz?"
 }
