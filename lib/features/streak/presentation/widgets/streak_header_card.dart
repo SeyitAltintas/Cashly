@@ -46,7 +46,7 @@ class StreakHeaderCard extends StatelessWidget {
                     child: Lottie.asset(
                       'assets/lottie/money_flame.json',
                       fit: BoxFit.contain,
-                      frameRate: FrameRate(60),
+                      frameRate: const FrameRate(60),
                     ),
                   ),
                 ),

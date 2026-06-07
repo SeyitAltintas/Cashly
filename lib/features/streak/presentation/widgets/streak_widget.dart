@@ -91,7 +91,7 @@ class _StreakWidgetState extends State<StreakWidget>
                       'assets/lottie/money_flame.json',
                       fit: BoxFit.contain,
                       // FPS Optimizasyonu: Animasyonu 60 FPS'e sabitleyerek aşırı CPU ve batarya tüketimini engeller
-                      frameRate: FrameRate(60),
+                      frameRate: const FrameRate(60),
                     ),
                   ),
                 ),

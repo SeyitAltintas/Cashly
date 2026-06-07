@@ -56,7 +56,11 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
       // Bildirimleri tazelemek için kayıtlı kullanıcıyı alıp işlem yapabiliriz
       final savedUser = await _authRepository.getCurrentUser();
       if (savedUser != null && getIt.isRegistered<NotificationScheduler>()) {
-        await getIt<NotificationScheduler>().rescheduleAll();
+        // Edge Case Fix: App launch'ı (Splash screen kapanışını) bloklamamak için
+        // bildirimleri yeniden planlama işlemini arka planda fire-and-forget başlatıyoruz.
+        getIt<NotificationScheduler>().rescheduleAll().catchError((e) {
+          debugPrint('Notification reschedule error: $e');
+        });
       }
     } catch (e) {
       _error = e.toString();
