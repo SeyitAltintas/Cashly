@@ -6,6 +6,7 @@ import 'login_page.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../state/signup_page_state.dart';
+import 'package:go_router/go_router.dart';
 
 class SignUpPage extends StatefulWidget {
   final AuthController authController;
@@ -372,13 +373,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                   context.l10n.signupSuccess,
                                 );
                                 if (!context.mounted) return;
-                                navigator.pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (_) => AnaSayfa(
-                                      authController: widget.authController,
-                                    ),
-                                  ),
-                                );
+                                // GÜVENLİK/MİMARİ YAMASI: Duplicate Routing Fix
+                                context.go('/');
                               } else {
                                 AppSnackBar.errorWithMessenger(
                                   messenger,
@@ -429,13 +425,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 Center(
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              LoginPage(authController: widget.authController),
-                        ),
-                      );
+                      context.go('/login');
                     },
                     child: Text(
                       context.l10n.alreadyHaveAccount,

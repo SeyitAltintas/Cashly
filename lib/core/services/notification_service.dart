@@ -83,7 +83,11 @@ class NotificationService {
         error: e,
         stackTrace: stackTrace,
       );
-      rethrow;
+      // GÜVENLİK/KARARLILIK YAMASI: 
+      // Bildirim servisi başlatılamazsa (örn: Xiaomi/Huawei cihazlarda OS kısıtlamaları, 
+      // eksik timezone verisi vb.), tüm uygulamanın çökmesini (Error Screen) engellemek için 
+      // hatayı rethrow etmiyoruz. Sadece loglayıp devam ediyoruz.
+      _isInitialized = false;
     }
   }
 
@@ -172,6 +176,8 @@ class NotificationService {
 
   /// İzin durumunu kontrol et
   Future<bool> hasPermission() async {
+    if (!_isInitialized) return false;
+
     if (Platform.isAndroid) {
       final androidPlugin = _notificationsPlugin
           .resolvePlatformSpecificImplementation<
@@ -195,6 +201,8 @@ class NotificationService {
 
   /// İzin iste
   Future<bool> requestPermission() async {
+    if (!_isInitialized) return false;
+
     if (Platform.isAndroid) {
       final androidPlugin = _notificationsPlugin
           .resolvePlatformSpecificImplementation<
@@ -231,6 +239,8 @@ class NotificationService {
     String? payload,
     bool showWhenInForeground = false,
   }) async {
+    if (!_isInitialized) return;
+
     // Uygulama ön plandayken bildirim gösterme (kullanıcı isteği)
     if (_isAppInForeground && !showWhenInForeground) {
       notificationLogger.debug(
@@ -313,6 +323,8 @@ class NotificationService {
     required NotificationType type,
     String? payload,
   }) async {
+    if (!_isInitialized) return;
+    
     // Timezone'un initialize edildiğinden emin ol
     _ensureTimezoneInitialized();
 
@@ -398,6 +410,8 @@ class NotificationService {
     required NotificationType type,
     String? payload,
   }) async {
+    if (!_isInitialized) return;
+
     // Timezone'un initialize edildiğinden emin ol
     _ensureTimezoneInitialized();
 
@@ -457,6 +471,8 @@ class NotificationService {
     required NotificationType type,
     String? payload,
   }) async {
+    if (!_isInitialized) return;
+
     // Timezone'un initialize edildiğinden emin ol
     _ensureTimezoneInitialized();
 
@@ -508,6 +524,7 @@ class NotificationService {
 
   /// Bildirimi iptal et
   Future<void> cancelNotification(int id) async {
+    if (!_isInitialized) return;
     try {
       await _notificationsPlugin.cancel(id);
       notificationLogger.logOperation(
@@ -532,6 +549,7 @@ class NotificationService {
 
   /// Tüm bildirimleri iptal et
   Future<void> cancelAllNotifications() async {
+    if (!_isInitialized) return;
     try {
       await _notificationsPlugin.cancelAll();
       notificationLogger.logOperation(
@@ -553,6 +571,7 @@ class NotificationService {
 
   /// Bekleyen bildirimleri getir
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
+    if (!_isInitialized) return [];
     return await _notificationsPlugin.pendingNotificationRequests();
   }
 

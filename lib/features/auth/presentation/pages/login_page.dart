@@ -6,6 +6,7 @@ import 'signup_page.dart';
 import 'user_list_page.dart';
 import '../../../../core/services/biometric_service.dart';
 import '../state/login_page_state.dart';
+import 'package:go_router/go_router.dart';
 
 // Modüler widget'lar
 import '../widgets/generic_login_form.dart';
@@ -97,11 +98,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _handleLoginSuccess() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => AnaSayfa(authController: widget.authController),
-      ),
-    );
+    // GÜVENLİK/MİMARİ YAMASI: Duplicate Routing Fix
+    // GoRouter kullanılırken Navigator.pushReplacement kullanmak navigasyon stack'ini kırar
+    // ve GoRouter'ın kendi redirect mekanizmasıyla çakışarak bellekte iki tane AnaSayfa yaratır.
+    context.go('/');
   }
 
   void _handleSignUp() {
