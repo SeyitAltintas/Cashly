@@ -1,7 +1,7 @@
 import 'package:timezone/timezone.dart' as tz;
 import '../domain/notification_types.dart';
 import '../repositories/notification_settings_repository.dart';
-import '../repositories/expense_repository.dart';
+import '../../features/expenses/domain/repositories/expense_repository.dart';
 import '../di/injection_container.dart';
 import '../utils/notification_logger.dart';
 import '../../features/streak/domain/repositories/streak_repository.dart';
@@ -151,7 +151,7 @@ class NotificationScheduler {
     // Dinamik aylık toplam harcamayı hesapla
     double monthlyTotal = 0;
     try {
-      final harcamalar = ExpenseRepository.harcamalariGetir('user');
+      final harcamalar = getIt<ExpenseRepository>().getExpenses('user');
       final currentMonth = now.month;
       final currentYear = now.year;
 
@@ -417,7 +417,7 @@ class NotificationScheduler {
     String topCategory = '';
     double topAmount = 0;
     try {
-      final harcamalar = ExpenseRepository.harcamalariGetir('user');
+      final harcamalar = getIt<ExpenseRepository>().getExpenses('user');
       final weekStart = DateTime.now().subtract(const Duration(days: 7));
 
       // Kategoriye göre harcamaları grupla
