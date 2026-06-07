@@ -181,7 +181,14 @@ class StreakService {
       final todayDate = DateTime.parse(today);
       final difference = todayDate.difference(lastDate).inDays;
 
-      if (difference == 1) {
+      if (difference <= 0) {
+        // Saat geriye alınmış veya saat dilimi değişmiş olabilir. Seriyi bozma.
+        return StreakResult(
+          data: currentData,
+          streakIncreased: false,
+          previousStreak: previousStreak,
+        );
+      } else if (difference == 1) {
         // Dün giriş yaptı, seri devam ediyor
         final newStreak = currentData.currentStreak + 1;
         final newLongest = newStreak > currentData.longestStreak
@@ -203,32 +210,37 @@ class StreakService {
           usedFreezeToday: false,
         );
         streakIncreased = true;
-      } else if (difference == 2 && currentData.canUseFreeze) {
-        // 1 gün atlandı ama dondurucu var - seriyi koru!
-        final newStreak = currentData.currentStreak + 1;
-        final newLongest = newStreak > currentData.longestStreak
-            ? newStreak
-            : currentData.longestStreak;
-
-        newData = currentData.copyWith(
-          currentStreak: newStreak,
-          longestStreak: newLongest,
-          lastLoginDate: today,
-          totalLoginDays: currentData.totalLoginDays + 1,
-          freezeCount: currentData.freezeCount - 1, // Dondurucu kullan
-          usedFreezeToday: true,
-          totalFreezesUsed: currentData.totalFreezesUsed + 1,
-        );
-        streakIncreased = true; // Korunan seri de artış sayılır
       } else {
-        // Birden fazla gün atlandı veya dondurucu yok, seri sıfırlanıyor
-        newData = currentData.copyWith(
-          currentStreak: 1,
-          lastLoginDate: today,
-          totalLoginDays: currentData.totalLoginDays + 1,
-          usedFreezeToday: false,
-        );
-        streakIncreased = true; // Sıfırlandıktan sonra 1'e döndü
+        // difference > 1 (Bir veya daha fazla gün atlandı)
+        final missedDays = difference - 1;
+        
+        if (currentData.freezeCount >= missedDays) {
+          // Yeterli dondurucu var - seriyi koru!
+          final newStreak = currentData.currentStreak + 1; // Sadece bugünün girişi eklenir
+          final newLongest = newStreak > currentData.longestStreak
+              ? newStreak
+              : currentData.longestStreak;
+
+          newData = currentData.copyWith(
+            currentStreak: newStreak,
+            longestStreak: newLongest,
+            lastLoginDate: today,
+            totalLoginDays: currentData.totalLoginDays + 1,
+            freezeCount: currentData.freezeCount - missedDays, // Kullanılan dondurucuları düş
+            usedFreezeToday: true,
+            totalFreezesUsed: currentData.totalFreezesUsed + missedDays,
+          );
+          streakIncreased = true; // Korunan seri de artış sayılır
+        } else {
+          // Birden fazla gün atlandı ve yeterli dondurucu yok, seri sıfırlanıyor
+          newData = currentData.copyWith(
+            currentStreak: 1,
+            lastLoginDate: today,
+            totalLoginDays: currentData.totalLoginDays + 1,
+            usedFreezeToday: false,
+          );
+          streakIncreased = true; // Sıfırlandıktan sonra 1'e döndü
+        }
       }
     }
 
