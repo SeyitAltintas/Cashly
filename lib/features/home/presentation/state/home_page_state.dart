@@ -488,7 +488,11 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
         // Offline'da gereksiz yazmaları ve fatura şişmesini engeller
         if (newAsset.amount != oldAsset.amount) {
           anyChanged = true;
-          getIt<AssetRepository>().updateAsset(userId, newAsset.toMap());
+          try {
+            await getIt<AssetRepository>().updateAsset(userId, newAsset.toMap());
+          } catch (e) {
+            debugPrint('Asset update failed (permission or offline): $e');
+          }
         }
       }
       

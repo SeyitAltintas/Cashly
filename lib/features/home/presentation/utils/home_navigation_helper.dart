@@ -49,10 +49,16 @@ class HomeNavigationHelper {
               final newList = List<Asset>.from(state.varliklar);
               newList[index] = deletedAsset;
               state.varliklar = newList;
-              getIt<AssetRepository>().updateAsset(
-                authController.currentUser!.id,
-                deletedAsset.toMap(),
-              );
+              Future.microtask(() async {
+                try {
+                  await getIt<AssetRepository>().updateAsset(
+                    authController.currentUser!.id,
+                    deletedAsset.toMap(),
+                  );
+                } catch (e, s) {
+                  ErrorHandler.logError('HomePage.Assets.onDelete Background', e, s);
+                }
+              });
             }
           },
           onEdit: (asset) {
@@ -61,10 +67,16 @@ class HomeNavigationHelper {
               final newList = List<Asset>.from(state.varliklar);
               newList[index] = asset;
               state.varliklar = newList;
-              getIt<AssetRepository>().updateAsset(
-                authController.currentUser!.id,
-                asset.toMap(),
-              );
+              Future.microtask(() async {
+                try {
+                  await getIt<AssetRepository>().updateAsset(
+                    authController.currentUser!.id,
+                    asset.toMap(),
+                  );
+                } catch (e, s) {
+                  ErrorHandler.logError('HomePage.Assets.onEdit Background', e, s);
+                }
+              });
             }
           },
           onRestore: (asset) {
@@ -74,20 +86,32 @@ class HomeNavigationHelper {
               final newList = List<Asset>.from(state.varliklar);
               newList[index] = restoredAsset;
               state.varliklar = newList;
-              getIt<AssetRepository>().updateAsset(
-                authController.currentUser!.id,
-                restoredAsset.toMap(),
-              );
+              Future.microtask(() async {
+                try {
+                  await getIt<AssetRepository>().updateAsset(
+                    authController.currentUser!.id,
+                    restoredAsset.toMap(),
+                  );
+                } catch (e, s) {
+                  ErrorHandler.logError('HomePage.Assets.onRestore Background', e, s);
+                }
+              });
             }
           },
           onPermanentDelete: (asset) {
             final newList = List<Asset>.from(state.varliklar);
             newList.removeWhere((a) => a.id == asset.id);
             state.varliklar = newList;
-            getIt<AssetRepository>().deleteAsset(
-              authController.currentUser!.id,
-              asset.id,
-            );
+            Future.microtask(() async {
+              try {
+                await getIt<AssetRepository>().deleteAsset(
+                  authController.currentUser!.id,
+                  asset.id,
+                );
+              } catch (e, s) {
+                ErrorHandler.logError('HomePage.Assets.onPermanentDelete Background', e, s);
+              }
+            });
           },
           onEmptyBin: () {
             final deletedAssets = state.varliklar.where((a) => a.isDeleted).toList();
@@ -126,10 +150,16 @@ class HomeNavigationHelper {
             final newList = List<Asset>.from(state.varliklar);
             newList.add(newAsset);
             state.varliklar = newList;
-            getIt<AssetRepository>().addAsset(
-              authController.currentUser!.id,
-              newAsset.toMap(),
-            );
+            Future.microtask(() async {
+              try {
+                await getIt<AssetRepository>().addAsset(
+                  authController.currentUser!.id,
+                  newAsset.toMap(),
+                );
+              } catch (e, s) {
+                ErrorHandler.logError('HomePage.Assets.onAdd Background', e, s);
+              }
+            });
           },
         ),
       ),
