@@ -3,6 +3,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/services/haptic_service.dart';
+import 'error_logs_page.dart';
 
 /// Hakkında & Destek Sayfası
 /// Uygulama bilgileri, yasal metinler, SSS ve paylaşım
@@ -311,6 +312,20 @@ class _AboutSupportPageState extends State<AboutSupportPage>
     return _buildCardGroup(
       theme,
       children: [
+        _buildTile(
+          theme,
+          icon: Icons.bug_report_outlined,
+          iconColor: Colors.redAccent,
+          title: 'Sistem Hata Kayıtları',
+          subtitle: 'Geliştirici için hata kayıtlarını görüntüleyin',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ErrorLogsPage()),
+            );
+          },
+        ),
+        _buildDivider(theme),
         _buildTile(
           theme,
           icon: Icons.share_outlined,
