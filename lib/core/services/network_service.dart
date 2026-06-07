@@ -63,6 +63,9 @@ class NetworkService extends ChangeNotifier with SafeNotifierMixin {
 
   /// Servisi başlatır ve network durumunu dinlemeye başlar
   Future<void> initialize() async {
+    // Prevent multiple initializations (Memory Leak / Edge Case Fix)
+    if (_subscription != null) return;
+    
     try {
       // İlk durum kontrolü
       final results = await _connectivity.checkConnectivity();

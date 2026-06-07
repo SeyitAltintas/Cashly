@@ -206,7 +206,12 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
 
       final notificationService = getIt<NotificationService>();
       await notificationService.initialize();
-      await notificationService.requestPermission();
+      
+      // Edge Case Fix: Bildirim izni isteme işlemini splash screen kapandıktan sonraya bırakıyoruz.
+      // await kullanmıyoruz ve biraz gecikmeli çalıştırıyoruz ki UI donmasın/engellenmesin.
+      Future.delayed(const Duration(milliseconds: 500), () {
+        notificationService.requestPermission();
+      });
 
       NotificationService.onNotificationNavigate =
           _handleNotificationNavigation;
@@ -229,7 +234,11 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
         });
       }
     } finally {
-      FlutterNativeSplash.remove();
+      // Edge Case Fix: Siyah ekran (flicker) oluşumunu önlemek için çerçevenin (frame)
+      // çizilmesini bekledikten sonra native splash screen'i kaldırıyoruz.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        FlutterNativeSplash.remove();
+      });
     }
   }
 
