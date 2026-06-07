@@ -75,7 +75,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
     _controller = widget.controller;
     _controller?.addListener(_onFormStateChanged);
 
-    final defaultCategory = _categoryIcons.keys.first;
+    final defaultCategory = _categoryIcons.isNotEmpty ? _categoryIcons.keys.first : 'Genel';
 
     if (widget.incomeToEdit != null) {
       _nameController.text = widget.incomeToEdit!['name'] ?? '';

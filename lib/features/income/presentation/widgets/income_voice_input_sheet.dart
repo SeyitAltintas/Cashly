@@ -72,9 +72,10 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
     // İlk kategoriyi seç
     if (widget.categoryIcons.isNotEmpty) {
       if (_controller != null) {
-        _controller!.setVoiceCategory(widget.categoryIcons.keys.first);
+        _controller!.setVoiceCategory(widget.categoryIcons.isNotEmpty ? widget.categoryIcons.keys.first : 'Genel');
       } else {
-        _localSelectedCategory = widget.categoryIcons.keys.first;
+        _localSelectedCategory = widget.categoryIcons.isNotEmpty ? widget.categoryIcons.keys.first : 'Genel';
+        setState(() {});
       }
     }
     _initAnimation();

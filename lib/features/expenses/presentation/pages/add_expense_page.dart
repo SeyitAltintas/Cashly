@@ -89,7 +89,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     _controller?.addListener(_onFormStateChanged);
 
     // Varsayılan kategori
-    final defaultCategory = _categoryIcons.keys.first;
+    final defaultCategory = _categoryIcons.isNotEmpty ? _categoryIcons.keys.first : 'Genel';
 
     if (widget.expenseToEdit != null) {
       _nameController.text = widget.expenseToEdit!['isim'];
