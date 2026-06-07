@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
 import 'signup_page.dart';
@@ -130,37 +131,48 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    Widget content;
+    
     // Yükleme durumu
     if (_isLoadingUser) {
-      return Scaffold(
+      content = Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: const Center(
           child: CircularProgressIndicator(color: Colors.white),
         ),
       );
     }
-
     // Generic login (kullanıcı seçilmemiş veya yeni kullanıcı)
-    if (_isGenericLogin || _targetUser == null) {
-      return GenericLoginForm(
+    else if (_isGenericLogin || _targetUser == null) {
+      content = GenericLoginForm(
         authController: widget.authController,
         onLoginSuccess: _handleLoginSuccess,
         onSignUp: _handleSignUp,
         onForgotPassword: _handleForgotPassword,
       );
     }
-
     // Kullanıcı seçili login
-    return UserLoginForm(
-      targetUser: _targetUser!,
-      authController: widget.authController,
-      isBiometricAvailable: _isBiometricAvailable,
-      onLoginSuccess: _handleLoginSuccess,
-      onSwitchUser: _handleSwitchUser,
-      onSwitchToGenericLogin: () {
-        _loginState.isGenericLogin = true;
+    else {
+      content = UserLoginForm(
+        targetUser: _targetUser!,
+        authController: widget.authController,
+        isBiometricAvailable: _isBiometricAvailable,
+        onLoginSuccess: _handleLoginSuccess,
+        onSwitchUser: _handleSwitchUser,
+        onSwitchToGenericLogin: () {
+          _loginState.isGenericLogin = true;
+        },
+        onForgotPassword: _handleForgotPassword,
+      );
+    }
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        SystemNavigator.pop();
       },
-      onForgotPassword: _handleForgotPassword,
+      child: content,
     );
   }
 }
