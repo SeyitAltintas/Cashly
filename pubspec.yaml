@@ -52,6 +52,7 @@ dependencies:
   crypto: ^3.0.6
 
   firebase_app_check: ^0.4.4+1
+  flutter_native_splash: ^2.4.0
 
 dev_dependencies:
   flutter_test:
@@ -61,7 +62,6 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   mocktail: ^1.0.4
   flutter_launcher_icons: ^0.13.1
-  flutter_native_splash: ^2.4.0
 
 flutter_launcher_icons:
   android: "launcher_icon"

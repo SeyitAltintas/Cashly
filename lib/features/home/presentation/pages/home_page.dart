@@ -91,13 +91,14 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       _transferKontrolYapildi = true;
       final userId = widget.authController.currentUser?.id;
       if (userId != null) {
-        final basarisiz = _homeState.checkScheduledTransfers(userId, context);
-        if (basarisiz.isNotEmpty && mounted) {
-          AppSnackBar.warning(
-            context,
-            context.l10n.scheduledTransfersFailed(basarisiz.join(", ")),
-          );
-        }
+        _homeState.checkScheduledTransfers(userId, context).then((basarisiz) {
+          if (basarisiz.isNotEmpty && mounted) {
+            AppSnackBar.warning(
+              context,
+              context.l10n.scheduledTransfersFailed(basarisiz.join(", ")),
+            );
+          }
+        });
       }
     }
   }

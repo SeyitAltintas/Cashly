@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../../core/exceptions/session_expired_exception.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';

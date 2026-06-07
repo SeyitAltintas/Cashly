@@ -740,6 +740,7 @@ class ProfileSettingsHelper {
             );
 
             if (confirmed == true) {
+              if (!context.mounted) return;
               AppLoadingOverlay.show(context);
               try {
                 final userId = currentUser.id;
@@ -980,6 +981,7 @@ class ProfileSettingsHelper {
             );
 
             if (confirmed == true) {
+              if (!context.mounted) return;
               AppLoadingOverlay.show(context);
               try {
                 final userId = currentUser.id;

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../controllers/auth_controller.dart';
-import '../../../home/presentation/pages/home_page.dart';
-import 'login_page.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../state/signup_page_state.dart';
@@ -169,7 +167,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       borderSide: BorderSide(
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.24),
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
@@ -352,7 +350,6 @@ class _SignUpPageState extends State<SignUpPage> {
                             }
 
                             // Context bağımlılıklarını async işlemden önce yakala
-                            final navigator = Navigator.of(context);
                             final messenger = ScaffoldMessenger.of(context);
 
                             _signupState.isLoading = true;

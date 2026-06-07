@@ -356,7 +356,7 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
 
   /// Zamanlanmış transferleri kontrol eder ve tarihi gelenleri uygular
   /// Başarısız olan transferlerin hata mesajı key'lerini liste olarak döndürür
-  List<String> checkScheduledTransfers(String userId, BuildContext context) {
+  Future<List<String>> checkScheduledTransfers(String userId, BuildContext context) async {
     if (_tumTransferler.isEmpty) return [];
 
     bool transferDegisti = false;
