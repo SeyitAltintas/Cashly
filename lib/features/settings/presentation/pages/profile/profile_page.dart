@@ -27,7 +27,9 @@ class ProfilSayfasi extends StatefulWidget {
   State<ProfilSayfasi> createState() => _ProfilSayfasiState();
 }
 
-class _ProfilSayfasiState extends State<ProfilSayfasi> {
+class _ProfilSayfasiState extends State<ProfilSayfasi> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   bool _mockLoading = false;
 
   Future<void> _generateMockData() async {
@@ -110,6 +112,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(

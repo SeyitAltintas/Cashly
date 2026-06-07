@@ -54,8 +54,11 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveClientMixin {
   late final DashboardController _controller;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -112,6 +115,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // required by AutomaticKeepAliveClientMixin
     return ChangeNotifierProvider.value(
       value: _controller,
       child: Scaffold(
@@ -255,10 +259,18 @@ class _BudgetStatusSection extends StatelessWidget {
   const _BudgetStatusSection();
   @override
   Widget build(BuildContext context) {
-    final monthlyExpense = context.select((DashboardController c) => c.monthlyExpense);
-    final butceLimiti = context.select((DashboardController c) => c.butceLimiti);
-    final categoryBudgets = context.select((DashboardController c) => c.categoryBudgets);
-    final categoryExpenses = context.select((DashboardController c) => c.categoryExpenses);
+    final monthlyExpense = context.select(
+      (DashboardController c) => c.monthlyExpense,
+    );
+    final butceLimiti = context.select(
+      (DashboardController c) => c.butceLimiti,
+    );
+    final categoryBudgets = context.select(
+      (DashboardController c) => c.categoryBudgets,
+    );
+    final categoryExpenses = context.select(
+      (DashboardController c) => c.categoryExpenses,
+    );
     final isObscured = context.select((DashboardController c) => c.isObscured);
 
     return BudgetStatusCard(
