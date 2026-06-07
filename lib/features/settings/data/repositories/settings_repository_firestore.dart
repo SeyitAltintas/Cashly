@@ -229,6 +229,21 @@ class SettingsRepositoryFirestore implements SettingsRepository {
         // Doküman henüz oluşturulmamışsa update hata verebilir, güvenle yoksayıyoruz
       }
 
+      // 🚨 EDGE CASE FIX 2: Ayarlar (settings/income) dokümanındaki gelir şablonlarını temizle
+      try {
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('settings')
+            .doc('income')
+            .update({
+          'monthlyIncomeTarget': FieldValue.delete(),
+          'recurringIncomes': FieldValue.delete(),
+        });
+      } catch (_) {
+        // Doküman yoksa yoksay
+      }
+
       // Cache'deki tüm verileri temizle (Sadece in-memory cache olduğu için sorun yok, ayarlar Hive'dan tekrar okunur)
       CacheService.clear();
       
