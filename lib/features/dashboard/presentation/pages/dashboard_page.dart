@@ -117,40 +117,37 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
-          child: SingleChildScrollView(
+          child: ListView(
             padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Hoş Geldin Bölümü
-                const _GreetingSection(),
-                const SizedBox(height: 24),
+            children: [
+              // Hoş Geldin Bölümü
+              const _GreetingSection(),
+              const SizedBox(height: 24),
 
-                // Toplam Bakiye Kartı
-                const _BalanceSection(),
-                const SizedBox(height: 12),
+              // Toplam Bakiye Kartı
+              const _BalanceSection(),
+              const SizedBox(height: 12),
 
-                // Kredi Kartı Borcu
-                const _CreditDebtSection(),
-                const SizedBox(height: 20),
+              // Kredi Kartı Borcu
+              const _CreditDebtSection(),
+              const SizedBox(height: 20),
 
-                // Bu Ay Özeti
-                const _MonthlySummarySection(),
-                const SizedBox(height: 20),
+              // Bu Ay Özeti
+              const _MonthlySummarySection(),
+              const SizedBox(height: 20),
 
-                // Bütçe Durumu
-                const _BudgetStatusSection(),
-                const SizedBox(height: 20),
+              // Bütçe Durumu
+              const _BudgetStatusSection(),
+              const SizedBox(height: 20),
 
-                // Varlık Özeti
-                _AssetSummarySection(onTap: widget.onAssetsPressed),
-                const SizedBox(height: 20),
+              // Varlık Özeti
+              _AssetSummarySection(onTap: widget.onAssetsPressed),
+              const SizedBox(height: 20),
 
-                // Son İşlemler
-                const _RecentTransactionsSection(),
-                const SizedBox(height: 20),
-              ],
-            ),
+              // Son İşlemler
+              const _RecentTransactionsSection(),
+              const SizedBox(height: 20),
+            ],
           ),
         ),
       ),
