@@ -190,6 +190,12 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final notificationService = getIt<NotificationService>();
     notificationService.setAppInForeground(state == AppLifecycleState.resumed);
+
+    if (state == AppLifecycleState.paused) {
+      if (getIt.isRegistered<AuthController>()) {
+        getIt<AuthController>().lockSession();
+      }
+    }
   }
 
   Future<void> _initializeApp() async {

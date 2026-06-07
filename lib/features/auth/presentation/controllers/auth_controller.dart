@@ -50,14 +50,16 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
   Future<void> checkAuth() async {
     _setLoading(true);
     try {
-      _currentUser = await _authRepository.getCurrentUser();
-      if (_currentUser != null && getIt.isRegistered<NotificationScheduler>()) {
+      // Edge Case Fix (Security): Privacy Policy gereği uygulama her açılışta PIN sormalıdır.
+      // Bu yüzden _currentUser'ı null bırakıyoruz ki AppRouter bizi /login sayfasına yönlendirsin.
+      _currentUser = null;
+      
+      // Bildirimleri tazelemek için kayıtlı kullanıcıyı alıp işlem yapabiliriz
+      final savedUser = await _authRepository.getCurrentUser();
+      if (savedUser != null && getIt.isRegistered<NotificationScheduler>()) {
         await getIt<NotificationScheduler>().rescheduleAll();
       }
     } catch (e) {
-      if (e is SessionExpiredException) {
-        _currentUser = null; // Session expired, so clear current user
-      }
       _error = e.toString();
     } finally {
       _setLoading(false);
@@ -128,6 +130,15 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
     await _authRepository.logout();
     _currentUser = null;
     notifyListeners();
+  }
+
+  /// Arka plana atıldığında oturumu kilitler (Çıkış yapmaz, sadece PIN ekranına atar)
+  void lockSession() {
+    if (_currentUser != null) {
+      debugPrint('App backgrounded, locking session...');
+      _currentUser = null;
+      notifyListeners();
+    }
   }
 
   Future<List<UserEntity>> getAllUsers() async {
