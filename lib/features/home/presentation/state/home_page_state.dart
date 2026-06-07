@@ -450,13 +450,25 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
     }
 
     if (operations.isNotEmpty) {
-      batchService.commit(operations).catchError((e) {
+      try {
+        await batchService.commit(operations);
+        if (transferDegisti) {
+          notifyListeners();
+        }
+      } catch (e) {
         debugPrint('Toplu transfer güncellemeleri işlenirken hata: $e');
-      });
-    }
-
-    if (transferDegisti) {
-      notifyListeners();
+        // GÜVENLİK/KARARLILIK YAMASI: Optimistic Update Rollback
+        // Batch commit başarısız olursa, bellek içi `_tumOdemeYontemleri` ve `_tumTransferler` 
+        // dizileri bozuk halde kalır ve UI sahte bakiye gösterir. 
+        // Hata durumunda, yerel cache'den verileri yeniden yükleyip UI'ı geri alıyoruz.
+        _tumOdemeYontemleri = List.from(pmRepo.getPaymentMethods(userId).map((pm) => PaymentMethod.fromMap(pm)));
+        _tumTransferler = List.from(pmRepo.getTransfers(userId).map((t) => Transfer.fromMap(t)));
+        notifyListeners();
+      }
+    } else {
+      if (transferDegisti) {
+        notifyListeners();
+      }
     }
     
     return basarisizTransferler;
