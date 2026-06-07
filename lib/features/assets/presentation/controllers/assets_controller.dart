@@ -307,6 +307,7 @@ class AssetsController extends ChangeNotifier with SafeNotifierMixin {
     _assets = List.from(assets);
     _deletedAssets = List.from(deletedAssets);
     _filtrelenmisVarliklar = List.from(_assets.where((a) => !a.isDeleted));
+    _filtrelenmisVarliklar.sort((a, b) => b.purchaseDate.compareTo(a.purchaseDate));
     notifyListeners();
   }
 
