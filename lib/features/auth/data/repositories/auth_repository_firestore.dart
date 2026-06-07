@@ -34,12 +34,19 @@ class AuthRepositoryFirestore implements AuthRepository {
         .snapshots()
         .listen((snapshot) async {
           if (snapshot.exists) {
+            // Eğer bu cihazın henüz sunucuya iletemediği bir yazma işlemi varsa yoksay.
+            if (snapshot.metadata.hasPendingWrites) return;
+            
+            // Eğer veri yerel önbellekten (cache) geliyorsa ve güncel değilse güvenip çıkış yapma.
+            // Sadece sunucudan teyitli (isFromCache == false) bir uyuşmazlık varsa çıkış yap.
+            if (snapshot.metadata.isFromCache) return;
+
             final firestoreSessionId =
                 snapshot.data()?['activeSessionId'] as String?;
             if (firestoreSessionId != null &&
                 firestoreSessionId != currentSessionId) {
               debugPrint(
-                'Güvenlik Uyarısı: Başka bir cihazda oturum açıldı. Bu cihazdaki oturum sonlandırılıyor.',
+                'Güvenlik Uyarısı: Başka bir cihazda oturum açıldı (Server: $firestoreSessionId, Local: $currentSessionId). Bu cihazdaki oturum sonlandırılıyor.',
               );
               await logout();
             }
