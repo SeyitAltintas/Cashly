@@ -14,7 +14,21 @@ class PriceCacheService {
   /// Cache box'ını başlat
   Future<void> init() async {
     if (_box != null && _box!.isOpen) return;
-    _box = await Hive.openBox(_boxName);
+    try {
+      _box = await Hive.openBox(_boxName);
+    } catch (e) {
+      // GÜVENLİK/KARARLILIK YAMASI (Edge Case):
+      // Fiyat cache kutusu diskte bozulmuşsa uygulamanın açılışını engellememeli.
+      // Bozuk kutuyu silip yeniden açmayı deneriz.
+      try {
+        await Hive.deleteBoxFromDisk(_boxName);
+        _box = await Hive.openBox(_boxName);
+      } catch (_) {
+        // İkinci deneme de başarısız olursa uygulamayı çökertmemek için hatayı yutuyoruz.
+        // Fiyatlar cache'lenmeyecek ama uygulama çalışmaya devam edecek.
+        _box = null;
+      }
+    }
   }
 
   /// Fiyatı cache'e kaydet

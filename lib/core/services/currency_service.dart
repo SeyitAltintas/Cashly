@@ -30,7 +30,23 @@ class CurrencyService extends ChangeNotifier with SafeNotifierMixin {
   Map<String, double> get rates => _rates;
 
   Future<void> init() async {
-    _box = await Hive.openBox(_boxName);
+    try {
+      _box = await Hive.openBox(_boxName);
+    } catch (e) {
+      // GÜVENLİK/KARARLILIK YAMASI (Edge Case):
+      // Ayarlar kutusu diskte bozulmuşsa (elektrik kesintisi vb.), uygulamanın 
+      // çökmesini engellemek için bozuk kutuyu silip yeniden oluşturuyoruz.
+      try {
+        await Hive.deleteBoxFromDisk(_boxName);
+        _box = await Hive.openBox(_boxName);
+      } catch (_) {
+        // İkinci deneme de başarısız olursa, uygulamanın çalışmaya devam etmesi için 
+        // varsayılan değerleri kullan ve çık.
+        _currentCurrency = 'TRY';
+        return;
+      }
+    }
+    
     _currentCurrency = _box.get(_currencyKey, defaultValue: 'TRY') as String;
 
     // Cache'den kurları yükle
