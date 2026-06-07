@@ -66,20 +66,21 @@ class NetworkService extends ChangeNotifier with SafeNotifierMixin {
     // Prevent multiple initializations (Memory Leak / Edge Case Fix)
     if (_subscription != null) return;
     
-    try {
-      // İlk durum kontrolü
-      final results = await _connectivity.checkConnectivity();
-      _updateStatus(results);
+    // Değişiklikleri dinle (İlk durum kontrolünden önce başlatılır ki timeout olsa bile dinlemeye devam etsin)
+    _subscription = _connectivity.onConnectivityChanged.listen(
+      _updateStatus,
+      onError: (error) {
+        _setStatus(NetworkStatus.unknown);
+      },
+    );
 
-      // Değişiklikleri dinle
-      _subscription = _connectivity.onConnectivityChanged.listen(
-        _updateStatus,
-        onError: (error) {
-          _setStatus(NetworkStatus.unknown);
-        },
-      );
+    try {
+      // İlk durum kontrolü (App Launch Hang Edge Case Fix: Timeout eklendi)
+      final results = await _connectivity.checkConnectivity().timeout(const Duration(seconds: 5));
+      _updateStatus(results);
     } catch (e) {
       _setStatus(NetworkStatus.unknown);
+      // Hata olsa bile dinleyici yukarıda başlatıldığı için bağlantı gelince yakalanacak.
     }
   }
 
@@ -97,9 +98,14 @@ class NetworkService extends ChangeNotifier with SafeNotifierMixin {
 
   /// Durumu günceller ve dinleyicilere bildirir
   void _setStatus(NetworkStatus newStatus) {
+    if (isDisposedSafe) return; // Edge Case: Servis kapatılmışsa işlem yapma
+
     if (_status != newStatus) {
       _status = newStatus;
-      _statusController.add(_status);
+      
+      if (!_statusController.isClosed) {
+        _statusController.add(_status); // Edge Case: Kapalı stream'e veri eklemeyi önle
+      }
       
       if (_status == NetworkStatus.online) {
         ErrorLoggerService.flushLogsToCloud();
@@ -112,7 +118,7 @@ class NetworkService extends ChangeNotifier with SafeNotifierMixin {
   /// Mevcut bağlantı durumunu manuel olarak kontrol eder
   Future<NetworkStatus> checkConnection() async {
     try {
-      final results = await _connectivity.checkConnectivity();
+      final results = await _connectivity.checkConnectivity().timeout(const Duration(seconds: 5));
       _updateStatus(results);
       return _status;
     } catch (e) {
@@ -160,7 +166,10 @@ class NetworkService extends ChangeNotifier with SafeNotifierMixin {
   @override
   void dispose() {
     _subscription?.cancel();
-    _statusController.close();
+    _subscription = null; // Fix memory leak & allow re-initialization
+    if (!_statusController.isClosed) {
+      _statusController.close();
+    }
     super.dispose();
   }
 }
