@@ -258,9 +258,9 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       final cached = CacheService.get<List<Map<String, dynamic>>>(
         'income_categories_$userId',
       );
-      if (cached != null) return cached;
+      if (cached != null && cached.isNotEmpty) return cached;
       
-      // Cache boşsa sadece defaultları döndür.
+      // Cache boşsa veya null ise sadece defaultları döndür.
       // Firestore'a kaydetmeye çalışmak custom kategorileri silebilir!
       return defaultCategories;
     } catch (e) {

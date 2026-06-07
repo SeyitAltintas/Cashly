@@ -311,9 +311,9 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
       final cached = CacheService.get<List<Map<String, dynamic>>>(
         'expense_categories_$userId',
       );
-      if (cached != null) return cached;
+      if (cached != null && cached.isNotEmpty) return cached;
       
-      // Cache boşsa sadece defaultları döndür.
+      // Cache boşsa veya null ise sadece defaultları döndür.
       // Firestore'a kaydetmeye çalışmak custom kategorileri silebilir!
       return defaultCategories;
     } catch (e, stackTrace) {

@@ -36,7 +36,7 @@ class AuthRepositoryFirestore implements AuthRepository {
           if (snapshot.exists) {
             // Eğer bu cihazın henüz sunucuya iletemediği bir yazma işlemi varsa yoksay.
             if (snapshot.metadata.hasPendingWrites) return;
-            
+
             // Eğer veri yerel önbellekten (cache) geliyorsa ve güncel değilse güvenip çıkış yapma.
             // Sadece sunucudan teyitli (isFromCache == false) bir uyuşmazlık varsa çıkış yap.
             if (snapshot.metadata.isFromCache) return;
@@ -191,10 +191,10 @@ class AuthRepositoryFirestore implements AuthRepository {
         final userWithSession = await _createAndSaveSession(loggedInUser);
         await CloudSyncService.syncAllUserData(userWithSession.id);
         await StreakService.syncFromCloud(userWithSession.id);
-        
+
         // GÜVENLİK YAMASI: Başarılı online girişte offline lockout sayacını sıfırla
         await _localHiveRepo.resetFailedOfflineAttempts(userWithSession.id);
-        
+
         return userWithSession;
       }
       return null;
@@ -287,7 +287,9 @@ class AuthRepositoryFirestore implements AuthRepository {
     // GÜVENLİK YAMASI (Edge Case 5): Wi-Fi Toggle Brute-Force Bypass Fix
     final localUser = await _localHiveRepo.getUserByEmail(email);
     if (localUser != null) {
-      final lockoutUntil = await _localHiveRepo.getOfflineLockoutUntil(localUser.id);
+      final lockoutUntil = await _localHiveRepo.getOfflineLockoutUntil(
+        localUser.id,
+      );
       if (lockoutUntil != null && DateTime.now().isBefore(lockoutUntil)) {
         final waitMinutes = lockoutUntil.difference(DateTime.now()).inMinutes;
         throw Exception(
@@ -345,7 +347,7 @@ class AuthRepositoryFirestore implements AuthRepository {
           final userWithSession = await _createAndSaveSession(userModel);
           await CloudSyncService.syncAllUserData(userWithSession.id);
           await StreakService.syncFromCloud(userWithSession.id);
-          
+
           // GÜVENLİK YAMASI: Başarılı online girişte offline lockout sayacını sıfırla
           await _localHiveRepo.resetFailedOfflineAttempts(userWithSession.id);
 
@@ -385,7 +387,7 @@ class AuthRepositoryFirestore implements AuthRepository {
           final userWithSession = await _createAndSaveSession(userModel);
           // Sync service will just create empty folders locally for new accounts
           await CloudSyncService.syncAllUserData(userWithSession.id);
-          
+
           // GÜVENLİK YAMASI: Başarılı online girişte offline lockout sayacını sıfırla
           await _localHiveRepo.resetFailedOfflineAttempts(userWithSession.id);
 
@@ -507,7 +509,7 @@ class AuthRepositoryFirestore implements AuthRepository {
         'Hesabınızı silebilmemiz için önce internete bağlı şekilde giriş yapmanız gereklidir.',
       );
     }
-    
+
     // GÜVENLİK YAMASI (Data Loss Prevention):
     // Firebase delete() işlemi 'requires-recent-login' atarsa veriler silindiği halde hesap silinemiyordu.
     // Bunu önlemek için, eğer PIN verilmişse silmeden hemen önce Re-Auth yaparak token'ı tazeliyoruz.
@@ -521,7 +523,9 @@ class AuthRepositoryFirestore implements AuthRepository {
       } catch (e) {
         debugPrint('deleteUser reauth error: $e');
         // Eğer reauth başarısız olursa (örneğin PIN değişmişse vs), işlemi baştan kes.
-        throw Exception('Oturumunuz doğrulanamadı. Lütfen doğru PIN girdiğinizden emin olun.');
+        throw Exception(
+          'Oturumunuz doğrulanamadı. Lütfen doğru PIN girdiğinizden emin olun.',
+        );
       }
     } else {
       // PIN yoksa eski korumayı (5 dakika kuralını) uygula
@@ -536,43 +540,43 @@ class AuthRepositoryFirestore implements AuthRepository {
       }
     }
 
-      try {
-        // GHOST DATA VULNERABILITY FIX:
-        // Firebase Auth kimliği silinmeden önce Firestore verilerini temizle.
-        await _deleteUserFirestoreData(userId);
+    try {
+      // GHOST DATA VULNERABILITY FIX:
+      // Firebase Auth kimliği silinmeden önce Firestore verilerini temizle.
+      await _deleteUserFirestoreData(userId);
 
-        await firebaseUser.delete();
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'requires-recent-login') {
-          // FIX-6: Oturum eskimiş — Firebase yeniden kimlik doğrulama istiyor.
-          // Lokal veriyi silmeden hata fırlat; UI kullanıcıyı yeniden giriş yapmaya yönlendirmeli.
-          throw Exception(
-            'requires-recent-login: Hesabı silmek için lütfen çıkış yapıp tekrar giriş yapın.',
-          );
-        } else if (e.code == 'network-request-failed') {
-          // OFFLINE GHOST ACCOUNT BUG FIX: İnternet yoksa hesabı silme
-          // Eğer burada hata fırlatmazsak, Firebase silinmez ama lokal veriler silinir.
-          throw Exception(
-            'Hesabınızı tamamen silebilmemiz için internet bağlantısı gereklidir. Lütfen internetinizi kontrol edip tekrar deneyin.',
-          );
-        }
-        // Başka Firebase hataları (ör. ağ) → logla ama yerel temizliği yine de yap
-        debugPrint('deleteUser Firebase hatası [${e.code}]: ${e.message}');
-        // FIX: Diğer tüm Firebase ağ hatalarında işlemi iptal et. Lokal temizliği durdur.
+      await firebaseUser.delete();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        // FIX-6: Oturum eskimiş — Firebase yeniden kimlik doğrulama istiyor.
+        // Lokal veriyi silmeden hata fırlat; UI kullanıcıyı yeniden giriş yapmaya yönlendirmeli.
         throw Exception(
-          'Hesabınız silinirken bir ağ hatası oluştu. Lütfen bağlantınızı kontrol edip tekrar deneyin.',
+          'requires-recent-login: Hesabı silmek için lütfen çıkış yapıp tekrar giriş yapın.',
         );
-      } catch (e) {
-        debugPrint('deleteUser beklenmedik hata: $e');
-        // GÜVENLİK YAMASI (Edge Case 3): Eğer Firebase işlemi başardıysa ama bize
-        // Timeout/Ağ hatası düştüyse, Ghost Account kalmaması için en azından
-        // kullanıcının bu cihazdaki oturumunu kapatıyoruz.
-        await logout();
+      } else if (e.code == 'network-request-failed') {
+        // OFFLINE GHOST ACCOUNT BUG FIX: İnternet yoksa hesabı silme
+        // Eğer burada hata fırlatmazsak, Firebase silinmez ama lokal veriler silinir.
         throw Exception(
-          'Hesabınızı silerken bir ağ hatası oluştu. İşlem tamamlanmış olabilir, emin olmak için tekrar giriş yapmayı deneyin.',
+          'Hesabınızı tamamen silebilmemiz için internet bağlantısı gereklidir. Lütfen internetinizi kontrol edip tekrar deneyin.',
         );
       }
-    
+      // Başka Firebase hataları (ör. ağ) → logla ama yerel temizliği yine de yap
+      debugPrint('deleteUser Firebase hatası [${e.code}]: ${e.message}');
+      // FIX: Diğer tüm Firebase ağ hatalarında işlemi iptal et. Lokal temizliği durdur.
+      throw Exception(
+        'Hesabınız silinirken bir ağ hatası oluştu. Lütfen bağlantınızı kontrol edip tekrar deneyin.',
+      );
+    } catch (e) {
+      debugPrint('deleteUser beklenmedik hata: $e');
+      // GÜVENLİK YAMASI (Edge Case 3): Eğer Firebase işlemi başardıysa ama bize
+      // Timeout/Ağ hatası düştüyse, Ghost Account kalmaması için en azından
+      // kullanıcının bu cihazdaki oturumunu kapatıyoruz.
+      await logout();
+      throw Exception(
+        'Hesabınızı silerken bir ağ hatası oluştu. İşlem tamamlanmış olabilir, emin olmak için tekrar giriş yapmayı deneyin.',
+      );
+    }
+
     // Firebase hesabı başarıyla silindiyse (veya zaten yoksa) lokal veriyi temizle.
     // Hata fırlatılan durumlarda buraya ulaşılmaz.
     await SecureStorageService.deleteBiometricPin(userId);
@@ -720,7 +724,9 @@ class AuthRepositoryFirestore implements AuthRepository {
             if (msg.contains('timeout') ||
                 msg.contains('socketexception') ||
                 msg.contains('failed host lookup')) {
-              debugPrint('Biyometrik Re-auth: Zaman aşımı, offline fallback...');
+              debugPrint(
+                'Biyometrik Re-auth: Zaman aşımı, offline fallback...',
+              );
               return _offlinePinFallback(localUser, savedPin);
             }
             throw Exception(
@@ -871,8 +877,8 @@ class AuthRepositoryFirestore implements AuthRepository {
         );
       }
 
-      // GÜVENLİK YAMASI: Firebase 'updatePassword' mevcut şifreyi kontrol etmeden, 
-      // sadece oturum taze ise doğrudan günceller. Başka biri telefonu açık 
+      // GÜVENLİK YAMASI: Firebase 'updatePassword' mevcut şifreyi kontrol etmeden,
+      // sadece oturum taze ise doğrudan günceller. Başka biri telefonu açık
       // bulduğunda mevcut şifreyi bilmese de değiştirebilir!
       // Bu yüzden önce lokalde doğrulama yapıyoruz:
       if (currentPin.isEmpty) throw Exception("Mevcut PIN boş olamaz.");
@@ -940,10 +946,13 @@ class AuthRepositoryFirestore implements AuthRepository {
     }
 
     _startSessionRevocationListener(updatedUser.id, sessionId);
-    
+
     // Crashlytics ve loglar için kullanıcıyı tanımla
-    await ErrorLoggerService.setUser(updatedUser.id, userName: updatedUser.name);
-    
+    await ErrorLoggerService.setUser(
+      updatedUser.id,
+      userName: updatedUser.name,
+    );
+
     return updatedUser;
   }
 }
