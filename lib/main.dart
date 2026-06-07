@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -40,7 +41,8 @@ import 'core/widgets/offline_sensor.dart';
 void main() {
   runZonedGuarded(
     () async {
-      WidgetsFlutterBinding.ensureInitialized();
+      WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+      FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
       // ====== BAŞLATMA SIRALAMASI ======
       // Önce Hive'ı başlatıyoruz, çünkü erken fırlatılan bir hatada
@@ -226,6 +228,8 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
           _isInitialized = true;
         });
       }
+    } finally {
+      FlutterNativeSplash.remove();
     }
   }
 
