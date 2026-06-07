@@ -90,6 +90,7 @@ class DatePickerField extends StatelessWidget {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
+            dialogTheme: const DialogTheme(elevation: 2),
             colorScheme: Theme.of(
               context,
             ).colorScheme.copyWith(primary: color, onPrimary: Colors.white),

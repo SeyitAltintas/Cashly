@@ -51,6 +51,7 @@ class CategorySelector extends StatelessWidget {
                 ),
                 isExpanded: isExpanded,
                 dropdownColor: theme.colorScheme.surface,
+                elevation: 2,
                 items: categoryIcons.entries.map((entry) {
                   return DropdownMenuItem(
                     value: entry.key,

@@ -29,6 +29,10 @@ class ExpenseListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Parse date once to prevent parsing multiple times per frame
+    final dateStr = harcama['tarih'];
+    final parsedDate = dateStr != null ? DateTime.tryParse(dateStr.toString()) : null;
+
     // RepaintBoundary: Bu liste öğesinin repaint'ini izole eder
     return RepaintBoundary(
       child: Dismissible(
@@ -74,7 +78,7 @@ class ExpenseListItem extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          _getDay(harcama['tarih']),
+                          _getDay(parsedDate),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -82,7 +86,7 @@ class ExpenseListItem extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _getMonth(context, harcama['tarih']),
+                          _getMonth(context, parsedDate),
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.7),
                             fontSize: 11,
@@ -149,16 +153,12 @@ class ExpenseListItem extends StatelessWidget {
     );
   }
 
-  String _getDay(dynamic dateStr) {
-    if (dateStr == null) return "-";
-    final date = DateTime.tryParse(dateStr.toString());
+  String _getDay(DateTime? date) {
     if (date == null) return "-";
     return date.day.toString();
   }
 
-  String _getMonth(BuildContext context, dynamic dateStr) {
-    if (dateStr == null) return "-";
-    final date = DateTime.tryParse(dateStr.toString());
+  String _getMonth(BuildContext context, DateTime? date) {
     if (date == null) return "-";
 
     switch (date.month) {

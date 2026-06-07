@@ -54,6 +54,7 @@ class PaymentMethodSelector extends StatelessWidget {
                 ),
                 isExpanded: isExpanded,
                 dropdownColor: theme.colorScheme.surface,
+                elevation: 2,
                 items: _buildItems(context, theme, color),
                 onChanged: onChanged,
               ),
