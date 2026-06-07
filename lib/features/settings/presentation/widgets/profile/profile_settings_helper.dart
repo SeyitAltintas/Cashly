@@ -741,13 +741,14 @@ class ProfileSettingsHelper {
                 await authRepository.deleteUser(userId, pin: pinController.text);
                 await authController.logout();
 
+                final successMessage = context.l10n.profileAccountDeleted;
                 navigator.pushAndRemoveUntil(
                   MaterialPageRoute(
                     builder: (newCtx) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         AppSnackBar.success(
                           newCtx,
-                          context.l10n.profileAccountDeleted,
+                          successMessage,
                         );
                       });
                       return LoginPage(authController: authController);
