@@ -62,14 +62,18 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     ]).animate(_controller);
 
-    // Animasyonu başlat
-    _controller.forward();
+    // GEÇİCİ OLARAK DEVRE DIŞI BIRAKILDI: İkinci logo animasyonu
+    // _controller.forward();
+    // 
+    // _controller.addStatusListener((status) {
+    //   if (status == AnimationStatus.completed) {
+    //     widget.onInitializationComplete();
+    //   }
+    // });
 
-    // Animasyon bittiğinde yönlendir
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        widget.onInitializationComplete();
-      }
+    // Animasyonu atla, ilk frame çizildikten hemen sonra doğrudan yönlendir
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onInitializationComplete();
     });
   }
 
@@ -81,6 +85,13 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    // GEÇİCİ OLARAK DEVRE DIŞI BIRAKILDI: İkinci logo (Siyah boş ekran döndürüyoruz)
+    return const Scaffold(
+      backgroundColor: Colors.black,
+      body: SizedBox.shrink(),
+    );
+
+    /* ORİJİNAL KOD:
     // Responsive boyutlandırma
     final screenWidth = MediaQuery.of(context).size.width;
     final logoWidth = screenWidth * 0.40; // Ekranın %40'ı
@@ -103,5 +114,6 @@ class _SplashScreenState extends State<SplashScreen>
         ),
       ),
     );
+    */
   }
 }
