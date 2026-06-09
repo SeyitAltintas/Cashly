@@ -13,6 +13,11 @@ class ErrorLoggerService {
   static const String _boxName = 'error_logs';
   static bool _isInitialized = false;
 
+  // Red Team Yaması: Defense Evasion koruması için Throttling mekanizması
+  static DateTime? _lastLogTime;
+  static int _logCountInCurrentSecond = 0;
+  static const int _maxLogsPerSecond = 5;
+
   static Future<void> init() async {
     if (!_isInitialized) {
       if (!Hive.isBoxOpen(_boxName)) {
@@ -25,6 +30,19 @@ class ErrorLoggerService {
   /// Yeni bir hata logu kaydeder (Hibrit: Lokal + Crashlytics)
   static Future<void> logError(String message, {String? stackTrace}) async {
     if (!_isInitialized) await init();
+
+    // Red Team Yaması: Spam/DoS Koruması
+    final now = DateTime.now();
+    if (_lastLogTime != null && now.difference(_lastLogTime!).inSeconds < 1) {
+      _logCountInCurrentSecond++;
+      if (_logCountInCurrentSecond > _maxLogsPerSecond) {
+        if (kDebugMode) debugPrint('Log throttled (Spam protection)');
+        return; // Sessizce yok say (Limit aşıldı)
+      }
+    } else {
+      _lastLogTime = now;
+      _logCountInCurrentSecond = 1;
+    }
 
     // 1. Lokale yaz (offline yedek)
     try {

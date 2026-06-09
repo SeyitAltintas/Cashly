@@ -7,13 +7,16 @@ service cloud.firestore {
       allow read, delete: if request.auth != null && request.auth.uid == userId;
       allow create, update: if request.auth != null && request.auth.uid == userId
         // Veri bütünlüğü: Negatif tutar (amount) veya geçersiz veri tiplerini engelle
-        && (!('amount' in request.resource.data) || request.resource.data.amount >= 0);
+        && (!('amount' in request.resource.data) || request.resource.data.amount >= 0)
+        // Red Team Yaması: Financial DoS engellemek için döküman boyutu limitlendi
+        && request.resource.data.toString().size() < 5000;
 
       // Kullanıcının altındaki TÜM belge ve koleksiyonlara izin
       match /{document=**} {
         allow read, delete: if request.auth != null && request.auth.uid == userId;
         allow create, update: if request.auth != null && request.auth.uid == userId
-          && (!('amount' in request.resource.data) || request.resource.data.amount >= 0);
+          && (!('amount' in request.resource.data) || request.resource.data.amount >= 0)
+          && request.resource.data.toString().size() < 5000;
       }
     }
 

@@ -22,10 +22,11 @@ class CloudSyncService {
     try {
       final userDoc = _firestore.collection('users').doc(userId);
 
+      // Red Team Yaması: İstemci DoS ve Firebase fatura patlatmasını engellemek için limit eklendi
       final results = await Future.wait([
-        userDoc.collection('expenseCategories').get(), // 0
-        userDoc.collection('incomeCategories').get(), // 1
-        userDoc.collection('settings').get(), // 2
+        userDoc.collection('expenseCategories').limit(200).get(), // 0
+        userDoc.collection('incomeCategories').limit(200).get(), // 1
+        userDoc.collection('settings').limit(1).get(), // 2
       ]).timeout(const Duration(seconds: 10));
 
       // 1. Gider Kategorileri
