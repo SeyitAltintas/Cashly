@@ -175,9 +175,11 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
   // ===== REPOSITORY İŞLEMLERİ =====
 
   /// Tüm verileri yükle (repository'den)
-  Future<void> loadData() async {
-    _isLoading = true;
-    notifyListeners();
+  Future<void> loadData({bool isRefresh = false}) async {
+    if (!isRefresh) {
+      _isLoading = true;
+      notifyListeners();
+    }
 
     try {
       // Harcamaları stream ile yönetiyoruz
@@ -198,8 +200,12 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
       ErrorHandler.logError('ExpensesController.loadData', e, s);
       rethrow;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (!isRefresh) {
+        // _isLoading false yapma işlemini _startExpensesStream içindeki listenera bırakıyoruz, 
+        // böylece veri gelmeden skeleton kaybolmuyor.
+        // Ancak stream hemen gelmezse sonsuz yüklemede kalmaması için timeout da konabilir,
+        // Firebase snapshot anında çalıştığı için genellikle anında döner.
+      }
     }
   }
 

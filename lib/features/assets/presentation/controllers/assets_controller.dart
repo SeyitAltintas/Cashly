@@ -6,7 +6,6 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// Varlıklar Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
 /// Bu controller AssetPageState'in yerini alır.
@@ -233,9 +232,11 @@ class AssetsController extends ChangeNotifier with SafeNotifierMixin {
     } else {
       _filtrelenmisVarliklar = _assets.where((a) => !a.isDeleted).toList();
     }
-    
+
     // Tarih sırasına göre (en yeni en üstte olacak şekilde) sıralama
-    _filtrelenmisVarliklar.sort((a, b) => b.purchaseDate.compareTo(a.purchaseDate));
+    _filtrelenmisVarliklar.sort(
+      (a, b) => b.purchaseDate.compareTo(a.purchaseDate),
+    );
 
     notifyListeners();
   }
@@ -307,7 +308,9 @@ class AssetsController extends ChangeNotifier with SafeNotifierMixin {
     _assets = List.from(assets);
     _deletedAssets = List.from(deletedAssets);
     _filtrelenmisVarliklar = List.from(_assets.where((a) => !a.isDeleted));
-    _filtrelenmisVarliklar.sort((a, b) => b.purchaseDate.compareTo(a.purchaseDate));
+    _filtrelenmisVarliklar.sort(
+      (a, b) => b.purchaseDate.compareTo(a.purchaseDate),
+    );
     notifyListeners();
   }
 

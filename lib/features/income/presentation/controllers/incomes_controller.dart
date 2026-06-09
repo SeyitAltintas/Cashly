@@ -251,10 +251,12 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
 
   void _startIncomesStream() {
     _incomesSubscription?.cancel();
+
     _incomesSubscription = _incomeRepository
         .watchIncomesByMonth(userId, _secilenAy)
         .listen((data) {
           _tumGelirler = data.map((m) => Income.fromMap(m)).toList();
+          _isLoading = false;
           notifyListeners();
         });
   }
@@ -287,8 +289,7 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
       rethrow;
     } finally {
       if (!isRefresh) {
-        _isLoading = false;
-        notifyListeners();
+        // _isLoading false yapma işlemini _startIncomesStream içindeki listenera bırakıyoruz.
       }
     }
   }

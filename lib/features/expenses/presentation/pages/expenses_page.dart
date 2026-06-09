@@ -115,8 +115,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   }
 
   void _filtreleVeGoster() {
-    _controller.filtreleVeGosterLegacy(
-      tumHarcamalar: widget.tumHarcamalar,
+    _controller.filtreleVeGoster(
       aramaMetni: tArama.text,
       onResetLazyLoading: resetLazyLoading,
     );
@@ -418,7 +417,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                                 hasMoreItems: hasMoreItems,
                                 scrollController: lazyScrollController,
                                 onRefresh: () async {
-                                  filtreleVeGoster();
+                                  await _controller.loadData(isRefresh: true);
                                 },
                                 buildLoadingIndicator: buildLoadingIndicator,
                                 onDelete: harcamaSil,
