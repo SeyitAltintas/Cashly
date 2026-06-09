@@ -13,12 +13,12 @@ class SecureStorageService {
       // GÜVENLİK/KARARLILIK YAMASI (Edge Case):
       // Android Keystore bozulmaları (OS güncellemesi vb.) nedeniyle FlutterSecureStorage 
       // PlatformException fırlatabilir. Bu durumda uygulama tamamen kullanılamaz hale gelir.
-      // Kurtarmak için şifreleme anahtarını silip yeniden oluşturuyoruz. (Yerel veri sıfırlanır 
-      // ama uygulama çökmekten kurtulur, bulut verisi zaten geri yüklenir).
       try {
         await _storage.delete(key: _encryptionKeyName);
       } catch (_) {
-        await _storage.deleteAll();
+        // Kırmızı Takım Yaması: Fail-Open Zafiyeti engellendi.
+        // Hata durumunda deleteAll() çağırmak, biyometrik PIN'ler gibi diğer tüm 
+        // güvenli verileri sileceği için iptal edildi.
       }
       return await _getOrGenerateKey();
     }

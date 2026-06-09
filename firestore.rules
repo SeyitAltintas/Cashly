@@ -4,22 +4,26 @@ service cloud.firestore {
 
     // Kullanıcı kendi verisine erişebilir
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, delete: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null && request.auth.uid == userId
+        // Veri bütünlüğü: Negatif tutar (amount) veya geçersiz veri tiplerini engelle
+        && (!('amount' in request.resource.data) || request.resource.data.amount >= 0);
 
-      // Kullanıcının altındaki TÜM belge ve koleksiyonlara sınırsız, derinlemesine izin:
-      // (expenses, incomes, assets, paymentMethods, settings, profile/info vb.)
+      // Kullanıcının altındaki TÜM belge ve koleksiyonlara izin
       match /{document=**} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, delete: if request.auth != null && request.auth.uid == userId;
+        allow create, update: if request.auth != null && request.auth.uid == userId
+          && (!('amount' in request.resource.data) || request.resource.data.amount >= 0);
       }
     }
 
-    // Error logs - sadece authenticated kullanıcılar yazabilir
+    // Error logs - sadece authenticated kullanıcılar yazabilir. Boyut ve format kısıtlaması eklendi.
     match /errorLogs/{logId} {
-      allow create: if request.auth != null;
+      allow create: if request.auth != null 
+                    && request.resource.data.keys().hasAny(['error', 'message'])
+                    && request.resource.data.toString().size() < 2000;
       allow read, delete: if false; // Admin SDK ile okunur
     }
-
-
 
     // Diğer tüm yollar kapalı
     match /{document=**} {
