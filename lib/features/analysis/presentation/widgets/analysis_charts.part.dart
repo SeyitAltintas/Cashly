@@ -302,7 +302,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
             ),
           ],
         );
-      }
+      },
     );
   }
 
@@ -794,5 +794,4 @@ extension AnalysisChartsExtension on _AnalysisPageState {
       ),
     );
   }
-
 }

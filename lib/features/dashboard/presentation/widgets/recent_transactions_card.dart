@@ -13,27 +13,30 @@ class RecentTransactionsCard extends StatelessWidget {
 
   /// Isolate üzerinden gelen işlemlere UI çevirilerini (localization) uygular
   List<Map<String, dynamic>> _getTranslatedTransactions(BuildContext context) {
-    final rawTransactions = context.select((DashboardController c) => c.recentTransactions);
-    
+    final rawTransactions = context.select(
+      (DashboardController c) => c.recentTransactions,
+    );
+
     return rawTransactions.map((tx) {
       // Map'i kopyala ve çevirileri uygula
       final newTx = Map<String, dynamic>.from(tx);
-      
+
       if (tx['type'] == 'transfer') {
         // Transfer isim formatı 'from → to' şeklindedir, biz sadece çeviri yapabiliriz veya olduğu gibi bırakabiliriz
         // (İsimler zaten Isolate içinde oluşturuldu) ama DB çevirisi uygulayalım
         final parts = (tx['name'] as String).split(' → ');
         if (parts.length == 2) {
-          newTx['name'] = '${context.translateDbName(parts[0])} → ${context.translateDbName(parts[1])}';
+          newTx['name'] =
+              '${context.translateDbName(parts[0])} → ${context.translateDbName(parts[1])}';
         }
       } else {
         newTx['name'] = context.translateDbName(tx['name'] as String);
       }
-      
+
       if (tx['category'] != 'Transfer') {
         newTx['category'] = context.translateDbName(tx['category'] as String);
       }
-      
+
       return newTx;
     }).toList();
   }

@@ -3,7 +3,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'app_theme.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// Tema yöneticisi - Artık sadece varsayılan tema destekleniyor
 class ThemeManager extends ChangeNotifier with SafeNotifierMixin {
   static const String _boxName = 'settings';

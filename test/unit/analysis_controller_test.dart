@@ -27,11 +27,21 @@ void main() {
     test('Zaman limitine göre (Son 30 gün) harcamalar listelenir', () async {
       final now = DateTime.now();
       // Garantili bu ay içinde:
-      final validDate = DateTime(now.year, now.month, now.day, 12).subtract(const Duration(hours: 2));
+      final validDate = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        12,
+      ).subtract(const Duration(hours: 2));
       // Garantili önceki ay:
       final invalidDate = DateTime(now.year, now.month - 1, 15);
       // Silinmiş ama bu ay:
-      final anotherValidDate = DateTime(now.year, now.month, now.day, 12).subtract(const Duration(hours: 5));
+      final anotherValidDate = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        12,
+      ).subtract(const Duration(hours: 5));
 
       await controller.setHistoryLimit(30);
       await controller.updateData(
@@ -78,7 +88,12 @@ void main() {
             name: 'Maaş Geliri',
             category: 'Maaş',
             amount: 10000.0,
-            date: DateTime(now.year, now.month, now.day, 12).subtract(const Duration(hours: 2)),
+            date: DateTime(
+              now.year,
+              now.month,
+              now.day,
+              12,
+            ).subtract(const Duration(hours: 2)),
             paraBirimi: 'TRY',
             isDeleted: false,
           ),
@@ -87,7 +102,12 @@ void main() {
             name: 'Hisse Senedi',
             category: 'Yatırım',
             amount: 2000.0,
-            date: DateTime(now.year, now.month, now.day, 12).subtract(const Duration(hours: 5)),
+            date: DateTime(
+              now.year,
+              now.month,
+              now.day,
+              12,
+            ).subtract(const Duration(hours: 5)),
             paraBirimi: 'TRY',
             isDeleted: false,
           ),

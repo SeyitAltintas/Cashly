@@ -57,14 +57,19 @@ class StreakFreezeCard extends StatelessWidget {
                       context.l10n.protectsStreakEvenIfSkipped,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: freezeColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -120,14 +125,18 @@ class StreakFreezeCard extends StatelessWidget {
                 Icon(
                   Icons.info_outline,
                   size: 16,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
                 const SizedBox(width: 8),
                 Text(
                   context.l10n.nextFreezeIn(nextFreezeIn),
                   style: TextStyle(
                     fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -188,7 +197,9 @@ class StreakNextBadgeSection extends StatelessWidget {
                       context.l10n.daysRemainingForBadge(remaining),
                       style: TextStyle(
                         fontSize: 14,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],

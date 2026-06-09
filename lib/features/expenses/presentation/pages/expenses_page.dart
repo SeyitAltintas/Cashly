@@ -135,8 +135,6 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     return toplam;
   }
 
-
-
   String tarihFormatla(DateTime tarih) {
     final simdi = DateTime.now();
     final bugun = DateTime(simdi.year, simdi.month, simdi.day);
@@ -261,7 +259,10 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     }
   }
 
-  Future<void> _handleExpenseEdit(Map<String, dynamic> harcama, Map<String, dynamic> updatedHarcama) async {
+  Future<void> _handleExpenseEdit(
+    Map<String, dynamic> harcama,
+    Map<String, dynamic> updatedHarcama,
+  ) async {
     final index = gosterilenHarcamalar.indexOf(harcama);
     if (index != -1) {
       gosterilenHarcamalar[index] = updatedHarcama;
@@ -273,7 +274,9 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
       name: updatedHarcama['isim'] ?? harcama['isim'],
       amount: double.tryParse(updatedHarcama['tutar'].toString()) ?? 0.0,
       category: updatedHarcama['kategori'] ?? harcama['kategori'],
-      date: DateTime.tryParse(updatedHarcama['tarih'].toString()) ?? DateTime.now(),
+      date:
+          DateTime.tryParse(updatedHarcama['tarih'].toString()) ??
+          DateTime.now(),
       paymentMethodId: updatedHarcama['odemeYontemiId'],
       paraBirimi: updatedHarcama['paraBirimi'],
       duzenlenecekHarcama: harcama,
@@ -499,8 +502,10 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           });
 
           widget.tumHarcamalar.sort((a, b) {
-            DateTime tarihA = DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-            DateTime tarihB = DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+            DateTime tarihA =
+                DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+            DateTime tarihB =
+                DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
             return tarihB.compareTo(tarihA);
           });
 
@@ -529,9 +534,12 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
         onCheckBudget: () => callbacks.budgetStatus,
         onGetCategoryTotal: (kategori) => callbacks.categoryTotal(kategori),
         onAddFixedExpenses: () async => callbacks.addFixedExpenses(),
-        onEditLastExpense: (yeniTutar) async => callbacks.editLastExpense(yeniTutar),
-        onGetDateRangeTotal: (baslangic, bitis) => callbacks.dateRangeTotal(baslangic, bitis),
-        onGetDateRangeCategoryTotal: (baslangic, bitis, kategori) => callbacks.dateRangeCategoryTotal(baslangic, bitis, kategori),
+        onEditLastExpense: (yeniTutar) async =>
+            callbacks.editLastExpense(yeniTutar),
+        onGetDateRangeTotal: (baslangic, bitis) =>
+            callbacks.dateRangeTotal(baslangic, bitis),
+        onGetDateRangeCategoryTotal: (baslangic, bitis, kategori) =>
+            callbacks.dateRangeCategoryTotal(baslangic, bitis, kategori),
       ),
     );
   }

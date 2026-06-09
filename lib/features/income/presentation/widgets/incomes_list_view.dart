@@ -40,26 +40,22 @@ class IncomesListView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverFixedExtentList(
               itemExtent: 72, // Card + ListTile(vertical:4) + margin(bottom:6)
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  if (index >= gelirler.length) return null;
+              delegate: SliverChildBuilderDelegate((context, index) {
+                if (index >= gelirler.length) return null;
 
-                  final gelir = gelirler[index];
-                  return IncomeListItem(
-                    income: gelir,
-                    categoryIcon: kategoriIkonlari[gelir.category],
-                    itemIndex: index,
-                    onDelete: () => onDelete(gelir),
-                    onTap: () => onEdit(gelir),
-                  );
-                },
-                childCount: gelirler.length,
-              ),
+                final gelir = gelirler[index];
+                return IncomeListItem(
+                  income: gelir,
+                  categoryIcon: kategoriIkonlari[gelir.category],
+                  itemIndex: index,
+                  onDelete: () => onDelete(gelir),
+                  onTap: () => onEdit(gelir),
+                );
+              }, childCount: gelirler.length),
             ),
           ),
           // Lazy loading indikatörü (farklı yükseklikte olduğu için ayrı sliver)
-          if (hasMoreItems)
-            SliverToBoxAdapter(child: buildLoadingIndicator()),
+          if (hasMoreItems) SliverToBoxAdapter(child: buildLoadingIndicator()),
         ],
       ),
     );

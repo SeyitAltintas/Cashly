@@ -40,7 +40,10 @@ class StreakRepositoryFirestore implements StreakRepository {
       return StreakData.fromMap(data);
     } catch (e, stackTrace) {
       debugPrint('Firestore streak verisi getirilirken hata: $e');
-      ErrorLoggerService.logError('Firestore streak verisi getirilirken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore streak verisi getirilirken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       return StreakData.empty();
     }
   }
@@ -53,7 +56,10 @@ class StreakRepositoryFirestore implements StreakRepository {
       await _streakDoc(userId).set(map);
     } catch (e, stackTrace) {
       debugPrint('Firestore streak verisi kaydedilirken hata: $e');
-      ErrorLoggerService.logError('Firestore streak verisi kaydedilirken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore streak verisi kaydedilirken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }

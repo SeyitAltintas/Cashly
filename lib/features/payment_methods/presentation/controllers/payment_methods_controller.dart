@@ -311,10 +311,7 @@ class PaymentMethodsController extends ChangeNotifier
 
       Future.microtask(() async {
         try {
-          await _paymentMethodRepository.deletePaymentMethod(
-            userId,
-            method.id,
-          );
+          await _paymentMethodRepository.deletePaymentMethod(userId, method.id);
         } catch (e, s) {
           ErrorHandler.logError(
             'PaymentMethodsController.permanentDelete Background',

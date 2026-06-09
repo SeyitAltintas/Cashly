@@ -9,7 +9,6 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/notification_scheduler.dart';
 
-
 class AuthController extends ChangeNotifier with SafeNotifierMixin {
   final AuthRepository _authRepository;
   UserEntity? _currentUser;
@@ -21,7 +20,6 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
   AuthController(this._authRepository) {
     _initAuthListener();
   }
-
 
   void _initAuthListener() {
     try {
@@ -52,7 +50,7 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
       // Edge Case Fix (Security): Privacy Policy gereği uygulama her açılışta PIN sormalıdır.
       // Bu yüzden _currentUser'ı null bırakıyoruz ki AppRouter bizi /login sayfasına yönlendirsin.
       _currentUser = null;
-      
+
       // Bildirimleri tazelemek için kayıtlı kullanıcıyı alıp işlem yapabiliriz
       final savedUser = await _authRepository.getCurrentUser();
       if (savedUser != null && getIt.isRegistered<NotificationScheduler>()) {
@@ -243,10 +241,12 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
     }
   }
 
-
-
   /// Kullanıcının PIN'ini güncelle (Şifremi Unuttum için)
-  Future<void> updateUserPin(String userId, String currentPin, String newPin) async {
+  Future<void> updateUserPin(
+    String userId,
+    String currentPin,
+    String newPin,
+  ) async {
     await _authRepository.updateUserPin(userId, currentPin, newPin);
     if (_currentUser != null && _currentUser!.id == userId) {
       _currentUser = await _authRepository.getCurrentUser();

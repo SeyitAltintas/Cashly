@@ -67,7 +67,9 @@ class MockIncomeRepository implements IncomeRepository {
   ) async {
     return _incomes.where((i) {
       if (i['isDeleted'] == true || i['silindi'] == true) return false;
-      final tarih = DateTime.tryParse(i['date']?.toString() ?? i['tarih']?.toString() ?? '');
+      final tarih = DateTime.tryParse(
+        i['date']?.toString() ?? i['tarih']?.toString() ?? '',
+      );
       if (tarih == null) return false;
       return tarih.isAfter(start.subtract(const Duration(seconds: 1))) &&
           tarih.isBefore(end.add(const Duration(seconds: 1)));
@@ -122,9 +124,11 @@ class MockIncomeRepository implements IncomeRepository {
 
 class MockPaymentMethodRepository implements PaymentMethodRepository {
   @override
-  Stream<List<Map<String, dynamic>>> watchPaymentMethods(String userId) => const Stream.empty();
+  Stream<List<Map<String, dynamic>>> watchPaymentMethods(String userId) =>
+      const Stream.empty();
   @override
-  Stream<List<Map<String, dynamic>>> watchTransfers(String userId) => const Stream.empty();
+  Stream<List<Map<String, dynamic>>> watchTransfers(String userId) =>
+      const Stream.empty();
 
   @override
   BatchOperation getAddPaymentMethodOperation(
@@ -137,7 +141,11 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
     Map<String, dynamic> method,
   ) => DummyBatchOperation();
   @override
-  BatchOperation getIncrementBalanceOperation(String userId, String methodId, double amountDelta) {
+  BatchOperation getIncrementBalanceOperation(
+    String userId,
+    String methodId,
+    double amountDelta,
+  ) {
     return DummyBatchOperation();
   }
 
@@ -146,7 +154,10 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
       DummyBatchOperation();
   @override
   @override
-  BatchOperation getUpdateTransferOperation(String userId, Map<String, dynamic> transfer) => DummyBatchOperation();
+  BatchOperation getUpdateTransferOperation(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) => DummyBatchOperation();
 
   @override
   BatchOperation getAddTransferOperation(

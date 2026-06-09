@@ -36,7 +36,7 @@ abstract class PaymentMethodRepository {
     Map<String, dynamic> method,
   );
 
-  /// Çevrimdışı senkronizasyonda veri kaybını (race condition) önlemek için 
+  /// Çevrimdışı senkronizasyonda veri kaybını (race condition) önlemek için
   /// mutlak bakiye yerine delta (artış/azalış) miktarını kullanan batch operasyonu döndürür
   BatchOperation getIncrementBalanceOperation(
     String userId,
@@ -72,13 +72,19 @@ abstract class PaymentMethodRepository {
   Future<void> addTransfer(String userId, Map<String, dynamic> transfer);
 
   /// Yeni bir transfer eklemek için batch operasyonu döndürür
-  BatchOperation getAddTransferOperation(String userId, Map<String, dynamic> transfer);
+  BatchOperation getAddTransferOperation(
+    String userId,
+    Map<String, dynamic> transfer,
+  );
 
   /// Mevcut bir transferi günceller
   Future<void> updateTransfer(String userId, Map<String, dynamic> transfer);
 
   /// Bir transferi güncellemek için batch operasyonu döndürür
-  BatchOperation getUpdateTransferOperation(String userId, Map<String, dynamic> transfer);
+  BatchOperation getUpdateTransferOperation(
+    String userId,
+    Map<String, dynamic> transfer,
+  );
 
   /// Bir transferi siler
   Future<void> deleteTransfer(String userId, String transferId);

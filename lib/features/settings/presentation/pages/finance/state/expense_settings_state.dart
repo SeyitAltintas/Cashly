@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import '../../../../../payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// Harcama ayarları için ChangeNotifier state yöneticisi
 class ExpenseSettingsState extends ChangeNotifier with SafeNotifierMixin {
   bool _categoryChanged = false;

@@ -1,6 +1,7 @@
 /// Varlık repository interface (Domain Layer)
 /// Bu interface, varlık verilerine erişim için soyut bir kontrat tanımlar.
 library;
+
 import '../../../../core/services/batch_service.dart';
 
 abstract class AssetRepository {
@@ -25,13 +26,22 @@ abstract class AssetRepository {
   /// Geri dönüşüm kutusuna varlık ekler
   Future<void> addDeletedAsset(String userId, Map<String, dynamic> asset);
 
-  Future<void> saveDeletedAssets(String userId, List<Map<String, dynamic>> assets);
+  Future<void> saveDeletedAssets(
+    String userId,
+    List<Map<String, dynamic>> assets,
+  );
 
   /// Geri dönüşüm kutusundan varlık siler
   Future<void> removeDeletedAsset(String userId, String assetId);
 
   /// Batch Operations
-  BatchOperation getAddAssetOperation(String userId, Map<String, dynamic> asset);
-  BatchOperation getUpdateAssetOperation(String userId, Map<String, dynamic> asset);
+  BatchOperation getAddAssetOperation(
+    String userId,
+    Map<String, dynamic> asset,
+  );
+  BatchOperation getUpdateAssetOperation(
+    String userId,
+    Map<String, dynamic> asset,
+  );
   BatchOperation getDeleteAssetOperation(String userId, String id);
 }

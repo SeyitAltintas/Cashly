@@ -736,5 +736,4 @@ extension IncomeInsightsExtension on _AnalysisPageState {
       ),
     );
   }
-
 }

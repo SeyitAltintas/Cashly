@@ -8,7 +8,6 @@ import '../../features/auth/presentation/pages/login_page.dart';
 // Home & Navigation
 import '../../features/home/presentation/pages/home_page.dart';
 
-
 // Route names
 import 'route_names.dart';
 
@@ -71,7 +70,6 @@ class AppRouter {
 
     // Route tanımları
     routes: [
-
       // ===== AUTH ROUTES =====
       GoRoute(
         path: '/login',

@@ -314,5 +314,4 @@ extension ExpenseInsightsExtension on _AnalysisPageState {
       ),
     );
   }
-
 }

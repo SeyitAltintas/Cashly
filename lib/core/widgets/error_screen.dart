@@ -24,7 +24,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Sadece Dark Mode tasarımı baz alınabilir çünkü Fatal Error Screen 
+    // Sadece Dark Mode tasarımı baz alınabilir çünkü Fatal Error Screen
     // genellikle karanlık bir background ile daha az göz yorar ve profesyonel durur.
     return Scaffold(
       backgroundColor: const Color(0xFF0F1115), // Koyu ve Premium arka plan
@@ -33,7 +33,10 @@ class _ErrorScreenState extends State<ErrorScreen> {
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 40.0,
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -42,14 +45,23 @@ class _ErrorScreenState extends State<ErrorScreen> {
                     alignment: Alignment.center,
                     children: [
                       Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                      ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-                       .scaleXY(begin: 1.0, end: 1.15, duration: 1500.ms, curve: Curves.easeInOut),
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                          )
+                          .animate(
+                            onPlay: (controller) =>
+                                controller.repeat(reverse: true),
+                          )
+                          .scaleXY(
+                            begin: 1.0,
+                            end: 1.15,
+                            duration: 1500.ms,
+                            curve: Curves.easeInOut,
+                          ),
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
@@ -68,14 +80,19 @@ class _ErrorScreenState extends State<ErrorScreen> {
                           color: Colors.redAccent,
                           size: 56,
                         ),
-                      ).animate().shake(hz: 3, duration: 800.ms, curve: Curves.easeOut),
+                      ).animate().shake(
+                        hz: 3,
+                        duration: 800.ms,
+                        curve: Curves.easeOut,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 32),
 
                   // Başlık
                   Text(
-                    widget.errorMessage != null && widget.errorMessage!.contains('başlatılamadı')
+                    widget.errorMessage != null &&
+                            widget.errorMessage!.contains('başlatılamadı')
                         ? 'Uygulama Başlatılamadı'
                         : context.l10n.errorOccurred,
                     style: const TextStyle(
@@ -86,7 +103,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ).animate().fade(delay: 200.ms).slideY(begin: 0.2, end: 0),
-                  
+
                   const SizedBox(height: 16),
 
                   // Alt mesaj
@@ -99,34 +116,41 @@ class _ErrorScreenState extends State<ErrorScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ).animate().fade(delay: 400.ms).slideY(begin: 0.2, end: 0),
-                  
+
                   const SizedBox(height: 40),
 
                   // Tekrar dene butonu
                   if (widget.onRetry != null)
                     SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: widget.onRetry,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton.icon(
+                            onPressed: widget.onRetry,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.black,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            icon: const Icon(Icons.refresh_rounded),
+                            label: Text(
+                              context.l10n.retry,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                           ),
+                        )
+                        .animate()
+                        .fade(delay: 600.ms)
+                        .scaleXY(
+                          begin: 0.9,
+                          end: 1.0,
+                          curve: Curves.easeOutBack,
                         ),
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: Text(
-                          context.l10n.retry,
-                          style: const TextStyle(
-                            fontSize: 16, 
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ).animate().fade(delay: 600.ms).scaleXY(begin: 0.9, end: 1.0, curve: Curves.easeOutBack),
 
                   // Debug bilgisi (Genişletilebilir)
                   if (widget.errorDetails != null) ...[
@@ -134,17 +158,24 @@ class _ErrorScreenState extends State<ErrorScreen> {
                     GestureDetector(
                       onTap: () => setState(() => _showDetails = !_showDetails),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.03),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.05),
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              _showDetails ? Icons.code_off_rounded : Icons.code_rounded,
+                              _showDetails
+                                  ? Icons.code_off_rounded
+                                  : Icons.code_rounded,
                               color: Colors.white.withValues(alpha: 0.4),
                               size: 18,
                             ),
@@ -159,7 +190,9 @@ class _ErrorScreenState extends State<ErrorScreen> {
                             ),
                             const SizedBox(width: 4),
                             Icon(
-                              _showDetails ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                              _showDetails
+                                  ? Icons.keyboard_arrow_up_rounded
+                                  : Icons.keyboard_arrow_down_rounded,
                               color: Colors.white.withValues(alpha: 0.4),
                               size: 18,
                             ),
@@ -167,7 +200,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
                         ),
                       ),
                     ).animate().fade(delay: 800.ms),
-                    
+
                     if (_showDetails) ...[
                       const SizedBox(height: 16),
                       Container(

@@ -14,7 +14,6 @@ mixin ExpenseBinMixin on ChangeNotifier {
   List<PaymentMethod> get tumOdemeYontemleri;
   List<Map<String, dynamic>> get tumHarcamalar;
 
-
   // Silinen harcamalar listesi
   List<Map<String, dynamic>> _binSilinenHarcamalar = [];
   List<Map<String, dynamic>> get binSilinenHarcamalar => _binSilinenHarcamalar;

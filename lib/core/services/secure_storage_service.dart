@@ -11,13 +11,13 @@ class SecureStorageService {
       return await _getOrGenerateKey();
     } catch (e) {
       // GÜVENLİK/KARARLILIK YAMASI (Edge Case):
-      // Android Keystore bozulmaları (OS güncellemesi vb.) nedeniyle FlutterSecureStorage 
+      // Android Keystore bozulmaları (OS güncellemesi vb.) nedeniyle FlutterSecureStorage
       // PlatformException fırlatabilir. Bu durumda uygulama tamamen kullanılamaz hale gelir.
       try {
         await _storage.delete(key: _encryptionKeyName);
       } catch (_) {
         // Kırmızı Takım Yaması: Fail-Open Zafiyeti engellendi.
-        // Hata durumunda deleteAll() çağırmak, biyometrik PIN'ler gibi diğer tüm 
+        // Hata durumunda deleteAll() çağırmak, biyometrik PIN'ler gibi diğer tüm
         // güvenli verileri sileceği için iptal edildi.
       }
       return await _getOrGenerateKey();

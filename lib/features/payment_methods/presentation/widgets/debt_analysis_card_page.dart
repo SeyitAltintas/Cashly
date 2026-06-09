@@ -22,11 +22,13 @@ class DebtAnalysisCardPage extends StatelessWidget {
     final cur = getIt<CurrencyService>();
     final toplamBorc = krediKartlar.fold(
       0.0,
-      (sum, pm) => sum + cur.convert(pm.balance, pm.paraBirimi, cur.currentCurrency),
+      (sum, pm) =>
+          sum + cur.convert(pm.balance, pm.paraBirimi, cur.currentCurrency),
     );
     final toplamLimit = krediKartlar.fold(
       0.0,
-      (sum, pm) => sum + cur.convert(pm.limit ?? 0, pm.paraBirimi, cur.currentCurrency),
+      (sum, pm) =>
+          sum + cur.convert(pm.limit ?? 0, pm.paraBirimi, cur.currentCurrency),
     );
     final kullanimOrani = toplamLimit > 0
         ? (toplamBorc / toplamLimit).clamp(0.0, 1.0)

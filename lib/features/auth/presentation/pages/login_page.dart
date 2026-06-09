@@ -132,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     Widget content;
-    
+
     // Yükleme durumu
     if (_isLoadingUser) {
       content = Scaffold(

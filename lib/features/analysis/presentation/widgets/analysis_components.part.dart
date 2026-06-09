@@ -255,5 +255,4 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
     }
     return '';
   }
-
 }

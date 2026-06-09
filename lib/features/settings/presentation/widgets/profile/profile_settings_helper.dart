@@ -43,7 +43,8 @@ class ProfileSettingsHelper {
   }
 
   bool _isPinCorrect(String inputPin, String storedPin) {
-    if ((storedPin.startsWith(r'$2a$') || storedPin.startsWith(r'$2b$')) && storedPin.length == 60) {
+    if ((storedPin.startsWith(r'$2a$') || storedPin.startsWith(r'$2b$')) &&
+        storedPin.length == 60) {
       try {
         return BCrypt.checkpw(inputPin, storedPin);
       } catch (_) {
@@ -270,11 +271,15 @@ class ProfileSettingsHelper {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setStateBottomSheet) {
           return Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            ),
             child: Container(
               decoration: BoxDecoration(
                 color: Theme.of(ctx).colorScheme.surface,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
               ),
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -287,8 +292,13 @@ class ProfileSettingsHelper {
                     key: formKey,
                     child: TextFormField(
                       controller: nameController,
-                      style: TextStyle(color: Theme.of(ctx).colorScheme.onSurface),
-                      decoration: _inputDecoration(ctx, context.l10n.newNameLabel),
+                      style: TextStyle(
+                        color: Theme.of(ctx).colorScheme.onSurface,
+                      ),
+                      decoration: _inputDecoration(
+                        ctx,
+                        context.l10n.newNameLabel,
+                      ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return context.l10n.nameCannotBeEmpty;
@@ -445,7 +455,7 @@ class ProfileSettingsHelper {
                                     newPinController.clear();
                                     confirmPinController.clear();
                                     onUserUpdated();
-                                    
+
                                     AppSnackBar.success(
                                       ctx,
                                       context.l10n.pinUpdated,
@@ -455,7 +465,9 @@ class ProfileSettingsHelper {
                                 })
                                 .catchError((e) {
                                   if (ctx.mounted) {
-                                    setStateBottomSheet(() => isLoading = false);
+                                    setStateBottomSheet(
+                                      () => isLoading = false,
+                                    );
                                     final isRecentLoginRequired = e
                                         .toString()
                                         .contains('requires-recent-login');
@@ -748,7 +760,10 @@ class ProfileSettingsHelper {
                 // Eğer burada çağırırsak ve deleteUser (requires-recent-login) hatası fırlatırsa,
                 // hesap silinmez ama veriler kalıcı olarak silinmiş olur (Data Loss).
                 // Silme işlemi güvenli bir şekilde authRepository.deleteUser içinde yapılır.
-                await authRepository.deleteUser(userId, pin: pinController.text);
+                await authRepository.deleteUser(
+                  userId,
+                  pin: pinController.text,
+                );
                 await authController.logout();
 
                 // 🚨 EDGE CASE FIX 3: Kullanıcı silindiğinde bekleyen tüm yerel bildirimleri (hatırlatıcılar vb.) iptal et
@@ -762,10 +777,7 @@ class ProfileSettingsHelper {
                   MaterialPageRoute(
                     builder: (newCtx) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        AppSnackBar.success(
-                          newCtx,
-                          successMessage,
-                        );
+                        AppSnackBar.success(newCtx, successMessage);
                       });
                       return LoginPage(authController: authController);
                     },
@@ -986,7 +998,7 @@ class ProfileSettingsHelper {
               try {
                 final userId = currentUser.id;
                 final settingsRepo = getIt<SettingsRepository>();
-                
+
                 await settingsRepo.deleteAllFinancialData(userId);
                 await DatabaseHelper.deleteUserFinancialData(userId);
 
@@ -1001,10 +1013,7 @@ class ProfileSettingsHelper {
                   MaterialPageRoute(
                     builder: (newCtx) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        AppSnackBar.success(
-                          newCtx,
-                          successMessage,
-                        );
+                        AppSnackBar.success(newCtx, successMessage);
                       });
                       return AnaSayfa(authController: authController);
                     },
@@ -1014,10 +1023,7 @@ class ProfileSettingsHelper {
               } catch (e) {
                 if (context.mounted) {
                   AppLoadingOverlay.hide(context);
-                  AppSnackBar.error(
-                    context,
-                    e.toString(),
-                  );
+                  AppSnackBar.error(context, e.toString());
                 }
               }
             }
@@ -1178,7 +1184,9 @@ class ProfileSettingsHelper {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          disabledBackgroundColor: Theme.of(ctx).colorScheme.primary.withValues(alpha: 0.5),
+          disabledBackgroundColor: Theme.of(
+            ctx,
+          ).colorScheme.primary.withValues(alpha: 0.5),
         ),
         child: isLoading
             ? const SizedBox(
@@ -1191,7 +1199,10 @@ class ProfileSettingsHelper {
               )
             : Text(
                 label,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
       ),
     );

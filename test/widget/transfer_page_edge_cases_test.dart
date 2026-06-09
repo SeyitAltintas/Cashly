@@ -13,22 +13,39 @@ class _MockPaymentMethodRepository implements PaymentMethodRepository {
   List<Map<String, dynamic>> methods = [];
 
   @override
-  BatchOperation getAddPaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  BatchOperation getAddPaymentMethodOperation(
+    String userId,
+    Map<String, dynamic> method,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getUpdatePaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  BatchOperation getUpdatePaymentMethodOperation(
+    String userId,
+    Map<String, dynamic> method,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getIncrementBalanceOperation(String userId, String methodId, double amountDelta) {
+  BatchOperation getIncrementBalanceOperation(
+    String userId,
+    String methodId,
+    double amountDelta,
+  ) {
     return DummyBatchOperation();
   }
 
   @override
-  BatchOperation getDeletePaymentMethodOperation(String userId, String id) => DummyBatchOperation();
+  BatchOperation getDeletePaymentMethodOperation(String userId, String id) =>
+      DummyBatchOperation();
   @override
   @override
-  BatchOperation getUpdateTransferOperation(String userId, Map<String, dynamic> transfer) => DummyBatchOperation();
+  BatchOperation getUpdateTransferOperation(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) => DummyBatchOperation();
 
   @override
-  BatchOperation getAddTransferOperation(String userId, Map<String, dynamic> transfer) => DummyBatchOperation();
+  BatchOperation getAddTransferOperation(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) => DummyBatchOperation();
 
   @override
   Future<void> addDeletedPaymentMethod(
@@ -110,6 +127,7 @@ class MockBatchService implements BatchService {
   @override
   Future<void> commit(List<BatchOperation> operations) async {}
 }
+
 void main() {
   setUp(() async {
     await GetIt.instance.reset();

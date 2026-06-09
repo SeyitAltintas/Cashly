@@ -3,9 +3,9 @@ import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../assets/data/models/asset_model.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// Ödeme yöntemleri geri dönüşüm kutusu için state
-class PaymentMethodRecycleBinState extends ChangeNotifier with SafeNotifierMixin {
+class PaymentMethodRecycleBinState extends ChangeNotifier
+    with SafeNotifierMixin {
   List<PaymentMethod> _deletedPaymentMethods = [];
   List<PaymentMethod> get deletedPaymentMethods => _deletedPaymentMethods;
 

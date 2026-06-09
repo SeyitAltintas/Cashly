@@ -16,7 +16,7 @@ class AssetRepositoryFirestore implements AssetRepository {
     return CacheService.get<List<Map<String, dynamic>>>('assets_$userId') ?? [];
   }
 
-  // GÜVENLİK/KARARLILIK YAMASI: 
+  // GÜVENLİK/KARARLILIK YAMASI:
   // Firestore verisi içindeki Timestamp'ler Hive'da desteklenmediğinden
   // okunurken her zaman String (ISO-8601) formatına dönüştürülmelidir.
   Map<String, dynamic> _sanitizeMap(Map<String, dynamic> map) {
@@ -42,7 +42,9 @@ class AssetRepositoryFirestore implements AssetRepository {
   @override
   Stream<List<Map<String, dynamic>>> watchAssets(String userId) {
     return _userDoc(userId).collection('assets').snapshots().map((snapshot) {
-      final assets = snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();
+      final assets = snapshot.docs
+          .map((doc) => _sanitizeMap(doc.data()))
+          .toList();
       CacheService.set('assets_$userId', assets);
       return assets;
     });
@@ -179,7 +181,10 @@ class AssetRepositoryFirestore implements AssetRepository {
   }
 
   @override
-  BatchOperation getAddAssetOperation(String userId, Map<String, dynamic> asset) {
+  BatchOperation getAddAssetOperation(
+    String userId,
+    Map<String, dynamic> asset,
+  ) {
     if ((asset['id']?.toString() ?? '').isEmpty) {
       throw Exception('Varlık eklenirken ID eksik!');
     }
@@ -195,7 +200,10 @@ class AssetRepositoryFirestore implements AssetRepository {
   }
 
   @override
-  BatchOperation getUpdateAssetOperation(String userId, Map<String, dynamic> asset) {
+  BatchOperation getUpdateAssetOperation(
+    String userId,
+    Map<String, dynamic> asset,
+  ) {
     if ((asset['id']?.toString() ?? '').isEmpty) {
       throw Exception('Varlık güncellenirken ID eksik!');
     }

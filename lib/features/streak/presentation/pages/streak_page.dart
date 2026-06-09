@@ -42,7 +42,11 @@ class _StreakPageState extends State<StreakPage> {
     }
   }
 
-  void _showBadgeDetails(BuildContext context, StreakBadge badge, bool isEarned) {
+  void _showBadgeDetails(
+    BuildContext context,
+    StreakBadge badge,
+    bool isEarned,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -61,7 +65,9 @@ class _StreakPageState extends State<StreakPage> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -71,14 +77,18 @@ class _StreakPageState extends State<StreakPage> {
               decoration: BoxDecoration(
                 color: isEarned
                     ? badge.color.withValues(alpha: 0.2)
-                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 badge.icon,
                 color: isEarned
                     ? badge.color
-                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.3),
                 size: 48,
               ),
             ),
@@ -97,7 +107,9 @@ class _StreakPageState extends State<StreakPage> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 16),
@@ -106,7 +118,9 @@ class _StreakPageState extends State<StreakPage> {
               decoration: BoxDecoration(
                 color: isEarned
                     ? Colors.green.withValues(alpha: 0.2)
-                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -118,7 +132,9 @@ class _StreakPageState extends State<StreakPage> {
                   fontWeight: FontWeight.w600,
                   color: isEarned
                       ? Colors.green
-                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      : Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ),

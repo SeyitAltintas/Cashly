@@ -54,7 +54,8 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveClientMixin {
+class _DashboardPageState extends State<DashboardPage>
+    with AutomaticKeepAliveClientMixin {
   late final DashboardController _controller;
 
   @override

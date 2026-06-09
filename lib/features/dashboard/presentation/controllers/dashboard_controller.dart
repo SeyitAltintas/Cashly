@@ -9,8 +9,6 @@ import '../../../payment_methods/data/models/transfer_model.dart';
 import '../../../streak/data/models/streak_model.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
-
 // ===== ISOLATE PAYLOAD & RESULT =====
 
 class DashboardComputePayload {
@@ -74,13 +72,14 @@ DashboardComputeResult _calculateDashboardWorker(
 ) {
   final rates = payload.rates;
   final target = payload.currentCurrency;
-  
+
   double totalBal = 0;
   double totalCred = 0;
   for (var pm in payload.odemeYontemleri) {
     if (pm.isDeleted) continue;
     if (pm.type == 'kredi') {
-      if (pm.balance > 0) totalCred += _isolateConvert(pm.balance, pm.paraBirimi, target, rates);
+      if (pm.balance > 0)
+        totalCred += _isolateConvert(pm.balance, pm.paraBirimi, target, rates);
     } else {
       totalBal += _isolateConvert(pm.balance, pm.paraBirimi, target, rates);
     }
@@ -91,12 +90,14 @@ DashboardComputeResult _calculateDashboardWorker(
   for (var h in payload.harcamalar) {
     if (h['silindi'] == true) continue;
     DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-    if (tarih != null && tarih.year == payload.secilenAy.year && tarih.month == payload.secilenAy.month) {
+    if (tarih != null &&
+        tarih.year == payload.secilenAy.year &&
+        tarih.month == payload.secilenAy.month) {
       final tutar = (h['tutar'] as num?)?.toDouble() ?? 0;
       final pb = h['paraBirimi']?.toString() ?? 'TRY';
       final converted = _isolateConvert(tutar, pb, target, rates);
       mExp += converted;
-      
+
       final kat = h['kategori']?.toString() ?? 'Diğer';
       catExp[kat] = (catExp[kat] ?? 0) + converted;
     }
@@ -105,7 +106,8 @@ DashboardComputeResult _calculateDashboardWorker(
   double mInc = 0;
   for (var g in payload.gelirler) {
     if (g.isDeleted) continue;
-    if (g.date.year == payload.secilenAy.year && g.date.month == payload.secilenAy.month) {
+    if (g.date.year == payload.secilenAy.year &&
+        g.date.month == payload.secilenAy.month) {
       mInc += _isolateConvert(g.amount, g.paraBirimi, target, rates);
     }
   }
@@ -117,7 +119,7 @@ DashboardComputeResult _calculateDashboardWorker(
   }
 
   List<Map<String, dynamic>> transactions = [];
-  
+
   for (var h in payload.harcamalar) {
     if (h['silindi'] == true) continue;
     DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
@@ -322,7 +324,8 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
   double get totalAssets => _result?.totalAssets ?? 0.0;
 
   /// Son işlemler listesi (isolate üzerinden)
-  List<Map<String, dynamic>> get recentTransactions => _result?.recentTransactions ?? [];
+  List<Map<String, dynamic>> get recentTransactions =>
+      _result?.recentTransactions ?? [];
 
   /// Bütçe kullanım yüzdesi
   double get budgetUsagePercentage {
@@ -501,10 +504,10 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
       rates: service.rates,
       currentCurrency: service.currentCurrency,
     );
-    
+
     // FPS Optimizasyonu: Main thread'i bloklamamak için hesaplamaları arka plan isolate'ine gönderiyoruz.
     _result = await compute(_calculateDashboardWorker, payload);
-    
+
     if (!_disposed) notifyListeners();
   }
 }

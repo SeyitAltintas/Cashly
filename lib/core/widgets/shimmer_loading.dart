@@ -29,7 +29,7 @@ class Shimmer extends StatefulWidget {
       child: child,
     );
   }
-  
+
   /// Context üzerinden temaya (dark/light) göre otomatik renk alır.
   factory Shimmer.auto({
     Key? key,
@@ -97,7 +97,11 @@ class _SlidingGradientTransform extends GradientTransform {
 
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
-    return Matrix4.translationValues(bounds.width * (slidePercent * 2 - 1), 0.0, 0.0);
+    return Matrix4.translationValues(
+      bounds.width * (slidePercent * 2 - 1),
+      0.0,
+      0.0,
+    );
   }
 }
 
@@ -135,11 +139,7 @@ class ShimmerCircle extends StatelessWidget {
   final double size;
   final EdgeInsetsGeometry? margin;
 
-  const ShimmerCircle({
-    super.key,
-    required this.size,
-    this.margin,
-  });
+  const ShimmerCircle({super.key, required this.size, this.margin});
 
   @override
   Widget build(BuildContext context) {
@@ -412,19 +412,22 @@ class IncomePageSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.auto(context: context, child: Column(
-      children: [
-        const IncomeSummarySkeleton(),
-        const SizedBox(height: 10),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: 5,
-            itemBuilder: (context, index) => const IncomeCardSkeleton(),
+    return Shimmer.auto(
+      context: context,
+      child: Column(
+        children: [
+          const IncomeSummarySkeleton(),
+          const SizedBox(height: 10),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: 5,
+              itemBuilder: (context, index) => const IncomeCardSkeleton(),
+            ),
           ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
   }
 }
 
@@ -468,16 +471,19 @@ class PaymentMethodsPageSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.auto(context: context, child: SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          const PaymentMethodsSummarySkeleton(),
-          const SizedBox(height: 24),
-          ...List.generate(3, (index) => const PaymentMethodSkeleton()),
-        ],
+    return Shimmer.auto(
+      context: context,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            const PaymentMethodsSummarySkeleton(),
+            const SizedBox(height: 24),
+            ...List.generate(3, (index) => const PaymentMethodSkeleton()),
+          ],
+        ),
       ),
-    ));
+    );
   }
 }
 
@@ -487,19 +493,22 @@ class ExpensesPageSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.auto(context: context, child: Column(
-      children: [
-        const ExpenseSummarySkeleton(),
-        const SizedBox(height: 10),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            itemCount: 5,
-            itemBuilder: (context, index) => const ExpenseCardSkeleton(),
+    return Shimmer.auto(
+      context: context,
+      child: Column(
+        children: [
+          const ExpenseSummarySkeleton(),
+          const SizedBox(height: 10),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              itemCount: 5,
+              itemBuilder: (context, index) => const ExpenseCardSkeleton(),
+            ),
           ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
   }
 }
 
@@ -577,19 +586,22 @@ class AssetsPageSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.auto(context: context, child: Column(
-      children: [
-        const AssetSummarySkeleton(),
-        const SizedBox(height: 10),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: 5,
-            itemBuilder: (context, index) => const AssetCardSkeleton(),
+    return Shimmer.auto(
+      context: context,
+      child: Column(
+        children: [
+          const AssetSummarySkeleton(),
+          const SizedBox(height: 10),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: 5,
+              itemBuilder: (context, index) => const AssetCardSkeleton(),
+            ),
           ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
   }
 }
 
@@ -602,39 +614,40 @@ class DashboardPageSkeleton extends StatelessWidget {
     return Shimmer.auto(
       context: context,
       child: const SingleChildScrollView(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Greeting
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ShimmerBox(width: 120, height: 16, borderRadius: 4),
-                  SizedBox(height: 8),
-                  ShimmerBox(width: 180, height: 28, borderRadius: 6),
-                ],
-              ),
-              ShimmerBox(width: 50, height: 50, borderRadius: 25),
-            ],
-          ),
-          SizedBox(height: 24),
-          // Balance Card
-          ShimmerBox(height: 140, borderRadius: 24),
-          SizedBox(height: 12),
-          // Credit Debt Card
-          ShimmerBox(height: 80, borderRadius: 20),
-          SizedBox(height: 20),
-          // Monthly Summary Card
-          ShimmerBox(height: 120, borderRadius: 20),
-          SizedBox(height: 20),
-          // Budget Status Card
-          ShimmerBox(height: 180, borderRadius: 20),
-        ],
+        padding: EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Greeting
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ShimmerBox(width: 120, height: 16, borderRadius: 4),
+                    SizedBox(height: 8),
+                    ShimmerBox(width: 180, height: 28, borderRadius: 6),
+                  ],
+                ),
+                ShimmerBox(width: 50, height: 50, borderRadius: 25),
+              ],
+            ),
+            SizedBox(height: 24),
+            // Balance Card
+            ShimmerBox(height: 140, borderRadius: 24),
+            SizedBox(height: 12),
+            // Credit Debt Card
+            ShimmerBox(height: 80, borderRadius: 20),
+            SizedBox(height: 20),
+            // Monthly Summary Card
+            ShimmerBox(height: 120, borderRadius: 20),
+            SizedBox(height: 20),
+            // Budget Status Card
+            ShimmerBox(height: 180, borderRadius: 20),
+          ],
+        ),
       ),
-    ));
+    );
   }
 }

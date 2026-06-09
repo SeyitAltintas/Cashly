@@ -26,10 +26,12 @@ class AuthRepositoryImpl implements AuthRepository {
     return Hive.box(_sessionBoxName);
   }
 
-  bool _isHashed(String pin) => (pin.startsWith(r'$2a$') || pin.startsWith(r'$2b$')) && pin.length == 60;
+  bool _isHashed(String pin) =>
+      (pin.startsWith(r'$2a$') || pin.startsWith(r'$2b$')) && pin.length == 60;
 
   String _hashPinIfNeeded(String pin) {
-    if (pin.isEmpty) return pin; // Empty pins (e.g. from getAllUsers ghost list) shouldn't be hashed
+    if (pin.isEmpty)
+      return pin; // Empty pins (e.g. from getAllUsers ghost list) shouldn't be hashed
     if (_isHashed(pin)) return pin;
     return BCrypt.hashpw(pin, BCrypt.gensalt());
   }
@@ -100,10 +102,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
     if (userData != null) {
       final user = UserModel.fromMap(Map<String, dynamic>.from(userData));
-      
+
       bool isMatch = false;
       bool needsMigration = false;
-      
+
       if (_isHashed(user.pin)) {
         try {
           isMatch = BCrypt.checkpw(pin, user.pin);
@@ -310,7 +312,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> updateUserPin(String userId, String currentPin, String newPin) async {
+  Future<void> updateUserPin(
+    String userId,
+    String currentPin,
+    String newPin,
+  ) async {
     final box = await _getUsersBox();
     final userData = box.get(userId);
 
@@ -346,12 +352,10 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
-
   @override
   Future<void> sendPinResetOtp(String email) async {
     // Sadece Firestore versiyonunda implemente edilir.
   }
-
 
   // --- GÜVENLİK YAMASI: Offline Brute-force Koruma Metodları ---
   Future<int> getFailedOfflineAttempts(String userId) async {

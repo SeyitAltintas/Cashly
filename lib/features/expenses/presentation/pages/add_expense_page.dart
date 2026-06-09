@@ -89,7 +89,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
     _controller?.addListener(_onFormStateChanged);
 
     // Varsayılan kategori
-    final defaultCategory = _categoryIcons.isNotEmpty ? _categoryIcons.keys.first : 'Genel';
+    final defaultCategory = _categoryIcons.isNotEmpty
+        ? _categoryIcons.keys.first
+        : 'Genel';
 
     if (widget.expenseToEdit != null) {
       _nameController.text = widget.expenseToEdit!['isim'];
@@ -107,8 +109,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
           DateTime.tryParse(widget.expenseToEdit!['tarih'].toString()) ??
           DateTime.now();
       final rawEditPaymentMethodId = widget.expenseToEdit!['odemeYontemiId'];
-      final editPaymentMethodId = widget.paymentMethods.any((pm) => pm.id == rawEditPaymentMethodId) 
-          ? rawEditPaymentMethodId 
+      final editPaymentMethodId =
+          widget.paymentMethods.any((pm) => pm.id == rawEditPaymentMethodId)
+          ? rawEditPaymentMethodId
           : null;
       _localSelectedCurrency =
           widget.expenseToEdit!['paraBirimi']?.toString() ??

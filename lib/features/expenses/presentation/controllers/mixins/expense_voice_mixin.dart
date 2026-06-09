@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import '../../../../../core/services/speech/speech_service.dart';
 
 mixin ExpenseVoiceMixin on ChangeNotifier {
-
   bool _voiceIsListening = false;
   bool get voiceIsListening => _voiceIsListening;
 

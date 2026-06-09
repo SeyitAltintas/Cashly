@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// Tools Controller
 /// Araçlar sayfası için ChangeNotifier tabanlı state yönetimi sağlar.
 /// Navigasyon durumu ve haptic feedback ayarlarını yönetir.

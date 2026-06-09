@@ -60,7 +60,9 @@ class ForgotPasswordHelper {
                       "Kayıtlı e-posta adresinize şifrenizi sıfırlayabileceğiniz bir bağlantı göndereceğiz.",
                       style: TextStyle(
                         fontSize: 14,
-                        color: Theme.of(sheetContext).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Theme.of(
+                          sheetContext,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -83,13 +85,16 @@ class ForgotPasswordHelper {
 
                               setSheetState(() => isSending = true);
 
-                              final user = await authController.getUserByEmail(email);
+                              final user = await authController.getUserByEmail(
+                                email,
+                              );
                               if (!context.mounted) return;
 
                               if (user == null) {
                                 setSheetState(() {
                                   isSending = false;
-                                  errorMessage = context.l10n.userNotFoundWithEmail;
+                                  errorMessage =
+                                      context.l10n.userNotFoundWithEmail;
                                 });
                                 return;
                               }
@@ -100,7 +105,10 @@ class ForgotPasswordHelper {
                                 if (context.mounted) {
                                   setSheetState(() {
                                     isSending = false;
-                                    errorMessage = e.toString().replaceAll('Exception: ', '');
+                                    errorMessage = e.toString().replaceAll(
+                                      'Exception: ',
+                                      '',
+                                    );
                                   });
                                 }
                                 return;
@@ -163,25 +171,38 @@ class ForgotPasswordHelper {
       keyboardType: TextInputType.emailAddress,
       style: TextStyle(color: Theme.of(ctx).colorScheme.onSurface),
       onChanged: (_) => onChanged(),
-      decoration: _inputDecoration(ctx, context.l10n.emailLabel, Icons.email_outlined),
+      decoration: _inputDecoration(
+        ctx,
+        context.l10n.emailLabel,
+        Icons.email_outlined,
+      ),
       validator: (value) {
-        if (value == null || value.trim().isEmpty) return context.l10n.pleaseEnterEmail;
+        if (value == null || value.trim().isEmpty)
+          return context.l10n.pleaseEnterEmail;
         final emailRegex = RegExp(r'^[\w.+\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}');
-        if (!emailRegex.hasMatch(value.trim())) return context.l10n.enterValidEmail;
+        if (!emailRegex.hasMatch(value.trim()))
+          return context.l10n.enterValidEmail;
         return null;
       },
     );
   }
 
-
-  InputDecoration _inputDecoration(BuildContext ctx, String label, IconData icon) {
+  InputDecoration _inputDecoration(
+    BuildContext ctx,
+    String label,
+    IconData icon,
+  ) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: Theme.of(ctx).colorScheme.onSurface.withAlpha(180)),
+      labelStyle: TextStyle(
+        color: Theme.of(ctx).colorScheme.onSurface.withAlpha(180),
+      ),
       prefixIcon: Icon(icon, color: Theme.of(ctx).colorScheme.secondary),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
-        borderSide: BorderSide(color: Theme.of(ctx).colorScheme.onSurface.withAlpha(60)),
+        borderSide: BorderSide(
+          color: Theme.of(ctx).colorScheme.onSurface.withAlpha(60),
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
@@ -227,7 +248,9 @@ class ForgotPasswordHelper {
               child: Text(
                 success ?? error!,
                 style: TextStyle(
-                  color: isSuccess ? Colors.green : Theme.of(ctx).colorScheme.error,
+                  color: isSuccess
+                      ? Colors.green
+                      : Theme.of(ctx).colorScheme.error,
                   fontSize: 14,
                 ),
               ),
@@ -253,14 +276,18 @@ class ForgotPasswordHelper {
           backgroundColor: enabled
               ? Theme.of(ctx).colorScheme.primary
               : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: enabled ? Colors.white : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.38),
+            color: enabled
+                ? Colors.white
+                : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.38),
           ),
         ),
       ),

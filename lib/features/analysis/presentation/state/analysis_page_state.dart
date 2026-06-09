@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// Analiz sayfası için ChangeNotifier state yöneticisi
 class AnalysisPageState extends ChangeNotifier with SafeNotifierMixin {
   int _touchedIndex = -1;

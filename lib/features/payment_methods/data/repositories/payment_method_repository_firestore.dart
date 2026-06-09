@@ -35,7 +35,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         _defaultPaymentMethods;
   }
 
-  // GÜVENLİK/KARARLILIK YAMASI: 
+  // GÜVENLİK/KARARLILIK YAMASI:
   // Firestore verisi içindeki Timestamp'ler Hive'da desteklenmediğinden
   // okunurken her zaman String (ISO-8601) formatına dönüştürülmelidir.
   Map<String, dynamic> _sanitizeMap(Map<String, dynamic> map) {
@@ -69,7 +69,9 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         // (mevcut cache'i koruyoruz), UI için default değer döndürüyoruz.
         return _defaultPaymentMethods;
       }
-      final methods = snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();
+      final methods = snapshot.docs
+          .map((doc) => _sanitizeMap(doc.data()))
+          .toList();
       CacheService.set('payment_methods_$userId', methods);
       return methods;
     });
@@ -101,7 +103,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore ödeme yöntemi ekleme hatası: $e');
-      ErrorLoggerService.logError('Firestore ödeme yöntemi ekleme hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore ödeme yöntemi ekleme hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -133,7 +138,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore ödeme yöntemi güncelleme hatası: $e');
-      ErrorLoggerService.logError('Firestore ödeme yöntemi güncelleme hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore ödeme yöntemi güncelleme hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -157,7 +165,8 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
     return FirestoreBatchOperation(
       collectionPath: 'users/$userId/paymentMethods',
       documentId: method['id'].toString(),
-      type: BatchOperationType.set, // GÜVENLİK YAMASI: Default methodlar db'de olmayabilir, set(merge) davranışı gerekir
+      type: BatchOperationType
+          .set, // GÜVENLİK YAMASI: Default methodlar db'de olmayabilir, set(merge) davranışı gerekir
       merge: true,
       data: data,
     );
@@ -176,7 +185,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
     return FirestoreBatchOperation(
       collectionPath: 'users/$userId/paymentMethods',
       documentId: methodId,
-      type: BatchOperationType.set, 
+      type: BatchOperationType.set,
       merge: true,
       data: {
         'balance': FieldValue.increment(amountDelta),
@@ -234,7 +243,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       CacheService.set(cacheKey, cached);
     } catch (e, stackTrace) {
       debugPrint('Firestore ödeme yöntemi silme hatası: $e');
-      ErrorLoggerService.logError('Firestore ödeme yöntemi silme hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore ödeme yöntemi silme hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -270,7 +282,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Silinen ödeme yöntemi ekleme hatası: $e');
-      ErrorLoggerService.logError('Silinen ödeme yöntemi ekleme hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Silinen ödeme yöntemi ekleme hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -293,7 +308,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       CacheService.set(cacheKey, cached);
     } catch (e, stackTrace) {
       debugPrint('Silinen ödeme yöntemi kalıcı silme hatası: $e');
-      ErrorLoggerService.logError('Silinen ödeme yöntemi kalıcı silme hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Silinen ödeme yöntemi kalıcı silme hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -314,7 +332,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Varsayılan ödeme yöntemi kaydedilirken hata: $e');
-      ErrorLoggerService.logError('Varsayılan ödeme yöntemi kaydedilirken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Varsayılan ödeme yöntemi kaydedilirken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -332,21 +353,26 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
-          final transfers = snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();
+          final transfers = snapshot.docs
+              .map((doc) => _sanitizeMap(doc.data()))
+              .toList();
           CacheService.set('transfers_$userId', transfers);
           return transfers;
         });
   }
 
   @override
-  BatchOperation getAddTransferOperation(String userId, Map<String, dynamic> transfer) {
+  BatchOperation getAddTransferOperation(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) {
     if ((transfer['id']?.toString() ?? '').isEmpty) {
       throw Exception('Transfer eklenirken ID eksik!');
     }
-    
+
     final data = Map<String, dynamic>.from(transfer);
     data['updatedAt'] = FieldValue.serverTimestamp();
-    
+
     return FirestoreBatchOperation(
       collectionPath: 'users/$userId/transfers',
       documentId: transfer['id'].toString(),
@@ -356,14 +382,17 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
   }
 
   @override
-  BatchOperation getUpdateTransferOperation(String userId, Map<String, dynamic> transfer) {
+  BatchOperation getUpdateTransferOperation(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) {
     if ((transfer['id']?.toString() ?? '').isEmpty) {
       throw Exception('Transfer güncellenirken ID eksik!');
     }
-    
+
     final data = Map<String, dynamic>.from(transfer);
     data['updatedAt'] = FieldValue.serverTimestamp();
-    
+
     return FirestoreBatchOperation(
       collectionPath: 'users/$userId/transfers',
       documentId: transfer['id'].toString(),
@@ -394,7 +423,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore transfer ekleme hatası: $e');
-      ErrorLoggerService.logError('Firestore transfer ekleme hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore transfer ekleme hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -425,7 +457,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore transfer güncelleme hatası: $e');
-      ErrorLoggerService.logError('Firestore transfer güncelleme hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore transfer güncelleme hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -443,7 +478,10 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
       CacheService.set(cacheKey, cached);
     } catch (e, stackTrace) {
       debugPrint('Firestore transfer silme hatası: $e');
-      ErrorLoggerService.logError('Firestore transfer silme hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore transfer silme hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }

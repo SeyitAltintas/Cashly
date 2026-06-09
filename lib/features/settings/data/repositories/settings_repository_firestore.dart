@@ -46,7 +46,10 @@ class SettingsRepositoryFirestore implements SettingsRepository {
       return value;
     } catch (e, stackTrace) {
       debugPrint('Firestore sesli geri bildirim ayarı okunurken hata: $e');
-      ErrorLoggerService.logError('Firestore sesli geri bildirim ayarı okunurken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore sesli geri bildirim ayarı okunurken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       return true;
     }
   }
@@ -60,7 +63,10 @@ class SettingsRepositoryFirestore implements SettingsRepository {
       CacheService.set('voice_feedback_$userId', enabled);
     } catch (e, stackTrace) {
       debugPrint('Firestore sesli geri bildirim ayarı kaydedilirken hata: $e');
-      ErrorLoggerService.logError('Firestore sesli geri bildirim ayarı kaydedilirken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore sesli geri bildirim ayarı kaydedilirken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -93,7 +99,10 @@ class SettingsRepositoryFirestore implements SettingsRepository {
       return limit;
     } catch (e, stackTrace) {
       debugPrint('Firestore transfer geçmişi limiti okunurken hata: $e');
-      ErrorLoggerService.logError('Firestore transfer geçmişi limiti okunurken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore transfer geçmişi limiti okunurken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       return 30;
     }
   }
@@ -111,7 +120,10 @@ class SettingsRepositoryFirestore implements SettingsRepository {
       CacheService.set('transfer_limit_$userId', safeLimit);
     } catch (e, stackTrace) {
       debugPrint('Firestore transfer geçmişi limiti kaydedilirken hata: $e');
-      ErrorLoggerService.logError('Firestore transfer geçmişi limiti kaydedilirken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore transfer geçmişi limiti kaydedilirken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -168,10 +180,14 @@ class SettingsRepositoryFirestore implements SettingsRepository {
       debugPrint('✓ Tüm Firestore kullanıcı verileri silindi: $userId');
     } catch (e, stackTrace) {
       debugPrint('Firestore kullanıcı verileri silinirken hata: $e');
-      ErrorLoggerService.logError('Firestore kullanıcı verileri silinirken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore kullanıcı verileri silinirken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
+
   @override
   Future<void> deleteAllFinancialData(String userId) async {
     if (NetworkService().isOffline) {
@@ -179,7 +195,7 @@ class SettingsRepositoryFirestore implements SettingsRepository {
         'Verilerinizi tamamen silebilmemiz için internet bağlantısı gereklidir. Lütfen internetinizi kontrol edip tekrar deneyin.',
       );
     }
-    
+
     try {
       final userDoc = _firestore.collection('users').doc(userId);
 
@@ -237,20 +253,25 @@ class SettingsRepositoryFirestore implements SettingsRepository {
             .collection('settings')
             .doc('income')
             .update({
-          'monthlyIncomeTarget': FieldValue.delete(),
-          'recurringIncomes': FieldValue.delete(),
-        });
+              'monthlyIncomeTarget': FieldValue.delete(),
+              'recurringIncomes': FieldValue.delete(),
+            });
       } catch (_) {
         // Doküman yoksa yoksay
       }
 
       // Cache'deki tüm verileri temizle (Sadece in-memory cache olduğu için sorun yok, ayarlar Hive'dan tekrar okunur)
       CacheService.clear();
-      
-      debugPrint('✓ Tüm Firestore finansal kullanıcı verileri silindi: $userId');
+
+      debugPrint(
+        '✓ Tüm Firestore finansal kullanıcı verileri silindi: $userId',
+      );
     } catch (e, stackTrace) {
       debugPrint('Firestore finansal kullanıcı verileri silinirken hata: $e');
-      ErrorLoggerService.logError('Firestore finansal kullanıcı verileri silinirken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore finansal kullanıcı verileri silinirken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }

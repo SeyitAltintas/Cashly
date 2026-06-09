@@ -72,7 +72,9 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              ...unlimitedCategories.map((cat) => _buildUnlimitedCategoryCard(context, cat)),
+              ...unlimitedCategories.map(
+                (cat) => _buildUnlimitedCategoryCard(context, cat),
+              ),
             ],
 
             const SizedBox(height: 32),

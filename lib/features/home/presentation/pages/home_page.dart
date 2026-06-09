@@ -87,10 +87,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    
+
     // FPS Optimizasyonu: Sık kullanılan logoyu uygulama genelinde belleğe al.
     precacheImage(const AssetImage('assets/image/seffaflogo.png'), context);
-    
+
     if (!_transferKontrolYapildi) {
       _transferKontrolYapildi = true;
       final userId = widget.authController.currentUser?.id;
@@ -258,24 +258,55 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
   Widget _buildToolsPage() {
     return ToolsPage(
-      onAssetsPressed: ({bool replace = false, DateTime? initialDate}) => HomeNavigationHelper.navigateToAssets(
-        context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending, replace: replace, initialDate: initialDate
-      ),
+      onAssetsPressed: ({bool replace = false, DateTime? initialDate}) =>
+          HomeNavigationHelper.navigateToAssets(
+            context: context,
+            state: _homeState,
+            authController: widget.authController,
+            onReturn: _showCelebrationIfPending,
+            replace: replace,
+            initialDate: initialDate,
+          ),
       onAnalysisPressed: () => HomeNavigationHelper.navigateToAnalysis(
-        context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending, onDataRefresh: _verileriOku
+        context: context,
+        state: _homeState,
+        authController: widget.authController,
+        onReturn: _showCelebrationIfPending,
+        onDataRefresh: _verileriOku,
       ),
-      onPaymentMethodsPressed: () => HomeNavigationHelper.navigateToPaymentMethods(
-        context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending
-      ),
+      onPaymentMethodsPressed: () =>
+          HomeNavigationHelper.navigateToPaymentMethods(
+            context: context,
+            state: _homeState,
+            authController: widget.authController,
+            onReturn: _showCelebrationIfPending,
+          ),
       onTransferPressed: () => HomeNavigationHelper.navigateToTransfer(
-        context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending
+        context: context,
+        state: _homeState,
+        authController: widget.authController,
+        onReturn: _showCelebrationIfPending,
       ),
-      onExpensesPressed: ({bool replace = false, DateTime? initialDate}) => HomeNavigationHelper.navigateToExpenses(
-        context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending, onDataRefresh: _verileriOku, replace: replace, initialDate: initialDate
-      ),
-      onIncomesPressed: ({bool replace = false, DateTime? initialDate}) => HomeNavigationHelper.navigateToIncomes(
-        context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending, onDataRefresh: _verileriOku, replace: replace, initialDate: initialDate
-      ),
+      onExpensesPressed: ({bool replace = false, DateTime? initialDate}) =>
+          HomeNavigationHelper.navigateToExpenses(
+            context: context,
+            state: _homeState,
+            authController: widget.authController,
+            onReturn: _showCelebrationIfPending,
+            onDataRefresh: _verileriOku,
+            replace: replace,
+            initialDate: initialDate,
+          ),
+      onIncomesPressed: ({bool replace = false, DateTime? initialDate}) =>
+          HomeNavigationHelper.navigateToIncomes(
+            context: context,
+            state: _homeState,
+            authController: widget.authController,
+            onReturn: _showCelebrationIfPending,
+            onDataRefresh: _verileriOku,
+            replace: replace,
+            initialDate: initialDate,
+          ),
     );
   }
 
@@ -357,15 +388,20 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             streakData: _streakData,
             transferler: tumTransferler,
             categoryBudgets: categoryBudgets,
-            onAssetsPressed: ({bool replace = false, DateTime? initialDate}) => HomeNavigationHelper.navigateToAssets(
-              context: context, state: _homeState, authController: widget.authController, onReturn: _showCelebrationIfPending, replace: replace, initialDate: initialDate
-            ),
+            onAssetsPressed: ({bool replace = false, DateTime? initialDate}) =>
+                HomeNavigationHelper.navigateToAssets(
+                  context: context,
+                  state: _homeState,
+                  authController: widget.authController,
+                  onReturn: _showCelebrationIfPending,
+                  replace: replace,
+                  initialDate: initialDate,
+                ),
           ),
         );
       },
     );
   }
-
 }
 
 /// M3 uyumlu dinamik AppBar

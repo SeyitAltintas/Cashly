@@ -556,5 +556,4 @@ extension AssetInsightsExtension on _AnalysisPageState {
       ],
     );
   }
-
 }

@@ -340,7 +340,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
       },
     );
   }
-
 }
 
 /// Ödeme yöntemi kartı — ayrı StatelessWidget olarak izole edildi.
@@ -404,36 +403,37 @@ class _PaymentMethodCard extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => AddPaymentMethodPage(
                   paymentMethod: pm,
-                  onSave: (
-                    name,
-                    type,
-                    lastFourDigits,
-                    balance,
-                    limit,
-                    colorIndex,
-                  ) async {
-                    try {
-                      final updatedPm = PaymentMethod(
-                        id: pm.id,
-                        name: name,
-                        type: type,
-                        lastFourDigits: lastFourDigits,
-                        balance: balance,
-                        limit: limit,
-                        colorIndex: colorIndex,
-                        createdAt: pm.createdAt,
-                        isDeleted: false,
-                        paraBirimi: pm.paraBirimi,
-                      );
-                      await controller.updateMethod(updatedPm);
-                      onEdit(updatedPm);
-                    } catch (e) {
-                      if (!context.mounted) return;
-                      if (e is AppException) {
-                        ErrorHandler.handleAppException(context, e);
-                      }
-                    }
-                  },
+                  onSave:
+                      (
+                        name,
+                        type,
+                        lastFourDigits,
+                        balance,
+                        limit,
+                        colorIndex,
+                      ) async {
+                        try {
+                          final updatedPm = PaymentMethod(
+                            id: pm.id,
+                            name: name,
+                            type: type,
+                            lastFourDigits: lastFourDigits,
+                            balance: balance,
+                            limit: limit,
+                            colorIndex: colorIndex,
+                            createdAt: pm.createdAt,
+                            isDeleted: false,
+                            paraBirimi: pm.paraBirimi,
+                          );
+                          await controller.updateMethod(updatedPm);
+                          onEdit(updatedPm);
+                        } catch (e) {
+                          if (!context.mounted) return;
+                          if (e is AppException) {
+                            ErrorHandler.handleAppException(context, e);
+                          }
+                        }
+                      },
                 ),
               ),
             );

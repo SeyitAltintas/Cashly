@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 mixin ExpenseCategoryMgmtMixin on ChangeNotifier {
-
   // Kategori listesi
   List<Map<String, dynamic>> _catMgmtKategoriler = [];
   List<Map<String, dynamic>> get catMgmtKategoriler => _catMgmtKategoriler;

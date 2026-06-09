@@ -32,7 +32,7 @@ class IncomeRepositoryFirestore implements IncomeRepository {
     return [];
   }
 
-  // GÜVENLİK/KARARLILIK YAMASI: 
+  // GÜVENLİK/KARARLILIK YAMASI:
   // Firestore verisi içinde 'date' harici (örneğin 'updatedAt') dönen herhangi bir Timestamp
   // Hive tarafında desteklenmediği için çökmeye sebep olur. Hepsini bulup String'e çeviren yardımcı:
   Map<String, dynamic> _sanitizeMap(Map<String, dynamic> map) {
@@ -56,15 +56,17 @@ class IncomeRepositoryFirestore implements IncomeRepository {
   }
 
   Stream<List<Map<String, dynamic>>> watchIncomes(String userId) {
-    return _userDoc(
-      userId,
-    ).collection('incomes').orderBy('date', descending: true).snapshots().map((
-      snapshot,
-    ) {
-      final incomes = snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();
-      CacheService.set('incomes_$userId', incomes);
-      return incomes;
-    });
+    return _userDoc(userId)
+        .collection('incomes')
+        .orderBy('date', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          final incomes = snapshot.docs
+              .map((doc) => _sanitizeMap(doc.data()))
+              .toList();
+          CacheService.set('incomes_$userId', incomes);
+          return incomes;
+        });
   }
 
   @override
@@ -110,7 +112,10 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       return snap.docs.map((doc) => _sanitizeMap(doc.data())).toList();
     } catch (e, stackTrace) {
       debugPrint('fetchIncomesForDateRange hatası: $e');
-      ErrorLoggerService.logError('fetchIncomesForDateRange hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'fetchIncomesForDateRange hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
       return [];
     }
   }
@@ -141,7 +146,10 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore gelir ekleme hatası: $e');
-      ErrorLoggerService.logError('Firestore gelir ekleme hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore gelir ekleme hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -173,7 +181,10 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       }
     } catch (e, stackTrace) {
       debugPrint('Firestore gelir güncelleme hatası: $e');
-      ErrorLoggerService.logError('Firestore gelir güncelleme hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore gelir güncelleme hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -247,7 +258,10 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       CacheService.set(cacheKey, cached);
     } catch (e, stackTrace) {
       debugPrint('Firestore gelir silme hatası: $e');
-      ErrorLoggerService.logError('Firestore gelir silme hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Firestore gelir silme hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -259,7 +273,7 @@ class IncomeRepositoryFirestore implements IncomeRepository {
         'income_categories_$userId',
       );
       if (cached != null && cached.isNotEmpty) return cached;
-      
+
       // Cache boşsa veya null ise sadece defaultları döndür.
       // Firestore'a kaydetmeye çalışmak custom kategorileri silebilir!
       return defaultCategories;
@@ -296,7 +310,10 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       debugPrint('Gelir kategorileri zaman aşımı.');
     } catch (e, stackTrace) {
       debugPrint('Gelir kategorileri kaydedilirken hata: $e');
-      ErrorLoggerService.logError('Gelir kategorileri kaydedilirken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Gelir kategorileri kaydedilirken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -357,7 +374,10 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       CacheService.set('recurring_incomes_$userId', incomes);
     } catch (e, stackTrace) {
       debugPrint('Tekrarlayan gelirler kaydedilirken hata: $e');
-      ErrorLoggerService.logError('Tekrarlayan gelirler kaydedilirken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Tekrarlayan gelirler kaydedilirken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -392,7 +412,10 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       CacheService.set('income_target_$userId', target);
     } catch (e, stackTrace) {
       debugPrint('Gelir hedefi kaydedilirken hata: $e');
-      ErrorLoggerService.logError('Gelir hedefi kaydedilirken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Gelir hedefi kaydedilirken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }
@@ -423,7 +446,10 @@ class IncomeRepositoryFirestore implements IncomeRepository {
       CacheService.set('income_templates_$userId', templates);
     } catch (e, stackTrace) {
       debugPrint('Tekrarlayan gelir şablonları kaydedilirken hata: $e');
-      ErrorLoggerService.logError('Tekrarlayan gelir şablonları kaydedilirken hata: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'Tekrarlayan gelir şablonları kaydedilirken hata: $e',
+        stackTrace: stackTrace.toString(),
+      );
       rethrow;
     }
   }

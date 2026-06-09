@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 import 'package:cashly/core/services/error_logger_service.dart';
 
-
 /// Network bağlantı durumlarını temsil eden enum
 enum NetworkStatus {
   /// İnternet bağlantısı var
@@ -65,7 +64,7 @@ class NetworkService extends ChangeNotifier with SafeNotifierMixin {
   Future<void> initialize() async {
     // Prevent multiple initializations (Memory Leak / Edge Case Fix)
     if (_subscription != null) return;
-    
+
     // Değişiklikleri dinle (İlk durum kontrolünden önce başlatılır ki timeout olsa bile dinlemeye devam etsin)
     _subscription = _connectivity.onConnectivityChanged.listen(
       _updateStatus,
@@ -76,7 +75,9 @@ class NetworkService extends ChangeNotifier with SafeNotifierMixin {
 
     try {
       // İlk durum kontrolü (App Launch Hang Edge Case Fix: Timeout eklendi)
-      final results = await _connectivity.checkConnectivity().timeout(const Duration(seconds: 5));
+      final results = await _connectivity.checkConnectivity().timeout(
+        const Duration(seconds: 5),
+      );
       _updateStatus(results);
     } catch (e) {
       _setStatus(NetworkStatus.unknown);
@@ -102,15 +103,17 @@ class NetworkService extends ChangeNotifier with SafeNotifierMixin {
 
     if (_status != newStatus) {
       _status = newStatus;
-      
+
       if (!_statusController.isClosed) {
-        _statusController.add(_status); // Edge Case: Kapalı stream'e veri eklemeyi önle
+        _statusController.add(
+          _status,
+        ); // Edge Case: Kapalı stream'e veri eklemeyi önle
       }
-      
+
       if (_status == NetworkStatus.online) {
         ErrorLoggerService.flushLogsToCloud();
       }
-      
+
       notifyListeners();
     }
   }
@@ -118,7 +121,9 @@ class NetworkService extends ChangeNotifier with SafeNotifierMixin {
   /// Mevcut bağlantı durumunu manuel olarak kontrol eder
   Future<NetworkStatus> checkConnection() async {
     try {
-      final results = await _connectivity.checkConnectivity().timeout(const Duration(seconds: 5));
+      final results = await _connectivity.checkConnectivity().timeout(
+        const Duration(seconds: 5),
+      );
       _updateStatus(results);
       return _status;
     } catch (e) {

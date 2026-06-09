@@ -31,7 +31,9 @@ class ExpenseListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     // Parse date once to prevent parsing multiple times per frame
     final dateStr = harcama['tarih'];
-    final parsedDate = dateStr != null ? DateTime.tryParse(dateStr.toString()) : null;
+    final parsedDate = dateStr != null
+        ? DateTime.tryParse(dateStr.toString())
+        : null;
 
     // RepaintBoundary: Bu liste öğesinin repaint'ini izole eder
     return RepaintBoundary(

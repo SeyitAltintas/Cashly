@@ -65,7 +65,9 @@ class _BadgeItem extends StatelessWidget {
           border: Border.all(
             color: isEarned
                 ? badge.color.withValues(alpha: 0.5)
-                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                : Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -76,13 +78,18 @@ class _BadgeItem extends StatelessWidget {
               badge.icon,
               color: isEarned
                   ? badge.color
-                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.3),
               size: 28,
             ),
             const SizedBox(height: 4),
             Text(
               badge.emoji,
-              style: TextStyle(fontSize: 16, color: isEarned ? null : Colors.grey),
+              style: TextStyle(
+                fontSize: 16,
+                color: isEarned ? null : Colors.grey,
+              ),
             ),
             const SizedBox(height: 2),
             Text(
@@ -91,7 +98,9 @@ class _BadgeItem extends StatelessWidget {
                 fontSize: 10,
                 color: isEarned
                     ? badge.color
-                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.4),
               ),
             ),
           ],

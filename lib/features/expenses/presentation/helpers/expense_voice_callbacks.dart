@@ -81,7 +81,12 @@ class ExpenseVoiceCallbacks {
       son['tutar'] = yeniTutar;
     }
     onHarcamalarChanged(tumHarcamalar);
-    return {'isim': isim, 'eskiTutar': eskiTutar, 'yeniTutar': yeniTutar, 'silindi': yeniTutar == 0};
+    return {
+      'isim': isim,
+      'eskiTutar': eskiTutar,
+      'yeniTutar': yeniTutar,
+      'silindi': yeniTutar == 0,
+    };
   }
 
   /// Sabit gider şablonlarını bu ayın harcamalarına ekler.
@@ -118,5 +123,8 @@ void showExpenseAddedSnackBar(
   String addedLabel,
   String expenseLabel,
 ) {
-  AppSnackBar.success(context, '$expenseLabel $addedLabel: $name - $formattedAmount');
+  AppSnackBar.success(
+    context,
+    '$expenseLabel $addedLabel: $name - $formattedAmount',
+  );
 }

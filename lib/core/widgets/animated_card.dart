@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 /// Animasyonlu kart wrapper widget'ı
@@ -16,10 +17,13 @@ class AnimatedCard extends StatefulWidget {
   State<AnimatedCard> createState() => _AnimatedCardState();
 }
 
-class _AnimatedCardState extends State<AnimatedCard> with SingleTickerProviderStateMixin {
+class _AnimatedCardState extends State<AnimatedCard>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
   late final Animation<Offset> _slideAnimation;
+
+  Timer? _timer;
 
   @override
   void initState() {
@@ -29,40 +33,45 @@ class _AnimatedCardState extends State<AnimatedCard> with SingleTickerProviderSt
       duration: const Duration(milliseconds: 500),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.15),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     // FPS Optimizasyonu: Animasyonu delay süresi kadar gecikmeli başlat
-    Future.delayed(Duration(milliseconds: widget.delay), () {
-      if (mounted) {
-        _controller.forward();
-      }
-    });
+    if (widget.delay > 0) {
+      _timer = Timer(Duration(milliseconds: widget.delay), () {
+        if (mounted) {
+          _controller.forward();
+        }
+      });
+    } else {
+      _controller.forward();
+    }
   }
 
   @override
   void dispose() {
+    _timer?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // FPS Optimizasyonu: 
+    // FPS Optimizasyonu:
     // 1. FadeTransition ve SlideTransition, Opacity ve Transform'a göre native seviyede optimize edilmiştir (SaveLayer tetiklemez).
     // 2. RepaintBoundary, kompleks kart tasarımlarının (gölgeler, gradientler) animasyon boyunca saniyede 60 kez yeniden çizilmesini engeller.
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
         position: _slideAnimation,
-        child: RepaintBoundary(
-          child: widget.child,
-        ),
+        child: RepaintBoundary(child: widget.child),
       ),
     );
   }

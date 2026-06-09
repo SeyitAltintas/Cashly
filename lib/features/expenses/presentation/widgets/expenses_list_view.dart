@@ -46,55 +46,51 @@ class ExpensesListView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             sliver: SliverFixedExtentList(
               itemExtent: 72, // Card + ListTile(vertical:4) + margin(bottom:6)
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  if (index >= gosterilenHarcamalar.length) return null;
+              delegate: SliverChildBuilderDelegate((context, index) {
+                if (index >= gosterilenHarcamalar.length) return null;
 
-                  final harcama = gosterilenHarcamalar[index];
+                final harcama = gosterilenHarcamalar[index];
 
-                  return ExpenseListItem(
-                    harcama: harcama,
-                    categoryIcon:
-                        kategoriIkonlari[harcama['kategori']] ??
-                        IconConstants.getIconFromCategoryName(
-                          harcama['kategori'],
+                return ExpenseListItem(
+                  harcama: harcama,
+                  categoryIcon:
+                      kategoriIkonlari[harcama['kategori']] ??
+                      IconConstants.getIconFromCategoryName(
+                        harcama['kategori'],
+                      ),
+                  paymentMethods: tumOdemeYontemleri,
+                  itemIndex: index,
+                  onDelete: () => onDelete(harcama),
+                  onTap: () {
+                    HapticService.selectionClick();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (ctx) => ExpenseDetailPage(
+                          harcama: harcama,
+                          categoryIcon:
+                              kategoriIkonlari[harcama['kategori']] ??
+                              IconConstants.getIconFromCategoryName(
+                                harcama['kategori'],
+                              ),
+                          paymentMethods: tumOdemeYontemleri,
+                          kategoriIkonlari: kategoriIkonlari,
+                          onEdit: (updatedHarcama) {
+                            onEdit(harcama, updatedHarcama);
+                          },
+                          onDelete: (deletedHarcama) {
+                            onDelete(deletedHarcama);
+                          },
                         ),
-                    paymentMethods: tumOdemeYontemleri,
-                    itemIndex: index,
-                    onDelete: () => onDelete(harcama),
-                    onTap: () {
-                      HapticService.selectionClick();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (ctx) => ExpenseDetailPage(
-                            harcama: harcama,
-                            categoryIcon:
-                                kategoriIkonlari[harcama['kategori']] ??
-                                IconConstants.getIconFromCategoryName(
-                                  harcama['kategori'],
-                                ),
-                            paymentMethods: tumOdemeYontemleri,
-                            kategoriIkonlari: kategoriIkonlari,
-                            onEdit: (updatedHarcama) {
-                              onEdit(harcama, updatedHarcama);
-                            },
-                            onDelete: (deletedHarcama) {
-                              onDelete(deletedHarcama);
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-                childCount: gosterilenHarcamalar.length,
-              ),
+                      ),
+                    );
+                  },
+                );
+              }, childCount: gosterilenHarcamalar.length),
             ),
           ),
           // Lazy loading indikatörü (farklı yükseklikte olduğu için ayrı sliver)
-          if (hasMoreItems)
-            SliverToBoxAdapter(child: buildLoadingIndicator()),
+          if (hasMoreItems) SliverToBoxAdapter(child: buildLoadingIndicator()),
         ],
       ),
     );

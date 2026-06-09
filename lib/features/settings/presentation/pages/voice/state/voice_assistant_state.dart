@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// Sesli asistan ayarları için ChangeNotifier state yöneticisi
 class VoiceAssistantState extends ChangeNotifier with SafeNotifierMixin {
   bool _sesliGeriBildirimAktif = true;

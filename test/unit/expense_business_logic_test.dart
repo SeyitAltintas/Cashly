@@ -141,9 +141,11 @@ class MockExpenseRepository implements ExpenseRepository {
 
 class MockPaymentMethodRepository implements PaymentMethodRepository {
   @override
-  Stream<List<Map<String, dynamic>>> watchPaymentMethods(String userId) => const Stream.empty();
+  Stream<List<Map<String, dynamic>>> watchPaymentMethods(String userId) =>
+      const Stream.empty();
   @override
-  Stream<List<Map<String, dynamic>>> watchTransfers(String userId) => const Stream.empty();
+  Stream<List<Map<String, dynamic>>> watchTransfers(String userId) =>
+      const Stream.empty();
 
   @override
   BatchOperation getAddPaymentMethodOperation(
@@ -156,7 +158,11 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
     Map<String, dynamic> method,
   ) => DummyBatchOperation();
   @override
-  BatchOperation getIncrementBalanceOperation(String userId, String methodId, double amountDelta) {
+  BatchOperation getIncrementBalanceOperation(
+    String userId,
+    String methodId,
+    double amountDelta,
+  ) {
     return DummyBatchOperation();
   }
 
@@ -165,7 +171,10 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
       DummyBatchOperation();
   @override
   @override
-  BatchOperation getUpdateTransferOperation(String userId, Map<String, dynamic> transfer) => DummyBatchOperation();
+  BatchOperation getUpdateTransferOperation(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) => DummyBatchOperation();
 
   @override
   BatchOperation getAddTransferOperation(

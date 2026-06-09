@@ -28,16 +28,27 @@ class MockBatchService implements BatchService {
 
 class MockAssetRepository implements AssetRepository {
   @override
-  Stream<List<Map<String, dynamic>>> watchAssets(String userId) => const Stream.empty();
+  Stream<List<Map<String, dynamic>>> watchAssets(String userId) =>
+      const Stream.empty();
 
   @override
-  BatchOperation getAddAssetOperation(String userId, Map<String, dynamic> asset) => DummyBatchOperation();
+  BatchOperation getAddAssetOperation(
+    String userId,
+    Map<String, dynamic> asset,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getUpdateAssetOperation(String userId, Map<String, dynamic> asset) => DummyBatchOperation();
+  BatchOperation getUpdateAssetOperation(
+    String userId,
+    Map<String, dynamic> asset,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getDeleteAssetOperation(String userId, String id) => DummyBatchOperation();
+  BatchOperation getDeleteAssetOperation(String userId, String id) =>
+      DummyBatchOperation();
   @override
-  Future<void> saveDeletedAssets(String userId, List<Map<String, dynamic>> assets) async {}
+  Future<void> saveDeletedAssets(
+    String userId,
+    List<Map<String, dynamic>> assets,
+  ) async {}
 
   List<Map<String, dynamic>> _assets = [];
   List<Map<String, dynamic>> _deletedAssets = [];
@@ -52,14 +63,15 @@ class MockAssetRepository implements AssetRepository {
   @override
   Future<void> deleteAsset(String userId, String assetId) async {}
   @override
-  Future<void> addDeletedAsset(String userId, Map<String, dynamic> asset) async {}
+  Future<void> addDeletedAsset(
+    String userId,
+    Map<String, dynamic> asset,
+  ) async {}
   @override
   Future<void> removeDeletedAsset(String userId, String assetId) async {}
 
   @override
   List<Map<String, dynamic>> getDeletedAssets(String userId) => _deletedAssets;
-
-
 
   void setAssets(List<Map<String, dynamic>> assets) {
     _assets = assets;
@@ -72,7 +84,11 @@ class MockAssetRepository implements AssetRepository {
 
 void main() {
   setUpAll(() {
-    if (!GetIt.instance.isRegistered<BatchService>()) { GetIt.instance.registerLazySingleton<BatchService>(() => MockBatchService()); }
+    if (!GetIt.instance.isRegistered<BatchService>()) {
+      GetIt.instance.registerLazySingleton<BatchService>(
+        () => MockBatchService(),
+      );
+    }
 
     if (!GetIt.instance.isRegistered<CurrencyService>()) {
       GetIt.instance.registerLazySingleton<CurrencyService>(

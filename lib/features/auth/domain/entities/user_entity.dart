@@ -23,10 +23,14 @@ class UserEntity {
 
   static String _formatName(String name) {
     if (name.trim().isEmpty) return name;
-    return name.trim().split(RegExp(r'\s+')).map((word) {
-      if (word.isEmpty) return '';
-      if (word.length == 1) return word.toUpperCase();
-      return word[0].toUpperCase() + word.substring(1).toLowerCase();
-    }).join(' ');
+    return name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .map((word) {
+          if (word.isEmpty) return '';
+          if (word.length == 1) return word.toUpperCase();
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
   }
 }

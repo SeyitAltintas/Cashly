@@ -287,8 +287,8 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  _types.contains(_selectedType) 
-                      ? _typeLabels[_types.indexOf(_selectedType)] 
+                  _types.contains(_selectedType)
+                      ? _typeLabels[_types.indexOf(_selectedType)]
                       : _selectedType.toUpperCase(),
                   style: const TextStyle(
                     color: Colors.white,

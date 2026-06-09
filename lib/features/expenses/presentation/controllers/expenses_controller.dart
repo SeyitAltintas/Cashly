@@ -14,7 +14,6 @@ import '../../../../core/services/currency_service.dart';
 import '../../../../core/services/batch_service.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// Harcamalar Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
 /// Bu controller ExpensePageState'in yerini alır.
@@ -31,7 +30,8 @@ List<Map<String, dynamic>> _computeFilterExpenses(ExpenseFilterParams params) {
     DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
     if (tarih == null) return false;
     bool ayFiltrelendi =
-        tarih.year == params.secilenAy.year && tarih.month == params.secilenAy.month;
+        tarih.year == params.secilenAy.year &&
+        tarih.month == params.secilenAy.month;
     if (!ayFiltrelendi) return false;
     if (params.aramaMetni.isEmpty) return true;
     String isim = (h['isim'] ?? "").toString().toLowerCase();
@@ -41,14 +41,22 @@ List<Map<String, dynamic>> _computeFilterExpenses(ExpenseFilterParams params) {
   }).toList();
 
   filteredList.sort((a, b) {
-    DateTime tarihA = DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-    DateTime tarihB = DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
+    DateTime tarihA =
+        DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
+    DateTime tarihB =
+        DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
     return tarihB.compareTo(tarihA);
   });
   return filteredList;
 }
 
-class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseFormMixin, ExpenseVoiceMixin, ExpenseCategoryMgmtMixin, ExpenseBinMixin {
+class ExpensesController extends ChangeNotifier
+    with
+        SafeNotifierMixin,
+        ExpenseFormMixin,
+        ExpenseVoiceMixin,
+        ExpenseCategoryMgmtMixin,
+        ExpenseBinMixin {
   final ExpenseRepository _expenseRepository;
   final PaymentMethodRepository _paymentMethodRepository;
   @override
@@ -201,14 +209,13 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
       rethrow;
     } finally {
       if (!isRefresh) {
-        // _isLoading false yapma işlemini _startExpensesStream içindeki listenera bırakıyoruz, 
+        // _isLoading false yapma işlemini _startExpensesStream içindeki listenera bırakıyoruz,
         // böylece veri gelmeden skeleton kaybolmuyor.
         // Ancak stream hemen gelmezse sonsuz yüklemede kalmaması için timeout da konabilir,
         // Firebase snapshot anında çalıştığı için genellikle anında döner.
       }
     }
   }
-
 
   // ===== FİLTRELEME =====
 
@@ -534,7 +541,9 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
             );
             if (pmIdx != -1) {
               final pm = _tumOdemeYontemleri[pmIdx];
-              final delta = pm.type == 'kredi' ? -(eskiTutar ?? 0) : (eskiTutar ?? 0);
+              final delta = pm.type == 'kredi'
+                  ? -(eskiTutar ?? 0)
+                  : (eskiTutar ?? 0);
               operations.add(
                 _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
@@ -684,9 +693,17 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
               final pm = _tumOdemeYontemleri[pmIdx];
               final amountStr = harcama['tutar'].toString();
               final amount = double.tryParse(amountStr) ?? 0.0;
-              final amountCurrency = harcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
-              final convertedAmount = getIt<CurrencyService>().convert(amount, amountCurrency, pm.paraBirimi);
-              final delta = pm.type == 'kredi' ? -convertedAmount : convertedAmount;
+              final amountCurrency =
+                  harcama['paraBirimi']?.toString() ??
+                  getIt<CurrencyService>().currentCurrency;
+              final convertedAmount = getIt<CurrencyService>().convert(
+                amount,
+                amountCurrency,
+                pm.paraBirimi,
+              );
+              final delta = pm.type == 'kredi'
+                  ? -convertedAmount
+                  : convertedAmount;
               operations.add(
                 _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
@@ -786,9 +803,17 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
               final pm = _tumOdemeYontemleri[restorePmIndex];
               final amountStr = harcama['tutar'].toString();
               final amount = double.tryParse(amountStr) ?? 0.0;
-              final amountCurrency = harcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
-              final convertedAmount = getIt<CurrencyService>().convert(amount, amountCurrency, pm.paraBirimi);
-              final delta = pm.type == 'kredi' ? convertedAmount : -convertedAmount;
+              final amountCurrency =
+                  harcama['paraBirimi']?.toString() ??
+                  getIt<CurrencyService>().currentCurrency;
+              final convertedAmount = getIt<CurrencyService>().convert(
+                amount,
+                amountCurrency,
+                pm.paraBirimi,
+              );
+              final delta = pm.type == 'kredi'
+                  ? convertedAmount
+                  : -convertedAmount;
               operations.add(
                 _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
@@ -985,9 +1010,17 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
             );
             if (pmIdx != -1) {
               final pm = _tumOdemeYontemleri[pmIdx];
-              final eskiParaBirimi = duzenlenecekHarcama?['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
-              final convertedAmount = getIt<CurrencyService>().convert(-(eskiTutar ?? 0), eskiParaBirimi, pm.paraBirimi);
-              final delta = pm.type == 'kredi' ? convertedAmount : -convertedAmount;
+              final eskiParaBirimi =
+                  duzenlenecekHarcama?['paraBirimi']?.toString() ??
+                  getIt<CurrencyService>().currentCurrency;
+              final convertedAmount = getIt<CurrencyService>().convert(
+                -(eskiTutar ?? 0),
+                eskiParaBirimi,
+                pm.paraBirimi,
+              );
+              final delta = pm.type == 'kredi'
+                  ? convertedAmount
+                  : -convertedAmount;
               operations.add(
                 _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
@@ -1005,9 +1038,17 @@ class ExpensesController extends ChangeNotifier with SafeNotifierMixin, ExpenseF
             );
             if (pmIdx != -1) {
               final pm = _tumOdemeYontemleri[pmIdx];
-              final yeniParaBirimi = duzenlenecekHarcama?['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency;
-              final convertedAmount = getIt<CurrencyService>().convert(amount, yeniParaBirimi, pm.paraBirimi);
-              final delta = pm.type == 'kredi' ? convertedAmount : -convertedAmount;
+              final yeniParaBirimi =
+                  duzenlenecekHarcama?['paraBirimi']?.toString() ??
+                  getIt<CurrencyService>().currentCurrency;
+              final convertedAmount = getIt<CurrencyService>().convert(
+                amount,
+                yeniParaBirimi,
+                pm.paraBirimi,
+              );
+              final delta = pm.type == 'kredi'
+                  ? convertedAmount
+                  : -convertedAmount;
               operations.add(
                 _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,

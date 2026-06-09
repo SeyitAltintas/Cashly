@@ -46,7 +46,9 @@ class MonthYearPicker extends StatefulWidget {
     PickerMode mode = PickerMode.monthYear,
   }) {
     // Sınır koruması: minimum > maximum ise düzelt
-    if (minimumDate != null && maximumDate != null && minimumDate.isAfter(maximumDate)) {
+    if (minimumDate != null &&
+        maximumDate != null &&
+        minimumDate.isAfter(maximumDate)) {
       final temp = minimumDate;
       minimumDate = maximumDate;
       maximumDate = temp;
@@ -94,30 +96,35 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     _currentDate = widget.initialDate;
 
     // Safety: Ensure _currentDate is within bounds
-    if (widget.minimumDate != null && _currentDate.isBefore(widget.minimumDate!)) {
+    if (widget.minimumDate != null &&
+        _currentDate.isBefore(widget.minimumDate!)) {
       _currentDate = widget.minimumDate!;
     }
-    if (widget.maximumDate != null && _currentDate.isAfter(widget.maximumDate!)) {
+    if (widget.maximumDate != null &&
+        _currentDate.isAfter(widget.maximumDate!)) {
       _currentDate = widget.maximumDate!;
     }
 
     _selectedYear = _currentDate.year;
     _selectedMonthIndex = _currentDate.month - 1;
-    
-    _startYear = widget.minimumDate?.year ?? (_selectedYear < 2000 ? _selectedYear : 2000);
-    _endYear = widget.maximumDate?.year ?? (_selectedYear > 2100 ? _selectedYear : 2100);
+
+    _startYear =
+        widget.minimumDate?.year ??
+        (_selectedYear < 2000 ? _selectedYear : 2000);
+    _endYear =
+        widget.maximumDate?.year ??
+        (_selectedYear > 2100 ? _selectedYear : 2100);
     if (_endYear < _startYear) _endYear = _startYear;
 
     int initialYearItem = _selectedYear - _startYear;
     if (initialYearItem < 0) initialYearItem = 0;
-    if (initialYearItem > (_endYear - _startYear)) initialYearItem = _endYear - _startYear;
+    if (initialYearItem > (_endYear - _startYear))
+      initialYearItem = _endYear - _startYear;
 
     _monthController = FixedExtentScrollController(
       initialItem: _selectedMonthIndex,
     );
-    _yearController = FixedExtentScrollController(
-      initialItem: initialYearItem,
-    );
+    _yearController = FixedExtentScrollController(initialItem: initialYearItem);
 
     _pickerState = MonthYearPickerState();
     _pickerState.initialize(_currentDate);
@@ -192,152 +199,162 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
               ),
               border: Border(
                 top: BorderSide(
-                  color: isDark 
-                      ? Colors.white.withValues(alpha: 0.1) 
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.1)
                       : Colors.white.withValues(alpha: 0.8),
                   width: 1.5,
                 ),
               ),
             ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 48,
-            height: 5,
-            decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.2)
-                  : Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(3),
-            ),
-          ),
-
-          // Header (Başlık ve İkon)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
+                // Handle
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.only(top: 12),
+                  width: 48,
+                  height: 5,
                   decoration: BoxDecoration(
-                    color: useNeutral
-                        ? Colors.white.withValues(alpha: 0.1)
-                        : accentColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    _getIconForMode(widget.mode),
-                    color: useNeutral ? Colors.white : accentColor,
-                    size: 22,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.2)
+                        : Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(3),
                   ),
                 ),
-                const SizedBox(width: 14),
-                Text(
-                  _getTitleForMode(widget.mode),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.5,
+
+                // Header (Başlık ve İkon)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: useNeutral
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : accentColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          _getIconForMode(widget.mode),
+                          color: useNeutral ? Colors.white : accentColor,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Text(
+                        _getTitleForMode(widget.mode),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const Spacer(),
+                      // Tamam Butonu (Header'da da olsun, iOS tarzı)
+                      TextButton(
+                        onPressed: () {
+                          // MonthYear modunda özel işlem, diğerlerinde _currentDate
+                          if (widget.mode == PickerMode.monthYear) {
+                            DateTime finalDate = DateTime(
+                              _selectedYear,
+                              _selectedMonthIndex + 1,
+                            );
+                            if (widget.minimumDate != null &&
+                                finalDate.isBefore(widget.minimumDate!)) {
+                              finalDate = widget.minimumDate!;
+                            }
+                            if (widget.maximumDate != null &&
+                                finalDate.isAfter(widget.maximumDate!)) {
+                              finalDate = widget.maximumDate!;
+                            }
+                            widget.onDateSelected(finalDate);
+                          } else {
+                            DateTime finalDate = _currentDate;
+                            if (widget.minimumDate != null &&
+                                finalDate.isBefore(widget.minimumDate!)) {
+                              finalDate = widget.minimumDate!;
+                            }
+                            if (widget.maximumDate != null &&
+                                finalDate.isAfter(widget.maximumDate!)) {
+                              finalDate = widget.maximumDate!;
+                            }
+                            widget.onDateSelected(finalDate);
+                          }
+                        },
+                        child: Text(
+                          context.l10n.done,
+                          style: TextStyle(
+                            color: useNeutral ? Colors.white : accentColor,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const Spacer(),
-                // Tamam Butonu (Header'da da olsun, iOS tarzı)
-                TextButton(
-                  onPressed: () {
-                    // MonthYear modunda özel işlem, diğerlerinde _currentDate
-                    if (widget.mode == PickerMode.monthYear) {
-                      DateTime finalDate = DateTime(_selectedYear, _selectedMonthIndex + 1);
-                      if (widget.minimumDate != null && finalDate.isBefore(widget.minimumDate!)) {
-                        finalDate = widget.minimumDate!;
-                      }
-                      if (widget.maximumDate != null && finalDate.isAfter(widget.maximumDate!)) {
-                        finalDate = widget.maximumDate!;
-                      }
-                      widget.onDateSelected(finalDate);
-                    } else {
-                      DateTime finalDate = _currentDate;
-                      if (widget.minimumDate != null && finalDate.isBefore(widget.minimumDate!)) {
-                        finalDate = widget.minimumDate!;
-                      }
-                      if (widget.maximumDate != null && finalDate.isAfter(widget.maximumDate!)) {
-                        finalDate = widget.maximumDate!;
-                      }
-                      widget.onDateSelected(finalDate);
-                    }
-                  },
-                  child: Text(
-                    context.l10n.done,
-                    style: TextStyle(
-                      color: useNeutral ? Colors.white : accentColor,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
+
+                // Seçilen Tarih/Saat Gösterimi (sadece dateTime ve date modlarında, time hariç)
+                if (widget.mode != PickerMode.monthYear &&
+                    widget.mode != PickerMode.time)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 24,
+                    ),
+                    decoration: BoxDecoration(
+                      color: useNeutral
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : accentColor.withValues(alpha: 0.08),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _getFormattedDateForMode(),
+                          style: TextStyle(
+                            color: useNeutral ? Colors.white : accentColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (widget.mode == PickerMode.dateTime) ...[
+                          Text(
+                            '  •  ',
+                            style: TextStyle(
+                              color: (useNeutral ? Colors.white : accentColor)
+                                  .withValues(alpha: 0.5),
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            _getFormattedTimeForMode(),
+                            style: TextStyle(
+                              color: (useNeutral ? Colors.white : accentColor)
+                                  .withValues(alpha: 0.8),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
+
+                // Picker Alanı
+                Expanded(
+                  child: widget.mode == PickerMode.monthYear
+                      ? _buildMonthYearPicker(isDark)
+                      : _buildCupertinoDatePicker(isDark),
                 ),
+
+                // Alt padding (iOS safe area)
+                SizedBox(height: MediaQuery.of(context).padding.bottom),
               ],
-            ),
-          ),
-
-          // Seçilen Tarih/Saat Gösterimi (sadece dateTime ve date modlarında, time hariç)
-          if (widget.mode != PickerMode.monthYear &&
-              widget.mode != PickerMode.time)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
-              decoration: BoxDecoration(
-                color: useNeutral
-                    ? Colors.white.withValues(alpha: 0.05)
-                    : accentColor.withValues(alpha: 0.08),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _getFormattedDateForMode(),
-                    style: TextStyle(
-                      color: useNeutral ? Colors.white : accentColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (widget.mode == PickerMode.dateTime) ...[
-                    Text(
-                      '  •  ',
-                      style: TextStyle(
-                        color: (useNeutral ? Colors.white : accentColor)
-                            .withValues(alpha: 0.5),
-                        fontSize: 14,
-                      ),
-                    ),
-                    Text(
-                      _getFormattedTimeForMode(),
-                      style: TextStyle(
-                        color: (useNeutral ? Colors.white : accentColor)
-                            .withValues(alpha: 0.8),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-
-          // Picker Alanı
-          Expanded(
-            child: widget.mode == PickerMode.monthYear
-                ? _buildMonthYearPicker(isDark)
-                : _buildCupertinoDatePicker(isDark),
-          ),
-
-          // Alt padding (iOS safe area)
-          SizedBox(height: MediaQuery.of(context).padding.bottom),
-        ],
-      ), // Column
+            ), // Column
           ), // Container
         ), // BackdropFilter
       ), // ClipRRect
@@ -483,8 +500,16 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
           initialDateTime: _currentDate,
           minimumDate: widget.minimumDate,
           maximumDate: widget.maximumDate,
-          minimumYear: widget.minimumDate?.year ?? (_currentDate.year < 1 ? _currentDate.year : 1), // Yıl tekerleğini kısıtla
-          maximumYear: widget.maximumDate?.year ?? ((widget.minimumDate?.year ?? 0) > 2100 ? widget.minimumDate!.year : 2100), // Max yıl çökmesini önle
+          minimumYear:
+              widget.minimumDate?.year ??
+              (_currentDate.year < 1
+                  ? _currentDate.year
+                  : 1), // Yıl tekerleğini kısıtla
+          maximumYear:
+              widget.maximumDate?.year ??
+              ((widget.minimumDate?.year ?? 0) > 2100
+                  ? widget.minimumDate!.year
+                  : 2100), // Max yıl çökmesini önle
           use24hFormat: true,
           onDateTimeChanged: (date) {
             HapticService.selectionClick();

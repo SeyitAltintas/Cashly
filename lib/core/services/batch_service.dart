@@ -54,7 +54,9 @@ class FirestoreBatchService implements BatchService {
     final List<Future<void>> futures = [];
 
     for (var i = 0; i < operations.length; i += chunkSize) {
-      final end = (i + chunkSize < operations.length) ? i + chunkSize : operations.length;
+      final end = (i + chunkSize < operations.length)
+          ? i + chunkSize
+          : operations.length;
       final chunk = operations.sublist(i, end);
 
       final batch = _firestore.batch();

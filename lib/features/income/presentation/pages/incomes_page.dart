@@ -387,7 +387,9 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
             final cur = getIt<CurrencyService>();
             final hesaplananToplamGelir = filteredGelirler.fold(
               0.0,
-              (sum, g) => sum + cur.convert(g.amount, g.paraBirimi, cur.currentCurrency),
+              (sum, g) =>
+                  sum +
+                  cur.convert(g.amount, g.paraBirimi, cur.currentCurrency),
             );
 
             return isLoadingContext
@@ -415,9 +417,8 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                                   ? EmptyStateWidget(
                                       icon: Icons.search_off,
                                       title: context.l10n.noResultsFound,
-                                      subtitle: context
-                                          .l10n
-                                          .tryDifferentSearchTerm,
+                                      subtitle:
+                                          context.l10n.tryDifferentSearchTerm,
                                     )
                                   : EmptyStateWidget.noIncomes(context)
                             : IncomesListView(
@@ -425,16 +426,12 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                                 hasMoreItems: hasMoreItems,
                                 scrollController: lazyScrollController,
                                 onRefresh: () async {
-                                  await _controller.loadData(
-                                    isRefresh: true,
-                                  );
+                                  await _controller.loadData(isRefresh: true);
                                 },
-                                buildLoadingIndicator:
-                                    buildLoadingIndicator,
+                                buildLoadingIndicator: buildLoadingIndicator,
                                 onDelete: gelirSil,
                                 onEdit: gelirDuzenle,
-                                kategoriIkonlari:
-                                    widget.gelirKategoriIkonlari,
+                                kategoriIkonlari: widget.gelirKategoriIkonlari,
                               ),
                       ),
                     ],

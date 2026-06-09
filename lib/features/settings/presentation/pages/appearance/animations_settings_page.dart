@@ -80,7 +80,9 @@ class AnimationsSettingsPage extends StatelessWidget {
               ),
               child: Builder(
                 builder: (context) {
-                  final isMoneyAnimationEnabled = context.select((ThemeManager t) => t.isMoneyAnimationEnabled);
+                  final isMoneyAnimationEnabled = context.select(
+                    (ThemeManager t) => t.isMoneyAnimationEnabled,
+                  );
                   final themeManager = context.read<ThemeManager>();
 
                   return Column(

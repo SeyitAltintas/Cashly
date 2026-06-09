@@ -83,9 +83,9 @@ class NotificationService {
         error: e,
         stackTrace: stackTrace,
       );
-      // GÜVENLİK/KARARLILIK YAMASI: 
-      // Bildirim servisi başlatılamazsa (örn: Xiaomi/Huawei cihazlarda OS kısıtlamaları, 
-      // eksik timezone verisi vb.), tüm uygulamanın çökmesini (Error Screen) engellemek için 
+      // GÜVENLİK/KARARLILIK YAMASI:
+      // Bildirim servisi başlatılamazsa (örn: Xiaomi/Huawei cihazlarda OS kısıtlamaları,
+      // eksik timezone verisi vb.), tüm uygulamanın çökmesini (Error Screen) engellemek için
       // hatayı rethrow etmiyoruz. Sadece loglayıp devam ediyoruz.
       _isInitialized = false;
     }
@@ -324,7 +324,7 @@ class NotificationService {
     String? payload,
   }) async {
     if (!_isInitialized) return;
-    
+
     // Timezone'un initialize edildiğinden emin ol
     _ensureTimezoneInitialized();
 

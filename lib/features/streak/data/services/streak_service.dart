@@ -213,10 +213,11 @@ class StreakService {
       } else {
         // difference > 1 (Bir veya daha fazla gün atlandı)
         final missedDays = difference - 1;
-        
+
         if (currentData.freezeCount >= missedDays) {
           // Yeterli dondurucu var - seriyi koru!
-          final newStreak = currentData.currentStreak + 1; // Sadece bugünün girişi eklenir
+          final newStreak =
+              currentData.currentStreak + 1; // Sadece bugünün girişi eklenir
           final newLongest = newStreak > currentData.longestStreak
               ? newStreak
               : currentData.longestStreak;
@@ -226,7 +227,9 @@ class StreakService {
             longestStreak: newLongest,
             lastLoginDate: today,
             totalLoginDays: currentData.totalLoginDays + 1,
-            freezeCount: currentData.freezeCount - missedDays, // Kullanılan dondurucuları düş
+            freezeCount:
+                currentData.freezeCount -
+                missedDays, // Kullanılan dondurucuları düş
             usedFreezeToday: true,
             totalFreezesUsed: currentData.totalFreezesUsed + missedDays,
           );

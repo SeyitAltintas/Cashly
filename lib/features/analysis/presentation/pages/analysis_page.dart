@@ -73,7 +73,9 @@ class _AnalysisPageState extends State<AnalysisPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late final AnalysisController _controller;
-  final ValueNotifier<ChartViewType> _chartTypeNotifier = ValueNotifier(ChartViewType.pie);
+  final ValueNotifier<ChartViewType> _chartTypeNotifier = ValueNotifier(
+    ChartViewType.pie,
+  );
   bool _isCumulative = false;
 
   int get _touchedIndex => _controller.touchedIndex;
@@ -381,8 +383,6 @@ class _AnalysisPageState extends State<AnalysisPage>
     );
   }
 
-
-
   /// PDF export sayfasina git
   void _showExportSheet() {
     Navigator.push(
@@ -418,7 +418,6 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   // ========== YARDIMCI METODLAR ==========
 
-
   /// En yüksek kategoriyi bulur
   (String, double) _findTopCategory(Map<String, double> totals) {
     String topCategory = '';
@@ -437,7 +436,6 @@ class _AnalysisPageState extends State<AnalysisPage>
     if (colors.isEmpty) return Colors.grey;
     return colors[index % colors.length];
   }
-
 
   /// Pasta grafiği widget'ı
 
@@ -476,7 +474,6 @@ class _AnalysisPageState extends State<AnalysisPage>
   /// Bilgi kartı (boş durumlar için yeniden kullanılabilir)
 
   /// Detaylı bilgi bottom sheet'i göster
-
 }
 
 class AnalysisShimmerLayout extends StatelessWidget {
@@ -495,7 +492,7 @@ class AnalysisShimmerLayout extends StatelessWidget {
             const SizedBox(height: 16),
             const ShimmerCircle(size: 200),
             const SizedBox(height: 32),
-            
+
             // List Items Placeholder
             ListView.builder(
               shrinkWrap: true,

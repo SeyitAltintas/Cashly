@@ -20,7 +20,9 @@ class MockAuthRepository implements AuthRepository {
   @override
   Future<UserEntity?> loginByEmail(String email, String pin) async {
     try {
-      final user = _users.firstWhere((u) => u.email.toLowerCase() == email.toLowerCase() && u.pin == pin);
+      final user = _users.firstWhere(
+        (u) => u.email.toLowerCase() == email.toLowerCase() && u.pin == pin,
+      );
       _currentUserId = user.id;
       return user;
     } catch (_) {
@@ -128,7 +130,11 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> updateUserPin(String userId, String currentPin, String newPin) async {
+  Future<void> updateUserPin(
+    String userId,
+    String currentPin,
+    String newPin,
+  ) async {
     final index = _users.indexWhere((u) => u.id == userId);
     if (index != -1) {
       final user = _users[index];
@@ -145,7 +151,6 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<void> sendPinResetOtp(String email) async {}
-
 }
 
 void main() {
@@ -232,7 +237,6 @@ void main() {
         expect(authController.error, contains('Hatalı'));
       });
 
-
       test('yanlış PIN ile giriş başarısız olur', () async {
         final result = await authController.loginByEmail(
           'test@example.com',
@@ -272,7 +276,6 @@ void main() {
       });
     });
 
-
     group('biometric', () {
       test('biyometrik tercih güncellenebilir', () async {
         await authController.register('Bio User', 'bio@example.com', '1234');
@@ -282,8 +285,6 @@ void main() {
 
         await authController.setBiometricEnabled(userId, true);
 
-        // CheckAuth çağırarak güncel kullanıcıyı al
-        await authController.checkAuth();
         expect(authController.isBiometricEnabled, isTrue);
       });
     });

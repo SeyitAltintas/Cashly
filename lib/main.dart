@@ -31,8 +31,6 @@ import 'core/services/network_service.dart';
 import 'core/router/app_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
-
 import 'core/services/secure_storage_service.dart';
 
 import 'core/widgets/fallback_error_widget.dart';
@@ -58,8 +56,12 @@ void main() {
 
         // L-004: Firebase App Check Entegrasyonu
         await FirebaseAppCheck.instance.activate(
-          providerAndroid: kDebugMode ? const AndroidDebugProvider() : const AndroidPlayIntegrityProvider(),
-          providerApple: kDebugMode ? const AppleDebugProvider() : const AppleDeviceCheckProvider(),
+          providerAndroid: kDebugMode
+              ? const AndroidDebugProvider()
+              : const AndroidPlayIntegrityProvider(),
+          providerApple: kDebugMode
+              ? const AppleDebugProvider()
+              : const AppleDeviceCheckProvider(),
         );
       } catch (e) {
         if (e is FirebaseException && e.code == 'duplicate-app') {
@@ -171,8 +173,6 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
   bool _isInitialized = false;
   String? _initError;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -206,7 +206,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
       final notificationService = getIt<NotificationService>();
 
       // Performans/Hız Optimizasyonu (Parallel Initialization):
-      // Birbirinden bağımsız servisleri aynı anda başlatarak Splash screen bekleme süresini (app launch time) 
+      // Birbirinden bağımsız servisleri aynı anda başlatarak Splash screen bekleme süresini (app launch time)
       // ve I/O darboğazını ciddi ölçüde azaltıyoruz.
       await Future.wait([
         HapticService.init(),
@@ -216,7 +216,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
         NetworkService().initialize(),
         notificationService.initialize(),
       ]);
-      
+
       // Edge Case Fix: Bildirim izni isteme işlemini splash screen kapandıktan sonraya bırakıyoruz.
       // await kullanmıyoruz ve biraz gecikmeli çalıştırıyoruz ki UI donmasın/engellenmesin.
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -268,7 +268,6 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
       debugPrint('Recurring transaction notification: $transactionId');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

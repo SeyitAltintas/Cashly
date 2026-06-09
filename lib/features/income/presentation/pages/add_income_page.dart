@@ -75,7 +75,9 @@ class _AddIncomePageState extends State<AddIncomePage> {
     _controller = widget.controller;
     _controller?.addListener(_onFormStateChanged);
 
-    final defaultCategory = _categoryIcons.isNotEmpty ? _categoryIcons.keys.first : 'Genel';
+    final defaultCategory = _categoryIcons.isNotEmpty
+        ? _categoryIcons.keys.first
+        : 'Genel';
 
     if (widget.incomeToEdit != null) {
       _nameController.text = widget.incomeToEdit!['name'] ?? '';
@@ -96,8 +98,9 @@ class _AddIncomePageState extends State<AddIncomePage> {
           DateTime.tryParse(widget.incomeToEdit!['date'].toString()) ??
           DateTime.now();
       final rawEditPaymentMethodId = widget.incomeToEdit!['paymentMethodId'];
-      final editPaymentMethodId = widget.paymentMethods.any((pm) => pm.id == rawEditPaymentMethodId) 
-          ? rawEditPaymentMethodId 
+      final editPaymentMethodId =
+          widget.paymentMethods.any((pm) => pm.id == rawEditPaymentMethodId)
+          ? rawEditPaymentMethodId
           : null;
 
       if (_controller != null) {

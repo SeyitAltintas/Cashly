@@ -45,7 +45,9 @@ class HomeNavigationHelper {
           onDelete: (asset) {
             final index = state.varliklar.indexWhere((a) => a.id == asset.id);
             if (index != -1) {
-              final deletedAsset = state.varliklar[index].copyWith(isDeleted: true);
+              final deletedAsset = state.varliklar[index].copyWith(
+                isDeleted: true,
+              );
               final newList = List<Asset>.from(state.varliklar);
               newList[index] = deletedAsset;
               state.varliklar = newList;
@@ -56,7 +58,11 @@ class HomeNavigationHelper {
                     deletedAsset.toMap(),
                   );
                 } catch (e, s) {
-                  ErrorHandler.logError('HomePage.Assets.onDelete Background', e, s);
+                  ErrorHandler.logError(
+                    'HomePage.Assets.onDelete Background',
+                    e,
+                    s,
+                  );
                 }
               });
             }
@@ -74,7 +80,11 @@ class HomeNavigationHelper {
                     asset.toMap(),
                   );
                 } catch (e, s) {
-                  ErrorHandler.logError('HomePage.Assets.onEdit Background', e, s);
+                  ErrorHandler.logError(
+                    'HomePage.Assets.onEdit Background',
+                    e,
+                    s,
+                  );
                 }
               });
             }
@@ -82,7 +92,9 @@ class HomeNavigationHelper {
           onRestore: (asset) {
             final index = state.varliklar.indexWhere((a) => a.id == asset.id);
             if (index != -1) {
-              final restoredAsset = state.varliklar[index].copyWith(isDeleted: false);
+              final restoredAsset = state.varliklar[index].copyWith(
+                isDeleted: false,
+              );
               final newList = List<Asset>.from(state.varliklar);
               newList[index] = restoredAsset;
               state.varliklar = newList;
@@ -93,7 +105,11 @@ class HomeNavigationHelper {
                     restoredAsset.toMap(),
                   );
                 } catch (e, s) {
-                  ErrorHandler.logError('HomePage.Assets.onRestore Background', e, s);
+                  ErrorHandler.logError(
+                    'HomePage.Assets.onRestore Background',
+                    e,
+                    s,
+                  );
                 }
               });
             }
@@ -109,16 +125,22 @@ class HomeNavigationHelper {
                   asset.id,
                 );
               } catch (e, s) {
-                ErrorHandler.logError('HomePage.Assets.onPermanentDelete Background', e, s);
+                ErrorHandler.logError(
+                  'HomePage.Assets.onPermanentDelete Background',
+                  e,
+                  s,
+                );
               }
             });
           },
           onEmptyBin: () {
-            final deletedAssets = state.varliklar.where((a) => a.isDeleted).toList();
+            final deletedAssets = state.varliklar
+                .where((a) => a.isDeleted)
+                .toList();
             final newList = List<Asset>.from(state.varliklar);
             newList.removeWhere((a) => a.isDeleted);
             state.varliklar = newList;
-            
+
             Future.microtask(() async {
               try {
                 final operations = <BatchOperation>[];
@@ -132,7 +154,11 @@ class HomeNavigationHelper {
                 }
                 await getIt<BatchService>().commit(operations);
               } catch (e, s) {
-                ErrorHandler.logError('HomePage.Assets.onEmptyBin Background', e, s);
+                ErrorHandler.logError(
+                  'HomePage.Assets.onEmptyBin Background',
+                  e,
+                  s,
+                );
               }
             });
           },
@@ -165,7 +191,9 @@ class HomeNavigationHelper {
       ),
     );
 
-    final future = replace ? Navigator.pushReplacement(context, route) : Navigator.push(context, route);
+    final future = replace
+        ? Navigator.pushReplacement(context, route)
+        : Navigator.push(context, route);
     future.then((_) => onReturn());
   }
 
@@ -243,48 +271,70 @@ class HomeNavigationHelper {
         builder: (context) => PageErrorBoundary(
           pageName: context.l10n.paymentMethods,
           child: PaymentMethodsPage(
-            paymentMethods: state.tumOdemeYontemleri.where((p) => !p.isDeleted).toList(),
-            deletedPaymentMethods: state.tumOdemeYontemleri.where((p) => p.isDeleted).toList(),
+            paymentMethods: state.tumOdemeYontemleri
+                .where((p) => !p.isDeleted)
+                .toList(),
+            deletedPaymentMethods: state.tumOdemeYontemleri
+                .where((p) => p.isDeleted)
+                .toList(),
             userName: authController.currentUser?.name,
             userProfileUrl: authController.currentUser?.profileImage,
             onDelete: (pm) {
-              final i = state.tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+              final i = state.tumOdemeYontemleri.indexWhere(
+                (p) => p.id == pm.id,
+              );
               if (i != -1) {
                 final deletedPm = pm.copyWith(isDeleted: true);
-                final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
+                final newList = List<PaymentMethod>.from(
+                  state.tumOdemeYontemleri,
+                );
                 newList[i] = deletedPm;
                 state.tumOdemeYontemleri = newList;
               }
             },
             onEdit: (pm) {
-              final i = state.tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+              final i = state.tumOdemeYontemleri.indexWhere(
+                (p) => p.id == pm.id,
+              );
               if (i != -1) {
-                final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
+                final newList = List<PaymentMethod>.from(
+                  state.tumOdemeYontemleri,
+                );
                 newList[i] = pm;
                 state.tumOdemeYontemleri = newList;
               }
             },
             onRestore: (pm) {
-              final i = state.tumOdemeYontemleri.indexWhere((p) => p.id == pm.id);
+              final i = state.tumOdemeYontemleri.indexWhere(
+                (p) => p.id == pm.id,
+              );
               if (i != -1) {
                 final restoredPm = pm.copyWith(isDeleted: false);
-                final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
+                final newList = List<PaymentMethod>.from(
+                  state.tumOdemeYontemleri,
+                );
                 newList[i] = restoredPm;
                 state.tumOdemeYontemleri = newList;
               }
             },
             onPermanentDelete: (pm) {
-              final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
+              final newList = List<PaymentMethod>.from(
+                state.tumOdemeYontemleri,
+              );
               newList.removeWhere((p) => p.id == pm.id);
               state.tumOdemeYontemleri = newList;
             },
             onEmptyBin: () {
-              final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
+              final newList = List<PaymentMethod>.from(
+                state.tumOdemeYontemleri,
+              );
               newList.removeWhere((p) => p.isDeleted);
               state.tumOdemeYontemleri = newList;
             },
             onAdd: (pm) {
-              final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
+              final newList = List<PaymentMethod>.from(
+                state.tumOdemeYontemleri,
+              );
               newList.add(pm);
               state.tumOdemeYontemleri = newList;
             },
@@ -319,7 +369,9 @@ class HomeNavigationHelper {
       MaterialPageRoute(
         builder: (context) => TransferPage(
           userId: authController.currentUser?.id,
-          paymentMethods: state.tumOdemeYontemleri.where((pm) => !pm.isDeleted).toList(),
+          paymentMethods: state.tumOdemeYontemleri
+              .where((pm) => !pm.isDeleted)
+              .toList(),
           transfers: state.tumTransferler,
           onDeleteTransfer: (transfer) {
             final transferList = List<Transfer>.from(state.tumTransferler);
@@ -333,28 +385,40 @@ class HomeNavigationHelper {
                   transfer.id,
                 );
               } catch (e, s) {
-                ErrorHandler.logError('HomePage.DeleteTransfer Background', e, s);
+                ErrorHandler.logError(
+                  'HomePage.DeleteTransfer Background',
+                  e,
+                  s,
+                );
               }
             });
           },
           onTransfer: (fromId, toId, amount, date) {
-            final isScheduled = TransferSchedulePolicy.isScheduled(selectedDate: date);
+            final isScheduled = TransferSchedulePolicy.isScheduled(
+              selectedDate: date,
+            );
             int finalFromIndex = -1;
             int finalToIndex = -1;
-            
+
             final pmList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
-            
+
             double deltaFrom = 0.0;
             double deltaTo = 0.0;
-            
+
             if (!isScheduled) {
               final cur = getIt<CurrencyService>();
               final fromIndex = pmList.indexWhere((pm) => pm.id == fromId);
               finalFromIndex = fromIndex;
               if (fromIndex != -1) {
                 final fromPm = pmList[fromIndex];
-                final convertedFromAmount = cur.convert(amount, cur.currentCurrency, fromPm.paraBirimi);
-                deltaFrom = fromPm.type == 'kredi' ? convertedFromAmount : -convertedFromAmount;
+                final convertedFromAmount = cur.convert(
+                  amount,
+                  cur.currentCurrency,
+                  fromPm.paraBirimi,
+                );
+                deltaFrom = fromPm.type == 'kredi'
+                    ? convertedFromAmount
+                    : -convertedFromAmount;
                 double yeniBakiye = fromPm.balance + deltaFrom;
                 pmList[fromIndex] = fromPm.copyWith(balance: yeniBakiye);
               }
@@ -362,8 +426,14 @@ class HomeNavigationHelper {
               finalToIndex = toIndex;
               if (toIndex != -1) {
                 final toPm = pmList[toIndex];
-                final convertedToAmount = cur.convert(amount, cur.currentCurrency, toPm.paraBirimi);
-                deltaTo = toPm.type == 'kredi' ? -convertedToAmount : convertedToAmount;
+                final convertedToAmount = cur.convert(
+                  amount,
+                  cur.currentCurrency,
+                  toPm.paraBirimi,
+                );
+                deltaTo = toPm.type == 'kredi'
+                    ? -convertedToAmount
+                    : convertedToAmount;
                 double yeniBakiye = toPm.balance + deltaTo;
                 pmList[toIndex] = toPm.copyWith(balance: yeniBakiye);
               }
@@ -380,34 +450,42 @@ class HomeNavigationHelper {
               isExecuted: !isScheduled,
               paraBirimi: getIt<CurrencyService>().currentCurrency,
             );
-            
+
             final transferList = List<Transfer>.from(state.tumTransferler);
             transferList.insert(0, newTransfer);
             state.tumTransferler = transferList;
-            
+
             Future.microtask(() async {
               try {
                 final operations = <BatchOperation>[];
                 if (!isScheduled) {
                   if (finalFromIndex != -1) {
-                    operations.add(getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
-                      authController.currentUser!.id,
-                      fromId,
-                      deltaFrom,
-                    ));
+                    operations.add(
+                      getIt<PaymentMethodRepository>()
+                          .getIncrementBalanceOperation(
+                            authController.currentUser!.id,
+                            fromId,
+                            deltaFrom,
+                          ),
+                    );
                   }
                   if (finalToIndex != -1) {
-                    operations.add(getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
-                      authController.currentUser!.id,
-                      toId,
-                      deltaTo,
-                    ));
+                    operations.add(
+                      getIt<PaymentMethodRepository>()
+                          .getIncrementBalanceOperation(
+                            authController.currentUser!.id,
+                            toId,
+                            deltaTo,
+                          ),
+                    );
                   }
                 }
-                operations.add(getIt<PaymentMethodRepository>().getAddTransferOperation(
-                  authController.currentUser!.id,
-                  newTransfer.toMap(),
-                ));
+                operations.add(
+                  getIt<PaymentMethodRepository>().getAddTransferOperation(
+                    authController.currentUser!.id,
+                    newTransfer.toMap(),
+                  ),
+                );
                 await getIt<BatchService>().commit(operations);
               } catch (e, s) {
                 ErrorHandler.logError('HomePage.Transfer Background', e, s);
@@ -455,7 +533,9 @@ class HomeNavigationHelper {
       ),
     );
 
-    final future = replace ? Navigator.pushReplacement(context, route) : Navigator.push(context, route);
+    final future = replace
+        ? Navigator.pushReplacement(context, route)
+        : Navigator.push(context, route);
     future.then((_) {
       onDataRefresh();
       onReturn();
@@ -496,7 +576,9 @@ class HomeNavigationHelper {
       ),
     );
 
-    final future = replace ? Navigator.pushReplacement(context, route) : Navigator.push(context, route);
+    final future = replace
+        ? Navigator.pushReplacement(context, route)
+        : Navigator.push(context, route);
     future.then((_) {
       onDataRefresh();
       onReturn();

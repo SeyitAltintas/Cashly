@@ -22,7 +22,9 @@ Widget buildTestableWidget(Widget child, {Locale locale = const Locale('tr')}) {
 
 void main() {
   setUpAll(() async {
-    try { await initializeDateFormatting('tr_TR', null); } catch (_) {}
+    try {
+      await initializeDateFormatting('tr_TR', null);
+    } catch (_) {}
   });
 
   group('MonthYearPicker Widget Testleri', () {

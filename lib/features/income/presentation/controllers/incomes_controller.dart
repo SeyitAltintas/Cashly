@@ -11,7 +11,6 @@ import 'dart:async';
 import '../../../../core/services/currency_service.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// Gelirler Controller
 /// Repository ile entegre, ChangeNotifier tabanlı state yönetimi sağlar.
 /// Bu controller IncomePageState'in yerini alır.
@@ -361,8 +360,14 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
             if (pmIdx != -1) {
               final pm = _tumOdemeYontemleri[pmIdx];
               final amountCurrency = gelir.paraBirimi;
-              final convertedAmount = getIt<CurrencyService>().convert(gelir.amount, amountCurrency, pm.paraBirimi);
-              final delta = pm.type == 'kredi' ? -convertedAmount : convertedAmount;
+              final convertedAmount = getIt<CurrencyService>().convert(
+                gelir.amount,
+                amountCurrency,
+                pm.paraBirimi,
+              );
+              final delta = pm.type == 'kredi'
+                  ? -convertedAmount
+                  : convertedAmount;
               operations.add(
                 _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
@@ -594,8 +599,14 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
             if (pmIdx != -1) {
               final pm = _tumOdemeYontemleri[pmIdx];
               final amountCurrency = income.paraBirimi;
-              final convertedAmount = getIt<CurrencyService>().convert(income.amount, amountCurrency, pm.paraBirimi);
-              final delta = pm.type == 'kredi' ? convertedAmount : -convertedAmount;
+              final convertedAmount = getIt<CurrencyService>().convert(
+                income.amount,
+                amountCurrency,
+                pm.paraBirimi,
+              );
+              final delta = pm.type == 'kredi'
+                  ? convertedAmount
+                  : -convertedAmount;
               operations.add(
                 _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
@@ -613,8 +624,14 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
             if (pmIdx != -1) {
               final pm = _tumOdemeYontemleri[pmIdx];
               final amountCurrency = paraBirimi ?? income.paraBirimi;
-              final convertedAmount = getIt<CurrencyService>().convert(amount, amountCurrency, pm.paraBirimi);
-              final delta = pm.type == 'kredi' ? -convertedAmount : convertedAmount;
+              final convertedAmount = getIt<CurrencyService>().convert(
+                amount,
+                amountCurrency,
+                pm.paraBirimi,
+              );
+              final delta = pm.type == 'kredi'
+                  ? -convertedAmount
+                  : convertedAmount;
               operations.add(
                 _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,

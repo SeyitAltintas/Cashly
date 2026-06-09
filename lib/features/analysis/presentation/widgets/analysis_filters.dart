@@ -39,7 +39,9 @@ class ChartTypeToggle extends StatelessWidget {
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: Theme.of(context).colorScheme.primary.withAlpha(76),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withAlpha(76),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -105,11 +107,18 @@ class TimeFilterSelector extends StatelessWidget {
                 ),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.15),
+                    ),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<int>(
@@ -168,7 +177,10 @@ class TimeFilterSelector extends StatelessWidget {
                           value: -1,
                           child: Text(
                             controller.historyLimit == -1
-                                ? _formatMonth(context, controller.selectedMonth)
+                                ? _formatMonth(
+                                    context,
+                                    controller.selectedMonth,
+                                  )
                                 : context.l10n.selectMonth,
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
@@ -180,12 +192,17 @@ class TimeFilterSelector extends StatelessWidget {
                         }
                       },
                       selectedItemBuilder: (BuildContext context) {
-                        return [7, 30, 90, 180, 366, 365, -1].map<Widget>((int item) {
+                        return [7, 30, 90, 180, 366, 365, -1].map<Widget>((
+                          int item,
+                        ) {
                           return Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
                               item == -1
-                                  ? _formatMonth(context, controller.selectedMonth)
+                                  ? _formatMonth(
+                                      context,
+                                      controller.selectedMonth,
+                                    )
                                   : [
                                       context.l10n.thisWeek,
                                       context.l10n.thisMonth,
@@ -194,8 +211,18 @@ class TimeFilterSelector extends StatelessWidget {
                                       context.l10n.thisYear,
                                       context.l10n.last1Year,
                                       "",
-                                    ][[7, 30, 90, 180, 366, 365, -1].indexOf(item)],
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                                    ][[
+                                      7,
+                                      30,
+                                      90,
+                                      180,
+                                      366,
+                                      365,
+                                      -1,
+                                    ].indexOf(item)],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),

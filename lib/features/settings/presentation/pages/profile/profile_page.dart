@@ -27,7 +27,8 @@ class ProfilSayfasi extends StatefulWidget {
   State<ProfilSayfasi> createState() => _ProfilSayfasiState();
 }
 
-class _ProfilSayfasiState extends State<ProfilSayfasi> with AutomaticKeepAliveClientMixin {
+class _ProfilSayfasiState extends State<ProfilSayfasi>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
   bool _mockLoading = false;

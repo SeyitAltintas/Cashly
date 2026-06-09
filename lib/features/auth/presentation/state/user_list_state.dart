@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import '../../domain/entities/user_entity.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// User list sayfası için ChangeNotifier state yöneticisi
 class UserListState extends ChangeNotifier with SafeNotifierMixin {
   List<UserEntity> _users = [];

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// Dil yöneticisi — Kullanıcının seçtiği dili Hive'da saklar ve uygular.
 class LocaleManager extends ChangeNotifier with SafeNotifierMixin {
   static const String _boxName = 'settings';

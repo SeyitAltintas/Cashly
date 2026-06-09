@@ -20,7 +20,9 @@ class CurrencySettingsPage extends StatelessWidget {
       ),
       body: Builder(
         builder: (context) {
-          final currentCurrency = context.select((CurrencyService c) => c.currentCurrency);
+          final currentCurrency = context.select(
+            (CurrencyService c) => c.currentCurrency,
+          );
           final currencyService = context.read<CurrencyService>();
           const currencies = CurrencyService.supportedCurrencies;
 

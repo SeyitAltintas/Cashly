@@ -392,7 +392,6 @@ class _UserLoginFormState extends State<UserLoginForm> {
     );
   }
 
-
   Widget _buildActionButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

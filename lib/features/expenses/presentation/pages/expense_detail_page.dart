@@ -93,8 +93,8 @@ class ExpenseDetailPage extends StatelessWidget {
                     context.l10n.expensePaymentMethod,
                     pm != null
                         ? (pm.lastFourDigits != null
-                            ? '${pm.name} ****${pm.lastFourDigits}'
-                            : pm.name)
+                              ? '${pm.name} ****${pm.lastFourDigits}'
+                              : pm.name)
                         : context.l10n.unknownAccount,
                     pm?.type == 'nakit'
                         ? Icons.wallet

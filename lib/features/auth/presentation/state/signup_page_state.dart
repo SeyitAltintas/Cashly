@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// Signup sayfası için ChangeNotifier state yöneticisi
 class SignupPageState extends ChangeNotifier with SafeNotifierMixin {
   bool _isPinVisible = false;

@@ -4,7 +4,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 class CurrencyService extends ChangeNotifier with SafeNotifierMixin {
   static const String _boxName = 'settings';
   static const String _currencyKey = 'app_currency';
@@ -34,19 +33,19 @@ class CurrencyService extends ChangeNotifier with SafeNotifierMixin {
       _box = await Hive.openBox(_boxName);
     } catch (e) {
       // GÜVENLİK/KARARLILIK YAMASI (Edge Case):
-      // Ayarlar kutusu diskte bozulmuşsa (elektrik kesintisi vb.), uygulamanın 
+      // Ayarlar kutusu diskte bozulmuşsa (elektrik kesintisi vb.), uygulamanın
       // çökmesini engellemek için bozuk kutuyu silip yeniden oluşturuyoruz.
       try {
         await Hive.deleteBoxFromDisk(_boxName);
         _box = await Hive.openBox(_boxName);
       } catch (_) {
-        // İkinci deneme de başarısız olursa, uygulamanın çalışmaya devam etmesi için 
+        // İkinci deneme de başarısız olursa, uygulamanın çalışmaya devam etmesi için
         // varsayılan değerleri kullan ve çık.
         _currentCurrency = 'TRY';
         return;
       }
     }
-    
+
     _currentCurrency = _box.get(_currencyKey, defaultValue: 'TRY') as String;
 
     // Cache'den kurları yükle

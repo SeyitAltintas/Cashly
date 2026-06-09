@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// User login form için ChangeNotifier state yöneticisi
 class UserLoginFormState extends ChangeNotifier with SafeNotifierMixin {
   // Loading state

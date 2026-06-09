@@ -7,7 +7,6 @@ import '../../data/constants/streak_badges.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-
 /// Streak Controller
 /// Seri sayfası için ChangeNotifier tabanlı state yönetimi sağlar.
 /// Rozet hesaplamaları, başarım listesi ve freeze yönetimini merkezi olarak yönetir.

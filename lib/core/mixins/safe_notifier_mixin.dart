@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 /// Controller'lar kapatıldıktan sonra asenkron işlemlerin `notifyListeners`
 /// çağırarak FlutterError fırlatmasını önleyen güvenli ChangeNotifier mixin'i.
-/// 
+///
 /// Kullanım:
 /// class MyController extends ChangeNotifier with SafeNotifierMixin { ... }
 mixin SafeNotifierMixin on ChangeNotifier {

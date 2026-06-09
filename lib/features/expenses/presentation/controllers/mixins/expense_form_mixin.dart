@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 mixin ExpenseFormMixin on ChangeNotifier {
-
   // Form: Seçilen tarih
   DateTime _formSelectedDate = DateTime.now();
   DateTime get formSelectedDate => _formSelectedDate;

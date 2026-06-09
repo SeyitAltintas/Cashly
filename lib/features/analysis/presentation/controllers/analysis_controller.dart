@@ -10,7 +10,6 @@ import '../../../expenses/domain/repositories/expense_repository.dart';
 import '../../../income/domain/repositories/income_repository.dart';
 import 'package:cashly/core/services/error_logger_service.dart';
 
-
 // ===== ISOLATE PAYLOAD & RESULT =====
 
 class AnalysisComputePayload {
@@ -128,13 +127,13 @@ bool _isolateIsWithinLimit(
     } else {
       thresholdDate = todayStart.subtract(Duration(days: historyLimit));
     }
-    
-    // "Bu Hafta" (7) veya özel gün sayılarında yarına kadar (rolling window), 
+
+    // "Bu Hafta" (7) veya özel gün sayılarında yarına kadar (rolling window),
     // "Son 3 Ay" vb. calendar window'larda ise bu ayın sonuna kadar dahil edelim.
-    final upperBound = (historyLimit == 7) 
+    final upperBound = (historyLimit == 7)
         ? todayStart.add(const Duration(days: 1))
         : nextMonthStart;
-        
+
     return (date.isAfter(thresholdDate) ||
             date.isAtSameMomentAs(thresholdDate)) &&
         date.isBefore(upperBound);
@@ -225,7 +224,7 @@ Future<AnalysisComputeResult> _calculateAnalysisWorker(
     final katStr = h['kategori']?.toString() ?? '';
     final kat = katStr.isEmpty ? 'Diğer' : katStr;
     catExpTotals[kat] = (catExpTotals[kat] ?? 0) + deger;
-    
+
     final pmStr = h['odemeYontemiId']?.toString() ?? '';
     final pmId = pmStr.isEmpty ? 'nakit' : pmStr;
     pmExpTotals[pmId] = (pmExpTotals[pmId] ?? 0) + deger;
@@ -430,7 +429,7 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
     required String userId,
   }) async {
     if (userId.isNotEmpty) _userId = userId;
-    
+
     _historyLimit = -1; // Anasayfadaki ayı temel alıyoruz
     _selectedMonth = secilenAy;
     _touchedIndex = -1;
@@ -498,7 +497,14 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
         start = today.subtract(const Duration(days: 7));
       } else if (limit == 90) {
         start = DateTime(today.year, today.month - 3, 1);
-        end = DateTime(today.year, today.month + 1, 0, 23, 59, 59); // Bu ayın son günü
+        end = DateTime(
+          today.year,
+          today.month + 1,
+          0,
+          23,
+          59,
+          59,
+        ); // Bu ayın son günü
       } else if (limit == 180) {
         start = DateTime(today.year, today.month - 6, 1);
         end = DateTime(today.year, today.month + 1, 0, 23, 59, 59);
@@ -522,12 +528,13 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
       ]);
 
       _harcamalar = results[0];
-      _gelirler = results[1]
-          .map((m) => Income.fromMap(m))
-          .toList();
+      _gelirler = results[1].map((m) => Income.fromMap(m)).toList();
     } catch (e, stackTrace) {
       debugPrint('AnalysisController._fetchWideRangeData hatası: $e');
-      ErrorLoggerService.logError('AnalysisController._fetchWideRangeData hatası: $e', stackTrace: stackTrace.toString());
+      ErrorLoggerService.logError(
+        'AnalysisController._fetchWideRangeData hatası: $e',
+        stackTrace: stackTrace.toString(),
+      );
     }
     await _recalculateData();
   }
@@ -562,7 +569,10 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
           _gelirler = results[1].map((m) => Income.fromMap(m)).toList();
         } catch (e, stackTrace) {
           debugPrint('AnalysisController setSelectedMonth hatası: $e');
-          ErrorLoggerService.logError('AnalysisController setSelectedMonth hatası: $e', stackTrace: stackTrace.toString());
+          ErrorLoggerService.logError(
+            'AnalysisController setSelectedMonth hatası: $e',
+            stackTrace: stackTrace.toString(),
+          );
         }
       }
 

@@ -24,10 +24,7 @@ class _AchievementItem extends StatelessWidget {
   final Map<String, dynamic> achievement;
   final bool isEarned;
 
-  const _AchievementItem({
-    required this.achievement,
-    required this.isEarned,
-  });
+  const _AchievementItem({required this.achievement, required this.isEarned});
 
   @override
   Widget build(BuildContext context) {
@@ -51,14 +48,18 @@ class _AchievementItem extends StatelessWidget {
             decoration: BoxDecoration(
               color: isEarned
                   ? Colors.green.withValues(alpha: 0.2)
-                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               achievement['icon'] as IconData,
               color: isEarned
                   ? Colors.green
-                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.4),
               size: 24,
             ),
           ),
@@ -80,7 +81,9 @@ class _AchievementItem extends StatelessWidget {
                   achievement['description'] as String,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -91,7 +94,9 @@ class _AchievementItem extends StatelessWidget {
           else
             Icon(
               Icons.circle_outlined,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.3),
               size: 24,
             ),
         ],

@@ -30,7 +30,8 @@ class ToolsPage extends StatefulWidget {
   State<ToolsPage> createState() => _ToolsPageState();
 }
 
-class _ToolsPageState extends State<ToolsPage> with AutomaticKeepAliveClientMixin {
+class _ToolsPageState extends State<ToolsPage>
+    with AutomaticKeepAliveClientMixin {
   late final ToolsController _controller;
 
   @override

@@ -9,11 +9,18 @@ import 'package:get_it/get_it.dart';
 /// Mock ExpenseRepository - testlerde gerçek veritabanını kullanmadan test yapabilmek için
 class MockExpenseRepository implements ExpenseRepository {
   @override
-  BatchOperation getAddExpenseOperation(String userId, Map<String, dynamic> expense) => DummyBatchOperation();
+  BatchOperation getAddExpenseOperation(
+    String userId,
+    Map<String, dynamic> expense,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getUpdateExpenseOperation(String userId, Map<String, dynamic> expense) => DummyBatchOperation();
+  BatchOperation getUpdateExpenseOperation(
+    String userId,
+    Map<String, dynamic> expense,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getDeleteExpenseOperation(String userId, String id) => DummyBatchOperation();
+  BatchOperation getDeleteExpenseOperation(String userId, String id) =>
+      DummyBatchOperation();
 
   List<Map<String, dynamic>> _expenses = [];
   List<Map<String, dynamic>> _categories = [];
@@ -35,7 +42,10 @@ class MockExpenseRepository implements ExpenseRepository {
   }
 
   @override
-  Stream<List<Map<String, dynamic>>> watchExpensesByMonth(String userId, DateTime month) {
+  Stream<List<Map<String, dynamic>>> watchExpensesByMonth(
+    String userId,
+    DateTime month,
+  ) {
     return Stream.value(_expenses);
   }
 
@@ -57,7 +67,10 @@ class MockExpenseRepository implements ExpenseRepository {
   @override
   Future<void> addExpense(String userId, Map<String, dynamic> expense) async {}
   @override
-  Future<void> updateExpense(String userId, Map<String, dynamic> expense) async {}
+  Future<void> updateExpense(
+    String userId,
+    Map<String, dynamic> expense,
+  ) async {}
   @override
   Future<void> deleteExpense(String userId, String expenseId) async {}
 
@@ -111,27 +124,46 @@ class MockExpenseRepository implements ExpenseRepository {
 /// Mock PaymentMethodRepository
 class MockPaymentMethodRepository implements PaymentMethodRepository {
   @override
-  Stream<List<Map<String, dynamic>>> watchPaymentMethods(String userId) => const Stream.empty();
+  Stream<List<Map<String, dynamic>>> watchPaymentMethods(String userId) =>
+      const Stream.empty();
   @override
-  Stream<List<Map<String, dynamic>>> watchTransfers(String userId) => const Stream.empty();
+  Stream<List<Map<String, dynamic>>> watchTransfers(String userId) =>
+      const Stream.empty();
 
   @override
-  BatchOperation getAddPaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  BatchOperation getAddPaymentMethodOperation(
+    String userId,
+    Map<String, dynamic> method,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getUpdatePaymentMethodOperation(String userId, Map<String, dynamic> method) => DummyBatchOperation();
+  BatchOperation getUpdatePaymentMethodOperation(
+    String userId,
+    Map<String, dynamic> method,
+  ) => DummyBatchOperation();
   @override
-  BatchOperation getIncrementBalanceOperation(String userId, String methodId, double amountDelta) {
+  BatchOperation getIncrementBalanceOperation(
+    String userId,
+    String methodId,
+    double amountDelta,
+  ) {
     return DummyBatchOperation();
   }
 
   @override
-  BatchOperation getDeletePaymentMethodOperation(String userId, String id) => DummyBatchOperation();
+  BatchOperation getDeletePaymentMethodOperation(String userId, String id) =>
+      DummyBatchOperation();
   @override
   @override
-  BatchOperation getUpdateTransferOperation(String userId, Map<String, dynamic> transfer) => DummyBatchOperation();
+  BatchOperation getUpdateTransferOperation(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) => DummyBatchOperation();
 
   @override
-  BatchOperation getAddTransferOperation(String userId, Map<String, dynamic> transfer) => DummyBatchOperation();
+  BatchOperation getAddTransferOperation(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) => DummyBatchOperation();
 
   List<Map<String, dynamic>> _paymentMethods = [];
   final List<Map<String, dynamic>> _deletedPaymentMethods = [];
@@ -143,27 +175,40 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
       _paymentMethods;
 
   @override
-  Future<void> addPaymentMethod(String userId, Map<String, dynamic> method) async {}
+  Future<void> addPaymentMethod(
+    String userId,
+    Map<String, dynamic> method,
+  ) async {}
   @override
-  Future<void> updatePaymentMethod(String userId, Map<String, dynamic> method) async {}
+  Future<void> updatePaymentMethod(
+    String userId,
+    Map<String, dynamic> method,
+  ) async {}
   @override
   Future<void> deletePaymentMethod(String userId, String id) async {}
   @override
-  Future<void> addDeletedPaymentMethod(String userId, Map<String, dynamic> method) async {}
+  Future<void> addDeletedPaymentMethod(
+    String userId,
+    Map<String, dynamic> method,
+  ) async {}
   @override
   Future<void> removeDeletedPaymentMethod(String userId, String id) async {}
   @override
-  Future<void> addTransfer(String userId, Map<String, dynamic> transfer) async {}
+  Future<void> addTransfer(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) async {}
   @override
-  Future<void> updateTransfer(String userId, Map<String, dynamic> transfer) async {}
+  Future<void> updateTransfer(
+    String userId,
+    Map<String, dynamic> transfer,
+  ) async {}
   @override
   Future<void> deleteTransfer(String userId, String transferId) async {}
 
   @override
   List<Map<String, dynamic>> getDeletedPaymentMethods(String userId) =>
       _deletedPaymentMethods;
-
-
 
   @override
   String? getDefaultPaymentMethod(String userId) => _defaultPaymentMethodId;
@@ -175,8 +220,6 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
 
   @override
   List<Map<String, dynamic>> getTransfers(String userId) => _transfers;
-
-
 
   // Test helper metodları
   void setPaymentMethods(List<Map<String, dynamic>> methods) {
@@ -201,6 +244,7 @@ class MockBatchService implements BatchService {
   @override
   Future<void> commit(List<BatchOperation> operations) async {}
 }
+
 void main() {
   group('ExpensesController', () {
     late MockExpenseRepository mockExpenseRepo;
@@ -377,7 +421,7 @@ void main() {
           'odemeYontemiId': 'pm1',
           'paraBirimi': 'TRY',
         };
-        
+
         final pm1 = {
           'id': 'pm1',
           'name': 'Banka A',
@@ -419,13 +463,17 @@ void main() {
 
         // Beklenen: pm1'e eski harcama (500) iade edilecek -> 4500 + 500 = 5000
         expect(
-          controller.tumOdemeYontemleri.firstWhere((pm) => pm.id == 'pm1').balance,
+          controller.tumOdemeYontemleri
+              .firstWhere((pm) => pm.id == 'pm1')
+              .balance,
           equals(5000.0),
         );
 
         // Beklenen: pm2'den yeni harcama (800) düşülecek -> 3000 - 800 = 2200
         expect(
-          controller.tumOdemeYontemleri.firstWhere((pm) => pm.id == 'pm2').balance,
+          controller.tumOdemeYontemleri
+              .firstWhere((pm) => pm.id == 'pm2')
+              .balance,
           equals(2200.0),
         );
 
