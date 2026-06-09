@@ -155,8 +155,9 @@ Map<String, dynamic> _sanitizeFirestoreMap(Map<String, dynamic> map) {
     } else if (value is List) {
       sanitized[key] = value.map((e) {
         if (e is Timestamp) return e.toDate().toIso8601String();
-        if (e is Map)
+        if (e is Map) {
           return _sanitizeFirestoreMap(Map<String, dynamic>.from(e));
+        }
         return e;
       }).toList();
     } else {

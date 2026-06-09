@@ -91,8 +91,9 @@ class ErrorTranslator {
         return context?.l10n.errAuthNetwork ??
             'İnternet bağlantınızda bir sorun var. Lütfen kontrol edip tekrar deneyin.';
       default:
-        if (context != null)
+        if (context != null) {
           return context.l10n.errAuthDefault(e.message ?? '');
+        }
         return 'Kimlik doğrulama sırasında bir hata oluştu: ';
     }
   }

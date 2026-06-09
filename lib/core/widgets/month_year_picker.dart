@@ -118,8 +118,9 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
 
     int initialYearItem = _selectedYear - _startYear;
     if (initialYearItem < 0) initialYearItem = 0;
-    if (initialYearItem > (_endYear - _startYear))
+    if (initialYearItem > (_endYear - _startYear)) {
       initialYearItem = _endYear - _startYear;
+    }
 
     _monthController = FixedExtentScrollController(
       initialItem: _selectedMonthIndex,

@@ -30,8 +30,9 @@ class AuthRepositoryImpl implements AuthRepository {
       (pin.startsWith(r'$2a$') || pin.startsWith(r'$2b$')) && pin.length == 60;
 
   String _hashPinIfNeeded(String pin) {
-    if (pin.isEmpty)
+    if (pin.isEmpty) {
       return pin; // Empty pins (e.g. from getAllUsers ghost list) shouldn't be hashed
+    }
     if (_isHashed(pin)) return pin;
     return BCrypt.hashpw(pin, BCrypt.gensalt());
   }

@@ -78,8 +78,9 @@ DashboardComputeResult _calculateDashboardWorker(
   for (var pm in payload.odemeYontemleri) {
     if (pm.isDeleted) continue;
     if (pm.type == 'kredi') {
-      if (pm.balance > 0)
+      if (pm.balance > 0) {
         totalCred += _isolateConvert(pm.balance, pm.paraBirimi, target, rates);
+      }
     } else {
       totalBal += _isolateConvert(pm.balance, pm.paraBirimi, target, rates);
     }

@@ -465,11 +465,13 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
         bool limitVeyaBakiyeAsildi = false;
         if (fromPm.type == 'kredi') {
           final kalanLimit = (fromPm.limit ?? 0) - fromPm.balance;
-          if (convertedTransferAmountFrom > kalanLimit)
+          if (convertedTransferAmountFrom > kalanLimit) {
             limitVeyaBakiyeAsildi = true;
+          }
         } else {
-          if (fromPm.balance < convertedTransferAmountFrom)
+          if (fromPm.balance < convertedTransferAmountFrom) {
             limitVeyaBakiyeAsildi = true;
+          }
         }
 
         if (limitVeyaBakiyeAsildi) {

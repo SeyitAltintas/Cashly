@@ -177,11 +177,13 @@ class ForgotPasswordHelper {
         Icons.email_outlined,
       ),
       validator: (value) {
-        if (value == null || value.trim().isEmpty)
+        if (value == null || value.trim().isEmpty) {
           return context.l10n.pleaseEnterEmail;
+        }
         final emailRegex = RegExp(r'^[\w.+\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}');
-        if (!emailRegex.hasMatch(value.trim()))
+        if (!emailRegex.hasMatch(value.trim())) {
           return context.l10n.enterValidEmail;
+        }
         return null;
       },
     );
