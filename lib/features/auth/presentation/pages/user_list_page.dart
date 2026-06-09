@@ -100,12 +100,12 @@ class _UserListPageState extends State<UserListPage> {
                       backgroundColor: Theme.of(
                         context,
                       ).colorScheme.primary.withValues(alpha: 0.2),
-                      backgroundImage: user.profileImage != null
+                      backgroundImage: (user.profileImage?.isNotEmpty ?? false)
                           ? ImageUtils.getProfileImageProvider(
                               user.profileImage,
                             )
                           : null,
-                      child: user.profileImage == null
+                      child: (user.profileImage?.isEmpty ?? true)
                           ? Text(
                               user.name[0].toUpperCase(),
                               style: TextStyle(

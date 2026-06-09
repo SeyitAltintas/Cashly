@@ -183,10 +183,10 @@ class _UserLoginFormState extends State<UserLoginForm> {
     return CircleAvatar(
       radius: 50,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-      backgroundImage: widget.targetUser.profileImage != null
+      backgroundImage: (widget.targetUser.profileImage?.isNotEmpty ?? false)
           ? ImageUtils.getProfileImageProvider(widget.targetUser.profileImage)
           : null,
-      child: widget.targetUser.profileImage == null
+      child: (widget.targetUser.profileImage?.isEmpty ?? true)
           ? Icon(
               Icons.person,
               size: 60,

@@ -81,12 +81,12 @@ class ProfilePhotoSection extends StatelessWidget {
 
   /// Profil resmini oluştur - error handling ile
   Widget _buildProfileImage(BuildContext context) {
-    if (user.profileImage == null) {
+    if (user.profileImage == null || user.profileImage!.isEmpty) {
       return _buildDefaultIcon(context);
     }
 
     return Image(
-      image: ImageUtils.getProfileImageProvider(user.profileImage!),
+      image: ImageUtils.getProfileImageProvider(user.profileImage!)!,
       fit: BoxFit.cover,
       width: 120,
       height: 120,

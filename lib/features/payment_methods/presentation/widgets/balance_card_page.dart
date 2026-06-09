@@ -405,7 +405,7 @@ class BalanceCardPage extends StatelessWidget {
         );
       } else {
         return Image(
-          image: ImageUtils.getProfileImageProvider(userProfileUrl),
+          image: ImageUtils.getProfileImageProvider(userProfileUrl)!,
           fit: BoxFit.cover,
           width: 100,
           height: 100,

@@ -39,7 +39,7 @@ class ProfileSettingsHelper {
   });
 
   ImageProvider _getImageProvider(String path) {
-    return ImageUtils.getProfileImageProvider(path);
+    return ImageUtils.getProfileImageProvider(path)!;
   }
 
   bool _isPinCorrect(String inputPin, String storedPin) {
@@ -155,7 +155,7 @@ class ProfileSettingsHelper {
 
   /// Profil resmi tam ekran gösterimi
   void showFullScreenImage() {
-    if (currentUser.profileImage == null) return;
+    if (currentUser.profileImage == null || currentUser.profileImage!.isEmpty) return;
 
     showDialog(
       context: context,

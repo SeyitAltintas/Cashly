@@ -3,11 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class ImageUtils {
-  static ImageProvider getProfileImageProvider(String? path) {
+  static ImageProvider? getProfileImageProvider(String? path) {
     if (path == null || path.isEmpty) {
-      return const AssetImage(
-        'assets/image/default_avatar.png',
-      ); // Fallback, though UI usually handles null check
+      return null;
     }
 
     if (path.startsWith('data:image')) {

@@ -165,13 +165,13 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                       context,
                     ).colorScheme.surfaceContainerHighest,
                     backgroundImage:
-                        widget.authController.currentUser?.profileImage != null
+                        (widget.authController.currentUser?.profileImage?.isNotEmpty ?? false)
                         ? ImageUtils.getProfileImageProvider(
                             widget.authController.currentUser!.profileImage,
                           )
                         : null,
                     child:
-                        widget.authController.currentUser?.profileImage == null
+                        (widget.authController.currentUser?.profileImage?.isEmpty ?? true)
                         ? Icon(
                             Icons.person,
                             size: 40,
