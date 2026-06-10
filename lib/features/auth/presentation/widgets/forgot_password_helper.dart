@@ -288,7 +288,7 @@ class ForgotPasswordHelper {
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: enabled
-                ? Colors.white
+                ? Theme.of(context).colorScheme.onSurface
                 : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.38),
           ),
         ),

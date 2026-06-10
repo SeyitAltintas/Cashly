@@ -51,7 +51,7 @@ class ChartTypeToggle extends StatelessWidget {
             child: Icon(
               icon,
               size: 20,
-              color: isSelected ? Colors.white : Colors.white.withAlpha(128),
+              color: isSelected ? Theme.of(context).colorScheme.onSurface : Colors.white.withAlpha(128),
             ),
           ),
         );
@@ -96,7 +96,7 @@ class TimeFilterSelector extends StatelessWidget {
             children: [
               if (controller.historyLimit == -1)
                 IconButton(
-                  icon: const Icon(Icons.chevron_left, color: Colors.white),
+                  icon: Icon(Icons.chevron_left, color: Theme.of(context).colorScheme.onSurface),
                   onPressed: () {
                     HapticFeedback.selectionClick();
                     final current = controller.selectedMonth;
@@ -235,7 +235,7 @@ class TimeFilterSelector extends StatelessWidget {
               ),
               if (controller.historyLimit == -1)
                 IconButton(
-                  icon: const Icon(Icons.chevron_right, color: Colors.white),
+                  icon: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface),
                   onPressed: () {
                     HapticFeedback.selectionClick();
                     final current = controller.selectedMonth;

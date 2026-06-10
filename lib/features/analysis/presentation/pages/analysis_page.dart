@@ -167,8 +167,8 @@ class _AnalysisPageState extends State<AnalysisPage>
               listenable: _controller,
               builder: (context, _) {
                 if (_controller.isLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                  return Center(
+                    child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onSurface),
                   );
                 }
                 return TabBarView(
@@ -208,14 +208,14 @@ class _AnalysisPageState extends State<AnalysisPage>
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
         onPressed: () => Navigator.pop(context),
       ),
       title: Text(context.l10n.analysisAndReports),
       actions: [
         if (!_isCurrentTabEmpty)
           IconButton(
-            icon: const Icon(Icons.file_download_outlined, color: Colors.white),
+            icon: Icon(Icons.file_download_outlined, color: Theme.of(context).colorScheme.onSurface),
             tooltip: context.l10n.downloadReportTooltip,
             onPressed: _showExportSheet,
           ),
@@ -279,7 +279,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                     ),
                     indicatorSize: TabBarIndicatorSize.tab,
                     dividerColor: Colors.transparent,
-                    labelColor: Colors.white,
+                    labelColor: Theme.of(context).colorScheme.onSurface,
                     unselectedLabelColor: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -433,7 +433,7 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   /// Kategori sırasına göre değerine orantılı renk üretir (Koyu -> Açık)
   Color _getColorForIndex(int index, List<Color> colors) {
-    if (colors.isEmpty) return Colors.grey;
+    if (colors.isEmpty) return Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5);
     return colors[index % colors.length];
   }
 

@@ -61,19 +61,19 @@ class _UserListPageState extends State<UserListPage> {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.white))
+          ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onSurface))
           : _users.isEmpty
           ? Center(
               child: Text(
                 context.l10n.noRegisteredUsers,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Inter',
-                  color: Colors.white70,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                 ),
               ),
             )
@@ -127,9 +127,9 @@ class _UserListPageState extends State<UserListPage> {
                     ),
                     subtitle: Text(
                       user.email,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'Inter',
-                        color: Colors.white54,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                       ),
                     ),
                     onTap: () {
@@ -144,9 +144,9 @@ class _UserListPageState extends State<UserListPage> {
                         ),
                       );
                     },
-                    trailing: const Icon(
+                    trailing: Icon(
                       Icons.arrow_forward_ios,
-                      color: Colors.white24,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                       size: 16,
                     ),
                   ),

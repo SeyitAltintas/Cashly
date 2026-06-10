@@ -146,7 +146,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
       validator: Validators.validateEmail,
       decoration: InputDecoration(
         labelText: context.l10n.emailLabel,
-        labelStyle: const TextStyle(color: Colors.white70),
+        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70)),
         prefixIcon: Icon(
           Icons.email_outlined,
           color: Theme.of(context).colorScheme.secondary,
@@ -191,7 +191,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
       validator: Validators.validatePIN,
       decoration: InputDecoration(
         labelText: "PIN",
-        labelStyle: const TextStyle(color: Colors.white70),
+        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70)),
         hintStyle: TextStyle(
           color: Theme.of(
             context,
@@ -206,7 +206,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
         suffixIcon: IconButton(
           icon: Icon(
             _isPinVisible ? Icons.visibility : Icons.visibility_off,
-            color: Colors.white70,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
             size: 20,
           ),
           onPressed: () {
@@ -254,20 +254,20 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
           ),
         ),
         child: _isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               )
             : Text(
                 context.l10n.login,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
       ),

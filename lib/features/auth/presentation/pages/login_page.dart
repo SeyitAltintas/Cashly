@@ -137,8 +137,8 @@ class _LoginPageState extends State<LoginPage> {
     if (_isLoadingUser) {
       content = Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: const Center(
-          child: CircularProgressIndicator(color: Colors.white),
+        body: Center(
+          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onSurface),
         ),
       );
     }

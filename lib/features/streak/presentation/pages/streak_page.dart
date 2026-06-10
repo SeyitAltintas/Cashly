@@ -164,7 +164,7 @@ class _StreakPageState extends State<StreakPage> {
               elevation: 0,
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.help_outline, color: Colors.white),
+                  icon: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.onSurface),
                   tooltip: context.l10n.howStreakWorks,
                   onPressed: () {
                     Navigator.push(

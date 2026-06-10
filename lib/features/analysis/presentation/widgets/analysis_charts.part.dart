@@ -29,8 +29,8 @@ extension AnalysisChartsExtension on _AnalysisPageState {
           titleStyle: TextStyle(
             fontSize: isTouched ? 14.0 : 12.0,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
-            shadows: const [Shadow(color: Colors.black, blurRadius: 2)],
+            color: Theme.of(context).colorScheme.onSurface,
+            shadows: [Shadow(color: Theme.of(context).colorScheme.onSurface, blurRadius: 2)],
           ),
         ),
       );
@@ -87,7 +87,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                             key: ValueKey<String>(centerTitle),
                             style: TextStyle(
                               color: _touchedIndex != -1
-                                  ? Colors.white
+                                  ? Theme.of(context).colorScheme.onSurface
                                   : Theme.of(context).colorScheme.onSurface
                                         .withValues(alpha: 0.5),
                               fontSize: 14,
@@ -110,7 +110,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                               CurrencyFormatter.format(centerValue),
                               style: TextStyle(
                                 color: _touchedIndex != -1
-                                    ? Colors.white
+                                    ? Theme.of(context).colorScheme.onSurface
                                     : Theme.of(context).colorScheme.onSurface,
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -125,8 +125,8 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                             child: Text(
                               centerPercentage,
                               key: ValueKey<String>(centerPercentage),
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -385,7 +385,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                 icon,
                 size: 14,
                 color: isSelected
-                    ? Colors.white
+                    ? Theme.of(context).colorScheme.onSurface
                     : Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -397,7 +397,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   color: isSelected
-                      ? Colors.white
+                      ? Theme.of(context).colorScheme.onSurface
                       : Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -732,9 +732,9 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Text(
                         shortTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 10,
-                          color: Colors.white70,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                         ),
                       ),
                     );

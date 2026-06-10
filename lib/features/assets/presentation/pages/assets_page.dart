@@ -171,7 +171,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
                   IconButton(
                     icon: Icon(
                       aramaModuContext ? Icons.close : Icons.search,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     onPressed: () {
                       _controller.aramaModu = !aramaModuContext;

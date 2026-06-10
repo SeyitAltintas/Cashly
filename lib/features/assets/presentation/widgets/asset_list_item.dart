@@ -35,7 +35,7 @@ class AssetListItem extends StatelessWidget {
             color: ColorConstants.koyuKirmizi,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.delete, color: Colors.white),
+          child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
         ),
         onDismissed: (direction) {
           HapticService.delete();
@@ -80,8 +80,8 @@ class AssetListItem extends StatelessWidget {
                         children: [
                           Text(
                             _getDay(asset.purchaseDate),
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               height: 1.2,
@@ -121,8 +121,8 @@ class AssetListItem extends StatelessWidget {
               ),
               title: Text(
                 asset.name,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w500,
                   fontSize: 15,
                 ),

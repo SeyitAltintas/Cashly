@@ -378,18 +378,18 @@ class _AddAssetPageState extends State<AddAssetPage> {
     final isEditing = widget.asset != null;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.onSurface,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white70),
+          icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           isEditing ? context.l10n.editAsset : context.l10n.addAsset,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w600,
             fontSize: 18,
           ),
@@ -554,17 +554,17 @@ class _AddAssetPageState extends State<AddAssetPage> {
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
           keyboardType: keyboardType,
           validator: validator,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white24),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
             prefixIcon: Icon(icon, color: _accentColor, size: 22),
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.05),
@@ -598,7 +598,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
       children: [
         Text(
           context.l10n.category,
-          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -624,7 +624,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
               backgroundColor: Colors.white.withValues(alpha: 0.05),
               selectedColor: _accentColor,
               labelStyle: TextStyle(
-                color: isSelected ? Colors.black : Colors.white70,
+                color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
               shape: RoundedRectangleBorder(
@@ -650,7 +650,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
           _selectedCategory == 'Banka'
               ? context.l10n.bankNameLabel
               : context.l10n.category,
-          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13),
         ),
         const SizedBox(height: 8),
         Container(
@@ -664,12 +664,12 @@ class _AddAssetPageState extends State<AddAssetPage> {
               value: _selectedType,
               hint: Text(
                 context.l10n.notSpecified,
-                style: const TextStyle(color: Colors.white38),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
               ),
               dropdownColor: const Color(0xFF1E1E1E),
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
               isExpanded: true,
-              icon: const Icon(Icons.expand_more, color: Colors.white38),
+              icon: Icon(Icons.expand_more, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
               items: _types[_selectedCategory]!.map((String type) {
                 return DropdownMenuItem<String>(
                   value: type,
@@ -697,7 +697,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
       children: [
         Text(
           '${context.l10n.amount} (${CurrencyService.supportedCurrencies[_localSelectedCurrency] ?? _localSelectedCurrency})',
-          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13),
         ),
         const SizedBox(height: 8),
         Row(
@@ -712,12 +712,12 @@ class _AddAssetPageState extends State<AddAssetPage> {
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: _localSelectedCurrency,
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.arrow_drop_down,
-                    color: Colors.white38,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                     size: 20,
                   ),
-                  dropdownColor: Colors.grey[900],
+                  dropdownColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.90),
                   onChanged: (String? newValue) {
                     if (newValue != null) {
                       setState(() {
@@ -732,7 +732,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                           child: Text(
                             '${CurrencyService.supportedCurrencies[value]!} $value',
                             style: TextStyle(
-                              color: Colors.white70,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                               fontSize: 14,
                               fontWeight: _localSelectedCurrency == value
                                   ? FontWeight.bold
@@ -749,7 +749,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
             Expanded(
               child: TextFormField(
                 controller: _amountController,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
                 keyboardType: TextInputType.number,
                 inputFormatters: [AmountInputFormatter()],
                 validator: (value) => AmountInputFormatter.validateAmount(
@@ -758,7 +758,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 ),
                 decoration: InputDecoration(
                   hintText: "0",
-                  hintStyle: const TextStyle(color: Colors.white24),
+                  hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
                   prefixIcon: Icon(
                     Icons.account_balance_wallet_outlined,
                     color: _accentColor,
@@ -913,10 +913,10 @@ class _AddAssetPageState extends State<AddAssetPage> {
                             ? 'tr_TR'
                             : 'en_US',
                       ).format(_purchaseDate),
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ),
-                  const Icon(Icons.edit, color: Colors.white38, size: 18),
+                  Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), size: 18),
                 ],
               ),
             ),
@@ -925,7 +925,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
           // Alış Fiyatı - Edge case kontrolleri ile
           TextFormField(
             controller: _purchasePriceController,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             keyboardType: TextInputType.number,
             inputFormatters: [AmountInputFormatter()],
             validator: (value) {
@@ -969,7 +969,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                   '${context.l10n.assetPurchasePrice} (${CurrencyService.supportedCurrencies[_localSelectedCurrency] ?? _localSelectedCurrency})',
               labelStyle: TextStyle(color: Colors.amber.shade700),
               hintText: 'e.g. 1,250.00',
-              hintStyle: const TextStyle(color: Colors.white24),
+              hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
               filled: true,
               fillColor: Colors.white.withValues(alpha: 0.05),
               border: OutlineInputBorder(
@@ -994,9 +994,9 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 Icons.shopping_cart,
                 color: Colors.amber.shade600,
               ),
-              suffixIcon: const Icon(
+              suffixIcon: Icon(
                 Icons.edit,
-                color: Colors.white38,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                 size: 18,
               ),
             ),
@@ -1022,8 +1022,8 @@ class _AddAssetPageState extends State<AddAssetPage> {
           child: Center(
             child: Text(
               isEditing ? context.l10n.save : context.l10n.addAsset,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
               ),

@@ -169,9 +169,9 @@ class _BalanceCardState extends State<BalanceCard> {
                       children: [
                         Text(
                           context.l10n.totalBalance,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
-                            color: Colors.white70,
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -187,7 +187,7 @@ class _BalanceCardState extends State<BalanceCard> {
                               isObscured
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: Colors.white70,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                               size: 20,
                             ),
                           ),
@@ -202,10 +202,10 @@ class _BalanceCardState extends State<BalanceCard> {
                       child: ObscuredAmountText(
                         CurrencyFormatter.format(widget.totalBalance),
                         isObscured: isObscured,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 34,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -215,10 +215,10 @@ class _BalanceCardState extends State<BalanceCard> {
                     // Bu Ay Geliri
                     Row(
                       children: [
-                        const Text(
+                        Text(
                           "Bu ay",
                           style: TextStyle(
-                            color: Colors.white70,
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),
@@ -259,23 +259,23 @@ class _BalanceCardState extends State<BalanceCard> {
                             color: Colors.white.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.account_balance_wallet_outlined,
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onSurface,
                             size: 18,
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Text(
+                        Text(
                           "Nakit:",
-                          style: TextStyle(color: Colors.white70, fontSize: 15),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70), fontSize: 15),
                         ),
                         const SizedBox(width: 6),
                         ObscuredAmountText(
                           CurrencyFormatter.format(cashBalance),
                           isObscured: isObscured,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),

@@ -419,7 +419,7 @@ class AssetDetailPage extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue.shade600,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -463,7 +463,7 @@ class AssetDetailPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            style: TextButton.styleFrom(foregroundColor: Colors.white),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
             child: Text(context.l10n.cancel),
           ),
           TextButton(

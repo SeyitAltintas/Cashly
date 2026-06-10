@@ -88,7 +88,7 @@ class _BadgeItem extends StatelessWidget {
               badge.emoji,
               style: TextStyle(
                 fontSize: 16,
-                color: isEarned ? null : Colors.grey,
+                color: isEarned ? null : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 2),

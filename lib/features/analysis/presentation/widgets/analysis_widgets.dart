@@ -66,7 +66,7 @@ class AnalysisEmptyState extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor:
                     buttonColor ?? Theme.of(context).colorScheme.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 14,
@@ -135,7 +135,7 @@ class TrendInsightCard extends StatelessWidget {
 
     // Renk ve ikonlar harcama/gelir durumuna göre değişir
     // Harcama artarsa kötü (kırmızı), Gelir artarsa iyi (yeşil)
-    Color iconColor = Colors.grey;
+    Color iconColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5);
     IconData icon = Icons.trending_flat;
     String message = noChangeText;
 
@@ -160,7 +160,7 @@ class TrendInsightCard extends StatelessWidget {
       message = context
           .l10n
           .noData; // using localized string if "noData" is available or handle gracefully
-      iconColor = Colors.grey;
+      iconColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5);
     }
 
     return Container(
@@ -202,10 +202,10 @@ class TrendInsightCard extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey,
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -288,10 +288,10 @@ class TrendInsightCard extends StatelessWidget {
                       children: [
                         Text(
                           topCategoryLabel!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey,
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                         const SizedBox(height: 2),

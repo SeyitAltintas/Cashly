@@ -628,7 +628,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                                   Text(
                                     context.l10n.noDetailsFound,
                                     style: TextStyle(
-                                      color: Colors.grey.shade500,
+                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.50),
                                       fontSize: 15,
                                     ),
                                   ),

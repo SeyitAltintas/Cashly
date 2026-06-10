@@ -61,10 +61,10 @@ class StreakHeaderCard extends StatelessWidget {
                         children: [
                           Text(
                             '${streakData.currentStreak}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 48,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onSurface,
                               height: 1,
                             ),
                           ),
@@ -73,9 +73,9 @@ class StreakHeaderCard extends StatelessWidget {
                             padding: const EdgeInsets.only(bottom: 8),
                             child: Text(
                               context.l10n.daysText,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
-                                color: Colors.white70,
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -85,9 +85,9 @@ class StreakHeaderCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         context.l10n.dailyStreak,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: Colors.white70,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -105,16 +105,16 @@ class StreakHeaderCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.ac_unit,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 size: 14,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 context.l10n.freezeUsed,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
                                 ),

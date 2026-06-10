@@ -722,7 +722,7 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
           Colors.purpleAccent.shade200,
         ];
       default:
-        return [Colors.grey.shade400];
+        return [const Color(0xFF9E9E9E)]; // Colors.grey.shade400
     }
   }
 

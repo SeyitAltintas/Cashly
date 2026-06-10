@@ -414,9 +414,9 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   backgroundColor: _hasSelection
                       ? Colors.red.shade700
                       : Colors.grey.withValues(alpha: 0.3),
-                  foregroundColor: Colors.white,
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
                   disabledBackgroundColor: Colors.grey.withValues(alpha: 0.3),
-                  disabledForegroundColor: Colors.grey,
+                  disabledForegroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -426,21 +426,21 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const SizedBox(
+                          SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(width: 12),
                           Text(
                             context.l10n.preparing,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ],
@@ -448,18 +448,18 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.share_rounded,
                             size: 22,
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           const SizedBox(width: 10),
                           Text(
                             context.l10n.createAndSharePdf,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ],

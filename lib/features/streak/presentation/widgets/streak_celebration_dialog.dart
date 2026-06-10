@@ -202,10 +202,10 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
                             padding: const EdgeInsets.only(bottom: 12),
                             child: Text(
                               context.l10n.streakCelebrationDayLabel,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white70,
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                               ),
                             ),
                           ),
@@ -221,10 +221,10 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
                     child: Text(
                       _getCelebrationMessage(context),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),

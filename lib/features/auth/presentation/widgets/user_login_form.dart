@@ -223,9 +223,9 @@ class _UserLoginFormState extends State<UserLoginForm> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 5),
+              SizedBox(width: 5),
               IconButton(
-                icon: const Icon(Icons.autorenew_sharp, color: Colors.white),
+                icon: Icon(Icons.autorenew_sharp, color: Theme.of(context).colorScheme.onSurface),
                 tooltip: "Kullanıcı Değiştir",
                 onPressed: widget.onSwitchUser,
               ),
@@ -372,20 +372,20 @@ class _UserLoginFormState extends State<UserLoginForm> {
           ),
         ),
         child: _isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               )
             : Text(
                 context.l10n.login,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
       ),
