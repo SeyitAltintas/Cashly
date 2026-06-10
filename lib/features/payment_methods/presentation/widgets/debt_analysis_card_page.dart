@@ -47,15 +47,15 @@ class DebtAnalysisCardPage extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            ColorConstants.kirmiziVurgu.withValues(alpha: 0.25),
-            ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.9),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.6),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
+          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3),
         ),
       ),
       padding: const EdgeInsets.all(20),
@@ -67,14 +67,14 @@ class DebtAnalysisCardPage extends StatelessWidget {
             children: [
               Icon(
                 Icons.trending_down,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Colors.white.withValues(alpha: 0.6),
                 size: 16,
               ),
               const SizedBox(width: 6),
               Text(
                 context.l10n.totalDebt,
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: Colors.white.withValues(alpha: 0.6),
                   fontSize: 11,
                   letterSpacing: 1.2,
                   fontWeight: FontWeight.w600,
@@ -88,10 +88,8 @@ class DebtAnalysisCardPage extends StatelessWidget {
           // Toplam borç tutarı
           Text(
             CurrencyFormatter.format(toplamBorc),
-            style: TextStyle(
-              color: toplamBorc > 0
-                  ? ColorConstants.kirmiziVurgu
-                  : Theme.of(context).colorScheme.onSurface,
+            style: const TextStyle(
+              color: Colors.white,
               fontSize: 32,
               fontWeight: FontWeight.w800,
             ),
@@ -109,14 +107,14 @@ class DebtAnalysisCardPage extends StatelessWidget {
                   Text(
                     context.l10n.limitUsage,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 11,
                     ),
                   ),
                   Text(
                     '%${(kullanimOrani * 100).toStringAsFixed(0)}',
-                    style: TextStyle(
-                      color: durumRengi,
+                    style: const TextStyle(
+                      color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
@@ -128,8 +126,8 @@ class DebtAnalysisCardPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
                   value: kullanimOrani,
-                  backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
-                  valueColor: AlwaysStoppedAnimation<Color>(durumRengi),
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                   minHeight: 8,
                 ),
               ),
@@ -145,12 +143,12 @@ class DebtAnalysisCardPage extends StatelessWidget {
               _DebtInfoChip(
                 label: context.l10n.usedAmount,
                 value: CurrencyFormatter.format(toplamBorc),
-                color: ColorConstants.kirmiziVurgu,
+                color: Colors.white,
               ),
               _DebtInfoChip(
                 label: context.l10n.totalLimit,
                 value: CurrencyFormatter.format(toplamLimit),
-                color: ColorConstants.maviVurgu,
+                color: Colors.white,
               ),
             ],
           ),
@@ -177,7 +175,7 @@ class _DebtInfoChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -185,7 +183,7 @@ class _DebtInfoChip extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 9,
               fontWeight: FontWeight.w500,
             ),

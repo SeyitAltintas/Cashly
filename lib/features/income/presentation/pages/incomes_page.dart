@@ -357,7 +357,6 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     return ChangeNotifierProvider<IncomesController>.value(
       value: _controller,
       child: Scaffold(
-        backgroundColor: Colors.transparent,
         appBar: IncomesAppBar(
           searchController: tGelirArama,
           onSearchChanged: () {

@@ -54,7 +54,6 @@ class _ToolsPageState extends State<ToolsPage>
           final isLoading = context.select((ToolsController c) => c.isLoading);
 
           return Scaffold(
-            backgroundColor: Colors.transparent,
             body: SafeArea(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())

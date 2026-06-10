@@ -125,7 +125,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
           );
 
           return Scaffold(
-            backgroundColor: Colors.transparent,
             appBar: AppBar(
               title: aramaModu
                   ? TextField(
@@ -443,7 +442,12 @@ class _PaymentMethodCard extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: colors,
+                colors: Theme.of(context).brightness == Brightness.dark
+                    ? colors
+                    : [
+                        colors[0].withValues(alpha: 0.1),
+                        colors[1].withValues(alpha: 0.2),
+                      ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

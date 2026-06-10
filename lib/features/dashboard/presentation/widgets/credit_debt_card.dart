@@ -31,14 +31,14 @@ class CreditDebtCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              ColorConstants.koyuKirmizi.withValues(alpha: 0.3),
-              ColorConstants.koyuKirmizi.withValues(alpha: 0.2),
+              ColorConstants.kirmiziVurgu.withValues(alpha: 0.9),
+              ColorConstants.kirmiziVurgu.withValues(alpha: 0.6),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3)),
+          border: Border.all(color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4)),
         ),
         child: Row(
           children: [
@@ -46,12 +46,12 @@ class CreditDebtCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.credit_card,
-                color: ColorConstants.kirmiziVurgu,
+                color: Colors.white,
                 size: 24,
               ),
             ),
@@ -63,11 +63,9 @@ class CreditDebtCard extends StatelessWidget {
                 children: [
                   Text(
                     context.l10n.creditCardDebt,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      color: Colors.white70,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -77,7 +75,7 @@ class CreditDebtCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: ColorConstants.kirmiziVurgu,
+                      color: Colors.white,
                     ),
                   ),
                 ],
