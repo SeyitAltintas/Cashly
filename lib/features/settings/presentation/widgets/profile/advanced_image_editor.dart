@@ -122,9 +122,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               onPressed: _saveEditedImage,
               child: Text(
                 context.l10n.apply,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Inter',
-                  color: Colors.white, // Beyaz renk
+                  color: Theme.of(context).colorScheme.onSurface, // Beyaz renk
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -188,14 +188,14 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.5),
+                        color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.5),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         _showOriginal
                             ? Icons.visibility
                             : Icons.visibility_outlined,
-                        color: _showOriginal ? _primaryColor : Colors.white70,
+                        color: _showOriginal ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                         size: 18,
                       ),
                     ),
@@ -229,8 +229,8 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       ),
                       indicatorSize: TabBarIndicatorSize.tab,
                       dividerColor: Colors.transparent,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.white60,
+                      labelColor: Theme.of(context).colorScheme.onSurface,
+                      unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       labelPadding: EdgeInsets.zero,
                       tabAlignment: TabAlignment.start,
                       padding: EdgeInsets.zero,
@@ -360,7 +360,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               gradient: RadialGradient(
                 colors: [
                   Colors.transparent,
-                  Colors.black.withValues(alpha: _state.vignette / 100),
+                  Theme.of(context).scaffoldBackgroundColor.withValues(alpha: _state.vignette / 100),
                 ],
                 stops: const [0.5, 1.0],
               ),
@@ -437,11 +437,11 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 color: text.color,
                 fontWeight: text.isBold ? FontWeight.bold : FontWeight.normal,
                 fontStyle: text.isItalic ? FontStyle.italic : FontStyle.normal,
-                shadows: const [
+                shadows: [
                   Shadow(
-                    color: Colors.black54,
+                    color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.54),
                     blurRadius: 4,
-                    offset: Offset(1, 1),
+                    offset: const Offset(1, 1),
                   ),
                 ],
               ),
@@ -642,7 +642,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                         border: Border.all(
                           color: isSelected
                               ? _primaryColor
-                              : Colors.white.withValues(alpha: 0.2),
+                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                           width: isSelected ? 3 : 1,
                         ),
                       ),
@@ -670,7 +670,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                         fontFamily: 'Inter',
                         color: isSelected
                             ? _primaryColor
-                            : Colors.white.withValues(alpha: 0.7),
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                         fontSize: 9,
                         fontWeight: isSelected
                             ? FontWeight.bold
@@ -696,15 +696,15 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
       child: Row(
         children: [
-          const Icon(Icons.opacity, color: Colors.white54, size: 16),
+          Icon(Icons.opacity, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), size: 16),
           const SizedBox(width: 6),
           SizedBox(
             width: 72,
             child: Text(
               context.l10n.intensity,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Inter',
-                color: Colors.white70,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 11,
               ),
               maxLines: 1,
@@ -715,7 +715,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             child: SliderTheme(
               data: SliderThemeData(
                 activeTrackColor: _primaryColor,
-                inactiveTrackColor: Colors.white24,
+                inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                 thumbColor: _primaryColor,
                 overlayColor: _primaryColor.withValues(alpha: 0.2),
                 trackHeight: 2,
@@ -734,9 +734,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             width: 40,
             child: Text(
               '${_state.filterIntensity.toInt()}%',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Inter',
-                color: Colors.white54,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                 fontSize: 10,
               ),
               textAlign: TextAlign.right,
@@ -755,7 +755,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               Icons.restart_alt_rounded,
               color: _state.filterIntensity != 100
                   ? _primaryColor
-                  : Colors.white24,
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
               size: 16,
             ),
           ),
@@ -839,15 +839,15 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white54, size: 16),
+          Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), size: 16),
           const SizedBox(width: 6),
           SizedBox(
             width: 72,
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Inter',
-                color: Colors.white70,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 11,
               ),
               maxLines: 1,
@@ -858,7 +858,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             child: SliderTheme(
               data: SliderThemeData(
                 activeTrackColor: _primaryColor,
-                inactiveTrackColor: Colors.white24,
+                inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                 thumbColor: _primaryColor,
                 overlayColor: _primaryColor.withValues(alpha: 0.2),
                 trackHeight: 2,
@@ -878,9 +878,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             width: 32,
             child: Text(
               value.toInt().toString(),
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Inter',
-                color: Colors.white54,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                 fontSize: 10,
               ),
               textAlign: TextAlign.right,
@@ -899,7 +899,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     },
                     child: Icon(
                       Icons.refresh,
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                       size: 16,
                     ),
                   )
@@ -999,19 +999,19 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             decoration: BoxDecoration(
               color: isActive
                   ? _primaryColor.withValues(alpha: 0.2)
-                  : Colors.white.withValues(alpha: 0.1),
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
               shape: BoxShape.circle,
               border: Border.all(
                 color: isActive
                     ? _primaryColor
-                    : Colors.white.withValues(alpha: 0.2),
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
               ),
             ),
             child: Transform.rotate(
               angle: rotateIcon ? math.pi / 2 : 0,
               child: Icon(
                 icon,
-                color: isActive ? _primaryColor : Colors.white70,
+                color: isActive ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 size: 22,
               ),
             ),
@@ -1021,7 +1021,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             label,
             style: TextStyle(
               fontFamily: 'Inter',
-              color: isActive ? _primaryColor : Colors.white54,
+              color: isActive ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
               fontSize: 10,
             ),
           ),
@@ -1046,21 +1046,21 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     color: _cardColor,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                     ),
                   ),
                   child: TextField(
                     controller: _textController,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Inter',
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 13,
                     ),
                     decoration: InputDecoration(
                       hintText: context.l10n.typeText,
                       hintStyle: TextStyle(
                         fontFamily: 'Inter',
-                        color: Colors.white.withValues(alpha: 0.4),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                         fontSize: 13,
                       ),
                       contentPadding: const EdgeInsets.symmetric(
@@ -1083,7 +1083,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     color: _primaryColor,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 20),
+                  child: Icon(Icons.add, color: Theme.of(context).colorScheme.onSurface, size: 20),
                 ),
               ),
             ],
@@ -1118,12 +1118,12 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? _primaryColor.withValues(alpha: 0.2)
-                            : Colors.white.withValues(alpha: 0.1),
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: isSelected
                               ? _primaryColor
-                              : Colors.white.withValues(alpha: 0.2),
+                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                         ),
                       ),
                       child: Center(
@@ -1133,7 +1133,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                               : text.text,
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            color: isSelected ? _primaryColor : Colors.white70,
+                            color: isSelected ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                             fontSize: 11,
                           ),
                           maxLines: 1,
@@ -1188,8 +1188,8 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             children: [
               // Geniş renk paleti
               ...[
-                Colors.white,
-                Colors.black,
+                Theme.of(context).colorScheme.onSurface,
+                Theme.of(context).scaffoldBackgroundColor,
                 Colors.red,
                 Colors.blue,
                 Colors.green,
@@ -1212,7 +1212,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       border: Border.all(
                         color: text.color == color
                             ? _primaryColor
-                            : Colors.white.withValues(alpha: 0.3),
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                         width: text.color == color ? 2 : 1,
                       ),
                     ),
@@ -1228,7 +1228,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 },
                 child: Icon(
                   Icons.format_bold,
-                  color: text.isBold ? _primaryColor : Colors.white54,
+                  color: text.isBold ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                   size: 20,
                 ),
               ),
@@ -1241,7 +1241,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 },
                 child: Icon(
                   Icons.format_italic,
-                  color: text.isItalic ? _primaryColor : Colors.white54,
+                  color: text.isItalic ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                   size: 20,
                 ),
               ),
@@ -1259,14 +1259,14 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Row(
               children: [
-                const Icon(Icons.text_fields, color: Colors.white54, size: 14),
+                Icon(Icons.text_fields, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), size: 14),
                 const SizedBox(width: 4),
                 // Font boyutu slider (Option D)
                 Expanded(
                   child: SliderTheme(
                     data: SliderThemeData(
                       activeTrackColor: _primaryColor,
-                      inactiveTrackColor: Colors.white24,
+                      inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                       thumbColor: _primaryColor,
                       overlayColor: _primaryColor.withValues(alpha: 0.2),
                       trackHeight: 2,
@@ -1287,9 +1287,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   width: 28,
                   child: Text(
                     '${text.fontSize.toInt()}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Inter',
-                      color: Colors.white54,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                       fontSize: 9,
                     ),
                     textAlign: TextAlign.center,
@@ -1322,19 +1322,19 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           decoration: BoxDecoration(
             color: isActive
                 ? _primaryColor.withValues(alpha: 0.2)
-                : Colors.white.withValues(alpha: 0.08),
+                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(4),
             border: Border.all(
               color: isActive
                   ? _primaryColor
-                  : Colors.white.withValues(alpha: 0.15),
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
             ),
           ),
           child: Text(
             font.length > 3 ? font.substring(0, 3) : font,
             style: TextStyle(
               fontFamily: font,
-              color: isActive ? _primaryColor : Colors.white54,
+              color: isActive ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
               fontSize: 9,
               fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
             ),
@@ -1364,9 +1364,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               children: [
                 Text(
                   context.l10n.sizeLabel,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Inter',
-                    color: Colors.white54,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                     fontSize: 11,
                   ),
                 ),
@@ -1374,7 +1374,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   child: SliderTheme(
                     data: SliderThemeData(
                       activeTrackColor: _primaryColor,
-                      inactiveTrackColor: Colors.white24,
+                      inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                       thumbColor: _primaryColor,
                       overlayColor: _primaryColor.withValues(alpha: 0.2),
                       trackHeight: 3,
@@ -1407,10 +1407,10 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             onEmojiSelected: (category, emoji) {
               _addSticker(emoji.emoji);
             },
-            config: const Config(
+            config: Config(
               height: 140,
               checkPlatformCompatibility: true,
-              emojiViewConfig: EmojiViewConfig(
+              emojiViewConfig: const EmojiViewConfig(
                 columns: 8,
                 emojiSizeMax: 28,
                 backgroundColor: _surfaceColor,
@@ -1419,12 +1419,12 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 backgroundColor: _surfaceColor,
                 indicatorColor: _primaryColor,
                 iconColorSelected: _primaryColor,
-                iconColor: Colors.white54,
+                iconColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
               ),
-              bottomActionBarConfig: BottomActionBarConfig(enabled: false),
+              bottomActionBarConfig: const BottomActionBarConfig(enabled: false),
               searchViewConfig: SearchViewConfig(
                 backgroundColor: _surfaceColor,
-                buttonIconColor: Colors.white54,
+                buttonIconColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
               ),
             ),
           ),
@@ -1473,15 +1473,15 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
             child: Row(
               children: [
-                const Icon(Icons.line_weight, color: Colors.white54, size: 16),
+                Icon(Icons.line_weight, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), size: 16),
                 const SizedBox(width: 6),
                 SizedBox(
                   width: 56,
                   child: Text(
                     context.l10n.thickness,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Inter',
-                      color: Colors.white70,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                       fontSize: 11,
                     ),
                     maxLines: 1,
@@ -1491,7 +1491,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   child: SliderTheme(
                     data: SliderThemeData(
                       activeTrackColor: _primaryColor,
-                      inactiveTrackColor: Colors.white24,
+                      inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                       thumbColor: _primaryColor,
                       overlayColor: _primaryColor.withValues(alpha: 0.2),
                       trackHeight: 2,
@@ -1513,9 +1513,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   width: 28,
                   child: Text(
                     '${_state.frameBorderWidth.toInt()}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Inter',
-                      color: Colors.white54,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                       fontSize: 10,
                     ),
                     textAlign: TextAlign.right,
@@ -1591,7 +1591,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                         fontFamily: 'Inter',
                         color: isSelected
                             ? _primaryColor
-                            : Colors.white.withValues(alpha: 0.7),
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                         fontSize: 9,
                         fontWeight: isSelected
                             ? FontWeight.bold
@@ -1760,7 +1760,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               context.l10n.resetAll,
               style: TextStyle(
                 fontFamily: 'Inter',
-                color: Colors.white.withValues(alpha: 0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -1788,7 +1788,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           children: [
             Icon(
               icon,
-              color: isEnabled ? _primaryColor : Colors.white38,
+              color: isEnabled ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
               size: 16,
             ),
             const SizedBox(width: 3),
@@ -1796,7 +1796,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               label,
               style: TextStyle(
                 fontFamily: 'Inter',
-                color: isEnabled ? Colors.white70 : Colors.white38,
+                color: isEnabled ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
               ),

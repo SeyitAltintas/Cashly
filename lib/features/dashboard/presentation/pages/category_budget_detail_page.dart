@@ -223,7 +223,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
           border: Border.all(
             color: isOverBudget
                 ? Colors.red.withValues(alpha: 0.3)
-                : Colors.white.withValues(alpha: 0.1),
+                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
           ),
         ),
         child: Column(
@@ -509,7 +509,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                             ),
                             child: Icon(
                               categoryIcon,
-                              color: Colors.white.withValues(alpha: 0.8),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                               size: 28,
                             ),
                           ),

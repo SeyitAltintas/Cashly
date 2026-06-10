@@ -39,7 +39,7 @@ class DatePickerField extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(

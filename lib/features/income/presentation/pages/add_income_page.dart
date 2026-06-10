@@ -178,18 +178,18 @@ class _AddIncomePageState extends State<AddIncomePage> {
     final isEditing = widget.incomeToEdit != null;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white70),
+          icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           isEditing ? context.l10n.editIncome : context.l10n.addIncome,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w600,
             fontSize: 18,
           ),
@@ -252,7 +252,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
             children: [
               Text(
                 context.l10n.incomeAmount,
-                style: const TextStyle(color: Colors.white54, fontSize: 14),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 14),
               ),
               const SizedBox(height: 8),
               Row(
@@ -262,9 +262,9 @@ class _AddIncomePageState extends State<AddIncomePage> {
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _localSelectedCurrency,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_drop_down,
-                        color: Colors.white38,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                       ),
                       dropdownColor: Colors.grey[900],
                       onChanged: (String? newValue) {
@@ -280,8 +280,8 @@ class _AddIncomePageState extends State<AddIncomePage> {
                               value: value,
                               child: Text(
                                 CurrencyService.supportedCurrencies[value]!,
-                                style: const TextStyle(
-                                  color: Colors.white38,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                                   fontSize: 36,
                                   fontWeight: FontWeight.w300,
                                 ),
@@ -295,8 +295,8 @@ class _AddIncomePageState extends State<AddIncomePage> {
                   IntrinsicWidth(
                     child: TextField(
                       controller: _amountController,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 48,
                         fontWeight: FontWeight.w300,
                       ),
@@ -304,10 +304,10 @@ class _AddIncomePageState extends State<AddIncomePage> {
                       inputFormatters: [AmountInputFormatter()],
                       textAlign: TextAlign.center,
                       onChanged: (value) => state.didChange(value),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: "0",
                         hintStyle: TextStyle(
-                          color: Colors.white24,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                           fontSize: 48,
                           fontWeight: FontWeight.w300,
                         ),
@@ -348,19 +348,19 @@ class _AddIncomePageState extends State<AddIncomePage> {
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
           validator: validator,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white24),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
             prefixIcon: Icon(icon, color: _accentColor, size: 22),
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.05),
+            fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -424,22 +424,22 @@ class _AddIncomePageState extends State<AddIncomePage> {
       children: [
         Text(
           context.l10n.incomePaymentMethod,
-          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(12),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String?>(
               value: _selectedPaymentMethodId,
               dropdownColor: const Color(0xFF1E1E1E),
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
               isExpanded: true,
-              icon: const Icon(Icons.expand_more, color: Colors.white38),
+              icon: Icon(Icons.expand_more, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
               hint: Row(
                 children: [
                   const Icon(
@@ -450,7 +450,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                   const SizedBox(width: 12),
                   Text(
                     context.l10n.selectAccount,
-                    style: const TextStyle(color: Colors.white38),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
                   ),
                 ],
               ),
@@ -472,16 +472,16 @@ class _AddIncomePageState extends State<AddIncomePage> {
                             children: [
                               TextSpan(
                                 text: context.translateDbName(pm.name),
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontSize: 16,
                                 ),
                               ),
                               if (pm.lastFourDigits != null) ...[
                                 TextSpan(
                                   text: ' - ****${pm.lastFourDigits}',
-                                  style: const TextStyle(
-                                    color: Colors.white38,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -544,8 +544,8 @@ class _AddIncomePageState extends State<AddIncomePage> {
           child: Center(
             child: Text(
               isEditing ? context.l10n.updateButton : context.l10n.addIncome,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
               ),

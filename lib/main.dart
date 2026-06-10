@@ -23,6 +23,7 @@ import 'features/streak/data/services/streak_service.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/theme_manager.dart';
+import 'core/theme/app_theme.dart';
 import 'core/widgets/error_screen.dart';
 import 'core/di/injection_container.dart';
 import 'core/services/price_cache_service.dart';
@@ -359,7 +360,9 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
             }
             return supportedLocales.first;
           },
-          theme: themeManager.currentTheme,
+          themeMode: themeManager.themeMode,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
           routerConfig: _appRouter!.router,
           builder: (context, child) {
             return OfflineSensor(child: child ?? const SizedBox.shrink());

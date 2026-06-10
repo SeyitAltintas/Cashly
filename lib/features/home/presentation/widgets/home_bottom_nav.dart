@@ -34,7 +34,7 @@ class HomeBottomNav extends StatelessWidget {
             ),
           ],
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.08),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
             width: 1,
           ),
         ),

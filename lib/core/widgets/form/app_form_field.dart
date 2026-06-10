@@ -88,11 +88,11 @@ class AppFormField extends StatelessWidget {
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          borderSide: BorderSide(color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          borderSide: BorderSide(color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -111,10 +111,10 @@ class AppFormField extends StatelessWidget {
         ),
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+          borderSide: BorderSide(color: theme.colorScheme.onSurface.withValues(alpha: 0.05)),
         ),
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.03),
+        fillColor: theme.colorScheme.onSurface.withValues(alpha: 0.03),
       ),
     );
   }

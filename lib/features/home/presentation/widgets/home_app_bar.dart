@@ -36,7 +36,7 @@ class ExpensesAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? TextField(
               controller: aramaController,
               autofocus: true,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
                 hintText: context.l10n.searchExpense,
                 border: InputBorder.none,
@@ -68,12 +68,12 @@ class ExpensesAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         if (!aramaModu) ...[
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.white),
+            icon: const Icon(Icons.delete_outline),
             tooltip: context.l10n.recycleBinTooltip,
             onPressed: onCopKutusuAc,
           ),
           IconButton(
-            icon: const Icon(Icons.mic, color: Colors.white),
+            icon: const Icon(Icons.mic),
             tooltip: context.l10n.voiceInputTooltip,
             onPressed: onSesliGirisAc,
           ),
@@ -81,7 +81,6 @@ class ExpensesAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(
             aramaModu ? Icons.close : Icons.search,
-            color: Colors.white,
           ),
           onPressed: onAramaModuDegistir,
         ),
@@ -119,7 +118,7 @@ class IncomesAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? TextField(
               controller: aramaController,
               autofocus: true,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
                 hintText: context.l10n.searchIncome,
                 hintStyle: TextStyle(
@@ -137,14 +136,13 @@ class IncomesAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: false,
       actions: [
         IconButton(
-          icon: const Icon(Icons.delete_outline, color: Colors.white),
+          icon: const Icon(Icons.delete_outline),
           tooltip: context.l10n.recycleBinTooltip,
           onPressed: onCopKutusuAc,
         ),
         IconButton(
           icon: Icon(
             aramaModu ? Icons.close : Icons.search,
-            color: Colors.white,
           ),
           onPressed: onAramaModuDegistir,
         ),

@@ -64,7 +64,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
         title: Text(context.l10n.aboutAndSupport),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: FadeTransition(
         opacity: _fadeAnim,
@@ -119,12 +119,12 @@ class _AboutSupportPageState extends State<AboutSupportPage>
           center: Alignment.topLeft,
           radius: 1.8,
           colors: [
-            Colors.white.withValues(alpha: 0.07),
-            Colors.white.withValues(alpha: 0.02),
+            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.07),
+            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
             Colors.transparent,
           ],
         ),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -158,9 +158,9 @@ class _AboutSupportPageState extends State<AboutSupportPage>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
             ),
             child: Text(
               'v$_appVersion',
@@ -233,12 +233,12 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                   center: Alignment.topLeft,
                   radius: 1.8,
                   colors: [
-                    Colors.white.withValues(alpha: 0.07),
-                    Colors.white.withValues(alpha: 0.02),
+                    Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.07),
+                    Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
                     Colors.transparent,
                   ],
                 ),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08)),
               ),
               child: Column(
                 children: [
@@ -246,12 +246,12 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                     'assets/image/seffaflogo.png',
                     height: 44,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, _, _) => const Text(
+                    errorBuilder: (_, _, _) => Text(
                       'Cashly',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -260,7 +260,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                     context.l10n.appSlogan,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.45),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45),
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -271,10 +271,10 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.08),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                       ),
                     ),
                     child: Text(
@@ -282,7 +282,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white.withValues(alpha: 0.4),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                         letterSpacing: 0.8,
                       ),
                     ),
@@ -292,7 +292,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                     context.l10n.copyright,
                     style: TextStyle(
                       fontSize: 11,
-                      color: Colors.white.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                     ),
                   ),
                 ],
@@ -353,7 +353,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -513,7 +513,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -642,7 +642,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.white24,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),

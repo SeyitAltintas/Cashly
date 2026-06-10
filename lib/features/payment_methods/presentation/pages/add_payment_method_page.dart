@@ -166,23 +166,19 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
     final isEditing = widget.paymentMethod != null;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white70),
+          icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           isEditing
               ? context.l10n.editPaymentMethod
               : context.l10n.addPaymentMethod,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 18,),
         ),
         centerTitle: true,
       ),
@@ -384,8 +380,8 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
       children: [
         Text(
           context.l10n.cardType,
-          style: const TextStyle(
-            color: Colors.white54,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
             fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
@@ -393,9 +389,9 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
           ),
           child: Row(
             children: List.generate(_types.length, (index) {
@@ -423,7 +419,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                       _typeLabels[index],
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: isSelected ? Colors.black : Colors.white60,
+                        color: isSelected ? Theme.of(context).scaffoldBackgroundColor : Colors.white60,
                         fontWeight: isSelected
                             ? FontWeight.bold
                             : FontWeight.normal,
@@ -448,13 +444,13 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           _selectedType == 'nakit'
               ? context.l10n.nameLabel
               : context.l10n.bankCardName,
-          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: _nameController,
           maxLength: 30,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
           inputFormatters: [
             FilteringTextInputFormatter.allow(
               RegExp(r'[a-zA-ZğüşıöçĞÜŞİÖÇ0-9\s]'),
@@ -464,7 +460,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             hintText: _selectedType == 'nakit'
                 ? context.l10n.cashWalletExample
                 : context.l10n.ziraatBankExample,
-            hintStyle: const TextStyle(color: Colors.white24),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
             counterText: '',
             prefixIcon: Icon(
               _selectedType == 'nakit' ? Icons.wallet : Icons.credit_card,
@@ -472,7 +468,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               size: 22,
             ),
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.05),
+            fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -517,18 +513,18 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
       children: [
         Text(
           context.l10n.lastFourDigits,
-          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: _lastFourController,
           keyboardType: TextInputType.number,
           maxLength: 4,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(
             hintText: '1234',
-            hintStyle: const TextStyle(color: Colors.white24),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
             counterText: '',
             prefixIcon: Icon(
               Icons.dialpad,
@@ -536,7 +532,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               size: 22,
             ),
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.05),
+            fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -578,19 +574,19 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           _selectedType == 'kredi'
               ? context.l10n.currentDebt
               : context.l10n.balance,
-          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: _balanceController,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
           inputFormatters: [
             AmountInputFormatter(), // Türk para formatı: 1.000,00
           ],
           decoration: InputDecoration(
             hintText: _selectedType == 'kredi' ? '0,00' : '1.000,00',
-            hintStyle: const TextStyle(color: Colors.white24),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
             prefixIcon: Icon(
               _selectedType == 'kredi'
                   ? Icons.money_off
@@ -599,9 +595,9 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               size: 22,
             ),
             suffixText: getIt<CurrencyService>().currentSymbol,
-            suffixStyle: const TextStyle(color: Colors.white54),
+            suffixStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54)),
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.05),
+            fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -651,28 +647,28 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
       children: [
         Text(
           context.l10n.cardLimit,
-          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: _limitController,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
           inputFormatters: [
             AmountInputFormatter(), // Türk para formatı: 10.000,00
           ],
           decoration: InputDecoration(
             hintText: '10.000,00',
-            hintStyle: const TextStyle(color: Colors.white24),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
             prefixIcon: Icon(
               Icons.trending_up,
               color: Theme.of(context).colorScheme.secondary,
               size: 22,
             ),
             suffixText: getIt<CurrencyService>().currentSymbol,
-            suffixStyle: const TextStyle(color: Colors.white54),
+            suffixStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54)),
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.05),
+            fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -729,14 +725,14 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
       children: [
         Text(
           context.l10n.cardColor,
-          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 13),
         ),
         const SizedBox(height: 4),
         Text(
           context.l10n.swipeForMoreColors,
           style: TextStyle(
             fontSize: 11,
-            color: Colors.white.withValues(alpha: 0.4),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
           ),
         ),
         const SizedBox(height: 10),
@@ -776,7 +772,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                               width: 3,
                             )
                           : Border.all(
-                              color: Colors.white.withValues(alpha: 0.15),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
                               width: 1,
                             ),
                       boxShadow: isSelected
@@ -827,18 +823,18 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           borderRadius: BorderRadius.circular(16),
           child: Center(
             child: _isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     width: 24,
                     height: 24,
                     child: CircularProgressIndicator(
-                      color: Colors.black,
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       strokeWidth: 2,
                     ),
                   )
                 : Text(
                     isEditing ? context.l10n.update : context.l10n.save,
-                    style: const TextStyle(
-                      color: Colors.black,
+                    style: TextStyle(
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
                     ),

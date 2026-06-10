@@ -164,19 +164,19 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -212,19 +212,19 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -318,19 +318,19 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -369,7 +369,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: Theme.of(context).colorScheme.onSurface,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -456,7 +456,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(context.l10n.recurringExpenses),
         backgroundColor: Colors.transparent,
@@ -465,7 +465,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _islemEkle,
         backgroundColor: Theme.of(context).colorScheme.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: Theme.of(context).colorScheme.onSurface),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -572,7 +572,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
           color: Colors.red.shade700,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: const Icon(Icons.delete, color: Colors.white),
+        child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
       ),
       confirmDismiss: (direction) async {
         return await showDialog<bool>(

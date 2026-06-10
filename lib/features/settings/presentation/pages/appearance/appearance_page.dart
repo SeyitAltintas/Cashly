@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'animations_settings_page.dart';
+import 'theme_settings_page.dart';
 
 class AppearancePage extends StatelessWidget {
   const AppearancePage({super.key});
@@ -12,7 +13,7 @@ class AppearancePage extends StatelessWidget {
         title: Text(context.l10n.appearance),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -79,6 +80,23 @@ class AppearancePage extends StatelessWidget {
               ),
               child: Column(
                 children: [
+                  // Tema
+                  _buildSettingsTile(
+                    context: context,
+                    icon: Icons.palette_outlined,
+                    iconColor: Theme.of(context).colorScheme.primary,
+                    title: 'Tema (Karanlık/Aydınlık)',
+                    subtitle: 'Uygulama görünümünü özelleştirin',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ThemeSettingsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  Divider(height: 1, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
                   // Animasyonlar
                   _buildSettingsTile(
                     context: context,
