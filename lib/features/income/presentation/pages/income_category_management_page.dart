@@ -293,7 +293,7 @@ class _GelirKategoriYonetimiSayfasiState
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -360,7 +360,7 @@ class _GelirKategoriYonetimiSayfasiState
         floatingActionButton: FloatingActionButton(
           onPressed: kategoriEkle,
           backgroundColor: Theme.of(context).colorScheme.primary,
-          child: const Icon(Icons.add, color: Colors.white),
+          child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),

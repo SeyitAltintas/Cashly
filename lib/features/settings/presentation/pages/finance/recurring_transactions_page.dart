@@ -672,7 +672,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
               ),
               Text(
                 CurrencyFormatter.format(tutar),
-                style: TextStyle(
+                style: const TextStyle(
                   color: ColorConstants.kirmiziVurgu,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

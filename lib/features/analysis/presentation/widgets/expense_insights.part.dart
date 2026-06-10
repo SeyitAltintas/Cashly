@@ -63,7 +63,7 @@ extension ExpenseInsightsExtension on _AnalysisPageState {
                   color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.warning_rounded,
                   size: 16,
                   color: ColorConstants.kirmiziVurgu,
@@ -88,7 +88,9 @@ extension ExpenseInsightsExtension on _AnalysisPageState {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.02),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

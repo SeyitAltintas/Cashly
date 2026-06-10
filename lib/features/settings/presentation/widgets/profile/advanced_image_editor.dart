@@ -30,9 +30,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
 
   // Tema renkleri
   static const Color _primaryColor = Color(0xFF075174);
-  static const Color _backgroundColor = Color(0xFF121212);
-  static const Color _surfaceColor = Color(0xFF1A1A1A);
-  static const Color _cardColor = Color(0xFF242424);
 
   // Editor state
   final EditorState _state = EditorState();
@@ -86,9 +83,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _backgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: _backgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         title: Text(
           context.l10n.editPhoto,
@@ -207,7 +204,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           // Modern alt menü
           Container(
             padding: const EdgeInsets.only(top: 12),
-            decoration: const BoxDecoration(color: _surfaceColor),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainer),
             child: Column(
               children: [
                 // Scrollable icon + text tab seçici
@@ -217,7 +214,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: _cardColor,
+                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: TabBar(
@@ -1043,7 +1040,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
-                    color: _cardColor,
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
@@ -1410,20 +1407,20 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             config: Config(
               height: 140,
               checkPlatformCompatibility: true,
-              emojiViewConfig: const EmojiViewConfig(
+              emojiViewConfig: EmojiViewConfig(
                 columns: 8,
                 emojiSizeMax: 28,
-                backgroundColor: _surfaceColor,
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
               ),
               categoryViewConfig: CategoryViewConfig(
-                backgroundColor: _surfaceColor,
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                 indicatorColor: _primaryColor,
                 iconColorSelected: _primaryColor,
                 iconColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
               ),
               bottomActionBarConfig: const BottomActionBarConfig(enabled: false),
               searchViewConfig: SearchViewConfig(
-                backgroundColor: _surfaceColor,
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                 buttonIconColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
               ),
             ),
@@ -1553,7 +1550,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       height: 56,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.grey[800],
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         border: frame.isGradient && frame.gradientColors != null
                             ? null
                             : Border.all(
@@ -1569,7 +1566,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                         margin: const EdgeInsets.all(3),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.grey[700],
+                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
                           border: isSelected
                               ? Border.all(color: _primaryColor, width: 2)
                               : null,

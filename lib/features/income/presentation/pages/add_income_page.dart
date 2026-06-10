@@ -266,7 +266,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                         Icons.arrow_drop_down,
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                       ),
-                      dropdownColor: Colors.grey[900],
+                      dropdownColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       onChanged: (String? newValue) {
                         if (newValue != null) {
                           setState(() {

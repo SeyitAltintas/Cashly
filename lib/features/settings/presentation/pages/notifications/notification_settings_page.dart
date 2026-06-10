@@ -217,7 +217,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
         ),
         child: Row(
           children: [
-            Icon(
+            const Icon(
               Icons.warning_amber_rounded,
               color: ColorConstants.turuncuVurgu,
               size: 20,
@@ -226,7 +226,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             Expanded(
               child: Text(
                 context.l10n.notificationPermDenied,
-                style: TextStyle(
+                style: const TextStyle(
                   color: ColorConstants.turuncuVurgu,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -235,14 +235,14 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             ),
             Text(
               context.l10n.openSettings,
-              style: TextStyle(
+              style: const TextStyle(
                 color: ColorConstants.turuncuVurgu,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(width: 4),
-            Icon(
+            const Icon(
               Icons.arrow_forward_ios_rounded,
               color: ColorConstants.turuncuVurgu,
               size: 14,

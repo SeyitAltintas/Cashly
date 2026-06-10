@@ -49,7 +49,7 @@ class CreditDebtCard extends StatelessWidget {
                 color: Colors.red.shade400.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.credit_card,
                 color: ColorConstants.kirmiziVurgu,
                 size: 24,
@@ -74,7 +74,7 @@ class CreditDebtCard extends StatelessWidget {
                   ObscuredAmountText(
                     CurrencyFormatter.format(totalDebt),
                     isObscured: isObscured,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: ColorConstants.kirmiziVurgu,

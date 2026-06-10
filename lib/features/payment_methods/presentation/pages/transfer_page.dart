@@ -985,7 +985,7 @@ class _TransferPageState extends State<TransferPage> {
       ),
       child: Row(
         children: [
-          Icon(Icons.schedule_rounded, color: ColorConstants.turuncuVurgu, size: 20),
+          const Icon(Icons.schedule_rounded, color: ColorConstants.turuncuVurgu, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -998,7 +998,7 @@ class _TransferPageState extends State<TransferPage> {
                   DateFormat('HH:mm', loc).format(_selectedDate),
                 );
               })(),
-              style: TextStyle(
+              style: const TextStyle(
                 color: ColorConstants.turuncuVurgu,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,

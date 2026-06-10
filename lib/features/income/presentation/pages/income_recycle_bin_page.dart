@@ -132,12 +132,13 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade800,
+              backgroundColor: ColorConstants.kirmiziVurgu,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
               context.l10n.yesDelete,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
           ),
         ],
@@ -226,12 +227,13 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade700,
+              backgroundColor: ColorConstants.yesil,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
               context.l10n.yesRestore,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
           ),
         ],
@@ -276,7 +278,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         actions: [
           if (silinenGelirler.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.restore, color: Colors.green),
+              icon: const Icon(Icons.restore, color: ColorConstants.yesil),
               tooltip: context.l10n.restoreAll,
               onPressed: tumunuGeriYukle,
             ),

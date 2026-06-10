@@ -85,7 +85,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                   color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.emoji_events_rounded,
                   size: 16,
                   color: ColorConstants.yesil,
@@ -201,7 +201,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                               amount,
                               currency: currency,
                             ),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                               color: ColorConstants.yesil,
@@ -367,7 +367,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                         Container(
                           width: 10,
                           height: 10,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: ColorConstants.yesil,
                             shape: BoxShape.circle,
                           ),
@@ -389,7 +389,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                         Container(
                           width: 10,
                           height: 10,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: ColorConstants.turuncuVurgu,
                             shape: BoxShape.circle,
                           ),
@@ -517,7 +517,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                     color: Colors.green.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.speed_rounded,
                     color: ColorConstants.yesil,
                     size: 28,
@@ -530,7 +530,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                     children: [
                       Text(
                         CurrencyFormatter.format(dailyAvg),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: ColorConstants.yesil,

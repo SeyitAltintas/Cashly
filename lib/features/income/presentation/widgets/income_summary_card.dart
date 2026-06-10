@@ -205,7 +205,7 @@ class IncomeSummaryCard extends StatelessWidget {
                 // Alt: Ikonik Gosterim
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.receipt_long,
                       color: ColorConstants.yesil,
                       size: 16,

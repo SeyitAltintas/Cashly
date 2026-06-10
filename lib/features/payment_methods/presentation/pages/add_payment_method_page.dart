@@ -486,7 +486,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: ColorConstants.kirmiziVurgu),
+              borderSide: const BorderSide(color: ColorConstants.kirmiziVurgu),
             ),
           ),
           validator: (value) {
@@ -615,7 +615,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: ColorConstants.kirmiziVurgu),
+              borderSide: const BorderSide(color: ColorConstants.kirmiziVurgu),
             ),
           ),
           validator: (value) {
@@ -686,7 +686,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: ColorConstants.kirmiziVurgu),
+              borderSide: const BorderSide(color: ColorConstants.kirmiziVurgu),
             ),
           ),
           validator: (value) {

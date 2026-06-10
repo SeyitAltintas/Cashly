@@ -106,7 +106,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
+                const Icon(
                   Icons.info_outline_rounded,
                   color: ColorConstants.maviVurgu,
                   size: 20,
@@ -181,12 +181,12 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
       ),
       child: Row(
         children: [
-          Icon(Icons.warning_amber_rounded, color: ColorConstants.turuncuVurgu),
+          const Icon(Icons.warning_amber_rounded, color: ColorConstants.turuncuVurgu),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               context.l10n.hapticNoVibrator,
-              style: TextStyle(color: ColorConstants.turuncuVurgu, fontSize: 13),
+              style: const TextStyle(color: ColorConstants.turuncuVurgu, fontSize: 13),
             ),
           ),
         ],

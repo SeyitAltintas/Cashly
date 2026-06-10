@@ -250,7 +250,7 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.3),
                     ),
-                    prefixIcon: Icon(
+                    prefixIcon: const Icon(
                       Icons.currency_lira,
                       color: ColorConstants.yesil,
                     ),

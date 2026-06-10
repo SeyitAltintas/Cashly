@@ -297,9 +297,10 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
               AppSnackBar.deleted(context, context.l10n.categoryDeleted);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade800,
+              backgroundColor: ColorConstants.kirmiziVurgu,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
-            child: const Text('Sil', style: TextStyle(color: Colors.white)),
+            child: Text('Sil', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
           ),
         ],
       ),

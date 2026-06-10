@@ -413,14 +413,14 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.science_outlined,
                       color: Colors.deepPurple,
                       size: 18,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       'Geliştirici Araçları',
                       style: TextStyle(

@@ -132,9 +132,6 @@ class _ImageCropScreenState extends State<ImageCropScreen>
 
   // Tema renkleri
   static const Color _primaryColor = Color(0xFF075174);
-  static const Color _backgroundColor = Color(0xFF121212);
-  static const Color _surfaceColor = Color(0xFF1A1A1A);
-  static const Color _cardColor = Color(0xFF242424);
 
   @override
   void initState() {
@@ -436,9 +433,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _backgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: _backgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         title: Text(
           context.l10n.cropPhoto,
@@ -521,7 +518,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                               withCircleUi: true,
                               interactive: true,
                               fixCropRect: true,
-                              baseColor: _backgroundColor,
+                              baseColor: Theme.of(context).colorScheme.surface,
                               maskColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
                               willUpdateScale: _onWillUpdateScale,
                               cornerDotBuilder: (size, edgeAlignment) =>
@@ -598,9 +595,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
           // Modern alt menü
           Container(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-            decoration: const BoxDecoration(
-              color: _surfaceColor,
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
               ),
@@ -686,7 +683,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
         width: 56,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? _cardColor : Colors.transparent,
+          color: isActive ? Theme.of(context).colorScheme.surfaceContainerHigh : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isActive ? _primaryColor : Colors.transparent,
@@ -736,7 +733,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
         width: 56,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: _showOriginal ? _cardColor : Colors.transparent,
+          color: _showOriginal ? Theme.of(context).colorScheme.surfaceContainerHigh : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: _showOriginal ? _primaryColor : Colors.transparent,

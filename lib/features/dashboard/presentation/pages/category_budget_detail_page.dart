@@ -488,7 +488,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                         height: 5,
                         width: 48,
                         decoration: BoxDecoration(
-                          color: Colors.grey.withValues(alpha: 0.3),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(3),
                         ),
                       ),
@@ -564,7 +564,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                               children: [
                                 Text(
                                   "-${CurrencyFormatter.format(totalAmount, currency: currency)}",
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: ColorConstants.kirmiziVurgu,
                                     fontWeight: FontWeight.w800,
                                     fontSize: 22,
@@ -623,7 +623,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                                   Icon(
                                     Icons.receipt_long_outlined,
                                     size: 56,
-                                    color: Colors.grey.withValues(alpha: 0.2),
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
@@ -733,7 +733,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                                     ),
                                     trailing: Text(
                                       "-${CurrencyFormatter.format(amount, currency: itemCurrency)}",
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: ColorConstants.kirmiziVurgu,
                                         fontWeight: FontWeight.w700,
                                         fontSize: 16,

@@ -587,7 +587,7 @@ class ProfileSettingsHelper {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(ctx).colorScheme.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: Theme.of(ctx).colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -638,7 +638,7 @@ class ProfileSettingsHelper {
                     children: [
                       Text(
                         context.l10n.deleteAccount,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: ColorConstants.kirmiziVurgu,
@@ -711,7 +711,7 @@ class ProfileSettingsHelper {
                 backgroundColor: Theme.of(dlgCtx).colorScheme.surface,
                 title: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.warning_amber_rounded,
                       color: ColorConstants.kirmiziVurgu,
                     ),
@@ -744,7 +744,7 @@ class ProfileSettingsHelper {
                     onPressed: () => Navigator.pop(dlgCtx, true),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ColorConstants.kirmiziVurgu,
-                      foregroundColor: Colors.white,
+                      foregroundColor: Theme.of(dlgCtx).colorScheme.onPrimary,
                     ),
                     child: Text(context.l10n.yesDelete),
                   ),
@@ -805,7 +805,7 @@ class ProfileSettingsHelper {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: ColorConstants.kirmiziVurgu,
-          foregroundColor: Colors.white,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -851,7 +851,7 @@ class ProfileSettingsHelper {
                     children: [
                       Text(
                         context.l10n.deleteAllData,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: ColorConstants.turuncuVurgu,
@@ -875,7 +875,7 @@ class ProfileSettingsHelper {
                     ),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.warning_amber_rounded,
                           color: ColorConstants.turuncuVurgu,
                           size: 24,
@@ -884,7 +884,7 @@ class ProfileSettingsHelper {
                         Expanded(
                           child: Text(
                             context.l10n.deleteAllDataWarning,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: ColorConstants.turuncuVurgu,
                               fontSize: 14,
                             ),
@@ -952,7 +952,7 @@ class ProfileSettingsHelper {
                 backgroundColor: Theme.of(dlgCtx).colorScheme.surface,
                 title: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.warning_amber_rounded,
                       color: ColorConstants.turuncuVurgu,
                     ),
@@ -985,7 +985,7 @@ class ProfileSettingsHelper {
                     onPressed: () => Navigator.pop(dlgCtx, true),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ColorConstants.turuncuVurgu,
-                      foregroundColor: Colors.white,
+                      foregroundColor: Theme.of(dlgCtx).colorScheme.onPrimary,
                     ),
                     child: Text(context.l10n.deleteAllData),
                   ),
@@ -1032,7 +1032,7 @@ class ProfileSettingsHelper {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: ColorConstants.turuncuVurgu,
-          foregroundColor: Colors.white,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -1078,7 +1078,7 @@ class ProfileSettingsHelper {
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.warning_amber_rounded,
             color: ColorConstants.kirmiziVurgu,
             size: 24,
@@ -1180,7 +1180,7 @@ class ProfileSettingsHelper {
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(ctx).colorScheme.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: Theme.of(ctx).colorScheme.onPrimary,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),

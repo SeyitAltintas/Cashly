@@ -88,7 +88,7 @@ class AssetSummaryCard extends StatelessWidget {
                         color: ColorConstants.maviVurgu.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.show_chart,
                         color: ColorConstants.maviVurgu,
                         size: 16,
@@ -116,7 +116,7 @@ class AssetSummaryCard extends StatelessWidget {
                 // Alt: Varlik Sayisi
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.account_balance_wallet_outlined,
                       color: ColorConstants.maviVurgu,
                       size: 16,

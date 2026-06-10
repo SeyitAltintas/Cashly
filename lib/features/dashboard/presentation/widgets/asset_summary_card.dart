@@ -70,7 +70,7 @@ class AssetSummaryCard extends StatelessWidget {
                   ObscuredAmountText(
                     CurrencyFormatter.format(totalAssets),
                     isObscured: isObscured,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: ColorConstants.maviVurgu,
@@ -84,7 +84,7 @@ class AssetSummaryCard extends StatelessWidget {
                   color: Colors.blue.shade600.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.diamond_outlined,
                   color: ColorConstants.maviVurgu,
                   size: 28,

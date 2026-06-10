@@ -122,12 +122,12 @@ class ForgotPasswordHelper {
                               // Başarılı olduğunda kullanıcıyı bilgilendir ve kapat
                               Navigator.of(sheetContext).pop();
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text(
+                                const SnackBar(
+                                  content: Text(
                                     "E-postanıza şifre sıfırlama bağlantısı gönderdik. "
                                     "Lütfen linke tıklayarak web sayfasında yeni şifrenizi belirleyin ve ardından uygulamaya giriş yapın.",
                                   ),
-                                  duration: const Duration(seconds: 8),
+                                  duration: Duration(seconds: 8),
                                   backgroundColor: ColorConstants.yesil,
                                 ),
                               );

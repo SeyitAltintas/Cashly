@@ -861,11 +861,11 @@ class _AddAssetPageState extends State<AddAssetPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.history, color: ColorConstants.turuncuVurgu, size: 20),
+              const Icon(Icons.history, color: ColorConstants.turuncuVurgu, size: 20),
               const SizedBox(width: 8),
               Text(
                 context.l10n.purchaseInfo,
-                style: TextStyle(
+                style: const TextStyle(
                   color: ColorConstants.turuncuVurgu,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
@@ -900,7 +900,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
               ),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.calendar_today,
                     color: ColorConstants.turuncuVurgu,
                     size: 20,
@@ -968,7 +968,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
             decoration: InputDecoration(
               labelText:
                   '${context.l10n.assetPurchasePrice} (${CurrencyService.supportedCurrencies[_localSelectedCurrency] ?? _localSelectedCurrency})',
-              labelStyle: TextStyle(color: ColorConstants.turuncuVurgu),
+              labelStyle: const TextStyle(color: ColorConstants.turuncuVurgu),
               hintText: 'e.g. 1,250.00',
               hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
               filled: true,
@@ -985,13 +985,13 @@ class _AddAssetPageState extends State<AddAssetPage> {
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: ColorConstants.kirmiziVurgu),
+                borderSide: const BorderSide(color: ColorConstants.kirmiziVurgu),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: ColorConstants.kirmiziVurgu, width: 1.5),
+                borderSide: const BorderSide(color: ColorConstants.kirmiziVurgu, width: 1.5),
               ),
-              prefixIcon: Icon(
+              prefixIcon: const Icon(
                 Icons.shopping_cart,
                 color: ColorConstants.turuncuVurgu,
               ),

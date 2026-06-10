@@ -246,7 +246,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.mic, color: ColorConstants.yesil, size: 28),
+              const Icon(Icons.mic, color: ColorConstants.yesil, size: 28),
               const SizedBox(width: 8),
               Text(
                 context.l10n.voiceIncomeInput,
@@ -298,11 +298,11 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
   Widget _buildErrorState() {
     return Column(
       children: [
-        Icon(Icons.error_outline, color: ColorConstants.kirmiziVurgu, size: 48),
+        const Icon(Icons.error_outline, color: ColorConstants.kirmiziVurgu, size: 48),
         const SizedBox(height: 16),
         Text(
           _errorMessage,
-          style: TextStyle(color: ColorConstants.kirmiziVurgu),
+          style: const TextStyle(color: ColorConstants.kirmiziVurgu),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 16),
@@ -311,8 +311,8 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
           icon: const Icon(Icons.refresh),
           label: Text(context.l10n.tryAgainAction),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green.shade600,
-            foregroundColor: Colors.white,
+            backgroundColor: ColorConstants.yesil,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
           ),
         ),
       ],
@@ -342,17 +342,17 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: Colors.green.shade600,
+                    color: ColorConstants.yesil,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.green.withValues(alpha: 0.4),
+                        color: ColorConstants.yesil.withValues(alpha: 0.4),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.mic, color: Colors.white, size: 40),
+                  child: Icon(Icons.mic, color: Theme.of(context).colorScheme.onPrimary, size: 40),
                 ),
               );
             },
@@ -361,7 +361,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
         const SizedBox(height: 20),
         Text(
           context.l10n.micListening,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,
             color: ColorConstants.yesil,
@@ -424,17 +424,17 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Colors.green.shade600,
+              color: ColorConstants.yesil,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.green.withValues(alpha: 0.3),
+                  color: ColorConstants.yesil.withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: const Icon(Icons.mic, color: Colors.white, size: 40),
+            child: Icon(Icons.mic, color: Theme.of(context).colorScheme.onPrimary, size: 40),
           ),
         ),
         const SizedBox(height: 16),
@@ -656,8 +656,8 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
                 icon: const Icon(Icons.check),
                 label: Text(context.l10n.add),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade600,
-                  foregroundColor: Colors.white,
+                  backgroundColor: ColorConstants.yesil,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
