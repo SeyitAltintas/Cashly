@@ -1,4 +1,5 @@
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/color_constants.dart';
@@ -393,17 +394,17 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
         break;
       case _TransactionType.income:
         icon = Icons.arrow_upward;
-        iconColor = Colors.green;
+        iconColor = ColorConstants.yesil;
         amountPrefix = '+';
         break;
       case _TransactionType.transferOut:
         icon = Icons.arrow_forward;
-        iconColor = Colors.orange;
+        iconColor = ColorConstants.turuncuVurgu;
         amountPrefix = '-';
         break;
       case _TransactionType.transferIn:
         icon = Icons.arrow_back;
-        iconColor = Colors.blue;
+        iconColor = ColorConstants.maviVurgu;
         amountPrefix = '+';
         break;
     }

@@ -1017,7 +1017,7 @@ class _TransferPageState extends State<TransferPage> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: _primaryColor,
-          foregroundColor: Colors.white,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -1234,7 +1234,7 @@ class _TransferPageState extends State<TransferPage> {
                         },
                         child: Text(
                           context.l10n.delete,
-                          style: const TextStyle(color: Colors.red),
+                          style: const TextStyle(color: ColorConstants.kirmiziVurgu),
                         ),
                       ),
                     ],

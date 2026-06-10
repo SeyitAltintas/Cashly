@@ -278,7 +278,7 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
                   backgroundColor: _isSaved
                       ? ColorConstants.yesil
                       : Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 16,

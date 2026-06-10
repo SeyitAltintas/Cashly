@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controllers/streak_controller.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 
 /// Başarılar listesini gösteren widget
 class AchievementsList extends StatelessWidget {
@@ -36,7 +37,7 @@ class _AchievementItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isEarned
-              ? Colors.green.withValues(alpha: 0.3)
+              ? ColorConstants.yesil.withValues(alpha: 0.3)
               : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
           width: 1,
         ),
@@ -47,7 +48,7 @@ class _AchievementItem extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: isEarned
-                  ? Colors.green.withValues(alpha: 0.2)
+                  ? ColorConstants.yesil.withValues(alpha: 0.2)
                   : Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.1),
@@ -56,7 +57,7 @@ class _AchievementItem extends StatelessWidget {
             child: Icon(
               achievement['icon'] as IconData,
               color: isEarned
-                  ? Colors.green
+                  ? ColorConstants.yesil
                   : Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.4),
@@ -90,7 +91,7 @@ class _AchievementItem extends StatelessWidget {
             ),
           ),
           if (isEarned)
-            const Icon(Icons.check_circle, color: Colors.green, size: 24)
+            const Icon(Icons.check_circle, color: ColorConstants.yesil, size: 24)
           else
             Icon(
               Icons.circle_outlined,

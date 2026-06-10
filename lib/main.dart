@@ -24,6 +24,7 @@ import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/theme_manager.dart';
 import 'core/theme/app_theme.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import 'core/widgets/error_screen.dart';
 import 'core/di/injection_container.dart';
 import 'core/services/price_cache_service.dart';
@@ -297,14 +298,14 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
                     children: [
                       const Icon(
                         Icons.error_outline,
-                        color: Colors.red,
+                        color: ColorConstants.kirmiziVurgu,
                         size: 48,
                       ),
                       const SizedBox(height: 16),
                       const Text(
                         "Uygulama başlatılamadı",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -330,7 +331,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
                         ),
                         child: const Text(
                           "Tekrar Dene",
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
                         ),
                       ),
                     ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import '../../data/constants/streak_badges.dart';
 import '../../data/models/streak_model.dart';
 import '../controllers/streak_controller.dart';
@@ -98,21 +99,21 @@ class StreakFreezeCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.1),
+                color: ColorConstants.yesil.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                border: Border.all(color: ColorConstants.yesil.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.check_circle, color: Colors.green, size: 18),
+                  const Icon(Icons.check_circle, color: ColorConstants.yesil, size: 18),
                   const SizedBox(width: 8),
                   Text(
                     context.l10n.streakFreezeUsedToday,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Colors.green.shade700,
+                      color: ColorConstants.yesil,
                     ),
                   ),
                 ],

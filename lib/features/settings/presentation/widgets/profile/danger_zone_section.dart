@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 
 /// Tehlikeli bölge section widget'ı
 /// Hesap silme butonu
@@ -26,18 +27,18 @@ class DangerZoneSection extends StatelessWidget {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.red,
+            color: ColorConstants.kirmiziVurgu,
           ),
         ),
         const SizedBox(height: 16),
 
         // Hesabı Sil
         Card(
-          color: Colors.red.withValues(alpha: 0.1),
+          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: Colors.red.withValues(alpha: 0.3),
+              color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -45,26 +46,26 @@ class DangerZoneSection extends StatelessWidget {
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.2),
+                color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.delete_forever, color: Colors.red),
+              child: const Icon(Icons.delete_forever, color: ColorConstants.kirmiziVurgu),
             ),
             title: Text(
               context.l10n.deleteAccount,
               style: const TextStyle(
-                color: Colors.red,
+                color: ColorConstants.kirmiziVurgu,
                 fontWeight: FontWeight.bold,
               ),
             ),
             subtitle: Text(
               context.l10n.deleteAccountDesc,
-              style: TextStyle(color: Colors.red.withValues(alpha: 0.7)),
+              style: TextStyle(color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.7)),
             ),
             trailing: Icon(
               Icons.arrow_forward_ios,
               size: 16,
-              color: Colors.red.withValues(alpha: 0.5),
+              color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.5),
             ),
             onTap: onDeleteAccount,
           ),
@@ -73,11 +74,11 @@ class DangerZoneSection extends StatelessWidget {
 
         // Tüm Verileri Sil
         Card(
-          color: Colors.orange.withValues(alpha: 0.1),
+          color: ColorConstants.turuncuVurgu.withValues(alpha: 0.1),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: Colors.orange.withValues(alpha: 0.3),
+              color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -85,26 +86,26 @@ class DangerZoneSection extends StatelessWidget {
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.2),
+                color: ColorConstants.turuncuVurgu.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.delete_sweep, color: Colors.orange),
+              child: const Icon(Icons.delete_sweep, color: ColorConstants.turuncuVurgu),
             ),
             title: Text(
               context.l10n.deleteAllData,
               style: const TextStyle(
-                color: Colors.orange,
+                color: ColorConstants.turuncuVurgu,
                 fontWeight: FontWeight.bold,
               ),
             ),
             subtitle: Text(
               context.l10n.deleteAllDataWarning,
-              style: TextStyle(color: Colors.orange.withValues(alpha: 0.7)),
+              style: TextStyle(color: ColorConstants.turuncuVurgu.withValues(alpha: 0.7)),
             ),
             trailing: Icon(
               Icons.arrow_forward_ios,
               size: 16,
-              color: Colors.orange.withValues(alpha: 0.5),
+              color: ColorConstants.turuncuVurgu.withValues(alpha: 0.5),
             ),
             onTap: onDeleteAllData,
           ),

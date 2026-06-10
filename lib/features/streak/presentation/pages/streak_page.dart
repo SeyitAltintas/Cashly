@@ -11,6 +11,7 @@ import '../widgets/streak_stats_row.dart';
 import '../widgets/streak_freeze_card.dart';
 import '../widgets/badge_grid_view.dart';
 import '../widgets/achievements_list.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 
 /// Seri detay sayfası
 /// Mevcut seri, rozetler ve başarıları gösterir
@@ -117,7 +118,7 @@ class _StreakPageState extends State<StreakPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: isEarned
-                    ? Colors.green.withValues(alpha: 0.2)
+                    ? ColorConstants.yesil.withValues(alpha: 0.2)
                     : Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.1),
@@ -131,7 +132,7 @@ class _StreakPageState extends State<StreakPage> {
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: isEarned
-                      ? Colors.green
+                      ? ColorConstants.yesil
                       : Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.6),

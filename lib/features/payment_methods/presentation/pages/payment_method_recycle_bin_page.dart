@@ -94,7 +94,7 @@ class _PaymentMethodRecycleBinPageState
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade700,
+              backgroundColor: ColorConstants.yesil,
             ),
             onPressed: () {
               Navigator.pop(context);
@@ -180,7 +180,7 @@ class _PaymentMethodRecycleBinPageState
         actions: [
           if (_deletedPaymentMethods.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.restore, color: Colors.green),
+              icon: const Icon(Icons.restore, color: ColorConstants.yesil),
               tooltip: 'Tümünü Geri Yükle',
               onPressed: _confirmRestoreAll,
             ),
