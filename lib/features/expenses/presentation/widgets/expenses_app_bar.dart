@@ -74,7 +74,7 @@ class ExpensesAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(
             aramaModuContext ? Icons.close : Icons.search,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           onPressed: () {
             context.read<ExpensesController>().aramaModu = !aramaModuContext;

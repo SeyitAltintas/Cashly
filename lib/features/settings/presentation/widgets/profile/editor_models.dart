@@ -28,7 +28,7 @@ class TextOverlay {
   TextOverlay({
     required this.id,
     required this.text,
-    this.position = Offset(0.5, 0.5),
+    this.position = const Offset(0.5, 0.5),
     this.fontSize = 24,
     this.color = Colors.white,
     this.fontFamily = 'Inter',

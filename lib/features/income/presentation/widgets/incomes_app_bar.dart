@@ -74,7 +74,7 @@ class IncomesAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(
             gelirAramaModuContext ? Icons.close : Icons.search,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           onPressed: () {
             context.read<IncomesController>().aramaModu =

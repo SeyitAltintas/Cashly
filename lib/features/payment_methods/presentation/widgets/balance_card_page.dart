@@ -374,7 +374,7 @@ class BalanceCardPage extends StatelessWidget {
                                   ).createShader(bounds);
                                 },
                                 blendMode: BlendMode.dstIn,
-                                child: _buildProfileImage(userName),
+                                child: _buildProfileImage(context, userName),
                               ),
                             ),
                           ),
@@ -392,7 +392,7 @@ class BalanceCardPage extends StatelessWidget {
   }
 
   /// Profil resmini oluşturur
-  Widget _buildProfileImage(String userName) {
+  Widget _buildProfileImage(BuildContext context, String userName) {
     if (userProfileUrl != null && userProfileUrl!.isNotEmpty) {
       if (userProfileUrl!.startsWith('http://') ||
           userProfileUrl!.startsWith('https://')) {
