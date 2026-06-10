@@ -103,7 +103,11 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 60),
-                Image.asset('assets/image/seffaflogo.png', height: 70),
+                Image.asset(
+                  'assets/image/seffaflogo.png', 
+                  height: 70,
+                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : null,
+                ),
                 const SizedBox(height: 120),
                 Text(
                   context.l10n.login,

@@ -57,7 +57,9 @@ class ThemeSettingsPage extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -69,56 +71,56 @@ class ThemeSettingsPage extends StatelessWidget {
                       if (value != null) themeManager.setThemeMode(value);
                     },
                     child: Column(
-                    children: [
-                      RadioListTile<ThemeMode>(
-                        title: Text(
-                          'Sistem (Otomatik)',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
+                      children: [
+                        RadioListTile<ThemeMode>(
+                          title: Text(
+                            'Sistem (Otomatik)',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
-                        ),
-                        subtitle: Text(
-                          'Cihazınızın temasına göre otomatik ayarlar',
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.6),
+                          subtitle: Text(
+                            'Cihazınızın temasına göre otomatik ayarlar',
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
+                            ),
                           ),
+                          value: ThemeMode.system,
                         ),
-                        value: ThemeMode.system,
-                      ),
-                      Divider(
-                        height: 1,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.1),
-                      ),
-                      RadioListTile<ThemeMode>(
-                        title: Text(
-                          'Açık Tema',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
+                        Divider(
+                          height: 1,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.1),
+                        ),
+                        RadioListTile<ThemeMode>(
+                          title: Text(
+                            'Açık Tema',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
+                          value: ThemeMode.light,
                         ),
-                        value: ThemeMode.light,
-                      ),
-                      Divider(
-                        height: 1,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.1),
-                      ),
-                      RadioListTile<ThemeMode>(
-                        title: Text(
-                          'Koyu Tema',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
+                        Divider(
+                          height: 1,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.1),
+                        ),
+                        RadioListTile<ThemeMode>(
+                          title: Text(
+                            'Koyu Tema',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
+                          value: ThemeMode.dark,
                         ),
-                        value: ThemeMode.dark,
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                   ),
                 ),
               ],

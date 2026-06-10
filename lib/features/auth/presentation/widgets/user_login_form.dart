@@ -148,7 +148,11 @@ class _UserLoginFormState extends State<UserLoginForm> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 60),
-              Image.asset('assets/image/seffaflogo.png', height: 70),
+              Image.asset(
+                'assets/image/seffaflogo.png', 
+                height: 70,
+                color: Theme.of(context).brightness == Brightness.light ? Colors.black : null,
+              ),
               const SizedBox(height: 40),
 
               // Profil Resmi

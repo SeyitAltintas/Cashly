@@ -183,6 +183,7 @@ class BalanceCardPage extends StatelessWidget {
                                 'assets/image/seffaflogo.png',
                                 height: logoSize,
                                 width: logoSize,
+                                color: Theme.of(context).brightness == Brightness.light ? Colors.black : null,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(
                                     height: logoSize,

@@ -134,6 +134,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
             'assets/image/seffaflogo.png',
             height: 44,
             fit: BoxFit.contain,
+            color: Theme.of(context).brightness == Brightness.light ? Colors.black : null,
             errorBuilder: (_, _, _) => Text(
               'Cashly',
               style: TextStyle(
@@ -246,6 +247,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                     'assets/image/seffaflogo.png',
                     height: 44,
                     fit: BoxFit.contain,
+                    color: Theme.of(context).brightness == Brightness.light ? Colors.black : null,
                     errorBuilder: (_, _, _) => Text(
                       'Cashly',
                       style: TextStyle(
