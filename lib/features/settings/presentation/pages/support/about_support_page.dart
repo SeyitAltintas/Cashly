@@ -192,7 +192,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
         _buildTile(
           theme,
           icon: Icons.privacy_tip_outlined,
-          iconColor: Colors.teal,
+          iconColor: ColorConstants.yesil,
           title: context.l10n.privacyPolicy,
           subtitle: context.l10n.privacyPolicyDesc,
           onTap: () => _showLegalSheet(
@@ -205,7 +205,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
         _buildTile(
           theme,
           icon: Icons.description_outlined,
-          iconColor: Colors.blue,
+          iconColor: ColorConstants.maviVurgu,
           title: context.l10n.termsOfService,
           subtitle: context.l10n.termsOfServiceDesc,
           onTap: () => _showLegalSheet(
@@ -218,7 +218,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
         _buildTile(
           theme,
           icon: Icons.source_outlined,
-          iconColor: Colors.orange,
+          iconColor: ColorConstants.turuncuVurgu,
           title: context.l10n.openSourceLicenses,
           subtitle: context.l10n.openSourceLicensesDesc,
           isLast: true,
@@ -336,7 +336,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
         _buildTile(
           theme,
           icon: Icons.share_outlined,
-          iconColor: Colors.green,
+          iconColor: ColorConstants.yesil,
           title: context.l10n.shareApp,
           subtitle: context.l10n.shareAppDesc,
           isLast: true,

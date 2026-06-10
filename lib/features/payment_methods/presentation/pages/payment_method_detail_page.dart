@@ -2,7 +2,7 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/constants/color_constants.dart';
+
 import '../../../../core/constants/card_color_constants.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/widgets/month_selector_button.dart';

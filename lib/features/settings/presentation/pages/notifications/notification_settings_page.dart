@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import '../../../../../core/widgets/shimmer_loading.dart';
 import 'package:app_settings/app_settings.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import '../../../../../core/di/injection_container.dart';
 import '../../../../../core/domain/notification_types.dart';
 import '../../../../../core/repositories/notification_settings_repository.dart';
 import '../../../../../core/services/notification_service.dart';
 import '../../../../../core/services/notification_scheduler.dart';
 import '../../../../../core/widgets/month_year_picker.dart';
-import '../../../../../core/constants/color_constants.dart';
 
 /// Bildirim ayarları sayfası
 /// Her bildirim senaryosu için ayrı toggle switch'ler içerir
@@ -60,7 +60,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
         // İzin verildiyse bildirimleri planla
         await _scheduler.rescheduleAll();
         if (mounted) {
-          _showSnackBar(context.l10n.notificationsEnabled, Colors.green);
+          _showSnackBar(context.l10n.notificationsEnabled, ColorConstants.yesil);
         }
       }
     }
@@ -211,9 +211,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.orange.withValues(alpha: 0.1),
+          color: ColorConstants.turuncuVurgu.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+          border: Border.all(color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -340,7 +340,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           _buildScenarioTile(
             context,
             icon: Icons.event_repeat_rounded,
-            iconColor: Colors.blue,
+            iconColor: ColorConstants.maviVurgu,
             title: context.l10n.recurringReminder,
             subtitle: context.l10n.recurringReminderDesc,
             value: _settings.recurringReminderEnabled,
@@ -352,7 +352,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           _buildScenarioTile(
             context,
             icon: Icons.local_fire_department_rounded,
-            iconColor: Colors.orange,
+            iconColor: ColorConstants.turuncuVurgu,
             title: context.l10n.streakReminderTitle,
             subtitle: context.l10n.streakReminderDesc,
             value: _settings.streakReminderEnabled,
@@ -363,7 +363,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           _buildScenarioTile(
             context,
             icon: Icons.crisis_alert_rounded,
-            iconColor: Colors.red,
+            iconColor: ColorConstants.kirmiziVurgu,
             title: context.l10n.lastChanceWarning,
             subtitle: context.l10n.lastChanceWarningDesc,
             value: _settings.streakBreakWarningEnabled,
@@ -375,7 +375,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           _buildScenarioTile(
             context,
             icon: Icons.bar_chart_rounded,
-            iconColor: Colors.purple,
+            iconColor: ColorConstants.parlakMor,
             title: context.l10n.monthlySummary,
             subtitle: context.l10n.monthlySummaryDesc,
             value: _settings.monthlySummaryEnabled,
@@ -416,7 +416,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           _buildTimeTile(
             context,
             icon: Icons.access_time_rounded,
-            iconColor: Colors.orange,
+            iconColor: ColorConstants.turuncuVurgu,
             title: context.l10n.streakReminderTime,
             time: TimeOfDay(
               hour: _settings.streakReminderHour,
@@ -430,7 +430,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           _buildMonthlySummaryTimeTile(
             context,
             icon: Icons.calendar_today_rounded,
-            iconColor: Colors.purple,
+            iconColor: ColorConstants.parlakMor,
             title: context.l10n.monthlySummaryTime,
             hour: _settings.monthlySummaryHour,
             minute: _settings.monthlySummaryMinute,
@@ -622,7 +622,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
       context,
       initialDate: initialDate,
       mode: PickerMode.time,
-      accentColor: Colors.orange,
+      accentColor: ColorConstants.turuncuVurgu,
     );
 
     if (selectedDate != null && context.mounted) {
@@ -649,7 +649,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
       context,
       initialDate: initialDate,
       mode: PickerMode.time,
-      accentColor: Colors.purple,
+      accentColor: ColorConstants.parlakMor,
     );
 
     if (selectedDate != null && context.mounted) {

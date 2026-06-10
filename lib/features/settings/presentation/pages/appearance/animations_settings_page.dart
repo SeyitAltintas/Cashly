@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/theme/theme_manager.dart';
 
@@ -89,10 +90,10 @@ class AnimationsSettingsPage extends StatelessWidget {
                     children: [
                       // Para Animasyonu Switch
                       SwitchListTile(
-                        activeTrackColor: Colors.green.withValues(alpha: 0.5),
-                        activeThumbColor: Colors.green,
-                        inactiveTrackColor: Colors.red.withValues(alpha: 0.3),
-                        inactiveThumbColor: Colors.red,
+                        activeTrackColor: ColorConstants.yesil.withValues(alpha: 0.5),
+                        activeThumbColor: ColorConstants.yesil,
+                        inactiveTrackColor: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3),
+                        inactiveThumbColor: ColorConstants.kirmiziVurgu,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 12,
@@ -100,12 +101,12 @@ class AnimationsSettingsPage extends StatelessWidget {
                         secondary: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Colors.green.withValues(alpha: 0.1),
+                            color: ColorConstants.yesil.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Icon(
                             Icons.attach_money,
-                            color: Colors.green,
+                            color: ColorConstants.yesil,
                           ),
                         ),
                         title: Text(

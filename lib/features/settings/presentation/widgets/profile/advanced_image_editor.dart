@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import 'editor_models.dart';
 
 /// Gelişmiş profil resmi düzenleme ekranı
@@ -1184,14 +1185,14 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Geniş renk paleti
-              ...[
+              ...<Color>[
                 Theme.of(context).colorScheme.onSurface,
                 Theme.of(context).scaffoldBackgroundColor,
-                Colors.red,
-                Colors.blue,
-                Colors.green,
-                Colors.amber,
-                Colors.pink,
+                ColorConstants.kirmiziVurgu,
+                ColorConstants.maviVurgu,
+                ColorConstants.yesil,
+                ColorConstants.amber,
+                ColorConstants.parlakMor,
                 _primaryColor,
               ].map(
                 (color) => GestureDetector(
@@ -1246,7 +1247,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               // Sil
               GestureDetector(
                 onTap: () => _deleteTextOverlay(text.id),
-                child: const Icon(Icons.delete, color: Colors.red, size: 20),
+                child: const Icon(Icons.delete, color: ColorConstants.kirmiziVurgu, size: 20),
               ),
             ],
           ),
@@ -1393,7 +1394,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 const SizedBox(width: 8),
                 GestureDetector(
                   onTap: () => _deleteStickerOverlay(_selectedOverlayId!),
-                  child: const Icon(Icons.delete, color: Colors.red, size: 20),
+                  child: const Icon(Icons.delete, color: ColorConstants.kirmiziVurgu, size: 20),
                 ),
               ],
             ),

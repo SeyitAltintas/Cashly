@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import '../../../../../core/widgets/shimmer_loading.dart';
 import 'package:flutter/services.dart';
 import '../../../../../core/di/injection_container.dart';
@@ -194,7 +195,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
               },
               icon: const Icon(Icons.delete_outline, size: 18),
               label: Text(context.l10n.removeLimit),
-              style: TextButton.styleFrom(foregroundColor: Colors.orange),
+              style: TextButton.styleFrom(foregroundColor: ColorConstants.turuncuVurgu),
             ),
           const SizedBox(width: 8),
           ElevatedButton.icon(
@@ -226,8 +227,8 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
             icon: const Icon(Icons.check, size: 18),
             label: Text(context.l10n.save),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2E7D32),
-              foregroundColor: Colors.white,
+              backgroundColor: ColorConstants.yesil,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

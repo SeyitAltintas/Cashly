@@ -119,7 +119,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
         children: [
           SettingsTile(
             icon: Icons.palette_outlined,
-            iconColor: Colors.purple,
+            iconColor: ColorConstants.parlakMor,
             title: context.l10n.appearance,
             subtitle: context.l10n.appearanceSubtitle,
             onTap: () => Navigator.push(
@@ -130,7 +130,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           const SettingsDivider(),
           SettingsTile(
             icon: Icons.language,
-            iconColor: Colors.indigo,
+            iconColor: ColorConstants.maviVurgu,
             title: context.l10n.language,
             subtitle: context.l10n.languageSubtitle,
             onTap: () => Navigator.push(
@@ -143,7 +143,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           const SettingsDivider(),
           SettingsTile(
             icon: Icons.vibration,
-            iconColor: Colors.cyan,
+            iconColor: ColorConstants.maviVurgu,
             title: context.l10n.hapticFeedback,
             subtitle: context.l10n.hapticFeedbackSubtitle,
             onTap: () => Navigator.push(
@@ -156,7 +156,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           const SettingsDivider(),
           SettingsTile(
             icon: Icons.notifications_outlined,
-            iconColor: Colors.amber,
+            iconColor: ColorConstants.amber,
             title: context.l10n.notifications,
             subtitle: context.l10n.notificationsSubtitle,
             onTap: () => Navigator.push(
@@ -169,7 +169,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           const SettingsDivider(),
           SettingsTile(
             icon: Icons.mic_outlined,
-            iconColor: Colors.orange,
+            iconColor: ColorConstants.turuncuVurgu,
             title: context.l10n.voiceAssistant,
             subtitle: context.l10n.voiceAssistantSubtitle,
             onTap: () => Navigator.push(
@@ -183,7 +183,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           const SettingsDivider(),
           SettingsTile(
             icon: Icons.account_balance_wallet_outlined,
-            iconColor: Colors.green,
+            iconColor: ColorConstants.yesil,
             title: context.l10n.expenses,
             subtitle: context.l10n.expensesSubtitle,
             onTap: () async {
@@ -201,7 +201,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           const SettingsDivider(),
           SettingsTile(
             icon: Icons.trending_up,
-            iconColor: Colors.teal,
+            iconColor: ColorConstants.yesil,
             title: context.l10n.incomes,
             subtitle: context.l10n.incomesSubtitle,
             onTap: () async {

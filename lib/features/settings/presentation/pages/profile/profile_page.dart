@@ -45,7 +45,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✓ Sahte veriler oluşturuldu!'),
-            backgroundColor: Colors.green,
+            backgroundColor: ColorConstants.yesil,
           ),
         );
         widget.onRefresh?.call();
@@ -53,7 +53,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Hata: $e'), backgroundColor: ColorConstants.kirmiziVurgu),
         );
       }
     } finally {
@@ -79,7 +79,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Sil', style: TextStyle(color: Colors.red)),
+            child: const Text('Sil', style: TextStyle(color: ColorConstants.kirmiziVurgu)),
           ),
         ],
       ),
@@ -95,7 +95,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✓ Sahte veriler temizlendi!'),
-            backgroundColor: Colors.green,
+            backgroundColor: ColorConstants.yesil,
           ),
         );
         widget.onRefresh?.call();
@@ -103,7 +103,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Hata: $e'), backgroundColor: ColorConstants.kirmiziVurgu),
         );
       }
     } finally {
@@ -459,7 +459,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                           style: OutlinedButton.styleFrom(
                             foregroundColor: ColorConstants.morVurgu,
                             side: BorderSide(
-                              color: Colors.deepPurple.withValues(alpha: 0.4),
+                              color: ColorConstants.morVurgu.withValues(alpha: 0.4),
                             ),
                           ),
                         ),
@@ -472,7 +472,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                         style: OutlinedButton.styleFrom(
                           foregroundColor: ColorConstants.kirmiziVurgu,
                           side: BorderSide(
-                            color: Colors.red.withValues(alpha: 0.4),
+                            color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4),
                           ),
                         ),
                       ),

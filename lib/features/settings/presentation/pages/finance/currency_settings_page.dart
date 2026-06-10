@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/services/currency_service.dart';
 
@@ -68,7 +69,7 @@ class CurrencySettingsPage extends StatelessWidget {
                             height: 40,
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? Colors.green.withValues(alpha: 0.15)
+                                  ? ColorConstants.yesil.withValues(alpha: 0.15)
                                   : Theme.of(context).colorScheme.onSurface
                                         .withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(10),
@@ -80,7 +81,7 @@ class CurrencySettingsPage extends StatelessWidget {
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   color: isSelected
-                                      ? Colors.green
+                                      ? ColorConstants.yesil
                                       : Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
@@ -92,13 +93,13 @@ class CurrencySettingsPage extends StatelessWidget {
                               fontWeight: isSelected
                                   ? FontWeight.bold
                                   : FontWeight.normal,
-                              color: isSelected ? Colors.green : null,
+                              color: isSelected ? ColorConstants.yesil : null,
                             ),
                           ),
                           trailing: isSelected
                               ? const Icon(
                                   Icons.check_circle,
-                                  color: Colors.green,
+                                  color: ColorConstants.yesil,
                                 )
                               : null,
                           onTap: () async {
@@ -124,10 +125,10 @@ class CurrencySettingsPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.1),
+                  color: ColorConstants.amber.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: Colors.amber.withValues(alpha: 0.3),
+                    color: ColorConstants.amber.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -136,7 +137,7 @@ class CurrencySettingsPage extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons.lightbulb_outline,
-                      color: Colors.amber,
+                      color: ColorConstants.amber,
                       size: 24,
                     ),
                     const SizedBox(width: 12),

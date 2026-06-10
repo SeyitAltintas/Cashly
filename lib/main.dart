@@ -302,7 +302,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
                         size: 48,
                       ),
                       const SizedBox(height: 16),
-                      const Text(
+                      Text(
                         "Uygulama başlatılamadı",
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
@@ -329,7 +329,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
                           backgroundColor:
                               themeManager.currentTheme.colorScheme.primary,
                         ),
-                        child: const Text(
+                        child: Text(
                           "Tekrar Dene",
                           style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
                         ),
