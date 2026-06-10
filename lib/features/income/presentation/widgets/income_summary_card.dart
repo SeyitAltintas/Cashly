@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 
 class IncomeSummaryCard extends StatelessWidget {
   final String ayIsmi;
@@ -100,10 +101,14 @@ class IncomeSummaryCard extends StatelessWidget {
                     // Sag Ust: Ay Secici
                     Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.1),
                         ),
                       ),
                       child: Row(
@@ -125,7 +130,8 @@ class IncomeSummaryCard extends StatelessWidget {
                                 ),
                                 child: Icon(
                                   Icons.chevron_left,
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.7),
                                   size: 18,
                                 ),
                               ),
@@ -142,7 +148,9 @@ class IncomeSummaryCard extends StatelessWidget {
                               child: Text(
                                 ayIsmi.toUpperCase(),
                                 style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                 ),
@@ -165,7 +173,8 @@ class IncomeSummaryCard extends StatelessWidget {
                                 ),
                                 child: Icon(
                                   Icons.chevron_right,
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.7),
                                   size: 18,
                                 ),
                               ),
@@ -183,7 +192,7 @@ class IncomeSummaryCard extends StatelessWidget {
                 Text(
                   CurrencyFormatter.format(toplamGelir),
                   style: TextStyle(
-                    color: Colors.green.shade400,
+                    color: ColorConstants.yesil,
                     fontSize: amountFontSize,
                     height: 1.1,
                     fontWeight: FontWeight.w800,
@@ -198,14 +207,16 @@ class IncomeSummaryCard extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.receipt_long,
-                      color: Colors.green.shade200,
+                      color: ColorConstants.yesil,
                       size: 16,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       context.l10n.monthlyIncomeCount(gelirSayisi),
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
                         fontSize: subtitleFontSize,
                       ),
                     ),
@@ -238,7 +249,9 @@ class IncomeSummaryCard extends StatelessWidget {
             Text(
               'Aylık Hedef',
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: subtitleFontSize,
                 fontWeight: FontWeight.w500,
               ),
@@ -246,7 +259,9 @@ class IncomeSummaryCard extends StatelessWidget {
             Text(
               '${CurrencyFormatter.format(toplamGelir)} / ${CurrencyFormatter.format(gelirHedefi!)}',
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.9),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.9),
                 fontSize: subtitleFontSize,
                 fontWeight: FontWeight.bold,
               ),
@@ -258,7 +273,9 @@ class IncomeSummaryCard extends StatelessWidget {
           height: 6,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(3),
           ),
           child: FractionallySizedBox(
@@ -267,12 +284,12 @@ class IncomeSummaryCard extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: percent >= 1.0
-                    ? Colors.green.shade400
-                    : Colors.green.shade300,
+                    ? ColorConstants.yesil
+                    : Colors.green.shade500,
                 borderRadius: BorderRadius.circular(3),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.green.shade400.withValues(alpha: 0.5),
+                    color: ColorConstants.yesil.withValues(alpha: 0.5),
                     blurRadius: 4,
                     offset: const Offset(0, 1),
                   ),

@@ -54,7 +54,6 @@ class ExpenseListItem extends StatelessWidget {
         child: GestureDetector(
           onTap: onTap,
           child: Card(
-            color: const Color.fromARGB(255, 6, 6, 6),
             elevation: 0,
             margin: const EdgeInsets.only(bottom: 6),
             shape: RoundedRectangleBorder(

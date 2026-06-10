@@ -399,7 +399,7 @@ class ExpenseDetailPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            style: TextButton.styleFrom(foregroundColor: Colors.white),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
             child: Text(context.l10n.cancel),
           ),
           TextButton(

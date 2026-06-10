@@ -101,7 +101,7 @@ class BalanceWarningDialog extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildHeader(isCredit),
+          _buildHeader(context, isCredit),
           _buildContent(context, isCredit, theme),
         ],
       ),
@@ -109,7 +109,7 @@ class BalanceWarningDialog extends StatelessWidget {
   }
 
   /// Üst kısım - Animasyonlu ikon ve başlık
-  Widget _buildHeader(bool isCredit) {
+  Widget _buildHeader(BuildContext context, bool isCredit) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24),
@@ -161,8 +161,8 @@ class BalanceWarningDialog extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             isCredit ? 'Limit Uyarısı' : 'Bakiye Uyarısı',
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 22,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,

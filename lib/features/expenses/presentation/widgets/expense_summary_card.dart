@@ -257,9 +257,9 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
           // Alt: İkonik Gösterim
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.trending_down,
-                color: Colors.redAccent.shade100,
+                color: ColorConstants.kirmiziVurgu,
                 size: 16,
               ),
               const SizedBox(width: 4),
@@ -577,8 +577,8 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                           ? Icons.trending_down
                           : Icons.trending_up,
                       color: ortalamaninAltinda
-                          ? Colors.greenAccent
-                          : Colors.redAccent.shade100,
+                          ? ColorConstants.yesil
+                          : ColorConstants.kirmiziVurgu,
                       size: 14,
                     ),
                     const SizedBox(width: 4),
@@ -589,8 +589,8 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                             : "${CurrencyFormatter.format(fark)} ${context.l10n.more}",
                         style: TextStyle(
                           color: ortalamaninAltinda
-                              ? Colors.greenAccent
-                              : Colors.redAccent.shade100,
+                              ? ColorConstants.yesil
+                              : ColorConstants.kirmiziVurgu,
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),

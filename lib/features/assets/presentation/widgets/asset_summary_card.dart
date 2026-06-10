@@ -89,7 +89,7 @@ class AssetSummaryCard extends StatelessWidget {
                       ),
                       child: Icon(
                         Icons.show_chart,
-                        color: Colors.blue.shade300,
+                        color: Colors.blue.shade600,
                         size: 16,
                       ),
                     ),
@@ -102,7 +102,7 @@ class AssetSummaryCard extends StatelessWidget {
                 Text(
                   CurrencyFormatter.format(totalAssets),
                   style: TextStyle(
-                    color: Colors.blue.shade400,
+                    color: Colors.blue.shade600,
                     fontSize: amountFontSize,
                     height: 1.1,
                     fontWeight: FontWeight.w800,
@@ -117,7 +117,7 @@ class AssetSummaryCard extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.account_balance_wallet_outlined,
-                      color: Colors.blue.shade200,
+                      color: Colors.blue.shade600,
                       size: 16,
                     ),
                     const SizedBox(width: 4),

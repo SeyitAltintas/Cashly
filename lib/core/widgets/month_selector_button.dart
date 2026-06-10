@@ -57,18 +57,18 @@ class MonthSelectorButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.calendar_month, size: 16, color: Colors.white),
+            Icon(Icons.calendar_month, size: 16, color: color),
             const SizedBox(width: 6),
             Text(
               '${_monthName(context)} $selectedYear',
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: color,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.arrow_drop_down, size: 18, color: Colors.white),
+            Icon(Icons.arrow_drop_down, size: 18, color: color),
           ],
         ),
       ),
