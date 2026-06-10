@@ -40,15 +40,15 @@ class AssetSummaryCard extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                ColorConstants.maviVurgu.withValues(alpha: 0.9),
-                ColorConstants.maviVurgu.withValues(alpha: 0.6),
+                ColorConstants.maviVurgu.withValues(alpha: 0.3),
+                ColorConstants.maviVurgu.withValues(alpha: 0.15),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: ColorConstants.maviVurgu.withValues(alpha: 0.3),
+              color: ColorConstants.maviVurgu.withValues(alpha: 0.4),
             ),
           ),
           child: Row(
@@ -59,9 +59,11 @@ class AssetSummaryCard extends StatelessWidget {
                 children: [
                   Text(
                     context.l10n.totalAsset,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white70,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -71,7 +73,7 @@ class AssetSummaryCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: ColorConstants.maviVurgu,
                     ),
                   ),
                 ],
@@ -79,12 +81,12 @@ class AssetSummaryCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: ColorConstants.maviVurgu.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.diamond_outlined,
-                  color: Colors.white,
+                  color: ColorConstants.maviVurgu,
                   size: 28,
                 ),
               ),

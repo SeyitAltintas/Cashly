@@ -50,15 +50,15 @@ class IncomeSummaryCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  ColorConstants.yesil.withValues(alpha: 0.9),
-                  ColorConstants.yesil.withValues(alpha: 0.6),
+                  ColorConstants.yesil.withValues(alpha: 0.25),
+                  ColorConstants.yesil.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: ColorConstants.yesil.withValues(alpha: 0.3),
+                color: ColorConstants.yesil.withValues(alpha: 0.4),
               ),
             ),
             child: Column(
@@ -77,14 +77,18 @@ class IncomeSummaryCard extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.trending_up,
-                              color: Colors.white.withValues(alpha: 0.6),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
                               size: 14,
                             ),
                             const SizedBox(width: 6),
                             Text(
                               context.l10n.totalIncomeLabel,
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.6),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.6),
                                 fontSize: labelFontSize,
                                 letterSpacing: 1.2,
                                 fontWeight: FontWeight.w600,
@@ -97,10 +101,14 @@ class IncomeSummaryCard extends StatelessWidget {
                     // Sag Ust: Ay Secici
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.1),
                         ),
                       ),
                       child: Row(
@@ -122,7 +130,8 @@ class IncomeSummaryCard extends StatelessWidget {
                                 ),
                                 child: Icon(
                                   Icons.chevron_left,
-                                  color: Colors.white.withValues(alpha: 0.7),
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.7),
                                   size: 18,
                                 ),
                               ),
@@ -138,8 +147,10 @@ class IncomeSummaryCard extends StatelessWidget {
                               ),
                               child: Text(
                                 ayIsmi.toUpperCase(),
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                 ),
@@ -162,7 +173,8 @@ class IncomeSummaryCard extends StatelessWidget {
                                 ),
                                 child: Icon(
                                   Icons.chevron_right,
-                                  color: Colors.white.withValues(alpha: 0.7),
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.7),
                                   size: 18,
                                 ),
                               ),
@@ -180,7 +192,7 @@ class IncomeSummaryCard extends StatelessWidget {
                 Text(
                   CurrencyFormatter.format(toplamGelir),
                   style: TextStyle(
-                    color: Colors.white,
+                    color: ColorConstants.yesil,
                     fontSize: amountFontSize,
                     height: 1.1,
                     fontWeight: FontWeight.w800,
@@ -195,14 +207,16 @@ class IncomeSummaryCard extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons.receipt_long,
-                      color: Colors.white70,
+                      color: ColorConstants.yesil,
                       size: 16,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       context.l10n.monthlyIncomeCount(gelirSayisi),
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
                         fontSize: subtitleFontSize,
                       ),
                     ),
@@ -235,7 +249,9 @@ class IncomeSummaryCard extends StatelessWidget {
             Text(
               'Aylık Hedef',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: subtitleFontSize,
                 fontWeight: FontWeight.w500,
               ),
@@ -243,7 +259,9 @@ class IncomeSummaryCard extends StatelessWidget {
             Text(
               '${CurrencyFormatter.format(toplamGelir)} / ${CurrencyFormatter.format(gelirHedefi!)}',
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.9),
                 fontSize: subtitleFontSize,
                 fontWeight: FontWeight.bold,
               ),
@@ -255,7 +273,9 @@ class IncomeSummaryCard extends StatelessWidget {
           height: 6,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(3),
           ),
           child: FractionallySizedBox(
@@ -263,11 +283,13 @@ class IncomeSummaryCard extends StatelessWidget {
             widthFactor: percent,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: percent >= 1.0
+                    ? ColorConstants.yesil
+                    : ColorConstants.yesil.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(3),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.white.withValues(alpha: 0.5),
+                    color: ColorConstants.yesil.withValues(alpha: 0.5),
                     blurRadius: 4,
                     offset: const Offset(0, 1),
                   ),

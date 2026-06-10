@@ -110,15 +110,15 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            ColorConstants.kirmiziVurgu.withValues(alpha: 0.9),
-            ColorConstants.kirmiziVurgu.withValues(alpha: 0.6),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.25),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3),
+          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4),
         ),
       ),
       child: Column(
@@ -137,14 +137,18 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                     children: [
                       Icon(
                         Icons.wallet,
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                         size: 14,
                       ),
                       const SizedBox(width: 6),
                       Text(
                         context.l10n.totalExpenseLabel,
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.6),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
                           fontSize: labelFontSize,
                           letterSpacing: 1.2,
                           fontWeight: FontWeight.w600,
@@ -157,10 +161,10 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
               // Sağ Üst: Ay Seçici (Minimal & Touch Optimized)
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                   ),
                 ),
                 child: Row(
@@ -182,7 +186,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                           ),
                           child: Icon(
                             Icons.chevron_left,
-                            color: Colors.white.withValues(alpha: 0.7),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                             size: 18,
                           ),
                         ),
@@ -198,7 +202,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                         child: Text(
                           widget.ayIsmi.toUpperCase(),
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
@@ -222,7 +226,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                           ),
                           child: Icon(
                             Icons.chevron_right,
-                            color: Colors.white.withValues(alpha: 0.7),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                             size: 18,
                           ),
                         ),
@@ -240,7 +244,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
           Text(
             CurrencyFormatter.format(widget.toplamTutar),
             style: TextStyle(
-              color: Colors.white,
+              color: ColorConstants.kirmiziVurgu,
               fontSize: amountFontSize,
               height: 1.1,
               fontWeight: FontWeight.w800,
@@ -255,14 +259,14 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
             children: [
               const Icon(
                 Icons.trending_down,
-                color: Colors.white70,
+                color: ColorConstants.kirmiziVurgu,
                 size: 16,
               ),
               const SizedBox(width: 4),
               Text(
                 context.l10n.expensesThisMonth,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.7),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                   fontSize: subtitleFontSize,
                 ),
               ),
@@ -293,15 +297,15 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            ColorConstants.kirmiziVurgu.withValues(alpha: 0.9),
-            ColorConstants.kirmiziVurgu.withValues(alpha: 0.6),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.25),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3),
+          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4),
         ),
       ),
       child: Column(
@@ -313,8 +317,10 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
             children: [
               Text(
                 context.l10n.budgetStatusLabel,
-                style: const TextStyle(
-                  color: Colors.white70,
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 11,
                   letterSpacing: 1.2,
                   fontWeight: FontWeight.w600,
@@ -323,13 +329,13 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
+                  color: barRengi.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   "%${(dolulukOrani * 100).toStringAsFixed(0)}",
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: barRengi,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -344,8 +350,8 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
             borderRadius: BorderRadius.circular(20),
             child: LinearProgressIndicator(
               value: dolulukOrani,
-              backgroundColor: Colors.white.withValues(alpha: 0.2),
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+              valueColor: AlwaysStoppedAnimation<Color>(barRengi),
               minHeight: 12,
             ),
           ),
@@ -360,8 +366,8 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                 children: [
                   Text(
                     context.l10n.remainingLabel.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white54,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                     ),
@@ -369,7 +375,9 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                   Text(
                     CurrencyFormatter.format(kalanLimit),
                     style: TextStyle(
-                      color: kalanLimit < 0 ? Colors.yellow : Colors.white,
+                      color: kalanLimit < 0
+                          ? ColorConstants.kirmiziVurgu
+                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.9),
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
@@ -381,16 +389,16 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                 children: [
                   Text(
                     context.l10n.totalLimit.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white54,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   Text(
                     CurrencyFormatter.format(widget.butceLimiti),
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
@@ -447,22 +455,21 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
     // Karşılaştırma
     final bool ortalamaninAltinda = bugunHarcama < gunlukOrtalama;
     final double fark = (bugunHarcama - gunlukOrtalama).abs();
-    final titleFontSize = (cardWidth * 0.03).clamp(10.0, 12.0);
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            ColorConstants.kirmiziVurgu.withValues(alpha: 0.9),
-            ColorConstants.kirmiziVurgu.withValues(alpha: 0.6),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.25),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3),
+          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4),
         ),
       ),
       child: Column(
@@ -476,14 +483,18 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                 children: [
                   Icon(
                     Icons.analytics_outlined,
-                    color: Colors.white.withValues(alpha: 0.6),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                     size: 14,
                   ),
                   const SizedBox(width: 6),
                   Text(
                     context.l10n.dailyAverageLabel,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 11,
                       letterSpacing: 1.2,
                       fontWeight: FontWeight.w600,
@@ -495,13 +506,13 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   context.l10n.daysCount(gecenGunSayisi),
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
                     fontSize: 10,
                   ),
@@ -515,8 +526,8 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
           // Ortalama tutar
           Text(
             CurrencyFormatter.format(gunlukOrtalama),
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.95),
               fontSize: 32,
               height: 1.1,
               fontWeight: FontWeight.w800,
@@ -533,7 +544,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -541,16 +552,16 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                   children: [
                     Icon(
                       Icons.today,
-                      color: Colors.white.withValues(alpha: 0.7),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       size: 12,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       "${context.l10n.todayLabel}: ${CurrencyFormatter.format(bugunHarcama)}",
                       style: TextStyle(
-                            color: Colors.white,
-                            fontSize: titleFontSize,
-                            fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],

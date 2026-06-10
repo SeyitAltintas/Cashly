@@ -75,11 +75,11 @@ class BalanceCardPage extends StatelessWidget {
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: const [
-                        Color(0xFF1A1A2E),
-                        Color(0xFF16213e),
-                        Color(0xFF0f3460),
-                        Color(0xFF1A1A2E),
+                      colors: [
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                        const Color(0xFF16213e),
+                        const Color(0xFF0f3460),
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                       ],
                       stops: const [0.0, 0.3, 0.7, 1.0],
                       begin: Alignment.topLeft,
@@ -104,9 +104,9 @@ class BalanceCardPage extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             Colors.transparent,
-                            Colors.white.withValues(alpha: 0.05),
-                            Colors.white.withValues(alpha: 0.1),
-                            Colors.white.withValues(alpha: 0.05),
+                            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                             Colors.transparent,
                           ],
                           begin: Alignment.centerLeft,
@@ -183,7 +183,7 @@ class BalanceCardPage extends StatelessWidget {
                                 'assets/image/seffaflogo.png',
                                 height: logoSize,
                                 width: logoSize,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(
                                     height: logoSize,
@@ -194,7 +194,7 @@ class BalanceCardPage extends StatelessWidget {
                                     ),
                                     child: Icon(
                                       Icons.account_balance_wallet,
-                                      color: Colors.white,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                       size: logoSize * 0.5,
                                     ),
                                   );
@@ -211,7 +211,7 @@ class BalanceCardPage extends StatelessWidget {
                                 Text(
                                   context.l10n.totalBalance.toUpperCase(),
                                   style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.6),
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                     fontSize: labelFontSize,
                                     fontWeight: FontWeight.w600,
                                     letterSpacing: 1.5,
@@ -225,9 +225,9 @@ class BalanceCardPage extends StatelessWidget {
                                       shaderCallback: (bounds) {
                                         return LinearGradient(
                                           colors: [
-                                            Colors.white,
+                                            Theme.of(context).colorScheme.onSurface,
                                             const Color(0xFF6C63FF),
-                                            Colors.white,
+                                            Theme.of(context).colorScheme.onSurface,
                                           ],
                                           stops:
                                               [
@@ -246,7 +246,7 @@ class BalanceCardPage extends StatelessWidget {
                                       child: Text(
                                         CurrencyFormatter.format(totalBalance),
                                         style: TextStyle(
-                                          color: Colors.white,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                           fontSize: balanceFontSize,
                                           fontWeight: FontWeight.w800,
                                           letterSpacing: -0.5,

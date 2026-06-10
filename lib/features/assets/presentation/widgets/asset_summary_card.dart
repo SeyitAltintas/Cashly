@@ -40,15 +40,15 @@ class AssetSummaryCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  ColorConstants.maviVurgu.withValues(alpha: 0.9),
-                  ColorConstants.maviVurgu.withValues(alpha: 0.6),
+                  ColorConstants.maviVurgu.withValues(alpha: 0.25),
+                  ColorConstants.maviVurgu.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: ColorConstants.maviVurgu.withValues(alpha: 0.3),
+                color: ColorConstants.maviVurgu.withValues(alpha: 0.4),
               ),
             ),
             child: Column(
@@ -62,14 +62,18 @@ class AssetSummaryCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.diamond_outlined,
-                          color: Colors.white.withValues(alpha: 0.6),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
                           size: 14,
                         ),
                         const SizedBox(width: 6),
                         Text(
                           context.l10n.totalAssetLabel,
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.6),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
                             fontSize: labelFontSize,
                             letterSpacing: 1.2,
                             fontWeight: FontWeight.w600,
@@ -81,12 +85,12 @@ class AssetSummaryCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: ColorConstants.maviVurgu.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.show_chart,
-                        color: Colors.white,
+                        color: ColorConstants.maviVurgu,
                         size: 16,
                       ),
                     ),
@@ -99,7 +103,7 @@ class AssetSummaryCard extends StatelessWidget {
                 Text(
                   CurrencyFormatter.format(totalAssets),
                   style: TextStyle(
-                    color: Colors.white,
+                    color: ColorConstants.maviVurgu,
                     fontSize: amountFontSize,
                     height: 1.1,
                     fontWeight: FontWeight.w800,
@@ -114,14 +118,14 @@ class AssetSummaryCard extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons.account_balance_wallet_outlined,
-                      color: Colors.white70,
+                      color: ColorConstants.maviVurgu,
                       size: 16,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       context.l10n.totalAssetCount(assetCount),
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                         fontSize: subtitleFontSize,
                       ),
                     ),
