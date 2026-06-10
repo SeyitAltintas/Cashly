@@ -484,7 +484,7 @@ class _PaymentMethodCard extends StatelessWidget {
                         child: Text(
                           context.translateDbName(pm.typeDisplayName),
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                           ),
@@ -496,7 +496,7 @@ class _PaymentMethodCard extends StatelessWidget {
                             : pm.type == 'kredi'
                             ? Icons.credit_card
                             : Icons.account_balance,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         size: 24,
                       ),
                     ],
@@ -505,7 +505,7 @@ class _PaymentMethodCard extends StatelessWidget {
                     Text(
                       '\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 ${pm.lastFourDigits}',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 14,
                         letterSpacing: 2,
                       ),
@@ -519,7 +519,7 @@ class _PaymentMethodCard extends StatelessWidget {
                           Text(
                             context.translateDbName(pm.name).toUpperCase(),
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                              color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 11,
                               letterSpacing: 1,
                             ),
@@ -528,7 +528,7 @@ class _PaymentMethodCard extends StatelessWidget {
                             Text(
                               'Limit: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                                color: Colors.white.withValues(alpha: 0.5),
                                 fontSize: 10,
                               ),
                             ),
@@ -542,14 +542,14 @@ class _PaymentMethodCard extends StatelessWidget {
                                 ? context.l10n.debt
                                 : context.l10n.balanceLabel,
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: Colors.white.withValues(alpha: 0.6),
                               fontSize: 10,
                             ),
                           ),
                           Text(
                             '${AmountInputFormatter.formatInitialValue(pm.balance)} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
+                              color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
