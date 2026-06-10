@@ -219,6 +219,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
         }
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         // ValueListenableBuilder ile sadece AppBar değişikliklerinde rebuild
         appBar: _buildAppBarWithNotifier(),
         body: PageView(

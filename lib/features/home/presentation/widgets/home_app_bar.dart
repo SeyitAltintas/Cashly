@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 
@@ -79,9 +80,7 @@ class ExpensesAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
         IconButton(
-          icon: Icon(
-            aramaModu ? Icons.close : Icons.search,
-          ),
+          icon: Icon(aramaModu ? Icons.close : Icons.search),
           onPressed: onAramaModuDegistir,
         ),
       ],
@@ -141,9 +140,7 @@ class IncomesAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: onCopKutusuAc,
         ),
         IconButton(
-          icon: Icon(
-            aramaModu ? Icons.close : Icons.search,
-          ),
+          icon: Icon(aramaModu ? Icons.close : Icons.search),
           onPressed: onAramaModuDegistir,
         ),
       ],
@@ -166,11 +163,25 @@ class ToolsAppBar extends StatelessWidget implements PreferredSizeWidget {
         'assets/image/seffaflogo.png',
         height: 35,
         fit: BoxFit.contain,
-        color: Theme.of(context).brightness == Brightness.light ? Colors.black : null,
+        color: Theme.of(context).brightness == Brightness.light
+            ? Colors.black
+            : null,
       ),
       centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
+      flexibleSpace: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+          child: Container(
+            color: Theme.of(context).scaffoldBackgroundColor.withValues(
+              alpha: Theme.of(context).brightness == Brightness.dark
+                  ? 0.8
+                  : 0.65,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -190,11 +201,25 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
         'assets/image/seffaflogo.png',
         height: 35,
         fit: BoxFit.contain,
-        color: Theme.of(context).brightness == Brightness.light ? Colors.black : null,
+        color: Theme.of(context).brightness == Brightness.light
+            ? Colors.black
+            : null,
       ),
       centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
+      flexibleSpace: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+          child: Container(
+            color: Theme.of(context).scaffoldBackgroundColor.withValues(
+              alpha: Theme.of(context).brightness == Brightness.dark
+                  ? 0.8
+                  : 0.65,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -214,11 +239,25 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
         'assets/image/seffaflogo.png',
         height: 35,
         fit: BoxFit.contain,
-        color: Theme.of(context).brightness == Brightness.light ? Colors.black : null,
+        color: Theme.of(context).brightness == Brightness.light
+            ? Colors.black
+            : null,
       ),
       centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
+      flexibleSpace: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+          child: Container(
+            color: Theme.of(context).scaffoldBackgroundColor.withValues(
+              alpha: Theme.of(context).brightness == Brightness.dark
+                  ? 0.8
+                  : 0.65,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

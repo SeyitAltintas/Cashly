@@ -120,10 +120,14 @@ class _DashboardPageState extends State<DashboardPage>
       value: _controller,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
+        body: ListView(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + 20,
+            left: 20,
+            right: 20,
+            bottom: 20,
+          ),
+          children: [
               // Hoş Geldin Bölümü
               const _GreetingSection(),
               const SizedBox(height: 24),
@@ -154,7 +158,6 @@ class _DashboardPageState extends State<DashboardPage>
             ],
           ),
         ),
-      ),
     );
   }
 }

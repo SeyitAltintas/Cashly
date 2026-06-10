@@ -128,7 +128,12 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
   Widget build(BuildContext context) {
     super.build(context);
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 16.0,
+        left: 16.0,
+        right: 16.0,
+        bottom: 16.0,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

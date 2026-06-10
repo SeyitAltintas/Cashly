@@ -54,14 +54,15 @@ class _ToolsPageState extends State<ToolsPage>
           final isLoading = context.select((ToolsController c) => c.isLoading);
 
           return Scaffold(
-            body: SafeArea(
-              child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
+            body: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView(
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 16,
+                      left: 20,
+                      right: 20,
+                      bottom: 16,
+                    ),
                       physics: const BouncingScrollPhysics(),
                       children: [
                         // Header
@@ -175,7 +176,6 @@ class _ToolsPageState extends State<ToolsPage>
                         const SizedBox(height: 100),
                       ],
                     ),
-            ),
           );
         },
       ),
