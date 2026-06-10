@@ -30,7 +30,7 @@ class TextOverlay {
     required this.text,
     this.position = Offset(0.5, 0.5),
     this.fontSize = 24,
-    this.color = Theme.of(context).colorScheme.onSurface,
+    this.color = Colors.white,
     this.fontFamily = 'Inter',
     this.isBold = false,
     this.isItalic = false,
@@ -1089,8 +1089,8 @@ final List<FrameOverlay> kFramePresets = [
     borderColor: Colors.transparent,
     borderWidth: 0,
   ),
-  FrameOverlay(name: 'Beyaz', borderColor: Theme.of(context).colorScheme.onSurface, borderWidth: 8),
-  FrameOverlay(name: 'Siyah', borderColor: Theme.of(context).colorScheme.onSurface, borderWidth: 8),
+  const FrameOverlay(name: 'Beyaz', borderColor: Colors.white, borderWidth: 8),
+  const FrameOverlay(name: 'Siyah', borderColor: Colors.black, borderWidth: 8),
   // Polaroid - Geniş beyaz alt kenar efekti
   const FrameOverlay(
     name: 'Polaroid',

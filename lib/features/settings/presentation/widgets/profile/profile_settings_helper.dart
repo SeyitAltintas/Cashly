@@ -183,7 +183,7 @@ class ProfileSettingsHelper {
               top: 40,
               right: 20,
               child: IconButton(
-                icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface, size: 30),
+                icon: Icon(Icons.close, color: Theme.of(ctx).colorScheme.onSurface, size: 30),
                 onPressed: () => Navigator.pop(ctx),
               ),
             ),
@@ -1189,12 +1189,12 @@ class ProfileSettingsHelper {
           ).colorScheme.primary.withValues(alpha: 0.5),
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(ctx).colorScheme.onSurface,
                 ),
               )
             : Text(

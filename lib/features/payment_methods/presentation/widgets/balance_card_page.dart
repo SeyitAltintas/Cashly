@@ -401,7 +401,7 @@ class BalanceCardPage extends StatelessWidget {
           fit: BoxFit.cover,
           width: 100,
           height: 100,
-          errorWidget: _buildDefaultAvatar(userName),
+          errorWidget: _buildDefaultAvatar(context, userName),
         );
       } else {
         return Image(
@@ -410,16 +410,16 @@ class BalanceCardPage extends StatelessWidget {
           width: 100,
           height: 100,
           errorBuilder: (context, error, stackTrace) {
-            return _buildDefaultAvatar(userName);
+            return _buildDefaultAvatar(context, userName);
           },
         );
       }
     }
-    return _buildDefaultAvatar(userName);
+    return _buildDefaultAvatar(context, userName);
   }
 
   /// Varsayılan avatar widget'ı
-  Widget _buildDefaultAvatar(String userName) {
+  Widget _buildDefaultAvatar(BuildContext context, String userName) {
     return Container(
       color: const Color(0xFF6C63FF),
       child: Center(
