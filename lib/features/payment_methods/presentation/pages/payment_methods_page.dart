@@ -483,7 +483,7 @@ class _PaymentMethodCard extends StatelessWidget {
                         ),
                         child: Text(
                           context.translateDbName(pm.typeDisplayName),
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -548,7 +548,7 @@ class _PaymentMethodCard extends StatelessWidget {
                           ),
                           Text(
                             '${AmountInputFormatter.formatInitialValue(pm.balance)} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

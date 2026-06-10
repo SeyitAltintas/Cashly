@@ -110,15 +110,22 @@ class _BalanceCardState extends State<BalanceCard> {
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF152A4A), Color(0xFF0A1426)],
+          gradient: LinearGradient(
+            colors: Theme.of(context).brightness == Brightness.dark
+                ? const [Color(0xFF152A4A), Color(0xFF0A1426)]
+                : [
+                    const Color(0xFF152A4A).withValues(alpha: 0.75),
+                    const Color(0xFF0A1426).withValues(alpha: 0.75),
+                  ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0A1426).withValues(alpha: 0.4),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF0A1426).withValues(alpha: 0.4)
+                  : const Color(0xFF0A1426).withValues(alpha: 0.15),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -202,7 +209,7 @@ class _BalanceCardState extends State<BalanceCard> {
                       child: ObscuredAmountText(
                         CurrencyFormatter.format(widget.totalBalance),
                         isObscured: isObscured,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 34,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -259,7 +266,7 @@ class _BalanceCardState extends State<BalanceCard> {
                             color: Colors.white.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.account_balance_wallet_outlined,
                             color: Colors.white,
                             size: 18,
@@ -268,13 +275,16 @@ class _BalanceCardState extends State<BalanceCard> {
                         const SizedBox(width: 12),
                         Text(
                           "Nakit:",
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.70), fontSize: 15),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.70),
+                            fontSize: 15,
+                          ),
                         ),
                         const SizedBox(width: 6),
                         ObscuredAmountText(
                           CurrencyFormatter.format(cashBalance),
                           isObscured: isObscured,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
