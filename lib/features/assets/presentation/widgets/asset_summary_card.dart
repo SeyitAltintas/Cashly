@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 
@@ -39,15 +40,15 @@ class AssetSummaryCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.blue.shade600.withValues(alpha: 0.25),
-                  Colors.blue.shade600.withValues(alpha: 0.1),
+                  ColorConstants.maviVurgu.withValues(alpha: 0.25),
+                  ColorConstants.maviVurgu.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Colors.blue.shade600.withValues(alpha: 0.4),
+                color: ColorConstants.maviVurgu.withValues(alpha: 0.4),
               ),
             ),
             child: Column(
@@ -84,12 +85,12 @@ class AssetSummaryCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade600.withValues(alpha: 0.2),
+                        color: ColorConstants.maviVurgu.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.show_chart,
-                        color: Colors.blue.shade600,
+                        color: ColorConstants.maviVurgu,
                         size: 16,
                       ),
                     ),
@@ -102,7 +103,7 @@ class AssetSummaryCard extends StatelessWidget {
                 Text(
                   CurrencyFormatter.format(totalAssets),
                   style: TextStyle(
-                    color: Colors.blue.shade600,
+                    color: ColorConstants.maviVurgu,
                     fontSize: amountFontSize,
                     height: 1.1,
                     fontWeight: FontWeight.w800,
@@ -117,7 +118,7 @@ class AssetSummaryCard extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.account_balance_wallet_outlined,
-                      color: Colors.blue.shade600,
+                      color: ColorConstants.maviVurgu,
                       size: 16,
                     ),
                     const SizedBox(width: 4),

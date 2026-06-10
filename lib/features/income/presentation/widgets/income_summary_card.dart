@@ -285,7 +285,7 @@ class IncomeSummaryCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: percent >= 1.0
                     ? ColorConstants.yesil
-                    : Colors.green.shade500,
+                    : ColorConstants.yesil.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(3),
                 boxShadow: [
                   BoxShadow(

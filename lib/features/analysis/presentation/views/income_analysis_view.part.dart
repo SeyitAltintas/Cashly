@@ -12,7 +12,7 @@ extension _IncomeAnalysisExtension on _AnalysisPageState {
               message: context.l10n.noIncomeDataForThisMonth,
               actionText: context.l10n.addIncome,
               icon: Icons.account_balance_wallet_outlined,
-              buttonColor: Colors.green.shade400,
+              buttonColor: ColorConstants.yesil,
               onActionPressed: widget.onAddIncomePressed != null
                   ? () => widget.onAddIncomePressed!(_controller.selectedMonth)
                   : () => Navigator.pop(context),

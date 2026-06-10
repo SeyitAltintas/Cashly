@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/services/haptic_service.dart';
+import '../../../../../core/constants/color_constants.dart';
 import 'state/haptic_settings_state.dart';
 
 /// Haptic (titreşim) geri bildirim ayarları sayfası
@@ -98,16 +99,16 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.blue.withValues(alpha: 0.08),
+              color: ColorConstants.maviVurgu.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
+              border: Border.all(color: ColorConstants.maviVurgu.withValues(alpha: 0.2)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
                   Icons.info_outline_rounded,
-                  color: Colors.blue.shade400,
+                  color: ColorConstants.maviVurgu,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
@@ -174,18 +175,18 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.withValues(alpha: 0.1),
+        color: ColorConstants.turuncuVurgu.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+        border: Border.all(color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700),
+          Icon(Icons.warning_amber_rounded, color: ColorConstants.turuncuVurgu),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               context.l10n.hapticNoVibrator,
-              style: TextStyle(color: Colors.orange.shade700, fontSize: 13),
+              style: TextStyle(color: ColorConstants.turuncuVurgu, fontSize: 13),
             ),
           ),
         ],
@@ -205,20 +206,20 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
         ),
       ),
       child: SwitchListTile(
-        activeTrackColor: Colors.green.withValues(alpha: 0.5),
-        activeThumbColor: Colors.green,
-        inactiveTrackColor: Colors.red.withValues(alpha: 0.3),
-        inactiveThumbColor: Colors.red,
+        activeTrackColor: ColorConstants.yesil.withValues(alpha: 0.5),
+        activeThumbColor: ColorConstants.yesil,
+        inactiveTrackColor: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3),
+        inactiveThumbColor: ColorConstants.kirmiziVurgu,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         secondary: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: (value ? Colors.green : Colors.red).withValues(alpha: 0.1),
+            color: (value ? ColorConstants.yesil : ColorConstants.kirmiziVurgu).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(
             Icons.vibration,
-            color: value ? Colors.green : Colors.red,
+            color: value ? ColorConstants.yesil : ColorConstants.kirmiziVurgu,
           ),
         ),
         title: Text(
@@ -260,7 +261,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
           _buildSettingTile(
             context,
             icon: Icons.touch_app_outlined,
-            iconColor: Colors.blue,
+            iconColor: ColorConstants.maviVurgu,
             title: context.l10n.hapticButtonTaps,
             subtitle: context.l10n.hapticButtonTapsDesc,
             settingKey: HapticService.keyButtonTaps,
@@ -269,7 +270,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
           _buildSettingTile(
             context,
             icon: Icons.swipe_rounded,
-            iconColor: Colors.purple,
+            iconColor: ColorConstants.morVurgu,
             title: context.l10n.hapticNavigation,
             subtitle: context.l10n.hapticNavigationDesc,
             settingKey: HapticService.keyNavigation,
@@ -278,7 +279,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
           _buildSettingTile(
             context,
             icon: Icons.delete_outline_rounded,
-            iconColor: Colors.red,
+            iconColor: ColorConstants.kirmiziVurgu,
             title: context.l10n.hapticDelete,
             subtitle: context.l10n.hapticDeleteDesc,
             settingKey: HapticService.keyDelete,
@@ -287,7 +288,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
           _buildSettingTile(
             context,
             icon: Icons.check_circle_outline_rounded,
-            iconColor: Colors.green,
+            iconColor: ColorConstants.yesil,
             title: context.l10n.hapticSuccessNotif,
             subtitle: context.l10n.hapticSuccessNotifDesc,
             settingKey: HapticService.keySuccess,
@@ -296,7 +297,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
           _buildSettingTile(
             context,
             icon: Icons.error_outline_rounded,
-            iconColor: Colors.orange,
+            iconColor: ColorConstants.turuncuVurgu,
             title: context.l10n.hapticErrorNotif,
             subtitle: context.l10n.hapticErrorNotifDesc,
             settingKey: HapticService.keyError,
@@ -305,7 +306,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
           _buildSettingTile(
             context,
             icon: Icons.celebration_outlined,
-            iconColor: Colors.amber,
+            iconColor: ColorConstants.amberVurgu,
             title: context.l10n.hapticCelebration,
             subtitle: context.l10n.hapticCelebrationDesc,
             settingKey: HapticService.keyCelebration,

@@ -5,6 +5,7 @@ import '../../../../settings/domain/repositories/settings_repository.dart';
 import '../../../../../core/services/tts_service.dart';
 import '../../../../auth/presentation/controllers/auth_controller.dart';
 import 'voice_commands_page.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import 'state/voice_assistant_state.dart';
 
 /// Sesli Asistan ayarları sayfası
@@ -181,10 +182,10 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                         Switch(
                           value: _sesliGeriBildirimAktif,
                           onChanged: _ayariDegistir,
-                          activeTrackColor: Colors.green.withValues(alpha: 0.5),
-                          activeThumbColor: Colors.green,
-                          inactiveTrackColor: Colors.red.withValues(alpha: 0.3),
-                          inactiveThumbColor: Colors.red,
+                          activeTrackColor: ColorConstants.yesil.withValues(alpha: 0.5),
+                          activeThumbColor: ColorConstants.yesil,
+                          inactiveTrackColor: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3),
+                          inactiveThumbColor: ColorConstants.kirmiziVurgu,
                         ),
                       ],
                     ),
@@ -204,11 +205,11 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                           ),
                         );
                       },
-                      icon: const Icon(Icons.list_alt, color: Colors.black),
+                      icon: Icon(Icons.list_alt, color: Theme.of(context).colorScheme.onSecondary),
                       label: Text(
                         context.l10n.viewAllVoiceCommands,
-                        style: const TextStyle(
-                          color: Colors.black,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

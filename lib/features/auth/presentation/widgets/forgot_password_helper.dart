@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../controllers/auth_controller.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 
 /// Şifremi Unuttum akışı — OTP tabanlı (deep link gerektirmez)
 /// Adım 1: E-posta gir → Adım 2: Kodu gir + Yeni PIN belirle
@@ -127,7 +128,7 @@ class ForgotPasswordHelper {
                                     "Lütfen linke tıklayarak web sayfasında yeni şifrenizi belirleyin ve ardından uygulamaya giriş yapın.",
                                   ),
                                   duration: const Duration(seconds: 8),
-                                  backgroundColor: Colors.green.shade800,
+                                  backgroundColor: ColorConstants.yesil,
                                 ),
                               );
                             },
@@ -229,12 +230,12 @@ class ForgotPasswordHelper {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSuccess
-              ? Colors.green.withAlpha(30)
+              ? ColorConstants.yesil.withAlpha(30)
               : Theme.of(ctx).colorScheme.error.withAlpha(30),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSuccess
-                ? Colors.green.withAlpha(80)
+                ? ColorConstants.yesil.withAlpha(80)
                 : Theme.of(ctx).colorScheme.error.withAlpha(80),
           ),
         ),
@@ -242,7 +243,7 @@ class ForgotPasswordHelper {
           children: [
             Icon(
               isSuccess ? Icons.check_circle_outline : Icons.error_outline,
-              color: isSuccess ? Colors.green : Theme.of(ctx).colorScheme.error,
+              color: isSuccess ? ColorConstants.yesil : Theme.of(ctx).colorScheme.error,
               size: 20,
             ),
             const SizedBox(width: 8),
@@ -251,7 +252,7 @@ class ForgotPasswordHelper {
                 success ?? error!,
                 style: TextStyle(
                   color: isSuccess
-                      ? Colors.green
+                      ? ColorConstants.yesil
                       : Theme.of(ctx).colorScheme.error,
                   fontSize: 14,
                 ),

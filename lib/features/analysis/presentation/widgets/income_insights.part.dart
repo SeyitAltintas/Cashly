@@ -88,7 +88,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                 child: Icon(
                   Icons.emoji_events_rounded,
                   size: 16,
-                  color: Colors.green.shade400,
+                  color: ColorConstants.yesil,
                 ),
               ),
             ],
@@ -204,7 +204,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Colors.green.shade600,
+                              color: ColorConstants.yesil,
                             ),
                           ),
                           if (currency != curService.currentCurrency)
@@ -346,12 +346,12 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                         if (regularPercent > 0)
                           Expanded(
                             flex: (regularPercent * 100).ceil(),
-                            child: Container(color: Colors.green.shade400),
+                            child: Container(color: ColorConstants.yesil),
                           ),
                         if (variablePercent > 0)
                           Expanded(
                             flex: (variablePercent * 100).ceil(),
-                            child: Container(color: Colors.orange.shade400),
+                            child: Container(color: ColorConstants.turuncuVurgu),
                           ),
                       ],
                     ),
@@ -368,7 +368,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                           width: 10,
                           height: 10,
                           decoration: BoxDecoration(
-                            color: Colors.green.shade400,
+                            color: ColorConstants.yesil,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -390,7 +390,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                           width: 10,
                           height: 10,
                           decoration: BoxDecoration(
-                            color: Colors.orange.shade400,
+                            color: ColorConstants.turuncuVurgu,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -519,7 +519,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                   ),
                   child: Icon(
                     Icons.speed_rounded,
-                    color: Colors.green.shade400,
+                    color: ColorConstants.yesil,
                     size: 28,
                   ),
                 ),
@@ -533,7 +533,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Colors.green.shade600,
+                          color: ColorConstants.yesil,
                         ),
                       ),
                       const SizedBox(height: 4),

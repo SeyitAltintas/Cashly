@@ -7,6 +7,7 @@ import '../../../../expenses/domain/repositories/expense_repository.dart';
 import '../../../../payment_methods/domain/repositories/payment_method_repository.dart';
 import '../../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../../../core/utils/currency_formatter.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import 'state/recurring_transactions_state.dart';
 
 /// Tekrarlayan İşlemler yönetim sayfası
@@ -407,7 +408,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                                     ? context.l10n.transactionUpdated
                                     : context.l10n.transactionAdded,
                               ),
-                              backgroundColor: Colors.green.shade700,
+                              backgroundColor: ColorConstants.yesil,
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -569,7 +570,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
         padding: const EdgeInsets.only(right: 20),
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: Colors.red.shade700,
+          color: ColorConstants.kirmiziVurgu,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
@@ -600,7 +601,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                 onPressed: () => Navigator.pop(context, true),
                 child: Text(
                   context.l10n.delete,
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(color: ColorConstants.kirmiziVurgu),
                 ),
               ),
             ],
@@ -672,7 +673,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
               Text(
                 CurrencyFormatter.format(tutar),
                 style: TextStyle(
-                  color: Colors.red.shade400,
+                  color: ColorConstants.kirmiziVurgu,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),

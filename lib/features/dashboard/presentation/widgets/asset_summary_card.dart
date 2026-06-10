@@ -5,6 +5,7 @@ import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../controllers/dashboard_controller.dart';
 
 /// Varlık Özeti Kartı Widget'ı
@@ -72,7 +73,7 @@ class AssetSummaryCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue.shade400,
+                      color: ColorConstants.maviVurgu,
                     ),
                   ),
                 ],
@@ -85,7 +86,7 @@ class AssetSummaryCard extends StatelessWidget {
                 ),
                 child: Icon(
                   Icons.diamond_outlined,
-                  color: Colors.blue.shade400,
+                  color: ColorConstants.maviVurgu,
                   size: 28,
                 ),
               ),

@@ -7,6 +7,7 @@ import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
 import '../../../../core/constants/card_color_constants.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../controllers/payment_methods_controller.dart';
@@ -485,7 +486,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red.shade400),
+              borderSide: BorderSide(color: ColorConstants.kirmiziVurgu),
             ),
           ),
           validator: (value) {
@@ -614,7 +615,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red.shade400),
+              borderSide: BorderSide(color: ColorConstants.kirmiziVurgu),
             ),
           ),
           validator: (value) {
@@ -685,7 +686,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red.shade400),
+              borderSide: BorderSide(color: ColorConstants.kirmiziVurgu),
             ),
           ),
           validator: (value) {

@@ -60,13 +60,13 @@ extension ExpenseInsightsExtension on _AnalysisPageState {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
+                  color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.warning_rounded,
                   size: 16,
-                  color: Colors.red.shade400,
+                  color: ColorConstants.kirmiziVurgu,
                 ),
               ),
             ],
@@ -220,7 +220,7 @@ extension ExpenseInsightsExtension on _AnalysisPageState {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Colors.red,
+                              color: ColorConstants.kirmiziVurgu,
                             ),
                           ),
                           if (currency != curService.currentCurrency) ...[
@@ -268,12 +268,12 @@ extension ExpenseInsightsExtension on _AnalysisPageState {
     if (pmTotals.isEmpty || pmTotal == 0) return const SizedBox.shrink();
 
     final List<Color> pmColors = [
-      Colors.orange.shade400,
-      Colors.purple.shade400,
-      Colors.teal.shade400,
-      Colors.pink.shade400,
-      Colors.amber.shade400,
-      Colors.cyan.shade400,
+      ColorConstants.turuncuVurgu,
+      ColorConstants.morVurgu,
+      ColorConstants.camgobegiVurgu,
+      ColorConstants.pembeVurgu,
+      ColorConstants.amberVurgu,
+      ColorConstants.maviVurgu,
     ];
 
     return Padding(

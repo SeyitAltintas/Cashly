@@ -6,6 +6,7 @@ import 'package:cashly/core/utils/validators.dart';
 import 'package:cashly/core/utils/error_handler.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/features/income/presentation/pages/recurring_income_page.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 
 /// Gelir Ayarları Sayfası
 /// Aylık gelir hedefi ve tekrarlayan gelir şablonlarını yönetir.
@@ -251,7 +252,7 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
                     ),
                     prefixIcon: Icon(
                       Icons.currency_lira,
-                      color: Colors.green.shade400,
+                      color: ColorConstants.yesil,
                     ),
                     suffixText: context.l10n.perMonth,
                     suffixStyle: TextStyle(
@@ -275,7 +276,7 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
                 onPressed: _hedefiKaydet,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isSaved
-                      ? Colors.green
+                      ? ColorConstants.yesil
                       : Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
@@ -337,12 +338,12 @@ class RecurringIncomeSection extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.15),
+                    color: ColorConstants.yesil.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.repeat,
-                    color: Colors.green,
+                    color: ColorConstants.yesil,
                     size: 20,
                   ),
                 ),

@@ -4,6 +4,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../controllers/dashboard_controller.dart';
 
 /// Kredi Kartı Borç Kartı Widget'ı
@@ -50,7 +51,7 @@ class CreditDebtCard extends StatelessWidget {
               ),
               child: Icon(
                 Icons.credit_card,
-                color: Colors.red.shade300,
+                color: ColorConstants.kirmiziVurgu,
                 size: 24,
               ),
             ),
@@ -76,7 +77,7 @@ class CreditDebtCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.red.shade300,
+                      color: ColorConstants.kirmiziVurgu,
                     ),
                   ),
                 ],

@@ -14,6 +14,7 @@ import '../controllers/payment_methods_controller.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/widgets/balance_warning_dialog.dart';
 import '../../../../core/utils/amount_input_formatter.dart';
+import '../../../../core/constants/color_constants.dart';
 
 class TransferPage extends StatefulWidget {
   final List<PaymentMethod> paymentMethods;
@@ -566,7 +567,7 @@ class _TransferPageState extends State<TransferPage> {
         if (pendingTransfers.isNotEmpty) ...[
           _buildStatusLabel(
             context.l10n.pendingTransfers(pendingTransfers.length),
-            Colors.orange,
+            ColorConstants.turuncuVurgu,
           ),
           const SizedBox(height: 8),
           ...pendingTransfers.map(
@@ -579,7 +580,7 @@ class _TransferPageState extends State<TransferPage> {
         if (failedTransfers.isNotEmpty) ...[
           _buildStatusLabel(
             context.l10n.failedTransfers(failedTransfers.length),
-            Colors.red,
+            ColorConstants.kirmiziVurgu,
           ),
           const SizedBox(height: 8),
           ...failedTransfers.map(
@@ -592,7 +593,7 @@ class _TransferPageState extends State<TransferPage> {
         if (completedTransfers.isNotEmpty) ...[
           _buildStatusLabel(
             context.l10n.completedTransfersLabel(completedTransfers.length),
-            Colors.green,
+            ColorConstants.yesil,
           ),
           const SizedBox(height: 8),
           ...completedTransfers.map(
@@ -620,7 +621,7 @@ class _TransferPageState extends State<TransferPage> {
   }
 
   /// Status etiketi widget'ı
-  Widget _buildStatusLabel(String text, MaterialColor color) {
+  Widget _buildStatusLabel(String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -632,7 +633,7 @@ class _TransferPageState extends State<TransferPage> {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: color.shade700,
+          color: color,
         ),
       ),
     );
@@ -978,13 +979,13 @@ class _TransferPageState extends State<TransferPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.orange.withValues(alpha: isDark ? 0.15 : 0.1),
+        color: ColorConstants.turuncuVurgu.withValues(alpha: isDark ? 0.15 : 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+        border: Border.all(color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          Icon(Icons.schedule_rounded, color: Colors.orange.shade700, size: 20),
+          Icon(Icons.schedule_rounded, color: ColorConstants.turuncuVurgu, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -998,7 +999,7 @@ class _TransferPageState extends State<TransferPage> {
                 );
               })(),
               style: TextStyle(
-                color: isDark ? Colors.orange.shade300 : Colors.orange.shade800,
+                color: ColorConstants.turuncuVurgu,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
@@ -1052,10 +1053,10 @@ class _TransferPageState extends State<TransferPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.green.withValues(alpha: isDark ? 0.15 : 0.1),
+            color: ColorConstants.yesil.withValues(alpha: isDark ? 0.15 : 0.1),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.green.withValues(alpha: 0.3),
+              color: ColorConstants.yesil.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1064,12 +1065,12 @@ class _TransferPageState extends State<TransferPage> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.2),
+                  color: ColorConstants.yesil.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.check_rounded,
-                  color: Colors.green,
+                  color: ColorConstants.yesil,
                   size: 20,
                 ),
               ),
@@ -1079,8 +1080,8 @@ class _TransferPageState extends State<TransferPage> {
                   _successMessage!,
                   style: TextStyle(
                     color: isDark
-                        ? Colors.green.shade300
-                        : Colors.green.shade800,
+                        ? ColorConstants.yesil.withValues(alpha: 0.7)
+                        : ColorConstants.yesil,
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                     height: 1.4,
@@ -1116,11 +1117,11 @@ class _TransferPageState extends State<TransferPage> {
     IconData statusIcon;
     switch (status) {
       case 'pending':
-        accentColor = Colors.orange;
+        accentColor = ColorConstants.turuncuVurgu;
         statusIcon = Icons.schedule_rounded;
         break;
       case 'failed':
-        accentColor = Colors.red;
+        accentColor = ColorConstants.kirmiziVurgu;
         statusIcon = Icons.error_outline_rounded;
         break;
       default:
@@ -1184,7 +1185,7 @@ class _TransferPageState extends State<TransferPage> {
                   style: TextStyle(
                     fontSize: 12,
                     color: status == 'failed'
-                        ? Colors.red.shade700
+                        ? ColorConstants.kirmiziVurgu
                         : textColor.withValues(alpha: 0.5),
                   ),
                 ),
@@ -1244,13 +1245,13 @@ class _TransferPageState extends State<TransferPage> {
               child: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
+                  color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.close_rounded,
                   size: 16,
-                  color: Colors.red,
+                  color: ColorConstants.kirmiziVurgu,
                 ),
               ),
             ),

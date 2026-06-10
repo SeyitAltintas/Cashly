@@ -3,6 +3,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/services/haptic_service.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import 'error_logs_page.dart';
 
 /// Hakkında & Destek Sayfası
@@ -134,7 +135,9 @@ class _AboutSupportPageState extends State<AboutSupportPage>
             'assets/image/seffaflogo.png',
             height: 44,
             fit: BoxFit.contain,
-            color: Theme.of(context).brightness == Brightness.light ? Colors.black : null,
+            color: Theme.of(context).brightness == Brightness.light 
+                ? Theme.of(context).colorScheme.onSurface 
+                : null,
             errorBuilder: (_, _, _) => Text(
               'Cashly',
               style: TextStyle(
@@ -247,7 +250,9 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                     'assets/image/seffaflogo.png',
                     height: 44,
                     fit: BoxFit.contain,
-                    color: Theme.of(context).brightness == Brightness.light ? Colors.black : null,
+                    color: Theme.of(context).brightness == Brightness.light 
+                        ? Theme.of(context).colorScheme.onSurface 
+                        : null,
                     errorBuilder: (_, _, _) => Text(
                       'Cashly',
                       style: TextStyle(
@@ -317,7 +322,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
         _buildTile(
           theme,
           icon: Icons.bug_report_outlined,
-          iconColor: Colors.redAccent,
+          iconColor: ColorConstants.kirmiziVurgu,
           title: 'Sistem Hata Kayıtları',
           subtitle: 'Geliştirici için hata kayıtlarını görüntüleyin',
           onTap: () {

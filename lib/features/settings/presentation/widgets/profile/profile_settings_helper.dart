@@ -11,6 +11,7 @@ import '../../../../../core/widgets/app_snackbar.dart';
 import '../../../../../core/services/image_compression_service.dart';
 import 'image_crop_screen.dart';
 import 'advanced_image_editor.dart';
+import '../../../../../core/constants/color_constants.dart';
 import '../../../../../core/utils/image_utils.dart';
 import 'package:bcrypt/bcrypt.dart';
 import '../../../../../core/di/injection_container.dart';
@@ -640,7 +641,7 @@ class ProfileSettingsHelper {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red.shade800,
+                          color: ColorConstants.kirmiziVurgu,
                         ),
                       ),
                       IconButton(
@@ -663,7 +664,7 @@ class ProfileSettingsHelper {
                         () => isPinVisible = !isPinVisible,
                       ),
                       autofocus: true,
-                      focusColor: Colors.red.shade800,
+                      focusColor: ColorConstants.kirmiziVurgu,
                       validator: (value) {
                         if (value == null ||
                             value.length < 4 ||
@@ -712,7 +713,7 @@ class ProfileSettingsHelper {
                   children: [
                     Icon(
                       Icons.warning_amber_rounded,
-                      color: Colors.red.shade800,
+                      color: ColorConstants.kirmiziVurgu,
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -742,7 +743,7 @@ class ProfileSettingsHelper {
                   ElevatedButton(
                     onPressed: () => Navigator.pop(dlgCtx, true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red.shade800,
+                      backgroundColor: ColorConstants.kirmiziVurgu,
                       foregroundColor: Colors.white,
                     ),
                     child: Text(context.l10n.yesDelete),
@@ -803,7 +804,7 @@ class ProfileSettingsHelper {
           }
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red.shade800,
+          backgroundColor: ColorConstants.kirmiziVurgu,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
@@ -853,7 +854,7 @@ class ProfileSettingsHelper {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.orange.shade800,
+                          color: ColorConstants.turuncuVurgu,
                         ),
                       ),
                       IconButton(
@@ -866,17 +867,17 @@ class ProfileSettingsHelper {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.orange.withValues(alpha: 0.1),
+                      color: ColorConstants.turuncuVurgu.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: Colors.orange.withValues(alpha: 0.3),
+                        color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
                       children: [
                         Icon(
                           Icons.warning_amber_rounded,
-                          color: Colors.orange.shade800,
+                          color: ColorConstants.turuncuVurgu,
                           size: 24,
                         ),
                         const SizedBox(width: 12),
@@ -884,7 +885,7 @@ class ProfileSettingsHelper {
                           child: Text(
                             context.l10n.deleteAllDataWarning,
                             style: TextStyle(
-                              color: Colors.orange.shade800,
+                              color: ColorConstants.turuncuVurgu,
                               fontSize: 14,
                             ),
                           ),
@@ -904,7 +905,7 @@ class ProfileSettingsHelper {
                         () => isPinVisible = !isPinVisible,
                       ),
                       autofocus: true,
-                      focusColor: Colors.orange.shade800,
+                      focusColor: ColorConstants.turuncuVurgu,
                       validator: (value) {
                         if (value == null ||
                             value.length < 4 ||
@@ -953,7 +954,7 @@ class ProfileSettingsHelper {
                   children: [
                     Icon(
                       Icons.warning_amber_rounded,
-                      color: Colors.orange.shade800,
+                      color: ColorConstants.turuncuVurgu,
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -983,7 +984,7 @@ class ProfileSettingsHelper {
                   ElevatedButton(
                     onPressed: () => Navigator.pop(dlgCtx, true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange.shade800,
+                      backgroundColor: ColorConstants.turuncuVurgu,
                       foregroundColor: Colors.white,
                     ),
                     child: Text(context.l10n.deleteAllData),
@@ -1030,7 +1031,7 @@ class ProfileSettingsHelper {
           }
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.orange.shade800,
+          backgroundColor: ColorConstants.turuncuVurgu,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
@@ -1071,15 +1072,15 @@ class ProfileSettingsHelper {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.red.shade800.withValues(alpha: 0.1),
+        color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.shade800.withValues(alpha: 0.3)),
+        border: Border.all(color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Icon(
             Icons.warning_amber_rounded,
-            color: Colors.red.shade800,
+            color: ColorConstants.kirmiziVurgu,
             size: 24,
           ),
           const SizedBox(width: 12),

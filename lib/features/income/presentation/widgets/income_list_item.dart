@@ -116,7 +116,7 @@ class IncomeListItem extends StatelessWidget {
                   return Text(
                     CurrencyFormatter.formatSigned(converted, showPlus: true),
                     style: const TextStyle(
-                      color: Colors.greenAccent,
+                      color: ColorConstants.yesil,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),

@@ -271,8 +271,8 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                   ),
                   style: TextStyle(
                     color: pm.type == 'kredi'
-                        ? Colors.redAccent
-                        : Colors.greenAccent,
+                        ? ColorConstants.kirmiziVurgu
+                        : ColorConstants.yesil,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),

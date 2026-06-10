@@ -3,6 +3,7 @@ import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
+import '../../../../core/constants/color_constants.dart';
 
 /// Kategori Bazlı Bütçe Detay Sayfası
 /// Dashboard'dan BudgetStatusCard'a tıklandığında açılır
@@ -304,8 +305,8 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: isOverBudget
-                        ? Colors.red.shade400
-                        : Colors.green.shade400,
+                        ? ColorConstants.kirmiziVurgu
+                        : ColorConstants.yesil,
                   ),
                 ),
               ],
@@ -422,10 +423,10 @@ class CategoryBudgetDetailPage extends StatelessWidget {
   }
 
   Color _getUsageColor(double usage) {
-    if (usage > 1.0) return Colors.red.shade400;
-    if (usage > 0.8) return Colors.orange.shade400;
+    if (usage > 1.0) return ColorConstants.kirmiziVurgu;
+    if (usage > 0.8) return ColorConstants.turuncuVurgu;
     if (usage > 0.5) return Colors.amber.shade600;
-    return Colors.green.shade400;
+    return ColorConstants.yesil;
   }
 
   void _showCategoryDetails(BuildContext context, String categoryKey) {
@@ -564,7 +565,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                                 Text(
                                   "-${CurrencyFormatter.format(totalAmount, currency: currency)}",
                                   style: TextStyle(
-                                    color: Colors.red.shade400,
+                                    color: ColorConstants.kirmiziVurgu,
                                     fontWeight: FontWeight.w800,
                                     fontSize: 22,
                                     letterSpacing: -0.5,
@@ -733,7 +734,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                                     trailing: Text(
                                       "-${CurrencyFormatter.format(amount, currency: itemCurrency)}",
                                       style: TextStyle(
-                                        color: Colors.red.shade400,
+                                        color: ColorConstants.kirmiziVurgu,
                                         fontWeight: FontWeight.w700,
                                         fontSize: 16,
                                       ),

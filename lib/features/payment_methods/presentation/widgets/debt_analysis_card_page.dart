@@ -35,9 +35,9 @@ class DebtAnalysisCardPage extends StatelessWidget {
         : 0.0;
 
     // Duruma göre renk belirleme
-    Color durumRengi = Colors.greenAccent;
+    Color durumRengi = ColorConstants.yesil;
     if (kullanimOrani > 0.5) {
-      durumRengi = Colors.orangeAccent;
+      durumRengi = ColorConstants.turuncuVurgu;
     }
     if (kullanimOrani > 0.8) {
       durumRengi = ColorConstants.kirmiziVurgu;
@@ -150,7 +150,7 @@ class DebtAnalysisCardPage extends StatelessWidget {
               _DebtInfoChip(
                 label: context.l10n.totalLimit,
                 value: CurrencyFormatter.format(toplamLimit),
-                color: Colors.blueAccent,
+                color: ColorConstants.maviVurgu,
               ),
             ],
           ),

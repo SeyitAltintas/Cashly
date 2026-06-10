@@ -8,6 +8,7 @@ import '../../../../../core/repositories/notification_settings_repository.dart';
 import '../../../../../core/services/notification_service.dart';
 import '../../../../../core/services/notification_scheduler.dart';
 import '../../../../../core/widgets/month_year_picker.dart';
+import '../../../../../core/constants/color_constants.dart';
 
 /// Bildirim ayarları sayfası
 /// Her bildirim senaryosu için ayrı toggle switch'ler içerir
@@ -218,7 +219,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           children: [
             Icon(
               Icons.warning_amber_rounded,
-              color: Colors.orange.shade600,
+              color: ColorConstants.turuncuVurgu,
               size: 20,
             ),
             const SizedBox(width: 12),
@@ -226,7 +227,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
               child: Text(
                 context.l10n.notificationPermDenied,
                 style: TextStyle(
-                  color: Colors.orange.shade600,
+                  color: ColorConstants.turuncuVurgu,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -235,7 +236,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             Text(
               context.l10n.openSettings,
               style: TextStyle(
-                color: Colors.orange.shade700,
+                color: ColorConstants.turuncuVurgu,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -243,7 +244,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             const SizedBox(width: 4),
             Icon(
               Icons.arrow_forward_ios_rounded,
-              color: Colors.orange.shade600,
+              color: ColorConstants.turuncuVurgu,
               size: 14,
             ),
           ],
@@ -312,7 +313,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             allEnabled ? context.l10n.turnOffAll : context.l10n.turnOnAll,
             style: TextStyle(
               color: _hasPermission
-                  ? (allEnabled ? Colors.red.shade400 : Colors.green.shade400)
+                  ? (allEnabled ? ColorConstants.kirmiziVurgu : ColorConstants.yesil)
                   : Colors.grey,
               fontSize: 12,
               fontWeight: FontWeight.w600,

@@ -251,7 +251,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                 _buildProfileTile(
                   context: context,
                   icon: Icons.person_outline,
-                  iconColor: Colors.blue,
+                  iconColor: ColorConstants.maviVurgu,
                   title: context.l10n.userInfo,
                   subtitle: context.l10n.userInfoSubtitle,
                   onTap: () {
@@ -330,7 +330,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
             child: _buildProfileTile(
               context: context,
               icon: Icons.info_outline,
-              iconColor: Colors.cyan,
+              iconColor: ColorConstants.camgobegiVurgu,
               title: context.l10n.aboutAndSupport,
               subtitle: context.l10n.aboutAndSupportSubtitle,
               onTap: () {
@@ -424,7 +424,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                     Text(
                       'Geliştirici Araçları',
                       style: TextStyle(
-                        color: Colors.deepPurple.shade300,
+                        color: ColorConstants.morVurgu,
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.5,
@@ -457,7 +457,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                           icon: const Icon(Icons.data_object, size: 18),
                           label: const Text('Sahte Veri Üret'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.deepPurple.shade300,
+                            foregroundColor: ColorConstants.morVurgu,
                             side: BorderSide(
                               color: Colors.deepPurple.withValues(alpha: 0.4),
                             ),
@@ -470,7 +470,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                         icon: const Icon(Icons.delete_sweep_outlined, size: 18),
                         label: const Text('Temizle'),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red.shade300,
+                          foregroundColor: ColorConstants.kirmiziVurgu,
                           side: BorderSide(
                             color: Colors.red.withValues(alpha: 0.4),
                           ),

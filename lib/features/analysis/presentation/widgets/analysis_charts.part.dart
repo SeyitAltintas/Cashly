@@ -522,8 +522,8 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                     spots: spots,
                     isCurved: true,
                     color: isExpense
-                        ? Colors.red.shade400
-                        : Colors.green.shade400,
+                        ? ColorConstants.kirmiziVurgu
+                        : ColorConstants.yesil,
                     barWidth: 4,
                     isStrokeCapRound: true,
                     shadow: Shadow(
@@ -541,12 +541,12 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                       gradient: LinearGradient(
                         colors: [
                           (isExpense
-                                  ? Colors.red.shade400
-                                  : Colors.green.shade400)
+                                  ? ColorConstants.kirmiziVurgu
+                                  : ColorConstants.yesil)
                               .withValues(alpha: 0.3),
                           (isExpense
-                                  ? Colors.red.shade400
-                                  : Colors.green.shade400)
+                                  ? ColorConstants.kirmiziVurgu
+                                  : ColorConstants.yesil)
                               .withValues(alpha: 0.0),
                         ],
                         begin: Alignment.topCenter,
@@ -574,8 +574,8 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                                 return FlDotCirclePainter(
                                   radius: 5,
                                   color: isExpense
-                                      ? Colors.red.shade400
-                                      : Colors.green.shade400,
+                                      ? ColorConstants.kirmiziVurgu
+                                      : ColorConstants.yesil,
                                   strokeWidth: 3,
                                   strokeColor: Theme.of(
                                     context,
@@ -614,8 +614,8 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                               text: CurrencyFormatter.format(spot.y),
                               style: TextStyle(
                                 color: isExpense
-                                    ? Colors.red.shade400
-                                    : Colors.green.shade400,
+                                    ? ColorConstants.kirmiziVurgu
+                                    : ColorConstants.yesil,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_theme.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 
 /// Güvenlik ayarları section widget'ı
 /// Biyometrik giriş toggle ve tarih bilgileri
@@ -69,10 +70,10 @@ class SecuritySection extends StatelessWidget {
               trailing: Switch(
                 value: biometricEnabled,
                 onChanged: onBiometricToggle,
-                activeTrackColor: Colors.green.withValues(alpha: 0.5),
-                activeThumbColor: Colors.green,
-                inactiveTrackColor: Colors.red.withValues(alpha: 0.3),
-                inactiveThumbColor: Colors.red,
+                activeTrackColor: ColorConstants.yesil.withValues(alpha: 0.5),
+                activeThumbColor: ColorConstants.yesil,
+                inactiveTrackColor: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3),
+                inactiveThumbColor: ColorConstants.kirmiziVurgu,
                 // Koyu gri-beyaz çerçeve
                 trackOutlineColor: WidgetStateProperty.all(
                   Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.25),

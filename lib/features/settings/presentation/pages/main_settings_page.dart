@@ -12,6 +12,7 @@ import 'finance/currency_settings_page.dart';
 import '../state/main_settings_state.dart';
 
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 
 // Modüler widget'lar
 import '../widgets/settings_tile.dart';
@@ -218,7 +219,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           const SettingsDivider(),
           SettingsTile(
             icon: Icons.currency_exchange,
-            iconColor: Colors.purpleAccent,
+            iconColor: ColorConstants.morVurgu,
             title: context.l10n.mainCurrency,
             subtitle: context.l10n.mainCurrencySubtitle,
             onTap: () async {

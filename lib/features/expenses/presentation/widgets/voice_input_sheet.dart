@@ -1368,7 +1368,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                             backgroundColor: Theme.of(
                               context,
                             ).colorScheme.primary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -1648,7 +1648,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                       label: Text(context.l10n.add),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: ColorConstants.kirmiziVurgu,
-                        foregroundColor: Colors.white,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

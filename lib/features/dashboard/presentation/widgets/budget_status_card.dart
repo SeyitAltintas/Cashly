@@ -3,6 +3,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
+import '../../../../core/constants/color_constants.dart';
 
 /// Bütçe Durumu Kartı Widget'ı
 /// Bütçe limiti, kullanım oranını ve kategori bazlı limitleri gösterir
@@ -139,8 +140,8 @@ class BudgetStatusCard extends StatelessWidget {
   }
 
   Color _getStatusColor(double budgetUsed) {
-    if (budgetUsed > 0.8) return Colors.red.shade400;
-    if (budgetUsed > 0.5) return Colors.orange.shade400;
-    return Colors.green.shade400;
+    if (budgetUsed > 0.8) return ColorConstants.kirmiziVurgu;
+    if (budgetUsed > 0.5) return ColorConstants.turuncuVurgu;
+    return ColorConstants.yesil;
   }
 }

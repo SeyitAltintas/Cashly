@@ -4,6 +4,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../controllers/dashboard_controller.dart';
 
 /// Aylık Özet Kartı Widget'ı
@@ -68,11 +69,11 @@ class MonthlySummaryCard extends StatelessWidget {
                       child: _buildSummaryItem(
                         context,
                         icon: Icons.arrow_downward,
-                        iconColor: Colors.red.shade400,
+                        iconColor: ColorConstants.kirmiziVurgu,
                         label: context.l10n.expense,
                         value: CurrencyFormatter.format(monthlyExpense),
                         isObscured: isObscured,
-                        valueColor: Colors.red.shade300,
+                        valueColor: ColorConstants.kirmiziVurgu,
                         labelFontSize: labelFontSize,
                         valueFontSize: valueFontSize,
                         iconSize: iconSize,
@@ -89,11 +90,11 @@ class MonthlySummaryCard extends StatelessWidget {
                       child: _buildSummaryItem(
                         context,
                         icon: Icons.arrow_upward,
-                        iconColor: Colors.green.shade400,
+                        iconColor: ColorConstants.yesil,
                         label: context.l10n.income,
                         value: CurrencyFormatter.format(monthlyIncome),
                         isObscured: isObscured,
-                        valueColor: Colors.green.shade300,
+                        valueColor: ColorConstants.yesil,
                         labelFontSize: labelFontSize,
                         valueFontSize: valueFontSize,
                         iconSize: iconSize,
@@ -113,8 +114,8 @@ class MonthlySummaryCard extends StatelessWidget {
                             ? Icons.trending_up
                             : Icons.trending_down,
                         iconColor: netDiff >= 0
-                            ? Colors.green.shade400
-                            : Colors.red.shade400,
+                            ? ColorConstants.yesil
+                            : ColorConstants.kirmiziVurgu,
                         label: context.l10n.net,
                         value: CurrencyFormatter.formatSigned(
                           netDiff,
@@ -122,8 +123,8 @@ class MonthlySummaryCard extends StatelessWidget {
                         ),
                         isObscured: isObscured,
                         valueColor: netDiff >= 0
-                            ? Colors.green.shade300
-                            : Colors.red.shade300,
+                            ? ColorConstants.yesil
+                            : ColorConstants.kirmiziVurgu,
                         labelFontSize: labelFontSize,
                         valueFontSize: valueFontSize,
                         iconSize: iconSize,

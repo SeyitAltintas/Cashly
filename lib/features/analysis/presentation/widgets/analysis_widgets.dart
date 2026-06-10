@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 
@@ -140,14 +141,14 @@ class TrendInsightCard extends StatelessWidget {
     String message = noChangeText;
 
     if (isIncreased) {
-      iconColor = isExpense ? Colors.red.shade400 : Colors.green.shade400;
+      iconColor = isExpense ? ColorConstants.kirmiziVurgu : ColorConstants.yesil;
       icon = Icons.trending_up;
       message = increaseText.replaceAll(
         '{percent}',
         percent.toStringAsFixed(1),
       );
     } else if (isDecreased) {
-      iconColor = isExpense ? Colors.green.shade400 : Colors.red.shade400;
+      iconColor = isExpense ? ColorConstants.yesil : ColorConstants.kirmiziVurgu;
       icon = Icons.trending_down;
       message = decreaseText.replaceAll(
         '{percent}',
@@ -256,7 +257,7 @@ class TrendInsightCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color:
-                      (isExpense ? Colors.red.shade400 : Colors.green.shade400)
+                      (isExpense ? ColorConstants.kirmiziVurgu : ColorConstants.yesil)
                           .withValues(alpha: 0.3),
                 ),
               ),
@@ -267,16 +268,16 @@ class TrendInsightCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color:
                           (isExpense
-                                  ? Colors.red.shade400
-                                  : Colors.green.shade400)
+                                  ? ColorConstants.kirmiziVurgu
+                                  : ColorConstants.yesil)
                               .withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       isExpense ? Icons.emoji_events : Icons.star,
                       color: isExpense
-                          ? Colors.red.shade400
-                          : Colors.green.shade400,
+                          ? ColorConstants.kirmiziVurgu
+                          : ColorConstants.yesil,
                       size: 20,
                     ),
                   ),
@@ -311,8 +312,8 @@ class TrendInsightCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14,
                             color: isExpense
-                                ? Colors.red.shade400
-                                : Colors.green.shade400,
+                                ? ColorConstants.kirmiziVurgu
+                                : ColorConstants.yesil,
                             fontWeight: FontWeight.bold,
                           ),
                           maxLines: 1,
@@ -365,19 +366,19 @@ class LegendItem extends StatelessWidget {
     if (isExpense) {
       if (hasLimit) {
         progressColor = isOverBudget
-            ? Colors.red.shade400
+            ? ColorConstants.kirmiziVurgu
             : usagePercent > 80
-            ? Colors.orange.shade400
-            : Colors.green.shade400;
+            ? ColorConstants.turuncuVurgu
+            : ColorConstants.yesil;
       } else {
         if (ratio < 0.15) {
-          progressColor = Colors.green.shade400;
+          progressColor = ColorConstants.yesil;
         } else if (ratio < 0.40) {
-          progressColor = Colors.yellow.shade600;
+          progressColor = ColorConstants.amberVurgu;
         } else if (ratio < 0.70) {
-          progressColor = Colors.orange.shade400;
+          progressColor = ColorConstants.turuncuVurgu;
         } else {
-          progressColor = Colors.red.shade400;
+          progressColor = ColorConstants.kirmiziVurgu;
         }
       }
     } else {
@@ -429,7 +430,7 @@ class LegendItem extends StatelessWidget {
                             CurrencyFormatter.format(value),
                             style: TextStyle(
                               color: isOverBudget
-                                  ? Colors.red.shade400
+                                  ? ColorConstants.kirmiziVurgu
                                   : Theme.of(context).colorScheme.onSurface,
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
@@ -456,7 +457,7 @@ class LegendItem extends StatelessWidget {
                               '${context.l10n.total} ${CurrencyFormatter.format(budgetLimit!)}',
                               style: TextStyle(
                                 color: isOverBudget
-                                    ? Colors.red.shade400
+                                    ? ColorConstants.kirmiziVurgu
                                     : Theme.of(context).colorScheme.onSurface
                                           .withValues(alpha: 0.5),
                                 fontSize: 13,

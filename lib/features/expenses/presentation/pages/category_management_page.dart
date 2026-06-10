@@ -361,9 +361,9 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
             ),
-            child: const Text(
+            child: Text(
               'Evet, Sıfırla',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
           ),
         ],
@@ -567,7 +567,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                                   decoration: BoxDecoration(
                                     color: seciliMi
                                         ? Theme.of(context).colorScheme.primary
-                                        : const Color(0xFF2E2E2E),
+                                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
                                       color: seciliMi
@@ -619,9 +619,9 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
-                child: const Text(
+                child: Text(
                   'Ekle',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
                 ),
               ),
             ],

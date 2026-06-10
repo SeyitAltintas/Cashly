@@ -238,7 +238,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                         ),
                         child: Icon(
                           _getIconForMode(widget.mode),
-                          color: useNeutral ? Colors.white : accentColor,
+                          color: useNeutral ? Theme.of(context).colorScheme.onSurface : accentColor,
                           size: 22,
                         ),
                       ),
@@ -287,7 +287,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                         child: Text(
                           context.l10n.done,
                           style: TextStyle(
-                            color: useNeutral ? Colors.white : accentColor,
+                            color: useNeutral ? Theme.of(context).colorScheme.onSurface : accentColor,
                             fontSize: 17,
                             fontWeight: FontWeight.w600,
                           ),
@@ -317,7 +317,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                         Text(
                           _getFormattedDateForMode(),
                           style: TextStyle(
-                            color: useNeutral ? Colors.white : accentColor,
+                            color: useNeutral ? Theme.of(context).colorScheme.onSurface : accentColor,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -326,7 +326,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                           Text(
                             '  •  ',
                             style: TextStyle(
-                              color: (useNeutral ? Colors.white : accentColor)
+                              color: (useNeutral ? Theme.of(context).colorScheme.onSurface : accentColor)
                                   .withValues(alpha: 0.5),
                               fontSize: 14,
                             ),
@@ -334,7 +334,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                           Text(
                             _getFormattedTimeForMode(),
                             style: TextStyle(
-                              color: (useNeutral ? Colors.white : accentColor)
+                              color: (useNeutral ? Theme.of(context).colorScheme.onSurface : accentColor)
                                   .withValues(alpha: 0.8),
                               fontSize: 16,
                               fontWeight: FontWeight.w600,

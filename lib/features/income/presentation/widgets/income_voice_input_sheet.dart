@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/services/speech/speech_service.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../controllers/incomes_controller.dart';
 
 /// Sesli gelir girişi için modal bottom sheet widget'ı
@@ -245,7 +246,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.mic, color: Colors.green.shade400, size: 28),
+              Icon(Icons.mic, color: ColorConstants.yesil, size: 28),
               const SizedBox(width: 8),
               Text(
                 context.l10n.voiceIncomeInput,
@@ -297,11 +298,11 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
   Widget _buildErrorState() {
     return Column(
       children: [
-        Icon(Icons.error_outline, color: Colors.red.shade400, size: 48),
+        Icon(Icons.error_outline, color: ColorConstants.kirmiziVurgu, size: 48),
         const SizedBox(height: 16),
         Text(
           _errorMessage,
-          style: TextStyle(color: Colors.red.shade400),
+          style: TextStyle(color: ColorConstants.kirmiziVurgu),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 16),
@@ -363,7 +364,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,
-            color: Colors.green.shade400,
+            color: ColorConstants.yesil,
           ),
         ),
         const SizedBox(height: 4),
@@ -596,7 +597,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
                           Icon(
                             entry.value,
                             size: 20,
-                            color: Colors.green.shade400,
+                            color: ColorConstants.yesil,
                           ),
                           const SizedBox(width: 8),
                           Text(entry.key),
@@ -639,8 +640,8 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
                 icon: const Icon(Icons.refresh),
                 label: Text(context.l10n.retry),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.green.shade400,
-                  side: BorderSide(color: Colors.green.shade400),
+                  foregroundColor: ColorConstants.yesil,
+                  side: const BorderSide(color: ColorConstants.yesil),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

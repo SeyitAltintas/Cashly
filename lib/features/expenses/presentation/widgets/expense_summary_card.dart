@@ -289,7 +289,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
     final double kalanLimit = widget.butceLimiti - widget.toplamTutar;
 
     Color barRengi = Theme.of(context).colorScheme.secondary;
-    if (dolulukOrani > 0.5) barRengi = Colors.orangeAccent;
+    if (dolulukOrani > 0.5) barRengi = ColorConstants.turuncuVurgu;
     if (dolulukOrani > 0.8) barRengi = ColorConstants.kirmiziVurgu;
 
     return Container(

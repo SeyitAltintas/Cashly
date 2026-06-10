@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/services/error_logger_service.dart';
 
 class ErrorLogsPage extends StatefulWidget {
@@ -160,12 +161,12 @@ class _ErrorLogsPageState extends State<ErrorLogsPage> {
                     borderRadius: BorderRadius.circular(12),
                     side: BorderSide(
                       color: isDark
-                          ? Colors.red.withValues(alpha: 0.3)
-                          : Colors.red.shade100,
+                          ? ColorConstants.kirmiziVurgu.withValues(alpha: 0.3)
+                          : ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
                     ),
                   ),
                   child: ExpansionTile(
-                    leading: const Icon(Icons.bug_report, color: Colors.red),
+                    leading: const Icon(Icons.bug_report, color: ColorConstants.kirmiziVurgu),
                     title: Text(
                       log['error'] ?? 'Bilinmeyen Hata',
                       maxLines: 2,
@@ -204,7 +205,7 @@ class _ErrorLogsPageState extends State<ErrorLogsPage> {
                                 decoration: BoxDecoration(
                                   color: isDark
                                       ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45)
-                                      : Colors.grey.shade200,
+                                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: SelectableText(
@@ -213,7 +214,7 @@ class _ErrorLogsPageState extends State<ErrorLogsPage> {
                                     fontFamily: 'monospace',
                                     fontSize: 11,
                                     color: isDark
-                                        ? Colors.grey.shade300
+                                        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
                                         : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87),
                                   ),
                                 ),

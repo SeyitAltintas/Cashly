@@ -7,6 +7,7 @@ import 'add_asset_page.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
+import '../../../../core/constants/color_constants.dart';
 
 /// Varlık detay sayfası - Varlığın alış bilgileri ve güncel değerini gösterir
 class AssetDetailPage extends StatelessWidget {
@@ -85,7 +86,7 @@ class AssetDetailPage extends StatelessWidget {
               theme: theme,
               title: context.l10n.purchaseInfo,
               icon: Icons.calendar_today,
-              iconColor: Colors.blue.shade400,
+              iconColor: ColorConstants.maviVurgu,
               children: [
                 _buildInfoRow(
                   context,
@@ -126,7 +127,7 @@ class AssetDetailPage extends StatelessWidget {
               theme: theme,
               title: context.l10n.assetCurrentValue,
               icon: Icons.trending_up,
-              iconColor: Colors.green.shade400,
+              iconColor: ColorConstants.yesil,
               children: [
                 _buildInfoRow(
                   context,
@@ -166,14 +167,14 @@ class AssetDetailPage extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.blue.shade600.withValues(alpha: 0.25),
-            Colors.blue.shade600.withValues(alpha: 0.1),
+            ColorConstants.maviVurgu.withValues(alpha: 0.25),
+            ColorConstants.maviVurgu.withValues(alpha: 0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.blue.shade600.withValues(alpha: 0.4)),
+        border: Border.all(color: ColorConstants.maviVurgu.withValues(alpha: 0.4)),
       ),
       child: Row(
         children: [
@@ -418,7 +419,7 @@ class AssetDetailPage extends StatelessWidget {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue.shade600,
+              backgroundColor: ColorConstants.maviVurgu,
               foregroundColor: Theme.of(context).colorScheme.onSurface,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
@@ -506,9 +507,9 @@ class AssetDetailPage extends StatelessWidget {
       case 'döviz':
         return Colors.green;
       case 'kripto':
-        return Colors.orangeAccent;
+        return ColorConstants.turuncuVurgu;
       case 'banka':
-        return Colors.blueAccent;
+        return ColorConstants.maviVurgu;
       case 'gümüş':
         return Colors.blueGrey;
       default:

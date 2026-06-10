@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import '../../../../core/constants/color_constants.dart';
 
 import '../../data/models/asset_model.dart';
 import 'add_asset_page.dart';
@@ -250,7 +251,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
               },
             ),
           ],
-          centerButtonColor: Colors.blue.shade600,
+          centerButtonColor: ColorConstants.maviVurgu,
           centerButtonLabel: context.l10n.addAsset,
           onCenterButtonTap: () {
             HapticService.lightImpact();
@@ -322,7 +323,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
         await _controller.loadData(isRefresh: true);
         _filtrele();
       },
-      color: Colors.blue.shade600,
+      color: ColorConstants.maviVurgu,
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         controller: lazyScrollController,

@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_date_picker.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../controllers/assets_controller.dart';
 
 /// Varlık ekleme/düzenleme sayfası
@@ -81,7 +82,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
       _controller?.formErrorMessage ?? _localErrorMessage;
 
   // Varlık teması rengi (mavi - Varlıklarım sayfası ile uyumlu)
-  static Color get _accentColor => Colors.blue.shade600;
+  static Color get _accentColor => ColorConstants.maviVurgu;
 
   final List<String> _categories = [
     'Altın',
@@ -851,21 +852,21 @@ class _AddAssetPageState extends State<AddAssetPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.1),
+        color: ColorConstants.turuncuVurgu.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+        border: Border.all(color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.history, color: Colors.amber.shade700, size: 20),
+              Icon(Icons.history, color: ColorConstants.turuncuVurgu, size: 20),
               const SizedBox(width: 8),
               Text(
                 context.l10n.purchaseInfo,
                 style: TextStyle(
-                  color: Colors.amber.shade700,
+                  color: ColorConstants.turuncuVurgu,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
@@ -901,7 +902,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 children: [
                   Icon(
                     Icons.calendar_today,
-                    color: Colors.amber.shade600,
+                    color: ColorConstants.turuncuVurgu,
                     size: 20,
                   ),
                   const SizedBox(width: 12),
@@ -967,7 +968,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
             decoration: InputDecoration(
               labelText:
                   '${context.l10n.assetPurchasePrice} (${CurrencyService.supportedCurrencies[_localSelectedCurrency] ?? _localSelectedCurrency})',
-              labelStyle: TextStyle(color: Colors.amber.shade700),
+              labelStyle: TextStyle(color: ColorConstants.turuncuVurgu),
               hintText: 'e.g. 1,250.00',
               hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
               filled: true,
@@ -979,20 +980,20 @@ class _AddAssetPageState extends State<AddAssetPage> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: Colors.amber.withValues(alpha: 0.5),
+                  color: ColorConstants.turuncuVurgu.withValues(alpha: 0.5),
                 ),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.red.shade400),
+                borderSide: BorderSide(color: ColorConstants.kirmiziVurgu),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
+                borderSide: BorderSide(color: ColorConstants.kirmiziVurgu, width: 1.5),
               ),
               prefixIcon: Icon(
                 Icons.shopping_cart,
-                color: Colors.amber.shade600,
+                color: ColorConstants.turuncuVurgu,
               ),
               suffixIcon: Icon(
                 Icons.edit,
