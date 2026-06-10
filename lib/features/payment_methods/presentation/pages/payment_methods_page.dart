@@ -133,7 +133,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       onChanged: (value) =>
                           _searchDebouncer.run(() => _filtrele()),
                       autofocus: true,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       decoration: InputDecoration(
                         hintText: context.l10n.searchPaymentMethod,
                         border: InputBorder.none,
@@ -149,12 +149,12 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
               elevation: 0,
               centerTitle: false,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
                 onPressed: () => Navigator.pop(context),
               ),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.white),
+                  icon: const Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.onSurface),
                   tooltip: context.l10n.trashBin,
                   onPressed: () {
                     Navigator.push(
@@ -203,7 +203,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                 IconButton(
                   icon: Icon(
                     aramaModu ? Icons.close : Icons.search,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   onPressed: () {
                     _controller.aramaModu = !aramaModu;
@@ -377,7 +377,7 @@ class _PaymentMethodCard extends StatelessWidget {
             color: ColorConstants.koyuKirmizi,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Icon(Icons.delete, color: Colors.white),
+          child: const Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
         ),
         confirmDismiss: (direction) async {
           try {
@@ -480,7 +480,7 @@ class _PaymentMethodCard extends StatelessWidget {
                         child: Text(
                           context.translateDbName(pm.typeDisplayName),
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                           ),
@@ -545,7 +545,7 @@ class _PaymentMethodCard extends StatelessWidget {
                           Text(
                             '${AmountInputFormatter.formatInitialValue(pm.balance)} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),

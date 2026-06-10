@@ -351,7 +351,7 @@ class _GelirKategoriYonetimiSayfasiState
           title: Text(context.l10n.incomeCategories),
           backgroundColor: Colors.transparent,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.white),
+          iconTheme: const IconThemeData(color: Theme.of(context).colorScheme.onSurface),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context, hasChanges),
@@ -468,7 +468,7 @@ class _GelirKategoriYonetimiSayfasiState
                             ),
                             title: Text(
                               kategori['isim'],
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                             ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,

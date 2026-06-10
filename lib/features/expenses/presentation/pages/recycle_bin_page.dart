@@ -117,7 +117,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
         backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           context.l10n.emptyTrashBin,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         content: Text(
           context.l10n.confirmEmptyTrashBin,
@@ -132,7 +132,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
               context.l10n.cancel,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           ElevatedButton(
@@ -215,7 +215,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
         backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           context.l10n.restoreAll,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         content: Text(
           context.l10n.confirmRestoreAllExpenses(silinenHarcamalar.length),
@@ -230,7 +230,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
               context.l10n.cancel,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           ElevatedButton(
@@ -240,7 +240,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
               context.l10n.yesRestore,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
         ],
@@ -283,8 +283,8 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
         title: Text(context.l10n.recycleBin),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.white),
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        iconTheme: const IconThemeData(color: Theme.of(context).colorScheme.onSurface),
         actions: [
           if (silinenHarcamalar.isNotEmpty)
             IconButton(
@@ -293,7 +293,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
               onPressed: tumunuGeriYukle,
             ),
           IconButton(
-            icon: const Icon(Icons.delete_sweep, color: Colors.white),
+            icon: const Icon(Icons.delete_sweep, color: Theme.of(context).colorScheme.onSurface),
             tooltip: context.l10n.emptyTrashBin,
             onPressed: copuBosalt,
           ),
@@ -349,7 +349,7 @@ class _CopKutusuSayfasiState extends State<CopKutusuSayfasi>
                     ),
                     title: Text(
                       harcama['isim'] ?? "",
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     ),
                     subtitle: Text(
                       "${CurrencyFormatter.format(convertedAmount)} • ${tarih.day}.${tarih.month}.${tarih.year}",

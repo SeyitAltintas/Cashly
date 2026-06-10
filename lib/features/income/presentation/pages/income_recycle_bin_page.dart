@@ -112,7 +112,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           context.l10n.emptyTrashBin,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         content: Text(
           context.l10n.confirmEmptyTrashBin,
@@ -127,7 +127,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
               context.l10n.cancel,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           ElevatedButton(
@@ -206,7 +206,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           context.l10n.restoreAll,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         content: Text(
           context.l10n.confirmRestoreAllIncomes(silinenGelirler.length),
@@ -221,7 +221,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
               context.l10n.cancel,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           ElevatedButton(
@@ -231,7 +231,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
               context.l10n.yesRestore,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
         ],
@@ -271,8 +271,8 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         title: Text(context.l10n.incomeRecycleBin),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.white),
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        iconTheme: const IconThemeData(color: Theme.of(context).colorScheme.onSurface),
         actions: [
           if (silinenGelirler.isNotEmpty)
             IconButton(
@@ -281,7 +281,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
               onPressed: tumunuGeriYukle,
             ),
           IconButton(
-            icon: const Icon(Icons.delete_sweep, color: Colors.white),
+            icon: const Icon(Icons.delete_sweep, color: Theme.of(context).colorScheme.onSurface),
             tooltip: context.l10n.emptyTrashBin,
             onPressed: copuBosalt,
           ),
@@ -350,7 +350,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
                     ),
                     title: Text(
                       gelir.name,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     ),
                     subtitle: Text(
                       "${CurrencyFormatter.format(convertedAmount)} • ${gelir.date.day} ${context.getMonthName(gelir.date.month)} ${gelir.date.year}",

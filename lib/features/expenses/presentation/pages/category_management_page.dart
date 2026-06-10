@@ -258,7 +258,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
         backgroundColor: Theme.of(context).colorScheme.surface,
         title: const Text(
           'Kategoriyi Sil',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         content: Text(
           '"$kategoriIsmi" kategorisini silmek istediğinizden emin misiniz?',
@@ -313,7 +313,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
         backgroundColor: Theme.of(context).colorScheme.surface,
         title: const Text(
           'Varsayılana Dön',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         content: Text(
           'Tüm özel kategorileriniz silinecek ve varsayılan kategoriler yüklenecek. Emin misiniz?',
@@ -388,14 +388,14 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
             backgroundColor: Theme.of(context).colorScheme.surface,
             title: const Text(
               'Yeni Kategori Ekle',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: tKategoriIsmi,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                   decoration: InputDecoration(
                     hintText: 'Kategori Adı',
                     hintStyle: TextStyle(
@@ -439,7 +439,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                             setStateDialog(() {}); // Rebuild dialog
                           },
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 12,
                           ),
                           decoration: InputDecoration(
@@ -584,7 +584,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                                   child: Icon(
                                     ikon,
                                     color: seciliMi
-                                        ? Colors.white
+                                        ? Theme.of(context).colorScheme.onSurface
                                         : Theme.of(context)
                                               .colorScheme
                                               .onSurface
@@ -719,7 +719,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                       ),
                       title: Text(
                         kategori['isim'],
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,

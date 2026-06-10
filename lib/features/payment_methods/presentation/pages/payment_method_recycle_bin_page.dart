@@ -112,7 +112,7 @@ class _PaymentMethodRecycleBinPageState
             },
             child: const Text(
               'Evet, Geri Yükle',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
         ],
@@ -174,7 +174,7 @@ class _PaymentMethodRecycleBinPageState
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -186,7 +186,7 @@ class _PaymentMethodRecycleBinPageState
             ),
           if (_deletedPaymentMethods.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_forever, color: Colors.white),
+              icon: const Icon(Icons.delete_forever, color: Theme.of(context).colorScheme.onSurface),
               tooltip: 'Çöp Kutusunu Boşalt',
               onPressed: _confirmEmptyBin,
             ),
@@ -270,14 +270,14 @@ class _PaymentMethodRecycleBinPageState
                 : pm.type == 'kredi'
                 ? Icons.credit_card
                 : Icons.account_balance,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
             size: 20,
           ),
         ),
         title: Text(
           pm.name,
           style: const TextStyle(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),

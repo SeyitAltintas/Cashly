@@ -287,7 +287,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                       ? _typeLabels[_types.indexOf(_selectedType)]
                       : _selectedType.toUpperCase(),
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -309,7 +309,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             Text(
               '•••• •••• •••• $lastFour',
               style: const TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 20,
                 letterSpacing: 3,
                 fontWeight: FontWeight.w500,
@@ -360,7 +360,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                   Text(
                     CurrencyFormatter.format(balance),
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -419,7 +419,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                       _typeLabels[index],
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: isSelected ? Theme.of(context).scaffoldBackgroundColor : Colors.white60,
+                        color: isSelected ? Theme.of(context).scaffoldBackgroundColor : Theme.of(context).colorScheme.onSurface60,
                         fontWeight: isSelected
                             ? FontWeight.bold
                             : FontWeight.normal,
@@ -787,7 +787,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                           : null,
                     ),
                     child: isSelected
-                        ? const Icon(Icons.check, color: Colors.white, size: 22)
+                        ? const Icon(Icons.check, color: Theme.of(context).colorScheme.onSurface, size: 22)
                         : null,
                   ),
                 ),

@@ -131,10 +131,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
           title: Text(context.l10n.profileSettingsTitle),
           backgroundColor: Colors.transparent,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.white),
+          iconTheme: const IconThemeData(color: Theme.of(context).colorScheme.onSurface),
         ),
         body: const Center(
-          child: CircularProgressIndicator(color: Colors.white),
+          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onSurface),
         ),
       );
     }
@@ -146,12 +146,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
           title: Text(context.l10n.profileSettingsTitle),
           backgroundColor: Colors.transparent,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.white),
+          iconTheme: const IconThemeData(color: Theme.of(context).colorScheme.onSurface),
         ),
         body: Center(
           child: Text(
             context.l10n.userNotFound,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
         ),
       );
@@ -164,7 +164,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         title: Text(context.l10n.profileSettingsTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

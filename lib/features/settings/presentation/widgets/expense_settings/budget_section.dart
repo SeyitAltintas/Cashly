@@ -154,9 +154,9 @@ class BudgetSection extends StatelessWidget {
                         onPressed: isSaved ? null : onSave,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2E7D32),
-                          foregroundColor: Colors.white,
+                          foregroundColor: Theme.of(context).colorScheme.onSurface,
                           disabledBackgroundColor: const Color(0xFF2E7D32),
-                          disabledForegroundColor: Colors.white,
+                          disabledForegroundColor: Theme.of(context).colorScheme.onSurface,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -174,7 +174,7 @@ class BudgetSection extends StatelessWidget {
                               ? const Icon(
                                   Icons.check,
                                   key: ValueKey('check'),
-                                  color: Colors.white,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   size: 22,
                                 )
                               : Text(
@@ -221,7 +221,7 @@ class BudgetSection extends StatelessWidget {
                                   children: [
                                     const Icon(
                                       Icons.check_circle,
-                                      color: Colors.white,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                       size: 18,
                                     ),
                                     const SizedBox(width: 8),
@@ -229,7 +229,7 @@ class BudgetSection extends StatelessWidget {
                                       child: Text(
                                         savedMessage!,
                                         style: const TextStyle(
-                                          color: Colors.white,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
                                         ),
