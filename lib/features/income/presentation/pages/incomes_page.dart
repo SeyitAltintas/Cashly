@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import '../../../../core/constants/color_constants.dart';
 import 'package:provider/provider.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../income/data/models/income_model.dart';
@@ -129,7 +130,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
     final selectedDate = await MonthYearPicker.show(
       context,
       initialDate: secilenAy,
-      accentColor: Colors.green,
+      accentColor: ColorConstants.yesil,
     );
 
     if (selectedDate != null && mounted) {
@@ -468,7 +469,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
               },
             ),
           ],
-          centerButtonColor: Colors.green.shade600,
+          centerButtonColor: ColorConstants.yesil,
           onCenterButtonTap: () {
             HapticService.lightImpact();
             yeniGelirEkle();

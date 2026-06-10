@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/color_constants.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../data/models/asset_model.dart';
 import '../../../settings/presentation/state/recycle_bin_states.dart';
@@ -88,7 +89,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade700,
+              backgroundColor: ColorConstants.yesil,
             ),
             onPressed: () {
               // Tüm varlıkları tek tek geri yükle
@@ -126,7 +127,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
         actions: [
           if (_deletedAssets.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.restore, color: Colors.green),
+              icon: const Icon(Icons.restore, color: ColorConstants.yesil),
               tooltip: context.l10n.restoreAll,
               onPressed: _confirmRestoreAll,
             ),
@@ -170,7 +171,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red.shade800,
+                        backgroundColor: ColorConstants.kirmiziVurgu,
                       ),
                       onPressed: () {
                         widget.onEmptyBin();
@@ -243,7 +244,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                   child: ListTile(
                     leading: const Icon(
                       Icons.monetization_on_outlined,
-                      color: Colors.redAccent,
+                      color: ColorConstants.kirmiziVurgu,
                     ),
                     title: Text(
                       asset.name,
@@ -276,7 +277,7 @@ class _AssetRecycleBinPageState extends State<AssetRecycleBinPage>
                         IconButton(
                           icon: const Icon(
                             Icons.delete_forever,
-                            color: Colors.redAccent,
+                            color: ColorConstants.kirmiziVurgu,
                           ),
                           onPressed: () {
                             widget.onPermanentDelete(asset);

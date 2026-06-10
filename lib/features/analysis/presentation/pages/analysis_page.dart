@@ -401,13 +401,13 @@ class _AnalysisPageState extends State<AnalysisPage>
   (Color, Color) _getTabColors(int index) {
     switch (index) {
       case 0:
-        return (Colors.red.shade400, Colors.red.shade700);
+        return (ColorConstants.kirmiziVurgu, ColorConstants.koyuKirmizi);
       case 1:
-        return (Colors.green.shade400, Colors.green.shade700);
+        return (ColorConstants.yesilVurgu, ColorConstants.yesil);
       case 2:
-        return (Colors.blue.shade600, Colors.blue.shade700);
+        return (ColorConstants.maviVurgu, ColorConstants.maviGri);
       default:
-        return (Colors.red.shade400, Colors.red.shade700);
+        return (ColorConstants.kirmiziVurgu, ColorConstants.koyuKirmizi);
     }
   }
 

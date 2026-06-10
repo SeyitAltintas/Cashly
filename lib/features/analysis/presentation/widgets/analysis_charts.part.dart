@@ -436,7 +436,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                       ? [
                           HorizontalLine(
                             y: widget.totalBudget,
-                            color: Colors.orange.withValues(alpha: 0.5),
+                            color: ColorConstants.turuncuVurgu.withValues(alpha: 0.5),
                             strokeWidth: 2,
                             dashArray: [8, 4],
                             label: HorizontalLineLabel(
@@ -449,7 +449,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.orange.withValues(alpha: 0.8),
+                                color: ColorConstants.turuncuVurgu.withValues(alpha: 0.8),
                               ),
                               labelResolver: (line) =>
                                   'Limit: ${CurrencyFormatter.format(widget.totalBudget)}',
@@ -529,8 +529,8 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                     shadow: Shadow(
                       color:
                           (isExpense
-                                  ? Colors.red.shade400
-                                  : Colors.green.shade400)
+                                  ? ColorConstants.kirmiziVurgu
+                                  : ColorConstants.yesil)
                               .withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),

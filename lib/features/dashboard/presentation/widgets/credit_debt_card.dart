@@ -31,14 +31,14 @@ class CreditDebtCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.red.shade900.withValues(alpha: 0.3),
-              Colors.red.shade800.withValues(alpha: 0.2),
+              ColorConstants.koyuKirmizi.withValues(alpha: 0.3),
+              ColorConstants.koyuKirmizi.withValues(alpha: 0.2),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.red.shade400.withValues(alpha: 0.3)),
+          border: Border.all(color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -46,7 +46,7 @@ class CreditDebtCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.red.shade400.withValues(alpha: 0.2),
+                color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(

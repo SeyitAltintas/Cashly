@@ -1700,9 +1700,9 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
           height: 80,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.red.withValues(alpha: 0.1),
+            color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
           ),
-          child: const Icon(Icons.error_outline, size: 40, color: Colors.red),
+          child: const Icon(Icons.error_outline, size: 40, color: ColorConstants.kirmiziVurgu),
         ),
         const SizedBox(height: 16),
         Text(

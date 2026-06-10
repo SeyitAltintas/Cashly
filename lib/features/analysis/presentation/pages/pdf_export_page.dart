@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../../../../core/services/export_service.dart';
 import '../../../../core/widgets/month_year_picker.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
@@ -102,15 +103,15 @@ class _PdfExportPageState extends State<PdfExportPage> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.red.withValues(alpha: 0.15),
-                    Colors.red.withValues(alpha: 0.05),
+                    ColorConstants.kirmiziVurgu.withValues(alpha: 0.15),
+                    ColorConstants.kirmiziVurgu.withValues(alpha: 0.05),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: Colors.red.withValues(alpha: 0.3),
+                  color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -119,13 +120,13 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.red.withValues(alpha: 0.15),
+                      color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       Icons.picture_as_pdf_rounded,
                       size: 24,
-                      color: Colors.red,
+                      color: ColorConstants.kirmiziVurgu,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -164,7 +165,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                 final newDate = await MonthYearPicker.show(
                   context,
                   initialDate: _selectedDate,
-                  accentColor: Colors.red,
+                  accentColor: ColorConstants.kirmiziVurgu,
                 );
                 if (newDate != null) {
                   _pdfState.selectedDate = newDate;
@@ -190,13 +191,13 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withValues(alpha: 0.15),
+                        color: ColorConstants.maviVurgu.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
                         Icons.calendar_month_rounded,
                         size: 22,
-                        color: Colors.blue,
+                        color: ColorConstants.maviVurgu,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -247,7 +248,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     title: context.l10n.selectAll,
                     subtitle: context.l10n.includeAllVisualSummaries,
                     icon: Icons.select_all,
-                    color: Colors.purple,
+                    color: ColorConstants.morVurgu,
                     value: _allVisualOptionsSelected,
                     isTristate:
                         !_allVisualOptionsSelected && _hasAnyVisualOption,
@@ -263,7 +264,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     title: context.l10n.financialSummaryCards,
                     subtitle: context.l10n.expenseIncomeAssetTotals,
                     icon: Icons.dashboard_outlined,
-                    color: Colors.orange,
+                    color: ColorConstants.turuncuVurgu,
                     value: _includeFinansalOzet,
                     onChanged: (value) =>
                         _pdfState.includeFinansalOzet = value ?? false,
@@ -273,7 +274,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     title: context.l10n.netStatusCards,
                     subtitle: context.l10n.monthlyNetStatusAndSavings,
                     icon: Icons.balance,
-                    color: Colors.teal,
+                    color: ColorConstants.camgobegiVurgu,
                     value: _includeNetDurum,
                     onChanged: (value) =>
                         _pdfState.includeNetDurum = value ?? false,
@@ -283,7 +284,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     title: context.l10n.pieChartAndDistribution,
                     subtitle: context.l10n.expenseIncomeAssetDistribution,
                     icon: Icons.pie_chart_outline,
-                    color: Colors.indigo,
+                    color: ColorConstants.maviVurgu,
                     value: _includePastaGrafik,
                     onChanged: (value) =>
                         _pdfState.includePastaGrafik = value ?? false,
@@ -293,7 +294,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     title: context.l10n.budgetStatusTitle,
                     subtitle: context.l10n.budgetProgressBarAndLimit,
                     icon: Icons.account_balance_wallet,
-                    color: Colors.green,
+                    color: ColorConstants.yesil,
                     value: _includeButceDurumu,
                     onChanged: (value) =>
                         _pdfState.includeButceDurumu = value ?? false,
@@ -304,7 +305,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     subtitle:
                         context.l10n.dailyAverageAndPreviousMonthComparison,
                     icon: Icons.analytics_outlined,
-                    color: Colors.blue,
+                    color: ColorConstants.maviVurgu,
                     value: _includeIstatistikler,
                     onChanged: (value) =>
                         _pdfState.includeIstatistikler = value ?? false,
@@ -314,7 +315,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     title: context.l10n.top5Expenses,
                     subtitle: context.l10n.top5ExpensesListDescription,
                     icon: Icons.leaderboard_outlined,
-                    color: Colors.red,
+                    color: ColorConstants.kirmiziVurgu,
                     value: _includeTop5Harcama,
                     onChanged: (value) =>
                         _pdfState.includeTop5Harcama = value ?? false,
@@ -334,7 +335,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     title: context.l10n.myExpensesTitle,
                     subtitle: context.l10n.monthlyExpenseDetails,
                     icon: Icons.shopping_cart_outlined,
-                    color: Colors.red,
+                    color: ColorConstants.kirmiziVurgu,
                     value: _includeExpenses,
                     onChanged: (value) =>
                         _pdfState.includeExpenses = value ?? false,
@@ -343,7 +344,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     title: context.l10n.myIncomesTitle,
                     subtitle: context.l10n.monthlyIncomeDetails,
                     icon: Icons.wallet_outlined,
-                    color: Colors.green,
+                    color: ColorConstants.yesil,
                     value: _includeIncomes,
                     onChanged: (value) =>
                         _pdfState.includeIncomes = value ?? false,
@@ -352,7 +353,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     title: context.l10n.myAssets,
                     subtitle: context.l10n.assetListAndValues,
                     icon: Icons.account_balance_outlined,
-                    color: Colors.blue,
+                    color: ColorConstants.maviVurgu,
                     value: _includeAssets,
                     onChanged: (value) =>
                         _pdfState.includeAssets = value ?? false,
@@ -367,10 +368,10 @@ class _PdfExportPageState extends State<PdfExportPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
+                  color: ColorConstants.turuncuVurgu.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: Colors.orange.withValues(alpha: 0.3),
+                    color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -378,12 +379,12 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.2),
+                        color: ColorConstants.turuncuVurgu.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(
                         Icons.warning_amber_rounded,
-                        color: Colors.orange,
+                        color: ColorConstants.turuncuVurgu,
                         size: 20,
                       ),
                     ),
@@ -391,8 +392,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     Expanded(
                       child: Text(
                         context.l10n.selectAtLeastOneTable,
-                        style: TextStyle(
-                          color: Colors.orange.shade700,
+                        style: const TextStyle(
+                          color: ColorConstants.turuncuVurgu,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -412,10 +413,10 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     : (_isExporting ? () {} : null),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _hasSelection
-                      ? Colors.red.shade700
-                      : Colors.grey.withValues(alpha: 0.3),
+                      ? ColorConstants.kirmiziVurgu
+                      : ColorConstants.gri.withValues(alpha: 0.3),
                   foregroundColor: Theme.of(context).colorScheme.onSurface,
-                  disabledBackgroundColor: Colors.grey.withValues(alpha: 0.3),
+                  disabledBackgroundColor: ColorConstants.gri.withValues(alpha: 0.3),
                   disabledForegroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -621,7 +622,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result.message), backgroundColor: Colors.red),
+          SnackBar(content: Text(result.message), backgroundColor: ColorConstants.kirmiziVurgu),
         );
       }
     }

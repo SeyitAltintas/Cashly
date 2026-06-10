@@ -12,7 +12,7 @@ extension _ExpenseAnalysisExtension on _AnalysisPageState {
               message: context.l10n.noExpenseDataForThisMonth,
               actionText: context.l10n.addExpense,
               icon: Icons.receipt_long_outlined,
-              buttonColor: Colors.red.shade400,
+              buttonColor: ColorConstants.kirmiziVurgu,
               onActionPressed: widget.onAddExpensePressed != null
                   ? () => widget.onAddExpensePressed!(_controller.selectedMonth)
                   : () => Navigator.pop(context),

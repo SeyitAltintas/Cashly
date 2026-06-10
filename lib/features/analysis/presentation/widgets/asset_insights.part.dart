@@ -24,7 +24,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
     if (profitable.isEmpty) {
       return _buildInfoCard(
         icon: Icons.trending_up_rounded,
-        iconColor: Colors.blue,
+        iconColor: ColorConstants.maviVurgu,
         title: context.l10n.topPerformers,
         message: context.l10n.topPerformersAllLoss,
       );
@@ -54,7 +54,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                     title: context.l10n.topPerformersDetailTitle,
                     body: context.l10n.topPerformersDetailBody,
                     icon: Icons.trending_up_rounded,
-                    iconColor: Colors.blue,
+                    iconColor: ColorConstants.maviVurgu,
                   ),
                   child: Icon(
                     Icons.info_outline_rounded,
@@ -106,7 +106,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                 curService.currentCurrency,
               );
               final isProfit = profitAmount >= 0;
-              final Color roiColor = isProfit ? Colors.green : Colors.red;
+              final Color roiColor = isProfit ? ColorConstants.yesil : ColorConstants.kirmiziVurgu;
 
               return Column(
                 children: [
@@ -231,7 +231,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
     if (isSingleType) {
       statusTitle = context.l10n.singleAssetType;
       statusDesc = context.l10n.singleAssetTypeDesc;
-      statusColor = Colors.orange;
+      statusColor = ColorConstants.turuncuVurgu;
       statusIcon = Icons.warning_amber_rounded;
     } else if (isConcentrated) {
       statusTitle = context.l10n.concentratedPortfolio;
@@ -239,12 +239,12 @@ extension AssetInsightsExtension on _AnalysisPageState {
         context.translateDbName(dominantType),
         dominantPercent.toStringAsFixed(0),
       );
-      statusColor = Colors.orange;
+      statusColor = ColorConstants.turuncuVurgu;
       statusIcon = Icons.pie_chart_rounded;
     } else {
       statusTitle = context.l10n.diversifiedPortfolio;
       statusDesc = context.l10n.diversifiedPortfolioDesc;
-      statusColor = Colors.green;
+      statusColor = ColorConstants.yesil;
       statusIcon = Icons.check_circle_outline_rounded;
     }
 
@@ -267,7 +267,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                 title: context.l10n.portfolioDiversificationDetailTitle,
                 body: context.l10n.portfolioDiversificationDetailBody,
                 icon: Icons.pie_chart_rounded,
-                iconColor: Colors.blue,
+                iconColor: ColorConstants.maviVurgu,
               ),
               child: Icon(
                 Icons.info_outline_rounded,
@@ -416,7 +416,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                 title: context.l10n.liquidityDetailTitle,
                 body: context.l10n.liquidityDetailBody,
                 icon: Icons.water_drop_rounded,
-                iconColor: Colors.cyan,
+                iconColor: ColorConstants.camgobegiVurgu,
               ),
               child: Icon(
                 Icons.info_outline_rounded,
@@ -451,7 +451,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                       children: [
                         const Icon(
                           Icons.flash_on_rounded,
-                          color: Colors.cyan,
+                          color: ColorConstants.camgobegiVurgu,
                           size: 28,
                         ),
                         const SizedBox(height: 8),
@@ -469,7 +469,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.cyan,
+                            color: ColorConstants.camgobegiVurgu,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -481,7 +481,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                               context,
                             ).colorScheme.onSurface.withValues(alpha: 0.08),
                             valueColor: const AlwaysStoppedAnimation(
-                              Colors.cyan,
+                              ColorConstants.camgobegiVurgu,
                             ),
                             minHeight: 6,
                           ),
@@ -496,7 +496,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                       children: [
                         const Icon(
                           Icons.hourglass_bottom_rounded,
-                          color: Colors.orange,
+                          color: ColorConstants.turuncuVurgu,
                           size: 28,
                         ),
                         const SizedBox(height: 8),
@@ -514,7 +514,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.orange,
+                            color: ColorConstants.turuncuVurgu,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -526,7 +526,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                               context,
                             ).colorScheme.onSurface.withValues(alpha: 0.08),
                             valueColor: const AlwaysStoppedAnimation(
-                              Colors.orange,
+                              ColorConstants.turuncuVurgu,
                             ),
                             minHeight: 6,
                           ),
@@ -542,7 +542,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                 icon: isHealthy
                     ? Icons.check_circle_outline_rounded
                     : Icons.warning_amber_rounded,
-                iconColor: isHealthy ? Colors.green : Colors.orange,
+                iconColor: isHealthy ? ColorConstants.yesil : ColorConstants.turuncuVurgu,
                 title: isHealthy
                     ? context.l10n.highLiquidity
                     : context.l10n.lowLiquidity,

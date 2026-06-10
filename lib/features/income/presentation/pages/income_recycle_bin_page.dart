@@ -342,12 +342,12 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
                     leading: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.15),
+                        color: ColorConstants.yesil.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.trending_up,
-                        color: Colors.green.shade400,
+                        color: ColorConstants.yesil,
                       ),
                     ),
                     title: Text(
@@ -366,9 +366,9 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.restore,
-                            color: Colors.green.shade400,
+                            color: ColorConstants.yesil,
                           ),
                           onPressed: () => geliriGeriYukle(gelir),
                           tooltip: context.l10n.restoreItem,

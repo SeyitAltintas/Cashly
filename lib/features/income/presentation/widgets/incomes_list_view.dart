@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/color_constants.dart';
 
 import '../../data/models/income_model.dart';
 import 'income_list_item.dart';
@@ -29,7 +30,7 @@ class IncomesListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: onRefresh,
-      color: Colors.green,
+      color: ColorConstants.yesil,
       child: CustomScrollView(
         controller: scrollController,
         physics: const AlwaysScrollableScrollPhysics(),

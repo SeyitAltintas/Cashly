@@ -266,14 +266,14 @@ class ExpenseDetailPage extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.red.withValues(alpha: 0.2),
-            Colors.red.withValues(alpha: 0.05),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.2),
+            ColorConstants.kirmiziVurgu.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.red.withValues(alpha: 0.4)),
+        border: Border.all(color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -281,12 +281,12 @@ class ExpenseDetailPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.payments, color: Colors.red, size: 24),
+              const Icon(Icons.payments, color: ColorConstants.kirmiziVurgu, size: 24),
               const SizedBox(width: 8),
               Text(
                 context.l10n.spentAmountLabel,
                 style: const TextStyle(
-                  color: Colors.red,
+                  color: ColorConstants.kirmiziVurgu,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -297,7 +297,7 @@ class ExpenseDetailPage extends StatelessWidget {
           Text(
             '-${CurrencyFormatter.format(convertedAmount)}',
             style: const TextStyle(
-              color: Colors.red,
+              color: ColorConstants.kirmiziVurgu,
               fontSize: 28,
               fontWeight: FontWeight.bold,
             ),
@@ -374,8 +374,8 @@ class ExpenseDetailPage extends StatelessWidget {
               _showDeleteConfirmation(context);
             },
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.red,
-              side: const BorderSide(color: Colors.red),
+              foregroundColor: ColorConstants.kirmiziVurgu,
+              side: const BorderSide(color: ColorConstants.kirmiziVurgu),
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -408,10 +408,10 @@ class ExpenseDetailPage extends StatelessWidget {
               onDelete(harcama);
               Navigator.pop(context); // Detay sayfasını kapat
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: ColorConstants.kirmiziVurgu),
             child: Text(
               context.l10n.delete,
-              style: const TextStyle(color: Colors.red),
+              style: const TextStyle(color: ColorConstants.kirmiziVurgu),
             ),
           ),
         ],

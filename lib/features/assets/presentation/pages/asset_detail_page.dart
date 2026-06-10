@@ -304,7 +304,7 @@ class AssetDetailPage extends StatelessWidget {
     bool isProfit,
     double convertedProfitLoss,
   ) {
-    final profitColor = isProfit ? Colors.green : Colors.red;
+    final profitColor = isProfit ? ColorConstants.yesil : ColorConstants.kirmiziVurgu;
     final profitIcon = isProfit ? Icons.trending_up : Icons.trending_down;
     final profitText = isProfit
         ? context.l10n.assetProfitLabel
@@ -439,8 +439,8 @@ class AssetDetailPage extends StatelessWidget {
               _showDeleteConfirmation(context);
             },
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.red,
-              side: const BorderSide(color: Colors.red),
+              foregroundColor: ColorConstants.kirmiziVurgu,
+              side: const BorderSide(color: ColorConstants.kirmiziVurgu),
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -473,7 +473,7 @@ class AssetDetailPage extends StatelessWidget {
               onDelete(asset);
               Navigator.pop(context); // Detay sayfasını kapat
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: ColorConstants.kirmiziVurgu),
             child: Text(context.l10n.delete),
           ),
         ],
@@ -503,17 +503,17 @@ class AssetDetailPage extends StatelessWidget {
   Color _getColorForCategory(String category) {
     switch (category.toLowerCase()) {
       case 'altın':
-        return Colors.amber;
+        return ColorConstants.amber;
       case 'döviz':
-        return Colors.green;
+        return ColorConstants.yesil;
       case 'kripto':
         return ColorConstants.turuncuVurgu;
       case 'banka':
         return ColorConstants.maviVurgu;
       case 'gümüş':
-        return Colors.blueGrey;
+        return ColorConstants.maviGri;
       default:
-        return Colors.blue;
+        return ColorConstants.maviVurgu;
     }
   }
 }

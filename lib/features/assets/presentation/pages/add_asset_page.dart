@@ -829,18 +829,18 @@ class _AddAssetPageState extends State<AddAssetPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.red.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+        color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 20),
+          const Icon(Icons.warning_amber_rounded, color: ColorConstants.kirmiziVurgu, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               _errorMessage!,
-              style: const TextStyle(color: Colors.red, fontSize: 13),
+              style: const TextStyle(color: ColorConstants.kirmiziVurgu, fontSize: 13),
             ),
           ),
         ],

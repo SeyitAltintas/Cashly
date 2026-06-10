@@ -281,7 +281,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
   Widget _buildLoadingState() {
     return Column(
       children: [
-        const CircularProgressIndicator(color: Colors.green),
+        const CircularProgressIndicator(color: ColorConstants.yesil),
         const SizedBox(height: 16),
         Text(
           context.l10n.preparing,
@@ -510,8 +510,8 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
                 context,
               ).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
-            floatingLabelStyle: const TextStyle(color: Colors.green),
-            prefixIcon: const Icon(Icons.attach_money, color: Colors.green),
+            floatingLabelStyle: const TextStyle(color: ColorConstants.yesil),
+            prefixIcon: const Icon(Icons.attach_money, color: ColorConstants.yesil),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
@@ -527,7 +527,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: Colors.green.withValues(alpha: 0.5),
+                color: ColorConstants.yesil.withValues(alpha: 0.5),
                 width: 1.5,
               ),
             ),
@@ -547,8 +547,8 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
                 context,
               ).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
-            floatingLabelStyle: const TextStyle(color: Colors.green),
-            prefixIcon: const Icon(Icons.description, color: Colors.green),
+            floatingLabelStyle: const TextStyle(color: ColorConstants.yesil),
+            prefixIcon: const Icon(Icons.description, color: ColorConstants.yesil),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
@@ -564,7 +564,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: Colors.green.withValues(alpha: 0.5),
+                color: ColorConstants.yesil.withValues(alpha: 0.5),
                 width: 1.5,
               ),
             ),
@@ -581,7 +581,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
           ),
           child: Row(
             children: [
-              const Icon(Icons.category, color: Colors.green),
+              const Icon(Icons.category, color: ColorConstants.yesil),
               const SizedBox(width: 12),
               Expanded(
                 child: DropdownButton<String>(

@@ -40,15 +40,15 @@ class AssetSummaryCard extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.blue.shade900.withValues(alpha: 0.3),
-                Colors.blue.shade700.withValues(alpha: 0.15),
+                ColorConstants.maviVurgu.withValues(alpha: 0.3),
+                ColorConstants.maviVurgu.withValues(alpha: 0.15),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.blue.shade600.withValues(alpha: 0.4),
+              color: ColorConstants.maviVurgu.withValues(alpha: 0.4),
             ),
           ),
           child: Row(
@@ -81,7 +81,7 @@ class AssetSummaryCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade600.withValues(alpha: 0.2),
+                  color: ColorConstants.maviVurgu.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(

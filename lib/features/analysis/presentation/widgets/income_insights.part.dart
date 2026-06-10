@@ -16,7 +16,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
     if (filtered.isEmpty) {
       return _buildInfoCard(
         icon: Icons.emoji_events_outlined,
-        iconColor: Colors.amber,
+        iconColor: ColorConstants.amber,
         title: context.l10n.topIncomes,
         message: context.l10n.topIncomesAllSalary,
       );
@@ -67,7 +67,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                       title: context.l10n.topIncomesDetailTitle,
                       body: context.l10n.topIncomesDetailBody,
                       icon: Icons.emoji_events_rounded,
-                      iconColor: Colors.amber,
+                      iconColor: ColorConstants.amber,
                     ),
                     child: Icon(
                       Icons.info_outline_rounded,
@@ -82,7 +82,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
+                  color: ColorConstants.yesil.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -284,7 +284,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
     final String adviceText = isSingleSource
         ? context.l10n.singleSourceWarning
         : context.l10n.stableIncomeNote;
-    final Color adviceColor = isSingleSource ? Colors.orange : Colors.green;
+    final Color adviceColor = isSingleSource ? ColorConstants.turuncuVurgu : ColorConstants.yesil;
     final IconData adviceIcon = isSingleSource
         ? Icons.warning_amber_rounded
         : Icons.check_circle_outline_rounded;
@@ -310,7 +310,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                   title: context.l10n.incomeStabilityDetailTitle,
                   body: context.l10n.incomeStabilityDetailBody,
                   icon: Icons.balance_rounded,
-                  iconColor: Colors.blue,
+                  iconColor: ColorConstants.maviVurgu,
                 ),
                 child: Icon(
                   Icons.info_outline_rounded,
@@ -485,7 +485,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                   title: context.l10n.dailyEarningRateDetailTitle,
                   body: context.l10n.dailyEarningRateDetailBody,
                   icon: Icons.speed_rounded,
-                  iconColor: Colors.green,
+                  iconColor: ColorConstants.yesil,
                 ),
                 child: Icon(
                   Icons.info_outline_rounded,
@@ -514,7 +514,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.1),
+                    color: ColorConstants.yesil.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -607,19 +607,19 @@ extension IncomeInsightsExtension on _AnalysisPageState {
     if (totalExpense <= 0) {
       // Hiç harcama yok
       message = context.l10n.savingsPotentialNoExpense;
-      statusColor = Colors.green;
+      statusColor = ColorConstants.yesil;
       statusIcon = Icons.celebration_rounded;
     } else if (savings >= 0) {
       // Pozitif tasarruf
       message = context.l10n.savingsPotentialPositive(
         '%${savingsPercent.toStringAsFixed(0)}',
       );
-      statusColor = Colors.green;
+      statusColor = ColorConstants.yesil;
       statusIcon = Icons.savings_rounded;
     } else {
       // Negatif (açık)
       message = context.l10n.savingsPotentialNegative;
-      statusColor = Colors.red;
+      statusColor = ColorConstants.kirmiziVurgu;
       statusIcon = Icons.warning_rounded;
     }
 
@@ -647,7 +647,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                   title: context.l10n.savingsPotentialDetailTitle,
                   body: context.l10n.savingsPotentialDetailBody,
                   icon: Icons.savings_rounded,
-                  iconColor: Colors.green,
+                  iconColor: ColorConstants.yesil,
                 ),
                 child: Icon(
                   Icons.info_outline_rounded,

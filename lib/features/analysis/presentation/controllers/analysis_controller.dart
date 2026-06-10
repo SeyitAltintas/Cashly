@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../../../core/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../../core/di/injection_container.dart';
@@ -693,36 +694,36 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
     switch (tabIndex) {
       case 0:
         return [
-          Colors.red.shade400,
-          Colors.orange.shade400,
-          Colors.amber.shade400,
-          Colors.pink.shade400,
-          Colors.deepOrange.shade400,
-          Colors.redAccent.shade200,
-          Colors.orangeAccent.shade200,
+          ColorConstants.kirmiziVurgu,
+          ColorConstants.turuncuVurgu,
+          ColorConstants.amberVurgu,
+          ColorConstants.pembeVurgu,
+          ColorConstants.koyuKirmizi,
+          ColorConstants.neonMor,
+          ColorConstants.turuncuVurgu.withValues(alpha: 0.7),
         ];
       case 1:
         return [
-          Colors.green.shade400,
-          Colors.teal.shade400,
-          Colors.lime.shade400,
-          Colors.lightGreen.shade400,
-          Colors.greenAccent.shade400,
-          Colors.tealAccent.shade400,
-          Colors.cyan.shade400,
+          ColorConstants.yesil,
+          ColorConstants.camgobegiVurgu,
+          ColorConstants.yesilVurgu,
+          ColorConstants.acikYesilVurgu,
+          ColorConstants.yesil.withValues(alpha: 0.7),
+          ColorConstants.camgobegiVurgu.withValues(alpha: 0.7),
+          ColorConstants.yesilVurgu.withValues(alpha: 0.7),
         ];
       case 2:
         return [
-          Colors.blue.shade400,
-          Colors.indigo.shade400,
-          Colors.purple.shade400,
-          Colors.deepPurple.shade400,
-          Colors.blueAccent.shade200,
-          Colors.indigoAccent.shade200,
-          Colors.purpleAccent.shade200,
+          ColorConstants.maviVurgu,
+          ColorConstants.morVurgu,
+          ColorConstants.parlakMor,
+          ColorConstants.derinMor,
+          ColorConstants.maviVurgu.withValues(alpha: 0.7),
+          ColorConstants.morVurgu.withValues(alpha: 0.7),
+          ColorConstants.parlakMor.withValues(alpha: 0.7),
         ];
       default:
-        return [const Color(0xFF9E9E9E)]; // Colors.grey.shade400
+        return [ColorConstants.gri];
     }
   }
 

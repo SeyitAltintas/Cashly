@@ -96,12 +96,12 @@ class CategoryBudgetDetailPage extends StatelessWidget {
         gradient: LinearGradient(
           colors: isOverBudget
               ? [
-                  Colors.red.shade900.withValues(alpha: 0.3),
-                  Colors.red.shade800.withValues(alpha: 0.2),
+                  ColorConstants.koyuKirmizi.withValues(alpha: 0.3),
+                  ColorConstants.koyuKirmizi.withValues(alpha: 0.2),
                 ]
               : [
-                  Colors.purple.shade900.withValues(alpha: 0.3),
-                  Colors.purple.shade800.withValues(alpha: 0.2),
+                  ColorConstants.derinMor.withValues(alpha: 0.3),
+                  ColorConstants.derinMor.withValues(alpha: 0.2),
                 ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -109,8 +109,8 @@ class CategoryBudgetDetailPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isOverBudget
-              ? Colors.red.withValues(alpha: 0.3)
-              : Colors.purple.withValues(alpha: 0.3),
+              ? ColorConstants.kirmiziVurgu.withValues(alpha: 0.3)
+              : ColorConstants.morVurgu.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -198,7 +198,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: isOverBudget ? Colors.red : Colors.green,
+                  color: isOverBudget ? ColorConstants.kirmiziVurgu : ColorConstants.yesil,
                 ),
               ),
             ],
@@ -223,7 +223,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isOverBudget
-                ? Colors.red.withValues(alpha: 0.3)
+                ? ColorConstants.kirmiziVurgu.withValues(alpha: 0.3)
                 : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
           ),
         ),
@@ -425,7 +425,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
   Color _getUsageColor(double usage) {
     if (usage > 1.0) return ColorConstants.kirmiziVurgu;
     if (usage > 0.8) return ColorConstants.turuncuVurgu;
-    if (usage > 0.5) return Colors.amber.shade600;
+    if (usage > 0.5) return ColorConstants.turuncuVurgu;
     return ColorConstants.yesil;
   }
 

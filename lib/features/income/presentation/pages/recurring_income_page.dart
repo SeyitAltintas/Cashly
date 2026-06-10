@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/color_constants.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/error_handler.dart';
@@ -170,7 +171,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                       ),
                       prefixIcon: const Icon(
                         Icons.label_outline,
-                        color: Colors.green,
+                        color: ColorConstants.yesil,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -219,7 +220,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                       ),
                       prefixIcon: const Icon(
                         Icons.currency_lira,
-                        color: Colors.green,
+                        color: ColorConstants.yesil,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -272,7 +273,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.green.withValues(alpha: 0.1),
+                          color: ColorConstants.yesil.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: DropdownButtonHideUnderline(
@@ -323,7 +324,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                       ),
                       prefixIcon: const Icon(
                         Icons.account_balance_wallet,
-                        color: Colors.green,
+                        color: ColorConstants.yesil,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -378,7 +379,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: ColorConstants.yesil,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -428,7 +429,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                                     ? context.l10n.incomeUpdated
                                     : context.l10n.incomeAdded,
                               ),
-                              backgroundColor: Colors.green.shade700,
+                              backgroundColor: ColorConstants.yesil,
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -485,7 +486,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _gelirEkle,
-        backgroundColor: Colors.green,
+        backgroundColor: ColorConstants.yesil,
         child: const Icon(Icons.add, color: Colors.white),
       ),
       body: Column(
@@ -496,13 +497,13 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.green.withValues(alpha: 0.1),
+              color: ColorConstants.yesil.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+              border: Border.all(color: ColorConstants.yesil.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.info_outline, color: Colors.green),
+                const Icon(Icons.info_outline, color: ColorConstants.yesil),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -581,7 +582,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
         padding: const EdgeInsets.only(right: 20),
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: Colors.red.shade700,
+          color: ColorConstants.kirmiziVurgu,
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(Icons.delete, color: Colors.white),
@@ -612,7 +613,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                 onPressed: () => Navigator.pop(context, true),
                 child: Text(
                   context.l10n.delete,
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(color: ColorConstants.kirmiziVurgu),
                 ),
               ),
             ],
@@ -637,7 +638,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
               context,
             ).colorScheme.onSurface.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
+            border: Border.all(color: ColorConstants.yesil.withValues(alpha: 0.2)),
           ),
           child: Row(
             children: [
@@ -645,10 +646,10 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: ColorConstants.yesil.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.trending_up, color: Colors.green),
+                child: const Icon(Icons.trending_up, color: ColorConstants.yesil),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -684,7 +685,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                   return '+${CurrencyFormatter.format(converted)}';
                 }(),
                 style: const TextStyle(
-                  color: Colors.green,
+                  color: ColorConstants.yesil,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),

@@ -12,7 +12,7 @@ extension _AssetAnalysisExtension on _AnalysisPageState {
               message: context.l10n.noAssetsAddedYet,
               actionText: context.l10n.addAsset,
               icon: Icons.diamond_outlined,
-              buttonColor: Colors.blue.shade500,
+              buttonColor: ColorConstants.maviVurgu,
               onActionPressed: widget.onAddAssetPressed != null
                   ? () => widget.onAddAssetPressed!(_controller.selectedMonth)
                   : () => Navigator.pop(context),

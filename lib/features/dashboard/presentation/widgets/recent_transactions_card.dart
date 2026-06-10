@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/color_constants.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
@@ -136,15 +137,15 @@ class RecentTransactionsCard extends StatelessWidget {
     String prefix;
 
     if (isTransfer) {
-      iconColor = Colors.orange;
+      iconColor = ColorConstants.turuncuVurgu;
       icon = Icons.swap_horiz;
       prefix = '';
     } else if (isExpense) {
-      iconColor = Colors.red;
+      iconColor = ColorConstants.kirmiziVurgu;
       icon = Icons.arrow_downward;
       prefix = '-';
     } else {
-      iconColor = Colors.green;
+      iconColor = ColorConstants.yesil;
       icon = Icons.arrow_upward;
       prefix = '+';
     }

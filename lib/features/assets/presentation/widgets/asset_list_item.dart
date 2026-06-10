@@ -206,15 +206,15 @@ class AssetListItem extends StatelessWidget {
   Color _getColorForCategory(BuildContext context, String category) {
     switch (category.toLowerCase()) {
       case 'altın':
-        return Colors.amber;
+        return ColorConstants.amber;
       case 'döviz':
-        return Colors.green;
+        return ColorConstants.yesil;
       case 'kripto':
         return ColorConstants.turuncuVurgu;
       case 'banka':
         return ColorConstants.maviVurgu;
       case 'gümüş':
-        return Colors.blueGrey;
+        return ColorConstants.maviGri;
       default:
         return Theme.of(context).colorScheme.secondary;
     }

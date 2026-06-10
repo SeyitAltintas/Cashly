@@ -125,7 +125,7 @@ class ExpenseListItem extends StatelessWidget {
                   return Text(
                     CurrencyFormatter.formatSigned(-converted),
                     style: const TextStyle(
-                      color: Colors.red,
+                      color: ColorConstants.kirmiziVurgu,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),

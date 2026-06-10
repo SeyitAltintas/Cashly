@@ -50,15 +50,15 @@ class IncomeSummaryCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.green.shade600.withValues(alpha: 0.25),
-                  Colors.green.shade600.withValues(alpha: 0.1),
+                  ColorConstants.yesil.withValues(alpha: 0.25),
+                  ColorConstants.yesil.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Colors.green.shade600.withValues(alpha: 0.4),
+                color: ColorConstants.yesil.withValues(alpha: 0.4),
               ),
             ),
             child: Column(

@@ -9,6 +9,7 @@ class MainActivity : FlutterFragmentActivity() {
         super.onCreate(savedInstanceState)
         // Red Team Yaması: Ekran görüntüsü almayı, ekran kaydını ve 
         // son uygulamalar (recents) menüsünde uygulamanın önizlemesinin görünmesini engeller.
-        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+        // Geçici süreliğine yoruma alındı.
+        // window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
     }
 }
