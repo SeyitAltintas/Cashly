@@ -279,7 +279,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
             debugShowCheckedModeBanner: false,
             home: Scaffold(
               backgroundColor: Theme.of(context).colorScheme.surface,
-              body: SizedBox.shrink(),
+              body: const SizedBox.shrink(),
             ),
           );
         }

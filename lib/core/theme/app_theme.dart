@@ -62,7 +62,7 @@ class AppTheme {
       scaffoldBackgroundColor: const Color(0xFF000000),
       colorScheme: const ColorScheme.dark(
         primary: PageThemeColors.darkGray,
-        secondary: const Color(0xFF616161),
+        secondary: Color(0xFF616161),
         surface: Color(0xFF121212),
         error: Color(0xFFCF6679),
         surfaceContainerHighest: Color(0xFF2A2A2A),
@@ -246,7 +246,7 @@ class AppTheme {
       scaffoldBackgroundColor: const Color(0xFFF5F5F5),
       colorScheme: const ColorScheme.light(
         primary: PageThemeColors.darkGray,
-        secondary: const Color(0xFF616161),
+        secondary: Color(0xFF616161),
         surface: Colors.white,
         error: Color(0xFFB00020),
         surfaceContainerHighest: Color(0xFFE0E0E0),

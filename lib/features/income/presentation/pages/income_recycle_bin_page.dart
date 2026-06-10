@@ -276,7 +276,7 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         actions: [
           if (silinenGelirler.isNotEmpty)
             IconButton(
-              icon: Icon(Icons.restore, color: Colors.green),
+              icon: const Icon(Icons.restore, color: Colors.green),
               tooltip: context.l10n.restoreAll,
               onPressed: tumunuGeriYukle,
             ),

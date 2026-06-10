@@ -27,7 +27,7 @@ class ColorConstants {
   // ============================================================================
 
   /// Saf Siyah - Ana arkaplan rengi
-  static Color safSiyah = Color(0xFF000000);
+  static Color safSiyah = const Color(0xFF000000);
 
   /// Koyu Surface - Kart ve surface elemanları için
   static const Color koyuSurface = Color(0xFF121212);

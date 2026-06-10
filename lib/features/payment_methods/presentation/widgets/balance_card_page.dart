@@ -77,11 +77,11 @@ class BalanceCardPage extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         Theme.of(context).colorScheme.surfaceContainerHighest,
-                        Color(0xFF16213e),
-                        Color(0xFF0f3460),
+                        const Color(0xFF16213e),
+                        const Color(0xFF0f3460),
                         Theme.of(context).colorScheme.surfaceContainerHighest,
                       ],
-                      stops: [0.0, 0.3, 0.7, 1.0],
+                      stops: const [0.0, 0.3, 0.7, 1.0],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -225,7 +225,7 @@ class BalanceCardPage extends StatelessWidget {
                                         return LinearGradient(
                                           colors: [
                                             Theme.of(context).colorScheme.onSurface,
-                                            Color(0xFF6C63FF),
+                                            const Color(0xFF6C63FF),
                                             Theme.of(context).colorScheme.onSurface,
                                           ],
                                           stops:

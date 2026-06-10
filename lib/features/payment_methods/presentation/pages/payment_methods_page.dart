@@ -372,7 +372,7 @@ class _PaymentMethodCard extends StatelessWidget {
         background: Container(
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.only(right: 20),
-          margin: EdgeInsets.only(bottom: 16),
+          margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
             color: ColorConstants.koyuKirmizi,
             borderRadius: BorderRadius.circular(20),

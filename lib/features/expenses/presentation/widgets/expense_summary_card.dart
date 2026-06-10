@@ -198,7 +198,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                       onTap: widget.ayYilSeciciAc,
                       behavior: HitTestBehavior.opaque,
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Text(
                           widget.ayIsmi.toUpperCase(),
                           style: TextStyle(

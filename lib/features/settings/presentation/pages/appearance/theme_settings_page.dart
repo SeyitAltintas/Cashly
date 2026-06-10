@@ -63,7 +63,12 @@ class ThemeSettingsPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: Column(
+                  child: RadioGroup<ThemeMode>(
+                    groupValue: themeManager.themeMode,
+                    onChanged: (ThemeMode? value) {
+                      if (value != null) themeManager.setThemeMode(value);
+                    },
+                    child: Column(
                     children: [
                       RadioListTile<ThemeMode>(
                         title: Text(
@@ -81,10 +86,6 @@ class ThemeSettingsPage extends StatelessWidget {
                           ),
                         ),
                         value: ThemeMode.system,
-                        groupValue: themeManager.themeMode,
-                        onChanged: (ThemeMode? value) {
-                          if (value != null) themeManager.setThemeMode(value);
-                        },
                       ),
                       Divider(
                         height: 1,
@@ -100,10 +101,6 @@ class ThemeSettingsPage extends StatelessWidget {
                           ),
                         ),
                         value: ThemeMode.light,
-                        groupValue: themeManager.themeMode,
-                        onChanged: (ThemeMode? value) {
-                          if (value != null) themeManager.setThemeMode(value);
-                        },
                       ),
                       Divider(
                         height: 1,
@@ -119,12 +116,9 @@ class ThemeSettingsPage extends StatelessWidget {
                           ),
                         ),
                         value: ThemeMode.dark,
-                        groupValue: themeManager.themeMode,
-                        onChanged: (ThemeMode? value) {
-                          if (value != null) themeManager.setThemeMode(value);
-                        },
                       ),
                     ],
+                  ),
                   ),
                 ),
               ],

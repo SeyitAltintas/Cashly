@@ -217,7 +217,7 @@ class ExpenseSummarySkeleton extends StatelessWidget {
       child: Column(
         children: [
           // Ay seçici
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ShimmerBox(width: 30, height: 30, borderRadius: 8),
@@ -225,11 +225,11 @@ class ExpenseSummarySkeleton extends StatelessWidget {
               ShimmerBox(width: 30, height: 30, borderRadius: 8),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Divider(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.10)),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           // Toplam harcama satırı
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
@@ -243,9 +243,9 @@ class ExpenseSummarySkeleton extends StatelessWidget {
               ShimmerBox(width: 52, height: 52, borderRadius: 15),
             ],
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           // Bütçe durumu
-          ShimmerBox(height: 80, borderRadius: 12),
+          const ShimmerBox(height: 80, borderRadius: 12),
         ],
       ),
     );
@@ -373,7 +373,7 @@ class IncomeSummarySkeleton extends StatelessWidget {
       decoration: _skeletonCardDecoration(context),
       child: Column(
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ShimmerBox(width: 30, height: 30, borderRadius: 8),
@@ -381,10 +381,10 @@ class IncomeSummarySkeleton extends StatelessWidget {
               ShimmerBox(width: 30, height: 30, borderRadius: 8),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Divider(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.10)),
-          SizedBox(height: 16),
-          Row(
+          const SizedBox(height: 16),
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
@@ -398,8 +398,8 @@ class IncomeSummarySkeleton extends StatelessWidget {
               ShimmerBox(width: 52, height: 52, borderRadius: 15),
             ],
           ),
-          SizedBox(height: 16),
-          ShimmerBox(height: 44, borderRadius: 12),
+          const SizedBox(height: 16),
+          const ShimmerBox(height: 44, borderRadius: 12),
         ],
       ),
     );

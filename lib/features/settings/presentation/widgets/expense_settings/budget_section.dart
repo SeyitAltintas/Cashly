@@ -173,7 +173,7 @@ class BudgetSection extends StatelessWidget {
                           child: isSaved
                               ? Icon(
                                   Icons.check,
-                                  key: ValueKey('check'),
+                                  key: const ValueKey('check'),
                                   color: Theme.of(context).colorScheme.onSurface,
                                   size: 22,
                                 )
@@ -224,7 +224,7 @@ class BudgetSection extends StatelessWidget {
                                       color: Theme.of(context).colorScheme.onSurface,
                                       size: 18,
                                     ),
-                                    SizedBox(width: 8),
+                                    const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
                                         savedMessage!,

@@ -112,7 +112,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             padding: const EdgeInsets.all(16),
             itemCount: 5,
             itemBuilder: (context, index) => Padding(
-              padding: EdgeInsets.only(bottom: 12.0),
+              padding: const EdgeInsets.only(bottom: 12.0),
               child: Container(
                 height: 70,
                 decoration: BoxDecoration(
