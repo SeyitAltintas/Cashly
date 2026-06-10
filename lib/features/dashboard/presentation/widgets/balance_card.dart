@@ -137,7 +137,7 @@ class _BalanceCardState extends State<BalanceCard> {
                   height: 250,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.03),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
                   ),
                 ),
               ),
@@ -149,7 +149,7 @@ class _BalanceCardState extends State<BalanceCard> {
                   height: 150,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.02),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
                   ),
                 ),
               ),
@@ -180,7 +180,7 @@ class _BalanceCardState extends State<BalanceCard> {
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.08),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -245,7 +245,7 @@ class _BalanceCardState extends State<BalanceCard> {
                     Container(
                       height: 1,
                       width: double.infinity,
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                     ),
 
                     const SizedBox(height: 16),
@@ -256,7 +256,7 @@ class _BalanceCardState extends State<BalanceCard> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.1),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(

@@ -49,7 +49,7 @@ class _StreakWidgetState extends State<StreakWidget>
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               // Cam efekti (glassmorphism)
-              color: Colors.white.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: Color.lerp(
@@ -71,7 +71,7 @@ class _StreakWidgetState extends State<StreakWidget>
                       ),
                       // İç gölge
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -129,7 +129,7 @@ class _StreakWidgetState extends State<StreakWidget>
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                         height: 1.2,
                       ),
                     ),

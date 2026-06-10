@@ -23,7 +23,7 @@ class StreakCelebrationDialog extends StatefulWidget {
       useRootNavigator: true,
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withValues(alpha: 0.8),
+      barrierColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
       transitionDuration: const Duration(milliseconds: 400),
       pageBuilder: (dialogContext, animation, secondaryAnimation) {
         return StreakCelebrationDialog(

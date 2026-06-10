@@ -635,9 +635,9 @@ extension AnalysisChartsExtension on _AnalysisPageState {
             child: Container(
               padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -758,7 +758,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                   ? (maxVal / 4).clamp(0.1, double.infinity)
                   : 1,
               getDrawingHorizontalLine: (value) => FlLine(
-                color: Colors.white.withValues(alpha: 0.3),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                 strokeWidth: 1,
                 dashArray: [4, 4],
               ),
@@ -783,7 +783,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                     backDrawRodData: BackgroundBarChartRodData(
                       show: true,
                       toY: maxVal * 1.2, // Track yığını tepeye kadar çıksın
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                     ),
                   ),
                 ],

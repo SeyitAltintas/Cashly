@@ -275,10 +275,10 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
     return Consumer2<ThemeManager, LocaleManager>(
       builder: (context, themeManager, localeManager, child) {
         if (!_isInitialized) {
-          return const MaterialApp(
+          return MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
-              backgroundColor: Color(0xFF0D0D0D),
+              backgroundColor: Theme.of(context).colorScheme.surface,
               body: SizedBox.shrink(),
             ),
           );
@@ -312,7 +312,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
                       const SizedBox(height: 8),
                       Text(
                         _initError!,
-                        style: const TextStyle(color: Colors.white70),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70)),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 20),

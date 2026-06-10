@@ -214,9 +214,9 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(context.l10n.editPhotoBtn),
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -268,16 +268,16 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
           // Tab bar
           Container(
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
               border: Border(
-                bottom: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                bottom: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
               ),
             ),
             child: TabBar(
               controller: _tabController,
               indicatorColor: const Color(0xFF00D293),
               labelColor: const Color(0xFF00D293),
-              unselectedLabelColor: Colors.white54,
+              unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
               labelStyle: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -366,7 +366,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
                 gradient: RadialGradient(
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: _vignette / 100),
+                    Theme.of(context).colorScheme.onSurface.withValues(alpha: _vignette / 100),
                   ],
                   stops: const [0.5, 1.0],
                 ),
@@ -462,7 +462,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
                     border: Border.all(
                       color: isSelected
                           ? const Color(0xFF00D293)
-                          : Colors.white.withValues(alpha: 0.2),
+                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                       width: isSelected ? 3 : 1,
                     ),
                   ),
@@ -489,7 +489,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
                   style: TextStyle(
                     color: isSelected
                         ? const Color(0xFF00D293)
-                        : Colors.white.withValues(alpha: 0.7),
+                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     fontSize: 11,
                     fontWeight: isSelected
                         ? FontWeight.bold
@@ -539,20 +539,20 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white54, size: 18),
+          Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), size: 18),
           const SizedBox(width: 8),
           SizedBox(
             width: 70,
             child: Text(
               label,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70), fontSize: 12),
             ),
           ),
           Expanded(
             child: SliderTheme(
               data: SliderThemeData(
                 activeTrackColor: const Color(0xFF00D293),
-                inactiveTrackColor: Colors.white24,
+                inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                 thumbColor: const Color(0xFF00D293),
                 overlayColor: const Color(0xFF00D293).withValues(alpha: 0.2),
                 trackHeight: 3,
@@ -570,7 +570,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
             width: 35,
             child: Text(
               value.toInt().toString(),
-              style: const TextStyle(color: Colors.white54, fontSize: 11),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 11),
               textAlign: TextAlign.right,
             ),
           ),
@@ -652,19 +652,19 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
             decoration: BoxDecoration(
               color: isActive
                   ? const Color(0xFF00D293).withValues(alpha: 0.2)
-                  : Colors.white.withValues(alpha: 0.1),
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
               shape: BoxShape.circle,
               border: Border.all(
                 color: isActive
                     ? const Color(0xFF00D293)
-                    : Colors.white.withValues(alpha: 0.2),
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
               ),
             ),
             child: Transform.rotate(
               angle: rotateIcon ? math.pi / 2 : 0,
               child: Icon(
                 icon,
-                color: isActive ? const Color(0xFF00D293) : Colors.white70,
+                color: isActive ? const Color(0xFF00D293) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                 size: 22,
               ),
             ),
@@ -673,7 +673,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
           Text(
             label,
             style: TextStyle(
-              color: isActive ? const Color(0xFF00D293) : Colors.white54,
+              color: isActive ? const Color(0xFF00D293) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
               fontSize: 10,
             ),
             textAlign: TextAlign.center,
@@ -703,7 +703,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
             onPressed: _resetAllEffects,
             icon: const Icon(Icons.refresh, size: 16),
             label: Text(context.l10n.resetAllEffects),
-            style: TextButton.styleFrom(foregroundColor: Colors.white54),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54)),
           ),
         ],
       ),
@@ -721,20 +721,20 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white54, size: 18),
+          Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), size: 18),
           const SizedBox(width: 8),
           SizedBox(
             width: 70,
             child: Text(
               label,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70), fontSize: 12),
             ),
           ),
           Expanded(
             child: SliderTheme(
               data: SliderThemeData(
                 activeTrackColor: const Color(0xFF00D293),
-                inactiveTrackColor: Colors.white24,
+                inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                 thumbColor: const Color(0xFF00D293),
                 overlayColor: const Color(0xFF00D293).withValues(alpha: 0.2),
                 trackHeight: 3,
@@ -752,7 +752,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
             width: 35,
             child: Text(
               value.toInt().toString(),
-              style: const TextStyle(color: Colors.white54, fontSize: 11),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), fontSize: 11),
               textAlign: TextAlign.right,
             ),
           ),

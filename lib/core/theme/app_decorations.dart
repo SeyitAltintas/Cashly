@@ -15,7 +15,7 @@ class AppDecorations {
       ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.05),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
           blurRadius: 10,
           offset: const Offset(0, 4),
         ),
@@ -68,7 +68,7 @@ class AppDecorations {
       color: Theme.of(context).colorScheme.surface,
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.15),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
           blurRadius: 10,
           offset: const Offset(0, -2),
         ),

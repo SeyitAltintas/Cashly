@@ -567,7 +567,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
             hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
             prefixIcon: Icon(icon, color: _accentColor, size: 22),
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.05),
+            fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -621,7 +621,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                   _quantityController.text = "1";
                 }
               },
-              backgroundColor: Colors.white.withValues(alpha: 0.05),
+              backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
               selectedColor: _accentColor,
               labelStyle: TextStyle(
                 color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
@@ -632,7 +632,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 side: BorderSide(
                   color: isSelected
                       ? Colors.transparent
-                      : Colors.white.withValues(alpha: 0.1),
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                 ),
               ),
             );
@@ -656,7 +656,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(12),
           ),
           child: DropdownButtonHideUnderline(
@@ -666,7 +666,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 context.l10n.notSpecified,
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
               ),
-              dropdownColor: const Color(0xFF1E1E1E),
+              dropdownColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
               isExpanded: true,
               icon: Icon(Icons.expand_more, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
@@ -706,7 +706,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: DropdownButtonHideUnderline(
@@ -765,7 +765,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                     size: 22,
                   ),
                   filled: true,
-                  fillColor: Colors.white.withValues(alpha: 0.05),
+                  fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -894,7 +894,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -971,7 +971,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
               hintText: 'e.g. 1,250.00',
               hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
               filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.05),
+              fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,

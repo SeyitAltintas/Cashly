@@ -6,9 +6,9 @@ class CardColorConstants {
   CardColorConstants._();
 
   /// 24 adet premium kart rengi - gradient paletler
-  static const List<List<Color>> gradients = [
+  static List<List<Color>> gradients = [
     // === KOYU TONLAR ===
-    [Color(0xFF1a1a2e), Color(0xFF16213e)], // 1. Gece Mavisi
+    [Color(0xFF1E1E1E), Color(0xFF16213e)], // 1. Gece Mavisi
     [Color(0xFF2d132c), Color(0xFF432371)], // 2. Derin Mor
     [Color(0xFF0f3460), Color(0xFF16537e)], // 3. Okyanus Mavisi
     [Color(0xFF1e5128), Color(0xFF4e9f3d)], // 4. Orman Yeşili

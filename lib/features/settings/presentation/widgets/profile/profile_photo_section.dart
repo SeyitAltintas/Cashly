@@ -34,7 +34,7 @@ class ProfilePhotoSection extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surface,
                     border: Border.all(
                       // Gri-beyaz çerçeve rengi
-                      color: Colors.white.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -53,7 +53,7 @@ class ProfilePhotoSection extends StatelessWidget {
                       shape: BoxShape.circle,
                       // Beyaza yakın gri border
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.4),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                         width: 2,
                       ),
                     ),

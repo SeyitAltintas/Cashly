@@ -165,7 +165,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -194,15 +194,15 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                         const Color(0xFF141420).withValues(alpha: 0.95),
                       ]
                     : [
-                        Colors.white.withValues(alpha: 0.85),
+                        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
                         Colors.grey.shade50.withValues(alpha: 0.95),
                       ],
               ),
               border: Border(
                 top: BorderSide(
                   color: isDark
-                      ? Colors.white.withValues(alpha: 0.1)
-                      : Colors.white.withValues(alpha: 0.8),
+                      ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                   width: 1.5,
                 ),
               ),
@@ -217,7 +217,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                   height: 5,
                   decoration: BoxDecoration(
                     color: isDark
-                        ? Colors.white.withValues(alpha: 0.2)
+                        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)
                         : Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(3),
                   ),
@@ -232,7 +232,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: useNeutral
-                              ? Colors.white.withValues(alpha: 0.1)
+                              ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)
                               : accentColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -308,7 +308,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                     ),
                     decoration: BoxDecoration(
                       color: useNeutral
-                          ? Colors.white.withValues(alpha: 0.05)
+                          ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)
                           : accentColor.withValues(alpha: 0.08),
                     ),
                     child: Row(

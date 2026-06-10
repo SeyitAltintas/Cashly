@@ -75,7 +75,7 @@ class SecuritySection extends StatelessWidget {
                 inactiveThumbColor: Colors.red,
                 // Koyu gri-beyaz çerçeve
                 trackOutlineColor: WidgetStateProperty.all(
-                  Colors.white.withValues(alpha: 0.25),
+                  Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.25),
                 ),
               ),
             ),

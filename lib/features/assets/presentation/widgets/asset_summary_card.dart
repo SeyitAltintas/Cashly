@@ -124,7 +124,7 @@ class AssetSummaryCard extends StatelessWidget {
                     Text(
                       context.l10n.totalAssetCount(assetCount),
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                         fontSize: subtitleFontSize,
                       ),
                     ),

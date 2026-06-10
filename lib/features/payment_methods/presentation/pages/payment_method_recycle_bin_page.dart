@@ -263,7 +263,7 @@ class _PaymentMethodRecycleBinPageState
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: Colors.white.withValues(alpha: 0.2),
+          backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
           child: Icon(
             pm.type == 'nakit'
                 ? Icons.wallet
@@ -284,7 +284,7 @@ class _PaymentMethodRecycleBinPageState
         subtitle: Text(
           '${pm.typeDisplayName} • ${CurrencyFormatter.format(convertedAmount)}',
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.6),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             fontSize: 12,
           ),
         ),

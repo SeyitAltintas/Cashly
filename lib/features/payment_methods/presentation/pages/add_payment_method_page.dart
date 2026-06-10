@@ -279,7 +279,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -299,7 +299,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                     : _selectedType == 'kredi'
                     ? Icons.credit_card
                     : Icons.account_balance,
-                color: Colors.white.withValues(alpha: 0.8),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                 size: 36,
               ),
             ],
@@ -326,7 +326,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                     Text(
                       context.translateDbName(name).toUpperCase(),
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                         fontSize: 14,
                         letterSpacing: 1.5,
                         fontWeight: FontWeight.w500,
@@ -338,7 +338,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                       Text(
                         'Limit: ${CurrencyFormatter.formatInteger(limit)}',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                           fontSize: 11,
                         ),
                       ),
@@ -353,7 +353,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                         ? context.l10n.currentDebt
                         : context.l10n.balance,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 11,
                     ),
                   ),

@@ -249,7 +249,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                       Text(
                         '****${pm.lastFourDigits}',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.7),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                           fontSize: 14,
                         ),
                       ),
@@ -261,7 +261,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                       ? context.l10n.debt
                       : context.l10n.balanceLabel,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     fontSize: 14,
                   ),
                 ),
@@ -285,14 +285,14 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                       Text(
                         '${context.l10n.limitLabel}: ${CurrencyFormatter.formatInteger(cur.convert(pm.limit!, pm.paraBirimi, cur.currentCurrency))}',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.7),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                           fontSize: 12,
                         ),
                       ),
                       Text(
                         '${context.l10n.remainingLimitLabel}: ${CurrencyFormatter.formatInteger(cur.convert(pm.limit! - pm.balance, pm.paraBirimi, cur.currentCurrency))}',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.7),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                           fontSize: 12,
                         ),
                       ),

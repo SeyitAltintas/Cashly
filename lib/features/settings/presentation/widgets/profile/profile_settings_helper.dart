@@ -170,7 +170,7 @@ class ProfileSettingsHelper {
               child: Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.black.withValues(alpha: 0.8),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
               ),
             ),
             InteractiveViewer(
@@ -1086,8 +1086,8 @@ class ProfileSettingsHelper {
           Expanded(
             child: Text(
               context.l10n.thisActionIrreversibleWarning,
-              style: const TextStyle(
-                color: Colors.white70,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),

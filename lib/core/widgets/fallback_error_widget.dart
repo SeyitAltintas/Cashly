@@ -140,8 +140,8 @@ class _FallbackErrorWidgetState extends State<FallbackErrorWidget> {
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: isDark
-                                    ? Colors.black26
-                                    : Colors.black.withValues(alpha: 0.03),
+                                    ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.26)
+                                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: SelectableText(

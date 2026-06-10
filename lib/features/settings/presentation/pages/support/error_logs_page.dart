@@ -180,7 +180,7 @@ class _ErrorLogsPageState extends State<ErrorLogsPage> {
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
-                        color: isDark ? Colors.black12 : Colors.grey.shade50,
+                        color: isDark ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12) : Colors.grey.shade50,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -203,7 +203,7 @@ class _ErrorLogsPageState extends State<ErrorLogsPage> {
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   color: isDark
-                                      ? Colors.black45
+                                      ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45)
                                       : Colors.grey.shade200,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -214,7 +214,7 @@ class _ErrorLogsPageState extends State<ErrorLogsPage> {
                                     fontSize: 11,
                                     color: isDark
                                         ? Colors.grey.shade300
-                                        : Colors.black87,
+                                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87),
                                   ),
                                 ),
                               ),

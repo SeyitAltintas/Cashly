@@ -79,7 +79,7 @@ class IncomeListItem extends StatelessWidget {
                         Text(
                           _getMonth(context, income.date),
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                             fontSize: 11,
                           ),
                         ),
@@ -91,7 +91,7 @@ class IncomeListItem extends StatelessWidget {
                   Container(
                     width: 1,
                     height: 35,
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                   ),
                   const SizedBox(width: 12),
                   // Kategori İkonu

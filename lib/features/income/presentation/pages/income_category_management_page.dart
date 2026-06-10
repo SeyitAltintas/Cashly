@@ -192,11 +192,11 @@ class _GelirKategoriYonetimiSayfasiState
                     fillColor: Theme.of(context).colorScheme.surface,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.white12),
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.white12),
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -244,7 +244,7 @@ class _GelirKategoriYonetimiSayfasiState
                               border: Border.all(
                                 color: selected
                                     ? Theme.of(context).colorScheme.secondary
-                                    : Colors.white24,
+                                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                                 width: selected ? 2 : 1,
                               ),
                             ),

@@ -436,7 +436,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String?>(
               value: _selectedPaymentMethodId,
-              dropdownColor: const Color(0xFF1E1E1E),
+              dropdownColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
               isExpanded: true,
               icon: Icon(Icons.expand_more, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),

@@ -292,10 +292,10 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.delete_outline,
                     size: 60,
-                    color: Colors.white12,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
                   ),
                   const SizedBox(height: 10),
                   Text(

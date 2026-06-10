@@ -67,14 +67,14 @@ class DebtAnalysisCardPage extends StatelessWidget {
             children: [
               Icon(
                 Icons.trending_down,
-                color: Colors.white.withValues(alpha: 0.6),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 size: 16,
               ),
               const SizedBox(width: 6),
               Text(
                 context.l10n.totalDebt,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.6),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 11,
                   letterSpacing: 1.2,
                   fontWeight: FontWeight.w600,
@@ -109,7 +109,7 @@ class DebtAnalysisCardPage extends StatelessWidget {
                   Text(
                     context.l10n.limitUsage,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 11,
                     ),
                   ),
@@ -128,7 +128,7 @@ class DebtAnalysisCardPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
                   value: kullanimOrani,
-                  backgroundColor: Colors.white.withValues(alpha: 0.1),
+                  backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                   valueColor: AlwaysStoppedAnimation<Color>(durumRengi),
                   minHeight: 8,
                 ),
@@ -177,7 +177,7 @@ class _DebtInfoChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.2),
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -185,7 +185,7 @@ class _DebtInfoChip extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.5),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
               fontSize: 9,
               fontWeight: FontWeight.w500,
             ),

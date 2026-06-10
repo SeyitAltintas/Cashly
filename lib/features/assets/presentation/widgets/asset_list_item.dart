@@ -90,7 +90,7 @@ class AssetListItem extends StatelessWidget {
                           Text(
                             context.getShortMonthName(asset.purchaseDate.month),
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.7),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                               fontSize: 10,
                               height: 1.2,
                             ),
@@ -98,7 +98,7 @@ class AssetListItem extends StatelessWidget {
                           Text(
                             _getYear(asset.purchaseDate),
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.5),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                               fontSize: 10,
                               height: 1.2,
                             ),
@@ -112,7 +112,7 @@ class AssetListItem extends StatelessWidget {
                   Container(
                     width: 1,
                     height: 35,
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                   ),
                   const SizedBox(width: 12),
                   // Kategori İkonu

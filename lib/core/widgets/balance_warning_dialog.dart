@@ -35,7 +35,7 @@ class BalanceWarningDialog extends StatelessWidget {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Uyarı',
-      barrierColor: Colors.black.withValues(alpha: 0.7),
+      barrierColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Container();
@@ -92,7 +92,7 @@ class BalanceWarningDialog extends StatelessWidget {
             spreadRadius: 0,
           ),
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

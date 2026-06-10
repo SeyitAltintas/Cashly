@@ -214,7 +214,7 @@ class ExpenseSummarySkeleton extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: _skeletonCardDecoration(context),
-      child: const Column(
+      child: Column(
         children: [
           // Ay seçici
           Row(
@@ -226,7 +226,7 @@ class ExpenseSummarySkeleton extends StatelessWidget {
             ],
           ),
           SizedBox(height: 16),
-          Divider(color: Colors.white10),
+          Divider(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.10)),
           SizedBox(height: 16),
           // Toplam harcama satırı
           Row(
@@ -371,7 +371,7 @@ class IncomeSummarySkeleton extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: _skeletonCardDecoration(context),
-      child: const Column(
+      child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -382,7 +382,7 @@ class IncomeSummarySkeleton extends StatelessWidget {
             ],
           ),
           SizedBox(height: 16),
-          Divider(color: Colors.white10),
+          Divider(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.10)),
           SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

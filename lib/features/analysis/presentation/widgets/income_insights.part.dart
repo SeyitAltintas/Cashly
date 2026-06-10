@@ -110,7 +110,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

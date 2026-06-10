@@ -30,7 +30,7 @@ class HomeBottomNavigation extends StatelessWidget {
                 Icons.receipt_long,
                 color: selectedIndex == 0
                     ? Theme.of(context).colorScheme.secondary
-                    : Colors.white24,
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                 size: 28,
               ),
               onPressed: () => pageController.jumpToPage(0),
@@ -42,7 +42,7 @@ class HomeBottomNavigation extends StatelessWidget {
                 Icons.trending_up,
                 color: selectedIndex == 1
                     ? Theme.of(context).colorScheme.secondary
-                    : Colors.white24,
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                 size: 28,
               ),
               onPressed: () => pageController.jumpToPage(1),
@@ -56,7 +56,7 @@ class HomeBottomNavigation extends StatelessWidget {
                 Icons.apps_rounded,
                 color: selectedIndex == 2
                     ? Theme.of(context).colorScheme.secondary
-                    : Colors.white24,
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                 size: 28,
               ),
               onPressed: () => pageController.jumpToPage(2),
@@ -68,7 +68,7 @@ class HomeBottomNavigation extends StatelessWidget {
                 Icons.person_outline,
                 color: selectedIndex == 3
                     ? Theme.of(context).colorScheme.secondary
-                    : Colors.white24,
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                 size: 28,
               ),
               onPressed: () => pageController.jumpToPage(3),

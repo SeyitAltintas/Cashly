@@ -110,7 +110,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
                   Text(
                     widget.errorMessage ?? context.l10n.unexpectedErrorRestart,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 15,
                       height: 1.5,
                     ),
@@ -163,10 +163,10 @@ class _ErrorScreenState extends State<ErrorScreen> {
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.03),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.05),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                           ),
                         ),
                         child: Row(
@@ -176,14 +176,14 @@ class _ErrorScreenState extends State<ErrorScreen> {
                               _showDetails
                                   ? Icons.code_off_rounded
                                   : Icons.code_rounded,
-                              color: Colors.white.withValues(alpha: 0.4),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                               size: 18,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               context.l10n.technicalDetails,
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.4),
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -193,7 +193,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
                               _showDetails
                                   ? Icons.keyboard_arrow_up_rounded
                                   : Icons.keyboard_arrow_down_rounded,
-                              color: Colors.white.withValues(alpha: 0.4),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                               size: 18,
                             ),
                           ],
@@ -207,7 +207,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.3),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: Colors.redAccent.withValues(alpha: 0.2),

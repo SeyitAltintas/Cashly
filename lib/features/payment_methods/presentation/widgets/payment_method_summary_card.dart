@@ -138,7 +138,7 @@ class _PaymentMethodSummaryCardState extends State<PaymentMethodSummaryCard>
           decoration: BoxDecoration(
             color: _currentPage == index
                 ? const Color(0xFF6C63FF)
-                : Colors.white.withValues(alpha: 0.2),
+                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(4),
             boxShadow: _currentPage == index
                 ? [

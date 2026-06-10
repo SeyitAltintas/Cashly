@@ -181,7 +181,7 @@ class _NetworkStatusBannerState extends State<NetworkStatusBanner>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -212,7 +212,7 @@ class _NetworkStatusBannerState extends State<NetworkStatusBanner>
                       ? _networkService.getConnectionTypeText()
                       : 'Bazı özellikler kullanılamayabilir',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.85),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
                     fontSize: 12,
                   ),
                 ),
@@ -238,7 +238,7 @@ class _NetworkStatusBannerState extends State<NetworkStatusBanner>
           height: 10,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withValues(alpha: value),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: value),
           ),
         );
       },

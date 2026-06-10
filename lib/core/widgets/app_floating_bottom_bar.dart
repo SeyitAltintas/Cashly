@@ -56,14 +56,14 @@ class AppFloatingBottomBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(35),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 5),
               spreadRadius: -5,
             ),
           ],
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.08),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
             width: 1,
           ),
         ),

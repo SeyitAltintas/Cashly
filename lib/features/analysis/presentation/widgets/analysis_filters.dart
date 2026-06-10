@@ -51,7 +51,7 @@ class ChartTypeToggle extends StatelessWidget {
             child: Icon(
               icon,
               size: 20,
-              color: isSelected ? Theme.of(context).colorScheme.onSurface : Colors.white.withAlpha(128),
+              color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withAlpha(128),
             ),
           ),
         );
@@ -117,7 +117,7 @@ class TimeFilterSelector extends StatelessWidget {
                     ).colorScheme.surface.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
                     ),
                   ),
                   child: DropdownButtonHideUnderline(
@@ -128,7 +128,7 @@ class TimeFilterSelector extends StatelessWidget {
                       dropdownColor: Theme.of(context).colorScheme.surface,
                       icon: Icon(
                         Icons.keyboard_arrow_down_rounded,
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.9),
                       ),
                       items: [
                         DropdownMenuItem(

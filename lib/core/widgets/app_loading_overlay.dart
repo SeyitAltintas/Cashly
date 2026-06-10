@@ -21,7 +21,7 @@ class AppLoadingOverlay {
     showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withValues(alpha: 0.7),
+      barrierColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
       builder: (context) => PopScope(
         canPop: false,
         child: Center(
@@ -64,7 +64,7 @@ class AppLoadingOverlay {
     showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withValues(alpha: 0.7),
+      barrierColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
       builder: (context) => PopScope(
         canPop: false,
         child: Center(

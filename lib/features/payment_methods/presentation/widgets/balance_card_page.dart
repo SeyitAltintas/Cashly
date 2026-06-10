@@ -50,7 +50,7 @@ class BalanceCardPage extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
               width: 0.2,
             ),
             boxShadow: [
@@ -61,7 +61,7 @@ class BalanceCardPage extends StatelessWidget {
                 spreadRadius: -5,
               ),
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.4),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               ),
@@ -73,13 +73,13 @@ class BalanceCardPage extends StatelessWidget {
               children: [
                 // Arka plan gradient - Premium metalik efekt
                 Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Color(0xFF1a1a2e),
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                         Color(0xFF16213e),
                         Color(0xFF0f3460),
-                        Color(0xFF1a1a2e),
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                       ],
                       stops: [0.0, 0.3, 0.7, 1.0],
                       begin: Alignment.topLeft,
@@ -104,9 +104,9 @@ class BalanceCardPage extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             Colors.transparent,
-                            Colors.white.withValues(alpha: 0.05),
-                            Colors.white.withValues(alpha: 0.1),
-                            Colors.white.withValues(alpha: 0.05),
+                            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                             Colors.transparent,
                           ],
                           begin: Alignment.centerLeft,
@@ -210,7 +210,7 @@ class BalanceCardPage extends StatelessWidget {
                                 Text(
                                   context.l10n.totalBalance.toUpperCase(),
                                   style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.6),
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                     fontSize: labelFontSize,
                                     fontWeight: FontWeight.w600,
                                     letterSpacing: 1.5,
@@ -270,7 +270,7 @@ class BalanceCardPage extends StatelessWidget {
                                       Text(
                                         userName.toUpperCase(),
                                         style: TextStyle(
-                                          color: Colors.white.withValues(
+                                          color: Theme.of(context).colorScheme.onSurface.withValues(
                                             alpha: 0.9,
                                           ),
                                           fontSize: userNameFontSize,
@@ -342,7 +342,7 @@ class BalanceCardPage extends StatelessWidget {
                                     angle: 1.5708,
                                     child: Icon(
                                       Icons.wifi,
-                                      color: Colors.white.withValues(
+                                      color: Theme.of(context).colorScheme.onSurface.withValues(
                                         alpha: 0.8,
                                       ),
                                       size: 24,
@@ -366,9 +366,9 @@ class BalanceCardPage extends StatelessWidget {
                                     colors: [
                                       Colors.white,
                                       Colors.white,
-                                      Colors.white.withValues(alpha: 0.7),
-                                      Colors.white.withValues(alpha: 0.3),
-                                      Colors.white.withValues(alpha: 0.0),
+                                      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                                      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+                                      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.0),
                                     ],
                                     stops: const [0.0, 0.6, 0.8, 0.9, 1.0],
                                   ).createShader(bounds);
@@ -441,7 +441,7 @@ class EnhancedCardPatternPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.03)
+      ..color = const Color(0xFFFFFFFF).withValues(alpha: 0.03)
       ..strokeWidth = 0.5
       ..style = PaintingStyle.stroke;
 
@@ -457,7 +457,7 @@ class EnhancedCardPatternPainter extends CustomPainter {
 
     // Dalgalı çizgiler (wave pattern)
     final wavePaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.02)
+      ..color = const Color(0xFFFFFFFF).withValues(alpha: 0.02)
       ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
 
