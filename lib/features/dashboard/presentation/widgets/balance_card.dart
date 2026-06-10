@@ -137,7 +137,7 @@ class _BalanceCardState extends State<BalanceCard> {
                   height: 250,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
+                    color: Colors.white.withValues(alpha: 0.03),
                   ),
                 ),
               ),
@@ -149,7 +149,7 @@ class _BalanceCardState extends State<BalanceCard> {
                   height: 150,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.02),
+                    color: Colors.white.withValues(alpha: 0.02),
                   ),
                 ),
               ),
@@ -171,7 +171,7 @@ class _BalanceCardState extends State<BalanceCard> {
                           context.l10n.totalBalance,
                           style: TextStyle(
                             fontSize: 15,
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
+                            color: Colors.white.withValues(alpha: 0.70),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -180,14 +180,14 @@ class _BalanceCardState extends State<BalanceCard> {
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+                              color: Colors.white.withValues(alpha: 0.08),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
                               isObscured
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
+                              color: Colors.white.withValues(alpha: 0.70),
                               size: 20,
                             ),
                           ),
@@ -205,7 +205,7 @@ class _BalanceCardState extends State<BalanceCard> {
                         style: TextStyle(
                           fontSize: 34,
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: Colors.white,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -218,7 +218,7 @@ class _BalanceCardState extends State<BalanceCard> {
                         Text(
                           "Bu ay",
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
+                            color: Colors.white.withValues(alpha: 0.70),
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),
@@ -245,7 +245,7 @@ class _BalanceCardState extends State<BalanceCard> {
                     Container(
                       height: 1,
                       width: double.infinity,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                     ),
 
                     const SizedBox(height: 16),
@@ -256,26 +256,26 @@ class _BalanceCardState extends State<BalanceCard> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                            color: Colors.white.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
                             Icons.account_balance_wallet_outlined,
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: Colors.white,
                             size: 18,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Text(
                           "Nakit:",
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70), fontSize: 15),
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.70), fontSize: 15),
                         ),
                         const SizedBox(width: 6),
                         ObscuredAmountText(
                           CurrencyFormatter.format(cashBalance),
                           isObscured: isObscured,
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: Colors.white,
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),

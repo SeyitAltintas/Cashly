@@ -183,7 +183,7 @@ class BalanceCardPage extends StatelessWidget {
                                 'assets/image/seffaflogo.png',
                                 height: logoSize,
                                 width: logoSize,
-                                color: Theme.of(context).colorScheme.onSurface,
+                                color: Colors.white,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(
                                     height: logoSize,
@@ -194,7 +194,7 @@ class BalanceCardPage extends StatelessWidget {
                                     ),
                                     child: Icon(
                                       Icons.account_balance_wallet,
-                                      color: Theme.of(context).colorScheme.onSurface,
+                                      color: Colors.white,
                                       size: logoSize * 0.5,
                                     ),
                                   );
@@ -211,7 +211,7 @@ class BalanceCardPage extends StatelessWidget {
                                 Text(
                                   context.l10n.totalBalance.toUpperCase(),
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                    color: Colors.white.withValues(alpha: 0.6),
                                     fontSize: labelFontSize,
                                     fontWeight: FontWeight.w600,
                                     letterSpacing: 1.5,
@@ -246,7 +246,7 @@ class BalanceCardPage extends StatelessWidget {
                                       child: Text(
                                         CurrencyFormatter.format(totalBalance),
                                         style: TextStyle(
-                                          color: Theme.of(context).colorScheme.onSurface,
+                                          color: Colors.white,
                                           fontSize: balanceFontSize,
                                           fontWeight: FontWeight.w800,
                                           letterSpacing: -0.5,
@@ -271,7 +271,7 @@ class BalanceCardPage extends StatelessWidget {
                                       Text(
                                         userName.toUpperCase(),
                                         style: TextStyle(
-                                          color: Theme.of(context).colorScheme.onSurface.withValues(
+                                          color: Colors.white.withValues(
                                             alpha: 0.9,
                                           ),
                                           fontSize: userNameFontSize,
@@ -343,7 +343,7 @@ class BalanceCardPage extends StatelessWidget {
                                     angle: 1.5708,
                                     child: Icon(
                                       Icons.wifi,
-                                      color: Theme.of(context).colorScheme.onSurface.withValues(
+                                      color: Colors.white.withValues(
                                         alpha: 0.8,
                                       ),
                                       size: 24,
@@ -365,11 +365,11 @@ class BalanceCardPage extends StatelessWidget {
                                     center: Alignment.center,
                                     radius: 0.5,
                                     colors: [
-                                      Theme.of(context).colorScheme.onSurface,
-                                      Theme.of(context).colorScheme.onSurface,
-                                      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                                      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-                                      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.0),
+                                      Colors.white,
+                                      Colors.white,
+                                      Colors.white.withValues(alpha: 0.7),
+                                      Colors.white.withValues(alpha: 0.3),
+                                      Colors.white.withValues(alpha: 0.0),
                                     ],
                                     stops: const [0.0, 0.6, 0.8, 0.9, 1.0],
                                   ).createShader(bounds);
