@@ -579,9 +579,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                                 const SizedBox(width: 4),
                                 Text(
                                   '${_zoomLevel.toStringAsFixed(1)}x',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontFamily: 'Inter',
-                                    color: Colors.white,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -875,7 +875,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
             data: SliderThemeData(
               activeTrackColor: _primaryColor,
               inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
-              thumbColor: isAtSnap ? Colors.white : _primaryColor,
+              thumbColor: isAtSnap ? Theme.of(context).colorScheme.onSurface : _primaryColor,
               overlayColor: _primaryColor.withValues(alpha: 0.2),
               trackHeight: 2,
               thumbShape: RoundSliderThumbShape(

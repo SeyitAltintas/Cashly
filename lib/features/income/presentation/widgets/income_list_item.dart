@@ -37,7 +37,7 @@ class IncomeListItem extends StatelessWidget {
             color: ColorConstants.koyuKirmizi,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.delete, color: Colors.white),
+          child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
         ),
         onDismissed: (direction) => onDelete(),
         child: GestureDetector(
@@ -70,8 +70,8 @@ class IncomeListItem extends StatelessWidget {
                       children: [
                         Text(
                           _getDay(income.date),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -100,8 +100,8 @@ class IncomeListItem extends StatelessWidget {
               ),
               title: Text(
                 context.translateDbName(income.name),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w500,
                   fontSize: 15,
                 ),

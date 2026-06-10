@@ -13,7 +13,7 @@ class AnimationsSettingsPage extends StatelessWidget {
         title: Text(context.l10n.animations),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

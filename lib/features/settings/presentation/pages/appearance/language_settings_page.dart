@@ -25,7 +25,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
         title: Text(l10n.languageSettings),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

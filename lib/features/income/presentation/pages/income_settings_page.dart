@@ -58,7 +58,7 @@ class _GelirlerAyarlariSayfasiState extends State<GelirlerAyarlariSayfasi> {
           title: Text(context.l10n.incomeSettingsTitle),
           backgroundColor: Colors.transparent,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.white),
+          iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context, categoryChanged),

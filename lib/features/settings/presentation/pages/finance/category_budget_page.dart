@@ -257,10 +257,10 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
           child: Column(
             children: [
               Container(
-                margin: const EdgeInsets.all(16),
+                margin: EdgeInsets.all(16),
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
@@ -269,11 +269,11 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: 8,
                   itemBuilder: (context, index) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
+                    padding: EdgeInsets.only(bottom: 8.0),
                     child: Container(
                       height: 80,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),

@@ -91,7 +91,7 @@ class DebtAnalysisCardPage extends StatelessWidget {
             style: TextStyle(
               color: toplamBorc > 0
                   ? ColorConstants.kirmiziVurgu
-                  : Colors.white,
+                  : Theme.of(context).colorScheme.onSurface,
               fontSize: 32,
               fontWeight: FontWeight.w800,
             ),

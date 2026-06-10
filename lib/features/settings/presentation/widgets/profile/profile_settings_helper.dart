@@ -183,7 +183,7 @@ class ProfileSettingsHelper {
               top: 40,
               right: 20,
               child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface, size: 30),
                 onPressed: () => Navigator.pop(ctx),
               ),
             ),
@@ -1194,7 +1194,7 @@ class ProfileSettingsHelper {
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               )
             : Text(

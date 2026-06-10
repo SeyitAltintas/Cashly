@@ -112,11 +112,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             padding: const EdgeInsets.all(16),
             itemCount: 5,
             itemBuilder: (context, index) => Padding(
-              padding: const EdgeInsets.only(bottom: 12.0),
+              padding: EdgeInsets.only(bottom: 12.0),
               child: Container(
                 height: 70,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -131,7 +131,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
         title: Text(context.l10n.notifications),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

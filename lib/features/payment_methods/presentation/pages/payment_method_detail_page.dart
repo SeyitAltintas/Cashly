@@ -231,15 +231,15 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                           : pm.type == 'nakit'
                           ? Icons.wallet
                           : Icons.account_balance,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                       size: 28,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         pm.name,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),

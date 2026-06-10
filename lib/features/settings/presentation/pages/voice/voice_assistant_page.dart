@@ -77,10 +77,10 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
         title: Text(context.l10n.voiceAssistant),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.white))
+          ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onSurface))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(

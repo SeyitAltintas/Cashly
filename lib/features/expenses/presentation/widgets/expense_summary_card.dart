@@ -198,11 +198,11 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                       onTap: widget.ayYilSeciciAc,
                       behavior: HitTestBehavior.opaque,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 4),
                         child: Text(
                           widget.ayIsmi.toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
@@ -397,8 +397,8 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                   ),
                   Text(
                     CurrencyFormatter.format(widget.butceLimiti),
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),

@@ -141,8 +141,8 @@ class IncomeSummaryCard extends StatelessWidget {
                               ),
                               child: Text(
                                 ayIsmi.toUpperCase(),
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                 ),

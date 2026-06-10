@@ -64,7 +64,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
         title: Text(context.l10n.hapticFeedback),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

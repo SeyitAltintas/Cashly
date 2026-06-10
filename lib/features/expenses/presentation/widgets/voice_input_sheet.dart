@@ -1760,7 +1760,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                     _isListening ? Icons.mic : Icons.mic_none,
                     size: 40,
                     color: _isListening
-                        ? Colors.white
+                        ? Theme.of(context).colorScheme.onSurface
                         : ColorConstants.kirmiziVurgu,
                   ),
                 ),

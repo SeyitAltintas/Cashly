@@ -13,7 +13,7 @@ class VoiceCommandsPage extends StatelessWidget {
         title: Text(context.l10n.voiceCommandsTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

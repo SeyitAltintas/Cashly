@@ -48,7 +48,7 @@ class ExpenseListItem extends StatelessWidget {
             color: ColorConstants.koyuKirmizi,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.delete, color: Colors.white),
+          child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
         ),
         onDismissed: (direction) => onDelete(),
         child: GestureDetector(
@@ -81,8 +81,8 @@ class ExpenseListItem extends StatelessWidget {
                       children: [
                         Text(
                           _getDay(parsedDate),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -111,8 +111,8 @@ class ExpenseListItem extends StatelessWidget {
               ),
               title: Text(
                 context.translateDbName(harcama['isim']),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w500,
                   fontSize: 15,
                 ),
