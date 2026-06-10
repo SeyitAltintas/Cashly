@@ -98,36 +98,36 @@ class _BalanceCardState extends State<BalanceCard> {
   @override
   Widget build(BuildContext context) {
     final isObscured = context.select((DashboardController c) => c.isObscured);
-    final monthlyIncome = context.select(
-      (DashboardController c) => c.monthlyIncome,
-    );
+    final monthlyIncome = context.select((DashboardController c) => c.monthlyIncome);
 
     // Verileri hesapla
     final cashBalance = _calculateCashBalance(context);
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = Theme.of(context).colorScheme.surface;
+    final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
+    final primaryColor = Theme.of(context).colorScheme.primary;
 
     return AnimatedCard(
       delay: 100,
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: Theme.of(context).brightness == Brightness.dark
-                ? const [Color(0xFF152A4A), Color(0xFF0A1426)]
-                : [
-                    const Color(0xFF152A4A).withValues(alpha: 0.75),
-                    const Color(0xFF0A1426).withValues(alpha: 0.75),
-                  ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: isDark 
+              ? surfaceColor.withValues(alpha: 0.8) 
+              : surfaceColor.withValues(alpha: 0.65),
           borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: onSurfaceColor.withValues(alpha: 0.06),
+            width: 1.5,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF0A1426).withValues(alpha: 0.4)
-                  : const Color(0xFF0A1426).withValues(alpha: 0.15),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: isDark 
+                  ? Colors.black.withValues(alpha: 0.2) 
+                  : primaryColor.withValues(alpha: 0.05),
+              blurRadius: 32,
+              offset: const Offset(0, 12),
             ),
           ],
         ),
@@ -135,73 +135,47 @@ class _BalanceCardState extends State<BalanceCard> {
           borderRadius: BorderRadius.circular(24),
           child: Stack(
             children: [
-              // Arka plan dalgası
-              Positioned(
-                right: -80,
-                bottom: -80,
-                child: Container(
-                  width: 250,
-                  height: 250,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.03),
-                  ),
-                ),
-              ),
-              Positioned(
-                right: -20,
-                top: -50,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.02),
-                  ),
-                ),
-              ),
-
               // Kart İçeriği
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 20,
-                ),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Üst Kısım: Başlık ve Göz İkonu
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          context.l10n.totalBalance,
+                          context.l10n.totalBalance.toUpperCase(),
                           style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.white.withValues(alpha: 0.70),
-                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
+                            color: onSurfaceColor.withValues(alpha: 0.5),
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.2,
                           ),
                         ),
                         GestureDetector(
                           onTap: _toggleObscure,
                           child: Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.08),
+                              color: onSurfaceColor.withValues(alpha: 0.04),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
                               isObscured
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: Colors.white.withValues(alpha: 0.70),
-                              size: 20,
+                              color: onSurfaceColor.withValues(alpha: 0.6),
+                              size: 18,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+
+                    const SizedBox(height: 4),
 
                     // Orta Kısım: Ana Bakiye
                     GestureDetector(
@@ -209,15 +183,16 @@ class _BalanceCardState extends State<BalanceCard> {
                       child: ObscuredAmountText(
                         CurrencyFormatter.format(widget.totalBalance),
                         isObscured: isObscured,
-                        style: const TextStyle(
-                          fontSize: 34,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: -0.5,
+                        style: TextStyle(
+                          fontSize: 42,
+                          fontWeight: FontWeight.w800,
+                          color: onSurfaceColor.withValues(alpha: 0.9),
+                          letterSpacing: -1.5,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    
+                    const SizedBox(height: 16),
 
                     // Bu Ay Geliri
                     Row(
@@ -225,7 +200,7 @@ class _BalanceCardState extends State<BalanceCard> {
                         Text(
                           "Bu ay",
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.70),
+                            color: onSurfaceColor.withValues(alpha: 0.70),
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),
@@ -238,7 +213,7 @@ class _BalanceCardState extends State<BalanceCard> {
                           ),
                           isObscured: isObscured,
                           style: const TextStyle(
-                            color: Color(0xFF4CAF50),
+                            color: Color(0xFF10B981),
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -246,16 +221,16 @@ class _BalanceCardState extends State<BalanceCard> {
                       ],
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
                     // Ayraç Çizgisi
                     Container(
                       height: 1,
                       width: double.infinity,
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: onSurfaceColor.withValues(alpha: 0.1),
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
                     // Alt Kısım: Nakit Bilgisi
                     Row(
@@ -263,12 +238,12 @@ class _BalanceCardState extends State<BalanceCard> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.1),
+                            color: onSurfaceColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.account_balance_wallet_outlined,
-                            color: Colors.white,
+                            color: onSurfaceColor,
                             size: 18,
                           ),
                         ),
@@ -276,7 +251,7 @@ class _BalanceCardState extends State<BalanceCard> {
                         Text(
                           "Nakit:",
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.70),
+                            color: onSurfaceColor.withValues(alpha: 0.70),
                             fontSize: 15,
                           ),
                         ),
@@ -284,8 +259,8 @@ class _BalanceCardState extends State<BalanceCard> {
                         ObscuredAmountText(
                           CurrencyFormatter.format(cashBalance),
                           isObscured: isObscured,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: onSurfaceColor,
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),

@@ -8,7 +8,6 @@ import '../../../income/data/models/income_model.dart';
 import '../../../assets/data/models/asset_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../streak/data/models/streak_model.dart';
-import '../../../streak/presentation/widgets/streak_widget.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/monthly_summary_card.dart';
 import '../widgets/budget_status_card.dart';
@@ -166,8 +165,6 @@ class _GreetingSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userName = context.select((DashboardController c) => c.userName);
-    final streakData = context.select((DashboardController c) => c.streakData);
-
     return AnimatedCard(
       delay: 0,
       child: Row(
@@ -198,10 +195,6 @@ class _GreetingSection extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [StreakWidget(streakData: streakData)],
           ),
         ],
       ),

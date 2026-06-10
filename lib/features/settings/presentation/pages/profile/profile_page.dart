@@ -10,15 +10,19 @@ import 'package:cashly/core/services/haptic_service.dart';
 import 'package:cashly/core/utils/image_utils.dart';
 import 'package:cashly/core/services/mock_data_service.dart';
 import 'package:cashly/core/services/cloud_sync_service.dart';
+import '../../../../streak/data/models/streak_model.dart';
+import '../../../../streak/presentation/widgets/streak_widget.dart';
 
 class ProfilSayfasi extends StatefulWidget {
   final AuthController authController;
+  final StreakData? streakData;
   final VoidCallback? onRefresh;
   final VoidCallback? onNavigationReturn;
 
   const ProfilSayfasi({
     super.key,
     required this.authController,
+    this.streakData,
     this.onRefresh,
     this.onNavigationReturn,
   });
@@ -53,7 +57,10 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata: $e'), backgroundColor: ColorConstants.kirmiziVurgu),
+          SnackBar(
+            content: Text('Hata: $e'),
+            backgroundColor: ColorConstants.kirmiziVurgu,
+          ),
         );
       }
     } finally {
@@ -79,7 +86,10 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Sil', style: TextStyle(color: ColorConstants.kirmiziVurgu)),
+            child: const Text(
+              'Sil',
+              style: TextStyle(color: ColorConstants.kirmiziVurgu),
+            ),
           ),
         ],
       ),
@@ -103,7 +113,10 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata: $e'), backgroundColor: ColorConstants.kirmiziVurgu),
+          SnackBar(
+            content: Text('Hata: $e'),
+            backgroundColor: ColorConstants.kirmiziVurgu,
+          ),
         );
       }
     } finally {
@@ -122,95 +135,141 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           // Profil Bilgileri - Modern Tasarım
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                  Theme.of(
-                    context,
-                  ).colorScheme.secondary.withValues(alpha: 0.1),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.8)
+                  : Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.65),
+              borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: Theme.of(
                   context,
-                ).colorScheme.primary.withValues(alpha: 0.3),
+                ).colorScheme.onSurface.withValues(alpha: 0.06),
+                width: 1.5,
               ),
-            ),
-            child: Row(
-              children: [
-                // Profil Resmi (Sol)
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-                      width: 2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
-                    backgroundImage:
-                        (widget.authController.currentUser?.profileImage?.isNotEmpty ?? false)
-                        ? ImageUtils.getProfileImageProvider(
-                            widget.authController.currentUser!.profileImage,
-                          )
-                        : null,
-                    child:
-                        (widget.authController.currentUser?.profileImage?.isEmpty ?? true)
-                        ? Icon(
-                            Icons.person,
-                            size: 40,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          )
-                        : null,
-                  ),
-                ),
-                const SizedBox(width: 20),
-                // Kullanıcı Bilgileri (Sağ)
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Kullanıcı Adı
-                      Text(
-                        widget.authController.currentUser?.name ??
-                            context.l10n.user,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      // E-posta
-                      if (widget.authController.currentUser?.email != null)
-                        Text(
-                          widget.authController.currentUser!.email,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
-                            fontSize: 14,
-                          ),
-                        ),
-                    ],
-                  ),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.black.withValues(alpha: 0.2)
+                      : Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.05),
+                  blurRadius: 32,
+                  offset: const Offset(0, 12),
                 ),
               ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Row(
+                      children: [
+                        // Profil Resmi (Sol)
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.3),
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.2),
+                                blurRadius: 15,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            backgroundImage:
+                                (widget
+                                        .authController
+                                        .currentUser
+                                        ?.profileImage
+                                        ?.isNotEmpty ??
+                                    false)
+                                ? ImageUtils.getProfileImageProvider(
+                                    widget
+                                        .authController
+                                        .currentUser!
+                                        .profileImage,
+                                  )
+                                : null,
+                            child:
+                                (widget
+                                        .authController
+                                        .currentUser
+                                        ?.profileImage
+                                        ?.isEmpty ??
+                                    true)
+                                ? Icon(
+                                    Icons.person,
+                                    size: 40,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  )
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        // Kullanıcı Bilgileri (Sağ)
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Kullanıcı Adı
+                              Text(
+                                widget.authController.currentUser?.name ??
+                                    context.l10n.user,
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              // E-posta
+                              if (widget.authController.currentUser?.email !=
+                                  null)
+                                Text(
+                                  widget.authController.currentUser!.email,
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.8),
+                                    fontSize: 14,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        if (widget.streakData != null)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 12),
+                            child: StreakWidget(streakData: widget.streakData!),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -239,7 +298,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -321,7 +382,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -370,7 +433,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -459,7 +524,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                           style: OutlinedButton.styleFrom(
                             foregroundColor: ColorConstants.morVurgu,
                             side: BorderSide(
-                              color: ColorConstants.morVurgu.withValues(alpha: 0.4),
+                              color: ColorConstants.morVurgu.withValues(
+                                alpha: 0.4,
+                              ),
                             ),
                           ),
                         ),
@@ -472,7 +539,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                         style: OutlinedButton.styleFrom(
                           foregroundColor: ColorConstants.kirmiziVurgu,
                           side: BorderSide(
-                            color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4),
+                            color: ColorConstants.kirmiziVurgu.withValues(
+                              alpha: 0.4,
+                            ),
                           ),
                         ),
                       ),

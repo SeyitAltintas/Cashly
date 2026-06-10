@@ -230,6 +230,7 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             _buildDashboardPage(userName),
             ProfilSayfasi(
               authController: widget.authController,
+              streakData: _streakData,
               onRefresh: _verileriOku,
               onNavigationReturn: _showCelebrationIfPending,
             ),
