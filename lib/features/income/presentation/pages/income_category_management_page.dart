@@ -351,7 +351,7 @@ class _GelirKategoriYonetimiSayfasiState
           title: Text(context.l10n.incomeCategories),
           backgroundColor: Colors.transparent,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+          iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context, hasChanges),

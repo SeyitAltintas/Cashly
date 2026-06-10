@@ -149,12 +149,12 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
               elevation: 0,
               centerTitle: false,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+                icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
                 onPressed: () => Navigator.pop(context),
               ),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.onSurface),
+                  icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.onSurface),
                   tooltip: context.l10n.trashBin,
                   onPressed: () {
                     Navigator.push(
@@ -372,12 +372,12 @@ class _PaymentMethodCard extends StatelessWidget {
         background: Container(
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.only(right: 20),
-          margin: const EdgeInsets.only(bottom: 16),
+          margin: EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
             color: ColorConstants.koyuKirmizi,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
+          child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
         ),
         confirmDismiss: (direction) async {
           try {
@@ -479,7 +479,7 @@ class _PaymentMethodCard extends StatelessWidget {
                         ),
                         child: Text(
                           context.translateDbName(pm.typeDisplayName),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -544,7 +544,7 @@ class _PaymentMethodCard extends StatelessWidget {
                           ),
                           Text(
                             '${AmountInputFormatter.formatInitialValue(pm.balance)} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

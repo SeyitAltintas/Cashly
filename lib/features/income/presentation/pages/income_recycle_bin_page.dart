@@ -272,16 +272,16 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
-        iconTheme: const IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
         actions: [
           if (silinenGelirler.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.restore, color: Colors.green),
+              icon: Icon(Icons.restore, color: Colors.green),
               tooltip: context.l10n.restoreAll,
               onPressed: tumunuGeriYukle,
             ),
           IconButton(
-            icon: const Icon(Icons.delete_sweep, color: Theme.of(context).colorScheme.onSurface),
+            icon: Icon(Icons.delete_sweep, color: Theme.of(context).colorScheme.onSurface),
             tooltip: context.l10n.emptyTrashBin,
             onPressed: copuBosalt,
           ),

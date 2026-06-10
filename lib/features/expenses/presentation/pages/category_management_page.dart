@@ -256,7 +256,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        title: const Text(
+        title: Text(
           'Kategoriyi Sil',
           style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
@@ -311,7 +311,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        title: const Text(
+        title: Text(
           'Varsayılana Dön',
           style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
@@ -386,7 +386,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
 
           return AlertDialog(
             backgroundColor: Theme.of(context).colorScheme.surface,
-            title: const Text(
+            title: Text(
               'Yeni Kategori Ekle',
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
@@ -438,7 +438,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                           onChanged: (value) {
                             setStateDialog(() {}); // Rebuild dialog
                           },
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 12,
                           ),

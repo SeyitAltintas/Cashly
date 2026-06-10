@@ -171,7 +171,7 @@ class BudgetSection extends StatelessWidget {
                             );
                           },
                           child: isSaved
-                              ? const Icon(
+                              ? Icon(
                                   Icons.check,
                                   key: ValueKey('check'),
                                   color: Theme.of(context).colorScheme.onSurface,
@@ -219,16 +219,16 @@ class BudgetSection extends StatelessWidget {
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.check_circle,
                                       color: Theme.of(context).colorScheme.onSurface,
                                       size: 18,
                                     ),
-                                    const SizedBox(width: 8),
+                                    SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
                                         savedMessage!,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Theme.of(context).colorScheme.onSurface,
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,

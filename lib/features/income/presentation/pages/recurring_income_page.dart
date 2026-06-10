@@ -477,7 +477,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(context.l10n.recurringIncomesTitle),
         backgroundColor: Colors.transparent,

@@ -286,7 +286,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                   _types.contains(_selectedType)
                       ? _typeLabels[_types.indexOf(_selectedType)]
                       : _selectedType.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -308,7 +308,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           if (_selectedType != 'nakit')
             Text(
               '•••• •••• •••• $lastFour',
-              style: const TextStyle(
+              style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 20,
                 letterSpacing: 3,
@@ -359,7 +359,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                   ),
                   Text(
                     CurrencyFormatter.format(balance),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -419,7 +419,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                       _typeLabels[index],
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: isSelected ? Theme.of(context).scaffoldBackgroundColor : Theme.of(context).colorScheme.onSurface60,
+                        color: isSelected ? Theme.of(context).scaffoldBackgroundColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         fontWeight: isSelected
                             ? FontWeight.bold
                             : FontWeight.normal,
@@ -787,7 +787,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                           : null,
                     ),
                     child: isSelected
-                        ? const Icon(Icons.check, color: Theme.of(context).colorScheme.onSurface, size: 22)
+                        ? Icon(Icons.check, color: Theme.of(context).colorScheme.onSurface, size: 22)
                         : null,
                   ),
                 ),

@@ -110,7 +110,7 @@ class _PaymentMethodRecycleBinPageState
                 widget.onRestoreAll!();
               }
             },
-            child: const Text(
+            child: Text(
               'Evet, Geri Yükle',
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
@@ -168,13 +168,13 @@ class _PaymentMethodRecycleBinPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(context.l10n.recycleBin),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -186,7 +186,7 @@ class _PaymentMethodRecycleBinPageState
             ),
           if (_deletedPaymentMethods.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_forever, color: Theme.of(context).colorScheme.onSurface),
+              icon: Icon(Icons.delete_forever, color: Theme.of(context).colorScheme.onSurface),
               tooltip: 'Çöp Kutusunu Boşalt',
               onPressed: _confirmEmptyBin,
             ),
@@ -276,7 +276,7 @@ class _PaymentMethodRecycleBinPageState
         ),
         title: Text(
           pm.name,
-          style: const TextStyle(
+          style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),

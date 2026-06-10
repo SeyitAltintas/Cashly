@@ -193,7 +193,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
     final cur = getIt<CurrencyService>();
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(context.translateDbName(pm.name)),
         backgroundColor: Colors.transparent,

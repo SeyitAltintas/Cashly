@@ -288,7 +288,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
-              backgroundColor: Colors.black,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               body: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
