@@ -85,7 +85,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
       final pb = widget.incomeToEdit!['paraBirimi']?.toString() ?? 'TRY';
       final cur = getIt<CurrencyService>();
       final convertedAmount = cur.convert(rawAmount, pb, cur.currentCurrency);
-      _amountController.text = convertedAmount.toStringAsFixed(2);
+      _amountController.text = AmountInputFormatter.formatInitialValue(convertedAmount);
       _localSelectedCurrency =
           widget.incomeToEdit!['paraBirimi']?.toString() ??
           getIt<CurrencyService>().currentCurrency;

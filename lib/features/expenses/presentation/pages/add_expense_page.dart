@@ -99,7 +99,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       final pb = widget.expenseToEdit!['paraBirimi']?.toString() ?? 'TRY';
       final cur = getIt<CurrencyService>();
       final convertedAmount = cur.convert(rawAmount, pb, cur.currentCurrency);
-      _amountController.text = convertedAmount.toStringAsFixed(2);
+      _amountController.text = AmountInputFormatter.formatInitialValue(convertedAmount);
       final editCategory = widget.expenseToEdit!['kategori'] as String?;
       final categoryToUse =
           (editCategory != null && _categoryIcons.containsKey(editCategory))
