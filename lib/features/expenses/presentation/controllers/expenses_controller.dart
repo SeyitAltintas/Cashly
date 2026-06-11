@@ -938,7 +938,11 @@ class ExpensesController extends ChangeNotifier
           updateBalance(paymentMethodId, amount, yeniParaBirimi);
         }
 
-        int index = _tumHarcamalar.indexOf(duzenlenecekHarcama);
+        // ID bazlı arama: indexOf referans eşitliği kullanır, stream sonrası farklı Map nesnesi olur
+        final expenseId = duzenlenecekHarcama['id']?.toString();
+        int index = expenseId != null
+            ? _tumHarcamalar.indexWhere((h) => h['id']?.toString() == expenseId)
+            : _tumHarcamalar.indexOf(duzenlenecekHarcama);
         if (index != -1) {
           modifiedExpense = {
             "id": duzenlenecekHarcama['id'],

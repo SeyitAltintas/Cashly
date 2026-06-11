@@ -38,7 +38,7 @@ class ExpenseListItem extends StatelessWidget {
     // RepaintBoundary: Bu liste öğesinin repaint'ini izole eder
     return RepaintBoundary(
       child: Dismissible(
-        key: ValueKey(harcama),
+        key: ValueKey(harcama['id'] ?? harcama.hashCode),
         direction: DismissDirection.endToStart,
         background: Container(
           alignment: Alignment.centerRight,
