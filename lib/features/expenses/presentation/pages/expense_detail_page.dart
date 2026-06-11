@@ -343,7 +343,7 @@ class ExpenseDetailPage extends StatelessWidget {
                         'kategori': kategori,
                         'tarih': tarih.toIso8601String(),
                         'odemeYontemiId': odemeYontemiId,
-                        'paraBirimi': paraBirimi ?? harcama['paraBirimi'],
+                        'paraBirimi': paraBirimi,
                         'silindi': harcama['silindi'] ?? false,
                       };
                       onEdit(updatedHarcama);
