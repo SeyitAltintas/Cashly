@@ -70,6 +70,7 @@ class ExpensesController extends ChangeNotifier
        _paymentMethodRepository = paymentMethodRepository;
 
   StreamSubscription? _expensesSubscription;
+  Timer? _streamDebounce;
 
   // ===== STATE =====
 
@@ -156,6 +157,7 @@ class ExpensesController extends ChangeNotifier
 
   void _startExpensesStream() {
     _expensesSubscription?.cancel();
+    _streamDebounce?.cancel();
 
     // Önce cache'den anında yükle (Firestore stream gelmeden UI dolsun)
     final cached = _expenseRepository.getExpensesByMonth(userId, _secilenAy);
@@ -168,14 +170,19 @@ class ExpensesController extends ChangeNotifier
     _expensesSubscription = _expenseRepository
         .watchExpensesByMonth(userId, _secilenAy)
         .listen((data) {
-          _tumHarcamalar = data;
-          _isLoading = false;
-          filtreleVeGoster();
+          // Debounce: çok hızlı gelen stream event'lerini birleştir (titreme önler)
+          _streamDebounce?.cancel();
+          _streamDebounce = Timer(const Duration(milliseconds: 300), () {
+            _tumHarcamalar = data;
+            _isLoading = false;
+            filtreleVeGoster();
+          });
         });
   }
 
   @override
   void dispose() {
+    _streamDebounce?.cancel();
     _expensesSubscription?.cancel();
     super.dispose();
   }

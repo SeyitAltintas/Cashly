@@ -179,61 +179,46 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
   }
 
   Future<void> harcamaSil(Map<String, dynamic> harcama) async {
-    HapticService.delete(); // Silme haptic feedback
+    HapticService.delete();
 
-    // Eski değerleri sakla (geri alma için)
+    // Eski değerleri geri alma için sakla
     final eskiSilindi = harcama['silindi'];
     final paymentMethodId = harcama['odemeYontemiId'];
     double? eskiBakiye;
     int? pmIndex;
 
     if (paymentMethodId != null) {
-      pmIndex = widget.tumOdemeYontemleri.indexWhere(
+      pmIndex = _controller.tumOdemeYontemleri.indexWhere(
         (p) => p.id == paymentMethodId,
       );
       if (pmIndex != -1) {
-        eskiBakiye = widget.tumOdemeYontemleri[pmIndex].balance;
+        eskiBakiye = _controller.tumOdemeYontemleri[pmIndex].balance;
       }
     }
 
     try {
-      final deleteFuture = _controller.harcamaSilLegacy(
+      // Doğrudan controller'ın kendi metodunu kullan — prop karışımı yok
+      await _controller.harcamaSil(
         harcama: harcama,
-        tumHarcamalar: widget.tumHarcamalar,
-        tumOdemeYontemleri: widget.tumOdemeYontemleri,
         aramaMetni: tArama.text,
         onResetLazyLoading: resetLazyLoading,
       );
 
-      // UI'ı hemen güncelle (Optimistic)
-      widget.onHarcamalarChanged(widget.tumHarcamalar);
-      widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
-
-      // Geri Al özelliği ile SnackBar göster
       if (!mounted) return;
       AppSnackBar.deleted(
         context,
         '${context.l10n.expense} ${context.l10n.movedToTrash} 🗑️',
         onUndo: () async {
-          // Sayfa hala aktif mi kontrol et
           if (!mounted) return;
-
           try {
-            // Silme işlemini geri al
-            await _controller.harcamaSilmeGeriAlLegacy(
+            await _controller.harcamaSilmeGeriAl(
               harcama: harcama,
-              tumHarcamalar: widget.tumHarcamalar,
-              tumOdemeYontemleri: widget.tumOdemeYontemleri,
               eskiSilindi: eskiSilindi,
               eskiBakiye: eskiBakiye,
               pmIndex: pmIndex,
               aramaMetni: tArama.text,
               onResetLazyLoading: resetLazyLoading,
             );
-            widget.onHarcamalarChanged(widget.tumHarcamalar);
-            widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
-
-            // Geri alındı bildirimi
             if (mounted) {
               AppSnackBar.success(
                 context,
@@ -248,9 +233,6 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           }
         },
       );
-
-      // Hataları arka planda dinle
-      await deleteFuture;
     } catch (e) {
       if (!mounted) return;
       if (e is AppException) {
@@ -263,14 +245,8 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     Map<String, dynamic> harcama,
     Map<String, dynamic> updatedHarcama,
   ) async {
-    final index = gosterilenHarcamalar.indexOf(harcama);
-    if (index != -1) {
-      gosterilenHarcamalar[index] = updatedHarcama;
-    }
-
-    await _controller.harcamaEkleVeyaDuzenleLegacy(
-      tumHarcamalar: widget.tumHarcamalar,
-      tumOdemeYontemleri: widget.tumOdemeYontemleri,
+    // Doğrudan controller'ın clean metodunu kullan — prop karışımı yok
+    await _controller.harcamaEkleVeyaDuzenle(
       name: updatedHarcama['isim'] ?? harcama['isim'],
       amount: double.tryParse(updatedHarcama['tutar'].toString()) ?? 0.0,
       category: updatedHarcama['kategori'] ?? harcama['kategori'],
@@ -278,18 +254,12 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
           DateTime.tryParse(updatedHarcama['tarih'].toString()) ??
           DateTime.now(),
       paymentMethodId: updatedHarcama['odemeYontemiId'],
-      paraBirimi: updatedHarcama['paraBirimi'],
       duzenlenecekHarcama: harcama,
       eskiOdemeYontemiId: harcama['odemeYontemiId'],
       eskiTutar: double.tryParse(harcama['tutar'].toString()) ?? 0.0,
       aramaMetni: tArama.text,
       onResetLazyLoading: resetLazyLoading,
     );
-
-    widget.onHarcamalarChanged(widget.tumHarcamalar);
-    widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
-
-    if (mounted) filtreleVeGoster();
   }
 
   void pencereAc({Map<String, dynamic>? duzenlenecekHarcama}) {
@@ -304,53 +274,47 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
         builder: (context) => AddExpensePage(
           expenseToEdit: duzenlenecekHarcama,
           categories: widget.kategoriIkonlari,
-          paymentMethods: widget.tumOdemeYontemleri
+          paymentMethods: _controller.tumOdemeYontemleri
               .where((pm) => !pm.isDeleted)
               .toList(),
           defaultPaymentMethodId: widget.varsayilanOdemeYontemiId,
-          initialDate: widget.secilenAy,
-          onSave:
-              (
-                name,
-                amount,
-                category,
-                date,
-                paymentMethodId,
-                paraBirimi,
-              ) async {
-                try {
-                  await _controller.harcamaEkleVeyaDuzenleLegacy(
-                    tumHarcamalar: widget.tumHarcamalar,
-                    tumOdemeYontemleri: widget.tumOdemeYontemleri,
-                    name: name,
-                    amount: amount,
-                    category: category,
-                    date: date,
-                    paymentMethodId: paymentMethodId,
-                    paraBirimi: paraBirimi,
-                    duzenlenecekHarcama: duzenlenecekHarcama,
-                    eskiOdemeYontemiId: eskiOdemeYontemiId,
-                    eskiTutar: eskiTutar,
-                    aramaMetni: tArama.text,
-                    onResetLazyLoading: resetLazyLoading,
-                  );
+          initialDate: _controller.secilenAy,
+          onSave: (
+            name,
+            amount,
+            category,
+            date,
+            paymentMethodId,
+            paraBirimi,
+          ) async {
+            try {
+              // Doğrudan controller'ın clean metodunu kullan
+              await _controller.harcamaEkleVeyaDuzenle(
+                name: name,
+                amount: amount,
+                category: category,
+                date: date,
+                paymentMethodId: paymentMethodId,
+                duzenlenecekHarcama: duzenlenecekHarcama,
+                eskiOdemeYontemiId: eskiOdemeYontemiId,
+                eskiTutar: eskiTutar,
+                aramaMetni: tArama.text,
+                onResetLazyLoading: resetLazyLoading,
+              );
 
-                  widget.onHarcamalarChanged(widget.tumHarcamalar);
-                  widget.onOdemeYontemleriChanged(widget.tumOdemeYontemleri);
-
-                  if (duzenlenecekHarcama == null) {
-                    if (!mounted) return;
-                    if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
-                      MoneyAnimationOverlay.show(context);
-                    }
-                  }
-                } catch (e) {
-                  if (!mounted) return;
-                  if (e is AppException) {
-                    ErrorHandler.handleAppException(context, e);
-                  }
+              if (duzenlenecekHarcama == null) {
+                if (!mounted) return;
+                if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
+                  MoneyAnimationOverlay.show(context);
                 }
-              },
+              }
+            } catch (e) {
+              if (!mounted) return;
+              if (e is AppException) {
+                ErrorHandler.handleAppException(context, e);
+              }
+            }
+          },
         ),
       ),
     );
