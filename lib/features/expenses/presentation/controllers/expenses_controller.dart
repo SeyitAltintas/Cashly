@@ -678,7 +678,17 @@ class ExpensesController extends ChangeNotifier
         }
       }
 
-      // Anında arayüzü güncelle (Optimistic UI update)
+      // === KRİTİK: Dismissible hemen kaldırılmayı bekler ===
+      // filtreleVeGoster async (compute kullanır) — bu yüzden önce
+      // _gosterilenHarcamalar'dan senkron olarak anında çıkarıyoruz.
+      final expenseId = harcama['id']?.toString();
+      _gosterilenHarcamalar = _gosterilenHarcamalar
+          .where((h) => h['id']?.toString() != expenseId)
+          .toList();
+      onResetLazyLoading?.call(_gosterilenHarcamalar.length);
+      notifyListeners(); // Dismissible bu frame'de listeden çıkıyor
+
+      // Arka planda tam filtreyi de çalıştır (silindi=true olanları vs. temizle)
       filtreleVeGoster(
         aramaMetni: aramaMetni,
         onResetLazyLoading: onResetLazyLoading,
