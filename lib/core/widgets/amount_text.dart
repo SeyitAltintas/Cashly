@@ -21,16 +21,20 @@ class AmountText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Ondalık kısım ve para birimini bul (Örn: ",00", ",00 ₺", ".50 $")
-    // \d{2} -> tam olarak 2 hane kuruş. (?:\s?[₺\$€£])? -> Opsiyonel para birimi.
-    final regex = RegExp(r'[.,]\d{2}(?:\s?[₺\$€£])?');
-    final match = regex.firstMatch(text);
+    // \d{2} -> tam olarak 2 hane kuruş. 
+    // (?!\d) -> Ardından başka rakam gelmemeli (binlik ayırıcıları elemek için, Örn: 61.137'deki .13)
+    // (?:\s?[₺\$€£])? -> Opsiyonel para birimi.
+    final regex = RegExp(r'[.,]\d{2}(?!\d)(?:\s?[₺\$€£])?');
+    final matches = regex.allMatches(text);
 
     final defaultStyle = style ?? DefaultTextStyle.of(context).style;
 
     // Eğer ondalık kısım bulunamadıysa metni doğrudan döndür
-    if (match == null) {
+    if (matches.isEmpty) {
       return Text(text, style: defaultStyle, textAlign: textAlign);
     }
+
+    final match = matches.last;
 
     final decimalIndex = match.start;
     final mainPart = text.substring(0, decimalIndex);
