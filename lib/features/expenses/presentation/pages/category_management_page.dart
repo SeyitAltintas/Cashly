@@ -585,7 +585,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                                   child: Icon(
                                     ikon,
                                     color: seciliMi
-                                        ? Theme.of(context).colorScheme.onSurface
+                                        ? Theme.of(context).colorScheme.onPrimary
                                         : Theme.of(context)
                                               .colorScheme
                                               .onSurface

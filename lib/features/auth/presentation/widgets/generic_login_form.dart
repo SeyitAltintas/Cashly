@@ -263,7 +263,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
               )
             : Text(
@@ -271,7 +271,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
       ),

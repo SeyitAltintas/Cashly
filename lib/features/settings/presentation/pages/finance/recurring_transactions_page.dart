@@ -370,7 +370,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(context).colorScheme.onSurface,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -466,7 +466,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _islemEkle,
         backgroundColor: Theme.of(context).colorScheme.primary,
-        child: Icon(Icons.add, color: Theme.of(context).colorScheme.onSurface),
+        child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

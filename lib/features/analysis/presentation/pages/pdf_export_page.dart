@@ -72,7 +72,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
     final year = _selectedDate.year;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -415,7 +415,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   backgroundColor: _hasSelection
                       ? ColorConstants.kirmiziVurgu
                       : ColorConstants.gri.withValues(alpha: 0.3),
-                  foregroundColor: Theme.of(context).colorScheme.onSurface,
+                  foregroundColor: Colors.white,
                   disabledBackgroundColor: ColorConstants.gri.withValues(alpha: 0.3),
                   disabledForegroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                   elevation: 0,
@@ -427,21 +427,21 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Theme.of(context).colorScheme.onSurface,
+                              color: Colors.white,
                             ),
                           ),
                           const SizedBox(width: 12),
                           Text(
                             context.l10n.preparing,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSurface,
+                              color: Colors.white,
                             ),
                           ),
                         ],
@@ -449,18 +449,18 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.share_rounded,
                             size: 22,
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: Colors.white,
                           ),
                           const SizedBox(width: 10),
                           Text(
                             context.l10n.createAndSharePdf,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSurface,
+                              color: Colors.white,
                             ),
                           ),
                         ],

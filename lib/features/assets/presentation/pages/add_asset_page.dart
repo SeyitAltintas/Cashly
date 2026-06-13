@@ -141,8 +141,15 @@ class _AddAssetPageState extends State<AddAssetPage> {
           _types[editCategory]!.contains(typeFromAsset)) {
         editType = typeFromAsset;
       } else if (typeFromAsset != null && _types.containsKey(editCategory)) {
-        editType = 'Diğer';
-        _populateCustomFieldFromType(editCategory, typeFromAsset);
+        // Only fall back to 'Diğer' if that option actually exists in the list.
+        // Categories like 'Altın' and 'Gümüş' don't have a 'Diğer' item,
+        // so setting value='Diğer' would trigger a DropdownButton assertion error.
+        if (_types[editCategory]!.contains('Diğer')) {
+          editType = 'Diğer';
+          _populateCustomFieldFromType(editCategory, typeFromAsset);
+        } else {
+          editType = null; // unknown type for this category → show hint text
+        }
       }
 
       if (_controller != null) {
@@ -379,7 +386,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
     final isEditing = widget.asset != null;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.onSurface,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -625,7 +632,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
               backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
               selectedColor: _accentColor,
               labelStyle: TextStyle(
-                color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
+                color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
               shape: RoundedRectangleBorder(
@@ -718,7 +725,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                     size: 20,
                   ),
-                  dropdownColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.90),
+                  dropdownColor: Theme.of(context).colorScheme.surface,
                   onChanged: (String? newValue) {
                     if (newValue != null) {
                       setState(() {
@@ -1023,8 +1030,8 @@ class _AddAssetPageState extends State<AddAssetPage> {
           child: Center(
             child: Text(
               isEditing ? context.l10n.save : context.l10n.addAsset,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
+              style: const TextStyle(
+                color: Colors.white,
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
               ),

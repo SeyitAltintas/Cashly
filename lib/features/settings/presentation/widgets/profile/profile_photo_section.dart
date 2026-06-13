@@ -59,7 +59,7 @@ class ProfilePhotoSection extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.edit,
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: Theme.of(context).colorScheme.onPrimary,
                       size: 20,
                     ),
                   ),

@@ -54,12 +54,9 @@ class MonthYearPicker extends StatefulWidget {
       maximumDate = temp;
     }
 
-    return showModalBottomSheet<DateTime>(
+    return showDialog<DateTime>(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
       useSafeArea: true,
-      useRootNavigator: true,
       builder: (sheetContext) => MonthYearPicker(
         initialDate: initialDate,
         minimumDate: minimumDate,
@@ -157,209 +154,213 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final useNeutral = widget.useNeutralSelectedStyle;
 
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(28),
-          topRight: Radius.circular(28),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(28),
-          topRight: Radius.circular(28),
-        ),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.85,
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 5),
             ),
-            height: 400 + MediaQuery.of(context).padding.bottom,
-            decoration: BoxDecoration(
-              // Gerçek Glassmorphism efekti
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isDark
-                    ? [
-                        const Color(0xFF1E1E2E).withValues(alpha: 0.85),
-                        const Color(0xFF141420).withValues(alpha: 0.95),
-                      ]
-                    : [
-                        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
-                        Colors.grey.shade50.withValues(alpha: 0.95),
-                      ],
-              ),
-              border: Border(
-                top: BorderSide(
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              height: 400,
+              decoration: BoxDecoration(
+                // Gerçek Glassmorphism efekti
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isDark
+                      ? [
+                          const Color(0xFF1E1E2E).withValues(alpha: 0.85),
+                          const Color(0xFF141420).withValues(alpha: 0.95),
+                        ]
+                      : [
+                          Colors.white.withValues(alpha: 0.85),
+                          Colors.grey.shade50.withValues(alpha: 0.95),
+                        ],
+                ),
+                border: Border.all(
                   color: isDark
-                      ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)
-                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.1)
+                      : Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.15),
                   width: 1.5,
                 ),
               ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Handle
-                Container(
-                  margin: const EdgeInsets.only(top: 12),
-                  width: 48,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)
-                        : Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                ),
-
-                // Header (Başlık ve İkon)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: useNeutral
-                              ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)
-                              : accentColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          _getIconForMode(widget.mode),
-                          color: useNeutral ? Theme.of(context).colorScheme.onSurface : accentColor,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Text(
-                        _getTitleForMode(widget.mode),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const Spacer(),
-                      // Tamam Butonu (Header'da da olsun, iOS tarzı)
-                      TextButton(
-                        onPressed: () {
-                          // MonthYear modunda özel işlem, diğerlerinde _currentDate
-                          if (widget.mode == PickerMode.monthYear) {
-                            DateTime finalDate = DateTime(
-                              _selectedYear,
-                              _selectedMonthIndex + 1,
-                            );
-                            if (widget.minimumDate != null &&
-                                finalDate.isBefore(widget.minimumDate!)) {
-                              finalDate = widget.minimumDate!;
-                            }
-                            if (widget.maximumDate != null &&
-                                finalDate.isAfter(widget.maximumDate!)) {
-                              finalDate = widget.maximumDate!;
-                            }
-                            widget.onDateSelected(finalDate);
-                          } else {
-                            DateTime finalDate = _currentDate;
-                            if (widget.minimumDate != null &&
-                                finalDate.isBefore(widget.minimumDate!)) {
-                              finalDate = widget.minimumDate!;
-                            }
-                            if (widget.maximumDate != null &&
-                                finalDate.isAfter(widget.maximumDate!)) {
-                              finalDate = widget.maximumDate!;
-                            }
-                            widget.onDateSelected(finalDate);
-                          }
-                        },
-                        child: Text(
-                          context.l10n.done,
-                          style: TextStyle(
-                            color: useNeutral ? Theme.of(context).colorScheme.onSurface : accentColor,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Seçilen Tarih/Saat Gösterimi (sadece dateTime ve date modlarında, time hariç)
-                if (widget.mode != PickerMode.monthYear &&
-                    widget.mode != PickerMode.time)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 24,
-                    ),
-                    decoration: BoxDecoration(
-                      color: useNeutral
-                          ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)
-                          : accentColor.withValues(alpha: 0.08),
-                    ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header (Başlık ve İkon)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          _getFormattedDateForMode(),
-                          style: TextStyle(
-                            color: useNeutral ? Theme.of(context).colorScheme.onSurface : accentColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: useNeutral
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withValues(alpha: 0.1)
+                                : accentColor.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            _getIconForMode(widget.mode),
+                            color: useNeutral
+                                ? Theme.of(context).colorScheme.onSurface
+                                : accentColor,
+                            size: 22,
                           ),
                         ),
-                        if (widget.mode == PickerMode.dateTime) ...[
-                          Text(
-                            '  •  ',
+                        const SizedBox(width: 14),
+                        Text(
+                          _getTitleForMode(widget.mode),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const Spacer(),
+                        // Tamam Butonu (Header'da da olsun, iOS tarzı)
+                        TextButton(
+                          onPressed: () {
+                            // MonthYear modunda özel işlem, diğerlerinde _currentDate
+                            if (widget.mode == PickerMode.monthYear) {
+                              DateTime finalDate = DateTime(
+                                _selectedYear,
+                                _selectedMonthIndex + 1,
+                              );
+                              if (widget.minimumDate != null &&
+                                  finalDate.isBefore(widget.minimumDate!)) {
+                                finalDate = widget.minimumDate!;
+                              }
+                              if (widget.maximumDate != null &&
+                                  finalDate.isAfter(widget.maximumDate!)) {
+                                finalDate = widget.maximumDate!;
+                              }
+                              widget.onDateSelected(finalDate);
+                            } else {
+                              DateTime finalDate = _currentDate;
+                              if (widget.minimumDate != null &&
+                                  finalDate.isBefore(widget.minimumDate!)) {
+                                finalDate = widget.minimumDate!;
+                              }
+                              if (widget.maximumDate != null &&
+                                  finalDate.isAfter(widget.maximumDate!)) {
+                                finalDate = widget.maximumDate!;
+                              }
+                              widget.onDateSelected(finalDate);
+                            }
+                          },
+                          child: Text(
+                            context.l10n.done,
                             style: TextStyle(
-                              color: (useNeutral ? Theme.of(context).colorScheme.onSurface : accentColor)
-                                  .withValues(alpha: 0.5),
-                              fontSize: 14,
+                              color: useNeutral
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : accentColor,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Seçilen Tarih/Saat Gösterimi (sadece dateTime ve date modlarında, time hariç)
+                  if (widget.mode != PickerMode.monthYear &&
+                      widget.mode != PickerMode.time)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 24,
+                      ),
+                      decoration: BoxDecoration(
+                        color: useNeutral
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.05)
+                            : accentColor.withValues(alpha: 0.08),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           Text(
-                            _getFormattedTimeForMode(),
+                            _getFormattedDateForMode(),
                             style: TextStyle(
-                              color: (useNeutral ? Theme.of(context).colorScheme.onSurface : accentColor)
-                                  .withValues(alpha: 0.8),
+                              color: useNeutral
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : accentColor,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
+                          if (widget.mode == PickerMode.dateTime) ...[
+                            Text(
+                              '  •  ',
+                              style: TextStyle(
+                                color:
+                                    (useNeutral
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface
+                                            : accentColor)
+                                        .withValues(alpha: 0.5),
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              _getFormattedTimeForMode(),
+                              style: TextStyle(
+                                color:
+                                    (useNeutral
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface
+                                            : accentColor)
+                                        .withValues(alpha: 0.8),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
+
+                  // Picker Alanı
+                  Expanded(
+                    child: widget.mode == PickerMode.monthYear
+                        ? _buildMonthYearPicker(isDark)
+                        : _buildCupertinoDatePicker(isDark),
                   ),
-
-                // Picker Alanı
-                Expanded(
-                  child: widget.mode == PickerMode.monthYear
-                      ? _buildMonthYearPicker(isDark)
-                      : _buildCupertinoDatePicker(isDark),
-                ),
-
-                // Alt padding (iOS safe area)
-                SizedBox(height: MediaQuery.of(context).padding.bottom),
-              ],
-            ), // Column
-          ), // Container
-        ), // BackdropFilter
-      ), // ClipRRect
-    ); // Outer Container
+                ],
+              ), // Column
+            ), // Container
+          ), // BackdropFilter
+        ), // ClipRRect
+      ), // Outer Container
+    ); // Dialog
   }
 
   IconData _getIconForMode(PickerMode mode) {

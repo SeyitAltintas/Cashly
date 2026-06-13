@@ -289,7 +289,7 @@ class ForgotPasswordHelper {
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: enabled
-                ? Theme.of(context).colorScheme.onSurface
+                ? Theme.of(context).colorScheme.onPrimary
                 : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.38),
           ),
         ),

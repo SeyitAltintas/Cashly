@@ -381,7 +381,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
               )
             : Text(
@@ -389,7 +389,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
       ),

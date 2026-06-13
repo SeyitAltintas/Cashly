@@ -279,7 +279,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                     ),
                     indicatorSize: TabBarIndicatorSize.tab,
                     dividerColor: Colors.transparent,
-                    labelColor: Theme.of(context).colorScheme.onSurface,
+                    labelColor: Colors.white,
                     unselectedLabelColor: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.6),

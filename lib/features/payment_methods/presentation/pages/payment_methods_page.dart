@@ -286,11 +286,11 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                 );
               },
               backgroundColor: Theme.of(context).colorScheme.secondary,
-              icon: Icon(Icons.add, color: Theme.of(context).colorScheme.onSurface),
+              icon: Icon(Icons.add, color: Theme.of(context).colorScheme.onSecondary),
               label: Text(
                 context.l10n.addCard,
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSecondary,
                   fontWeight: FontWeight.bold,
                 ),
               ),

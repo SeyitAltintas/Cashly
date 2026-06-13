@@ -188,14 +188,24 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  DateTime? _backgroundTime;
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final notificationService = getIt<NotificationService>();
     notificationService.setAppInForeground(state == AppLifecycleState.resumed);
 
     if (state == AppLifecycleState.paused) {
-      if (getIt.isRegistered<AuthController>()) {
-        getIt<AuthController>().lockSession();
+      _backgroundTime = DateTime.now();
+    } else if (state == AppLifecycleState.resumed) {
+      if (_backgroundTime != null) {
+        final difference = DateTime.now().difference(_backgroundTime!);
+        if (difference.inMinutes >= 5) {
+          if (getIt.isRegistered<AuthController>()) {
+            getIt<AuthController>().lockSession();
+          }
+        }
+        _backgroundTime = null;
       }
     }
   }

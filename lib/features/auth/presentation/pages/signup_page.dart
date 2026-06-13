@@ -415,7 +415,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSurface,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           ),
                   ),

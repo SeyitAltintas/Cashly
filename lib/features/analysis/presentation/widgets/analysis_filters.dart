@@ -51,7 +51,7 @@ class ChartTypeToggle extends StatelessWidget {
             child: Icon(
               icon,
               size: 20,
-              color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withAlpha(128),
+              color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface.withAlpha(128),
             ),
           ),
         );

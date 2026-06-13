@@ -273,7 +273,9 @@ class ExpenseDetailPage extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4)),
+        border: Border.all(
+          color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -281,7 +283,11 @@ class ExpenseDetailPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.payments, color: ColorConstants.kirmiziVurgu, size: 24),
+              const Icon(
+                Icons.payments,
+                color: ColorConstants.kirmiziVurgu,
+                size: 24,
+              ),
               const SizedBox(width: 8),
               Text(
                 context.l10n.spentAmountLabel,
@@ -327,28 +333,29 @@ class ExpenseDetailPage extends StatelessWidget {
                     expenseToEdit: harcama,
                     categories: kategoriIkonlari,
                     paymentMethods: paymentMethods,
-                    onSave: (
-                      isim,
-                      tutar,
-                      kategori,
-                      tarih,
-                      odemeYontemiId,
-                      paraBirimi,
-                    ) {
-                      // Güncellenmiş harcamayı oluştur
-                      final updatedHarcama = {
-                        'id': harcama['id'],
-                        'isim': isim,
-                        'tutar': tutar,
-                        'kategori': kategori,
-                        'tarih': tarih.toIso8601String(),
-                        'odemeYontemiId': odemeYontemiId,
-                        'paraBirimi': paraBirimi,
-                        'silindi': harcama['silindi'] ?? false,
-                      };
-                      onEdit(updatedHarcama);
-                      Navigator.pop(context); // Detay sayfasını kapat
-                    },
+                    onSave:
+                        (
+                          isim,
+                          tutar,
+                          kategori,
+                          tarih,
+                          odemeYontemiId,
+                          paraBirimi,
+                        ) {
+                          // Güncellenmiş harcamayı oluştur
+                          final updatedHarcama = {
+                            'id': harcama['id'],
+                            'isim': isim,
+                            'tutar': tutar,
+                            'kategori': kategori,
+                            'tarih': tarih.toIso8601String(),
+                            'odemeYontemiId': odemeYontemiId,
+                            'paraBirimi': paraBirimi,
+                            'silindi': harcama['silindi'] ?? false,
+                          };
+                          onEdit(updatedHarcama);
+                          Navigator.pop(context); // Detay sayfasını kapat
+                        },
                   ),
                 ),
               );
@@ -399,7 +406,9 @@ class ExpenseDetailPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
+            ),
             child: Text(context.l10n.cancel),
           ),
           TextButton(
@@ -408,7 +417,9 @@ class ExpenseDetailPage extends StatelessWidget {
               onDelete(harcama);
               Navigator.pop(context); // Detay sayfasını kapat
             },
-            style: TextButton.styleFrom(foregroundColor: ColorConstants.kirmiziVurgu),
+            style: TextButton.styleFrom(
+              foregroundColor: ColorConstants.kirmiziVurgu,
+            ),
             child: Text(
               context.l10n.delete,
               style: const TextStyle(color: ColorConstants.kirmiziVurgu),

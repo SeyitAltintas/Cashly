@@ -154,9 +154,9 @@ class BudgetSection extends StatelessWidget {
                         onPressed: isSaved ? null : onSave,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2E7D32),
-                          foregroundColor: Theme.of(context).colorScheme.onSurface,
+                          foregroundColor: Colors.white,
                           disabledBackgroundColor: const Color(0xFF2E7D32),
-                          disabledForegroundColor: Theme.of(context).colorScheme.onSurface,
+                          disabledForegroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
