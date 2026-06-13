@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/utils/currency_formatter.dart';
 import 'package:cashly/core/widgets/cached_image.dart';
+import 'package:cashly/core/widgets/amount_text.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/utils/image_utils.dart';
 
@@ -243,7 +244,7 @@ class BalanceCardPage extends StatelessWidget {
                                           end: Alignment.centerRight,
                                         ).createShader(bounds);
                                       },
-                                      child: Text(
+                                      child: AmountText(
                                         CurrencyFormatter.format(totalBalance),
                                         style: TextStyle(
                                           color: Colors.white,

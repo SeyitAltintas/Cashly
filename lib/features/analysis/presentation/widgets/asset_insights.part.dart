@@ -170,7 +170,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
+                        AmountText(
                           '${isProfit ? '+' : ''}${CurrencyFormatter.format(profitAmount)}',
                           style: TextStyle(
                             fontSize: 11,

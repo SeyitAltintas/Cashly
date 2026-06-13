@@ -218,7 +218,7 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
             ],
           ),
           const Spacer(),
-          Text(
+          AmountText(
             CurrencyFormatter.format(value),
             style: TextStyle(
               color: color,

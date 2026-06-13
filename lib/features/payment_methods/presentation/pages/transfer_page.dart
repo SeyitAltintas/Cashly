@@ -6,7 +6,8 @@ import '../../data/models/payment_method_model.dart';
 import '../../data/models/transfer_model.dart';
 import '../../domain/transfer_schedule_policy.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/services/haptic_service.dart';
+import '../../../../core/services/settings_repository.dart';
+import '../../../../core/widgets/amount_text.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../settings/domain/repositories/settings_repository.dart';
@@ -852,7 +853,7 @@ class _TransferPageState extends State<TransferPage> {
                         children: [
                           Text(pm.name),
                           const Spacer(),
-                          Text(
+                          AmountText(
                             () {
                               final cur = getIt<CurrencyService>();
                               return CurrencyFormatter.format(
@@ -1202,7 +1203,7 @@ class _TransferPageState extends State<TransferPage> {
                 transfer.paraBirimi,
                 cur.currentCurrency,
               );
-              return Text(
+              return AmountText(
                 CurrencyFormatter.format(converted),
                 style: TextStyle(
                   fontSize: 15,

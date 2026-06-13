@@ -214,7 +214,7 @@ extension ExpenseInsightsExtension on _AnalysisPageState {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
+                          AmountText(
                             CurrencyFormatter.format(
                               amount,
                               currency: currency,

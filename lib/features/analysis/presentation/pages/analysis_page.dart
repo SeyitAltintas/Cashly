@@ -6,6 +6,7 @@ import 'package:cashly/core/constants/color_constants.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/amount_text.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/di/injection_container.dart';

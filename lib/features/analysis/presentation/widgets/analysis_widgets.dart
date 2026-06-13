@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/amount_text.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 /// Analiz Boş Durumu Widget'ı
@@ -426,7 +427,7 @@ class LegendItem extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          Text(
+                          AmountText(
                             CurrencyFormatter.format(value),
                             style: TextStyle(
                               color: isOverBudget

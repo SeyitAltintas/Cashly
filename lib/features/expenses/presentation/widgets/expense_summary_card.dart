@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/utils/currency_formatter.dart';
+import 'package:cashly/core/widgets/amount_text.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/di/injection_container.dart';
 import 'package:cashly/core/services/currency_service.dart';
@@ -241,7 +242,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
           const Spacer(),
 
           // Orta: Buyuk Tutar
-          Text(
+          AmountText(
             CurrencyFormatter.format(widget.toplamTutar),
             style: TextStyle(
               color: ColorConstants.kirmiziVurgu,
@@ -372,7 +373,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Text(
+                  AmountText(
                     CurrencyFormatter.format(kalanLimit),
                     style: TextStyle(
                       color: kalanLimit < 0
@@ -395,7 +396,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Text(
+                  AmountText(
                     CurrencyFormatter.format(widget.butceLimiti),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
@@ -524,7 +525,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
           const Spacer(),
 
           // Ortalama tutar
-          Text(
+          AmountText(
             CurrencyFormatter.format(gunlukOrtalama),
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.95),

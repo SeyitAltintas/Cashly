@@ -106,7 +106,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                           child: FittedBox(
                             key: ValueKey<double>(centerValue),
                             fit: BoxFit.scaleDown,
-                            child: Text(
+                            child: AmountText(
                               CurrencyFormatter.format(centerValue),
                               style: TextStyle(
                                 color: _touchedIndex != -1

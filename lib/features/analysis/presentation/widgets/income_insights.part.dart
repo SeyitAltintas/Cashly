@@ -196,7 +196,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
+                          AmountText(
                             CurrencyFormatter.format(
                               amount,
                               currency: currency,
@@ -528,7 +528,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      AmountText(
                         CurrencyFormatter.format(dailyAvg),
                         style: const TextStyle(
                           fontSize: 22,
@@ -676,7 +676,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    AmountText(
                       CurrencyFormatter.format(savings.abs()),
                       style: TextStyle(
                         fontSize: 20,

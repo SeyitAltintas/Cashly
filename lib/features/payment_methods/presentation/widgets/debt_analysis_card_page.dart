@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/utils/currency_formatter.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:cashly/core/widgets/amount_text.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../data/models/payment_method_model.dart';
@@ -86,7 +87,7 @@ class DebtAnalysisCardPage extends StatelessWidget {
           const Spacer(),
 
           // Toplam borç tutarı
-          Text(
+          AmountText(
             CurrencyFormatter.format(toplamBorc),
             style: TextStyle(
               color: toplamBorc > 0
@@ -191,7 +192,7 @@ class _DebtInfoChip extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text(
+          AmountText(
             value,
             style: TextStyle(
               color: color,

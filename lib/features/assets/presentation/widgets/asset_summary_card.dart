@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/amount_text.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 
 class AssetSummaryCard extends StatelessWidget {
@@ -100,7 +101,7 @@ class AssetSummaryCard extends StatelessWidget {
                 const Spacer(),
 
                 // Orta: Buyuk Tutar
-                Text(
+                AmountText(
                   CurrencyFormatter.format(totalAssets),
                   style: TextStyle(
                     color: ColorConstants.maviVurgu,

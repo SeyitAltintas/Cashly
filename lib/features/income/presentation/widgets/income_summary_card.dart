@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/constants/color_constants.dart';
+import 'package:cashly/core/widgets/amount_text.dart';
 
 class IncomeSummaryCard extends StatelessWidget {
   final String ayIsmi;
@@ -189,7 +190,7 @@ class IncomeSummaryCard extends StatelessWidget {
                 const Spacer(),
 
                 // Orta: Buyuk Tutar
-                Text(
+                AmountText(
                   CurrencyFormatter.format(toplamGelir),
                   style: TextStyle(
                     color: ColorConstants.yesil,
@@ -256,7 +257,7 @@ class IncomeSummaryCard extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            Text(
+            AmountText(
               '${CurrencyFormatter.format(toplamGelir)} / ${CurrencyFormatter.format(gelirHedefi!)}',
               style: TextStyle(
                 color: Theme.of(
