@@ -128,6 +128,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
     return ChangeNotifierProvider<AssetsController>.value(
       value: _controller,
       child: Scaffold(
+        extendBody: true,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Builder(

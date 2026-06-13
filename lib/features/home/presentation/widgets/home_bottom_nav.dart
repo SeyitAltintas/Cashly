@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../core/services/haptic_service.dart';
 
@@ -23,11 +24,11 @@ class HomeBottomNav extends StatelessWidget {
       child: Container(
         height: 70,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.75), // Cam efekti için saydamlık
           borderRadius: BorderRadius.circular(35),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), // Daha yumuşak gölge
               blurRadius: 20,
               offset: const Offset(0, 5),
               spreadRadius: -5,
@@ -38,8 +39,12 @@ class HomeBottomNav extends StatelessWidget {
             width: 1,
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(35),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _ModernNavItem(
               icon: Icons.grid_view_rounded,
@@ -75,7 +80,9 @@ class HomeBottomNav extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
 

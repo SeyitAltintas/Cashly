@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
 import 'package:cashly/core/theme/app_theme.dart';
-import 'package:cashly/core/constants/color_constants.dart';
+import '../../../../core/constants/color_constants.dart';
+import '../../../../core/widgets/amount_text.dart';
 import 'package:cashly/core/utils/currency_formatter.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
@@ -122,7 +123,7 @@ class ExpenseListItem extends StatelessWidget {
                   final t = (harcama['tutar'] as num).toDouble();
                   final pb = harcama['paraBirimi']?.toString() ?? 'TRY';
                   final converted = cur.convert(t, pb, cur.currentCurrency);
-                  return Text(
+                  return AmountText(
                     CurrencyFormatter.formatSigned(-converted),
                     style: const TextStyle(
                       color: ColorConstants.kirmiziVurgu,

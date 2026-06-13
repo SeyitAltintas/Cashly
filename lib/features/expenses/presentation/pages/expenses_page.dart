@@ -325,6 +325,7 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     return ChangeNotifierProvider<ExpensesController>.value(
       value: _controller,
       child: Scaffold(
+        extendBody: true,
         appBar: ExpensesAppBar(
           searchController: tArama,
           onSearchChanged: filtreleVeGoster,

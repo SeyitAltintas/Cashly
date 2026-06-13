@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'dart:ui';
 
 class PageThemeColors {
   // Common
@@ -35,7 +35,7 @@ class AppTheme {
   static const String _fontFamily = 'Inter';
 
   static TextTheme _interTextTheme(TextTheme base) {
-    return GoogleFonts.interTextTheme(base);
+    return base.apply(fontFamily: _fontFamily);
   }
 
   // --- DARK THEME ---
@@ -60,6 +60,10 @@ class AppTheme {
       textTheme: interTextTheme,
       primaryTextTheme: interPrimaryTextTheme,
       scaffoldBackgroundColor: const Color(0xFF000000),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      splashFactory: NoSplash.splashFactory,
       colorScheme: const ColorScheme.dark(
         primary: PageThemeColors.darkGray,
         onPrimary: Colors.white,
@@ -107,7 +111,8 @@ class AppTheme {
       ),
       cardTheme: const CardThemeData(
         color: Color(0xFF121212),
-        elevation: 4,
+        elevation: 8,
+        shadowColor: Color(0x4D000000), // Koyu temaya uygun yumuşak gölge
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
       ),
@@ -180,6 +185,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
           foregroundColor: Colors.white,
           backgroundColor: PageThemeColors.darkGray,
           textStyle: const TextStyle(fontFamily: _fontFamily, fontSize: 16, fontWeight: FontWeight.w600),
@@ -190,6 +196,7 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
           foregroundColor: Colors.white70,
           textStyle: const TextStyle(fontFamily: _fontFamily, fontSize: 14, fontWeight: FontWeight.w500),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -198,6 +205,7 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
           foregroundColor: Colors.white,
           textStyle: const TextStyle(fontFamily: _fontFamily, fontSize: 14, fontWeight: FontWeight.w500),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -248,6 +256,10 @@ class AppTheme {
       textTheme: interTextTheme,
       primaryTextTheme: interPrimaryTextTheme,
       scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      splashFactory: NoSplash.splashFactory,
       colorScheme: const ColorScheme.light(
         primary: PageThemeColors.darkGray,
         onPrimary: Colors.white,
@@ -300,8 +312,8 @@ class AppTheme {
       ),
       cardTheme: const CardThemeData(
         color: Colors.white,
-        elevation: 2,
-        shadowColor: Colors.black12,
+        elevation: 8,
+        shadowColor: Color(0x1A000000), // Yumuşak geniş gölge efekti (Neo-morphism)
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
       ),
@@ -374,6 +386,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
           foregroundColor: Colors.white,
           backgroundColor: PageThemeColors.darkGray,
           textStyle: const TextStyle(fontFamily: _fontFamily, fontSize: 16, fontWeight: FontWeight.w600),
@@ -384,6 +397,7 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
           foregroundColor: Colors.black54,
           textStyle: const TextStyle(fontFamily: _fontFamily, fontSize: 14, fontWeight: FontWeight.w500),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -392,6 +406,7 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
+          splashFactory: NoSplash.splashFactory,
           foregroundColor: Colors.black87,
           textStyle: const TextStyle(fontFamily: _fontFamily, fontSize: 14, fontWeight: FontWeight.w500),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),

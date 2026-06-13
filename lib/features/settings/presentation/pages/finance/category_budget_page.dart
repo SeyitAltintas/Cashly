@@ -508,7 +508,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
       Color(0xFF64B5F6), // Mavi
       Color(0xFFFFB74D), // Turuncu
       Color(0xFFBA68C8), // Mor
-      Color(0xFF4DD0E1), // Cyan
+      Color(0xFF0097A7), // Cyan 700
       Color(0xFFF06292), // Pembe
       Color(0xFFAED581), // Açık yeşil
       Color(0xFF7986CB), // İndigo

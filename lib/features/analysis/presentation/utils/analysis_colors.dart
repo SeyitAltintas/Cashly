@@ -17,7 +17,7 @@ class AnalysisColors {
     Color(0xFF43A047), // Yeşil (green.shade600)
     Color(0xFF00897B), // Petrol Yeşili / Teal (teal.shade600)
     Color(0xFF7CB342), // Açık Yeşil (lightGreen.shade600)
-    Color(0xFF00ACC1), // Camgöbeği (cyan.shade600)
+    Color(0xFF0097A7), // Camgöbeği (Cyan 700)
     Color(0xFF2E7D32), // Orman Yeşili (green.shade800)
     Color(0xFFCDDC39), // Limon Yeşili (lime)
     Color(0xFF009688), // Standart Teal
@@ -29,7 +29,7 @@ class AnalysisColors {
     Color(0xFF1E88E5), // Mavi (blue.shade600)
     Color(0xFF3949AB), // Çivit Mavisi (indigo.shade600)
     Color(0xFF039BE5), // Açık Mavi (lightBlue.shade600)
-    Color(0xFF00ACC1), // Camgöbeği (cyan.shade600)
+    Color(0xFF0097A7), // Camgöbeği (Cyan 700)
     Color(0xFF5E35B1), // Koyu Mor (deepPurple.shade600)
     Color(0xFF42A5F5), // Pastel Mavi
     Color(0xFF26C6DA), // Pastel Camgöbeği

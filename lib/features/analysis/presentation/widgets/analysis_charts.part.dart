@@ -385,10 +385,8 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                 icon,
                 size: 14,
                 color: isSelected
-                    ? Theme.of(context).colorScheme.onSurface
-                    : Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               const SizedBox(width: 4),
               Text(
@@ -397,10 +395,8 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   color: isSelected
-                      ? Theme.of(context).colorScheme.onSurface
-                      : Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 
 /// Bottom bar öğesi modeli
 class BottomBarItem {
@@ -52,11 +53,11 @@ class AppFloatingBottomBar extends StatelessWidget {
       child: Container(
         height: 70,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.75), // Cam efekti
           borderRadius: BorderRadius.circular(35),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), // Yumuşak gölge
               blurRadius: 20,
               offset: const Offset(0, 5),
               spreadRadius: -5,
@@ -67,9 +68,15 @@ class AppFloatingBottomBar extends StatelessWidget {
             width: 1,
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: _buildChildren(context),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(35),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: _buildChildren(context),
+            ),
+          ),
         ),
       ),
     );

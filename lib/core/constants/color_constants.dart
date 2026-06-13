@@ -73,8 +73,8 @@ class ColorConstants {
   /// Pembe Vurgu - Ek kategoriler için
   static const Color pembeVurgu = Color(0xFFFF4081); // Colors.pinkAccent
 
-  /// Camgöbeği Vurgu - Ek kategoriler için
-  static const Color camgobegiVurgu = Color(0xFF18FFFF); // Colors.tealAccent
+  /// Camgöbeği Vurgu - Ek kategoriler için (Okunabilirlik için Cyan 700)
+  static const Color camgobegiVurgu = Color(0xFF0097A7); // Cyan.shade700
 
   /// Amber Vurgu - Ek kategoriler için
   static const Color amberVurgu = Color(0xFFFFD740); // Colors.amberAccent

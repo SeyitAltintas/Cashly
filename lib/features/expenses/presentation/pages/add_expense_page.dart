@@ -608,8 +608,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
           child: Center(
             child: Text(
               isEditing ? context.l10n.updateButton : context.l10n.addExpense,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
+              style: const TextStyle(
+                color: Colors.white,
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
               ),

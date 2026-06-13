@@ -6,6 +6,7 @@ import '../../data/models/income_model.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
+import '../../../../core/widgets/amount_text.dart';
 
 class IncomeListItem extends StatelessWidget {
   final Income income;
@@ -113,7 +114,7 @@ class IncomeListItem extends StatelessWidget {
                     income.paraBirimi,
                     cur.currentCurrency,
                   );
-                  return Text(
+                  return AmountText(
                     CurrencyFormatter.formatSigned(converted, showPlus: true),
                     style: const TextStyle(
                       color: ColorConstants.yesil,

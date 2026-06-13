@@ -398,7 +398,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
             child: _buildProfileTile(
               context: context,
               icon: Icons.info_outline,
-              iconColor: ColorConstants.camgobegiVurgu,
+              iconColor: Theme.of(context).colorScheme.primary,
               title: context.l10n.aboutAndSupport,
               subtitle: context.l10n.aboutAndSupportSubtitle,
               onTap: () {

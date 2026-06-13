@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'amount_text.dart';
 
 /// Bakiye ve tutarları blur (Glassmorphism) efektiyle gizleyen yardımcı widget
 class ObscuredAmountText extends StatelessWidget {
@@ -19,12 +20,12 @@ class ObscuredAmountText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!isObscured) {
-      return Text(text, style: style, textAlign: textAlign);
+      return AmountText(text, style: style, textAlign: textAlign);
     }
 
     return ImageFiltered(
       imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-      child: Text(text, style: style, textAlign: textAlign),
+      child: AmountText(text, style: style, textAlign: textAlign),
     );
   }
 }
