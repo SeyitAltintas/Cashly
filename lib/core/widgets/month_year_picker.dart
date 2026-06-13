@@ -158,8 +158,22 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
       backgroundColor: Colors.transparent,
       elevation: 0,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: Container(
-        decoration: BoxDecoration(
+      child: CupertinoTheme(
+        data: CupertinoThemeData(
+          brightness: isDark ? Brightness.dark : Brightness.light,
+          textTheme: CupertinoTextThemeData(
+            pickerTextStyle: TextStyle(
+              color: isDark ? Colors.white : Colors.black,
+              fontSize: 20,
+            ),
+            dateTimePickerTextStyle: TextStyle(
+              color: isDark ? Colors.white : Colors.black,
+              fontSize: 20,
+            ),
+          ),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
@@ -359,7 +373,8 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
             ), // Container
           ), // BackdropFilter
         ), // ClipRRect
-      ), // Outer Container
+        ), // Outer Container
+      ), // CupertinoTheme
     ); // Dialog
   }
 
@@ -411,6 +426,12 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
         Expanded(
           flex: 3,
           child: CupertinoPicker(
+            backgroundColor: Colors.transparent,
+            selectionOverlay: CupertinoPickerDefaultSelectionOverlay(
+              background: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.05),
+            ),
             scrollController: _monthController,
             itemExtent: 40,
             looping: true,
@@ -430,10 +451,6 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
               return Center(
                 child: Text(
                   monthName,
-                  style: TextStyle(
-                    color: isDark ? Colors.white : Colors.black,
-                    fontSize: 20,
-                  ),
                 ),
               );
             }),
@@ -443,6 +460,12 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
         Expanded(
           flex: 2,
           child: CupertinoPicker(
+            backgroundColor: Colors.transparent,
+            selectionOverlay: CupertinoPickerDefaultSelectionOverlay(
+              background: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.05),
+            ),
             scrollController: _yearController,
             itemExtent: 40,
             onSelectedItemChanged: (index) {
@@ -453,10 +476,6 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
               return Center(
                 child: Text(
                   "${_startYear + index}",
-                  style: TextStyle(
-                    color: isDark ? Colors.white : Colors.black,
-                    fontSize: 20,
-                  ),
                 ),
               );
             }),
@@ -487,19 +506,10 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
     return Localizations.override(
       context: context,
       locale: appLocale,
-      child: CupertinoTheme(
-        data: CupertinoThemeData(
-          brightness: isDark ? Brightness.dark : Brightness.light,
-          textTheme: CupertinoTextThemeData(
-            dateTimePickerTextStyle: TextStyle(
-              color: isDark ? Colors.white : Colors.black,
-              fontSize: 20,
-            ),
-          ),
-        ),
-        child: CupertinoDatePicker(
-          mode: cupertinoMode,
-          initialDateTime: _currentDate,
+      child: CupertinoDatePicker(
+        backgroundColor: Colors.transparent,
+        mode: cupertinoMode,
+        initialDateTime: _currentDate,
           minimumDate: widget.minimumDate,
           maximumDate: widget.maximumDate,
           minimumYear:
@@ -518,7 +528,6 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
             _pickerState.setDate(date);
           },
         ),
-      ),
     );
   }
 }

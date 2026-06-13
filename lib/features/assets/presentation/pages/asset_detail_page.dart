@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/amount_text.dart';
 import '../../data/models/asset_model.dart';
 import 'add_asset_page.dart';
 import '../../../../core/services/haptic_service.dart';
@@ -100,6 +101,7 @@ class AssetDetailPage extends StatelessWidget {
                   context.l10n.assetPurchasePrice,
                   CurrencyFormatter.format(convertedPurchasePrice),
                   Icons.shopping_cart,
+                  isAmount: true,
                 ),
                 const SizedBox(height: 12),
                 _buildInfoRow(
@@ -115,6 +117,7 @@ class AssetDetailPage extends StatelessWidget {
                     context.l10n.assetUnitPurchasePrice,
                     CurrencyFormatter.format(convertedUnitPurchasePrice),
                     Icons.price_change,
+                    isAmount: true,
                   ),
                 ],
               ],
@@ -134,6 +137,7 @@ class AssetDetailPage extends StatelessWidget {
                   context.l10n.assetCurrentValue,
                   CurrencyFormatter.format(convertedAmount),
                   Icons.account_balance_wallet,
+                  isAmount: true,
                 ),
                 if (asset.quantity > 1) ...[
                   const SizedBox(height: 12),
@@ -142,6 +146,7 @@ class AssetDetailPage extends StatelessWidget {
                     context.l10n.assetUnitCurrentPrice,
                     CurrencyFormatter.format(convertedUnitCurrentPrice),
                     Icons.price_check,
+                    isAmount: true,
                   ),
                 ],
               ],
@@ -265,8 +270,9 @@ class AssetDetailPage extends StatelessWidget {
     BuildContext context,
     String label,
     String value,
-    IconData icon,
-  ) {
+    IconData icon, {
+    bool isAmount = false,
+  }) {
     final theme = Theme.of(context);
     return Row(
       children: [
@@ -285,14 +291,23 @@ class AssetDetailPage extends StatelessWidget {
             ),
           ),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            color: theme.colorScheme.onSurface,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        isAmount
+            ? AmountText(
+                value,
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              )
+            : Text(
+                value,
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
       ],
     );
   }
@@ -343,7 +358,7 @@ class AssetDetailPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(
+          AmountText(
             '${isProfit ? '+' : ''}${CurrencyFormatter.format(convertedProfitLoss)}',
             style: TextStyle(
               color: profitColor,

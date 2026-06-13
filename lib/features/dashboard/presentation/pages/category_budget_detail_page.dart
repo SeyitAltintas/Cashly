@@ -4,6 +4,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../core/widgets/amount_text.dart';
 
 /// Kategori Bazlı Bütçe Detay Sayfası
 /// Dashboard'dan BudgetStatusCard'a tıklandığında açılır
@@ -131,7 +132,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
+                  AmountText(
                     CurrencyFormatter.format(totalBudget),
                     style: const TextStyle(
                       fontSize: 24,
@@ -176,7 +177,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              AmountText(
                 context.l10n.spentAmount(
                   CurrencyFormatter.format(totalExpense),
                 ),
@@ -187,7 +188,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                   ).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
-              Text(
+              AmountText(
                 isOverBudget
                     ? context.l10n.exceeded(
                         CurrencyFormatter.format(-remaining),
@@ -284,7 +285,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                AmountText(
                   '${CurrencyFormatter.format(data.expense)} / ${CurrencyFormatter.format(data.limit)}',
                   style: TextStyle(
                     fontSize: 12,
@@ -293,7 +294,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                     ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
-                Text(
+                AmountText(
                   isOverBudget
                       ? context.l10n.exceeded(
                           CurrencyFormatter.format(-remaining),
@@ -343,7 +344,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                 ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
-            Text(
+            AmountText(
               CurrencyFormatter.format(entry.value),
               style: TextStyle(
                 fontSize: 14,
@@ -562,15 +563,15 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(
-                                  "-${CurrencyFormatter.format(totalAmount, currency: currency)}",
-                                  style: const TextStyle(
-                                    color: ColorConstants.kirmiziVurgu,
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 22,
-                                    letterSpacing: -0.5,
+                                  AmountText(
+                                    "-${CurrencyFormatter.format(totalAmount, currency: currency)}",
+                                    style: const TextStyle(
+                                      color: ColorConstants.kirmiziVurgu,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 22,
+                                      letterSpacing: -0.5,
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ),
@@ -731,14 +732,14 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-                                    trailing: Text(
-                                      "-${CurrencyFormatter.format(amount, currency: itemCurrency)}",
-                                      style: const TextStyle(
-                                        color: ColorConstants.kirmiziVurgu,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 16,
+                                      trailing: AmountText(
+                                        "-${CurrencyFormatter.format(amount, currency: itemCurrency)}",
+                                        style: const TextStyle(
+                                          color: ColorConstants.kirmiziVurgu,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 16,
+                                        ),
                                       ),
-                                    ),
                                   ),
                                 );
                               },

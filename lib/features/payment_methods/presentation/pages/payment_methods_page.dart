@@ -18,6 +18,7 @@ import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../../core/services/currency_service.dart';
 
 import '../controllers/payment_methods_controller.dart';
+import '../../../../core/widgets/amount_text.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
 
@@ -546,7 +547,7 @@ class _PaymentMethodCard extends StatelessWidget {
                               fontSize: 10,
                             ),
                           ),
-                          Text(
+                          AmountText(
                             '${AmountInputFormatter.formatInitialValue(pm.balance)} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
                             style: const TextStyle(
                               color: Colors.white,

@@ -308,7 +308,7 @@ class TrendInsightCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
-                        Text(
+                        AmountText(
                           topCategoryAmount!,
                           style: TextStyle(
                             fontSize: 14,
@@ -317,8 +317,7 @@ class TrendInsightCard extends StatelessWidget {
                                 : ColorConstants.yesil,
                             fontWeight: FontWeight.bold,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.left,
                         ),
                       ],
                     ),

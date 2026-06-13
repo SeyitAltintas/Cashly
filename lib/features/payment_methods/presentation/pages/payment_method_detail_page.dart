@@ -14,6 +14,7 @@ import '../controllers/payment_methods_controller.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/amount_text.dart';
 
 /// Hesap detay sayfası - Bir ödeme yönteminin tüm işlemlerini gösterir
 class PaymentMethodDetailPage extends StatefulWidget {
@@ -266,7 +267,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                     fontSize: 14,
                   ),
                 ),
-                Text(
+                AmountText(
                   CurrencyFormatter.format(
                     cur.convert(pm.balance, pm.paraBirimi, cur.currentCurrency),
                   ),
@@ -325,11 +326,11 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                 ),
                 const Spacer(),
                 // Ay Seçici Butonu
-                MonthSelectorButton(
+                  MonthSelectorButton(
                   selectedMonth: _secilenAy,
                   selectedYear: _secilenYil,
                   onMonthSelected: _onMonthSelected,
-                  useNeutralSelectedStyle: true,
+                  useNeutralSelectedStyle: false,
                 ),
               ],
             ),
@@ -452,10 +453,13 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
               ],
             ),
           ),
-          Text(() {
-            final cur = getIt<CurrencyService>();
-            return '$amountPrefix${CurrencyFormatter.format(cur.convert(item.amount, widget.paymentMethod.paraBirimi, cur.currentCurrency))}';
-          }(), style: TextStyle(color: iconColor, fontWeight: FontWeight.bold)),
+          AmountText(
+            () {
+              final cur = getIt<CurrencyService>();
+              return '$amountPrefix${CurrencyFormatter.format(cur.convert(item.amount, widget.paymentMethod.paraBirimi, cur.currentCurrency))}';
+            }(),
+            style: TextStyle(color: iconColor, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );

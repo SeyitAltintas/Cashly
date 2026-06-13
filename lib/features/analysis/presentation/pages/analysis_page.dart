@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import '../../../../core/widgets/shimmer_loading.dart';
 import '../utils/analysis_colors.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
@@ -227,36 +228,32 @@ class _AnalysisPageState extends State<AnalysisPage>
 
   /// Alt Bar (Ay Seçici ve TabBar)
   Widget _buildBottomBar(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        height: 70,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.75),
+          borderRadius: BorderRadius.circular(35),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 5),
+              spreadRadius: -5,
+            ),
+          ],
+          border: Border.all(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+            width: 1,
           ),
-        ],
-      ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.surface.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.5),
-                  width: 1.5,
-                ),
-              ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(35),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
               child: AnimatedBuilder(
                 animation: _tabController.animation!,
                 builder: (context, child) {
@@ -332,7 +329,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                 },
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

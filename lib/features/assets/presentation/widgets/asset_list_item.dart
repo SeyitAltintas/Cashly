@@ -3,6 +3,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../data/models/asset_model.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../core/widgets/amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
@@ -143,7 +144,7 @@ class AssetListItem extends StatelessWidget {
                     asset.paraBirimi,
                     cur.currentCurrency,
                   );
-                  return Text(
+                  return AmountText(
                     CurrencyFormatter.format(
                       converted,
                       currency: cur.currentCurrency,

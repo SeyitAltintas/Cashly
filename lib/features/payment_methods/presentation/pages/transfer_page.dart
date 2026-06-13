@@ -980,13 +980,21 @@ class _TransferPageState extends State<TransferPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: ColorConstants.turuncuVurgu.withValues(alpha: isDark ? 0.15 : 0.1),
+        color: ColorConstants.turuncuVurgu.withValues(
+          alpha: isDark ? 0.15 : 0.1,
+        ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3),
+        ),
       ),
       child: Row(
         children: [
-          const Icon(Icons.schedule_rounded, color: ColorConstants.turuncuVurgu, size: 20),
+          const Icon(
+            Icons.schedule_rounded,
+            color: ColorConstants.turuncuVurgu,
+            size: 20,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -1235,7 +1243,9 @@ class _TransferPageState extends State<TransferPage> {
                         },
                         child: Text(
                           context.l10n.delete,
-                          style: const TextStyle(color: ColorConstants.kirmiziVurgu),
+                          style: const TextStyle(
+                            color: ColorConstants.kirmiziVurgu,
+                          ),
                         ),
                       ),
                     ],

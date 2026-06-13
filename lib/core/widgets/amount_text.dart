@@ -20,27 +20,22 @@ class AmountText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Virgül veya nokta indeksini bul (sondan arıyoruz ki binlik ayracı olmasın)
-    final commaIndex = text.lastIndexOf(',');
-    final dotIndex = text.lastIndexOf('.');
-    
-    // Sondan sonrasını kuruş olarak kabul et (Son 6 karakter içindeyse)
-    int decimalIndex = -1;
-    if (commaIndex > dotIndex && commaIndex > text.length - 7) {
-      decimalIndex = commaIndex;
-    } else if (dotIndex > commaIndex && dotIndex > text.length - 7) {
-      decimalIndex = dotIndex;
-    }
+    // Ondalık kısım ve para birimini bul (Örn: ",00", ",00 ₺", ".50 $")
+    // \d{2} -> tam olarak 2 hane kuruş. (?:\s?[₺\$€£])? -> Opsiyonel para birimi.
+    final regex = RegExp(r'[.,]\d{2}(?:\s?[₺\$€£])?');
+    final match = regex.firstMatch(text);
 
     final defaultStyle = style ?? DefaultTextStyle.of(context).style;
 
     // Eğer ondalık kısım bulunamadıysa metni doğrudan döndür
-    if (decimalIndex == -1) {
+    if (match == null) {
       return Text(text, style: defaultStyle, textAlign: textAlign);
     }
 
+    final decimalIndex = match.start;
     final mainPart = text.substring(0, decimalIndex);
-    final decimalPart = text.substring(decimalIndex);
+    final decimalPart = match.group(0)!;
+    final suffixPart = text.substring(match.end);
 
     final smallStyle = defaultStyle.copyWith(
       fontSize: (defaultStyle.fontSize ?? 14) * smallTextScale,
@@ -54,6 +49,7 @@ class AmountText extends StatelessWidget {
         children: [
           TextSpan(text: mainPart),
           TextSpan(text: decimalPart, style: smallStyle),
+          if (suffixPart.isNotEmpty) TextSpan(text: suffixPart),
         ],
       ),
     );

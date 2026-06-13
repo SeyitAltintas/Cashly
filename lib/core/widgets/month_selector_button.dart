@@ -42,7 +42,9 @@ class MonthSelectorButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = accentColor ?? Theme.of(context).colorScheme.primary;
+    final color = useNeutralSelectedStyle
+        ? Theme.of(context).colorScheme.onSurface
+        : (accentColor ?? Theme.of(context).colorScheme.primary);
 
     return InkWell(
       onTap: () => _showMonthPicker(context),
@@ -50,7 +52,9 @@ class MonthSelectorButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
+          color: useNeutralSelectedStyle
+              ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)
+              : color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
         ),
