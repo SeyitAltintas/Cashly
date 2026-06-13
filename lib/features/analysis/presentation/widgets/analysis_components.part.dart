@@ -218,15 +218,17 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
             ],
           ),
           const Spacer(),
-          AmountText(
-            CurrencyFormatter.format(value),
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: AmountText(
+              CurrencyFormatter.format(value),
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 2),
           Text(

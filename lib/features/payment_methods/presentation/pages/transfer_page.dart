@@ -7,6 +7,7 @@ import '../../data/models/transfer_model.dart';
 import '../../domain/transfer_schedule_policy.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/services/settings_repository.dart';
+import '../../../../core/services/haptic_service.dart';
 import '../../../../core/widgets/amount_text.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/extensions/l10n_extensions.dart';

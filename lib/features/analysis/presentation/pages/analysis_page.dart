@@ -150,6 +150,7 @@ class _AnalysisPageState extends State<AnalysisPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: ListenableBuilder(
