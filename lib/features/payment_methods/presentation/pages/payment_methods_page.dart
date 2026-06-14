@@ -7,13 +7,16 @@ import '../../../../core/utils/debouncer.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 
 import '../../data/models/payment_method_model.dart';
-import 'add_payment_method_page.dart';
-
+import '../../data/models/transfer_model.dart';
+import '../../../income/data/models/income_model.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/services/currency_service.dart';
+import '../../../../core/di/injection_container.dart';
+import 'package:cashly/core/constants/color_constants.dart';
 import '../widgets/realistic_payment_card.dart';
 import 'payment_method_recycle_bin_page.dart';
-import '../../../../core/di/injection_container.dart';
+import 'add_payment_method_page.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../../../../core/services/currency_service.dart';
 
 import '../controllers/payment_methods_controller.dart';
 import '../../../../core/utils/error_handler.dart';
@@ -31,6 +34,9 @@ class PaymentMethodsPage extends StatefulWidget {
   final String? userName;
   final String? userProfileUrl;
   final Function(PaymentMethod) onAdd;
+  final List<Map<String, dynamic>> harcamalar;
+  final List<Income> gelirler;
+  final List<Transfer> transferler;
 
   const PaymentMethodsPage({
     super.key,
@@ -42,6 +48,9 @@ class PaymentMethodsPage extends StatefulWidget {
     required this.onPermanentDelete,
     required this.onEmptyBin,
     required this.onAdd,
+    required this.harcamalar,
+    required this.gelirler,
+    required this.transferler,
     this.onCardTap,
     this.userName,
     this.userProfileUrl,
@@ -60,6 +69,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
 
   // Controller - DI'dan alınır
   late final PaymentMethodsController _controller;
+
 
   @override
   void initState() {
@@ -261,6 +271,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
 
     return PaymentMethodSlider(
       methods: filteredMethods,
+      harcamalar: widget.harcamalar,
+      gelirler: widget.gelirler,
+      transferler: widget.transferler,
       controller: _controller,
       onDelete: widget.onDelete,
       onEdit: widget.onEdit,
@@ -315,6 +328,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
 
 class PaymentMethodSlider extends StatefulWidget {
   final List<PaymentMethod> methods;
+  final List<Map<String, dynamic>> harcamalar;
+  final List<Income> gelirler;
+  final List<Transfer> transferler;
   final PaymentMethodsController controller;
   final Function(PaymentMethod) onDelete;
   final Function(PaymentMethod) onEdit;
@@ -324,6 +340,9 @@ class PaymentMethodSlider extends StatefulWidget {
   const PaymentMethodSlider({
     super.key,
     required this.methods,
+    required this.harcamalar,
+    required this.gelirler,
+    required this.transferler,
     required this.controller,
     required this.onDelete,
     required this.onEdit,
@@ -338,6 +357,154 @@ class PaymentMethodSlider extends StatefulWidget {
 class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
   int _currentIndex = 0;
   late PageController _pageController;
+
+
+  Widget _buildCardAnalysis(PaymentMethod pm) {
+    final now = DateTime.now();
+    double totalIncome = 0;
+    double totalExpense = 0;
+    final cur = getIt<CurrencyService>();
+
+    for (var g in widget.gelirler) {
+      if (g.paymentMethodId == pm.id && g.date.month == now.month && g.date.year == now.year) {
+        totalIncome += cur.convert(g.amount, g.paraBirimi, cur.currentCurrency);
+      }
+    }
+    for (var h in widget.harcamalar) {
+      final date = DateTime.tryParse(h['tarih']?.toString() ?? '');
+      if (h['odemeYontemiId'] == pm.id && date != null && date.month == now.month && date.year == now.year) {
+        final amount = (h['tutar'] as num?)?.toDouble() ?? 0;
+        totalExpense += cur.convert(amount, cur.currentCurrency, cur.currentCurrency);
+      }
+    }
+
+    final total = totalIncome + totalExpense;
+    final incomeRatio = total > 0 ? totalIncome / total : 0.5;
+    final expenseRatio = total > 0 ? totalExpense / total : 0.5;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 24),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Bu Ayki Durum',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Gelir', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
+                  const SizedBox(height: 4),
+                  Text(CurrencyFormatter.format(totalIncome), style: const TextStyle(fontWeight: FontWeight.bold, color: ColorConstants.yesil)),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('Gider', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
+                  const SizedBox(height: 4),
+                  Text(CurrencyFormatter.format(totalExpense), style: const TextStyle(fontWeight: FontWeight.bold, color: ColorConstants.kirmiziVurgu)),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: Row(
+              children: [
+                Expanded(flex: (incomeRatio * 100).toInt(), child: Container(height: 8, color: ColorConstants.yesil)),
+                Expanded(flex: (expenseRatio * 100).toInt(), child: Container(height: 8, color: ColorConstants.kirmiziVurgu)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentTransactions(PaymentMethod pm) {
+    final cur = getIt<CurrencyService>();
+    final List<Map<String, dynamic>> recent = [];
+
+    for (var g in widget.gelirler) {
+      if (g.paymentMethodId == pm.id) {
+        recent.add({'title': g.name, 'amount': g.amount, 'date': g.date, 'type': 'gelir', 'currency': g.paraBirimi});
+      }
+    }
+    for (var h in widget.harcamalar) {
+      if (h['odemeYontemiId'] == pm.id && h['silindi'] != true) {
+        final date = DateTime.tryParse(h['tarih']?.toString() ?? '');
+        if (date != null) {
+          recent.add({'title': h['isim'] ?? 'Harcama', 'amount': (h['tutar'] as num?)?.toDouble() ?? 0.0, 'date': date, 'type': 'gider', 'currency': cur.currentCurrency});
+        }
+      }
+    }
+
+    recent.sort((a, b) => (b['date'] as DateTime).compareTo(a['date'] as DateTime));
+    final top3 = recent.take(3).toList();
+
+    if (top3.isEmpty) return const SizedBox();
+
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Son Islemler',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...top3.map((t) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(child: Text(t['title'] as String, style: const TextStyle(fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                Text(
+                  (t['type'] == 'gelir' ? '+' : '-') + CurrencyFormatter.format(cur.convert(t['amount'] as double, t['currency'] as String, cur.currentCurrency)),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: t['type'] == 'gelir' ? ColorConstants.yesil : Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          )),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -423,9 +590,6 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
               }
               return RealisticPaymentCard(
                 pm: widget.methods[index],
-                controller: widget.controller,
-                onDelete: widget.onDelete,
-                onEdit: widget.onEdit,
                 onCardTap: widget.onCardTap,
                 isObscured: isObscured,
               );
@@ -454,6 +618,10 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
             ),
           ),
         ),
+        if (_currentIndex < widget.methods.length) ...[
+          _buildCardAnalysis(widget.methods[_currentIndex]),
+          _buildRecentTransactions(widget.methods[_currentIndex]),
+        ],
       ],
     );
   }

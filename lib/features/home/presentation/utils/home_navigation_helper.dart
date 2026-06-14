@@ -271,6 +271,9 @@ class HomeNavigationHelper {
         builder: (context) => PageErrorBoundary(
           pageName: context.l10n.paymentMethods,
           child: PaymentMethodsPage(
+            harcamalar: state.tumHarcamalar,
+            gelirler: state.tumGelirler,
+            transferler: state.tumTransferler,
             paymentMethods: state.tumOdemeYontemleri
                 .where((p) => !p.isDeleted)
                 .toList(),
@@ -348,6 +351,23 @@ class HomeNavigationHelper {
                     gelirler: state.tumGelirler,
                     transferler: state.tumTransferler,
                     tumOdemeYontemleri: state.tumOdemeYontemleri,
+                    onDelete: (deletedPm) {
+                      final i = state.tumOdemeYontemleri.indexWhere((p) => p.id == deletedPm.id);
+                      if (i != -1) {
+                        final updatedPm = deletedPm.copyWith(isDeleted: true);
+                        final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
+                        newList[i] = updatedPm;
+                        state.tumOdemeYontemleri = newList;
+                      }
+                    },
+                    onEdit: (editedPm) {
+                      final i = state.tumOdemeYontemleri.indexWhere((p) => p.id == editedPm.id);
+                      if (i != -1) {
+                        final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
+                        newList[i] = editedPm;
+                        state.tumOdemeYontemleri = newList;
+                      }
+                    },
                   ),
                 ),
               );

@@ -139,6 +139,9 @@ mixin HomeNavigationMixin<T extends StatefulWidget> on State<T> {
       context,
       MaterialPageRoute(
         builder: (context) => PaymentMethodsPage(
+          harcamalar: tumHarcamalar,
+          gelirler: tumGelirler,
+          transferler: tumTransferler,
           paymentMethods: tumOdemeYontemleri
               .where((p) => !p.isDeleted)
               .toList(),

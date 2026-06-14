@@ -3,16 +3,17 @@ import 'package:cashly/core/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/constants/card_color_constants.dart';
 import '../../../../core/mixins/lazy_loading_mixin.dart';
 import '../../../../core/widgets/month_selector_button.dart';
 
 import '../../data/models/payment_method_model.dart';
+import 'add_payment_method_page.dart';
+import '../widgets/realistic_payment_card.dart';
 import '../../data/models/transfer_model.dart';
 import '../../../income/data/models/income_model.dart';
 import '../controllers/payment_methods_controller.dart';
-import '../../../../core/services/currency_service.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/currency_service.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/amount_text.dart';
 
@@ -24,6 +25,8 @@ class PaymentMethodDetailPage extends StatefulWidget {
   final List<Transfer> transferler;
   final List<PaymentMethod> tumOdemeYontemleri;
   final PaymentMethodsController? controller;
+  final Function(PaymentMethod)? onDelete;
+  final Function(PaymentMethod)? onEdit;
 
   const PaymentMethodDetailPage({
     super.key,
@@ -33,6 +36,8 @@ class PaymentMethodDetailPage extends StatefulWidget {
     required this.transferler,
     required this.tumOdemeYontemleri,
     this.controller,
+    this.onDelete,
+    this.onEdit,
   });
 
   @override
@@ -46,6 +51,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
   PaymentMethodsController? _controller;
   int _localSecilenAy = DateTime.now().month;
   int _localSecilenYil = DateTime.now().year;
+  late PaymentMethod _pm;
 
   int get _secilenAy => _controller?.detailSecilenAy ?? _localSecilenAy;
   int get _secilenYil => _controller?.detailSecilenYil ?? _localSecilenYil;
@@ -59,6 +65,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
     super.initState();
     _controller = widget.controller;
     _controller?.addListener(_onStateChanged);
+    _pm = widget.paymentMethod;
     // Lazy loading başlat
     initLazyLoading();
   }
@@ -187,12 +194,8 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    final pm = widget.paymentMethod;
-    final colors = CardColorConstants
-        .gradients[pm.colorIndex.clamp(0, CardColorConstants.count - 1)];
     final allFilteredTransactions = _getFilteredTransactions();
     final transactions = applyPagination(allFilteredTransactions);
-    final cur = getIt<CurrencyService>();
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -200,110 +203,83 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
         title: Text(context.translateDbName(pm.name)),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurface),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddPaymentMethodPage(
+                    paymentMethod: pm,
+                    onSave: (name, type, lastFourDigits, balance, limit, colorIndex) async {
+                      final navigator = Navigator.of(context);
+                      try {
+                        final updatedPm = _pm.copyWith(
+                          name: name,
+                          type: type,
+                          lastFourDigits: lastFourDigits,
+                          balance: balance,
+                          limit: limit,
+                          colorIndex: colorIndex,
+                        );
+                        if (widget.controller != null) {
+                          await widget.controller!.updateMethod(updatedPm);
+                        }
+                        if (widget.onEdit != null) {
+                          widget.onEdit!(updatedPm);
+                        }
+                        setState(() {
+                          _pm = updatedPm;
+                        });
+                        if (mounted) navigator.pop();
+                      } catch (_) {}
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
+            onPressed: () async {
+              final navigator = Navigator.of(context);
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text(context.l10n.delete),
+                  content: Text(context.l10n.deleteErrorMessage),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: Text(context.l10n.cancel),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: Text(context.l10n.delete, style: const TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              );
+              
+              if (confirm == true) {
+                if (widget.controller != null) {
+                  final deletedPm = _pm.copyWith(isDeleted: true);
+                  await widget.controller!.updateMethod(deletedPm);
+                }
+                if (widget.onDelete != null) {
+                  widget.onDelete!(_pm);
+                }
+                if (mounted) navigator.pop();
+              }
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
-          // Hesap Kartı
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: colors,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: colors[0].withValues(alpha: 0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      pm.type == 'kredi'
-                          ? Icons.credit_card
-                          : pm.type == 'nakit'
-                          ? Icons.wallet
-                          : Icons.account_balance,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      size: 28,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        pm.name,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    if (pm.lastFourDigits != null)
-                      Text(
-                        '****${pm.lastFourDigits}',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                          fontSize: 14,
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  pm.type == 'kredi'
-                      ? context.l10n.debt
-                      : context.l10n.balanceLabel,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                    fontSize: 14,
-                  ),
-                ),
-                AmountText(
-                  CurrencyFormatter.format(
-                    cur.convert(pm.balance, pm.paraBirimi, cur.currentCurrency),
-                  ),
-                  style: TextStyle(
-                    color: pm.type == 'kredi'
-                        ? ColorConstants.kirmiziVurgu
-                        : ColorConstants.yesil,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (pm.type == 'kredi' && pm.limit != null) ...[
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${context.l10n.limitLabel}: ${CurrencyFormatter.formatInteger(cur.convert(pm.limit!, pm.paraBirimi, cur.currentCurrency))}',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                          fontSize: 12,
-                        ),
-                      ),
-                      Text(
-                        '${context.l10n.remainingLimitLabel}: ${CurrencyFormatter.formatInteger(cur.convert(pm.limit! - pm.balance, pm.paraBirimi, cur.currentCurrency))}',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
+          // Hesap Karti
+          RealisticPaymentCard(pm: _pm),
 
           // İşlem Listesi Başlığı ve Ay Seçici
           Padding(
@@ -456,7 +432,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
           AmountText(
             () {
               final cur = getIt<CurrencyService>();
-              return '$amountPrefix${CurrencyFormatter.format(cur.convert(item.amount, widget.paymentMethod.paraBirimi, cur.currentCurrency))}';
+              return '$amountPrefix${CurrencyFormatter.format(cur.convert(item.amount, _pm.paraBirimi, cur.currentCurrency))}';
             }(),
             style: TextStyle(color: iconColor, fontWeight: FontWeight.bold),
           ),

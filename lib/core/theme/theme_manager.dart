@@ -9,14 +9,14 @@ class ThemeManager extends ChangeNotifier with SafeNotifierMixin {
   static const String _keyThemeMode = 'themeMode';
 
   bool _isMoneyAnimationEnabled = true;
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.dark;
   late Box _box;
 
   ThemeManager() {
     _box = Hive.box(_boxName);
     _isMoneyAnimationEnabled = _box.get(_keyMoneyAnimation, defaultValue: true);
     
-    final themeModeStr = _box.get(_keyThemeMode, defaultValue: 'system');
+    final themeModeStr = _box.get(_keyThemeMode, defaultValue: 'dark');
     _themeMode = _parseThemeMode(themeModeStr);
   }
 
@@ -34,7 +34,7 @@ class ThemeManager extends ChangeNotifier with SafeNotifierMixin {
         return ThemeMode.dark;
       case 'system':
       default:
-        return ThemeMode.system;
+        return ThemeMode.dark;
     }
   }
 
@@ -45,7 +45,7 @@ class ThemeManager extends ChangeNotifier with SafeNotifierMixin {
       case ThemeMode.dark:
         return 'dark';
       case ThemeMode.system:
-        return 'system';
+        return 'dark';
     }
   }
 

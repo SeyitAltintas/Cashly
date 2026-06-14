@@ -254,18 +254,17 @@ class AppTheme {
       typography: interTypography,
       textTheme: interTextTheme,
       primaryTextTheme: interPrimaryTextTheme,
-      scaffoldBackgroundColor: const Color(0xFFF5F5F5),
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       hoverColor: Colors.transparent,
       splashFactory: NoSplash.splashFactory,
       colorScheme: const ColorScheme.light(
-        primary: Color(0xFF111111), // Minimalist Black
+        primary: Color(0xFF1E1E2C), // Premium Corporate Indigo
         onPrimary: Colors.white,
         secondary: Color(0xFFC8D96F), // Brand Pistachio Green
-        onSecondary: Colors.black,
-        surface: Colors.white,
-        onSurface: Colors.black,
+        onSecondary: Color(0xFF1E1E2C), // Text on secondary should be dark
+        surface: Color(0xFFFAFAFA), // Off-white background
+        onSurface: Color(0xFF1E1E2C), // Text on background
         error: Color(0xFFB00020),
         onError: Colors.white,
         surfaceContainerHighest: Color(0xFFE0E0E0),
@@ -273,12 +272,13 @@ class AppTheme {
       ),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: Colors.black,
-        selectionColor: Colors.black.withValues(alpha: 0.2),
-        selectionHandleColor: Colors.black,
+        selectionColor: const Color(0xFF1E1E2C).withValues(alpha: 0.3),
+        selectionHandleColor: const Color(0xFF1E1E2C),
       ),
+      scaffoldBackgroundColor: const Color(0xFFFAFAFA),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFFF5F5F5),
-        foregroundColor: Colors.black87,
+        backgroundColor: Color(0xFFFAFAFA),
+        foregroundColor: Color(0xFF1E1E2C),
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,

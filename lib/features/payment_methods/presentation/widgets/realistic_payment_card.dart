@@ -4,130 +4,18 @@ import 'package:cashly/core/utils/currency_formatter.dart';
 import 'package:cashly/core/constants/card_color_constants.dart';
 import 'package:cashly/core/widgets/obscured_amount_text.dart';
 import '../../data/models/payment_method_model.dart';
-import '../controllers/payment_methods_controller.dart';
-import 'package:flutter/services.dart';
-import '../pages/add_payment_method_page.dart';
-import '../../../../core/utils/error_handler.dart';
-import '../../../../core/exceptions/app_exceptions.dart';
 
 class RealisticPaymentCard extends StatelessWidget {
   final PaymentMethod pm;
-  final PaymentMethodsController controller;
-  final Function(PaymentMethod) onDelete;
-  final Function(PaymentMethod) onEdit;
   final Function(PaymentMethod)? onCardTap;
   final bool isObscured;
 
   const RealisticPaymentCard({
     super.key,
     required this.pm,
-    required this.controller,
-    required this.onDelete,
-    required this.onEdit,
     this.onCardTap,
     this.isObscured = false,
   });
-
-  void _showLongPressMenu(BuildContext context) {
-    HapticService.mediumImpact();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              pm.name,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            ListTile(
-              leading: const Icon(Icons.edit_outlined),
-              title: Text(context.l10n.edit),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddPaymentMethodPage(
-                      paymentMethod: pm,
-                      onSave:
-                          (
-                            name,
-                            type,
-                            lastFourDigits,
-                            balance,
-                            limit,
-                            colorIndex,
-                          ) async {
-                            try {
-                              final updatedPm = PaymentMethod(
-                                id: pm.id,
-                                name: name,
-                                type: type,
-                                lastFourDigits: lastFourDigits,
-                                balance: balance,
-                                limit: limit,
-                                colorIndex: colorIndex,
-                                createdAt: pm.createdAt,
-                                isDeleted: false,
-                                paraBirimi: pm.paraBirimi,
-                              );
-                              await controller.updateMethod(updatedPm);
-                              onEdit(updatedPm);
-                            } catch (e) {
-                              if (!context.mounted) return;
-                              if (e is AppException) {
-                                ErrorHandler.handleAppException(context, e);
-                              }
-                            }
-                          },
-                    ),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: Text(
-                context.l10n.delete,
-                style: const TextStyle(color: Colors.red),
-              ),
-              onTap: () async {
-                Navigator.pop(context);
-                try {
-                  await controller.moveToBin(pm);
-                  onDelete(pm);
-                } catch (e) {
-                  if (context.mounted && e is AppException) {
-                    ErrorHandler.handleAppException(context, e);
-                  }
-                }
-              },
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +29,6 @@ class RealisticPaymentCard extends StatelessWidget {
     final subTextColor = isBgLight ? Colors.black54 : Colors.white70;
 
     return GestureDetector(
-      onLongPress: () => _showLongPressMenu(context),
       onTap: onCardTap != null ? () => onCardTap!(pm) : null,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -277,16 +164,7 @@ class RealisticPaymentCard extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'KART SAHİBİ',
-                              style: TextStyle(
-                                color: subTextColor,
-                                fontSize: 9,
-                                letterSpacing: 1.5,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
+                            
                             Text(
                               pm.name.toUpperCase(),
                               style: TextStyle(
@@ -399,8 +277,4 @@ class _ChipPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class HapticService {
-  static void mediumImpact() {
-    HapticFeedback.mediumImpact();
-  }
-}
+
