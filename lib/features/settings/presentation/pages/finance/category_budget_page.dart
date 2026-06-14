@@ -227,7 +227,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
             icon: const Icon(Icons.check, size: 18),
             label: Text(context.l10n.save),
             style: ElevatedButton.styleFrom(
-              backgroundColor: ColorConstants.yesil,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(

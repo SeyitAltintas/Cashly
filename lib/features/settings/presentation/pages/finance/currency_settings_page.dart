@@ -69,7 +69,7 @@ class CurrencySettingsPage extends StatelessWidget {
                             height: 40,
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? ColorConstants.yesil.withValues(alpha: 0.15)
+                                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
                                   : Theme.of(context).colorScheme.onSurface
                                         .withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(10),
@@ -81,7 +81,7 @@ class CurrencySettingsPage extends StatelessWidget {
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   color: isSelected
-                                      ? ColorConstants.yesil
+                                      ? Theme.of(context).colorScheme.primary
                                       : Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
@@ -93,13 +93,13 @@ class CurrencySettingsPage extends StatelessWidget {
                               fontWeight: isSelected
                                   ? FontWeight.bold
                                   : FontWeight.normal,
-                              color: isSelected ? ColorConstants.yesil : null,
+                              color: isSelected ? Theme.of(context).colorScheme.primary : null,
                             ),
                           ),
                           trailing: isSelected
-                              ? const Icon(
+                              ? Icon(
                                   Icons.check_circle,
-                                  color: ColorConstants.yesil,
+                                  color: Theme.of(context).colorScheme.primary,
                                 )
                               : null,
                           onTap: () async {

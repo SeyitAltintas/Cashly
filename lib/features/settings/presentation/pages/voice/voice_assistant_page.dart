@@ -205,18 +205,16 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                           ),
                         );
                       },
-                      icon: Icon(Icons.list_alt, color: Theme.of(context).colorScheme.onSecondary),
+                      icon: Icon(Icons.list_alt, color: Theme.of(context).colorScheme.onPrimary),
                       label: Text(
                         context.l10n.viewAllVoiceCommands,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSecondary,
+                          color: Theme.of(context).colorScheme.onPrimary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.secondary,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

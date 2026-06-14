@@ -17,7 +17,7 @@ class HomeBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF6C63FF);
+    final primaryColor = Theme.of(context).colorScheme.primary;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
