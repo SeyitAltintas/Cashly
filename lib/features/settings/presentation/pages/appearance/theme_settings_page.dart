@@ -65,41 +65,40 @@ class ThemeSettingsPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: Column(
-                    children: [
-                      RadioListTile<ThemeMode>(
-                        title: Text(
-                          'Açık Tema',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
+                  child: RadioGroup<ThemeMode>(
+                    groupValue: themeManager.themeMode,
+                    onChanged: (ThemeMode? value) {
+                      if (value != null) themeManager.setThemeMode(value);
+                    },
+                    child: Column(
+                      children: [
+
+                        RadioListTile<ThemeMode>(
+                          title: Text(
+                            'Açık Tema',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
+                          value: ThemeMode.light,
                         ),
-                        value: ThemeMode.light,
-                        groupValue: themeManager.themeMode,
-                        onChanged: (ThemeMode? value) {
-                          if (value != null) themeManager.setThemeMode(value);
-                        },
-                      ),
-                      Divider(
-                        height: 1,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.1),
-                      ),
-                      RadioListTile<ThemeMode>(
-                        title: Text(
-                          'Koyu Tema',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
+                        Divider(
+                          height: 1,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.1),
+                        ),
+                        RadioListTile<ThemeMode>(
+                          title: Text(
+                            'Koyu Tema',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
+                          value: ThemeMode.dark,
                         ),
-                        value: ThemeMode.dark,
-                        groupValue: themeManager.themeMode,
-                        onChanged: (ThemeMode? value) {
-                          if (value != null) themeManager.setThemeMode(value);
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],
