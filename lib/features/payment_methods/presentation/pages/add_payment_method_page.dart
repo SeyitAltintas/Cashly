@@ -412,7 +412,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? Theme.of(context).colorScheme.secondary
+                          ? Theme.of(context).colorScheme.primary
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -465,7 +465,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             counterText: '',
             prefixIcon: Icon(
               _selectedType == 'nakit' ? Icons.wallet : Icons.credit_card,
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
               size: 22,
             ),
             filled: true,
@@ -477,12 +477,12 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.primary,
                 width: 2,
               ),
             ),
             floatingLabelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -529,7 +529,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             counterText: '',
             prefixIcon: Icon(
               Icons.dialpad,
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
               size: 22,
             ),
             filled: true,
@@ -541,12 +541,12 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.primary,
                 width: 2,
               ),
             ),
             floatingLabelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           validator: (value) {
@@ -592,7 +592,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               _selectedType == 'kredi'
                   ? Icons.money_off
                   : Icons.account_balance_wallet,
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
               size: 22,
             ),
             suffixText: getIt<CurrencyService>().currentSymbol,
@@ -606,12 +606,12 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.primary,
                 width: 2,
               ),
             ),
             floatingLabelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -663,7 +663,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
             prefixIcon: Icon(
               Icons.trending_up,
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
               size: 22,
             ),
             suffixText: getIt<CurrencyService>().currentSymbol,
@@ -677,12 +677,12 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.primary,
                 width: 2,
               ),
             ),
             floatingLabelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -769,7 +769,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                       borderRadius: BorderRadius.circular(12),
                       border: isSelected
                           ? Border.all(
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context).colorScheme.primary,
                               width: 3,
                             )
                           : Border.all(
@@ -805,7 +805,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondary,
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(

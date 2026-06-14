@@ -104,7 +104,7 @@ class _BalanceCardState extends State<BalanceCard> {
     final cashBalance = _calculateCashBalance(context);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = Theme.of(context).colorScheme.surface;
+    
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
     final primaryColor = Theme.of(context).colorScheme.primary;
 

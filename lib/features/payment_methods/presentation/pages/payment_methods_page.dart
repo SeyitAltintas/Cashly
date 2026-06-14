@@ -2,23 +2,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
-import 'package:cashly/core/constants/color_constants.dart';
-import 'package:cashly/core/constants/card_color_constants.dart';
 import 'package:cashly/core/widgets/shimmer_loading.dart';
-import 'package:cashly/core/utils/amount_input_formatter.dart';
 import '../../../../core/utils/debouncer.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 
 import '../../data/models/payment_method_model.dart';
 import 'add_payment_method_page.dart';
-import '../widgets/payment_method_summary_card.dart';
+
+import '../widgets/realistic_payment_card.dart';
 import 'payment_method_recycle_bin_page.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../../core/services/currency_service.dart';
 
 import '../controllers/payment_methods_controller.dart';
-import '../../../../core/widgets/amount_text.dart';
 import '../../../../core/utils/error_handler.dart';
 import '../../../../core/exceptions/app_exceptions.dart';
 
@@ -118,12 +115,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
           final deletedPaymentMethods = context.select(
             (PaymentMethodsController c) => c.deletedPaymentMethods,
           );
-          final totalBalance = context.select(
-            (PaymentMethodsController c) => c.totalBalance,
-          );
-          final totalDebt = context.select(
-            (PaymentMethodsController c) => c.totalDebt,
-          );
 
           return Scaffold(
             appBar: AppBar(
@@ -133,7 +124,9 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       onChanged: (value) =>
                           _searchDebouncer.run(() => _filtrele()),
                       autofocus: true,
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                       decoration: InputDecoration(
                         hintText: context.l10n.searchPaymentMethod,
                         border: InputBorder.none,
@@ -149,12 +142,18 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
               elevation: 0,
               centerTitle: false,
               leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
               actions: [
                 IconButton(
-                  icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.onSurface),
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   tooltip: context.l10n.trashBin,
                   onPressed: () {
                     Navigator.push(
@@ -230,72 +229,11 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       child: Column(
                         children: [
                           // Toplam Özet Kartı - Kingmode Carousel
-                          PaymentMethodSummaryCard(
-                            totalBalance: totalBalance,
-                            totalDebt: totalDebt,
-                            userName: widget.userName ?? 'Kullanıcı',
-                            userProfileUrl: widget.userProfileUrl,
-                            paymentMethods: filteredMethods,
-                          ),
-                          const SizedBox(height: 24),
                           _buildPaymentMethodsList(filteredMethods, aramaModu),
                         ],
                       ),
                     ),
                   ),
-            floatingActionButton: FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddPaymentMethodPage(
-                      onSave:
-                          (
-                            name,
-                            type,
-                            lastFourDigits,
-                            balance,
-                            limit,
-                            colorIndex,
-                          ) async {
-                            try {
-                              final newPm = PaymentMethod(
-                                id: DateTime.now().millisecondsSinceEpoch
-                                    .toString(),
-                                name: name,
-                                type: type,
-                                lastFourDigits: lastFourDigits,
-                                balance: balance,
-                                limit: limit,
-                                colorIndex: colorIndex,
-                                createdAt: DateTime.now(),
-                                isDeleted: false,
-                                paraBirimi:
-                                    getIt<CurrencyService>().currentCurrency,
-                              );
-                              await _controller.addMethod(newPm);
-                              widget.onAdd(newPm);
-                            } catch (e) {
-                              if (!mounted) return;
-                              if (e is AppException) {
-                                ErrorHandler.handleAppException(context, e);
-                              }
-                            }
-                          },
-                    ),
-                  ),
-                );
-              },
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              icon: Icon(Icons.add, color: Theme.of(context).colorScheme.onSecondary),
-              label: Text(
-                context.l10n.addCard,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSecondary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
           );
         },
       ),
@@ -321,21 +259,50 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
             );
     }
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: filteredMethods.length,
-      // itemExtent: Sabit yükseklik belirterek scroll performansını artırır
-      // Her kart 140px yükseklik + 16px bottom margin = 156px
-      itemExtent: 156,
-      itemBuilder: (context, index) {
-        final pm = filteredMethods[index];
-        return _PaymentMethodCard(
-          pm: pm,
-          controller: _controller,
-          onDelete: widget.onDelete,
-          onEdit: widget.onEdit,
-          onCardTap: widget.onCardTap,
+    return PaymentMethodSlider(
+      methods: filteredMethods,
+      controller: _controller,
+      onDelete: widget.onDelete,
+      onEdit: widget.onEdit,
+      onCardTap: widget.onCardTap,
+      onAddCard: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddPaymentMethodPage(
+              onSave:
+                  (
+                    name,
+                    type,
+                    lastFourDigits,
+                    balance,
+                    limit,
+                    colorIndex,
+                  ) async {
+                    try {
+                      final newPm = PaymentMethod(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        name: name,
+                        type: type,
+                        lastFourDigits: lastFourDigits,
+                        balance: balance,
+                        limit: limit,
+                        colorIndex: colorIndex,
+                        createdAt: DateTime.now(),
+                        isDeleted: false,
+                        paraBirimi: getIt<CurrencyService>().currentCurrency,
+                      );
+                      await _controller.addMethod(newPm);
+                      widget.onAdd(newPm);
+                    } catch (e) {
+                      if (!mounted) return;
+                      if (e is AppException) {
+                        ErrorHandler.handleAppException(context, e);
+                      }
+                    }
+                  },
+            ),
+          ),
         );
       },
     );
@@ -345,226 +312,192 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
 /// Ödeme yöntemi kartı — ayrı StatelessWidget olarak izole edildi.
 /// [RepaintBoundary] ile repaint izolasyonu ve her rebuild'de yeni nesne
 /// oluşturma maliyeti önlendi.
-class _PaymentMethodCard extends StatelessWidget {
-  final PaymentMethod pm;
+
+class PaymentMethodSlider extends StatefulWidget {
+  final List<PaymentMethod> methods;
   final PaymentMethodsController controller;
-  final Function(PaymentMethod)? onCardTap;
   final Function(PaymentMethod) onDelete;
   final Function(PaymentMethod) onEdit;
+  final Function(PaymentMethod)? onCardTap;
+  final VoidCallback onAddCard;
 
-  const _PaymentMethodCard({
-    required this.pm,
+  const PaymentMethodSlider({
+    super.key,
+    required this.methods,
     required this.controller,
     required this.onDelete,
     required this.onEdit,
+    required this.onAddCard,
     this.onCardTap,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final colors = CardColorConstants
-        .gradients[pm.colorIndex.clamp(0, CardColorConstants.count - 1)];
+  State<PaymentMethodSlider> createState() => _PaymentMethodSliderState();
+}
 
-    return RepaintBoundary(
-      child: Dismissible(
-        key: Key(pm.id),
-        direction: DismissDirection.endToStart,
-        background: Container(
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 20),
-          margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: ColorConstants.koyuKirmizi,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onSurface),
-        ),
-        confirmDismiss: (direction) async {
-          try {
-            await controller.moveToBin(pm);
-            return true;
-          } catch (e) {
-            if (context.mounted) {
-              if (e is AppException) {
-                ErrorHandler.handleAppException(context, e);
-              }
-            }
-            return false;
-          }
-        },
-        onDismissed: (direction) {
-          onDelete(pm);
-        },
-        child: GestureDetector(
-          onTap: onCardTap != null ? () => onCardTap!(pm) : null,
-          onLongPress: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddPaymentMethodPage(
-                  paymentMethod: pm,
-                  onSave:
-                      (
-                        name,
-                        type,
-                        lastFourDigits,
-                        balance,
-                        limit,
-                        colorIndex,
-                      ) async {
-                        try {
-                          final updatedPm = PaymentMethod(
-                            id: pm.id,
-                            name: name,
-                            type: type,
-                            lastFourDigits: lastFourDigits,
-                            balance: balance,
-                            limit: limit,
-                            colorIndex: colorIndex,
-                            createdAt: pm.createdAt,
-                            isDeleted: false,
-                            paraBirimi: pm.paraBirimi,
-                          );
-                          await controller.updateMethod(updatedPm);
-                          onEdit(updatedPm);
-                        } catch (e) {
-                          if (!context.mounted) return;
-                          if (e is AppException) {
-                            ErrorHandler.handleAppException(context, e);
-                          }
-                        }
-                      },
-                ),
-              ),
-            );
-          },
-          child: Container(
-            height: 140,
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: Theme.of(context).brightness == Brightness.dark
-                    ? colors
-                    : [
-                        colors[0].withValues(alpha: 0.1),
-                        colors[1].withValues(alpha: 0.2),
-                      ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: colors[0].withValues(alpha: 0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(20),
-            child: MediaQuery(
-              data: MediaQuery.of(
-                context,
-              ).copyWith(textScaler: TextScaler.noScaling),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          context.translateDbName(pm.typeDisplayName),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      Icon(
-                        pm.type == 'nakit'
-                            ? Icons.wallet
-                            : pm.type == 'kredi'
-                            ? Icons.credit_card
-                            : Icons.account_balance,
-                        color: Colors.white.withValues(alpha: 0.7),
-                        size: 24,
-                      ),
-                    ],
-                  ),
-                  if (pm.type != 'nakit' && pm.lastFourDigits != null)
-                    Text(
-                      '\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 ${pm.lastFourDigits}',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 14,
-                        letterSpacing: 2,
-                      ),
+class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
+  int _currentIndex = 0;
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.85);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const isObscured = false; // or read from DashboardController if needed
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 220,
+          child: PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            itemCount: widget.methods.length + 1,
+            itemBuilder: (context, index) {
+              if (index == widget.methods.length) {
+                return GestureDetector(
+                  onTap: widget.onAddCard,
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
                     ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            context.translateDbName(pm.name).toUpperCase(),
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.7),
-                              fontSize: 11,
-                              letterSpacing: 1,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.5),
+                        width: 2,
+                        style: BorderStyle.none,
+                      ),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.05),
+                    ),
+                    child: CustomPaint(
+                      painter: DashedBorderPainter(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.5),
+                        borderRadius: 20,
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add_circle_outline,
+                              size: 48,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
-                          ),
-                          if (pm.type == 'kredi' && pm.limit != null)
+                            const SizedBox(height: 12),
                             Text(
-                              'Limit: ${AmountInputFormatter.formatInitialValue(pm.limit!).replaceAll(',00', '')} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
+                              'Yeni Kart Ekle',
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.5),
-                                fontSize: 10,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
-                        ],
+                          ],
+                        ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            pm.type == 'kredi'
-                                ? context.l10n.debt
-                                : context.l10n.balanceLabel,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              fontSize: 10,
-                            ),
-                          ),
-                          AmountText(
-                            '${AmountInputFormatter.formatInitialValue(pm.balance)} ${CurrencyService.supportedCurrencies[pm.paraBirimi] ?? '₺'}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
-                ],
+                );
+              }
+              return RealisticPaymentCard(
+                pm: widget.methods[index],
+                controller: widget.controller,
+                onDelete: widget.onDelete,
+                onEdit: widget.onEdit,
+                onCardTap: widget.onCardTap,
+                isObscured: isObscured,
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Dot Indicators
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            widget.methods.length + 1,
+            (index) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              height: 8,
+              width: _currentIndex == index ? 24 : 8,
+              decoration: BoxDecoration(
+                color: _currentIndex == index
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(4),
               ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
+}
+
+class DashedBorderPainter extends CustomPainter {
+  final Color color;
+  final double borderRadius;
+
+  DashedBorderPainter({required this.color, required this.borderRadius});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = color
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    final RRect rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Radius.circular(borderRadius),
+    );
+
+    final Path path = Path()..addRRect(rrect);
+    final Path dashPath = Path();
+
+    const double dashWidth = 8.0;
+    const double dashSpace = 6.0;
+    double distance = 0.0;
+
+    for (var pathMetric in path.computeMetrics()) {
+      while (distance < pathMetric.length) {
+        dashPath.addPath(
+          pathMetric.extractPath(distance, distance + dashWidth),
+          Offset.zero,
+        );
+        distance += dashWidth + dashSpace;
+      }
+      distance = 0.0;
+    }
+
+    canvas.drawPath(dashPath, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

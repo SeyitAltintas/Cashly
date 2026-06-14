@@ -103,7 +103,7 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: const Color(0xFF121212),
         surfaceTintColor: Colors.transparent,
-        indicatorColor: Color(0xFFC8D96F).withValues(alpha: 0.2),
+        indicatorColor: const Color(0xFFC8D96F).withValues(alpha: 0.2),
         elevation: 0,
         height: 65,
         labelTextStyle: const WidgetStatePropertyAll(TextStyle(/* fontFamily: _fontFamily, */ fontSize: 12)),
@@ -260,9 +260,9 @@ class AppTheme {
       hoverColor: Colors.transparent,
       splashFactory: NoSplash.splashFactory,
       colorScheme: const ColorScheme.light(
-        primary: Color(0xFFC8D96F),
-        onPrimary: Colors.black,
-        secondary: Color(0xFFE5F0B5),
+        primary: Color(0xFF111111), // Minimalist Black
+        onPrimary: Colors.white,
+        secondary: Color(0xFFC8D96F), // Brand Pistachio Green
         onSecondary: Colors.black,
         surface: Colors.white,
         onSurface: Colors.black,
