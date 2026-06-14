@@ -113,9 +113,7 @@ class _BalanceCardState extends State<BalanceCard> {
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: isDark 
-              ? surfaceColor.withValues(alpha: 0.8) 
-              : surfaceColor.withValues(alpha: 0.65),
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: onSurfaceColor.withValues(alpha: 0.06),
