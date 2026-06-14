@@ -271,7 +271,7 @@ class AppTheme {
         brightness: Brightness.light,
       ),
       textSelectionTheme: TextSelectionThemeData(
-        cursorColor: Colors.black,
+        cursorColor: Color(0xFF1E1E2C),
         selectionColor: const Color(0xFF1E1E2C).withValues(alpha: 0.3),
         selectionHandleColor: const Color(0xFF1E1E2C),
       ),
@@ -284,14 +284,14 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         centerTitle: true,
         toolbarHeight: kToolbarHeight,
-        titleTextStyle: TextStyle(/* fontFamily: _fontFamily, */ fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black87),
-        iconTheme: IconThemeData(color: Colors.black87),
+        titleTextStyle: TextStyle(/* fontFamily: _fontFamily, */ fontSize: 20, fontWeight: FontWeight.w500, color: Color(0xFF1E1E2C).withValues(alpha: 0.87)),
+        iconTheme: IconThemeData(color: Color(0xFF1E1E2C).withValues(alpha: 0.87)),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Colors.white,
         elevation: 8,
-        selectedItemColor: Colors.black87,
-        unselectedItemColor: Colors.black38,
+        selectedItemColor: Color(0xFF1E1E2C).withValues(alpha: 0.87),
+        unselectedItemColor: Color(0xFF1E1E2C).withValues(alpha: 0.38),
         type: BottomNavigationBarType.fixed,
         selectedLabelStyle: TextStyle(/* fontFamily: _fontFamily, */ fontSize: 12, fontWeight: FontWeight.w600),
         unselectedLabelStyle: TextStyle(/* fontFamily: _fontFamily, */ fontSize: 12),
@@ -299,14 +299,14 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        indicatorColor: Colors.black.withValues(alpha: 0.08),
+        indicatorColor: Color(0xFFC8D96F).withValues(alpha: 0.3),
         elevation: 4,
         height: 65,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87);
+            return const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF1E1E2C).withValues(alpha: 0.87));
           }
-          return const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 12, color: Colors.black54);
+          return const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 12, color: Color(0xFF1E1E2C).withValues(alpha: 0.54));
         }),
       ),
       cardTheme: const CardThemeData(
@@ -319,8 +319,8 @@ class AppTheme {
       dialogTheme: const DialogThemeData(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        titleTextStyle: TextStyle(/* fontFamily: _fontFamily, */ fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87),
-        contentTextStyle: TextStyle(/* fontFamily: _fontFamily, */ fontSize: 14, color: Colors.black54),
+        titleTextStyle: TextStyle(/* fontFamily: _fontFamily, */ fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF1E1E2C).withValues(alpha: 0.87)),
+        contentTextStyle: TextStyle(/* fontFamily: _fontFamily, */ fontSize: 14, color: Color(0xFF1E1E2C).withValues(alpha: 0.54)),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.white,
@@ -329,23 +329,23 @@ class AppTheme {
       ),
       listTileTheme: const ListTileThemeData(
         dense: false,
-        titleTextStyle: TextStyle(/* fontFamily: _fontFamily, */ fontSize: 16, color: Colors.black87),
-        subtitleTextStyle: TextStyle(/* fontFamily: _fontFamily, */ fontSize: 13, color: Colors.black54),
+        titleTextStyle: TextStyle(/* fontFamily: _fontFamily, */ fontSize: 16, color: Color(0xFF1E1E2C).withValues(alpha: 0.87)),
+        subtitleTextStyle: TextStyle(/* fontFamily: _fontFamily, */ fontSize: 13, color: Color(0xFF1E1E2C).withValues(alpha: 0.54)),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: Color(0xFFC8D96F),
-        foregroundColor: Colors.black,
+        foregroundColor: Color(0xFF1E1E2C),
       ),
       datePickerTheme: DatePickerThemeData(
         backgroundColor: Colors.white,
         headerBackgroundColor: Colors.white,
-        headerForegroundColor: Colors.black87,
-        headerHeadlineStyle: const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black87),
-        headerHelpStyle: const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54),
+        headerForegroundColor: Color(0xFF1E1E2C).withValues(alpha: 0.87),
+        headerHeadlineStyle: const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1E1E2C).withValues(alpha: 0.87)),
+        headerHelpStyle: const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF1E1E2C).withValues(alpha: 0.54)),
         dayForegroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return Colors.white;
-          if (states.contains(WidgetState.disabled)) return Colors.black26;
-          return Colors.black87;
+          if (states.contains(WidgetState.disabled)) return Color(0xFF1E1E2C).withValues(alpha: 0.26);
+          return Color(0xFF1E1E2C).withValues(alpha: 0.87);
         }),
         dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return PageThemeColors.darkGray;
@@ -356,20 +356,20 @@ class AppTheme {
         todayBorder: const BorderSide(color: PageThemeColors.darkGray, width: 1.5),
         yearForegroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return Colors.white;
-          return Colors.black87;
+          return Color(0xFF1E1E2C).withValues(alpha: 0.87);
         }),
         yearBackgroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return PageThemeColors.darkGray;
           return Colors.transparent;
         }),
-        yearOverlayColor: WidgetStateProperty.all(Colors.black.withValues(alpha: 0.05)),
-        weekdayStyle: const TextStyle(/* fontFamily: _fontFamily, */ color: Colors.black54, fontWeight: FontWeight.w600, fontSize: 13),
-        dayStyle: const TextStyle(/* fontFamily: _fontFamily, */ color: Colors.black87, fontWeight: FontWeight.w500),
-        dividerColor: Colors.black12,
+        yearOverlayColor: WidgetStateProperty.all(Color(0xFF1E1E2C).withValues(alpha: 0.05)),
+        weekdayStyle: const TextStyle(/* fontFamily: _fontFamily, */ color: Color(0xFF1E1E2C).withValues(alpha: 0.54), fontWeight: FontWeight.w600, fontSize: 13),
+        dayStyle: const TextStyle(/* fontFamily: _fontFamily, */ color: Color(0xFF1E1E2C).withValues(alpha: 0.87), fontWeight: FontWeight.w500),
+        dividerColor: Color(0xFF1E1E2C).withValues(alpha: 0.12),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         cancelButtonStyle: TextButton.styleFrom(
-          foregroundColor: Colors.black54,
+          foregroundColor: Color(0xFF1E1E2C).withValues(alpha: 0.54),
           textStyle: const TextStyle(/* fontFamily: _fontFamily, */ fontWeight: FontWeight.w500, fontSize: 15),
         ),
         confirmButtonStyle: TextButton.styleFrom(
@@ -378,7 +378,7 @@ class AppTheme {
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: Colors.black.withValues(alpha: 0.05),
+          fillColor: Color(0xFF1E1E2C).withValues(alpha: 0.05),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: PageThemeColors.darkGray)),
         ),
@@ -386,7 +386,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           splashFactory: NoSplash.splashFactory,
-          foregroundColor: Colors.black,
+          foregroundColor: Color(0xFF1E1E2C),
           backgroundColor: const Color(0xFFC8D96F),
           textStyle: const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 16, fontWeight: FontWeight.w600),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
@@ -397,7 +397,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           splashFactory: NoSplash.splashFactory,
-          foregroundColor: Colors.black54,
+          foregroundColor: Color(0xFF1E1E2C).withValues(alpha: 0.54),
           textStyle: const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 14, fontWeight: FontWeight.w500),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           minimumSize: const Size(48, 40),
@@ -406,28 +406,28 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           splashFactory: NoSplash.splashFactory,
-          foregroundColor: Colors.black87,
+          foregroundColor: Color(0xFF1E1E2C).withValues(alpha: 0.87),
           textStyle: const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 14, fontWeight: FontWeight.w500),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           minimumSize: const Size(64, 44),
-          side: BorderSide(color: Colors.black.withValues(alpha: 0.2)),
+          side: BorderSide(color: Color(0xFF1E1E2C).withValues(alpha: 0.2)),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.black.withValues(alpha: 0.04),
+        fillColor: Color(0xFF1E1E2C).withValues(alpha: 0.04),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: PageThemeColors.darkGray)),
-        labelStyle: const TextStyle(/* fontFamily: _fontFamily, */ color: Colors.black54),
-        hintStyle: const TextStyle(/* fontFamily: _fontFamily, */ color: Colors.black38),
+        labelStyle: const TextStyle(/* fontFamily: _fontFamily, */ color: Color(0xFF1E1E2C).withValues(alpha: 0.54)),
+        hintStyle: const TextStyle(/* fontFamily: _fontFamily, */ color: Color(0xFF1E1E2C).withValues(alpha: 0.38)),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: Colors.black.withValues(alpha: 0.06),
+        backgroundColor: Color(0xFF1E1E2C).withValues(alpha: 0.06),
         selectedColor: PageThemeColors.darkGray.withValues(alpha: 0.15),
-        labelStyle: const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 13, color: Colors.black87),
+        labelStyle: const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 13, color: Color(0xFF1E1E2C).withValues(alpha: 0.87)),
         secondaryLabelStyle: const TextStyle(/* fontFamily: _fontFamily, */ fontSize: 13, color: PageThemeColors.darkGray),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
