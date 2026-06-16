@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/utils/image_utils.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/currency_service.dart';
@@ -32,6 +33,7 @@ class DashboardPage extends StatefulWidget {
   final StreakData streakData;
   final List<Transfer> transferler;
   final Map<String, double>? categoryBudgets;
+  final String? profileImage;
   final VoidCallback? onAssetsPressed;
 
   const DashboardPage({
@@ -46,6 +48,7 @@ class DashboardPage extends StatefulWidget {
     required this.streakData,
     required this.transferler,
     this.categoryBudgets,
+    this.profileImage,
     this.onAssetsPressed,
   });
 
@@ -85,7 +88,8 @@ class _DashboardPageState extends State<DashboardPage>
         oldWidget.butceLimiti != widget.butceLimiti ||
         oldWidget.secilenAy != widget.secilenAy ||
         oldWidget.streakData != widget.streakData ||
-        oldWidget.transferler != widget.transferler) {
+        oldWidget.transferler != widget.transferler ||
+        oldWidget.profileImage != widget.profileImage) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           _updateControllerData();
@@ -106,6 +110,7 @@ class _DashboardPageState extends State<DashboardPage>
       butceLimiti: widget.butceLimiti,
       secilenAy: widget.secilenAy,
       streakData: widget.streakData,
+      profileImage: widget.profileImage,
     );
     // Kategori bütçelerini ayrıca set et (opsiyonel parametre)
     if (widget.categoryBudgets != null) {
@@ -125,7 +130,7 @@ class _DashboardPageState extends State<DashboardPage>
             top: MediaQuery.of(context).padding.top + 20,
             left: 20,
             right: 20,
-            bottom: 20,
+            bottom: 120,
           ),
           children: [
               // Hoş Geldin Bölümü
@@ -174,6 +179,18 @@ class _GreetingSection extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+                    Consumer<DashboardController>(
+            builder: (context, controller, child) {
+              if (controller.profileImage != null && controller.profileImage!.isNotEmpty) {
+                return CircleAvatar(
+                  radius: 28,
+                  backgroundImage: ImageUtils.getProfileImageProvider(controller.profileImage!),
+                );
+              }
+              return Container();
+            },
+          ),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,6 +216,7 @@ class _GreetingSection extends StatelessWidget {
               ],
             ),
           ),
+
         ],
       ),
     );

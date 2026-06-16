@@ -193,7 +193,7 @@ class RecentTransactionsCard extends StatelessWidget {
             ),
           ),
           ObscuredAmountText(
-            "$prefix${CurrencyFormatter.format(transaction['amount'] as double)}",
+            "$prefix${CurrencyFormatter.formatInteger(transaction['amount'] as double)}",
             isObscured: isObscured,
             style: TextStyle(
               color: iconColor.withValues(alpha: 0.9),

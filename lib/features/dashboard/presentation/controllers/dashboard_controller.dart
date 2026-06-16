@@ -209,6 +209,9 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
 
   String _userName = '';
   String get userName => _userName;
+  
+  String? _profileImage;
+  String? get profileImage => _profileImage;
 
   String? _userId;
   String? get userId => _userId;
@@ -389,8 +392,10 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
     required DateTime secilenAy,
     required StreakData streakData,
     String? userId,
+    String? profileImage,
   }) {
     _userName = userName;
+    _profileImage = profileImage;
     _harcamalar = harcamalar;
     _gelirler = gelirler;
     _varliklar = varliklar;

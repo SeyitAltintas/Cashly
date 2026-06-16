@@ -72,7 +72,7 @@ class CreditDebtCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   ObscuredAmountText(
-                    CurrencyFormatter.format(totalDebt),
+                    CurrencyFormatter.formatInteger(totalDebt),
                     isObscured: isObscured,
                     style: const TextStyle(
                       fontSize: 20,

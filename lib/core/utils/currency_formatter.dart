@@ -122,9 +122,24 @@ class CurrencyFormatter {
     return isPrefix ? '$sym$shortAmount' : '$shortAmount $sym';
   }
 
-  /// Tam sayı olarak formatla (ondalık yok, sembol konumu otomatik)
-  /// TRY: "50.001 ₺"  /  USD: "$50,001"
   static String formatInteger(double amount, {String? currency}) {
     return _applySymbol(_trFormatterNoDecimal.format(amount.round()), currency);
+  }
+
+  /// Para değerini tam sayı olarak işaretli formatlar (sembol konumu otomatik)
+  static String formatIntegerSigned(
+    double amount, {
+    bool showPlus = false,
+    String? currency,
+  }) {
+    final prefix = amount >= 0 && showPlus ? '+' : '';
+    final code = _resolveCurrencyCode(currency);
+    final symbol = _getSymbolForCurrency(currency);
+    String formatted = _trFormatterNoDecimal.format(amount.round());
+
+    if (_prefixCurrencies.contains(code)) {
+      return '$prefix$symbol$formatted';
+    }
+    return '$prefix$formatted $symbol';
   }
 }

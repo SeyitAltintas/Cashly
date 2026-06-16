@@ -375,10 +375,13 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
 
         return RefreshIndicator(
           onRefresh: _yenile,
+          edgeOffset: 0.0,
+          displacement: 80.0,
           color: Theme.of(context).colorScheme.primary,
           backgroundColor: Theme.of(context).colorScheme.surface,
           child: DashboardPage(
             userName: userName,
+            profileImage: widget.authController.currentUser?.profileImage,
             harcamalar: tumHarcamalar,
             gelirler: tumGelirler,
             varliklar: varliklar,

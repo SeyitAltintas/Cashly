@@ -106,7 +106,7 @@ class BudgetStatusCard extends StatelessWidget {
                 children: [
                   ObscuredAmountText(
                     context.l10n.spentAmount(
-                      CurrencyFormatter.format(monthlyExpense),
+                      CurrencyFormatter.formatInteger(monthlyExpense),
                     ),
                     isObscured: isObscured,
                     style: TextStyle(
@@ -118,7 +118,7 @@ class BudgetStatusCard extends StatelessWidget {
                   ),
                   ObscuredAmountText(
                     context.l10n.limitAmount(
-                      CurrencyFormatter.format(butceLimiti),
+                      CurrencyFormatter.formatInteger(butceLimiti),
                     ),
                     isObscured: isObscured,
                     style: TextStyle(

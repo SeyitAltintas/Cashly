@@ -71,7 +71,7 @@ class MonthlySummaryCard extends StatelessWidget {
                         icon: Icons.arrow_downward,
                         iconColor: ColorConstants.kirmiziVurgu,
                         label: context.l10n.expense,
-                        value: CurrencyFormatter.format(monthlyExpense),
+                        value: CurrencyFormatter.formatInteger(monthlyExpense),
                         isObscured: isObscured,
                         valueColor: ColorConstants.kirmiziVurgu,
                         labelFontSize: labelFontSize,
@@ -92,7 +92,7 @@ class MonthlySummaryCard extends StatelessWidget {
                         icon: Icons.arrow_upward,
                         iconColor: ColorConstants.yesil,
                         label: context.l10n.income,
-                        value: CurrencyFormatter.format(monthlyIncome),
+                        value: CurrencyFormatter.formatInteger(monthlyIncome),
                         isObscured: isObscured,
                         valueColor: ColorConstants.yesil,
                         labelFontSize: labelFontSize,
@@ -117,7 +117,7 @@ class MonthlySummaryCard extends StatelessWidget {
                             ? ColorConstants.yesil
                             : ColorConstants.kirmiziVurgu,
                         label: context.l10n.net,
-                        value: CurrencyFormatter.formatSigned(
+                        value: CurrencyFormatter.formatIntegerSigned(
                           netDiff,
                           showPlus: true,
                         ),

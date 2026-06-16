@@ -1081,7 +1081,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     color: _primaryColor,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(Icons.add, color: Theme.of(context).colorScheme.onSurface, size: 20),
+                  child: const Icon(Icons.add, color: Colors.white, size: 20),
                 ),
               ),
             ],
