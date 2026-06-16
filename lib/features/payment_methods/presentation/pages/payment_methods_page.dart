@@ -231,7 +231,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
                       // Verileri yeniden yükle
                       _controller.refresh();
                     },
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                     child: SingleChildScrollView(
                       // RefreshIndicator çalışması için physics gerekli
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -578,7 +578,7 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ],

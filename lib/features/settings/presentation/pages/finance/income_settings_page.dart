@@ -183,12 +183,12 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
   Widget _buildSectionTitle(BuildContext context, String title, IconData icon) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: Theme.of(context).colorScheme.secondary),
+        Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
         const SizedBox(width: 8),
         Text(
           title,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.secondary,
+            color: Theme.of(context).colorScheme.primary,
             fontSize: 13,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.5,

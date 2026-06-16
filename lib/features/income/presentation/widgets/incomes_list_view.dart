@@ -39,8 +39,7 @@ class IncomesListView extends StatelessWidget {
           // Normal income items — sabit yükseklik ile O(1) scroll offset hesabı
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverFixedExtentList(
-              itemExtent: 72, // Card + ListTile(vertical:4) + margin(bottom:6)
+            sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 if (index >= gelirler.length) return null;
 
@@ -49,6 +48,8 @@ class IncomesListView extends StatelessWidget {
                   income: gelir,
                   categoryIcon: kategoriIkonlari[gelir.category],
                   itemIndex: index,
+                  isFirst: index == 0,
+                  isLast: index == gelirler.length - 1,
                   onDelete: () => onDelete(gelir),
                   onTap: () => onEdit(gelir),
                 );

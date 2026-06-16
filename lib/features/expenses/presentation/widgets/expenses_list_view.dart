@@ -44,8 +44,7 @@ class ExpensesListView extends StatelessWidget {
           // Normal expense items — sabit yükseklik ile O(1) scroll offset hesabı
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            sliver: SliverFixedExtentList(
-              itemExtent: 72, // Card + ListTile(vertical:4) + margin(bottom:6)
+            sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 if (index >= gosterilenHarcamalar.length) return null;
 
@@ -60,6 +59,8 @@ class ExpensesListView extends StatelessWidget {
                       ),
                   paymentMethods: tumOdemeYontemleri,
                   itemIndex: index,
+                  isFirst: index == 0,
+                  isLast: index == gosterilenHarcamalar.length - 1,
                   onDelete: () => onDelete(harcama),
                   onTap: () {
                     HapticService.selectionClick();

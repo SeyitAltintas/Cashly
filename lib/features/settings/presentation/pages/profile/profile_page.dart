@@ -283,7 +283,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           Text(
             context.l10n.account,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
               fontSize: 13,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
@@ -367,7 +367,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           Text(
             context.l10n.support,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
               fontSize: 13,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
@@ -418,7 +418,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           Text(
             context.l10n.session,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
               fontSize: 13,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,

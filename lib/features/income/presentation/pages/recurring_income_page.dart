@@ -725,7 +725,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                   return '+${CurrencyFormatter.format(converted)}';
                 }(),
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),

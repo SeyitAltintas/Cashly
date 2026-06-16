@@ -288,7 +288,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
               children: [
                 Icon(
                   Icons.history,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 20,
                 ),
                 const SizedBox(width: 8),

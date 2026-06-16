@@ -153,7 +153,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
         labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70)),
         prefixIcon: Icon(
           Icons.email_outlined,
-          color: Theme.of(context).colorScheme.secondary,
+          color: Theme.of(context).colorScheme.primary,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
@@ -205,7 +205,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
         counterText: "",
         prefixIcon: Icon(
           Icons.lock_outline,
-          color: Theme.of(context).colorScheme.secondary,
+          color: Theme.of(context).colorScheme.primary,
         ),
         suffixIcon: IconButton(
           icon: Icon(
@@ -287,7 +287,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
           onPressed: widget.onSignUp,
           child: Text(
             context.l10n.dontHaveAccount,
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
         ),
         // Şifremi Unuttum (Sağ)

@@ -328,14 +328,26 @@ class _GelirCopKutusuSayfasiState extends State<GelirCopKutusuSayfasi>
                   cur.currentCurrency,
                 );
 
-                return Card(
-                  color: Theme.of(context).colorScheme.surface,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.05),
+                final isFirst = index == 0;
+                final isLast = index == silinenGelirler.length - 1;
+
+                return Container(
+                  margin: EdgeInsets.zero,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? const Color(0xFFF8F9FA)
+                        : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.vertical(
+                      top: isFirst ? const Radius.circular(16) : Radius.zero,
+                      bottom: isLast ? const Radius.circular(16) : Radius.zero,
+                    ),
+                    border: Border(
+                      top: isFirst
+                          ? BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06))
+                          : BorderSide.none,
+                      bottom: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)),
+                      left: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)),
+                      right: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)),
                     ),
                   ),
                   child: ListTile(

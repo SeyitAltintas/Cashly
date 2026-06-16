@@ -331,9 +331,6 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
         // cacheExtent: Görünür alan dışında önbelleğe alınacak piksel
         // 500px = yaklaşık 4-5 liste öğesi önden yüklenir
         cacheExtent: 500,
-        // itemExtent: Sabit yükseklik → O(1) scroll offset hesabı
-        // Asset item 3 satır tarih içerdiğinden 82px kullanılıyor
-        itemExtent: 82,
         itemCount: filtrelenmisVarliklar.length + (hasMoreItems ? 1 : 0),
         itemBuilder: (context, index) {
           // Son item ise ve daha fazla veri varsa loading göster
@@ -345,6 +342,8 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
           // RepaintBoundary ile render izolasyonu - performans optimizasyonu
           return AssetListItem(
             asset: asset,
+            isFirst: index == 0,
+            isLast: index == filtrelenmisVarliklar.length - 1,
             onDelete: () {
               _controller.deleteAsset(asset);
               widget.onDelete(asset);

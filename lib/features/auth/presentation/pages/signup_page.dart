@@ -115,7 +115,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     prefixIcon: Icon(
                       Icons.person_outline,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(50),
@@ -164,7 +164,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     prefixIcon: Icon(
                       Icons.email_outlined,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(50),
@@ -218,7 +218,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     prefixIcon: Icon(
                       Icons.lock_outline,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -290,7 +290,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     prefixIcon: Icon(
                       Icons.lock_outline,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -435,7 +435,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     child: Text(
                       context.l10n.alreadyHaveAccount,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),

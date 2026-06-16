@@ -146,7 +146,7 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                               ? Icons.volume_up
                               : Icons.volume_off,
                           color: _sesliGeriBildirimAktif
-                              ? Theme.of(context).colorScheme.secondary
+                              ? Theme.of(context).colorScheme.primary
                               : Theme.of(
                                   context,
                                 ).colorScheme.onSurface.withValues(alpha: 0.5),

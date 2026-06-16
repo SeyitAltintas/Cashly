@@ -404,7 +404,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
           onPressed: widget.onSwitchToGenericLogin,
           child: Text(
             context.l10n.loginWithAnotherAccount,
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
         ),
         TextButton(

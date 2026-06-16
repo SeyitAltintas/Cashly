@@ -13,6 +13,8 @@ class AssetListItem extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
+  final bool isFirst;
+  final bool isLast;
 
   const AssetListItem({
     super.key,
@@ -20,6 +22,8 @@ class AssetListItem extends StatelessWidget {
     required this.onDelete,
     required this.onTap,
     required this.onLongPress,
+    this.isFirst = false,
+    this.isLast = false,
   });
 
   @override
@@ -31,15 +35,15 @@ class AssetListItem extends StatelessWidget {
         background: Container(
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.only(right: 20),
-          margin: const EdgeInsets.only(bottom: 8),
+          margin: EdgeInsets.zero,
           decoration: BoxDecoration(
             color: ColorConstants.koyuKirmizi,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.vertical(
+              top: isFirst ? const Radius.circular(16) : Radius.zero,
+              bottom: isLast ? const Radius.circular(16) : Radius.zero,
+            ),
           ),
-          child: Icon(
-            Icons.delete,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+          child: const Icon(Icons.delete, color: Colors.white),
         ),
         onDismissed: (direction) {
           HapticService.delete();
@@ -51,20 +55,28 @@ class AssetListItem extends StatelessWidget {
             HapticService.selectionClick();
             onTap();
           },
-          child: Card(
-            elevation: 0,
-            margin: const EdgeInsets.only(bottom: 6),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.05),
+          child: Container(
+            margin: EdgeInsets.zero,
+            decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.light
+                  ? const Color(0xFFF8F9FA)
+                  : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.vertical(
+                top: isFirst ? const Radius.circular(16) : Radius.zero,
+                bottom: isLast ? const Radius.circular(16) : Radius.zero,
+              ),
+              border: Border(
+                top: isFirst
+                    ? BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06))
+                    : BorderSide.none,
+                bottom: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)),
+                left: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)),
+                right: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06)),
               ),
             ),
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
+                horizontal: 16,
                 vertical: 4,
               ),
               leading: Row(
@@ -217,7 +229,7 @@ class AssetListItem extends StatelessWidget {
       case 'gümüş':
         return ColorConstants.maviGri;
       default:
-        return Theme.of(context).colorScheme.secondary;
+        return Theme.of(context).colorScheme.primary;
     }
   }
 }

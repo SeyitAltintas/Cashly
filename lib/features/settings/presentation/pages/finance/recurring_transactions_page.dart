@@ -160,7 +160,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                       ),
                       prefixIcon: Icon(
                         Icons.label_outline,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -208,7 +208,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                       ),
                       prefixIcon: Icon(
                         Icons.currency_lira,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -263,7 +263,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                         decoration: BoxDecoration(
                           color: Theme.of(
                             context,
-                          ).colorScheme.secondary.withValues(alpha: 0.1),
+                          ).colorScheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: DropdownButtonHideUnderline(
@@ -314,7 +314,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                       ),
                       prefixIcon: Icon(
                         Icons.account_balance_wallet,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -478,19 +478,19 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
             decoration: BoxDecoration(
               color: Theme.of(
                 context,
-              ).colorScheme.secondary.withValues(alpha: 0.1),
+              ).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: Theme.of(
                   context,
-                ).colorScheme.secondary.withValues(alpha: 0.3),
+                ).colorScheme.primary.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.info_outline,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -636,12 +636,12 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                 decoration: BoxDecoration(
                   color: Theme.of(
                     context,
-                  ).colorScheme.secondary.withValues(alpha: 0.1),
+                  ).colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   Icons.repeat,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(width: 16),

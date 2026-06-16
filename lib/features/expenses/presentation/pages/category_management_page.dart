@@ -406,12 +406,12 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                     ),
                     prefixIcon: Icon(
                       Icons.label,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                         width: 2,
                       ),
                     ),
@@ -481,7 +481,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Theme.of(context).colorScheme.primary,
                                 width: 1.5,
                               ),
                             ),
@@ -535,7 +535,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                             child: Text(
                               kategoriAdi,
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Theme.of(context).colorScheme.primary,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -574,7 +574,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                                       color: seciliMi
                                           ? Theme.of(
                                               context,
-                                            ).colorScheme.secondary
+                                            ).colorScheme.primary
                                           : Theme.of(context)
                                                 .colorScheme
                                                 .onSurface
@@ -658,7 +658,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                 Text(
                   'KATEGORİLERİM',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

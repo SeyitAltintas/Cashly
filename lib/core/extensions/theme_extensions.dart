@@ -32,7 +32,7 @@ extension ThemeExtensions on BuildContext {
   Color get surfaceLight => colorScheme.surface.withValues(alpha: 0.3);
 
   /// İkincil renk
-  Color get secondary => colorScheme.secondary;
+  Color get secondary => colorScheme.primary;
 
   /// Birincil renk
   Color get primary => colorScheme.primary;

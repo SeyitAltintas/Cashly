@@ -38,7 +38,7 @@ class VoiceCommandsPage extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.mic,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 28,
                   ),
                   const SizedBox(width: 12),
@@ -207,7 +207,7 @@ class VoiceCommandsPage extends StatelessWidget {
                   Icon(
                     Icons.lightbulb_outline,
                     size: 20,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(width: 12),
                   Expanded(

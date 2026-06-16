@@ -29,7 +29,7 @@ class HomeBottomNavigation extends StatelessWidget {
               icon: Icon(
                 Icons.receipt_long,
                 color: selectedIndex == 0
-                    ? Theme.of(context).colorScheme.secondary
+                    ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                 size: 28,
               ),
@@ -41,7 +41,7 @@ class HomeBottomNavigation extends StatelessWidget {
               icon: Icon(
                 Icons.trending_up,
                 color: selectedIndex == 1
-                    ? Theme.of(context).colorScheme.secondary
+                    ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                 size: 28,
               ),
@@ -55,7 +55,7 @@ class HomeBottomNavigation extends StatelessWidget {
               icon: Icon(
                 Icons.apps_rounded,
                 color: selectedIndex == 2
-                    ? Theme.of(context).colorScheme.secondary
+                    ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                 size: 28,
               ),
@@ -67,7 +67,7 @@ class HomeBottomNavigation extends StatelessWidget {
               icon: Icon(
                 Icons.person_outline,
                 color: selectedIndex == 3
-                    ? Theme.of(context).colorScheme.secondary
+                    ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                 size: 28,
               ),

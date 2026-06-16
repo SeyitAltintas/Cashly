@@ -147,7 +147,7 @@ class DefaultPaymentSection extends StatelessWidget {
                               ? Icons.credit_card
                               : Icons.account_balance,
                           size: 18,
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         const SizedBox(width: 8),
                         Expanded(

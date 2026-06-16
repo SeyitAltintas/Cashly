@@ -502,7 +502,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
     return Text(
       label,
       style: TextStyle(
-        color: theme.colorScheme.secondary,
+        color: theme.colorScheme.primary,
         fontSize: 13,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.5,

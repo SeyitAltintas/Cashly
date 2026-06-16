@@ -200,7 +200,7 @@ class ForgotPasswordHelper {
       labelStyle: TextStyle(
         color: Theme.of(ctx).colorScheme.onSurface.withAlpha(180),
       ),
-      prefixIcon: Icon(icon, color: Theme.of(ctx).colorScheme.secondary),
+      prefixIcon: Icon(icon, color: Theme.of(ctx).colorScheme.primary),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
         borderSide: BorderSide(

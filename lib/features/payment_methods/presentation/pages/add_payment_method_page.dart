@@ -482,7 +482,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               ),
             ),
             floatingLabelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -546,7 +546,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               ),
             ),
             floatingLabelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           validator: (value) {
@@ -611,7 +611,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               ),
             ),
             floatingLabelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -682,7 +682,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
               ),
             ),
             floatingLabelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -811,7 +811,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           BoxShadow(
             color: Theme.of(
               context,
-            ).colorScheme.secondary.withValues(alpha: 0.3),
+            ).colorScheme.primary.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),

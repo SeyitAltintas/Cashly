@@ -181,7 +181,7 @@ class _GelirKategoriYonetimiSayfasiState
                     hintText: "Kategori adı",
                     prefixIcon: Icon(
                       ikonSecenekleri[secilenIkon],
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     hintStyle: TextStyle(
                       color: Theme.of(
@@ -201,7 +201,7 @@ class _GelirKategoriYonetimiSayfasiState
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                         width: 2,
                       ),
                     ),
@@ -237,13 +237,13 @@ class _GelirKategoriYonetimiSayfasiState
                             height: 50,
                             decoration: BoxDecoration(
                               color: selected
-                                  ? Theme.of(context).colorScheme.secondary
+                                  ? Theme.of(context).colorScheme.primary
                                         .withValues(alpha: 0.2)
                                   : Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: selected
-                                    ? Theme.of(context).colorScheme.secondary
+                                    ? Theme.of(context).colorScheme.primary
                                     : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                                 width: selected ? 2 : 1,
                               ),
@@ -251,7 +251,7 @@ class _GelirKategoriYonetimiSayfasiState
                             child: Icon(
                               entry.value,
                               color: selected
-                                  ? Theme.of(context).colorScheme.secondary
+                                  ? Theme.of(context).colorScheme.primary
                                   : Theme.of(context).colorScheme.onSurface
                                         .withValues(alpha: 0.54),
                             ),
@@ -410,7 +410,7 @@ class _GelirKategoriYonetimiSayfasiState
               Text(
                 "KATEGORİLER",
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),

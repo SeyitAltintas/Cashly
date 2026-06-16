@@ -227,13 +227,17 @@ class _PaymentMethodRecycleBinPageState
                   return buildLoadingIndicator();
                 }
                 final pm = _deletedPaymentMethods[index];
-                return _buildDeletedCard(pm);
+                return _buildDeletedCard(
+                  pm,
+                  index == 0,
+                  index == _deletedPaymentMethods.length - 1,
+                );
               },
             ),
     );
   }
 
-  Widget _buildDeletedCard(PaymentMethod pm) {
+  Widget _buildDeletedCard(PaymentMethod pm, bool isFirst, bool isLast) {
     final colors = CardColorConstants
         .gradients[pm.colorIndex.clamp(0, CardColorConstants.count - 1)];
 
@@ -245,7 +249,7 @@ class _PaymentMethodRecycleBinPageState
     );
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.zero,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -255,9 +259,17 @@ class _PaymentMethodRecycleBinPageState
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.vertical(
+          top: isFirst ? const Radius.circular(16) : Radius.zero,
+          bottom: isLast ? const Radius.circular(16) : Radius.zero,
+        ),
+        border: Border(
+          top: isFirst
+              ? BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))
+              : BorderSide.none,
+          bottom: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
+          left: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
+          right: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
         ),
       ),
       child: ListTile(
@@ -294,7 +306,7 @@ class _PaymentMethodRecycleBinPageState
             IconButton(
               icon: Icon(
                 Icons.restore,
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.primary,
               ),
               tooltip: 'Geri Yükle',
               onPressed: () {

@@ -1072,7 +1072,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            Icon(Icons.mic, color: Theme.of(context).colorScheme.secondary),
+            Icon(Icons.mic, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 12),
             Text(
               context.l10n.voiceAssistant,
@@ -1128,7 +1128,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
-                ).colorScheme.secondary.withValues(alpha: 0.15),
+                ).colorScheme.primary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -1136,14 +1136,14 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                   Icon(
                     Icons.lightbulb_outline,
                     size: 16,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       context.l10n.detailedCommandListInfo,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.primary,
                         fontSize: 11,
                       ),
                     ),
@@ -1159,7 +1159,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
             child: Text(
               context.l10n.ok,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -1175,7 +1175,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: Theme.of(context).colorScheme.secondary),
+          Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 10),
           Text(
             text,
@@ -1410,7 +1410,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                       Text(
                         context.l10n.commandProcessing,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

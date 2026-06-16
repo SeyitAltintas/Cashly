@@ -364,15 +364,13 @@ extension AnalysisChartsExtension on _AnalysisPageState {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: isSelected
-                ? Theme.of(context).colorScheme.primary
+                ? Theme.of(context).colorScheme.surface
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.3),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),
@@ -385,7 +383,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                 icon,
                 size: 14,
                 color: isSelected
-                    ? Theme.of(context).colorScheme.onPrimary
+                    ? Theme.of(context).colorScheme.onSurface
                     : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               const SizedBox(width: 4),
@@ -395,7 +393,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   color: isSelected
-                      ? Theme.of(context).colorScheme.onPrimary
+                      ? Theme.of(context).colorScheme.onSurface
                       : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
@@ -631,9 +629,9 @@ extension AnalysisChartsExtension on _AnalysisPageState {
             child: Container(
               padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2)),
+                border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

@@ -109,7 +109,7 @@ class _UserListPageState extends State<UserListPage> {
                           ? Text(
                               user.name[0].toUpperCase(),
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
                               ),
@@ -178,7 +178,7 @@ class _UserListPageState extends State<UserListPage> {
             ),
             icon: Icon(
               Icons.add,
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.primary,
             ),
             label: Text(
               context.l10n.addNewUser,
