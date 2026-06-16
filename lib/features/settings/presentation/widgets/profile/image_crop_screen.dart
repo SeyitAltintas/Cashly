@@ -131,7 +131,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
   final List<_CropStateSnapshot> _redoStack = [];
 
   // Tema renkleri
-  static const Color _primaryColor = Color(0xFF075174);
+  Color get _primaryColor => Theme.of(context).colorScheme.primary;
 
   @override
   void initState() {
@@ -451,9 +451,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
         ),
         actions: [
           if (_isCropping)
-            const Center(
+            Center(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SizedBox(
                   width: 20,
                   height: 20,
@@ -469,9 +469,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
               onPressed: _onCrop,
               child: Text(
                 context.l10n.continueText,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Inter',
-                  color: Colors.white,
+                  color: _primaryColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
@@ -484,9 +484,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
           // Kırpma alanı — zoom göstergesi ile
           Expanded(
             child: _isLoading || _imageData == null
-                ? const Center(
-                    child: CircularProgressIndicator(color: _primaryColor),
-                  )
+                ? Center(child: CircularProgressIndicator(color: _primaryColor))
                 : Stack(
                     children: [
                       // Kırpma widget'ı — çift dokunma ile zoom sıfırlama
@@ -519,7 +517,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                               interactive: true,
                               fixCropRect: true,
                               baseColor: Theme.of(context).colorScheme.surface,
-                              maskColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
+                              maskColor: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.85),
                               willUpdateScale: _onWillUpdateScale,
                               cornerDotBuilder: (size, edgeAlignment) =>
                                   const SizedBox.shrink(),
@@ -528,9 +528,10 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                                       child: CustomPaint(
                                         size: Size(rect.width, rect.height),
                                         painter: _GridPainter(
-                                          gridColor: Theme.of(context).colorScheme.onSurface.withValues(
-                                            alpha: 0.3,
-                                          ),
+                                          gridColor: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.3),
                                         ),
                                       ),
                                     )
@@ -559,10 +560,14 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.7),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.15),
                               ),
                             ),
                             child: Row(
@@ -570,7 +575,8 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                               children: [
                                 Icon(
                                   Icons.zoom_in,
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.70),
                                   size: 14,
                                 ),
                                 const SizedBox(width: 4),
@@ -578,7 +584,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                                   '${_zoomLevel.toStringAsFixed(1)}x',
                                   style: TextStyle(
                                     fontFamily: 'Inter',
-                                    color: Theme.of(context).colorScheme.onSurface,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -683,7 +691,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
         width: 56,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? Theme.of(context).colorScheme.surfaceContainerHigh : Colors.transparent,
+          color: isActive
+              ? Theme.of(context).colorScheme.surfaceContainerHigh
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isActive ? _primaryColor : Colors.transparent,
@@ -697,7 +707,11 @@ class _ImageCropScreenState extends State<ImageCropScreen>
               angle: rotateIcon ? math.pi / 2 : 0,
               child: Icon(
                 icon,
-                color: isActive ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
+                color: isActive
+                    ? _primaryColor
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.70),
                 size: 22,
               ),
             ),
@@ -706,7 +720,11 @@ class _ImageCropScreenState extends State<ImageCropScreen>
               label,
               style: TextStyle(
                 fontFamily: 'Inter',
-                color: isActive ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
+                color: isActive
+                    ? _primaryColor
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.54),
                 fontSize: 9,
                 fontWeight: FontWeight.w500,
               ),
@@ -733,7 +751,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
         width: 56,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: _showOriginal ? Theme.of(context).colorScheme.surfaceContainerHigh : Colors.transparent,
+          color: _showOriginal
+              ? Theme.of(context).colorScheme.surfaceContainerHigh
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: _showOriginal ? _primaryColor : Colors.transparent,
@@ -745,7 +765,11 @@ class _ImageCropScreenState extends State<ImageCropScreen>
           children: [
             Icon(
               Icons.compare,
-              color: _showOriginal ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
+              color: _showOriginal
+                  ? _primaryColor
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.70),
               size: 22,
             ),
             const SizedBox(height: 4),
@@ -753,7 +777,11 @@ class _ImageCropScreenState extends State<ImageCropScreen>
               context.l10n.compare,
               style: TextStyle(
                 fontFamily: 'Inter',
-                color: _showOriginal ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
+                color: _showOriginal
+                    ? _primaryColor
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.54),
                 fontSize: 9,
                 fontWeight: FontWeight.w500,
               ),
@@ -793,7 +821,9 @@ class _ImageCropScreenState extends State<ImageCropScreen>
               context.l10n.resetAll,
               style: TextStyle(
                 fontFamily: 'Inter',
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -821,7 +851,11 @@ class _ImageCropScreenState extends State<ImageCropScreen>
           children: [
             Icon(
               icon,
-              color: isEnabled ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+              color: isEnabled
+                  ? _primaryColor
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.38),
               size: 16,
             ),
             const SizedBox(width: 3),
@@ -829,7 +863,13 @@ class _ImageCropScreenState extends State<ImageCropScreen>
               label,
               style: TextStyle(
                 fontFamily: 'Inter',
-                color: isEnabled ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+                color: isEnabled
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.70)
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.38),
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
               ),
@@ -856,13 +896,21 @@ class _ImageCropScreenState extends State<ImageCropScreen>
 
     return Row(
       children: [
-        Icon(icon, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), size: 18),
+        Icon(
+          icon,
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.54),
+          size: 18,
+        ),
         const SizedBox(width: 6),
         Text(
           label,
           style: TextStyle(
             fontFamily: 'Inter',
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.70),
             fontSize: 10,
           ),
           maxLines: 1,
@@ -871,8 +919,12 @@ class _ImageCropScreenState extends State<ImageCropScreen>
           child: SliderTheme(
             data: SliderThemeData(
               activeTrackColor: _primaryColor,
-              inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
-              thumbColor: isAtSnap ? Theme.of(context).colorScheme.onSurface : _primaryColor,
+              inactiveTrackColor: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.24),
+              thumbColor: isAtSnap
+                  ? Theme.of(context).colorScheme.onSurface
+                  : _primaryColor,
               overlayColor: _primaryColor.withValues(alpha: 0.2),
               trackHeight: 2,
               thumbShape: RoundSliderThumbShape(
@@ -895,7 +947,13 @@ class _ImageCropScreenState extends State<ImageCropScreen>
             valueLabel,
             style: TextStyle(
               fontFamily: 'Inter',
-              color: isAtSnap ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
+              color: isAtSnap
+                  ? Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.70)
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.54),
               fontSize: 10,
               fontWeight: isAtSnap ? FontWeight.w600 : FontWeight.w400,
             ),
@@ -910,7 +968,11 @@ class _ImageCropScreenState extends State<ImageCropScreen>
           },
           child: Icon(
             Icons.restart_alt_rounded,
-            color: value != 0 ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
+            color: value != 0
+                ? _primaryColor
+                : Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.24),
             size: 18,
           ),
         ),

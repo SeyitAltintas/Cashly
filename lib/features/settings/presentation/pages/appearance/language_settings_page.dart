@@ -160,7 +160,7 @@ class _LanguageTile extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? const Color(0xFF10b981).withValues(alpha: 0.15)
+                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
                       : Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.08),
@@ -182,7 +182,7 @@ class _LanguageTile extends StatelessWidget {
                     Text(
                       LocaleManager.getDisplayName(locale),
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
+                        color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
                         fontSize: 16,
                         fontWeight: isSelected
                             ? FontWeight.w600
@@ -207,12 +207,12 @@ class _LanguageTile extends StatelessWidget {
                   duration: const Duration(milliseconds: 300),
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10b981).withValues(alpha: 0.2),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.check,
-                    color: Color(0xFF10b981),
+                    color: Theme.of(context).colorScheme.primary,
                     size: 20,
                   ),
                 ),

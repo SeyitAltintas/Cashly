@@ -30,7 +30,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
   final TextEditingController _textController = TextEditingController();
 
   // Tema renkleri
-  static const Color _primaryColor = Color(0xFF075174);
+  Color get _primaryColor => Theme.of(context).colorScheme.primary;
 
   // Editor state
   final EditorState _state = EditorState();
@@ -102,9 +102,9 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
         ),
         actions: [
           if (_isSaving)
-            const Center(
+            Center(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SizedBox(
                   width: 20,
                   height: 20,
@@ -227,7 +227,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                       ),
                       indicatorSize: TabBarIndicatorSize.tab,
                       dividerColor: Colors.transparent,
-                      labelColor: Theme.of(context).colorScheme.onSurface,
+                      labelColor: Theme.of(context).colorScheme.onPrimary,
                       unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       labelPadding: EdgeInsets.zero,
                       tabAlignment: TabAlignment.start,
