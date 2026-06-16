@@ -224,15 +224,15 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
         ),
         actions: [
           if (_isSaving)
-            const Center(
+            Center(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SizedBox(
                   width: 20,
                   height: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Color(0xFF00D293),
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
@@ -240,10 +240,10 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
           else
             TextButton(
               onPressed: _saveEditedImage,
-              child: const Text(
+              child: Text(
                 'Uygula',
                 style: TextStyle(
-                  color: Color(0xFF00D293),
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -275,8 +275,8 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
             ),
             child: TabBar(
               controller: _tabController,
-              indicatorColor: const Color(0xFF00D293),
-              labelColor: const Color(0xFF00D293),
+              indicatorColor: Theme.of(context).colorScheme.primary,
+              labelColor: Theme.of(context).colorScheme.primary,
               unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
               labelStyle: const TextStyle(
                 fontSize: 12,
@@ -461,7 +461,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isSelected
-                          ? const Color(0xFF00D293)
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                       width: isSelected ? 3 : 1,
                     ),
@@ -488,7 +488,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
                   filter.name,
                   style: TextStyle(
                     color: isSelected
-                        ? const Color(0xFF00D293)
+                        ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     fontSize: 11,
                     fontWeight: isSelected
@@ -551,10 +551,10 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
           Expanded(
             child: SliderTheme(
               data: SliderThemeData(
-                activeTrackColor: const Color(0xFF00D293),
+                activeTrackColor: Theme.of(context).colorScheme.primary,
                 inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
-                thumbColor: const Color(0xFF00D293),
-                overlayColor: const Color(0xFF00D293).withValues(alpha: 0.2),
+                thumbColor: Theme.of(context).colorScheme.primary,
+                overlayColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                 trackHeight: 3,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
               ),
@@ -651,12 +651,12 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
             height: 48,
             decoration: BoxDecoration(
               color: isActive
-                  ? const Color(0xFF00D293).withValues(alpha: 0.2)
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
                   : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
               shape: BoxShape.circle,
               border: Border.all(
                 color: isActive
-                    ? const Color(0xFF00D293)
+                    ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
               ),
             ),
@@ -664,7 +664,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
               angle: rotateIcon ? math.pi / 2 : 0,
               child: Icon(
                 icon,
-                color: isActive ? const Color(0xFF00D293) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
+                color: isActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                 size: 22,
               ),
             ),
@@ -673,7 +673,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
           Text(
             label,
             style: TextStyle(
-              color: isActive ? const Color(0xFF00D293) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
+              color: isActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
               fontSize: 10,
             ),
             textAlign: TextAlign.center,
@@ -733,10 +733,10 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
           Expanded(
             child: SliderTheme(
               data: SliderThemeData(
-                activeTrackColor: const Color(0xFF00D293),
+                activeTrackColor: Theme.of(context).colorScheme.primary,
                 inactiveTrackColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
-                thumbColor: const Color(0xFF00D293),
-                overlayColor: const Color(0xFF00D293).withValues(alpha: 0.2),
+                thumbColor: Theme.of(context).colorScheme.primary,
+                overlayColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                 trackHeight: 3,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
               ),

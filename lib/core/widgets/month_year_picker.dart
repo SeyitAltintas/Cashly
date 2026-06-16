@@ -198,8 +198,8 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                   end: Alignment.bottomRight,
                   colors: isDark
                       ? [
-                          const Color(0xFF1E1E2E).withValues(alpha: 0.85),
-                          const Color(0xFF141420).withValues(alpha: 0.95),
+                          Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.85),
+                          Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
                         ]
                       : [
                           Colors.white.withValues(alpha: 0.85),

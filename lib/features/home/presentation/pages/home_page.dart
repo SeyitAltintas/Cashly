@@ -373,12 +373,9 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
       builder: (context, _) {
         if (_isLoading) return const DashboardPageSkeleton();
 
-        // Mor-mavi ton (varsayılan tema için)
-        const refreshColor = Color(0xFF6C63FF);
-
         return RefreshIndicator(
           onRefresh: _yenile,
-          color: refreshColor,
+          color: Theme.of(context).colorScheme.primary,
           backgroundColor: Theme.of(context).colorScheme.surface,
           child: DashboardPage(
             userName: userName,
