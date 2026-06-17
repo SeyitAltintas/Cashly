@@ -133,36 +133,36 @@ class _DashboardPageState extends State<DashboardPage>
             bottom: 120,
           ),
           children: [
-              // Hoş Geldin Bölümü
-              const _GreetingSection(),
-              const SizedBox(height: 24),
+            // Hoş Geldin Bölümü
+            const _GreetingSection(),
+            const SizedBox(height: 24),
 
-              // Toplam Bakiye Kartı
-              const _BalanceSection(),
-              const SizedBox(height: 12),
+            // Toplam Bakiye Kartı
+            const _BalanceSection(),
+            const SizedBox(height: 12),
 
-              // Kredi Kartı Borcu
-              const _CreditDebtSection(),
-              const SizedBox(height: 20),
+            // Kredi Kartı Borcu
+            const _CreditDebtSection(),
+            const SizedBox(height: 20),
 
-              // Bu Ay Özeti
-              const _MonthlySummarySection(),
-              const SizedBox(height: 20),
+            // Bu Ay Özeti
+            const _MonthlySummarySection(),
+            const SizedBox(height: 20),
 
-              // Bütçe Durumu
-              const _BudgetStatusSection(),
-              const SizedBox(height: 20),
+            // Bütçe Durumu
+            const _BudgetStatusSection(),
+            const SizedBox(height: 20),
 
-              // Varlık Özeti
-              _AssetSummarySection(onTap: widget.onAssetsPressed),
-              const SizedBox(height: 20),
+            // Varlık Özeti
+            _AssetSummarySection(onTap: widget.onAssetsPressed),
+            const SizedBox(height: 20),
 
-              // Son İşlemler
-              const _RecentTransactionsSection(),
-              const SizedBox(height: 20),
-            ],
-          ),
+            // Son İşlemler
+            const _RecentTransactionsSection(),
+            const SizedBox(height: 20),
+          ],
         ),
+      ),
     );
   }
 }
@@ -179,15 +179,18 @@ class _GreetingSection extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-                    Consumer<DashboardController>(
-            builder: (context, controller, child) {
-              if (controller.profileImage != null && controller.profileImage!.isNotEmpty) {
+          Selector<DashboardController, String?>(
+            selector: (context, controller) => controller.profileImage,
+            builder: (context, profileImage, child) {
+              if (profileImage != null && profileImage.isNotEmpty) {
                 return CircleAvatar(
                   radius: 28,
-                  backgroundImage: ImageUtils.getProfileImageProvider(controller.profileImage!),
+                  backgroundImage: ImageUtils.getProfileImageProvider(
+                    profileImage,
+                  ),
                 );
               }
-              return Container();
+              return const SizedBox();
             },
           ),
           const SizedBox(width: 16),
@@ -216,7 +219,6 @@ class _GreetingSection extends StatelessWidget {
               ],
             ),
           ),
-
         ],
       ),
     );

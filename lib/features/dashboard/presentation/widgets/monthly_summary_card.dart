@@ -41,9 +41,9 @@ class MonthlySummaryCard extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.all(padding),
             decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.surface.withValues(alpha: 0.5),
+              color: Theme.of(context).brightness == Brightness.light
+                  ? const Color(0xFFF8F9FA)
+                  : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: Theme.of(
