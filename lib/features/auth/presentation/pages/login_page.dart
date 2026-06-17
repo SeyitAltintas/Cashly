@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
@@ -19,10 +20,13 @@ class LoginPage extends StatefulWidget {
   final AuthController authController;
   final UserEntity? preSelectedUser;
 
+  final bool forceGenericLogin;
+
   const LoginPage({
     super.key,
     required this.authController,
     this.preSelectedUser,
+    this.forceGenericLogin = false,
   });
 
   @override
@@ -44,7 +48,10 @@ class _LoginPageState extends State<LoginPage> {
     _loginState = LoginPageState();
     _loginState.addListener(_onStateChanged);
 
-    if (widget.preSelectedUser != null) {
+    if (widget.forceGenericLogin) {
+      _loginState.setLoginState(isGenericLogin: true, isLoadingUser: false);
+      _checkBiometricAvailability();
+    } else if (widget.preSelectedUser != null) {
       _loginState.targetUser = widget.preSelectedUser;
       _loginState.isLoadingUser = false;
       _checkBiometricAvailability();
@@ -138,7 +145,9 @@ class _LoginPageState extends State<LoginPage> {
       content = Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(
-          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onSurface),
+          child: CircularProgressIndicator(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
       );
     }
@@ -149,6 +158,21 @@ class _LoginPageState extends State<LoginPage> {
         onLoginSuccess: _handleLoginSuccess,
         onSignUp: _handleSignUp,
         onForgotPassword: _handleForgotPassword,
+        onBackToPinLogin: (_isGenericLogin && _targetUser != null)
+            ? () {
+                _loginState.isGenericLogin = false;
+              }
+            : (widget.forceGenericLogin)
+            ? () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        UserListPage(authController: widget.authController),
+                  ),
+                );
+              }
+            : null,
       );
     }
     // Kullanıcı seçili login
@@ -159,9 +183,7 @@ class _LoginPageState extends State<LoginPage> {
         isBiometricAvailable: _isBiometricAvailable,
         onLoginSuccess: _handleLoginSuccess,
         onSwitchUser: _handleSwitchUser,
-        onSwitchToGenericLogin: () {
-          _loginState.isGenericLogin = true;
-        },
+        onSwitchToGenericLogin: _handleSwitchUser,
         onForgotPassword: _handleForgotPassword,
       );
     }
@@ -172,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
         if (didPop) return;
         SystemNavigator.pop();
       },
-      child: content,
+      child: Theme(data: AppTheme.darkTheme, child: content),
     );
   }
 }

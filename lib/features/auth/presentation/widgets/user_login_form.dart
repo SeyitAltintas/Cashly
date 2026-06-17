@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../../core/utils/image_utils.dart';
@@ -43,11 +44,19 @@ class _UserLoginFormState extends State<UserLoginForm> {
   bool get _isLoading => _formState.isLoading;
   String? get _pinErrorMessage => _formState.pinErrorMessage;
 
+  ImageProvider? _cachedProfileImage;
+
   @override
   void initState() {
     super.initState();
     _formState = UserLoginFormState();
     _formState.addListener(_onStateChanged);
+
+    if (widget.targetUser.profileImage?.isNotEmpty ?? false) {
+      _cachedProfileImage = ImageUtils.getProfileImageProvider(
+        widget.targetUser.profileImage,
+      );
+    }
   }
 
   void _onStateChanged() {
@@ -140,38 +149,70 @@ class _UserLoginFormState extends State<UserLoginForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 60),
+              const SizedBox(height: 10),
               Image.asset(
-                'assets/image/seffaflogo.png', 
-                height: 70,
-                color: Theme.of(context).brightness == Brightness.light ? Colors.black : null,
+                'assets/image/seffaflogo.png',
+                height: 35,
+                color: Colors.white,
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 80),
 
               // Profil Resmi
               _buildProfileAvatar(),
               const SizedBox(height: 20),
 
-              // Hoşgeldiniz Mesajı
-              _buildWelcomeMessage(),
+              // Kullanıcı İsmi
+              _buildUserNameRow(),
               const SizedBox(height: 60),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.37),
+                      blurRadius: 32,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E1E1E).withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          width: 1,
+                        ),
+                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // PIN Girişi ve Biyometrik Buton
+                        _buildPinInputRow(),
 
-              // PIN Girişi ve Biyometrik Buton
-              _buildPinInputRow(),
+                        // PIN Hata Mesajı
+                        if (_pinErrorMessage != null) _buildErrorMessage(),
+                        const SizedBox(height: 24),
 
-              // PIN Hata Mesajı
-              if (_pinErrorMessage != null) _buildErrorMessage(),
-              const SizedBox(height: 40),
-
-              // Giriş Butonu
-              _buildLoginButton(),
+                        // Giriş Butonu
+                        _buildLoginButton(),
+                      ],
+                    ),
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 24),
 
               // Başka Hesap / Şifremi Unuttum
@@ -184,157 +225,173 @@ class _UserLoginFormState extends State<UserLoginForm> {
   }
 
   Widget _buildProfileAvatar() {
-    return CircleAvatar(
-      radius: 50,
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-      backgroundImage: (widget.targetUser.profileImage?.isNotEmpty ?? false)
-          ? ImageUtils.getProfileImageProvider(widget.targetUser.profileImage)
-          : null,
-      child: (widget.targetUser.profileImage?.isEmpty ?? true)
-          ? Icon(
-              Icons.person,
-              size: 60,
-              color: Theme.of(context).colorScheme.onSurface,
-            )
-          : null,
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.primaryContainer.withValues(
+              alpha: 0.2,
+            ),
+            blurRadius: 30,
+            spreadRadius: 10,
+          ),
+        ],
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 2,
+          ),
+        ),
+        child: CircleAvatar(
+          radius: 50,
+          backgroundColor:
+              Theme.of(context).colorScheme.surfaceContainerHighest,
+          backgroundImage: _cachedProfileImage,
+          child: (widget.targetUser.profileImage?.isEmpty ?? true)
+              ? Icon(
+                  Icons.person,
+                  size: 60,
+                  color: Theme.of(context).colorScheme.onSurface,
+                )
+              : null,
+        ),
+      ),
     );
   }
 
-  Widget _buildWelcomeMessage() {
-    return Column(
-      children: [
-        Text(
-          context.l10n.welcome,
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 24,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.only(left: 40.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                widget.targetUser.name,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: 5),
-              IconButton(
-                icon: Icon(Icons.autorenew_sharp, color: Theme.of(context).colorScheme.onSurface),
-                tooltip: "Kullanıcı Değiştir",
-                onPressed: widget.onSwitchUser,
-              ),
-            ],
-          ),
-        ),
-      ],
+  Widget _buildUserNameRow() {
+    return Text(
+      widget.targetUser.name,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 28,
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
     );
   }
 
   Widget _buildPinInputRow() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // PIN Alanı
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.3),
-                width: 1.5,
-              ),
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: TextField(
-              controller: _pinController,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 22,
-                letterSpacing: 6,
-              ),
-              keyboardType: TextInputType.number,
-              obscureText: !_isPinVisible,
-              maxLength: 6,
-              textAlign: TextAlign.center,
-              decoration: InputDecoration(
-                hintText: "● ● ● ●",
-                hintStyle: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.2),
-                  letterSpacing: 4,
-                  fontSize: 16,
-                ),
-                counterText: "",
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                focusedErrorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _isPinVisible ? Icons.visibility : Icons.visibility_off,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.5),
-                    size: 20,
-                  ),
-                  onPressed: () {
-                    _formState.togglePinVisibility();
-                  },
-                ),
-              ),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            "Giriş Şifresi",
+            style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
             ),
           ),
         ),
-
-        // Biyometrik Buton
-        if (widget.targetUser.biometricEnabled == true &&
-            widget.isBiometricAvailable)
-          Padding(
-            padding: const EdgeInsets.only(left: 12),
-            child: Tooltip(
-              message: "Parmak izi ile giriş",
-              child: InkWell(
-                onTap: _isLoading ? null : _handleBiometricLogin,
-                borderRadius: BorderRadius.circular(25),
-                child: Container(
-                  width: 54,
-                  height: 54,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.3),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // PIN Alanı
+            Expanded(
+              child: TextField(
+                controller: _pinController,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 22,
+                  letterSpacing: 6,
+                ),
+                keyboardType: TextInputType.number,
+                obscureText: !_isPinVisible,
+                maxLength: 6,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFF2A2A2A),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 16,
+                  ),
+                  hintText: "● ● ● ● ● ●",
+                  hintStyle: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.54),
+                    letterSpacing: 4,
+                    fontSize: 16,
+                  ),
+                  counterText: "",
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
                       width: 1.5,
                     ),
                   ),
-                  child: Icon(
-                    Icons.fingerprint,
-                    size: 30,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.3),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPinVisible ? Icons.visibility : Icons.visibility_off,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      _formState.togglePinVisibility();
+                    },
                   ),
                 ),
               ),
             ),
-          ),
+
+            // Biyometrik Buton
+            if (widget.targetUser.biometricEnabled == true &&
+                widget.isBiometricAvailable)
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Tooltip(
+                  message: "Parmak izi ile giriş",
+                  child: InkWell(
+                    onTap: _isLoading ? null : _handleBiometricLogin,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      width: 54,
+                      height: 54,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: const Color(0xFF2A2A2A),
+                      ),
+                      child: Icon(
+                        Icons.fingerprint,
+                        size: 30,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ],
     );
   }
@@ -364,15 +421,29 @@ class _UserLoginFormState extends State<UserLoginForm> {
   }
 
   Widget _buildLoginButton() {
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(
+              context,
+            ).colorScheme.primary.withValues(alpha: 0.15),
+            blurRadius: 20,
+            spreadRadius: 0,
+            offset: const Offset(0, 0),
+          ),
+        ],
+      ),
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handlePinLogin,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
         child: _isLoading
@@ -381,7 +452,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
               )
             : Text(
@@ -389,7 +460,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
               ),
       ),
@@ -402,9 +473,27 @@ class _UserLoginFormState extends State<UserLoginForm> {
       children: [
         TextButton(
           onPressed: widget.onSwitchToGenericLogin,
-          child: Text(
-            context.l10n.loginWithAnotherAccount,
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.login,
+                size: 16,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                context.l10n.loginWithAnotherAccount,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
           ),
         ),
         TextButton(
@@ -412,6 +501,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
           child: Text(
             context.l10n.forgotPassword,
             style: TextStyle(
+              fontSize: 13,
               color: Theme.of(
                 context,
               ).colorScheme.onSurface.withValues(alpha: 0.7),

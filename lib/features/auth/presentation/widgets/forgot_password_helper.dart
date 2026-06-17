@@ -63,7 +63,7 @@ class ForgotPasswordHelper {
                         fontSize: 14,
                         color: Theme.of(
                           sheetContext,
-                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ).colorScheme.onSurface.withValues(alpha: 0.9),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -243,7 +243,9 @@ class ForgotPasswordHelper {
           children: [
             Icon(
               isSuccess ? Icons.check_circle_outline : Icons.error_outline,
-              color: isSuccess ? ColorConstants.yesil : Theme.of(ctx).colorScheme.error,
+              color: isSuccess
+                  ? ColorConstants.yesil
+                  : Theme.of(ctx).colorScheme.error,
               size: 20,
             ),
             const SizedBox(width: 8),

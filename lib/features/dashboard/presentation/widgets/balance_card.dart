@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/color_constants.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
@@ -98,13 +99,15 @@ class _BalanceCardState extends State<BalanceCard> {
   @override
   Widget build(BuildContext context) {
     final isObscured = context.select((DashboardController c) => c.isObscured);
-    final monthlyIncome = context.select((DashboardController c) => c.monthlyIncome);
+    final monthlyIncome = context.select(
+      (DashboardController c) => c.monthlyIncome,
+    );
 
     // Verileri hesapla
     final cashBalance = _calculateCashBalance(context);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
     final primaryColor = Theme.of(context).colorScheme.primary;
 
@@ -121,8 +124,8 @@ class _BalanceCardState extends State<BalanceCard> {
           ),
           boxShadow: [
             BoxShadow(
-              color: isDark 
-                  ? Colors.black.withValues(alpha: 0.2) 
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.2)
                   : primaryColor.withValues(alpha: 0.05),
               blurRadius: 32,
               offset: const Offset(0, 12),
@@ -189,7 +192,7 @@ class _BalanceCardState extends State<BalanceCard> {
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 16),
 
                     // Bu Ay Geliri
@@ -211,7 +214,7 @@ class _BalanceCardState extends State<BalanceCard> {
                           ),
                           isObscured: isObscured,
                           style: const TextStyle(
-                            color: Color(0xFF10B981),
+                            color: ColorConstants.yesil,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),

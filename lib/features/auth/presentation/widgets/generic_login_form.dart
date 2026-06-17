@@ -3,6 +3,7 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../controllers/auth_controller.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/error_handler.dart';
+import 'dart:ui';
 import '../state/login_form_state.dart';
 
 /// E-posta ve PIN ile giriş formu widget'ı
@@ -12,6 +13,7 @@ class GenericLoginForm extends StatefulWidget {
   final VoidCallback onLoginSuccess;
   final VoidCallback onSignUp;
   final VoidCallback onForgotPassword;
+  final VoidCallback? onBackToPinLogin;
 
   const GenericLoginForm({
     super.key,
@@ -19,6 +21,7 @@ class GenericLoginForm extends StatefulWidget {
     required this.onLoginSuccess,
     required this.onSignUp,
     required this.onForgotPassword,
+    this.onBackToPinLogin,
   });
 
   @override
@@ -93,7 +96,17 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      extendBodyBehindAppBar: true,
+      appBar: widget.onBackToPinLogin != null
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                onPressed: widget.onBackToPinLogin,
+              ),
+            )
+          : null,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -102,13 +115,13 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 60),
+                const SizedBox(height: 10),
                 Image.asset(
-                  'assets/image/seffaflogo.png', 
-                  height: 70,
-                  color: Theme.of(context).brightness == Brightness.light ? Colors.black : null,
+                  'assets/image/seffaflogo.png',
+                  height: 35,
+                  color: Colors.white,
                 ),
-                const SizedBox(height: 120),
+                const SizedBox(height: 80),
                 Text(
                   context.l10n.login,
                   style: TextStyle(
@@ -119,23 +132,57 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
                   ),
                 ),
                 const SizedBox(height: 40),
+                // Form Container (Glassmorphism)
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.37),
+                      blurRadius: 32,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E1E1E).withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Email Field
+                          _buildEmailField(),
+                          const SizedBox(height: 20),
 
-                // Email Field
-                _buildEmailField(),
-                const SizedBox(height: 20),
+                          // PIN Field
+                          _buildPinField(),
+                          const SizedBox(height: 40),
 
-                // PIN Field
-                _buildPinField(),
-                const SizedBox(height: 40),
+                          // Login Button
+                          _buildLoginButton(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
 
-                // Login Button
-                _buildLoginButton(),
-                const SizedBox(height: 20),
-
-                // Kayıt Ol ve Şifremi Unuttum butonları
-                _buildActionButtons(),
-              ],
-            ),
+              // Kayıt Ol ve Şifremi Unuttum butonları
+              _buildActionButtons(),
+            ],
+          ),
           ),
         ),
       ),
@@ -143,63 +190,94 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
   }
 
   Widget _buildEmailField() {
-    return TextFormField(
-      controller: _emailController,
-      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-      keyboardType: TextInputType.emailAddress,
-      validator: Validators.validateEmail,
-      decoration: InputDecoration(
-        labelText: context.l10n.emailLabel,
-        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            context.l10n.emailLabel,
+            style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+            ),
+          ),
+        ),
+        TextFormField(
+          controller: _emailController,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          keyboardType: TextInputType.emailAddress,
+          validator: Validators.validateEmail,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: const Color(0xFF2A2A2A),
         prefixIcon: Icon(
           Icons.email_outlined,
           color: Theme.of(context).colorScheme.primary,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50),
-          borderSide: BorderSide(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.24),
-          ),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+            width: 1.5,
+          ),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
         ),
-        errorStyle: TextStyle(color: Theme.of(context).colorScheme.error),
-      ),
+            errorStyle: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildPinField() {
-    return TextFormField(
-      controller: _pinController,
-      style: TextStyle(
-        color: Theme.of(context).colorScheme.onSurface,
-        fontSize: 16,
-        letterSpacing: 4,
-      ),
-      keyboardType: TextInputType.number,
-      obscureText: !_isPinVisible,
-      maxLength: 6,
-      textAlign: TextAlign.start,
-      validator: Validators.validatePIN,
-      decoration: InputDecoration(
-        labelText: "PIN",
-        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            "PIN",
+            style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+            ),
+          ),
+        ),
+        TextFormField(
+          controller: _pinController,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontSize: 16,
+            letterSpacing: 4,
+          ),
+          keyboardType: TextInputType.number,
+          obscureText: !_isPinVisible,
+          maxLength: 6,
+          textAlign: TextAlign.start,
+          validator: Validators.validatePIN,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: const Color(0xFF2A2A2A),
         hintStyle: TextStyle(
           color: Theme.of(
             context,
-          ).colorScheme.onSurface.withValues(alpha: 0.24),
+          ).colorScheme.onSurface.withValues(alpha: 0.54),
           letterSpacing: 2,
         ),
         counterText: "",
@@ -210,7 +288,9 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
         suffixIcon: IconButton(
           icon: Icon(
             _isPinVisible ? Icons.visibility : Icons.visibility_off,
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.90),
             size: 20,
           ),
           onPressed: () {
@@ -218,43 +298,58 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
           },
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50),
-          borderSide: BorderSide(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.24),
-          ),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+            width: 1.5,
+          ),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
         ),
-        errorStyle: TextStyle(
-          color: Theme.of(context).colorScheme.error,
-          fontSize: 12,
+          errorStyle: TextStyle(
+            color: Theme.of(context).colorScheme.error,
+            fontSize: 12,
+          ),
         ),
       ),
+      ],
     );
   }
 
   Widget _buildLoginButton() {
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(
+              context,
+            ).colorScheme.primary.withValues(alpha: 0.15),
+            blurRadius: 20,
+            spreadRadius: 0,
+            offset: const Offset(0, 0),
+          ),
+        ],
+      ),
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleLogin,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
         child: _isLoading
@@ -263,7 +358,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
               )
             : Text(
@@ -271,7 +366,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
               ),
       ),
@@ -287,7 +382,12 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
           onPressed: widget.onSignUp,
           child: Text(
             context.l10n.dontHaveAccount,
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
           ),
         ),
         // Şifremi Unuttum (Sağ)
@@ -296,6 +396,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
           child: Text(
             context.l10n.forgotPassword,
             style: TextStyle(
+              fontSize: 13,
               color: Theme.of(
                 context,
               ).colorScheme.onSurface.withValues(alpha: 0.7),
