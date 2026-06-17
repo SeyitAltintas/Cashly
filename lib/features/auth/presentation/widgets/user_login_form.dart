@@ -278,7 +278,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
       widget.targetUser.name,
       textAlign: TextAlign.center,
       style: TextStyle(
-        fontFamily: 'Inter',
+        fontFamily: 'IBMPlexSans',
         fontSize: 28,
         fontWeight: FontWeight.bold,
         color: Theme.of(context).colorScheme.onSurface,

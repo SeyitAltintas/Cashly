@@ -440,7 +440,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
         title: Text(
           context.l10n.cropPhoto,
           style: const TextStyle(
-            fontFamily: 'Inter',
+            fontFamily: 'IBMPlexSans',
             fontWeight: FontWeight.w600,
             fontSize: 17,
           ),
@@ -470,7 +470,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
               child: Text(
                 context.l10n.continueText,
                 style: TextStyle(
-                  fontFamily: 'Inter',
+                  fontFamily: 'IBMPlexSans',
                   color: _primaryColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
@@ -583,7 +583,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                                 Text(
                                   '${_zoomLevel.toStringAsFixed(1)}x',
                                   style: TextStyle(
-                                    fontFamily: 'Inter',
+                                    fontFamily: 'IBMPlexSans',
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.onSurface,
@@ -719,7 +719,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'Inter',
+                fontFamily: 'IBMPlexSans',
                 color: isActive
                     ? _primaryColor
                     : Theme.of(
@@ -776,7 +776,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
             Text(
               context.l10n.compare,
               style: TextStyle(
-                fontFamily: 'Inter',
+                fontFamily: 'IBMPlexSans',
                 color: _showOriginal
                     ? _primaryColor
                     : Theme.of(
@@ -820,7 +820,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
             child: Text(
               context.l10n.resetAll,
               style: TextStyle(
-                fontFamily: 'Inter',
+                fontFamily: 'IBMPlexSans',
                 color: Theme.of(
                   context,
                 ).colorScheme.onSurface.withValues(alpha: 0.7),
@@ -862,7 +862,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'Inter',
+                fontFamily: 'IBMPlexSans',
                 color: isEnabled
                     ? Theme.of(
                         context,
@@ -907,7 +907,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
         Text(
           label,
           style: TextStyle(
-            fontFamily: 'Inter',
+            fontFamily: 'IBMPlexSans',
             color: Theme.of(
               context,
             ).colorScheme.onSurface.withValues(alpha: 0.70),
@@ -946,7 +946,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
           child: Text(
             valueLabel,
             style: TextStyle(
-              fontFamily: 'Inter',
+              fontFamily: 'IBMPlexSans',
               color: isAtSnap
                   ? Theme.of(
                       context,

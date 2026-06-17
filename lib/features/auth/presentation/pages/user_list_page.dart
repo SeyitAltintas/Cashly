@@ -58,7 +58,7 @@ class _UserListPageState extends State<UserListPage> {
             title: Text(
               context.l10n.users,
               style: TextStyle(
-                fontFamily: 'Inter',
+                fontFamily: 'IBMPlexSans',
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
@@ -79,7 +79,7 @@ class _UserListPageState extends State<UserListPage> {
                   child: Text(
                     context.l10n.noRegisteredUsers,
                     style: TextStyle(
-                      fontFamily: 'Inter',
+                      fontFamily: 'IBMPlexSans',
                       color: Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.9),
@@ -178,7 +178,7 @@ class _UserListPageState extends State<UserListPage> {
                               title: Text(
                                 user.name,
                                 style: TextStyle(
-                                  fontFamily: 'Inter',
+                                  fontFamily: 'IBMPlexSans',
                                   color: Theme.of(
                                     context,
                                   ).colorScheme.onSurface,
@@ -189,7 +189,7 @@ class _UserListPageState extends State<UserListPage> {
                               subtitle: Text(
                                 user.email,
                                 style: TextStyle(
-                                  fontFamily: 'Inter',
+                                  fontFamily: 'IBMPlexSans',
                                   color: Theme.of(context).colorScheme.onSurface
                                       .withValues(alpha: 0.54),
                                 ),

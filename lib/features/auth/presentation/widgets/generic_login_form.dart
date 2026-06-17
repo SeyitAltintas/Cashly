@@ -126,7 +126,7 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
                 Text(
                   context.l10n.login,
                   style: TextStyle(
-                    fontFamily: 'Inter',
+                    fontFamily: 'IBMPlexSans',
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onSurface,

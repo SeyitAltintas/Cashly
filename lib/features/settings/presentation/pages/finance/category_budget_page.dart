@@ -116,8 +116,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                fontFamily: 'Inter',
-                fontFamilyFallback: ['IBMPlexSans'],
+                fontFamily: 'IBMPlexSans',
               ),
               decoration: InputDecoration(
                 labelText: context.l10n.monthlyLimit,
@@ -125,8 +124,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                   color: Theme.of(
                     dialogContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.8),
-                  fontFamily: 'Inter',
-                  fontFamilyFallback: const ['IBMPlexSans'],
+                  fontFamily: 'IBMPlexSans',
                 ),
                 hintText: context.l10n.zeroNoLimit,
                 hintStyle: TextStyle(
@@ -134,8 +132,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                   color: Theme.of(
                     dialogContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.4),
-                  fontFamily: 'Inter',
-                  fontFamilyFallback: const ['IBMPlexSans'],
+                  fontFamily: 'IBMPlexSans',
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),

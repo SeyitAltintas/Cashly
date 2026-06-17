@@ -46,30 +46,29 @@ class PageThemeColors {
 class AppTheme {
   AppTheme._();
 
-  static TextTheme _applyDualFontSystem(TextTheme base) {
-    TextStyle applyFallback(TextStyle? style) {
+  static TextTheme _applyIBMPlexSans(TextTheme base) {
+    TextStyle apply(TextStyle? style) {
       return (style ?? const TextStyle()).copyWith(
-        fontFamily: 'Inter',
-        fontFamilyFallback: const ['IBMPlexSans'],
+        fontFamily: 'IBMPlexSans',
       );
     }
 
     return base.copyWith(
-      displayLarge: applyFallback(base.displayLarge),
-      displayMedium: applyFallback(base.displayMedium),
-      displaySmall: applyFallback(base.displaySmall),
-      headlineLarge: applyFallback(base.headlineLarge),
-      headlineMedium: applyFallback(base.headlineMedium),
-      headlineSmall: applyFallback(base.headlineSmall),
-      titleLarge: applyFallback(base.titleLarge),
-      titleMedium: applyFallback(base.titleMedium),
-      titleSmall: applyFallback(base.titleSmall),
-      bodyLarge: applyFallback(base.bodyLarge),
-      bodyMedium: applyFallback(base.bodyMedium),
-      bodySmall: applyFallback(base.bodySmall),
-      labelLarge: applyFallback(base.labelLarge),
-      labelMedium: applyFallback(base.labelMedium),
-      labelSmall: applyFallback(base.labelSmall),
+      displayLarge: apply(base.displayLarge),
+      displayMedium: apply(base.displayMedium),
+      displaySmall: apply(base.displaySmall),
+      headlineLarge: apply(base.headlineLarge),
+      headlineMedium: apply(base.headlineMedium),
+      headlineSmall: apply(base.headlineSmall),
+      titleLarge: apply(base.titleLarge),
+      titleMedium: apply(base.titleMedium),
+      titleSmall: apply(base.titleSmall),
+      bodyLarge: apply(base.bodyLarge),
+      bodyMedium: apply(base.bodyMedium),
+      bodySmall: apply(base.bodySmall),
+      labelLarge: apply(base.labelLarge),
+      labelMedium: apply(base.labelMedium),
+      labelSmall: apply(base.labelSmall),
     );
   }
 
@@ -78,14 +77,14 @@ class AppTheme {
     final base = ThemeData(useMaterial3: true, brightness: Brightness.dark);
     final m2021 = Typography.material2021(platform: TargetPlatform.android);
     final customTypography = m2021.copyWith(
-      black: _applyDualFontSystem(m2021.black),
-      white: _applyDualFontSystem(m2021.white),
-      dense: _applyDualFontSystem(m2021.dense),
-      tall: _applyDualFontSystem(m2021.tall),
+      black: _applyIBMPlexSans(m2021.black),
+      white: _applyIBMPlexSans(m2021.white),
+      dense: _applyIBMPlexSans(m2021.dense),
+      tall: _applyIBMPlexSans(m2021.tall),
     );
 
-    final customTextTheme = _applyDualFontSystem(base.textTheme);
-    final customPrimaryTextTheme = _applyDualFontSystem(base.primaryTextTheme);
+    final customTextTheme = _applyIBMPlexSans(base.textTheme);
+    final customPrimaryTextTheme = _applyIBMPlexSans(base.primaryTextTheme);
 
     return ThemeData(
       useMaterial3: true,
@@ -364,14 +363,14 @@ class AppTheme {
     final base = ThemeData(useMaterial3: true, brightness: Brightness.light);
     final m2021 = Typography.material2021(platform: TargetPlatform.android);
     final customTypography = m2021.copyWith(
-      black: _applyDualFontSystem(m2021.black),
-      white: _applyDualFontSystem(m2021.white),
-      dense: _applyDualFontSystem(m2021.dense),
-      tall: _applyDualFontSystem(m2021.tall),
+      black: _applyIBMPlexSans(m2021.black),
+      white: _applyIBMPlexSans(m2021.white),
+      dense: _applyIBMPlexSans(m2021.dense),
+      tall: _applyIBMPlexSans(m2021.tall),
     );
 
-    final customTextTheme = _applyDualFontSystem(base.textTheme);
-    final customPrimaryTextTheme = _applyDualFontSystem(base.primaryTextTheme);
+    final customTextTheme = _applyIBMPlexSans(base.textTheme);
+    final customPrimaryTextTheme = _applyIBMPlexSans(base.primaryTextTheme);
 
     return ThemeData(
       useMaterial3: true,
@@ -714,8 +713,8 @@ class AppTheme {
       ),
     );
     return noSplash.copyWith(
-      textTheme: _applyDualFontSystem(noSplash.textTheme),
-      primaryTextTheme: _applyDualFontSystem(noSplash.primaryTextTheme),
+      textTheme: _applyIBMPlexSans(noSplash.textTheme),
+      primaryTextTheme: _applyIBMPlexSans(noSplash.primaryTextTheme),
     );
   }
 

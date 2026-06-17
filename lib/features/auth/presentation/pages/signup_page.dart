@@ -79,7 +79,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     Text(
                       context.l10n.createAccount,
                       style: TextStyle(
-                        fontFamily: 'Inter',
+                        fontFamily: 'IBMPlexSans',
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.onSurface,
@@ -89,7 +89,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     Text(
                       context.l10n.signupSubtitleExpense,
                       style: TextStyle(
-                        fontFamily: 'Inter',
+                        fontFamily: 'IBMPlexSans',
                         fontSize: 16,
                         color: Theme.of(
                           context,
