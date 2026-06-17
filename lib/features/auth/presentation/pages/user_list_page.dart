@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import '../../../../core/theme/app_theme.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
 import '../../../../core/utils/image_utils.dart';
@@ -52,23 +51,20 @@ class _UserListPageState extends State<UserListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: AppTheme.darkTheme,
-      child: Builder(
-        builder: (context) => Scaffold(
+    return Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             title: Text(
               context.l10n.users,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+              icon: Icon(Icons.arrow_back_ios, color: Theme.of(context).colorScheme.onSurface),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -101,7 +97,9 @@ class _UserListPageState extends State<UserListPage> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Colors.black.withValues(alpha: 0.2)
+                                : Colors.black.withValues(alpha: 0.1),
                             blurRadius: 20,
                             offset: const Offset(0, 4),
                           ),
@@ -113,103 +111,129 @@ class _UserListPageState extends State<UserListPage> {
                           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1E1E1E).withValues(alpha: 0.6),
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF1E1E1E).withValues(alpha: 0.6)
+                                  : Colors.white.withValues(alpha: 0.7),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.1),
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.white.withValues(alpha: 0.1)
+                                    : Colors.black.withValues(alpha: 0.1),
                                 width: 1,
                               ),
                             ),
                             child: ListTile(
-                            contentPadding: const EdgeInsets.all(16),
-                            leading: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primaryContainer.withValues(
-                                      alpha: 0.2,
-                                    ),
-                                    blurRadius: 12,
-                                    spreadRadius: 4,
-                                  ),
-                                ],
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.all(2),
+                              contentPadding: const EdgeInsets.all(16),
+                              leading: Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.1),
-                                    width: 1.5,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primaryContainer
+                                          .withValues(alpha: 0.2),
+                                      blurRadius: 12,
+                                      spreadRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Theme.of(context).brightness == Brightness.dark
+                                          ? Colors.white.withValues(alpha: 0.1)
+                                          : Colors.black.withValues(alpha: 0.1),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: 24,
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
+                                    backgroundImage:
+                                        (user.profileImage?.isNotEmpty ?? false)
+                                        ? ImageUtils.getProfileImageProvider(
+                                            user.profileImage,
+                                          )
+                                        : null,
+                                    child: (user.profileImage?.isEmpty ?? true)
+                                        ? Text(
+                                            user.name[0].toUpperCase(),
+                                            style: TextStyle(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
+                                            ),
+                                          )
+                                        : null,
                                   ),
                                 ),
-                                child: CircleAvatar(
-                                  radius: 24,
-                                  backgroundColor: Theme.of(
+                              ),
+                              title: Text(
+                                user.name,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  color: Theme.of(
                                     context,
-                                  ).colorScheme.surfaceContainerHighest,
-                                  backgroundImage:
-                                      (user.profileImage?.isNotEmpty ?? false)
-                                          ? ImageUtils.getProfileImageProvider(
-                                              user.profileImage,
-                                            )
-                                          : null,
-                                  child: (user.profileImage?.isEmpty ?? true)
-                                      ? Text(
-                                          user.name[0].toUpperCase(),
-                                          style: TextStyle(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                          ),
-                                        )
-                                      : null,
+                                  ).colorScheme.onSurface,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
                                 ),
                               ),
-                            ),
-                            title: Text(
-                              user.name,
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                              subtitle: Text(
+                                user.email,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.54),
+                                ),
                               ),
-                            ),
-                            subtitle: Text(
-                              user.email,
-                              style: TextStyle(
-                                fontFamily: 'Inter',
+                              onTap: () {
+                                // Seçilen kullanıcı ile giriş ekranına dön
+                                Navigator.pushReplacement(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder:
+                                        (
+                                          context,
+                                          animation,
+                                          secondaryAnimation,
+                                        ) => LoginPage(
+                                          authController: widget.authController,
+                                          preSelectedUser: user,
+                                        ),
+                                    transitionsBuilder:
+                                        (
+                                          context,
+                                          animation,
+                                          secondaryAnimation,
+                                          child,
+                                        ) {
+                                          return FadeTransition(
+                                            opacity: animation,
+                                            child: child,
+                                          );
+                                        },
+                                    transitionDuration: const Duration(
+                                      milliseconds: 300,
+                                    ),
+                                  ),
+                                );
+                              },
+                              trailing: Icon(
+                                Icons.arrow_forward_ios,
                                 color: Theme.of(
                                   context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.54),
+                                ).colorScheme.onSurface.withValues(alpha: 0.24),
+                                size: 16,
                               ),
                             ),
-                            onTap: () {
-                              // Seçilen kullanıcı ile giriş ekranına dön
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => LoginPage(
-                                    authController: widget.authController,
-                                    preSelectedUser: user,
-                                  ),
-                                ),
-                              );
-                            },
-                            trailing: Icon(
-                              Icons.arrow_forward_ios,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.24),
-                              size: 16,
-                            ),
-                          ),
                           ),
                         ),
                       ),
@@ -230,33 +254,54 @@ class _UserListPageState extends State<UserListPage> {
                         widget.authController.logout();
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => LoginPage(
-                              authController: widget.authController,
-                              forceGenericLogin: true,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    LoginPage(
+                                      authController: widget.authController,
+                                      forceGenericLogin: true,
+                                    ),
+                            transitionsBuilder:
+                                (
+                                  context,
+                                  animation,
+                                  secondaryAnimation,
+                                  child,
+                                ) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  );
+                                },
+                            transitionDuration: const Duration(
+                              milliseconds: 300,
                             ),
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white.withValues(alpha: 0.1),
+                        backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                            ? Colors.white.withValues(alpha: 0.1)
+                            : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.25),
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white.withValues(alpha: 0.25)
+                                : Colors.black.withValues(alpha: 0.1),
                           ),
                         ),
                       ),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.email_outlined,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
-                      label: const Text(
+                      label: Text(
                         "E-posta ve Şifre ile Giriş",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -283,9 +328,26 @@ class _UserListPageState extends State<UserListPage> {
                         widget.authController.logout();
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => SignUpPage(
-                              authController: widget.authController,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    SignUpPage(
+                                      authController: widget.authController,
+                                    ),
+                            transitionsBuilder:
+                                (
+                                  context,
+                                  animation,
+                                  secondaryAnimation,
+                                  child,
+                                ) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  );
+                                },
+                            transitionDuration: const Duration(
+                              milliseconds: 300,
                             ),
                           ),
                         );
@@ -321,8 +383,6 @@ class _UserListPageState extends State<UserListPage> {
               ),
             ),
           ),
-        ),
-      ),
     );
   }
 }

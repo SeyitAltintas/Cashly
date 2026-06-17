@@ -157,9 +157,10 @@ class _UserLoginFormState extends State<UserLoginForm> {
             children: [
               const SizedBox(height: 10),
               Image.asset(
-                'assets/image/seffaflogo.png',
+                Theme.of(context).brightness == Brightness.light
+                    ? 'assets/image/seffaflogosiyah.png'
+                    : 'assets/image/seffaflogo.png',
                 height: 35,
-                color: Colors.white,
               ),
               const SizedBox(height: 80),
 
@@ -175,7 +176,9 @@ class _UserLoginFormState extends State<UserLoginForm> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.37),
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.black.withValues(alpha: 0.37)
+                          : Colors.black.withValues(alpha: 0.1),
                       blurRadius: 32,
                       offset: const Offset(0, 8),
                     ),
@@ -188,10 +191,14 @@ class _UserLoginFormState extends State<UserLoginForm> {
                     child: Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E1E1E).withValues(alpha: 0.6),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF1E1E1E).withValues(alpha: 0.6)
+                            : Colors.white.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : Colors.black.withValues(alpha: 0.1),
                           width: 1,
                         ),
                       ),
@@ -243,7 +250,9 @@ class _UserLoginFormState extends State<UserLoginForm> {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.1),
             width: 2,
           ),
         ),
@@ -311,7 +320,9 @@ class _UserLoginFormState extends State<UserLoginForm> {
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: const Color(0xFF2A2A2A),
+                  fillColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF2A2A2A)
+                      : Colors.white.withValues(alpha: 0.8),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 16,
@@ -327,7 +338,9 @@ class _UserLoginFormState extends State<UserLoginForm> {
                   counterText: "",
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+                    borderSide: Theme.of(context).brightness == Brightness.light
+                        ? BorderSide(color: Colors.black.withValues(alpha: 0.1))
+                        : BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -379,7 +392,9 @@ class _UserLoginFormState extends State<UserLoginForm> {
                       height: 54,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        color: const Color(0xFF2A2A2A),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF2A2A2A)
+                            : Colors.white.withValues(alpha: 0.8),
                       ),
                       child: Icon(
                         Icons.fingerprint,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import '../../../../core/theme/app_theme.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../controllers/auth_controller.dart';
 import '../../../../core/utils/validators.dart';
@@ -57,10 +56,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: AppTheme.darkTheme,
-      child: Builder(
-        builder: (context) => Scaffold(
+    return Scaffold(
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
@@ -74,9 +70,10 @@ class _SignUpPageState extends State<SignUpPage> {
                   children: [
                     const SizedBox(height: 10),
                     Image.asset(
-                      'assets/image/seffaflogo.png',
+                      Theme.of(context).brightness == Brightness.light
+                          ? 'assets/image/seffaflogosiyah.png'
+                          : 'assets/image/seffaflogo.png',
                       height: 35,
-                      color: Colors.white,
                     ),
                     const SizedBox(height: 80),
                     Text(
@@ -106,7 +103,9 @@ class _SignUpPageState extends State<SignUpPage> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.37),
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Colors.black.withValues(alpha: 0.37)
+                                : Colors.black.withValues(alpha: 0.1),
                             blurRadius: 32,
                             offset: const Offset(0, 8),
                           ),
@@ -119,10 +118,14 @@ class _SignUpPageState extends State<SignUpPage> {
                           child: Container(
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1E1E1E).withValues(alpha: 0.6),
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF1E1E1E).withValues(alpha: 0.6)
+                                  : Colors.white.withValues(alpha: 0.7),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.1),
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.white.withValues(alpha: 0.1)
+                                    : Colors.black.withValues(alpha: 0.1),
                                 width: 1,
                               ),
                             ),
@@ -155,7 +158,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                     validator: Validators.validateName,
                                     decoration: InputDecoration(
                                       filled: true,
-                                      fillColor: const Color(0xFF2A2A2A),
+                                      fillColor: Theme.of(context).brightness == Brightness.dark
+                                          ? const Color(0xFF2A2A2A)
+                                          : Colors.white.withValues(alpha: 0.8),
                                   prefixIcon: Icon(
                                     Icons.person_outline,
                                     color: Theme.of(
@@ -164,7 +169,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
+                                    borderSide: Theme.of(context).brightness == Brightness.light
+                                        ? BorderSide(color: Colors.black.withValues(alpha: 0.1))
+                                        : BorderSide.none,
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -224,7 +231,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                     validator: Validators.validateEmail,
                                     decoration: InputDecoration(
                                       filled: true,
-                                      fillColor: const Color(0xFF2A2A2A),
+                                      fillColor: Theme.of(context).brightness == Brightness.dark
+                                          ? const Color(0xFF2A2A2A)
+                                          : Colors.white.withValues(alpha: 0.8),
                                   prefixIcon: Icon(
                                     Icons.email_outlined,
                                     color: Theme.of(
@@ -233,7 +242,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
+                                    borderSide: Theme.of(context).brightness == Brightness.light
+                                        ? BorderSide(color: Colors.black.withValues(alpha: 0.1))
+                                        : BorderSide.none,
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -298,7 +309,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                     validator: Validators.validatePIN,
                                     decoration: InputDecoration(
                                       filled: true,
-                                      fillColor: const Color(0xFF2A2A2A),
+                                      fillColor: Theme.of(context).brightness == Brightness.dark
+                                          ? const Color(0xFF2A2A2A)
+                                          : Colors.white.withValues(alpha: 0.8),
                                   prefixIcon: Icon(
                                     Icons.lock_outline,
                                     color: Theme.of(
@@ -322,7 +335,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
+                                    borderSide: Theme.of(context).brightness == Brightness.light
+                                        ? BorderSide(color: Colors.black.withValues(alpha: 0.1))
+                                        : BorderSide.none,
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -396,7 +411,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                     },
                                     decoration: InputDecoration(
                                       filled: true,
-                                      fillColor: const Color(0xFF2A2A2A),
+                                      fillColor: Theme.of(context).brightness == Brightness.dark
+                                          ? const Color(0xFF2A2A2A)
+                                          : Colors.white.withValues(alpha: 0.8),
                                   prefixIcon: Icon(
                                     Icons.lock_outline,
                                     color: Theme.of(
@@ -422,7 +439,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide.none,
+                                    borderSide: Theme.of(context).brightness == Brightness.light
+                                        ? BorderSide(color: Colors.black.withValues(alpha: 0.1))
+                                        : BorderSide.none,
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -597,9 +616,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
             ),
-          ),
         ),
-      ),
     );
   }
 }

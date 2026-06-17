@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme.dart';
+
 import 'package:flutter/services.dart';
 import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
@@ -114,8 +114,13 @@ class _LoginPageState extends State<LoginPage> {
   void _handleSignUp() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => SignUpPage(authController: widget.authController),
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            SignUpPage(authController: widget.authController),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }
@@ -123,8 +128,13 @@ class _LoginPageState extends State<LoginPage> {
   void _handleSwitchUser() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => UserListPage(authController: widget.authController),
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            UserListPage(authController: widget.authController),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }
@@ -166,9 +176,13 @@ class _LoginPageState extends State<LoginPage> {
             ? () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) =>
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
                         UserListPage(authController: widget.authController),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                    transitionDuration: const Duration(milliseconds: 300),
                   ),
                 );
               }
@@ -194,7 +208,7 @@ class _LoginPageState extends State<LoginPage> {
         if (didPop) return;
         SystemNavigator.pop();
       },
-      child: Theme(data: AppTheme.darkTheme, child: content),
+      child: content,
     );
   }
 }
