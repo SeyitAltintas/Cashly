@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class PageThemeColors {
   // Common
@@ -47,31 +46,54 @@ class PageThemeColors {
 class AppTheme {
   AppTheme._();
 
-  static TextTheme _ibmTextTheme(TextTheme base) {
-    return GoogleFonts.ibmPlexSansTextTheme(base);
+  static TextTheme _applyDualFontSystem(TextTheme base) {
+    TextStyle applyFallback(TextStyle? style) {
+      return (style ?? const TextStyle()).copyWith(
+        fontFamily: 'Inter',
+        fontFamilyFallback: const ['IBMPlexSans'],
+      );
+    }
+
+    return base.copyWith(
+      displayLarge: applyFallback(base.displayLarge),
+      displayMedium: applyFallback(base.displayMedium),
+      displaySmall: applyFallback(base.displaySmall),
+      headlineLarge: applyFallback(base.headlineLarge),
+      headlineMedium: applyFallback(base.headlineMedium),
+      headlineSmall: applyFallback(base.headlineSmall),
+      titleLarge: applyFallback(base.titleLarge),
+      titleMedium: applyFallback(base.titleMedium),
+      titleSmall: applyFallback(base.titleSmall),
+      bodyLarge: applyFallback(base.bodyLarge),
+      bodyMedium: applyFallback(base.bodyMedium),
+      bodySmall: applyFallback(base.bodySmall),
+      labelLarge: applyFallback(base.labelLarge),
+      labelMedium: applyFallback(base.labelMedium),
+      labelSmall: applyFallback(base.labelSmall),
+    );
   }
 
   // --- DARK THEME ---
   static ThemeData get darkTheme {
     final base = ThemeData(useMaterial3: true, brightness: Brightness.dark);
     final m2021 = Typography.material2021(platform: TargetPlatform.android);
-    final interTypography = m2021.copyWith(
-      black: _ibmTextTheme(m2021.black),
-      white: _ibmTextTheme(m2021.white),
-      dense: _ibmTextTheme(m2021.dense),
-      tall: _ibmTextTheme(m2021.tall),
+    final customTypography = m2021.copyWith(
+      black: _applyDualFontSystem(m2021.black),
+      white: _applyDualFontSystem(m2021.white),
+      dense: _applyDualFontSystem(m2021.dense),
+      tall: _applyDualFontSystem(m2021.tall),
     );
 
-    final interTextTheme = _ibmTextTheme(base.textTheme);
-    final interPrimaryTextTheme = _ibmTextTheme(base.primaryTextTheme);
+    final customTextTheme = _applyDualFontSystem(base.textTheme);
+    final customPrimaryTextTheme = _applyDualFontSystem(base.primaryTextTheme);
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       /* fontFamily: _fontFamily, */
-      typography: interTypography,
-      textTheme: interTextTheme,
-      primaryTextTheme: interPrimaryTextTheme,
+      typography: customTypography,
+      textTheme: customTextTheme,
+      primaryTextTheme: customPrimaryTextTheme,
       scaffoldBackgroundColor: const Color(0xFF121212),
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -341,23 +363,23 @@ class AppTheme {
   static ThemeData get lightTheme {
     final base = ThemeData(useMaterial3: true, brightness: Brightness.light);
     final m2021 = Typography.material2021(platform: TargetPlatform.android);
-    final interTypography = m2021.copyWith(
-      black: _ibmTextTheme(m2021.black),
-      white: _ibmTextTheme(m2021.white),
-      dense: _ibmTextTheme(m2021.dense),
-      tall: _ibmTextTheme(m2021.tall),
+    final customTypography = m2021.copyWith(
+      black: _applyDualFontSystem(m2021.black),
+      white: _applyDualFontSystem(m2021.white),
+      dense: _applyDualFontSystem(m2021.dense),
+      tall: _applyDualFontSystem(m2021.tall),
     );
 
-    final interTextTheme = _ibmTextTheme(base.textTheme);
-    final interPrimaryTextTheme = _ibmTextTheme(base.primaryTextTheme);
+    final customTextTheme = _applyDualFontSystem(base.textTheme);
+    final customPrimaryTextTheme = _applyDualFontSystem(base.primaryTextTheme);
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       /* fontFamily: _fontFamily, */
-      typography: interTypography,
-      textTheme: interTextTheme,
-      primaryTextTheme: interPrimaryTextTheme,
+      typography: customTypography,
+      textTheme: customTextTheme,
+      primaryTextTheme: customPrimaryTextTheme,
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       hoverColor: Colors.transparent,
@@ -692,8 +714,8 @@ class AppTheme {
       ),
     );
     return noSplash.copyWith(
-      textTheme: _ibmTextTheme(noSplash.textTheme),
-      primaryTextTheme: _ibmTextTheme(noSplash.primaryTextTheme),
+      textTheme: _applyDualFontSystem(noSplash.textTheme),
+      primaryTextTheme: _applyDualFontSystem(noSplash.primaryTextTheme),
     );
   }
 

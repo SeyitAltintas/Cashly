@@ -31,7 +31,6 @@ import 'core/services/price_cache_service.dart';
 import 'core/services/currency_service.dart';
 import 'core/services/network_service.dart';
 import 'core/router/app_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'core/services/secure_storage_service.dart';
 
@@ -83,9 +82,6 @@ void main() {
         persistenceEnabled: true,
         cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
       );
-
-      // Google Fonts: İnternetten font indirmeyi kapat
-      GoogleFonts.config.allowRuntimeFetching = false;
 
       // Flutter framework hatalarını yakala → Crashlytics + ErrorLogger
       FlutterError.onError = (FlutterErrorDetails details) {

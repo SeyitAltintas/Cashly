@@ -117,6 +117,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Inter',
+                fontFamilyFallback: ['IBMPlexSans'],
               ),
               decoration: InputDecoration(
                 labelText: context.l10n.monthlyLimit,
@@ -125,6 +126,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                     dialogContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.8),
                   fontFamily: 'Inter',
+                  fontFamilyFallback: const ['IBMPlexSans'],
                 ),
                 hintText: context.l10n.zeroNoLimit,
                 hintStyle: TextStyle(
@@ -133,6 +135,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                     dialogContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.4),
                   fontFamily: 'Inter',
+                  fontFamilyFallback: const ['IBMPlexSans'],
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -195,7 +198,9 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
               },
               icon: const Icon(Icons.delete_outline, size: 18),
               label: Text(context.l10n.removeLimit),
-              style: TextButton.styleFrom(foregroundColor: ColorConstants.turuncuVurgu),
+              style: TextButton.styleFrom(
+                foregroundColor: ColorConstants.turuncuVurgu,
+              ),
             ),
           const SizedBox(width: 8),
           ElevatedButton.icon(
