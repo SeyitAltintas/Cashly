@@ -537,7 +537,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontSize: 11,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -659,7 +659,7 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
                   'KATEGORİLERİM',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 TextButton.icon(

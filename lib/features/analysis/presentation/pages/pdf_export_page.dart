@@ -84,7 +84,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
           context.l10n.pdfReportTitle,
           style: TextStyle(
             color: theme.colorScheme.onSurface,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
           ),
         ),
         centerTitle: true,
@@ -138,7 +138,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                           context.l10n.pdfReportTitle,
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                             color: theme.colorScheme.onSurface,
                           ),
                         ),
@@ -219,7 +219,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                             '$month $year',
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                               color: theme.colorScheme.onSurface,
                             ),
                           ),
@@ -440,7 +440,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                             context.l10n.preparing,
                             style: const TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                               color: Colors.white,
                             ),
                           ),
@@ -459,7 +459,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                             context.l10n.createAndSharePdf,
                             style: const TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                               color: Colors.white,
                             ),
                           ),
@@ -507,7 +507,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
               title,
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),

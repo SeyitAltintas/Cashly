@@ -135,42 +135,42 @@ class TimeFilterSelector extends StatelessWidget {
                           value: 7,
                           child: Text(
                             context.l10n.thisWeek,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ),
                         DropdownMenuItem(
                           value: 30,
                           child: Text(
                             context.l10n.thisMonth,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ),
                         DropdownMenuItem(
                           value: 90,
                           child: Text(
                             context.l10n.last3Months,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ),
                         DropdownMenuItem(
                           value: 180,
                           child: Text(
                             context.l10n.last6Months,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ),
                         DropdownMenuItem(
                           value: 366,
                           child: Text(
                             context.l10n.thisYear,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ),
                         DropdownMenuItem(
                           value: 365,
                           child: Text(
                             context.l10n.last1Year,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ),
                         DropdownMenuItem(
@@ -182,7 +182,7 @@ class TimeFilterSelector extends StatelessWidget {
                                     controller.selectedMonth,
                                   )
                                 : context.l10n.selectMonth,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ),
                       ],
@@ -221,7 +221,7 @@ class TimeFilterSelector extends StatelessWidget {
                                       -1,
                                     ].indexOf(item)],
                               style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w500,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

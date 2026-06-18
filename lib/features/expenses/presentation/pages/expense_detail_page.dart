@@ -156,7 +156,7 @@ class ExpenseDetailPage extends StatelessWidget {
                   style: TextStyle(
                     color: theme.colorScheme.onSurface,
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -205,7 +205,7 @@ class ExpenseDetailPage extends StatelessWidget {
                 style: TextStyle(
                   color: theme.colorScheme.onSurface,
                   fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],
@@ -247,7 +247,7 @@ class ExpenseDetailPage extends StatelessWidget {
           style: TextStyle(
             color: theme.colorScheme.onSurface,
             fontSize: 14,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
           ),
         ),
       ],
@@ -294,7 +294,7 @@ class ExpenseDetailPage extends StatelessWidget {
                 style: const TextStyle(
                   color: ColorConstants.kirmiziVurgu,
                   fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],
@@ -305,7 +305,7 @@ class ExpenseDetailPage extends StatelessWidget {
             style: const TextStyle(
               color: ColorConstants.kirmiziVurgu,
               fontSize: 28,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

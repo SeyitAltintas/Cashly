@@ -45,7 +45,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(width: 6),
@@ -134,7 +134,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                     ),
                     title: Text(
                       asset.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontWeight: FontWeight.w500),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -163,7 +163,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                           child: Text(
                             '${isProfit ? '+' : ''}${roi.toStringAsFixed(1)}%',
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                               fontSize: 14,
                               color: roiColor,
                             ),
@@ -258,7 +258,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(width: 6),
@@ -321,7 +321,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                             '%${(pct * 100).toStringAsFixed(0)}',
                             style: TextStyle(
                               fontSize: 13,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                               color: color,
                             ),
                           ),
@@ -407,7 +407,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(width: 6),
@@ -459,7 +459,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                           context.l10n.highLiquidity,
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w400,
                             color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
@@ -468,7 +468,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                           '%${highPct.toStringAsFixed(0)}',
                           style: const TextStyle(
                             fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                             color: ColorConstants.camgobegiVurgu,
                           ),
                         ),
@@ -504,7 +504,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                           context.l10n.lowLiquidity,
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w400,
                             color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
@@ -513,7 +513,7 @@ extension AssetInsightsExtension on _AnalysisPageState {
                           '%${lowPct.toStringAsFixed(0)}',
                           style: const TextStyle(
                             fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                             color: ColorConstants.turuncuVurgu,
                           ),
                         ),

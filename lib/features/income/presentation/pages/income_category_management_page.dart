@@ -157,7 +157,7 @@ class _GelirKategoriYonetimiSayfasiState
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     IconButton(
@@ -214,7 +214,7 @@ class _GelirKategoriYonetimiSayfasiState
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -303,7 +303,7 @@ class _GelirKategoriYonetimiSayfasiState
                       "Kategori Ekle",
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -388,7 +388,7 @@ class _GelirKategoriYonetimiSayfasiState
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -411,7 +411,7 @@ class _GelirKategoriYonetimiSayfasiState
                 "KATEGORİLER",
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 10),

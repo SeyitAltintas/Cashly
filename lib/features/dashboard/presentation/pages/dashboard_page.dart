@@ -216,7 +216,7 @@ class _GreetingSection extends StatelessWidget {
                   userName,
                   style: TextStyle(
                     fontSize: 28,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),

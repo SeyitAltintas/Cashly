@@ -28,7 +28,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
           titlePositionPercentageOffset: 0.55,
           titleStyle: TextStyle(
             fontSize: isTouched ? 14.0 : 12.0,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
             color: Theme.of(context).colorScheme.onSurface,
             shadows: [Shadow(color: Theme.of(context).colorScheme.onSurface, blurRadius: 2)],
           ),
@@ -113,7 +113,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                                     ? Theme.of(context).colorScheme.onSurface
                                     : Theme.of(context).colorScheme.onSurface,
                                 fontSize: 22,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -128,7 +128,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -391,7 +391,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                 label,
                 style: TextStyle(
                   fontSize: 10,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   color: isSelected
                       ? Theme.of(context).colorScheme.onSurface
                       : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -442,7 +442,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                               ),
                               style: TextStyle(
                                 fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w500,
                                 color: ColorConstants.turuncuVurgu.withValues(alpha: 0.8),
                               ),
                               labelResolver: (line) =>
@@ -494,7 +494,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                               color: Theme.of(
                                 context,
                               ).colorScheme.onSurface.withValues(alpha: 0.5),
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w400,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.visible,
@@ -610,7 +610,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                                 color: isExpense
                                     ? ColorConstants.kirmiziVurgu
                                     : ColorConstants.yesil,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w500,
                                 fontSize: 16,
                               ),
                             ),
@@ -699,7 +699,7 @@ extension AnalysisChartsExtension on _AnalysisPageState {
                     TextStyle(
                       color: _getColorForIndex(groupIndex, colors),
                       fontSize: 10,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   );
                 },

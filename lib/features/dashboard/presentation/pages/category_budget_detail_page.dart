@@ -51,7 +51,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
               context.l10n.categoryBasedUsage,
               style: TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
@@ -136,7 +136,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                     CurrencyFormatter.format(totalBudget),
                     style: const TextStyle(
                       fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -154,7 +154,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                   '${(usage * 100).toStringAsFixed(0)}%',
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     color: _getUsageColor(usage),
                   ),
                 ),
@@ -198,7 +198,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                       ),
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                   color: isOverBudget ? ColorConstants.kirmiziVurgu : ColorConstants.yesil,
                 ),
               ),
@@ -239,7 +239,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                     context.translateDbName(data.kategori),
                     style: const TextStyle(
                       fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ),
@@ -260,7 +260,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                         : '${(data.usage * 100).toStringAsFixed(0)}%',
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                       color: _getUsageColor(data.usage),
                     ),
                   ),
@@ -524,7 +524,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                                   context.translateDbName(categoryKey),
                                   style: const TextStyle(
                                     fontSize: 24,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w400,
                                     letterSpacing: -0.5,
                                   ),
                                   maxLines: 1,
@@ -550,7 +550,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                                           .colorScheme
                                           .onSurface
                                           .withValues(alpha: 0.6),
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w400,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -567,7 +567,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                                     "-${CurrencyFormatter.format(totalAmount, currency: currency)}",
                                     style: const TextStyle(
                                       color: ColorConstants.kirmiziVurgu,
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w400,
                                       fontSize: 22,
                                       letterSpacing: -0.5,
                                     ),
@@ -703,7 +703,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                                               categoryKey,
                                             ),
                                       style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                        fontWeight: FontWeight.w500,
                                         fontSize: 15,
                                       ),
                                       maxLines: 1,
@@ -736,7 +736,7 @@ class CategoryBudgetDetailPage extends StatelessWidget {
                                         "-${CurrencyFormatter.format(amount, currency: itemCurrency)}",
                                         style: const TextStyle(
                                           color: ColorConstants.kirmiziVurgu,
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w500,
                                           fontSize: 16,
                                         ),
                                       ),

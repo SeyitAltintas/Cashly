@@ -54,7 +54,7 @@ extension ExpenseInsightsExtension on _AnalysisPageState {
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               Container(
@@ -162,7 +162,7 @@ extension ExpenseInsightsExtension on _AnalysisPageState {
                       ),
                       title: Text(
                         expenseName,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -220,7 +220,7 @@ extension ExpenseInsightsExtension on _AnalysisPageState {
                               currency: currency,
                             ),
                             style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                               fontSize: 16,
                               color: ColorConstants.kirmiziVurgu,
                             ),
@@ -290,7 +290,7 @@ extension ExpenseInsightsExtension on _AnalysisPageState {
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 12),

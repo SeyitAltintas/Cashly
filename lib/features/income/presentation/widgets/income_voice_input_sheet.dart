@@ -252,7 +252,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
                 context.l10n.voiceIncomeInput,
                 style: TextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),

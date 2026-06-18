@@ -1078,7 +1078,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               context.l10n.voiceAssistant,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -1160,7 +1160,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               context.l10n.ok,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -1242,7 +1242,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -1342,7 +1342,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],

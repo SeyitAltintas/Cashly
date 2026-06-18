@@ -152,7 +152,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                           ).colorScheme.onSurface.withValues(alpha: 0.6),
                           fontSize: labelFontSize,
                           letterSpacing: 1.2,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ],
@@ -204,7 +204,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                           widget.ayIsmi.toUpperCase(),
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                             fontSize: 12,
                           ),
                         ),
@@ -248,7 +248,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
               color: ColorConstants.kirmiziVurgu,
               fontSize: amountFontSize,
               height: 1.1,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w400,
               letterSpacing: -1,
             ),
           ),
@@ -324,7 +324,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                   ).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 11,
                   letterSpacing: 1.2,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
               Container(
@@ -337,7 +337,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                   "%${(dolulukOrani * 100).toStringAsFixed(0)}",
                   style: TextStyle(
                     color: barRengi,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     fontSize: 12,
                   ),
                 ),
@@ -370,7 +370,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                       fontSize: 10,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                   AmountText(
@@ -380,7 +380,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                           ? ColorConstants.kirmiziVurgu
                           : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.9),
                       fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -393,7 +393,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                       fontSize: 10,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                   AmountText(
@@ -401,7 +401,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -498,7 +498,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                       ).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 11,
                       letterSpacing: 1.2,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
@@ -531,7 +531,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.95),
               fontSize: 32,
               height: 1.1,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w400,
               letterSpacing: -1,
             ),
           ),
@@ -593,7 +593,7 @@ class _ExpenseSummaryCardState extends State<ExpenseSummaryCard> {
                               ? ColorConstants.yesil
                               : ColorConstants.kirmiziVurgu,
                           fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),

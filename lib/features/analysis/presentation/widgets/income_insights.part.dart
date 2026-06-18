@@ -58,7 +58,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -161,7 +161,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                         income.name.isNotEmpty
                             ? income.name
                             : context.translateDbName(income.category),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -202,7 +202,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                               currency: currency,
                             ),
                             style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                               fontSize: 16,
                               color: ColorConstants.yesil,
                             ),
@@ -301,7 +301,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(width: 6),
@@ -476,7 +476,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(width: 6),
@@ -532,7 +532,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                         CurrencyFormatter.format(dailyAvg),
                         style: const TextStyle(
                           fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                           color: ColorConstants.yesil,
                         ),
                       ),
@@ -567,7 +567,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                         '$totalDays ${context.l10n.daysElapsed}',
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           color: Theme.of(
                             context,
                           ).colorScheme.onSurface.withValues(alpha: 0.7),
@@ -638,7 +638,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(width: 6),
@@ -680,7 +680,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
                       CurrencyFormatter.format(savings.abs()),
                       style: TextStyle(
                         fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         color: statusColor,
                       ),
                     ),

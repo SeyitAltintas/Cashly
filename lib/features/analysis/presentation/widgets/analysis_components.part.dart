@@ -35,7 +35,7 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
                 Text(
                   title,
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
@@ -107,7 +107,7 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
                 title,
                 style: TextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 textAlign: TextAlign.center,
@@ -145,7 +145,7 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
                     context.l10n.close,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ),
@@ -208,7 +208,7 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
                 child: Text(
                   pmName,
                   style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     fontSize: 13,
                   ),
                   maxLines: 1,
@@ -225,7 +225,7 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
               CurrencyFormatter.format(value),
               style: TextStyle(
                 color: color,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 fontSize: 16,
               ),
             ),

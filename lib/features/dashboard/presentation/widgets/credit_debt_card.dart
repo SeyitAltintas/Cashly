@@ -57,7 +57,7 @@ class CreditDebtCard extends StatelessWidget {
               isObscured: isObscured,
               style: const TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: ColorConstants.kirmiziVurgu,
               ),
             ),

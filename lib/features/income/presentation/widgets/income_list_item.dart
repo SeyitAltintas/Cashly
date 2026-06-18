@@ -88,7 +88,7 @@ class IncomeListItem extends StatelessWidget {
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
@@ -133,7 +133,7 @@ class IncomeListItem extends StatelessWidget {
                     CurrencyFormatter.formatSigned(converted, showPlus: true),
                     style: const TextStyle(
                       color: ColorConstants.yesil,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       fontSize: 16,
                     ),
                   );

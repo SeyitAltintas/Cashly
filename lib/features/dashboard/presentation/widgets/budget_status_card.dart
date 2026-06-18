@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/obscured_amount_text.dart';
@@ -48,7 +48,7 @@ class BudgetStatusCard extends StatelessWidget {
                   title ?? context.l10n.thisMonth,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
@@ -163,7 +163,7 @@ class BudgetStatusCard extends StatelessWidget {
           isObscured: isObscured,
           style: TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
             color: valueColor,
           ),
           textAlign: TextAlign.center,
@@ -198,7 +198,7 @@ class BudgetStatusCard extends StatelessWidget {
               "${(budgetUsed * 100).toStringAsFixed(0)}%",
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: _getStatusColor(budgetUsed),
               ),
             ),

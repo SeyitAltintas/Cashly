@@ -253,7 +253,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           isEditing ? context.l10n.editExpense : context.l10n.addExpense,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
             fontSize: 18,
           ),
         ),
@@ -611,7 +611,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 17,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ),

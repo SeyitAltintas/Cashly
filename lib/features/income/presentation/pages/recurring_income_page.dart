@@ -151,7 +151,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -465,7 +465,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                         gelir == null ? context.l10n.add : context.l10n.update,
                         style: const TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -701,7 +701,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -727,7 +727,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],

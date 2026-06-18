@@ -99,7 +99,7 @@ class ExpenseListItem extends StatelessWidget {
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
@@ -142,7 +142,7 @@ class ExpenseListItem extends StatelessWidget {
                     CurrencyFormatter.formatSigned(-converted),
                     style: const TextStyle(
                       color: ColorConstants.kirmiziVurgu,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       fontSize: 16,
                     ),
                   );

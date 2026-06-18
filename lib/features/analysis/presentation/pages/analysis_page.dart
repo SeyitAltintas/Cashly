@@ -283,7 +283,7 @@ class _AnalysisPageState extends State<AnalysisPage>
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.6),
                     labelStyle: const TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       fontSize: 13,
                     ),
                     unselectedLabelStyle: const TextStyle(

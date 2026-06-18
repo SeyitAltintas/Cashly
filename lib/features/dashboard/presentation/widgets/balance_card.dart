@@ -132,7 +132,7 @@ class _BalanceCardState extends State<BalanceCard> {
                           style: TextStyle(
                             fontSize: 12,
                             color: onSurfaceColor.withValues(alpha: 0.5),
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             letterSpacing: 1.2,
                           ),
                         ),
@@ -166,7 +166,7 @@ class _BalanceCardState extends State<BalanceCard> {
                         isObscured: isObscured,
                         style: TextStyle(
                           fontSize: 42,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w400,
                           color: onSurfaceColor.withValues(alpha: 0.9),
                           letterSpacing: -1.5,
                         ),
@@ -196,7 +196,7 @@ class _BalanceCardState extends State<BalanceCard> {
                           style: const TextStyle(
                             color: ColorConstants.yesil,
                             fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ],
@@ -243,7 +243,7 @@ class _BalanceCardState extends State<BalanceCard> {
                           style: TextStyle(
                             color: onSurfaceColor,
                             fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],

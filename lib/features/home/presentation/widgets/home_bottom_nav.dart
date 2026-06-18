@@ -149,7 +149,7 @@ class _ModernNavItem extends StatelessWidget {
                         style: TextStyle(
                           color: primaryColor,
                           fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     )

@@ -206,7 +206,7 @@ class TrendInsightCard extends StatelessWidget {
                           title,
                           style: TextStyle(
                             fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
@@ -292,7 +292,7 @@ class TrendInsightCard extends StatelessWidget {
                           topCategoryLabel!,
                           style: TextStyle(
                             fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
@@ -302,7 +302,7 @@ class TrendInsightCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 13,
                             color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w400,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -315,7 +315,7 @@ class TrendInsightCard extends StatelessWidget {
                             color: isExpense
                                 ? ColorConstants.kirmiziVurgu
                                 : ColorConstants.yesil,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                           ),
                           textAlign: TextAlign.left,
                         ),
@@ -420,7 +420,7 @@ class LegendItem extends StatelessWidget {
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w400,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -432,7 +432,7 @@ class LegendItem extends StatelessWidget {
                               color: isOverBudget
                                   ? ColorConstants.kirmiziVurgu
                                   : Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               fontSize: 16,
                             ),
                           ),

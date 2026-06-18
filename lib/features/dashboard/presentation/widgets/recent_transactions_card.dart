@@ -68,7 +68,7 @@ class RecentTransactionsCard extends StatelessWidget {
               context.l10n.recentTransactions,
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
@@ -186,7 +186,7 @@ class RecentTransactionsCard extends StatelessWidget {
             isObscured: isObscured,
             style: TextStyle(
               color: iconColor.withValues(alpha: 0.9),
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

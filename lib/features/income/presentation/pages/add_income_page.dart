@@ -190,7 +190,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
           isEditing ? context.l10n.editIncome : context.l10n.addIncome,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
             fontSize: 18,
           ),
         ),
@@ -547,7 +547,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 17,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ),
