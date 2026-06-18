@@ -13,6 +13,8 @@ import 'package:cashly/core/services/asset_price_update_service.dart';
 import 'package:cashly/core/services/currency_service.dart';
 import 'package:intl/intl.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
+import 'package:cashly/core/services/batch_service.dart';
+import 'package:cashly/core/utils/error_handler.dart';
 
 /// Ana sayfa için state yönetimi sağlayan Provider sınıfı.
 /// Harcamalar, gelirler, varlıklar, ödeme yöntemleri ve transferleri yönetir.
@@ -416,14 +418,18 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
     required DateTime tarih,
     String? odemeYontemiId,
   }) {
-    tumHarcamalar.add({
+    final String yeniId = DateTime.now().millisecondsSinceEpoch.toString();
+    final yeniHarcama = {
+      "id": yeniId,
       "isim": isim,
       "tutar": tutar,
       "kategori": kategori,
       "tarih": tarih.toString(),
       "silindi": false,
       "odemeYontemiId": odemeYontemiId,
-    });
+      "paraBirimi": getIt<CurrencyService>().currentCurrency,
+    };
+    tumHarcamalar.add(yeniHarcama);
 
     // Ödeme yönteminden düş
     if (odemeYontemiId != null) {
@@ -431,9 +437,35 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
     }
 
     _siralaHarcamalar();
-    verileriKaydet();
-    odemeYontemleriKaydet();
     filtreleVeGoster();
+
+    Future.microtask(() async {
+      try {
+        final operations = <BatchOperation>[
+          getIt<ExpenseRepository>().getAddExpenseOperation(
+            userId,
+            yeniHarcama,
+          ),
+        ];
+        if (odemeYontemiId != null) {
+          final delta = _hesaplaBakiyeDelta(
+            odemeYontemiId,
+            tutar,
+            isHarcama: true,
+          );
+          operations.add(
+            getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
+              userId,
+              odemeYontemiId,
+              delta,
+            ),
+          );
+        }
+        await getIt<BatchService>().commit(operations);
+      } catch (e, s) {
+        ErrorHandler.logError('HomeProvider.harcamaEkle BatchOperation', e, s);
+      }
+    });
   }
 
   /// Harcama günceller
@@ -458,22 +490,79 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
       _bakiyeGuncelle(odemeYontemiId, tutar, isHarcama: true);
     }
 
+    Map<String, dynamic>? guncelHarcama;
     int index = tumHarcamalar.indexOf(eskiHarcama);
     if (index != -1) {
-      tumHarcamalar[index] = {
+      guncelHarcama = {
+        "id":
+            eskiHarcama['id'] ??
+            DateTime.now().millisecondsSinceEpoch.toString(),
         "isim": isim,
         "tutar": tutar,
         "kategori": kategori,
         "tarih": tarih.toString(),
         "silindi": false,
         "odemeYontemiId": odemeYontemiId,
+        "paraBirimi":
+            eskiHarcama['paraBirimi'] ??
+            getIt<CurrencyService>().currentCurrency,
       };
+      tumHarcamalar[index] = guncelHarcama;
     }
 
     _siralaHarcamalar();
-    verileriKaydet();
-    odemeYontemleriKaydet();
     filtreleVeGoster();
+
+    Future.microtask(() async {
+      try {
+        final operations = <BatchOperation>[];
+        if (guncelHarcama != null) {
+          operations.add(
+            getIt<ExpenseRepository>().getUpdateExpenseOperation(
+              userId,
+              guncelHarcama,
+            ),
+          );
+        }
+
+        if (eskiOdemeYontemiId != null) {
+          final delta = _hesaplaBakiyeDelta(
+            eskiOdemeYontemiId,
+            eskiTutar,
+            isHarcama: false,
+          );
+          operations.add(
+            getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
+              userId,
+              eskiOdemeYontemiId,
+              delta,
+            ),
+          );
+        }
+        if (odemeYontemiId != null) {
+          final delta = _hesaplaBakiyeDelta(
+            odemeYontemiId,
+            tutar,
+            isHarcama: true,
+          );
+          operations.add(
+            getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
+              userId,
+              odemeYontemiId,
+              delta,
+            ),
+          );
+        }
+
+        await getIt<BatchService>().commit(operations);
+      } catch (e, s) {
+        ErrorHandler.logError(
+          'HomeProvider.harcamaGuncelle BatchOperation',
+          e,
+          s,
+        );
+      }
+    });
   }
 
   /// Harcama siler (soft delete)
@@ -487,9 +576,33 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
       _bakiyeGuncelle(paymentMethodId, amount, isHarcama: false);
     }
 
-    verileriKaydet();
-    odemeYontemleriKaydet();
     filtreleVeGoster();
+
+    Future.microtask(() async {
+      try {
+        final operations = <BatchOperation>[
+          getIt<ExpenseRepository>().getUpdateExpenseOperation(userId, harcama),
+        ];
+        if (paymentMethodId != null) {
+          final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+          final delta = _hesaplaBakiyeDelta(
+            paymentMethodId,
+            amount,
+            isHarcama: false,
+          );
+          operations.add(
+            getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
+              userId,
+              paymentMethodId,
+              delta,
+            ),
+          );
+        }
+        await getIt<BatchService>().commit(operations);
+      } catch (e, s) {
+        ErrorHandler.logError('HomeProvider.harcamaSil BatchOperation', e, s);
+      }
+    });
   }
 
   /// Harcamaları tarihe göre sıralar
@@ -513,26 +626,51 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
     required DateTime tarih,
     String? odemeYontemiId,
   }) {
-    tumGelirler.insert(
-      0,
-      Income(
-        id: DateTime.now().toString(),
-        name: isim,
-        amount: tutar,
-        category: kategori,
-        date: tarih,
-        paymentMethodId: odemeYontemiId,
-      ),
+    final yeniGelir = Income(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: isim,
+      amount: tutar,
+      category: kategori,
+      date: tarih,
+      paymentMethodId: odemeYontemiId,
+      paraBirimi: getIt<CurrencyService>().currentCurrency,
     );
+    tumGelirler.insert(0, yeniGelir);
 
     // Bakiyeyi güncelle
     if (odemeYontemiId != null) {
       _bakiyeGuncelle(odemeYontemiId, tutar, isHarcama: false);
     }
 
-    gelirleriKaydet();
-    odemeYontemleriKaydet();
     notifyListeners();
+
+    Future.microtask(() async {
+      try {
+        final operations = <BatchOperation>[
+          getIt<IncomeRepository>().getAddIncomeOperation(
+            userId,
+            yeniGelir.toMap(),
+          ),
+        ];
+        if (odemeYontemiId != null) {
+          final delta = _hesaplaBakiyeDelta(
+            odemeYontemiId,
+            tutar,
+            isHarcama: false,
+          );
+          operations.add(
+            getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
+              userId,
+              odemeYontemiId,
+              delta,
+            ),
+          );
+        }
+        await getIt<BatchService>().commit(operations);
+      } catch (e, s) {
+        ErrorHandler.logError('HomeProvider.gelirEkle BatchOperation', e, s);
+      }
+    });
   }
 
   /// Gelir siler
@@ -544,20 +682,48 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
       _bakiyeGuncelle(income.paymentMethodId!, income.amount, isHarcama: true);
     }
 
-    gelirleriKaydet();
-    odemeYontemleriKaydet();
     notifyListeners();
+
+    Future.microtask(() async {
+      try {
+        final operations = <BatchOperation>[
+          getIt<IncomeRepository>().getUpdateIncomeOperation(
+            userId,
+            income.toMap(),
+          ),
+        ];
+        if (income.paymentMethodId != null) {
+          final delta = _hesaplaBakiyeDelta(
+            income.paymentMethodId!,
+            income.amount,
+            isHarcama: true,
+          );
+          operations.add(
+            getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
+              userId,
+              income.paymentMethodId!,
+              delta,
+            ),
+          );
+        }
+        await getIt<BatchService>().commit(operations);
+      } catch (e, s) {
+        ErrorHandler.logError('HomeProvider.gelirSil BatchOperation', e, s);
+      }
+    });
   }
 
   // ===== BAKİYE YÖNETİMİ =====
 
-  /// Ödeme yöntemi bakiyesini günceller
-  void _bakiyeGuncelle(String pmId, double miktar, {required bool isHarcama}) {
+  /// Ödeme yöntemi bakiye değişim yönünü hesaplar (Delta)
+  double _hesaplaBakiyeDelta(
+    String pmId,
+    double miktar, {
+    required bool isHarcama,
+  }) {
     final pmIndex = tumOdemeYontemleri.indexWhere((p) => p.id == pmId);
-    if (pmIndex == -1) return;
-
+    if (pmIndex == -1) return 0.0;
     final pm = tumOdemeYontemleri[pmIndex];
-
     final cur = getIt<CurrencyService>();
     final convertedAmount = cur.convert(
       miktar,
@@ -565,21 +731,22 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
       pm.paraBirimi,
     );
 
-    double yeniBakiye;
-
     if (pm.type == 'kredi') {
-      // Kredi kartı: harcama borcu artırır, gelir borcu azaltır
-      yeniBakiye = isHarcama
-          ? pm.balance + convertedAmount
-          : pm.balance - convertedAmount;
+      return isHarcama ? convertedAmount : -convertedAmount;
     } else {
-      // Banka/Nakit: harcama bakiyeyi azaltır, gelir artırır
-      yeniBakiye = isHarcama
-          ? pm.balance - convertedAmount
-          : pm.balance + convertedAmount;
+      return isHarcama ? -convertedAmount : convertedAmount;
     }
+  }
 
-    tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: yeniBakiye);
+  /// Ödeme yöntemi bakiyesini günceller (Sadece yerel state)
+  void _bakiyeGuncelle(String pmId, double miktar, {required bool isHarcama}) {
+    final pmIndex = tumOdemeYontemleri.indexWhere((p) => p.id == pmId);
+    if (pmIndex == -1) return;
+
+    final pm = tumOdemeYontemleri[pmIndex];
+    final delta = _hesaplaBakiyeDelta(pmId, miktar, isHarcama: isHarcama);
+
+    tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: pm.balance + delta);
   }
 
   // ===== SESLİ KOMUT CALLBACK'LERİ =====

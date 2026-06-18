@@ -1,5 +1,7 @@
 import 'base_usecase.dart';
 import '../../../features/payment_methods/domain/repositories/payment_method_repository.dart';
+import '../../../core/di/injection_container.dart';
+import '../../../core/services/batch_service.dart';
 
 // ===== PAYMENT METHOD USE CASES =====
 
@@ -120,11 +122,13 @@ class UpdateBalance implements UseCase<void, UpdateBalanceParams> {
       (pm) => pm['id'] == params.paymentMethodId,
     );
     if (index != -1) {
-      paymentMethods[index]['balance'] = params.newBalance;
-      await repository.updatePaymentMethod(
-        params.userId,
-        paymentMethods[index],
-      );
+      final oldBalance = (paymentMethods[index]['balance'] as num?)?.toDouble() ?? 0.0;
+      final delta = params.newBalance - oldBalance;
+      
+      final operations = <BatchOperation>[
+        repository.getIncrementBalanceOperation(params.userId, params.paymentMethodId, delta)
+      ];
+      await getIt<BatchService>().commit(operations);
     }
   }
 }

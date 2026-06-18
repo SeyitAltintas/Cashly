@@ -403,10 +403,14 @@ class PaymentMethodsController extends ChangeNotifier
 
         Future.microtask(() async {
           try {
-            await _paymentMethodRepository.updatePaymentMethod(
-              userId,
-              _paymentMethods[index].toMap(),
-            );
+            final operations = <BatchOperation>[
+              _paymentMethodRepository.getIncrementBalanceOperation(
+                userId,
+                methodId,
+                amount,
+              )
+            ];
+            await getIt<BatchService>().commit(operations);
           } catch (e, s) {
             ErrorHandler.logError(
               'PaymentMethodsController.updateBalance Background',
