@@ -33,7 +33,7 @@ class AppLoadingOverlay {
               Text(
                 message,
                 style: const TextStyle(
-                  fontFamily: 'sans-serif',
+                  fontFamily: 'Inter',
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -76,7 +76,7 @@ class AppLoadingOverlay {
               Text(
                 message,
                 style: const TextStyle(
-                  fontFamily: 'sans-serif',
+                  fontFamily: 'Inter',
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,

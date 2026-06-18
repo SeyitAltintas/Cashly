@@ -46,11 +46,9 @@ class PageThemeColors {
 class AppTheme {
   AppTheme._();
 
-  static TextTheme _applyIBMPlexSans(TextTheme base) {
+  static TextTheme _applyInter(TextTheme base) {
     TextStyle apply(TextStyle? style) {
-      return (style ?? const TextStyle()).copyWith(
-        fontFamily: 'IBMPlexSans',
-      );
+      return (style ?? const TextStyle()).copyWith(fontFamily: 'Inter');
     }
 
     return base.copyWith(
@@ -77,19 +75,18 @@ class AppTheme {
     final base = ThemeData(useMaterial3: true, brightness: Brightness.dark);
     final m2021 = Typography.material2021(platform: TargetPlatform.android);
     final customTypography = m2021.copyWith(
-      black: _applyIBMPlexSans(m2021.black),
-      white: _applyIBMPlexSans(m2021.white),
-      dense: _applyIBMPlexSans(m2021.dense),
-      tall: _applyIBMPlexSans(m2021.tall),
+      black: _applyInter(m2021.black),
+      white: _applyInter(m2021.white),
+      dense: _applyInter(m2021.dense),
+      tall: _applyInter(m2021.tall),
     );
 
-    final customTextTheme = _applyIBMPlexSans(base.textTheme);
-    final customPrimaryTextTheme = _applyIBMPlexSans(base.primaryTextTheme);
+    final customTextTheme = _applyInter(base.textTheme);
+    final customPrimaryTextTheme = _applyInter(base.primaryTextTheme);
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      /* fontFamily: _fontFamily, */
       typography: customTypography,
       textTheme: customTextTheme,
       primaryTextTheme: customPrimaryTextTheme,
@@ -124,7 +121,7 @@ class AppTheme {
         centerTitle: true,
         toolbarHeight: kToolbarHeight,
         titleTextStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 20,
+          fontSize: 19,
           fontWeight: FontWeight.w500,
           color: Colors.white,
         ),
@@ -136,12 +133,8 @@ class AppTheme {
         selectedItemColor: Color(0xFFC8D96F),
         unselectedItemColor: Color(0xFF757575),
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 12,
-        ),
-        unselectedLabelStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 12,
-        ),
+        selectedLabelStyle: TextStyle(fontSize: 12),
+        unselectedLabelStyle: TextStyle(fontSize: 12),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: const Color(0xFF121212),
@@ -149,9 +142,7 @@ class AppTheme {
         indicatorColor: const Color(0xFFC8D96F).withValues(alpha: 0.2),
         elevation: 0,
         height: 65,
-        labelTextStyle: const WidgetStatePropertyAll(
-          TextStyle(/* fontFamily: _fontFamily, */ fontSize: 12),
-        ),
+        labelTextStyle: const WidgetStatePropertyAll(TextStyle(fontSize: 12)),
       ),
       cardTheme: const CardThemeData(
         color: Color(0xFF1E1E1E),
@@ -166,14 +157,11 @@ class AppTheme {
         backgroundColor: Color(0xFF1A1A1A),
         surfaceTintColor: Colors.transparent,
         titleTextStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 20,
-          fontWeight: FontWeight.w600,
+          fontSize: 19,
+          fontWeight: FontWeight.w500,
           color: Colors.white,
         ),
-        contentTextStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 14,
-          color: Colors.white70,
-        ),
+        contentTextStyle: TextStyle(fontSize: 14, color: Colors.white70),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Color(0xFF121212),
@@ -182,14 +170,8 @@ class AppTheme {
       ),
       listTileTheme: const ListTileThemeData(
         dense: false,
-        titleTextStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 16,
-          color: Colors.white,
-        ),
-        subtitleTextStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 13,
-          color: Colors.white70,
-        ),
+        titleTextStyle: TextStyle(fontSize: 16, color: Colors.white),
+        subtitleTextStyle: TextStyle(fontSize: 13, color: Colors.white70),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: Color(0xFFC8D96F),
@@ -200,12 +182,12 @@ class AppTheme {
         headerBackgroundColor: const Color(0xFF2A2A2A),
         headerForegroundColor: Colors.white,
         headerHeadlineStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 28,
-          fontWeight: FontWeight.bold,
+          fontSize: 28,
+          fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
         headerHelpStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 14,
+          fontSize: 14,
           fontWeight: FontWeight.w500,
           color: Colors.white70,
         ),
@@ -235,14 +217,12 @@ class AppTheme {
           Colors.white.withValues(alpha: 0.1),
         ),
         weekdayStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ color: Colors.white.withValues(
-            alpha: 0.6,
-          ),
+          color: Colors.white.withValues(alpha: 0.6),
           fontWeight: FontWeight.w600,
           fontSize: 13,
         ),
         dayStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ color: Colors.white,
+          color: Colors.white,
           fontWeight: FontWeight.w500,
         ),
         dividerColor: Colors.white.withValues(alpha: 0.1),
@@ -250,17 +230,11 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         cancelButtonStyle: TextButton.styleFrom(
           foregroundColor: Colors.white60,
-          textStyle: const TextStyle(
-            /* fontFamily: _fontFamily, */ fontWeight: FontWeight.w500,
-            fontSize: 15,
-          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
         ),
         confirmButtonStyle: TextButton.styleFrom(
           foregroundColor: Colors.black,
-          textStyle: const TextStyle(
-            /* fontFamily: _fontFamily, */ fontWeight: FontWeight.bold,
-            fontSize: 15,
-          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
@@ -280,10 +254,7 @@ class AppTheme {
           splashFactory: NoSplash.splashFactory,
           foregroundColor: Colors.black,
           backgroundColor: const Color(0xFFC8D96F),
-          textStyle: const TextStyle(
-            /* fontFamily: _fontFamily, */ fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           minimumSize: const Size(64, 48),
           shape: RoundedRectangleBorder(
@@ -295,10 +266,7 @@ class AppTheme {
         style: TextButton.styleFrom(
           splashFactory: NoSplash.splashFactory,
           foregroundColor: Colors.white70,
-          textStyle: const TextStyle(
-            /* fontFamily: _fontFamily, */ fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           minimumSize: const Size(48, 40),
         ),
@@ -307,10 +275,7 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           splashFactory: NoSplash.splashFactory,
           foregroundColor: Colors.black,
-          textStyle: const TextStyle(
-            /* fontFamily: _fontFamily, */ fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           minimumSize: const Size(64, 44),
           side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
@@ -338,20 +303,13 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.white54),
         ),
-        labelStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ color: Colors.white54,
-        ),
-        hintStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ color: Colors.white30,
-        ),
+        labelStyle: const TextStyle(color: Colors.white54),
+        hintStyle: const TextStyle(color: Colors.white30),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: Colors.white.withValues(alpha: 0.08),
         selectedColor: Colors.white.withValues(alpha: 0.2),
-        labelStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 13,
-          color: Colors.white,
-        ),
+        labelStyle: const TextStyle(fontSize: 13, color: Colors.white),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -363,19 +321,18 @@ class AppTheme {
     final base = ThemeData(useMaterial3: true, brightness: Brightness.light);
     final m2021 = Typography.material2021(platform: TargetPlatform.android);
     final customTypography = m2021.copyWith(
-      black: _applyIBMPlexSans(m2021.black),
-      white: _applyIBMPlexSans(m2021.white),
-      dense: _applyIBMPlexSans(m2021.dense),
-      tall: _applyIBMPlexSans(m2021.tall),
+      black: _applyInter(m2021.black),
+      white: _applyInter(m2021.white),
+      dense: _applyInter(m2021.dense),
+      tall: _applyInter(m2021.tall),
     );
 
-    final customTextTheme = _applyIBMPlexSans(base.textTheme);
-    final customPrimaryTextTheme = _applyIBMPlexSans(base.primaryTextTheme);
+    final customTextTheme = _applyInter(base.textTheme);
+    final customPrimaryTextTheme = _applyInter(base.primaryTextTheme);
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      /* fontFamily: _fontFamily, */
       typography: customTypography,
       textTheme: customTextTheme,
       primaryTextTheme: customPrimaryTextTheme,
@@ -412,7 +369,7 @@ class AppTheme {
         centerTitle: true,
         toolbarHeight: kToolbarHeight,
         titleTextStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 20,
+          fontSize: 19,
           fontWeight: FontWeight.w500,
           color: Color(0xDD1E1E2C),
         ),
@@ -425,12 +382,10 @@ class AppTheme {
         unselectedItemColor: Color(0x611E1E2C),
         type: BottomNavigationBarType.fixed,
         selectedLabelStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 12,
-          fontWeight: FontWeight.w600,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
         ),
-        unselectedLabelStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 12,
-        ),
+        unselectedLabelStyle: TextStyle(fontSize: 12),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white,
@@ -441,15 +396,12 @@ class AppTheme {
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const TextStyle(
-              /* fontFamily: _fontFamily, */ fontSize: 12,
-              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
               color: Color(0xFF6B7E1F),
             );
           }
-          return const TextStyle(
-            /* fontFamily: _fontFamily, */ fontSize: 12,
-            color: Color(0x8A1E1E2C),
-          );
+          return const TextStyle(fontSize: 12, color: Color(0x8A1E1E2C));
         }),
       ),
       cardTheme: const CardThemeData(
@@ -467,14 +419,11 @@ class AppTheme {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         titleTextStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 20,
-          fontWeight: FontWeight.w600,
+          fontSize: 19,
+          fontWeight: FontWeight.w500,
           color: Color(0xDD1E1E2C),
         ),
-        contentTextStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 14,
-          color: Color(0x8A1E1E2C),
-        ),
+        contentTextStyle: TextStyle(fontSize: 14, color: Color(0x8A1E1E2C)),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.white,
@@ -483,14 +432,8 @@ class AppTheme {
       ),
       listTileTheme: const ListTileThemeData(
         dense: false,
-        titleTextStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 16,
-          color: Color(0xDD1E1E2C),
-        ),
-        subtitleTextStyle: TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 13,
-          color: Color(0x8A1E1E2C),
-        ),
+        titleTextStyle: TextStyle(fontSize: 16, color: Color(0xDD1E1E2C)),
+        subtitleTextStyle: TextStyle(fontSize: 13, color: Color(0x8A1E1E2C)),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: Color(0xFFC8D96F),
@@ -501,12 +444,12 @@ class AppTheme {
         headerBackgroundColor: Colors.white,
         headerForegroundColor: const Color(0xDD1E1E2C),
         headerHeadlineStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 28,
-          fontWeight: FontWeight.bold,
+          fontSize: 28,
+          fontWeight: FontWeight.w600,
           color: Color(0xDD1E1E2C),
         ),
         headerHelpStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 14,
+          fontSize: 14,
           fontWeight: FontWeight.w500,
           color: Color(0x8A1E1E2C),
         ),
@@ -542,12 +485,12 @@ class AppTheme {
           const Color(0xFF1E1E2C).withValues(alpha: 0.05),
         ),
         weekdayStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ color: Color(0x8A1E1E2C),
+          color: Color(0x8A1E1E2C),
           fontWeight: FontWeight.w600,
           fontSize: 13,
         ),
         dayStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ color: Color(0xDD1E1E2C),
+          color: Color(0xDD1E1E2C),
           fontWeight: FontWeight.w500,
         ),
         dividerColor: const Color(0x1F1E1E2C),
@@ -555,17 +498,11 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         cancelButtonStyle: TextButton.styleFrom(
           foregroundColor: const Color(0x8A1E1E2C),
-          textStyle: const TextStyle(
-            /* fontFamily: _fontFamily, */ fontWeight: FontWeight.w500,
-            fontSize: 15,
-          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
         ),
         confirmButtonStyle: TextButton.styleFrom(
           foregroundColor: const Color(0xFF6B7E1F),
-          textStyle: const TextStyle(
-            /* fontFamily: _fontFamily, */ fontWeight: FontWeight.bold,
-            fontSize: 15,
-          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
@@ -585,10 +522,7 @@ class AppTheme {
           splashFactory: NoSplash.splashFactory,
           foregroundColor: const Color(0xFF1E1E2C),
           backgroundColor: const Color(0xFFC8D96F),
-          textStyle: const TextStyle(
-            /* fontFamily: _fontFamily, */ fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           minimumSize: const Size(64, 48),
           shape: RoundedRectangleBorder(
@@ -600,10 +534,7 @@ class AppTheme {
         style: TextButton.styleFrom(
           splashFactory: NoSplash.splashFactory,
           foregroundColor: const Color(0xFF6B7E1F),
-          textStyle: const TextStyle(
-            /* fontFamily: _fontFamily, */ fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           minimumSize: const Size(48, 40),
         ),
@@ -612,10 +543,7 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           splashFactory: NoSplash.splashFactory,
           foregroundColor: const Color(0xFF6B7E1F),
-          textStyle: const TextStyle(
-            /* fontFamily: _fontFamily, */ fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           minimumSize: const Size(64, 44),
           side: BorderSide(
@@ -645,22 +573,15 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF6B7E1F)),
         ),
-        labelStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ color: Color(0x8A1E1E2C),
-        ),
-        hintStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ color: Color(0x611E1E2C),
-        ),
+        labelStyle: const TextStyle(color: Color(0x8A1E1E2C)),
+        hintStyle: const TextStyle(color: Color(0x611E1E2C)),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: const Color(0xFF1E1E2C).withValues(alpha: 0.06),
         selectedColor: const Color(0xFF6B7E1F).withValues(alpha: 0.15),
-        labelStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 13,
-          color: Color(0xDD1E1E2C),
-        ),
+        labelStyle: const TextStyle(fontSize: 13, color: Color(0xDD1E1E2C)),
         secondaryLabelStyle: const TextStyle(
-          /* fontFamily: _fontFamily, */ fontSize: 13,
+          fontSize: 13,
           color: Color(0xFF6B7E1F),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -713,8 +634,8 @@ class AppTheme {
       ),
     );
     return noSplash.copyWith(
-      textTheme: _applyIBMPlexSans(noSplash.textTheme),
-      primaryTextTheme: _applyIBMPlexSans(noSplash.primaryTextTheme),
+      textTheme: _applyInter(noSplash.textTheme),
+      primaryTextTheme: _applyInter(noSplash.primaryTextTheme),
     );
   }
 

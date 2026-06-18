@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -91,7 +91,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
         title: Text(
           context.l10n.editPhoto,
           style: const TextStyle(
-            fontFamily: 'IBMPlexSans',
             fontWeight: FontWeight.w600,
             fontSize: 17,
           ),
@@ -121,7 +120,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
               child: Text(
                 context.l10n.apply,
                 style: TextStyle(
-                  fontFamily: 'IBMPlexSans',
                   color: Theme.of(context).colorScheme.onSurface, // Beyaz renk
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -279,7 +277,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             Text(
               label,
               style: const TextStyle(
-                fontFamily: 'IBMPlexSans',
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -665,7 +662,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     Text(
                       filter.name,
                       style: TextStyle(
-                        fontFamily: 'IBMPlexSans',
                         color: isSelected
                             ? _primaryColor
                             : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
@@ -701,7 +697,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             child: Text(
               context.l10n.intensity,
               style: TextStyle(
-                fontFamily: 'IBMPlexSans',
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 11,
               ),
@@ -733,7 +728,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             child: Text(
               '${_state.filterIntensity.toInt()}%',
               style: TextStyle(
-                fontFamily: 'IBMPlexSans',
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                 fontSize: 10,
               ),
@@ -844,7 +838,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             child: Text(
               label,
               style: TextStyle(
-                fontFamily: 'IBMPlexSans',
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 11,
               ),
@@ -877,7 +870,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             child: Text(
               value.toInt().toString(),
               style: TextStyle(
-                fontFamily: 'IBMPlexSans',
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                 fontSize: 10,
               ),
@@ -1018,7 +1010,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
           Text(
             label,
             style: TextStyle(
-              fontFamily: 'IBMPlexSans',
               color: isActive ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
               fontSize: 10,
             ),
@@ -1050,14 +1041,12 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   child: TextField(
                     controller: _textController,
                     style: TextStyle(
-                      fontFamily: 'IBMPlexSans',
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 13,
                     ),
                     decoration: InputDecoration(
                       hintText: context.l10n.typeText,
                       hintStyle: TextStyle(
-                        fontFamily: 'IBMPlexSans',
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
                         fontSize: 13,
                       ),
@@ -1130,7 +1119,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                               ? '${text.text.substring(0, 12)}...'
                               : text.text,
                           style: TextStyle(
-                            fontFamily: 'IBMPlexSans',
                             color: isSelected ? _primaryColor : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                             fontSize: 11,
                           ),
@@ -1286,7 +1274,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   child: Text(
                     '${text.fontSize.toInt()}',
                     style: TextStyle(
-                      fontFamily: 'IBMPlexSans',
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                       fontSize: 9,
                     ),
@@ -1363,7 +1350,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 Text(
                   context.l10n.sizeLabel,
                   style: TextStyle(
-                    fontFamily: 'IBMPlexSans',
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                     fontSize: 11,
                   ),
@@ -1478,7 +1464,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   child: Text(
                     context.l10n.thickness,
                     style: TextStyle(
-                      fontFamily: 'IBMPlexSans',
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                       fontSize: 11,
                     ),
@@ -1512,7 +1497,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                   child: Text(
                     '${_state.frameBorderWidth.toInt()}',
                     style: TextStyle(
-                      fontFamily: 'IBMPlexSans',
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                       fontSize: 10,
                     ),
@@ -1586,7 +1570,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                     Text(
                       _localizedFrameName(frame.name),
                       style: TextStyle(
-                        fontFamily: 'IBMPlexSans',
                         color: isSelected
                             ? _primaryColor
                             : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
@@ -1757,7 +1740,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             child: Text(
               context.l10n.resetAll,
               style: TextStyle(
-                fontFamily: 'IBMPlexSans',
                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -1793,7 +1775,6 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'IBMPlexSans',
                 color: isEnabled ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                 fontSize: 11,
                 fontWeight: FontWeight.w500,

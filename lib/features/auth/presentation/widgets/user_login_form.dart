@@ -1,4 +1,4 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../../core/utils/image_utils.dart';
@@ -278,7 +278,6 @@ class _UserLoginFormState extends State<UserLoginForm> {
       widget.targetUser.name,
       textAlign: TextAlign.center,
       style: TextStyle(
-        fontFamily: 'IBMPlexSans',
         fontSize: 28,
         fontWeight: FontWeight.bold,
         color: Theme.of(context).colorScheme.onSurface,

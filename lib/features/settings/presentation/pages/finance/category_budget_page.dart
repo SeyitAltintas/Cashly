@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import '../../../../../core/widgets/shimmer_loading.dart';
 import 'package:flutter/services.dart';
@@ -116,7 +116,6 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                fontFamily: 'IBMPlexSans',
               ),
               decoration: InputDecoration(
                 labelText: context.l10n.monthlyLimit,
@@ -124,7 +123,6 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                   color: Theme.of(
                     dialogContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.8),
-                  fontFamily: 'IBMPlexSans',
                 ),
                 hintText: context.l10n.zeroNoLimit,
                 hintStyle: TextStyle(
@@ -132,7 +130,6 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                   color: Theme.of(
                     dialogContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.4),
-                  fontFamily: 'IBMPlexSans',
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),

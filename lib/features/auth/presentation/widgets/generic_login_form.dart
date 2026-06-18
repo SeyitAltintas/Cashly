@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../controllers/auth_controller.dart';
 import '../../../../core/utils/validators.dart';
@@ -126,7 +126,6 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
                 Text(
                   context.l10n.login,
                   style: TextStyle(
-                    fontFamily: 'IBMPlexSans',
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onSurface,
