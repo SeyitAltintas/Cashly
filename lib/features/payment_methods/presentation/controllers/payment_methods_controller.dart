@@ -242,11 +242,7 @@ class PaymentMethodsController extends ChangeNotifier
       Future.microtask(() async {
         try {
           final operations = <BatchOperation>[
-            _paymentMethodRepository.getDeletePaymentMethodOperation(
-              userId,
-              method.id,
-            ),
-            _paymentMethodRepository.getAddPaymentMethodOperation(
+            _paymentMethodRepository.getUpdatePaymentMethodOperation(
               userId,
               deleted.toMap(),
             ),
@@ -276,11 +272,7 @@ class PaymentMethodsController extends ChangeNotifier
       Future.microtask(() async {
         try {
           final operations = <BatchOperation>[
-            _paymentMethodRepository.getDeletePaymentMethodOperation(
-              userId,
-              method.id,
-            ),
-            _paymentMethodRepository.getAddPaymentMethodOperation(
+            _paymentMethodRepository.getUpdatePaymentMethodOperation(
               userId,
               restored.toMap(),
             ),
@@ -408,7 +400,7 @@ class PaymentMethodsController extends ChangeNotifier
                 userId,
                 methodId,
                 amount,
-              )
+              ),
             ];
             await getIt<BatchService>().commit(operations);
           } catch (e, s) {

@@ -10,6 +10,7 @@ import '../../../../payment_methods/domain/repositories/payment_method_repositor
 
 mixin ExpenseBinMixin on ChangeNotifier {
   ExpenseRepository get expenseRepository;
+  PaymentMethodRepository get paymentMethodRepository;
   String get userId;
   void refresh();
   List<PaymentMethod> get tumOdemeYontemleri;
@@ -89,7 +90,7 @@ mixin ExpenseBinMixin on ChangeNotifier {
                 : -convertedAmount;
 
             operations.add(
-              getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
+              paymentMethodRepository.getIncrementBalanceOperation(
                 userId,
                 pm.id,
                 delta,
@@ -232,7 +233,7 @@ mixin ExpenseBinMixin on ChangeNotifier {
                     : -convertedAmount;
 
                 operations.add(
-                  getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
+                  paymentMethodRepository.getIncrementBalanceOperation(
                     userId,
                     pm.id,
                     delta,

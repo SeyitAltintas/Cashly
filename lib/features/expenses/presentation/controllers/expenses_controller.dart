@@ -77,7 +77,8 @@ class ExpensesController extends ChangeNotifier
   @override
   ExpenseRepository get expenseRepository => _expenseRepository;
 
-
+  @override
+  PaymentMethodRepository get paymentMethodRepository => _paymentMethodRepository;
   // ===== ANA STATE =====
 
   // Arama modu state'i
