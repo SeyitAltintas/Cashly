@@ -253,4 +253,14 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
       notifyListeners();
     }
   }
+
+  Future<void> refreshUser() async {
+    if (_currentUser != null) {
+      final savedUser = await _authRepository.getCurrentUser();
+      if (savedUser != null) {
+        _currentUser = savedUser;
+        notifyListeners();
+      }
+    }
+  }
 }

@@ -90,9 +90,15 @@ class DatePickerField extends StatelessWidget {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(
-              context,
-            ).colorScheme.copyWith(primary: color, onPrimary: Colors.white),
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: color,
+                  onPrimary: Colors.white,
+                ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: color, // Use the primary color (e.g. kirmiziVurgu)
+              ),
+            ),
           ),
           child: child!,
         );

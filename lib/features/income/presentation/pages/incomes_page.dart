@@ -310,7 +310,9 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
           paymentMethods: _controller.tumOdemeYontemleri
               .where((pm) => !pm.isDeleted)
               .toList(),
-          initialDate: widget.secilenAy,
+          initialDate: (_controller.secilenAy.year == DateTime.now().year && _controller.secilenAy.month == DateTime.now().month)
+              ? DateTime.now()
+              : _controller.secilenAy,
           onSave:
               (
                 name,

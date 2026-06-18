@@ -74,7 +74,7 @@ class ProfileSettingsHelper {
 
     try {
       await authRepository.updateUser(updatedUser);
-      await authController.checkAuth();
+      await authController.refreshUser();
       onUserUpdated();
       if (context.mounted) {
         AppSnackBar.success(
@@ -772,16 +772,14 @@ class ProfileSettingsHelper {
                   await getIt<NotificationService>().cancelAllNotifications();
                 }
 
-                if (context.mounted) AppLoadingOverlay.hide(context);
+                if (context.mounted) {
+                  AppLoadingOverlay.hide(context);
+                  AppSnackBar.success(context, successMessage);
+                }
 
                 navigator.pushAndRemoveUntil(
                   MaterialPageRoute(
-                    builder: (newCtx) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        AppSnackBar.success(newCtx, successMessage);
-                      });
-                      return LoginPage(authController: authController);
-                    },
+                    builder: (newCtx) => LoginPage(authController: authController),
                   ),
                   (route) => false,
                 );
@@ -1008,16 +1006,14 @@ class ProfileSettingsHelper {
                   await getIt<NotificationScheduler>().rescheduleAll();
                 }
 
-                if (context.mounted) AppLoadingOverlay.hide(context);
+                if (context.mounted) {
+                  AppLoadingOverlay.hide(context);
+                  AppSnackBar.success(context, successMessage);
+                }
 
                 navigator.pushAndRemoveUntil(
                   MaterialPageRoute(
-                    builder: (newCtx) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        AppSnackBar.success(newCtx, successMessage);
-                      });
-                      return AnaSayfa(authController: authController);
-                    },
+                    builder: (newCtx) => AnaSayfa(authController: authController),
                   ),
                   (route) => false,
                 );

@@ -59,10 +59,7 @@ class AppTheme {
         FontWeight.w900 => FontWeight.w800,
         _ => null, // w300, w400 unchanged
       };
-      return s.copyWith(
-        fontFamily: 'Inter',
-        fontWeight: adjusted,
-      );
+      return s.copyWith(fontFamily: 'Inter', fontWeight: adjusted);
     }
 
     return base.copyWith(
@@ -247,7 +244,6 @@ class AppTheme {
           textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
         ),
         confirmButtonStyle: TextButton.styleFrom(
-          foregroundColor: Colors.black,
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
         inputDecorationTheme: InputDecorationTheme(
@@ -515,7 +511,6 @@ class AppTheme {
           textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
         ),
         confirmButtonStyle: TextButton.styleFrom(
-          foregroundColor: const Color(0xFF6B7E1F),
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
         inputDecorationTheme: InputDecorationTheme(

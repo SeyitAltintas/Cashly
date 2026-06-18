@@ -209,7 +209,7 @@ mixin ExpenseBinMixin on ChangeNotifier {
           operations.add(
             expenseRepository.getUpdateExpenseOperation(userId, data),
           );
-          
+
           final paymentMethodId = data['odemeYontemiId'];
           if (paymentMethodId != null) {
             final pmIndex = tumOdemeYontemleri.indexWhere(
@@ -226,7 +226,7 @@ mixin ExpenseBinMixin on ChangeNotifier {
                 amountCurrency,
                 pm.paraBirimi,
               );
-              
+
               final delta = pm.type == 'kredi'
                   ? convertedAmount
                   : -convertedAmount;

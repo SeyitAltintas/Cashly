@@ -278,7 +278,9 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
               .where((pm) => !pm.isDeleted)
               .toList(),
           defaultPaymentMethodId: widget.varsayilanOdemeYontemiId,
-          initialDate: _controller.secilenAy,
+          initialDate: (_controller.secilenAy.year == DateTime.now().year && _controller.secilenAy.month == DateTime.now().month)
+              ? DateTime.now()
+              : _controller.secilenAy,
           onSave:
               (
                 name,
