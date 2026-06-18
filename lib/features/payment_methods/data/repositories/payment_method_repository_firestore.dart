@@ -468,6 +468,15 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
   }
 
   @override
+  BatchOperation getDeleteTransferOperation(String userId, String transferId) {
+    return FirestoreBatchOperation(
+      collectionPath: 'users/$userId/transfers',
+      documentId: transferId,
+      type: BatchOperationType.delete,
+    );
+  }
+
+  @override
   Future<void> deleteTransfer(String userId, String transferId) async {
     try {
       final docRef = _userDoc(userId).collection('transfers').doc(transferId);

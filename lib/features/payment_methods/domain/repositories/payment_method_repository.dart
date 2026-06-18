@@ -86,6 +86,9 @@ abstract class PaymentMethodRepository {
     Map<String, dynamic> transfer,
   );
 
+  /// Bir transferi silmek için batch operasyonu döndürür
+  BatchOperation getDeleteTransferOperation(String userId, String transferId);
+
   /// Bir transferi siler
   Future<void> deleteTransfer(String userId, String transferId);
 }

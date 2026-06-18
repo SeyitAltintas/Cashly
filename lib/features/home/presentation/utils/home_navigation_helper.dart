@@ -397,13 +397,67 @@ class HomeNavigationHelper {
             final transferList = List<Transfer>.from(state.tumTransferler);
             transferList.removeWhere((t) => t.id == transfer.id);
             state.tumTransferler = transferList;
+            
+            final pmList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
+            final Map<String, double> pmDeltas = {};
+
+            if (transfer.isExecuted || !transfer.isScheduled) {
+              final fromIndex = pmList.indexWhere((pm) => pm.id == transfer.fromAccountId);
+              final toIndex = pmList.indexWhere((pm) => pm.id == transfer.toAccountId);
+
+              final fromPm = fromIndex != -1 ? pmList[fromIndex] : null;
+              final toPm = toIndex != -1 ? pmList[toIndex] : null;
+
+              final cur = getIt<CurrencyService>();
+              
+              if (fromPm != null) {
+                final convertedFromAmount = cur.convert(
+                  transfer.amount,
+                  transfer.paraBirimi,
+                  fromPm.paraBirimi,
+                );
+                // Revert sender: If credit, decrease debt (-). If cash, increase cash (+).
+                final deltaFrom = fromPm.type == 'kredi'
+                    ? -convertedFromAmount
+                    : convertedFromAmount;
+                pmDeltas[fromPm.id] = (pmDeltas[fromPm.id] ?? 0) + deltaFrom;
+                pmList[fromIndex] = fromPm.copyWith(balance: fromPm.balance + deltaFrom);
+              }
+
+              if (toPm != null) {
+                final convertedToAmount = cur.convert(
+                  transfer.amount,
+                  transfer.paraBirimi,
+                  toPm.paraBirimi,
+                );
+                // Revert receiver: If credit, increase debt (+). If cash, decrease cash (-).
+                final deltaTo = toPm.type == 'kredi'
+                    ? convertedToAmount
+                    : -convertedToAmount;
+                pmDeltas[toPm.id] = (pmDeltas[toPm.id] ?? 0) + deltaTo;
+                pmList[toIndex] = toPm.copyWith(balance: toPm.balance + deltaTo);
+              }
+              
+              state.tumOdemeYontemleri = pmList;
+            }
 
             Future.microtask(() async {
               try {
-                await getIt<PaymentMethodRepository>().deleteTransfer(
-                  authController.currentUser!.id,
-                  transfer.id,
-                );
+                final pmRepo = getIt<PaymentMethodRepository>();
+                final userId = authController.currentUser!.id;
+                final operations = <BatchOperation>[];
+                
+                operations.add(pmRepo.getDeleteTransferOperation(userId, transfer.id));
+                
+                for (final entry in pmDeltas.entries) {
+                  if (entry.value != 0) {
+                    operations.add(
+                      pmRepo.getIncrementBalanceOperation(userId, entry.key, entry.value),
+                    );
+                  }
+                }
+                
+                await getIt<BatchService>().commit(operations);
               } catch (e, s) {
                 ErrorHandler.logError(
                   'HomePage.DeleteTransfer Background',
