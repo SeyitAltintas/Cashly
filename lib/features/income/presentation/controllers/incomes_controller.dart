@@ -651,6 +651,8 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
             );
           }
 
+          final Map<String, double> pmDeltas = {};
+
           if (income.paymentMethodId != null) {
             final pmIdx = _tumOdemeYontemleri.indexWhere(
               (p) => p.id == income.paymentMethodId,
@@ -663,22 +665,14 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
                 amountCurrency,
                 pm.paraBirimi,
               );
+              // İptal edilen gelir -> para geri alınır
               final delta = pm.type == 'kredi'
                   ? convertedAmount
                   : -convertedAmount;
-              operations.add(
-                _paymentMethodRepository.getIncrementBalanceOperation(
-                  userId,
-                  pm.id,
-                  delta,
-                ),
-              );
+              pmDeltas[pm.id] = (pmDeltas[pm.id] ?? 0) + delta;
             }
           }
-          // Yeni ödeme yöntemine yeni tutarı uygula.
-          // Not: paymentMethodId == income.paymentMethodId (aynı hesap, farklı tutar)
-          // durumunda da çalışması gerekir. Yukarıdaki eski tutar iade
-          // operasyonuyla birlikte net fark doğru uygulanır.
+
           if (paymentMethodId != null) {
             final pmIdx = _tumOdemeYontemleri.indexWhere(
               (p) => p.id == paymentMethodId,
@@ -691,14 +685,21 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
                 amountCurrency,
                 pm.paraBirimi,
               );
+              // Yeni gelir -> para girer
               final delta = pm.type == 'kredi'
                   ? -convertedAmount
                   : convertedAmount;
+              pmDeltas[pm.id] = (pmDeltas[pm.id] ?? 0) + delta;
+            }
+          }
+
+          for (final entry in pmDeltas.entries) {
+            if (entry.value != 0) {
               operations.add(
                 _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
-                  pm.id,
-                  delta,
+                  entry.key,
+                  entry.value,
                 ),
               );
             }

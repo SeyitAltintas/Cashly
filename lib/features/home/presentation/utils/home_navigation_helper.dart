@@ -417,45 +417,51 @@ class HomeNavigationHelper {
             final isScheduled = TransferSchedulePolicy.isScheduled(
               selectedDate: date,
             );
-            int finalFromIndex = -1;
-            int finalToIndex = -1;
 
             final pmList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
+            final fromIndex = pmList.indexWhere((pm) => pm.id == fromId);
+            final toIndex = pmList.indexWhere((pm) => pm.id == toId);
 
-            double deltaFrom = 0.0;
-            double deltaTo = 0.0;
+            final fromPm = fromIndex != -1 ? pmList[fromIndex] : null;
+            final toPm = toIndex != -1 ? pmList[toIndex] : null;
+
+            final transferCurrency = fromPm?.paraBirimi ?? getIt<CurrencyService>().currentCurrency;
+
+            final Map<String, double> pmDeltas = {};
 
             if (!isScheduled) {
               final cur = getIt<CurrencyService>();
-              final fromIndex = pmList.indexWhere((pm) => pm.id == fromId);
-              finalFromIndex = fromIndex;
-              if (fromIndex != -1) {
-                final fromPm = pmList[fromIndex];
-                final convertedFromAmount = cur.convert(
-                  amount,
-                  cur.currentCurrency,
-                  fromPm.paraBirimi,
-                );
-                deltaFrom = fromPm.type == 'kredi'
-                    ? convertedFromAmount
-                    : -convertedFromAmount;
+
+              if (fromPm != null) {
+                // The amount is in transferCurrency (fromPm.paraBirimi)
+                final convertedFromAmount = amount; 
+                final deltaFrom = fromPm.type == 'kredi'
+                    ? convertedFromAmount // transferring out of credit increases debt
+                    : -convertedFromAmount; // transferring out of cash decreases cash
+                pmDeltas[fromId] = (pmDeltas[fromId] ?? 0) + deltaFrom;
+
                 double yeniBakiye = fromPm.balance + deltaFrom;
                 pmList[fromIndex] = fromPm.copyWith(balance: yeniBakiye);
               }
-              final toIndex = pmList.indexWhere((pm) => pm.id == toId);
-              finalToIndex = toIndex;
-              if (toIndex != -1) {
-                final toPm = pmList[toIndex];
+
+              if (toPm != null) {
+                // Convert amount from transferCurrency to toPm.paraBirimi
                 final convertedToAmount = cur.convert(
                   amount,
-                  cur.currentCurrency,
+                  transferCurrency,
                   toPm.paraBirimi,
                 );
-                deltaTo = toPm.type == 'kredi'
-                    ? -convertedToAmount
-                    : convertedToAmount;
-                double yeniBakiye = toPm.balance + deltaTo;
-                pmList[toIndex] = toPm.copyWith(balance: yeniBakiye);
+                final deltaTo = toPm.type == 'kredi'
+                    ? -convertedToAmount // transferring into credit decreases debt
+                    : convertedToAmount; // transferring into cash increases cash
+                pmDeltas[toId] = (pmDeltas[toId] ?? 0) + deltaTo;
+
+                // Wait! toPm could be the same as fromPm if fromId == toId
+                // If so, the balance is already updated in pmList, so we should recalculate based on the updated one.
+                // But it's simpler to just apply the delta directly to whatever is in the list
+                final currentToPm = pmList[toIndex];
+                double yeniBakiye = currentToPm.balance + deltaTo;
+                pmList[toIndex] = currentToPm.copyWith(balance: yeniBakiye);
               }
               state.tumOdemeYontemleri = pmList;
             }
@@ -468,7 +474,7 @@ class HomeNavigationHelper {
               date: date,
               isScheduled: isScheduled,
               isExecuted: !isScheduled,
-              paraBirimi: getIt<CurrencyService>().currentCurrency,
+              paraBirimi: transferCurrency,
             );
 
             final transferList = List<Transfer>.from(state.tumTransferler);
@@ -479,25 +485,17 @@ class HomeNavigationHelper {
               try {
                 final operations = <BatchOperation>[];
                 if (!isScheduled) {
-                  if (finalFromIndex != -1) {
-                    operations.add(
-                      getIt<PaymentMethodRepository>()
-                          .getIncrementBalanceOperation(
-                            authController.currentUser!.id,
-                            fromId,
-                            deltaFrom,
-                          ),
-                    );
-                  }
-                  if (finalToIndex != -1) {
-                    operations.add(
-                      getIt<PaymentMethodRepository>()
-                          .getIncrementBalanceOperation(
-                            authController.currentUser!.id,
-                            toId,
-                            deltaTo,
-                          ),
-                    );
+                  for (final entry in pmDeltas.entries) {
+                    if (entry.value != 0) {
+                      operations.add(
+                        getIt<PaymentMethodRepository>()
+                            .getIncrementBalanceOperation(
+                              authController.currentUser!.id,
+                              entry.key,
+                              entry.value,
+                            ),
+                      );
+                    }
                   }
                 }
                 operations.add(

@@ -479,15 +479,17 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
   }) {
     final eskiTutar = double.tryParse(eskiHarcama['tutar'].toString()) ?? 0.0;
     final eskiOdemeYontemiId = eskiHarcama['odemeYontemiId'];
+    final eskiParaBirimi = eskiHarcama['paraBirimi']?.toString();
+    final yeniParaBirimi = eskiParaBirimi ?? getIt<CurrencyService>().currentCurrency;
 
     // Eski tutarı geri ekle
     if (eskiOdemeYontemiId != null) {
-      _bakiyeGuncelle(eskiOdemeYontemiId, eskiTutar, isHarcama: false);
+      _bakiyeGuncelle(eskiOdemeYontemiId, eskiTutar, isHarcama: false, amountCurrency: eskiParaBirimi);
     }
 
     // Yeni tutarı düş
     if (odemeYontemiId != null) {
-      _bakiyeGuncelle(odemeYontemiId, tutar, isHarcama: true);
+      _bakiyeGuncelle(odemeYontemiId, tutar, isHarcama: true, amountCurrency: yeniParaBirimi);
     }
 
     Map<String, dynamic>? guncelHarcama;
@@ -525,33 +527,37 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
           );
         }
 
+        final Map<String, double> pmDeltas = {};
+
         if (eskiOdemeYontemiId != null) {
           final delta = _hesaplaBakiyeDelta(
             eskiOdemeYontemiId,
             eskiTutar,
             isHarcama: false,
+            amountCurrency: eskiHarcama['paraBirimi']?.toString(),
           );
-          operations.add(
-            getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
-              userId,
-              eskiOdemeYontemiId,
-              delta,
-            ),
-          );
+          pmDeltas[eskiOdemeYontemiId] = (pmDeltas[eskiOdemeYontemiId] ?? 0) + delta;
         }
         if (odemeYontemiId != null) {
           final delta = _hesaplaBakiyeDelta(
             odemeYontemiId,
             tutar,
             isHarcama: true,
+            amountCurrency: eskiHarcama['paraBirimi']?.toString() ?? getIt<CurrencyService>().currentCurrency,
           );
-          operations.add(
-            getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
-              userId,
-              odemeYontemiId,
-              delta,
-            ),
-          );
+          pmDeltas[odemeYontemiId] = (pmDeltas[odemeYontemiId] ?? 0) + delta;
+        }
+
+        for (final entry in pmDeltas.entries) {
+          if (entry.value != 0) {
+            operations.add(
+              getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
+                userId,
+                entry.key,
+                entry.value,
+              ),
+            );
+          }
         }
 
         await getIt<BatchService>().commit(operations);
@@ -573,7 +579,8 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
     final paymentMethodId = harcama['odemeYontemiId'];
     if (paymentMethodId != null) {
       final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
-      _bakiyeGuncelle(paymentMethodId, amount, isHarcama: false);
+      final paraBirimi = harcama['paraBirimi']?.toString();
+      _bakiyeGuncelle(paymentMethodId, amount, isHarcama: false, amountCurrency: paraBirimi);
     }
 
     filtreleVeGoster();
@@ -585,10 +592,12 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
         ];
         if (paymentMethodId != null) {
           final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+          final paraBirimi = harcama['paraBirimi']?.toString();
           final delta = _hesaplaBakiyeDelta(
             paymentMethodId,
             amount,
             isHarcama: false,
+            amountCurrency: paraBirimi,
           );
           operations.add(
             getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
@@ -679,7 +688,7 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
 
     // Bakiyeyi geri al
     if (income.paymentMethodId != null) {
-      _bakiyeGuncelle(income.paymentMethodId!, income.amount, isHarcama: true);
+      _bakiyeGuncelle(income.paymentMethodId!, income.amount, isHarcama: true, amountCurrency: income.paraBirimi);
     }
 
     notifyListeners();
@@ -697,6 +706,7 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
             income.paymentMethodId!,
             income.amount,
             isHarcama: true,
+            amountCurrency: income.paraBirimi,
           );
           operations.add(
             getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
@@ -720,6 +730,7 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
     String pmId,
     double miktar, {
     required bool isHarcama,
+    String? amountCurrency,
   }) {
     final pmIndex = tumOdemeYontemleri.indexWhere((p) => p.id == pmId);
     if (pmIndex == -1) return 0.0;
@@ -727,7 +738,7 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
     final cur = getIt<CurrencyService>();
     final convertedAmount = cur.convert(
       miktar,
-      cur.currentCurrency,
+      amountCurrency ?? cur.currentCurrency,
       pm.paraBirimi,
     );
 
@@ -739,12 +750,12 @@ class HomeProvider extends ChangeNotifier with SafeNotifierMixin {
   }
 
   /// Ödeme yöntemi bakiyesini günceller (Sadece yerel state)
-  void _bakiyeGuncelle(String pmId, double miktar, {required bool isHarcama}) {
+  void _bakiyeGuncelle(String pmId, double miktar, {required bool isHarcama, String? amountCurrency}) {
     final pmIndex = tumOdemeYontemleri.indexWhere((p) => p.id == pmId);
     if (pmIndex == -1) return;
 
     final pm = tumOdemeYontemleri[pmIndex];
-    final delta = _hesaplaBakiyeDelta(pmId, miktar, isHarcama: isHarcama);
+    final delta = _hesaplaBakiyeDelta(pmId, miktar, isHarcama: isHarcama, amountCurrency: amountCurrency);
 
     tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: pm.balance + delta);
   }

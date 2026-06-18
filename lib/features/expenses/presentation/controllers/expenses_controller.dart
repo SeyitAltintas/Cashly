@@ -651,6 +651,8 @@ class ExpensesController extends ChangeNotifier
             }
           }
 
+          final Map<String, double> pmDeltas = {};
+
           if (eskiOdemeYontemiId != null) {
             final pmIdx = _tumOdemeYontemleri.indexWhere(
               (p) => p.id == eskiOdemeYontemiId,
@@ -661,27 +663,18 @@ class ExpensesController extends ChangeNotifier
                   duzenlenecekHarcama?['paraBirimi']?.toString() ??
                   getIt<CurrencyService>().currentCurrency;
               final convertedAmount = getIt<CurrencyService>().convert(
-                -(eskiTutar ?? 0),
+                eskiTutar ?? 0,
                 eskiParaBirimi,
                 pm.paraBirimi,
               );
+              // İptal edilen harcama -> para geri gelir
               final delta = pm.type == 'kredi'
-                  ? convertedAmount
-                  : -convertedAmount;
-              operations.add(
-                _paymentMethodRepository.getIncrementBalanceOperation(
-                  userId,
-                  pm.id,
-                  delta,
-                ),
-              );
+                  ? -convertedAmount
+                  : convertedAmount;
+              pmDeltas[pm.id] = (pmDeltas[pm.id] ?? 0) + delta;
             }
           }
 
-          // Yeni ödeme yöntemine tutarı uygula.
-          // Not: paymentMethodId == eskiOdemeYontemiId (aynı kart, farklı tutar)
-          // durumunda da çalışması gerekir. Yukarıdaki eski tutar iade
-          // operasyonuyla birlikte net fark doğru uygulanır.
           if (paymentMethodId != null) {
             final pmIdx = _tumOdemeYontemleri.indexWhere(
               (p) => p.id == paymentMethodId,
@@ -696,14 +689,21 @@ class ExpensesController extends ChangeNotifier
                 yeniParaBirimi,
                 pm.paraBirimi,
               );
+              // Yeni harcama -> para çıkar (borç artar)
               final delta = pm.type == 'kredi'
                   ? convertedAmount
                   : -convertedAmount;
+              pmDeltas[pm.id] = (pmDeltas[pm.id] ?? 0) + delta;
+            }
+          }
+
+          for (final entry in pmDeltas.entries) {
+            if (entry.value != 0) {
               operations.add(
                 _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
-                  pm.id,
-                  delta,
+                  entry.key,
+                  entry.value,
                 ),
               );
             }
