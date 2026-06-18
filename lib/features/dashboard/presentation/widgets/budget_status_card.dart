@@ -7,6 +7,7 @@ import '../../../../core/constants/color_constants.dart';
 import 'dashboard_card_container.dart';
 
 class BudgetStatusCard extends StatelessWidget {
+  final String? title;
   final double monthlyExpense;
   final double monthlyIncome;
   final double netDiff;
@@ -18,6 +19,7 @@ class BudgetStatusCard extends StatelessWidget {
 
   const BudgetStatusCard({
     super.key,
+    this.title,
     required this.monthlyExpense,
     required this.monthlyIncome,
     required this.netDiff,
@@ -43,7 +45,7 @@ class BudgetStatusCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Bu Ay",
+                  title ?? context.l10n.thisMonth,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -72,7 +74,11 @@ class BudgetStatusCard extends StatelessWidget {
                     valueColor: ColorConstants.kirmiziVurgu,
                   ),
                 ),
-                Container(width: 1, height: 40, color: onSurfaceColor.withValues(alpha: 0.1)),
+                Container(
+                  width: 1,
+                  height: 40,
+                  color: onSurfaceColor.withValues(alpha: 0.1),
+                ),
                 Expanded(
                   child: _buildSummaryItem(
                     context,
@@ -84,22 +90,40 @@ class BudgetStatusCard extends StatelessWidget {
                     valueColor: ColorConstants.yesil,
                   ),
                 ),
-                Container(width: 1, height: 40, color: onSurfaceColor.withValues(alpha: 0.1)),
+                Container(
+                  width: 1,
+                  height: 40,
+                  color: onSurfaceColor.withValues(alpha: 0.1),
+                ),
                 Expanded(
                   child: _buildSummaryItem(
                     context,
-                    icon: netDiff >= 0 ? Icons.trending_up : Icons.trending_down,
-                    iconColor: netDiff >= 0 ? ColorConstants.yesil : ColorConstants.kirmiziVurgu,
+                    icon: netDiff >= 0
+                        ? Icons.trending_up
+                        : Icons.trending_down,
+                    iconColor: netDiff >= 0
+                        ? ColorConstants.yesil
+                        : ColorConstants.kirmiziVurgu,
                     label: context.l10n.net,
-                    value: CurrencyFormatter.formatIntegerSigned(netDiff, showPlus: true),
+                    value: CurrencyFormatter.formatIntegerSigned(
+                      netDiff,
+                      showPlus: true,
+                    ),
                     isObscured: isObscured,
-                    valueColor: netDiff >= 0 ? ColorConstants.yesil : ColorConstants.kirmiziVurgu,
+                    valueColor: netDiff >= 0
+                        ? ColorConstants.yesil
+                        : ColorConstants.kirmiziVurgu,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            _buildBudgetProgress(context, monthlyExpense, butceLimiti, isObscured),
+            _buildBudgetProgress(
+              context,
+              monthlyExpense,
+              butceLimiti,
+              isObscured,
+            ),
           ],
         ),
       ),
@@ -126,7 +150,9 @@ class BudgetStatusCard extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 11,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -146,10 +172,15 @@ class BudgetStatusCard extends StatelessWidget {
     );
   }
 
-  Widget _buildBudgetProgress(BuildContext context, double monthlyExpense, double butceLimiti, bool isObscured) {
+  Widget _buildBudgetProgress(
+    BuildContext context,
+    double monthlyExpense,
+    double butceLimiti,
+    bool isObscured,
+  ) {
     final budgetUsed = butceLimiti > 0 ? (monthlyExpense / butceLimiti) : 0.0;
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

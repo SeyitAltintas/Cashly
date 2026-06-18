@@ -16,6 +16,7 @@ import '../widgets/recent_transactions_card.dart';
 import '../widgets/credit_debt_card.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
 import '../controllers/dashboard_controller.dart';
+import 'category_budget_detail_page.dart';
 
 
 /// Dashboard Sayfası
