@@ -456,40 +456,49 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
       builder: (context) => VoiceInputSheet(
         categoryIcons: widget.kategoriIkonlari,
         userId: widget.userId,
-        onConfirm: (name, amount, category, date) {
-          widget.tumHarcamalar.add({
-            "isim": name,
-            "tutar": amount,
-            "kategori": category,
-            "tarih": date.toString(),
-            "silindi": false,
-          });
+        onConfirm: (name, amount, category, date) async {
+          try {
+            await _controller.harcamaEkleVeyaDuzenle(
+              name: name,
+              amount: amount,
+              category: category,
+              date: date,
+              paymentMethodId: widget.varsayilanOdemeYontemiId,
+              aramaMetni: tArama.text,
+              onResetLazyLoading: resetLazyLoading,
+            );
 
-          widget.tumHarcamalar.sort((a, b) {
-            DateTime tarihA =
-                DateTime.tryParse(a['tarih'].toString()) ?? DateTime.now();
-            DateTime tarihB =
-                DateTime.tryParse(b['tarih'].toString()) ?? DateTime.now();
-            return tarihB.compareTo(tarihA);
-          });
+            if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
+              MoneyAnimationOverlay.show(context);
+            }
 
-          filtreleVeGoster();
-          widget.onHarcamalarChanged(widget.tumHarcamalar);
-
-          if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
-            MoneyAnimationOverlay.show(context);
+            if (mounted) {
+              showExpenseAddedSnackBar(
+                context,
+                name,
+                amount,
+                CurrencyFormatter.format(amount),
+                context.l10n.added,
+                context.l10n.expense,
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              ErrorHandler.handleAppException(context, e is AppException ? e : Exception(e.toString()));
+            }
           }
-
-          showExpenseAddedSnackBar(
-            context,
-            name,
-            amount,
-            CurrencyFormatter.format(amount),
-            context.l10n.added,
-            context.l10n.expense,
-          );
         },
-        onDeleteLastExpense: () async => callbacks.deleteLastExpense(),
+        onDeleteLastExpense: () async {
+          final harcama = callbacks.deleteLastExpense();
+          if (harcama != null) {
+            await _controller.harcamaSil(
+              harcama: harcama,
+              aramaMetni: tArama.text,
+              onResetLazyLoading: resetLazyLoading,
+            );
+          }
+          return harcama;
+        },
         onGetMonthlyTotal: () => callbacks.monthlyTotal,
         onGetTopCategory: () => callbacks.topCategory,
         onGetWeeklyTotal: () => callbacks.weeklyTotal,
@@ -497,9 +506,51 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
         onGetLastExpenses: () => callbacks.lastExpenses,
         onCheckBudget: () => callbacks.budgetStatus,
         onGetCategoryTotal: (kategori) => callbacks.categoryTotal(kategori),
-        onAddFixedExpenses: () async => callbacks.addFixedExpenses(),
-        onEditLastExpense: (yeniTutar) async =>
-            callbacks.editLastExpense(yeniTutar),
+        onAddFixedExpenses: () async {
+          final result = callbacks.addFixedExpenses();
+          final sabitGiderler = result['sabitGiderler'] as List?;
+          if (sabitGiderler != null) {
+            for (var sablon in sabitGiderler) {
+              await _controller.harcamaEkleVeyaDuzenle(
+                name: sablon['isim'],
+                amount: (sablon['tutar'] as num?)?.toDouble() ?? 0,
+                category: 'Sabit Giderler',
+                date: DateTime.now(),
+                paymentMethodId: widget.varsayilanOdemeYontemiId,
+                aramaMetni: tArama.text,
+                onResetLazyLoading: resetLazyLoading,
+              );
+            }
+          }
+          return result;
+        },
+        onEditLastExpense: (yeniTutar) async {
+          final result = callbacks.editLastExpense(yeniTutar);
+          if (result != null) {
+            final harcama = result['harcama'];
+            if (result['silindi'] == true) {
+              await _controller.harcamaSil(
+                harcama: harcama,
+                aramaMetni: tArama.text,
+                onResetLazyLoading: resetLazyLoading,
+              );
+            } else {
+              await _controller.harcamaEkleVeyaDuzenle(
+                name: harcama['isim'],
+                amount: yeniTutar,
+                category: harcama['kategori'],
+                date: DateTime.tryParse(harcama['tarih'].toString()) ?? DateTime.now(),
+                paymentMethodId: harcama['odemeYontemiId'],
+                duzenlenecekHarcama: harcama,
+                eskiOdemeYontemiId: harcama['odemeYontemiId'],
+                eskiTutar: result['eskiTutar'],
+                aramaMetni: tArama.text,
+                onResetLazyLoading: resetLazyLoading,
+              );
+            }
+          }
+          return result;
+        },
         onGetDateRangeTotal: (baslangic, bitis) =>
             callbacks.dateRangeTotal(baslangic, bitis),
         onGetDateRangeCategoryTotal: (baslangic, bitis, kategori) =>

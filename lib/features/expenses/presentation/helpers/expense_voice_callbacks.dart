@@ -62,9 +62,6 @@ class ExpenseVoiceCallbacks {
     final buAy = _helper.buAyHarcamalari;
     if (buAy.isEmpty) return null;
     final son = buAy.first;
-    son['silindi'] = true;
-    onFiltrele();
-    onHarcamalarChanged(tumHarcamalar);
     return son;
   }
 
@@ -75,17 +72,13 @@ class ExpenseVoiceCallbacks {
     final son = buAy.first;
     final eskiTutar = (son['tutar'] as num?)?.toDouble() ?? 0;
     final isim = son['isim'] ?? 'Harcama';
-    if (yeniTutar == 0) {
-      son['silindi'] = true;
-    } else {
-      son['tutar'] = yeniTutar;
-    }
-    onHarcamalarChanged(tumHarcamalar);
+
     return {
       'isim': isim,
       'eskiTutar': eskiTutar,
       'yeniTutar': yeniTutar,
       'silindi': yeniTutar == 0,
+      'harcama': son,
     };
   }
 
@@ -95,22 +88,12 @@ class ExpenseVoiceCallbacks {
     final sabitGiderler = expenseRepo.getFixedExpenseTemplates(userId);
     if (sabitGiderler.isEmpty) return {'adet': 0, 'toplam': 0.0};
 
-    final simdi = DateTime.now();
     double toplam = 0;
     for (var sablon in sabitGiderler) {
       final tutar = (sablon['tutar'] as num?)?.toDouble() ?? 0;
       toplam += tutar;
-      tumHarcamalar.add({
-        'isim': sablon['isim'],
-        'tutar': tutar,
-        'kategori': 'Sabit Giderler',
-        'tarih': simdi.toString(),
-        'silindi': false,
-      });
     }
-    onHarcamalarChanged(tumHarcamalar);
-    onFiltrele();
-    return {'adet': sabitGiderler.length, 'toplam': toplam};
+    return {'adet': sabitGiderler.length, 'toplam': toplam, 'sabitGiderler': sabitGiderler};
   }
 }
 
