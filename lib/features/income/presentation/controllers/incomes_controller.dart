@@ -1046,40 +1046,45 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
     Future.microtask(() async {
       try {
         final operations = <BatchOperation>[];
+        final Map<String, double> pmDeltas = {};
+
         for (var data in updatedIncomes) {
           operations.add(
             _incomeRepository.getUpdateIncomeOperation(userId, data),
           );
-        }
-        if (hasBalanceChange) {
-          for (var data in updatedIncomes) {
-            if (data['odemeYontemiId'] != null) {
-              final pmIdx = _tumOdemeYontemleri.indexWhere(
-                (p) => p.id == data['odemeYontemiId'],
+          
+          if (data['odemeYontemiId'] != null) {
+            final pmIdx = _tumOdemeYontemleri.indexWhere(
+              (p) => p.id == data['odemeYontemiId'],
+            );
+            if (pmIdx != -1) {
+              final pm = _tumOdemeYontemleri[pmIdx];
+              final amountCurrency = data['paraBirimi']?.toString() ??
+                  getIt<CurrencyService>().currentCurrency;
+              final convertedAmount = getIt<CurrencyService>().convert(
+                (data['amount'] as num?)?.toDouble() ?? 0.0,
+                amountCurrency,
+                pm.paraBirimi,
               );
-              if (pmIdx != -1) {
-                final pm = _tumOdemeYontemleri[pmIdx];
-                final amountCurrency = data['paraBirimi']?.toString() ??
-                    getIt<CurrencyService>().currentCurrency;
-                final convertedAmount = getIt<CurrencyService>().convert(
-                  (data['amount'] as num?)?.toDouble() ?? 0.0,
-                  amountCurrency,
-                  pm.paraBirimi,
-                );
-                
-                final delta = pm.type == 'kredi'
-                    ? -convertedAmount
-                    : convertedAmount;
+              
+              final delta = pm.type == 'kredi'
+                  ? -convertedAmount
+                  : convertedAmount;
 
-                operations.add(
-                  _paymentMethodRepository.getIncrementBalanceOperation(
-                    userId,
-                    pm.id,
-                    delta,
-                  ),
-                );
-              }
+              pmDeltas[pm.id] = (pmDeltas[pm.id] ?? 0) + delta;
             }
+          }
+        }
+
+        for (final entry in pmDeltas.entries) {
+          if (entry.value != 0) {
+            operations.add(
+              _paymentMethodRepository.getIncrementBalanceOperation(
+                userId,
+                entry.key,
+                entry.value,
+              ),
+            );
           }
         }
         await getIt<BatchService>().commit(operations);
