@@ -160,7 +160,6 @@ mixin ExpenseBinMixin on ChangeNotifier {
 
   /// Tümünü geri yükle (bakiye güncelleme ile)
   Future<void> binRestoreAll() async {
-    bool hasBalanceChange = false;
     final List<Map<String, dynamic>> updatedExpenses = [];
 
     for (var harcama in List.from(_binSilinenHarcamalar)) {
@@ -193,7 +192,6 @@ mixin ExpenseBinMixin on ChangeNotifier {
             newBalance = pm.balance - convertedAmount;
           }
           tumOdemeYontemleri[pmIndex] = pm.copyWith(balance: newBalance);
-          hasBalanceChange = true;
         }
       }
       updatedExpenses.add(harcama);

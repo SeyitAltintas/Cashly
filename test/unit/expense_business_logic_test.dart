@@ -177,6 +177,9 @@ class MockPaymentMethodRepository implements PaymentMethodRepository {
   ) => DummyBatchOperation();
 
   @override
+  BatchOperation getDeleteTransferOperation(String userId, String transferId) => DummyBatchOperation();
+
+  @override
   BatchOperation getAddTransferOperation(
     String userId,
     Map<String, dynamic> transfer,
@@ -1171,3 +1174,4 @@ void main() {
     });
   });
 }
+

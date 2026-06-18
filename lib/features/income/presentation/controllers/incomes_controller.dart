@@ -1020,7 +1020,6 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
 
   /// Tümünü geri yükle
   Future<void> binRestoreAll() async {
-    bool hasBalanceChange = false;
     final List<Map<String, dynamic>> updatedIncomes = [];
 
     for (var gelir in _binSilinenGelirler) {
@@ -1036,7 +1035,6 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
             gelir.paraBirimi,
             isIncome: true,
           );
-          hasBalanceChange = true;
         }
       }
     }
