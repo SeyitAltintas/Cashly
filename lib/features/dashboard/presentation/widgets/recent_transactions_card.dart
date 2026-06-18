@@ -6,7 +6,7 @@ import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../controllers/dashboard_controller.dart';
-
+import 'dashboard_card_container.dart';
 /// Son İşlemler Kartı Widget'ı
 /// Harcama, gelir ve transferlerdeki son işlemleri gösterir
 class RecentTransactionsCard extends StatelessWidget {
@@ -60,20 +60,7 @@ class RecentTransactionsCard extends StatelessWidget {
 
     return AnimatedCard(
       delay: 500,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.light
-              ? const Color(0xFFF8F9FA)
-              : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.08),
-          ),
-        ),
+      child: DashboardCardContainer(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

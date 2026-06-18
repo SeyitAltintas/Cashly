@@ -9,7 +9,7 @@ import '../../../../core/services/currency_service.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../controllers/dashboard_controller.dart';
-
+import 'dashboard_card_container.dart';
 /// Toplam Bakiye Kartı Widget'ı
 /// Dashboard'da toplam finansal durumu gösterir
 class BalanceCard extends StatefulWidget {
@@ -106,36 +106,14 @@ class _BalanceCardState extends State<BalanceCard> {
     // Verileri hesapla
     final cashBalance = _calculateCashBalance(context);
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
-    final primaryColor = Theme.of(context).colorScheme.primary;
 
     return AnimatedCard(
       delay: 100,
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.light
-              ? const Color(0xFFF8F9FA)
-              : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: onSurfaceColor.withValues(alpha: 0.06),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isDark
-                  ? Colors.black.withValues(alpha: 0.2)
-                  : primaryColor.withValues(alpha: 0.05),
-              blurRadius: 32,
-              offset: const Offset(0, 12),
-            ),
-          ],
-        ),
+      child: DashboardCardContainer(
+        padding: EdgeInsets.zero,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(16),
           child: Stack(
             children: [
               // Kart İçeriği

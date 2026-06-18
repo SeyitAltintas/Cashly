@@ -10,14 +10,13 @@ import '../../../assets/data/models/asset_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../streak/data/models/streak_model.dart';
 import '../widgets/balance_card.dart';
-import '../widgets/monthly_summary_card.dart';
-import '../widgets/budget_status_card.dart';
+import '../widgets/this_month_card.dart';
 import '../widgets/asset_summary_card.dart';
 import '../widgets/recent_transactions_card.dart';
 import '../widgets/credit_debt_card.dart';
 import '../../../payment_methods/data/models/transfer_model.dart';
 import '../controllers/dashboard_controller.dart';
-import 'category_budget_detail_page.dart';
+
 
 /// Dashboard Sayfası
 /// Ana finansal özeti gösterir
@@ -141,21 +140,25 @@ class _DashboardPageState extends State<DashboardPage>
             const _BalanceSection(),
             const SizedBox(height: 12),
 
-            // Kredi Kartı Borcu
-            const _CreditDebtSection(),
-            const SizedBox(height: 20),
+            // Varlık Özeti ve Kredi Kartı Borcu (Yan yana)
+            Builder(builder: (context) {
+              final debt = context.select((DashboardController c) => c.totalCreditDebt);
+              if (debt <= 0) {
+                return _AssetSummarySection(onTap: widget.onAssetsPressed);
+              }
+              return Row(
+                children: [
+                  Expanded(child: _AssetSummarySection(onTap: widget.onAssetsPressed)),
+                  const SizedBox(width: 12),
+                  const Expanded(child: _CreditDebtSection()),
+                ],
+              );
+            }),
+            const SizedBox(height: 12),
 
-            // Bu Ay Özeti
-            const _MonthlySummarySection(),
-            const SizedBox(height: 20),
-
-            // Bütçe Durumu
-            const _BudgetStatusSection(),
-            const SizedBox(height: 20),
-
-            // Varlık Özeti
-            _AssetSummarySection(onTap: widget.onAssetsPressed),
-            const SizedBox(height: 20),
+            // Bu Ay Özeti ve Bütçe Durumu (Birleşik)
+            const ThisMonthCard(),
+            const SizedBox(height: 12),
 
             // Son İşlemler
             const _RecentTransactionsSection(),
@@ -256,70 +259,7 @@ class _CreditDebtSection extends StatelessWidget {
   }
 }
 
-class _MonthlySummarySection extends StatelessWidget {
-  const _MonthlySummarySection();
-  @override
-  Widget build(BuildContext context) {
-    final expense = context.select((DashboardController c) => c.monthlyExpense);
-    final income = context.select((DashboardController c) => c.monthlyIncome);
-    final netDiff = context.select((DashboardController c) => c.netDiff);
-    context.select((CurrencyService c) => c.currentCurrency);
-    return MonthlySummaryCard(
-      monthlyExpense: expense,
-      monthlyIncome: income,
-      netDiff: netDiff,
-    );
-  }
-}
-
-class _BudgetStatusSection extends StatelessWidget {
-  const _BudgetStatusSection();
-  @override
-  Widget build(BuildContext context) {
-    final monthlyExpense = context.select(
-      (DashboardController c) => c.monthlyExpense,
-    );
-    final butceLimiti = context.select(
-      (DashboardController c) => c.butceLimiti,
-    );
-    final categoryBudgets = context.select(
-      (DashboardController c) => c.categoryBudgets,
-    );
-    final categoryExpenses = context.select(
-      (DashboardController c) => c.categoryExpenses,
-    );
-    final isObscured = context.select((DashboardController c) => c.isObscured);
-
-    return BudgetStatusCard(
-      monthlyExpense: monthlyExpense,
-      butceLimiti: butceLimiti,
-      categoryBudgets: categoryBudgets,
-      categoryExpenses: categoryExpenses,
-      isObscured: isObscured,
-      onTap: () {
-        final controller = context.read<DashboardController>();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => CategoryBudgetDetailPage(
-              categoryBudgets: controller.categoryBudgets,
-              categoryExpenses: controller.categoryExpenses,
-              totalBudget: controller.butceLimiti,
-              totalExpense: controller.monthlyExpense,
-              rawExpenses: controller.harcamalar.where((h) {
-                if (h['silindi'] == true) return false;
-                DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
-                if (tarih == null) return false;
-                return tarih.year == controller.secilenAy.year &&
-                    tarih.month == controller.secilenAy.month;
-              }).toList(),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
+// Sections removed
 
 class _AssetSummarySection extends StatelessWidget {
   final VoidCallback? onTap;

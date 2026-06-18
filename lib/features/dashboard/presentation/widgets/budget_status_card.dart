@@ -4,16 +4,15 @@ import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/constants/color_constants.dart';
+import 'dashboard_card_container.dart';
 
-/// Bütçe Durumu Kartı Widget'ı
-/// Bütçe limiti, kullanım oranını ve kategori bazlı limitleri gösterir
-/// Tıklandığında detay sayfasına yönlendirir
 class BudgetStatusCard extends StatelessWidget {
   final double monthlyExpense;
   final double butceLimiti;
   final Map<String, double>? categoryBudgets;
   final Map<String, double>? categoryExpenses;
   final VoidCallback? onTap;
+  final bool isObscured;
 
   const BudgetStatusCard({
     super.key,
@@ -25,34 +24,19 @@ class BudgetStatusCard extends StatelessWidget {
     this.isObscured = false,
   });
 
-  final bool isObscured;
-
   @override
   Widget build(BuildContext context) {
     final budgetUsed = butceLimiti > 0 ? (monthlyExpense / butceLimiti) : 0.0;
+    final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
 
     return GestureDetector(
       onTap: onTap,
       child: AnimatedCard(
         delay: 300,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Theme.of(context).brightness == Brightness.light
-                ? const Color(0xFFF8F9FA)
-                : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.08),
-            ),
-          ),
+        child: DashboardCardContainer(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Global bütçe durumu
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -71,9 +55,7 @@ class BudgetStatusCard extends StatelessWidget {
                         Icon(
                           Icons.chevron_right_rounded,
                           size: 20,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.4),
+                          color: onSurfaceColor.withValues(alpha: 0.4),
                         ),
                       ],
                     ],
@@ -94,9 +76,7 @@ class BudgetStatusCard extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: budgetUsed.clamp(0.0, 1.0),
                   minHeight: 10,
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  backgroundColor: onSurfaceColor.withValues(alpha: 0.1),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     _getStatusColor(budgetUsed),
                   ),
@@ -113,9 +93,7 @@ class BudgetStatusCard extends StatelessWidget {
                     isObscured: isObscured,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: onSurfaceColor.withValues(alpha: 0.6),
                     ),
                   ),
                   ObscuredAmountText(
@@ -125,15 +103,11 @@ class BudgetStatusCard extends StatelessWidget {
                     isObscured: isObscured,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: onSurfaceColor.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
               ),
-
-              // Kategori limitleri kaldırıldı - detaylar için karta tıklayın
             ],
           ),
         ),
