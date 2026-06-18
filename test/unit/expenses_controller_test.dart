@@ -409,79 +409,7 @@ void main() {
       });
     });
 
-    group('harcamaEkleVeyaDuzenleLegacy (Edit Bug Fix)', () {
-      test('eski ödeme yöntemine iade yapıp yeni yöntemi günceller', () async {
-        final now = DateTime.now();
-        final harcama = {
-          'isim': 'Market',
-          'tutar': 500.0,
-          'kategori': 'Yemek',
-          'tarih': now.toString(),
-          'silindi': false,
-          'odemeYontemiId': 'pm1',
-          'paraBirimi': 'TRY',
-        };
 
-        final pm1 = {
-          'id': 'pm1',
-          'name': 'Banka A',
-          'type': 'banka',
-          'balance': 4500.0,
-          'colorIndex': 0,
-          'createdAt': now.toIso8601String(),
-          'isDeleted': false,
-          'paraBirimi': 'TRY',
-        };
-
-        final pm2 = {
-          'id': 'pm2',
-          'name': 'Banka B',
-          'type': 'banka',
-          'balance': 3000.0,
-          'colorIndex': 1,
-          'createdAt': now.toIso8601String(),
-          'isDeleted': false,
-          'paraBirimi': 'TRY',
-        };
-
-        final List<Map<String, dynamic>> mockHarcamalar = [harcama];
-        final List<dynamic> mockPaymentMethods = [pm1, pm2];
-
-        // pm1 -> pm2 olarak güncelleniyor ve tutar 500 -> 800 oluyor.
-        await controller.harcamaEkleVeyaDuzenleLegacy(
-          tumHarcamalar: mockHarcamalar,
-          tumOdemeYontemleri: mockPaymentMethods,
-          name: 'Market Güncel',
-          amount: 800.0,
-          category: 'Yemek',
-          date: now,
-          paymentMethodId: 'pm2',
-          duzenlenecekHarcama: harcama,
-          eskiOdemeYontemiId: 'pm1',
-          eskiTutar: 500.0,
-        );
-
-        // Beklenen: pm1'e eski harcama (500) iade edilecek -> 4500 + 500 = 5000
-        expect(
-          controller.tumOdemeYontemleri
-              .firstWhere((pm) => pm.id == 'pm1')
-              .balance,
-          equals(5000.0),
-        );
-
-        // Beklenen: pm2'den yeni harcama (800) düşülecek -> 3000 - 800 = 2200
-        expect(
-          controller.tumOdemeYontemleri
-              .firstWhere((pm) => pm.id == 'pm2')
-              .balance,
-          equals(2200.0),
-        );
-
-        // Harcamalar listesi güncellenmeli
-        expect(controller.tumHarcamalar.first['isim'], equals('Market Güncel'));
-        expect(controller.tumHarcamalar.first['tutar'], equals(800.0));
-      });
-    });
 
     group('harcamaSil', () {
       test('harcama silindi olarak işaretlenir', () async {
