@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/obscured_amount_text.dart';
@@ -117,7 +117,13 @@ class BudgetStatusCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            Container(
+              height: 1,
+              width: double.infinity,
+              color: onSurfaceColor.withValues(alpha: 0.1),
+            ),
+            const SizedBox(height: 16),
             _buildBudgetProgress(
               context,
               monthlyExpense,
