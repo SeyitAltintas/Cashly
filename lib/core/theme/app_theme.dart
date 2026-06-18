@@ -48,7 +48,21 @@ class AppTheme {
 
   static TextTheme _applyInter(TextTheme base) {
     TextStyle apply(TextStyle? style) {
-      return (style ?? const TextStyle()).copyWith(fontFamily: 'Inter');
+      final s = style ?? const TextStyle();
+      // Inter renders visually heavier than IBM Plex Sans at the same weight.
+      // Reduce by one step to restore the original visual balance.
+      final FontWeight? adjusted = switch (s.fontWeight) {
+        FontWeight.w500 => FontWeight.w400,
+        FontWeight.w600 => FontWeight.w500,
+        FontWeight.w700 => FontWeight.w600,
+        FontWeight.w800 => FontWeight.w700,
+        FontWeight.w900 => FontWeight.w800,
+        _ => null, // w300, w400 unchanged
+      };
+      return s.copyWith(
+        fontFamily: 'Inter',
+        fontWeight: adjusted,
+      );
     }
 
     return base.copyWith(
