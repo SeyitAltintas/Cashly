@@ -5,6 +5,8 @@ import '../../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../../../core/utils/error_handler.dart';
 import '../../../../../core/di/injection_container.dart';
 import '../../../../../core/services/currency_service.dart';
+import '../../../../../core/services/batch_service.dart';
+import '../../../../payment_methods/domain/repositories/payment_method_repository.dart';
 
 mixin ExpenseBinMixin on ChangeNotifier {
   ExpenseRepository get expenseRepository;
@@ -61,10 +63,42 @@ mixin ExpenseBinMixin on ChangeNotifier {
 
     Future.microtask(() async {
       try {
-        await expenseRepository.updateExpense(userId, harcama);
+        final operations = <BatchOperation>[];
+        operations.add(
+          expenseRepository.getUpdateExpenseOperation(userId, harcama),
+        );
         if (paymentMethodId != null) {
-          await savePaymentMethodsInternal();
+          final pmIndex = tumOdemeYontemleri.indexWhere(
+            (p) => p.id == paymentMethodId,
+          );
+          if (pmIndex != -1) {
+            final pm = tumOdemeYontemleri[pmIndex];
+            final amount = double.tryParse(harcama['tutar'].toString()) ?? 0.0;
+            final amountCurrency =
+                harcama['paraBirimi']?.toString() ??
+                getIt<CurrencyService>().currentCurrency;
+            final convertedAmount = getIt<CurrencyService>().convert(
+              amount,
+              amountCurrency,
+              pm.paraBirimi,
+            );
+            // Restore Expense: bakiye güncelleniyor
+            // Kredi kartıysa (harcama borcu artırmıştı) geri gelince borç tekrar artar (+)
+            // Nakitse bakiye azalır (-)
+            final delta = pm.type == 'kredi'
+                ? convertedAmount
+                : -convertedAmount;
+
+            operations.add(
+              getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
+                userId,
+                pm.id,
+                delta,
+              ),
+            );
+          }
         }
+        await getIt<BatchService>().commit(operations);
       } catch (e, s) {
         ErrorHandler.logError('ExpensesController.binRestoreHarcama', e, s);
       }
@@ -80,7 +114,11 @@ mixin ExpenseBinMixin on ChangeNotifier {
     Future.microtask(() async {
       try {
         if (harcama['id'] != null) {
-          await expenseRepository.deleteExpense(userId, harcama['id']);
+          final operations = <BatchOperation>[];
+          operations.add(
+            expenseRepository.getDeleteExpenseOperation(userId, harcama['id']),
+          );
+          await getIt<BatchService>().commit(operations);
         }
       } catch (e, s) {
         ErrorHandler.logError(
@@ -103,10 +141,16 @@ mixin ExpenseBinMixin on ChangeNotifier {
 
     Future.microtask(() async {
       try {
+        final operations = <BatchOperation>[];
         for (var h in toDelete) {
           if (h['id'] != null) {
-            await expenseRepository.deleteExpense(userId, h['id']);
+            operations.add(
+              expenseRepository.getDeleteExpenseOperation(userId, h['id']),
+            );
           }
+        }
+        if (operations.isNotEmpty) {
+          await getIt<BatchService>().commit(operations);
         }
       } catch (e, s) {
         ErrorHandler.logError('ExpensesController.binEmptyBin', e, s);
@@ -160,12 +204,46 @@ mixin ExpenseBinMixin on ChangeNotifier {
 
     Future.microtask(() async {
       try {
+        final operations = <BatchOperation>[];
         for (var data in updatedExpenses) {
-          await expenseRepository.updateExpense(userId, data);
+          operations.add(
+            expenseRepository.getUpdateExpenseOperation(userId, data),
+          );
+          
+          if (hasBalanceChange) {
+            final paymentMethodId = data['odemeYontemiId'];
+            if (paymentMethodId != null) {
+              final pmIndex = tumOdemeYontemleri.indexWhere(
+                (p) => p.id == paymentMethodId,
+              );
+              if (pmIndex != -1) {
+                final pm = tumOdemeYontemleri[pmIndex];
+                final amount = double.tryParse(data['tutar'].toString()) ?? 0.0;
+                final amountCurrency =
+                    data['paraBirimi']?.toString() ??
+                    getIt<CurrencyService>().currentCurrency;
+                final convertedAmount = getIt<CurrencyService>().convert(
+                  amount,
+                  amountCurrency,
+                  pm.paraBirimi,
+                );
+                
+                final delta = pm.type == 'kredi'
+                    ? convertedAmount
+                    : -convertedAmount;
+
+                operations.add(
+                  getIt<PaymentMethodRepository>().getIncrementBalanceOperation(
+                    userId,
+                    pm.id,
+                    delta,
+                  ),
+                );
+              }
+            }
+          }
         }
-        if (hasBalanceChange) {
-          await savePaymentMethodsInternal();
-        }
+        await getIt<BatchService>().commit(operations);
       } catch (e, s) {
         ErrorHandler.logError('ExpensesController.binRestoreAll', e, s);
       }

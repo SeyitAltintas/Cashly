@@ -426,11 +426,43 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
         // Arka planda Firestore işlemlerini yap
         Future.microtask(() async {
           try {
-            await _incomeRepository.updateIncome(
-              userId,
-              _tumGelirler[index].toMap(),
+            final operations = <BatchOperation>[];
+            operations.add(
+              _incomeRepository.getUpdateIncomeOperation(
+                userId,
+                _tumGelirler[index].toMap(),
+              ),
             );
-            await savePaymentMethods();
+
+            if (income.paymentMethodId != null) {
+              final pmIdx = _tumOdemeYontemleri.indexWhere(
+                (p) => p.id == income.paymentMethodId,
+              );
+              if (pmIdx != -1) {
+                final pm = _tumOdemeYontemleri[pmIdx];
+                final amountCurrency = income.paraBirimi;
+                final convertedAmount = getIt<CurrencyService>().convert(
+                  income.amount,
+                  amountCurrency,
+                  pm.paraBirimi,
+                );
+                // Silme: Gelir geri alınıyor.
+                // Kredi kartıysa (gelir borcu azaltmıştı) silinince borç artar (+). 
+                // Nakitse silinince bakiye azalır (-).
+                final delta = pm.type == 'kredi'
+                    ? convertedAmount
+                    : -convertedAmount;
+                operations.add(
+                  _paymentMethodRepository.getIncrementBalanceOperation(
+                    userId,
+                    pm.id,
+                    delta,
+                  ),
+                );
+              }
+            }
+
+            await getIt<BatchService>().commit(operations);
           } catch (e, s) {
             // Hata durumunda işlemi geri al (Rollback)
             ErrorHandler.logError(
@@ -495,11 +527,42 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
         // Arka planda Firestore işlemlerini yap
         Future.microtask(() async {
           try {
-            await _incomeRepository.updateIncome(
-              userId,
-              _tumGelirler[index].toMap(),
+            final operations = <BatchOperation>[];
+            operations.add(
+              _incomeRepository.getUpdateIncomeOperation(
+                userId,
+                _tumGelirler[index].toMap(),
+              ),
             );
-            await savePaymentMethods();
+
+            if (income.paymentMethodId != null) {
+              final pmIdx = _tumOdemeYontemleri.indexWhere(
+                (p) => p.id == income.paymentMethodId,
+              );
+              if (pmIdx != -1) {
+                final pm = _tumOdemeYontemleri[pmIdx];
+                final amountCurrency = income.paraBirimi;
+                final convertedAmount = getIt<CurrencyService>().convert(
+                  income.amount,
+                  amountCurrency,
+                  pm.paraBirimi,
+                );
+                // Undo Delete: Gelir geri yükleniyor. (Sanki yeni gelir gibi)
+                // Kredi kartıysa borç azalır (-). Nakitse bakiye artar (+).
+                final delta = pm.type == 'kredi'
+                    ? -convertedAmount
+                    : convertedAmount;
+                operations.add(
+                  _paymentMethodRepository.getIncrementBalanceOperation(
+                    userId,
+                    pm.id,
+                    delta,
+                  ),
+                );
+              }
+            }
+
+            await getIt<BatchService>().commit(operations);
           } catch (e, s) {
             // Hata durumunda işlemi geri al (Rollback)
             ErrorHandler.logError(
@@ -882,10 +945,23 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
             (p) => p.id == gelir.paymentMethodId,
           );
           if (pmIdx != -1) {
+            final pm = _tumOdemeYontemleri[pmIdx];
+            final amountCurrency = gelir.paraBirimi;
+            final convertedAmount = getIt<CurrencyService>().convert(
+              gelir.amount,
+              amountCurrency,
+              pm.paraBirimi,
+            );
+            // Restore Gelir: Gelir geri geldi
+            final delta = pm.type == 'kredi'
+                ? -convertedAmount
+                : convertedAmount;
+            
             operations.add(
-              _paymentMethodRepository.getUpdatePaymentMethodOperation(
+              _paymentMethodRepository.getIncrementBalanceOperation(
                 userId,
-                _tumOdemeYontemleri[pmIdx].toMap(),
+                pm.id,
+                delta,
               ),
             );
           }
@@ -985,10 +1061,24 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
                 (p) => p.id == data['odemeYontemiId'],
               );
               if (pmIdx != -1) {
+                final pm = _tumOdemeYontemleri[pmIdx];
+                final amountCurrency = data['paraBirimi']?.toString() ??
+                    getIt<CurrencyService>().currentCurrency;
+                final convertedAmount = getIt<CurrencyService>().convert(
+                  (data['amount'] as num?)?.toDouble() ?? 0.0,
+                  amountCurrency,
+                  pm.paraBirimi,
+                );
+                
+                final delta = pm.type == 'kredi'
+                    ? -convertedAmount
+                    : convertedAmount;
+
                 operations.add(
-                  _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                  _paymentMethodRepository.getIncrementBalanceOperation(
                     userId,
-                    _tumOdemeYontemleri[pmIdx].toMap(),
+                    pm.id,
+                    delta,
                   ),
                 );
               }
