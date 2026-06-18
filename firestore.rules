@@ -6,8 +6,9 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, delete: if request.auth != null && request.auth.uid == userId;
       allow create, update: if request.auth != null && request.auth.uid == userId
-        // Veri bütünlüğü: Negatif tutar (amount) veya geçersiz veri tiplerini engelle
+        // Veri bütünlüğü: Negatif tutar (amount/tutar) veya geçersiz veri tiplerini engelle
         && (!('amount' in request.resource.data) || request.resource.data.amount >= 0)
+        && (!('tutar' in request.resource.data) || request.resource.data.tutar >= 0)
         // Red Team Yaması: Financial DoS engellemek için döküman boyutu limitlendi
         && request.resource.data.toString().size() < 5000;
 
@@ -16,6 +17,7 @@ service cloud.firestore {
         allow read, delete: if request.auth != null && request.auth.uid == userId;
         allow create, update: if request.auth != null && request.auth.uid == userId
           && (!('amount' in request.resource.data) || request.resource.data.amount >= 0)
+          && (!('tutar' in request.resource.data) || request.resource.data.tutar >= 0)
           && request.resource.data.toString().size() < 5000;
       }
     }
