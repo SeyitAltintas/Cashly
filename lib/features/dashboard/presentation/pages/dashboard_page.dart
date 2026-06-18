@@ -10,7 +10,7 @@ import '../../../assets/data/models/asset_model.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../../../streak/data/models/streak_model.dart';
 import '../widgets/balance_card.dart';
-import '../widgets/this_month_card.dart';
+import '../widgets/budget_status_card.dart';
 import '../widgets/asset_summary_card.dart';
 import '../widgets/recent_transactions_card.dart';
 import '../widgets/credit_debt_card.dart';
@@ -157,7 +157,7 @@ class _DashboardPageState extends State<DashboardPage>
             const SizedBox(height: 12),
 
             // Bu Ay Özeti ve Bütçe Durumu (Birleşik)
-            const ThisMonthCard(),
+            const _ThisMonthSection(),
             const SizedBox(height: 12),
 
             // Son İşlemler
@@ -279,5 +279,53 @@ class _RecentTransactionsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const RecentTransactionsCard();
+  }
+}
+
+class _ThisMonthSection extends StatelessWidget {
+  const _ThisMonthSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final monthlyExpense = context.select(
+      (DashboardController c) => c.monthlyExpense,
+    );
+    final monthlyIncome = context.select(
+      (DashboardController c) => c.monthlyIncome,
+    );
+    final netDiff = context.select((DashboardController c) => c.netDiff);
+    final butceLimiti = context.select(
+      (DashboardController c) => c.butceLimiti,
+    );
+    final isObscured = context.select((DashboardController c) => c.isObscured);
+
+    return BudgetStatusCard(
+      monthlyExpense: monthlyExpense,
+      monthlyIncome: monthlyIncome,
+      netDiff: netDiff,
+      butceLimiti: butceLimiti,
+      isObscured: isObscured,
+      onTap: () {
+        final controller = context.read<DashboardController>();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CategoryBudgetDetailPage(
+              categoryBudgets: controller.categoryBudgets,
+              categoryExpenses: controller.categoryExpenses,
+              totalBudget: controller.butceLimiti,
+              totalExpense: controller.monthlyExpense,
+              rawExpenses: controller.harcamalar.where((h) {
+                if (h['silindi'] == true) return false;
+                DateTime? tarih = DateTime.tryParse(h['tarih'].toString());
+                if (tarih == null) return false;
+                return tarih.year == controller.secilenAy.year &&
+                    tarih.month == controller.secilenAy.month;
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

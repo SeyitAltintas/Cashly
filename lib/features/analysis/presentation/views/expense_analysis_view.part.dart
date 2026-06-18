@@ -67,6 +67,8 @@ extension _ExpenseAnalysisExtension on _AnalysisPageState {
                     const SizedBox(height: 24),
                     BudgetStatusCard(
                       monthlyExpense: totalAmount,
+                      monthlyIncome: _controller.totalMonthlyIncome,
+                      netDiff: _controller.totalMonthlyIncome - totalAmount,
                       butceLimiti: widget.totalBudget,
                       categoryBudgets: widget.categoryBudgets,
                       categoryExpenses: totals,

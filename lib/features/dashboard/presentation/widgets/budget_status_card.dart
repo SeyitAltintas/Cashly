@@ -8,6 +8,8 @@ import 'dashboard_card_container.dart';
 
 class BudgetStatusCard extends StatelessWidget {
   final double monthlyExpense;
+  final double monthlyIncome;
+  final double netDiff;
   final double butceLimiti;
   final Map<String, double>? categoryBudgets;
   final Map<String, double>? categoryExpenses;
@@ -17,6 +19,8 @@ class BudgetStatusCard extends StatelessWidget {
   const BudgetStatusCard({
     super.key,
     required this.monthlyExpense,
+    required this.monthlyIncome,
+    required this.netDiff,
     required this.butceLimiti,
     this.categoryBudgets,
     this.categoryExpenses,
@@ -26,92 +30,188 @@ class BudgetStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final budgetUsed = butceLimiti > 0 ? (monthlyExpense / butceLimiti) : 0.0;
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedCard(
-        delay: 300,
-        child: DashboardCardContainer(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        context.l10n.budgetStatus,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                      if (onTap != null) ...[
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          size: 20,
-                          color: onSurfaceColor.withValues(alpha: 0.4),
-                        ),
-                      ],
-                    ],
-                  ),
-                  Text(
-                    "${(budgetUsed * 100).toStringAsFixed(0)}%",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: _getStatusColor(budgetUsed),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: budgetUsed.clamp(0.0, 1.0),
-                  minHeight: 10,
-                  backgroundColor: onSurfaceColor.withValues(alpha: 0.1),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    _getStatusColor(budgetUsed),
+    return AnimatedCard(
+      delay: 200,
+      child: DashboardCardContainer(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Bu Ay",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ObscuredAmountText(
-                    context.l10n.spentAmount(
-                      CurrencyFormatter.formatInteger(monthlyExpense),
-                    ),
-                    isObscured: isObscured,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: onSurfaceColor.withValues(alpha: 0.6),
-                    ),
+                if (onTap != null)
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 20,
+                    color: onSurfaceColor.withValues(alpha: 0.4),
                   ),
-                  ObscuredAmountText(
-                    context.l10n.limitAmount(
-                      CurrencyFormatter.formatInteger(butceLimiti),
-                    ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSummaryItem(
+                    context,
+                    icon: Icons.arrow_downward,
+                    iconColor: ColorConstants.kirmiziVurgu,
+                    label: context.l10n.expense,
+                    value: CurrencyFormatter.formatInteger(monthlyExpense),
                     isObscured: isObscured,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: onSurfaceColor.withValues(alpha: 0.6),
-                    ),
+                    valueColor: ColorConstants.kirmiziVurgu,
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+                Container(width: 1, height: 40, color: onSurfaceColor.withValues(alpha: 0.1)),
+                Expanded(
+                  child: _buildSummaryItem(
+                    context,
+                    icon: Icons.arrow_upward,
+                    iconColor: ColorConstants.yesil,
+                    label: context.l10n.income,
+                    value: CurrencyFormatter.formatInteger(monthlyIncome),
+                    isObscured: isObscured,
+                    valueColor: ColorConstants.yesil,
+                  ),
+                ),
+                Container(width: 1, height: 40, color: onSurfaceColor.withValues(alpha: 0.1)),
+                Expanded(
+                  child: _buildSummaryItem(
+                    context,
+                    icon: netDiff >= 0 ? Icons.trending_up : Icons.trending_down,
+                    iconColor: netDiff >= 0 ? ColorConstants.yesil : ColorConstants.kirmiziVurgu,
+                    label: context.l10n.net,
+                    value: CurrencyFormatter.formatIntegerSigned(netDiff, showPlus: true),
+                    isObscured: isObscured,
+                    valueColor: netDiff >= 0 ? ColorConstants.yesil : ColorConstants.kirmiziVurgu,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _buildBudgetProgress(context, monthlyExpense, butceLimiti, isObscured),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSummaryItem(
+    BuildContext context, {
+    required IconData icon,
+    required Color iconColor,
+    required String label,
+    required String value,
+    required bool isObscured,
+    required Color valueColor,
+  }) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: iconColor, size: 14),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ObscuredAmountText(
+          value,
+          isObscured: isObscured,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: valueColor,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBudgetProgress(BuildContext context, double monthlyExpense, double butceLimiti, bool isObscured) {
+    final budgetUsed = butceLimiti > 0 ? (monthlyExpense / butceLimiti) : 0.0;
+    final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              context.l10n.budgetStatus,
+              style: TextStyle(
+                fontSize: 12,
+                color: onSurfaceColor.withValues(alpha: 0.7),
+              ),
+            ),
+            Text(
+              "${(budgetUsed * 100).toStringAsFixed(0)}%",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: _getStatusColor(budgetUsed),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: budgetUsed.clamp(0.0, 1.0),
+            minHeight: 8,
+            backgroundColor: onSurfaceColor.withValues(alpha: 0.1),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              _getStatusColor(budgetUsed),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ObscuredAmountText(
+              context.l10n.spentAmount(
+                CurrencyFormatter.formatInteger(monthlyExpense),
+              ),
+              isObscured: isObscured,
+              style: TextStyle(
+                fontSize: 12,
+                color: onSurfaceColor.withValues(alpha: 0.6),
+              ),
+            ),
+            ObscuredAmountText(
+              context.l10n.limitAmount(
+                CurrencyFormatter.formatInteger(butceLimiti),
+              ),
+              isObscured: isObscured,
+              style: TextStyle(
+                fontSize: 12,
+                color: onSurfaceColor.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
