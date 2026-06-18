@@ -36,8 +36,8 @@ class DashboardCardContainer extends StatelessWidget {
             color: isDark
                 ? Colors.black.withValues(alpha: 0.25)
                 : onSurfaceColor.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
           BoxShadow(
             color: isDark

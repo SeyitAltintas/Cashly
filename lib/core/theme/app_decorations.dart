@@ -15,9 +15,9 @@ class AppDecorations {
       ),
       boxShadow: [
         BoxShadow(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04), // Hafifletildi
+          blurRadius: 4, // Performans için 10'dan 4'e düşürüldü
+          offset: const Offset(0, 2),
         ),
       ],
     );
@@ -68,9 +68,9 @@ class AppDecorations {
       color: Theme.of(context).colorScheme.surface,
       boxShadow: [
         BoxShadow(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
-          blurRadius: 10,
-          offset: const Offset(0, -2),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08), // Hafifletildi
+          blurRadius: 4, // Performans için düşürüldü
+          offset: const Offset(0, -1),
         ),
       ],
     );

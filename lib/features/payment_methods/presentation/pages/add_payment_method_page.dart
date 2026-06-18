@@ -260,8 +260,8 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           BoxShadow(
             color: CardColorConstants.gradients[_selectedColorIndex][0]
                 .withValues(alpha: 0.5),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -781,7 +781,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                               BoxShadow(
                                 color: CardColorConstants.gradients[index][0]
                                     .withValues(alpha: 0.6),
-                                blurRadius: 12,
+                                blurRadius: 6,
                                 offset: const Offset(0, 4),
                               ),
                             ]
@@ -812,8 +812,8 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
             color: Theme.of(
               context,
             ).colorScheme.primary.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            blurRadius: 6,
+            offset: const Offset(0, 4),
           ),
         ],
       ),

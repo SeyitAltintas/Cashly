@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import '../../../../core/widgets/shimmer_loading.dart';
 import '../utils/analysis_colors.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
@@ -233,7 +232,7 @@ class _AnalysisPageState extends State<AnalysisPage>
         margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
         height: 70,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.75),
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
           borderRadius: BorderRadius.circular(35),
           boxShadow: [
             BoxShadow(
@@ -250,11 +249,9 @@ class _AnalysisPageState extends State<AnalysisPage>
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(35),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: AnimatedBuilder(
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: AnimatedBuilder(
                 animation: _tabController.animation!,
                 builder: (context, child) {
                   final double animValue = _tabController.animation!.value;
@@ -329,7 +326,6 @@ class _AnalysisPageState extends State<AnalysisPage>
                 },
               ),
             ),
-          ),
         ),
       ),
     );

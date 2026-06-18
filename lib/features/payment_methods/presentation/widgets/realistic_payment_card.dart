@@ -42,8 +42,8 @@ class RealisticPaymentCard extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: colors[0].withValues(alpha: 0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
+              blurRadius: 6,
+              offset: const Offset(0, 4),
             ),
             // Inner highlight for metallic matte feel
             BoxShadow(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../core/services/haptic_service.dart';
 
@@ -24,65 +23,66 @@ class HomeBottomNav extends StatelessWidget {
       child: Container(
         height: 70,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.75), // Cam efekti için saydamlık
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
           borderRadius: BorderRadius.circular(35),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), // Daha yumuşak gölge
-              blurRadius: 20,
-              offset: const Offset(0, 5),
-              spreadRadius: -5,
+              color: Theme.of(context).colorScheme.onSurface.withValues(
+                alpha: 0.1,
+              ), // Daha yumuşak gölge
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+              spreadRadius: -2,
             ),
           ],
           border: Border.all(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.08),
             width: 1,
           ),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(35),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _ModernNavItem(
-              icon: Icons.grid_view_rounded,
-              label: context.l10n.transactions,
-              isSelected: selectedIndex == 0,
-              primaryColor: primaryColor,
-              onTap: () {
-                HapticService.selectionClick();
-                onPageChanged(0);
-              },
-            ),
-            _ModernNavItem(
-              icon: Icons.home_rounded,
-              label: context.l10n.homePage,
-              isSelected: selectedIndex == 1,
-              primaryColor: primaryColor,
-              isCenter: true,
-              onTap: () {
-                HapticService.selectionClick();
-                onPageChanged(1);
-              },
-            ),
-            _ModernNavItem(
-              icon: Icons.person_outline_rounded,
-              label: context.l10n.profile,
-              isSelected: selectedIndex == 2,
-              primaryColor: primaryColor,
-              onTap: () {
-                HapticService.selectionClick();
-                onPageChanged(2);
-              },
-            ),
-          ],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _ModernNavItem(
+                icon: Icons.grid_view_rounded,
+                label: context.l10n.transactions,
+                isSelected: selectedIndex == 0,
+                primaryColor: primaryColor,
+                onTap: () {
+                  HapticService.selectionClick();
+                  onPageChanged(0);
+                },
+              ),
+              _ModernNavItem(
+                icon: Icons.home_rounded,
+                label: context.l10n.homePage,
+                isSelected: selectedIndex == 1,
+                primaryColor: primaryColor,
+                isCenter: true,
+                onTap: () {
+                  HapticService.selectionClick();
+                  onPageChanged(1);
+                },
+              ),
+              _ModernNavItem(
+                icon: Icons.person_outline_rounded,
+                label: context.l10n.profile,
+                isSelected: selectedIndex == 2,
+                primaryColor: primaryColor,
+                onTap: () {
+                  HapticService.selectionClick();
+                  onPageChanged(2);
+                },
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  ),
-);
+    );
   }
 }
 

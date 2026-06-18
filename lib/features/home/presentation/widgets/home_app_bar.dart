@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 
@@ -171,14 +170,9 @@ class ToolsAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       flexibleSpace: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
-          child: Container(
-            color: Theme.of(context).scaffoldBackgroundColor.withValues(
-              alpha: Theme.of(context).brightness == Brightness.dark
-                  ? 0.8
-                  : 0.65,
-            ),
+        child: Container(
+          color: Theme.of(context).scaffoldBackgroundColor.withValues(
+            alpha: 0.95,
           ),
         ),
       ),
@@ -209,14 +203,9 @@ class DashboardAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       flexibleSpace: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
-          child: Container(
-            color: Theme.of(context).scaffoldBackgroundColor.withValues(
-              alpha: Theme.of(context).brightness == Brightness.dark
-                  ? 0.8
-                  : 0.65,
-            ),
+        child: Container(
+          color: Theme.of(context).scaffoldBackgroundColor.withValues(
+            alpha: 0.95,
           ),
         ),
       ),
@@ -247,14 +236,9 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       flexibleSpace: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
-          child: Container(
-            color: Theme.of(context).scaffoldBackgroundColor.withValues(
-              alpha: Theme.of(context).brightness == Brightness.dark
-                  ? 0.8
-                  : 0.65,
-            ),
+        child: Container(
+          color: Theme.of(context).scaffoldBackgroundColor.withValues(
+            alpha: 0.95,
           ),
         ),
       ),

@@ -66,14 +66,14 @@ class _StreakWidgetState extends State<StreakWidget>
                         color: const Color(
                           0xFFFF6B35,
                         ).withValues(alpha: 0.2 + glowValue * 0.2),
-                        blurRadius: 16,
+                        blurRadius: 6,
                         spreadRadius: 0,
                       ),
                       // İç gölge
                       BoxShadow(
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+                        blurRadius: 6,
+                        offset: const Offset(0, 4),
                       ),
                     ]
                   : null,
