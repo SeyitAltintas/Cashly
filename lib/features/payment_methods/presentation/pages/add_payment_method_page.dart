@@ -179,7 +179,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
           isEditing
               ? context.l10n.editPaymentMethod
               : context.l10n.addPaymentMethod,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 18,),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w400, fontSize: 18,),
         ),
         centerTitle: true,
       ),
@@ -290,7 +290,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ),
@@ -363,7 +363,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 22,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -837,7 +837,7 @@ class _AddPaymentMethodPageState extends State<AddPaymentMethodPage> {
                     style: TextStyle(
                       color: Theme.of(context).scaffoldBackgroundColor,
                       fontSize: 17,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
           ),

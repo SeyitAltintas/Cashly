@@ -41,7 +41,7 @@ class AppearancePage extends StatelessWidget {
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       letterSpacing: 0.5,
                     ),
                   ),

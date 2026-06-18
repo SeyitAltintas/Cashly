@@ -84,7 +84,7 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                   letterSpacing: 0.5,
                 ),
               ),

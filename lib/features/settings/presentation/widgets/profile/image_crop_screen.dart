@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
@@ -440,7 +440,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
         title: Text(
           context.l10n.cropPhoto,
           style: const TextStyle(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
             fontSize: 17,
           ),
         ),
@@ -470,7 +470,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                 context.l10n.continueText,
                 style: TextStyle(
                   color: _primaryColor,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   fontSize: 14,
                 ),
               ),
@@ -585,7 +585,7 @@ class _ImageCropScreenState extends State<ImageCropScreen>
                                       context,
                                     ).colorScheme.onSurface,
                                     fontSize: 11,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ],

@@ -161,7 +161,7 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               letterSpacing: 0.5,
             ),
           ),
@@ -190,7 +190,7 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
           style: TextStyle(
             color: Theme.of(context).colorScheme.primary,
             fontSize: 13,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             letterSpacing: 0.5,
           ),
         ),
@@ -241,7 +241,7 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                   ),
                   decoration: InputDecoration(
                     hintText: '0',
@@ -289,7 +289,7 @@ class _GelirAyarlariSayfasiState extends State<GelirAyarlariSayfasi> {
                 ),
                 child: Text(
                   _isSaved ? '✓' : context.l10n.save,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
               ),
             ],
@@ -352,7 +352,7 @@ class RecurringIncomeSection extends StatelessWidget {
                   context.l10n.recurringIncomesTitle,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     fontSize: 15,
                   ),
                 ),

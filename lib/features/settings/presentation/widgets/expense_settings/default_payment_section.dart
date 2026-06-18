@@ -61,7 +61,7 @@ class DefaultPaymentSection extends StatelessWidget {
                   context.l10n.defaultPaymentMethod,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     fontSize: 15,
                   ),
                 ),

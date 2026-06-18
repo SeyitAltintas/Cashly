@@ -98,7 +98,7 @@ class _StreakPageState extends State<StreakPage> {
               '${badge.emoji} ${badge.localizedName(context)}',
               style: TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
@@ -130,7 +130,7 @@ class _StreakPageState extends State<StreakPage> {
                     : context.l10n.requiredStreakDays(badge.requiredStreak),
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                   color: isEarned
                       ? ColorConstants.yesil
                       : Theme.of(
@@ -243,7 +243,7 @@ class _SectionTitle extends StatelessWidget {
         title,
         style: TextStyle(
           fontSize: 20,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w500,
           color: Theme.of(context).colorScheme.onSurface,
         ),
       ),

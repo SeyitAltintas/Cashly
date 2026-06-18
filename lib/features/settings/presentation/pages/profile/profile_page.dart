@@ -244,7 +244,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                                     context,
                                   ).colorScheme.onSurface,
                                   fontSize: 22,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w500,
                                   letterSpacing: 0.5,
                                 ),
                               ),
@@ -285,7 +285,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
             style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w400,
               letterSpacing: 0.5,
             ),
           ),
@@ -369,7 +369,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
             style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w400,
               letterSpacing: 0.5,
             ),
           ),
@@ -420,7 +420,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
             style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w400,
               letterSpacing: 0.5,
             ),
           ),
@@ -496,7 +496,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                       style: TextStyle(
                         color: ColorConstants.morVurgu,
                         fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -610,7 +610,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                             titleColor ??
                             Theme.of(context).colorScheme.onSurface,
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                     const SizedBox(height: 2),

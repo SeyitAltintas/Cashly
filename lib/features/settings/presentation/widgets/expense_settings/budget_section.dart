@@ -65,7 +65,7 @@ class BudgetSection extends StatelessWidget {
                   context.l10n.monthlyIncomeBudgetLimit,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     fontSize: 15,
                   ),
                 ),
@@ -94,7 +94,7 @@ class BudgetSection extends StatelessWidget {
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                         ),
                         decoration: InputDecoration(
                           contentPadding: const EdgeInsets.symmetric(
@@ -138,7 +138,7 @@ class BudgetSection extends StatelessWidget {
                           suffixText: getIt<CurrencyService>().currentSymbol,
                           suffixStyle: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w400,
                             color: Theme.of(
                               context,
                             ).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -181,7 +181,7 @@ class BudgetSection extends StatelessWidget {
                                   context.l10n.save,
                                   key: const ValueKey('save'),
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                         ),

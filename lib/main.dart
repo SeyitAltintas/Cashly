@@ -313,7 +313,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 8),

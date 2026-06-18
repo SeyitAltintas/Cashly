@@ -59,7 +59,7 @@ class SettingsTile extends StatelessWidget {
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                     const SizedBox(height: 2),

@@ -169,7 +169,7 @@ class AppFloatingBottomBar extends StatelessWidget {
                 centerButtonLabel!,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   fontSize: 14,
                 ),
               ),

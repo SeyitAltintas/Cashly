@@ -399,7 +399,7 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
             'Bu Ayki Durum',
             style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
@@ -412,7 +412,7 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
                 children: [
                   Text('Gelir', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
                   const SizedBox(height: 4),
-                  Text(CurrencyFormatter.format(totalIncome), style: const TextStyle(fontWeight: FontWeight.bold, color: ColorConstants.yesil)),
+                  Text(CurrencyFormatter.format(totalIncome), style: const TextStyle(fontWeight: FontWeight.w500, color: ColorConstants.yesil)),
                 ],
               ),
               Column(
@@ -420,7 +420,7 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
                 children: [
                   Text('Gider', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
                   const SizedBox(height: 4),
-                  Text(CurrencyFormatter.format(totalExpense), style: const TextStyle(fontWeight: FontWeight.bold, color: ColorConstants.kirmiziVurgu)),
+                  Text(CurrencyFormatter.format(totalExpense), style: const TextStyle(fontWeight: FontWeight.w500, color: ColorConstants.kirmiziVurgu)),
                 ],
               ),
             ],
@@ -480,7 +480,7 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
             'Son Islemler',
             style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
@@ -494,7 +494,7 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
                 Text(
                   (t['type'] == 'gelir' ? '+' : '-') + CurrencyFormatter.format(cur.convert(t['amount'] as double, t['currency'] as String, cur.currentCurrency)),
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     color: t['type'] == 'gelir' ? ColorConstants.yesil : Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
@@ -577,7 +577,7 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
                               'Yeni Kart Ekle',
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w500,
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),

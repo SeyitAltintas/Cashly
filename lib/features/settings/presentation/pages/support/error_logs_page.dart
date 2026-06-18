@@ -172,7 +172,7 @@ class _ErrorLogsPageState extends State<ErrorLogsPage> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         fontSize: 14,
                       ),
                     ),
@@ -187,7 +187,7 @@ class _ErrorLogsPageState extends State<ErrorLogsPage> {
                           children: [
                             const Text(
                               'Detaylar',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(fontWeight: FontWeight.w500),
                             ),
                             const SizedBox(height: 8),
                             SelectableText('Error: ${log['error']}'),
@@ -197,7 +197,7 @@ class _ErrorLogsPageState extends State<ErrorLogsPage> {
                                 log['stackTrace'] != 'Belirtilmedi') ...[
                               const Text(
                                 'StackTrace:',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: TextStyle(fontWeight: FontWeight.w500),
                               ),
                               const SizedBox(height: 4),
                               Container(

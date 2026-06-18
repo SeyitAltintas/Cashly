@@ -26,7 +26,7 @@ class DangerZoneSection extends StatelessWidget {
           context.l10n.dangerZone,
           style: const TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
             color: ColorConstants.kirmiziVurgu,
           ),
         ),
@@ -55,7 +55,7 @@ class DangerZoneSection extends StatelessWidget {
               context.l10n.deleteAccount,
               style: const TextStyle(
                 color: ColorConstants.kirmiziVurgu,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
               ),
             ),
             subtitle: Text(
@@ -95,7 +95,7 @@ class DangerZoneSection extends StatelessWidget {
               context.l10n.deleteAllData,
               style: const TextStyle(
                 color: ColorConstants.turuncuVurgu,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
               ),
             ),
             subtitle: Text(

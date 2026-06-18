@@ -63,7 +63,7 @@ class StreakHeaderCard extends StatelessWidget {
                             '${streakData.currentStreak}',
                             style: TextStyle(
                               fontSize: 48,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                               color: Theme.of(context).colorScheme.onSurface,
                               height: 1,
                             ),

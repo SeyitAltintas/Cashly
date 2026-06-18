@@ -249,7 +249,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 20,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -292,7 +292,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                                   ? Theme.of(context).colorScheme.onSurface
                                   : accentColor,
                               fontSize: 17,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ),
@@ -326,7 +326,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                                   ? Theme.of(context).colorScheme.onSurface
                                   : accentColor,
                               fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                           if (widget.mode == PickerMode.dateTime) ...[
@@ -354,7 +354,7 @@ class _MonthYearPickerState extends State<MonthYearPicker> {
                                             : accentColor)
                                         .withValues(alpha: 0.8),
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ],

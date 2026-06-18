@@ -1,4 +1,4 @@
-﻿import 'dart:ui';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../../core/utils/image_utils.dart';
@@ -279,7 +279,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 28,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w500,
         color: Theme.of(context).colorScheme.onSurface,
       ),
     );
@@ -473,7 +473,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
                 context.l10n.login,
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
               ),

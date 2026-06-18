@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../controllers/auth_controller.dart';
@@ -80,7 +80,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       context.l10n.createAccount,
                       style: TextStyle(
                         fontSize: 32,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
@@ -573,7 +573,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                           context.l10n.signup,
                                           style: TextStyle(
                                             fontSize: 18,
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w500,
                                             color: Theme.of(
                                               context,
                                             ).colorScheme.onPrimaryContainer,

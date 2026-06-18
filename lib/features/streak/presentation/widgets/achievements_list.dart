@@ -73,7 +73,7 @@ class _AchievementItem extends StatelessWidget {
                   achievement['title'] as String,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),

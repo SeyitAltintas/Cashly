@@ -81,7 +81,7 @@ class _OfflineSensorState extends State<OfflineSensor> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                         ),
                         textAlign: TextAlign.center,
                       ),

@@ -164,7 +164,7 @@ class BalanceWarningDialog extends StatelessWidget {
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 22,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               letterSpacing: 0.5,
             ),
           ),
@@ -271,7 +271,7 @@ class BalanceWarningDialog extends StatelessWidget {
           style: const TextStyle(
             color: Colors.green,
             fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],
@@ -312,7 +312,7 @@ class BalanceWarningDialog extends StatelessWidget {
           style: const TextStyle(
             color: Colors.red,
             fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],
@@ -341,7 +341,7 @@ class BalanceWarningDialog extends StatelessWidget {
               style: TextStyle(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 15,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ),
@@ -378,7 +378,7 @@ class BalanceWarningDialog extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 15,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),

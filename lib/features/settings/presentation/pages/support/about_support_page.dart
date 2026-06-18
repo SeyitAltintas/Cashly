@@ -142,7 +142,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
               'Cashly',
               style: TextStyle(
                 fontSize: 28,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: theme.colorScheme.onSurface,
               ),
             ),
@@ -257,7 +257,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                       'Cashly',
                       style: TextStyle(
                         fontSize: 28,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
@@ -416,7 +416,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                             style: TextStyle(
                               color: theme.colorScheme.onSurface,
                               fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ),
@@ -504,7 +504,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
       style: TextStyle(
         color: theme.colorScheme.primary,
         fontSize: 13,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w400,
         letterSpacing: 0.5,
       ),
     );
@@ -575,7 +575,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                       style: TextStyle(
                         color: theme.colorScheme.onSurface,
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -660,7 +660,7 @@ class _AboutSupportPageState extends State<AboutSupportPage>
                 title,
                 style: TextStyle(
                   fontSize: 22,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   color: Theme.of(ctx).colorScheme.onSurface,
                 ),
               ),

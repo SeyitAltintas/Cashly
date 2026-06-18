@@ -140,7 +140,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -422,7 +422,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                         islem == null ? context.l10n.add : context.l10n.update,
                         style: const TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -654,7 +654,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -675,7 +675,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                 style: const TextStyle(
                   color: ColorConstants.kirmiziVurgu,
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],

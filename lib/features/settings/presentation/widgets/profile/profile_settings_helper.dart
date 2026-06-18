@@ -582,7 +582,7 @@ class ProfileSettingsHelper {
                         context.l10n.activateBiometric,
                         style: const TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -640,7 +640,7 @@ class ProfileSettingsHelper {
                         context.l10n.deleteAccount,
                         style: const TextStyle(
                           fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                           color: ColorConstants.kirmiziVurgu,
                         ),
                       ),
@@ -813,7 +813,7 @@ class ProfileSettingsHelper {
         ),
         child: Text(
           context.l10n.deletePermanently,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
       ),
     );
@@ -853,7 +853,7 @@ class ProfileSettingsHelper {
                         context.l10n.deleteAllData,
                         style: const TextStyle(
                           fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                           color: ColorConstants.turuncuVurgu,
                         ),
                       ),
@@ -1040,7 +1040,7 @@ class ProfileSettingsHelper {
         ),
         child: Text(
           context.l10n.deleteAllData,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
       ),
     );
@@ -1056,7 +1056,7 @@ class ProfileSettingsHelper {
           title,
           style: TextStyle(
             fontSize: 20,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
             color: Theme.of(ctx).colorScheme.onSurface,
           ),
         ),
@@ -1202,7 +1202,7 @@ class ProfileSettingsHelper {
                 label,
                 style: const TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
       ),
@@ -1245,7 +1245,7 @@ class ProfileSettingsHelper {
               title,
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: Theme.of(ctx).colorScheme.onSurface,
               ),
             ),

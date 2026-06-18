@@ -202,7 +202,7 @@ class _NetworkStatusBannerState extends State<NetworkStatusBanner>
                   isOnline ? 'Bağlantı kuruldu' : 'İnternet bağlantısı yok',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     fontSize: 14,
                   ),
                 ),

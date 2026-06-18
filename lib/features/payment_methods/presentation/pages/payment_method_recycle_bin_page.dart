@@ -290,7 +290,7 @@ class _PaymentMethodRecycleBinPageState
           pm.name,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
           ),
         ),
         subtitle: Text(

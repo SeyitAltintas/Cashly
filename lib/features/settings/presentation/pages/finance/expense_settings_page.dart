@@ -238,7 +238,7 @@ class _HarcamalarAyarlariSayfasiState extends State<HarcamalarAyarlariSayfasi> {
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               letterSpacing: 0.5,
             ),
           ),

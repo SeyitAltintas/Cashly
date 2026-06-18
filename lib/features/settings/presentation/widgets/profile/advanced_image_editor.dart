@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -91,7 +91,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
         title: Text(
           context.l10n.editPhoto,
           style: const TextStyle(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
             fontSize: 17,
           ),
         ),
@@ -121,7 +121,7 @@ class _AdvancedImageEditorState extends State<AdvancedImageEditor>
                 context.l10n.apply,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface, // Beyaz renk
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   fontSize: 16,
                 ),
               ),

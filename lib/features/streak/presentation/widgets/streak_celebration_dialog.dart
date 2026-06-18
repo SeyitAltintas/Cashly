@@ -204,7 +204,7 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
                               context.l10n.streakCelebrationDayLabel,
                               style: TextStyle(
                                 fontSize: 28,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w500,
                                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.70),
                               ),
                             ),
@@ -223,7 +223,7 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 24,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),

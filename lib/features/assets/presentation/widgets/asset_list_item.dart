@@ -98,7 +98,7 @@ class AssetListItem extends StatelessWidget {
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                               height: 1.2,
                             ),
                           ),
@@ -163,7 +163,7 @@ class AssetListItem extends StatelessWidget {
                     ),
                     style: const TextStyle(
                       color: ColorConstants.maviVurgu,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       fontSize: 16,
                     ),
                   );

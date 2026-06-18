@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import '../../../../../core/widgets/shimmer_loading.dart';
 import 'package:flutter/services.dart';
@@ -83,7 +83,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                 context.translateDbName(kategori),
                 style: const TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -115,7 +115,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
               ],
               style: const TextStyle(
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
               ),
               decoration: InputDecoration(
                 labelText: context.l10n.monthlyLimit,
@@ -167,7 +167,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                 suffixText: getIt<CurrencyService>().currentSymbol,
                 suffixStyle: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   color: Theme.of(
                     dialogContext,
                   ).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -334,7 +334,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                       context.l10n.activeBudgets(activeBudgets),
                       style: const TextStyle(
                         color: Color(0xFF2E7D32),
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         fontSize: 13,
                       ),
                     ),
@@ -453,7 +453,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                                       context.translateDbName(isim),
                                       style: const TextStyle(
                                         fontSize: 16,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w400,
                                       ),
                                     ),
                                     const SizedBox(height: 4),

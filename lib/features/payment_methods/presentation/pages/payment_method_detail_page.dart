@@ -297,7 +297,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const Spacer(),
@@ -434,7 +434,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
               final cur = getIt<CurrencyService>();
               return '$amountPrefix${CurrencyFormatter.format(cur.convert(item.amount, _pm.paraBirimi, cur.currentCurrency))}';
             }(),
-            style: TextStyle(color: iconColor, fontWeight: FontWeight.bold),
+            style: TextStyle(color: iconColor, fontWeight: FontWeight.w500),
           ),
         ],
       ),

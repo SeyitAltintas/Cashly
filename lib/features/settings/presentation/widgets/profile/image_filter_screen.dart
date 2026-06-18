@@ -244,7 +244,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
                 'Uygula',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   fontSize: 16,
                 ),
               ),
@@ -280,7 +280,7 @@ class _ImageFilterScreenState extends State<ImageFilterScreen>
               unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
               labelStyle: const TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
               ),
               tabs: const [
                 Tab(

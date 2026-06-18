@@ -204,7 +204,7 @@ class AssetDetailPage extends StatelessWidget {
                   style: TextStyle(
                     color: theme.colorScheme.onSurface,
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -253,7 +253,7 @@ class AssetDetailPage extends StatelessWidget {
                 style: TextStyle(
                   color: theme.colorScheme.onSurface,
                   fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],
@@ -297,7 +297,7 @@ class AssetDetailPage extends StatelessWidget {
                 style: TextStyle(
                   color: theme.colorScheme.onSurface,
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               )
             : Text(
@@ -305,7 +305,7 @@ class AssetDetailPage extends StatelessWidget {
                 style: TextStyle(
                   color: theme.colorScheme.onSurface,
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
       ],
@@ -352,7 +352,7 @@ class AssetDetailPage extends StatelessWidget {
                 style: TextStyle(
                   color: profitColor,
                   fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],
@@ -363,7 +363,7 @@ class AssetDetailPage extends StatelessWidget {
             style: TextStyle(
               color: profitColor,
               fontSize: 28,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 4),

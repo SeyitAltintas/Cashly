@@ -36,7 +36,7 @@ class CurrencySettingsPage extends StatelessWidget {
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -79,7 +79,7 @@ class CurrencySettingsPage extends StatelessWidget {
                                 symbol,
                                 style: TextStyle(
                                   fontSize: 20,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w500,
                                   color: isSelected
                                       ? Theme.of(context).colorScheme.primary
                                       : Theme.of(context).colorScheme.onSurface,

@@ -109,7 +109,7 @@ class StreakHelpPage extends StatelessWidget {
             context.l10n.streakSystem,
             style: TextStyle(
               fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
@@ -160,7 +160,7 @@ class StreakHelpPage extends StatelessWidget {
             title,
             style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.onSurface,
             ),
           ),

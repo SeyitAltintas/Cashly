@@ -90,7 +90,7 @@ class ProfileInfoCards extends StatelessWidget {
           title,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
           ),
         ),
         subtitle: Text(

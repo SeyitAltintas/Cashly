@@ -49,7 +49,7 @@ class StreakFreezeCard extends StatelessWidget {
                       context.l10n.streakFreeze,
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
@@ -84,7 +84,7 @@ class StreakFreezeCard extends StatelessWidget {
                       '${streakData.freezeCount}',
                       style: const TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         color: freezeColor,
                       ),
                     ),
@@ -189,7 +189,7 @@ class StreakNextBadgeSection extends StatelessWidget {
                       context.l10n.nextBadgeIs(badge.localizedName(context)),
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),

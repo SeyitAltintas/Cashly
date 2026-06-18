@@ -102,7 +102,7 @@ class _CategoryBudgetSectionState extends State<CategoryBudgetSection> {
                   context.l10n.categoryBudgets,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     fontSize: 15,
                   ),
                 ),

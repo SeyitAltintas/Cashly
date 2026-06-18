@@ -203,7 +203,7 @@ class _ToolsPageState extends State<ToolsPage>
             context.l10n.allTransactions,
             style: TextStyle(
               fontSize: 28,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.onSurface,
               letterSpacing: -0.5,
             ),
@@ -228,7 +228,7 @@ class _ToolsPageState extends State<ToolsPage>
       title,
       style: TextStyle(
         fontSize: 13,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w400,
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
         letterSpacing: 0.5,
       ),
@@ -287,7 +287,7 @@ class _FinanceCard extends StatelessWidget {
                 title,
                 style: TextStyle(
                   fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
@@ -353,7 +353,7 @@ class _FinanceListTile extends StatelessWidget {
                       title,
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),

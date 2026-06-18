@@ -53,7 +53,7 @@ class CategorySection extends StatelessWidget {
                   context.l10n.categoryManagement,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     fontSize: 15,
                   ),
                 ),

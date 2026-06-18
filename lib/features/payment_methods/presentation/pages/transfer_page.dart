@@ -407,7 +407,7 @@ class _TransferPageState extends State<TransferPage> {
       appBar: AppBar(
         title: Text(
           context.l10n.transferPageTitle,
-          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+          style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -553,7 +553,7 @@ class _TransferPageState extends State<TransferPage> {
               context.l10n.transactionHistory,
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: textColor,
               ),
             ),
@@ -633,7 +633,7 @@ class _TransferPageState extends State<TransferPage> {
         text,
         style: TextStyle(
           fontSize: 12,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w400,
           color: color,
         ),
       ),
@@ -658,7 +658,7 @@ class _TransferPageState extends State<TransferPage> {
             style: TextStyle(
               color: _primaryColor,
               fontSize: 40,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               letterSpacing: -1,
             ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -686,7 +686,7 @@ class _TransferPageState extends State<TransferPage> {
               hintStyle: TextStyle(
                 color: textColor.withValues(alpha: 0.2),
                 fontSize: 40,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
               ),
               prefixIcon: Builder(
                 builder: (ctx) {
@@ -697,7 +697,7 @@ class _TransferPageState extends State<TransferPage> {
                       cur.currentSymbol,
                       style: TextStyle(
                         fontSize: 36,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         color: _primaryColor,
                       ),
                     ),
@@ -819,7 +819,7 @@ class _TransferPageState extends State<TransferPage> {
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: 1.0,
                   color: textColor.withValues(alpha: 0.4),
                 ),
@@ -840,7 +840,7 @@ class _TransferPageState extends State<TransferPage> {
                   dropdownColor: Theme.of(context).cardColor,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     color: textColor,
                     fontFamily: Theme.of(
                       context,
@@ -910,7 +910,7 @@ class _TransferPageState extends State<TransferPage> {
                         style: TextStyle(
                           color: _primaryColor,
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ),
@@ -1044,7 +1044,7 @@ class _TransferPageState extends State<TransferPage> {
               _isScheduled
                   ? context.l10n.scheduleTransferButton
                   : context.l10n.makeTransferButton,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -1091,7 +1091,7 @@ class _TransferPageState extends State<TransferPage> {
                     color: isDark
                         ? ColorConstants.yesil.withValues(alpha: 0.7)
                         : ColorConstants.yesil,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     fontSize: 14,
                     height: 1.4,
                   ),
@@ -1171,7 +1171,7 @@ class _TransferPageState extends State<TransferPage> {
                   '$fromName → $toName',
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     color: textColor,
                   ),
                 ),
@@ -1215,7 +1215,7 @@ class _TransferPageState extends State<TransferPage> {
                 CurrencyFormatter.format(converted),
                 style: TextStyle(
                   fontSize: 15,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   color: accentColor,
                 ),
               );
@@ -1360,7 +1360,7 @@ class _TransferPageState extends State<TransferPage> {
               getLimitLabel(currentLimit),
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
                 color: textColor.withValues(alpha: 0.7),
               ),
             ),

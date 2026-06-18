@@ -186,7 +186,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 6),
@@ -238,7 +238,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
               style: const TextStyle(
                 color: ColorConstants.turuncuVurgu,
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
               ),
             ),
             const SizedBox(width: 4),
@@ -259,7 +259,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
       style: TextStyle(
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
         fontSize: 13,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w400,
         letterSpacing: 0.5,
       ),
     );
@@ -303,7 +303,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
               context,
             ).colorScheme.onSurface.withValues(alpha: 0.7),
             fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
             letterSpacing: 0.5,
           ),
         ),
@@ -316,7 +316,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
                   ? (allEnabled ? ColorConstants.kirmiziVurgu : ColorConstants.yesil)
                   : Colors.grey,
               fontSize: 12,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w400,
             ),
           ),
         ),
@@ -530,7 +530,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           style: TextStyle(
             color: enabled ? iconColor : Colors.grey,
             fontSize: 14,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
           ),
         ),
       ),
@@ -591,7 +591,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
           style: TextStyle(
             color: enabled ? iconColor : Colors.grey,
             fontSize: 14,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
           ),
         ),
       ),

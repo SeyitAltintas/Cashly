@@ -153,7 +153,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 6),
@@ -227,7 +227,7 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
             fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
           ),
         ),
         subtitle: Text(

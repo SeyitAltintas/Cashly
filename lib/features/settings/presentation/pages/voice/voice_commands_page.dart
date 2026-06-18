@@ -282,7 +282,7 @@ class VoiceCommandsPage extends StatelessWidget {
                     context,
                   ).colorScheme.onSurface.withValues(alpha: 0.8),
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],

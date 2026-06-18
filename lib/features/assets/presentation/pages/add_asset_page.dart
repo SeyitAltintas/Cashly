@@ -398,7 +398,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
           isEditing ? context.l10n.editAsset : context.l10n.addAsset,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
             fontSize: 18,
           ),
         ),
@@ -820,7 +820,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                           context.l10n.currentPriceButton,
                           style: TextStyle(
                             color: _accentColor,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                 ),
@@ -874,7 +874,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
                 context.l10n.purchaseInfo,
                 style: const TextStyle(
                   color: ColorConstants.turuncuVurgu,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   fontSize: 14,
                 ),
               ),
@@ -1033,7 +1033,7 @@ class _AddAssetPageState extends State<AddAssetPage> {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 17,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ),

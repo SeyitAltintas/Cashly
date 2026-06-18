@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
@@ -58,7 +58,7 @@ class _UserListPageState extends State<UserListPage> {
             title: Text(
               context.l10n.users,
               style: TextStyle(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
@@ -165,7 +165,7 @@ class _UserListPageState extends State<UserListPage> {
                                               color: Theme.of(
                                                 context,
                                               ).colorScheme.onSurface,
-                                              fontWeight: FontWeight.bold,
+                                              fontWeight: FontWeight.w500,
                                               fontSize: 20,
                                             ),
                                           )
@@ -179,7 +179,7 @@ class _UserListPageState extends State<UserListPage> {
                                   color: Theme.of(
                                     context,
                                   ).colorScheme.onSurface,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w500,
                                   fontSize: 18,
                                 ),
                               ),
@@ -296,7 +296,7 @@ class _UserListPageState extends State<UserListPage> {
                         "E-posta ve Şifre ile Giriş",
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
@@ -367,7 +367,7 @@ class _UserListPageState extends State<UserListPage> {
                         "Hesap Oluştur",
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                           color: Theme.of(
                             context,
                           ).colorScheme.onPrimaryContainer,

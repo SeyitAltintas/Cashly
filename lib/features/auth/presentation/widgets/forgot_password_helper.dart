@@ -52,7 +52,7 @@ class ForgotPasswordHelper {
                       context.l10n.forgotPassword,
                       style: TextStyle(
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         color: Theme.of(sheetContext).colorScheme.onSurface,
                       ),
                     ),
@@ -289,7 +289,7 @@ class ForgotPasswordHelper {
           label,
           style: TextStyle(
             fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
             color: enabled
                 ? Theme.of(context).colorScheme.onPrimary
                 : Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.38),
