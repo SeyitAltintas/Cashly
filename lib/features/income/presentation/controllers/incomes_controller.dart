@@ -616,8 +616,11 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
               );
             }
           }
-          if (paymentMethodId != null &&
-              paymentMethodId != income.paymentMethodId) {
+          // Yeni ödeme yöntemine yeni tutarı uygula.
+          // Not: paymentMethodId == income.paymentMethodId (aynı hesap, farklı tutar)
+          // durumunda da çalışması gerekir. Yukarıdaki eski tutar iade
+          // operasyonuyla birlikte net fark doğru uygulanır.
+          if (paymentMethodId != null) {
             final pmIdx = _tumOdemeYontemleri.indexWhere(
               (p) => p.id == paymentMethodId,
             );

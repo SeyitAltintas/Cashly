@@ -455,17 +455,20 @@ class ExpensesController extends ChangeNotifier
       _tumHarcamalar = List.from(tumHarcamalar);
       _syncPaymentMethodsFromDynamic(tumOdemeYontemleri);
 
-      void updateBalance(String? pmId, double amountChange) {
+      void updateBalance(String? pmId, double amountChange, String amountCurrency) {
         if (pmId == null) return;
         final pmIdx = _tumOdemeYontemleri.indexWhere((p) => p.id == pmId);
         if (pmIdx == -1) return;
 
         final pm = _tumOdemeYontemleri[pmIdx];
+        // Para birimini ödeme yönteminin para birimine çevir
+        final cur = getIt<CurrencyService>();
+        final convertedChange = cur.convert(amountChange, amountCurrency, pm.paraBirimi);
         double newBalance;
         if (pm.type == 'kredi') {
-          newBalance = pm.balance + amountChange;
+          newBalance = pm.balance + convertedChange;
         } else {
-          newBalance = pm.balance - amountChange;
+          newBalance = pm.balance - convertedChange;
         }
         _tumOdemeYontemleri[pmIdx] = pm.copyWith(balance: newBalance);
         tumOdemeYontemleri[pmIdx] = _tumOdemeYontemleri[pmIdx];
@@ -473,11 +476,17 @@ class ExpensesController extends ChangeNotifier
 
       Map<String, dynamic>? modifiedExpense;
       if (duzenlenecekHarcama != null) {
+        final eskiParaBirimi =
+            duzenlenecekHarcama['paraBirimi']?.toString() ??
+            paraBirimi ??
+            getIt<CurrencyService>().currentCurrency;
+        final yeniParaBirimi =
+            paraBirimi ?? eskiParaBirimi;
         if (eskiOdemeYontemiId != null) {
-          updateBalance(eskiOdemeYontemiId, -(eskiTutar ?? 0));
+          updateBalance(eskiOdemeYontemiId, -(eskiTutar ?? 0), eskiParaBirimi);
         }
         if (paymentMethodId != null) {
-          updateBalance(paymentMethodId, amount);
+          updateBalance(paymentMethodId, amount, yeniParaBirimi);
         }
 
         int index = _tumHarcamalar.indexOf(duzenlenecekHarcama);
@@ -498,8 +507,11 @@ class ExpensesController extends ChangeNotifier
           _tumHarcamalar[index] = modifiedExpense;
         }
       } else {
+        // Yeni harcama: para birimi mevcut currency
+        final yeniParaBirimi =
+            paraBirimi ?? getIt<CurrencyService>().currentCurrency;
         if (paymentMethodId != null) {
-          updateBalance(paymentMethodId, amount);
+          updateBalance(paymentMethodId, amount, yeniParaBirimi);
         }
 
         modifiedExpense = {
@@ -548,9 +560,17 @@ class ExpensesController extends ChangeNotifier
             );
             if (pmIdx != -1) {
               final pm = _tumOdemeYontemleri[pmIdx];
-              final delta = pm.type == 'kredi'
-                  ? -(eskiTutar ?? 0)
-                  : (eskiTutar ?? 0);
+              // Eski para birimini pm.paraBirimi'ne çevir
+              final eskiParaBirimi =
+                  duzenlenecekHarcama?['paraBirimi']?.toString() ??
+                  paraBirimi ??
+                  getIt<CurrencyService>().currentCurrency;
+              final convertedEski = getIt<CurrencyService>().convert(
+                eskiTutar ?? 0,
+                eskiParaBirimi,
+                pm.paraBirimi,
+              );
+              final delta = pm.type == 'kredi' ? -convertedEski : convertedEski;
               operations.add(
                 _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
@@ -571,7 +591,14 @@ class ExpensesController extends ChangeNotifier
             );
             if (pmIdx != -1) {
               final pm = _tumOdemeYontemleri[pmIdx];
-              final delta = pm.type == 'kredi' ? amount : -amount;
+              final yeniParaBirimi =
+                  paraBirimi ?? getIt<CurrencyService>().currentCurrency;
+              final convertedYeni = getIt<CurrencyService>().convert(
+                amount,
+                yeniParaBirimi,
+                pm.paraBirimi,
+              );
+              final delta = pm.type == 'kredi' ? convertedYeni : -convertedYeni;
               operations.add(
                 _paymentMethodRepository.getIncrementBalanceOperation(
                   userId,
@@ -601,10 +628,16 @@ class ExpensesController extends ChangeNotifier
               }
               // Bakiyeleri eski haline getir
               if (paymentMethodId != null) {
-                updateBalance(paymentMethodId, -amount);
+                final yeniParaBirimi =
+                    paraBirimi ?? getIt<CurrencyService>().currentCurrency;
+                updateBalance(paymentMethodId, -amount, yeniParaBirimi);
               }
               if (eskiOdemeYontemiId != null) {
-                updateBalance(eskiOdemeYontemiId, eskiTutar ?? 0);
+                final eskiParaBirimi =
+                    duzenlenecekHarcama['paraBirimi']?.toString() ??
+                    paraBirimi ??
+                    getIt<CurrencyService>().currentCurrency;
+                updateBalance(eskiOdemeYontemiId, eskiTutar ?? 0, eskiParaBirimi);
               }
             } else {
               // Geri alma: Eklemeyi iptal et
@@ -612,7 +645,9 @@ class ExpensesController extends ChangeNotifier
                 (h) => h['id'] == modifiedExpense!['id'],
               );
               if (paymentMethodId != null) {
-                updateBalance(paymentMethodId, -amount);
+                final yeniParaBirimi =
+                    paraBirimi ?? getIt<CurrencyService>().currentCurrency;
+                updateBalance(paymentMethodId, -amount, yeniParaBirimi);
               }
             }
             filtreleVeGoster(
