@@ -165,7 +165,7 @@ class _BalanceCardState extends State<BalanceCard> {
                         CurrencyFormatter.format(widget.totalBalance),
                         isObscured: isObscured,
                         style: TextStyle(
-                          fontSize: 42,
+                          fontSize: 36,
                           fontWeight: FontWeight.w400,
                           color: onSurfaceColor.withValues(alpha: 0.9),
                           letterSpacing: -1.5,
