@@ -134,14 +134,15 @@ class PaymentMethodsController extends ChangeNotifier
   // ===== FİLTRELEME =====
 
   void _filtrele() {
+    final activeMethods = _paymentMethods.where((pm) => !pm.isDeleted).toList();
     if (_aramaModu && _aramaMetni.isNotEmpty) {
       final text = _aramaMetni.toLowerCase();
-      _filteredMethods = _paymentMethods.where((pm) {
+      _filteredMethods = activeMethods.where((pm) {
         return pm.name.toLowerCase().contains(text) ||
             pm.typeDisplayName.toLowerCase().contains(text);
       }).toList();
     } else {
-      _filteredMethods = List.from(_paymentMethods);
+      _filteredMethods = activeMethods;
     }
     notifyListeners();
   }

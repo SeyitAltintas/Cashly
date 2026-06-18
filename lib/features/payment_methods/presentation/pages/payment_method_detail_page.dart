@@ -264,8 +264,7 @@ class _PaymentMethodDetailPageState extends State<PaymentMethodDetailPage>
               
               if (confirm == true) {
                 if (widget.controller != null) {
-                  final deletedPm = _pm.copyWith(isDeleted: true);
-                  await widget.controller!.updateMethod(deletedPm);
+                  await widget.controller!.moveToBin(_pm);
                 }
                 if (widget.onDelete != null) {
                   widget.onDelete!(_pm);

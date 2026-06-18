@@ -377,6 +377,7 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
     final pmRepo = getIt<PaymentMethodRepository>();
     final batchService = getIt<BatchService>();
     final List<BatchOperation> operations = [];
+    final Map<String, double> pmDeltas = {};
 
     for (int i = 0; i < _tumTransferler.length; i++) {
       final transfer = _tumTransferler[i];
@@ -517,13 +518,7 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
         final fromDelta = fromPm.type == 'kredi'
             ? convertedTransferAmountFrom
             : -convertedTransferAmountFrom;
-        operations.add(
-          pmRepo.getIncrementBalanceOperation(
-            userId,
-            fromPm.id,
-            fromDelta,
-          ),
-        );
+        pmDeltas[fromPm.id] = (pmDeltas[fromPm.id] ?? 0) + fromDelta;
 
         final convertedTransferAmountTo = currencyService.convert(
           transfer.amount,
@@ -537,13 +532,7 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
         final toDelta = toPm.type == 'kredi'
             ? -convertedTransferAmountTo
             : convertedTransferAmountTo;
-        operations.add(
-          pmRepo.getIncrementBalanceOperation(
-            userId,
-            toPm.id,
-            toDelta,
-          ),
-        );
+        pmDeltas[toPm.id] = (pmDeltas[toPm.id] ?? 0) + toDelta;
 
         _tumTransferler[i] = transfer.copyWith(isExecuted: true);
         operations.add(
@@ -553,8 +542,19 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
       }
     }
 
-    if (operations.isNotEmpty) {
+    if (operations.isNotEmpty || pmDeltas.isNotEmpty) {
       try {
+        for (final entry in pmDeltas.entries) {
+          if (entry.value != 0) {
+            operations.add(
+              pmRepo.getIncrementBalanceOperation(
+                userId,
+                entry.key,
+                entry.value,
+              ),
+            );
+          }
+        }
         await batchService.commit(operations);
         if (transferDegisti) {
           notifyListeners();
