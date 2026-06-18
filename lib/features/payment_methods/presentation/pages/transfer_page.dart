@@ -234,56 +234,8 @@ class _TransferPageState extends State<TransferPage> {
     // Transfer işlemini gerçekleştir (callback)
     widget.onTransfer(_fromAccountId!, _toAccountId!, amount, _selectedDate);
 
-    // Lokal bakiyeleri güncelle (sadece bugün veya geçmiş tarih için)
-    if (!_isScheduled) {
-      final cur = getIt<CurrencyService>();
-      final convertedToFrom = cur.convert(
-        amount,
-        cur.currentCurrency,
-        fromAccount.paraBirimi,
-      );
-      final convertedToTo = cur.convert(
-        amount,
-        cur.currentCurrency,
-        toAccount.paraBirimi,
-      );
-
-      double newFromBalance;
-      if (fromAccount.type == 'kredi') {
-        newFromBalance = fromAccount.balance + convertedToFrom;
-      } else {
-        newFromBalance = fromAccount.balance - convertedToFrom;
-      }
-
-      double newToBalance;
-      if (toAccount.type == 'kredi') {
-        newToBalance = toAccount.balance - convertedToTo;
-      } else {
-        newToBalance = toAccount.balance + convertedToTo;
-      }
-
-      if (_controller != null) {
-        _controller!.updatePaymentMethodBalance(fromAccount.id, newFromBalance);
-        _controller!.updatePaymentMethodBalance(toAccount.id, newToBalance);
-      } else {
-        final fromIdx = _localPaymentMethods.indexWhere(
-          (pm) => pm.id == fromAccount.id,
-        );
-        if (fromIdx != -1) {
-          _localPaymentMethods[fromIdx] = _localPaymentMethods[fromIdx]
-              .copyWith(balance: newFromBalance);
-        }
-        final toIdx = _localPaymentMethods.indexWhere(
-          (pm) => pm.id == toAccount.id,
-        );
-        if (toIdx != -1) {
-          _localPaymentMethods[toIdx] = _localPaymentMethods[toIdx].copyWith(
-            balance: newToBalance,
-          );
-        }
-        setState(() {});
-      }
-    }
+    // Lokal bakiyeler artık onTransfer callback'inin yöneticisi (home_navigation_helper vs.)
+    // tarafından güncellenecek, böylece UI'da bakiyelerin iki kere düşmesi önlenmiş olacak.
 
     // Bilgi mesajı oluştur
     final fromAccountName = fromAccount.name;

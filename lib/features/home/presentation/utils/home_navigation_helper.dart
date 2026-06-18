@@ -425,16 +425,20 @@ class HomeNavigationHelper {
             final fromPm = fromIndex != -1 ? pmList[fromIndex] : null;
             final toPm = toIndex != -1 ? pmList[toIndex] : null;
 
-            final transferCurrency = fromPm?.paraBirimi ?? getIt<CurrencyService>().currentCurrency;
+            final cur = getIt<CurrencyService>();
+            // Kullanıcı arayüzünde girilen miktar her zaman uygulamanın ana para birimindedir.
+            final transferCurrency = cur.currentCurrency;
 
             final Map<String, double> pmDeltas = {};
 
             if (!isScheduled) {
-              final cur = getIt<CurrencyService>();
-
               if (fromPm != null) {
-                // The amount is in transferCurrency (fromPm.paraBirimi)
-                final convertedFromAmount = amount; 
+                // Ana para biriminden gönderen hesabın para birimine çevir
+                final convertedFromAmount = cur.convert(
+                  amount,
+                  transferCurrency,
+                  fromPm.paraBirimi,
+                ); 
                 final deltaFrom = fromPm.type == 'kredi'
                     ? convertedFromAmount // transferring out of credit increases debt
                     : -convertedFromAmount; // transferring out of cash decreases cash
@@ -445,7 +449,7 @@ class HomeNavigationHelper {
               }
 
               if (toPm != null) {
-                // Convert amount from transferCurrency to toPm.paraBirimi
+                // Ana para biriminden alıcı hesabın para birimine çevir
                 final convertedToAmount = cur.convert(
                   amount,
                   transferCurrency,
@@ -456,9 +460,6 @@ class HomeNavigationHelper {
                     : convertedToAmount; // transferring into cash increases cash
                 pmDeltas[toId] = (pmDeltas[toId] ?? 0) + deltaTo;
 
-                // Wait! toPm could be the same as fromPm if fromId == toId
-                // If so, the balance is already updated in pmList, so we should recalculate based on the updated one.
-                // But it's simpler to just apply the delta directly to whatever is in the list
                 final currentToPm = pmList[toIndex];
                 double yeniBakiye = currentToPm.balance + deltaTo;
                 pmList[toIndex] = currentToPm.copyWith(balance: yeniBakiye);

@@ -124,6 +124,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
         userId,
       ).collection('paymentMethods').doc(method['id'].toString());
       final data = Map<String, dynamic>.from(method);
+      data.remove('balance'); // Race condition'ı önlemek için bakiyeyi ayrı güncelleriz
       data['updatedAt'] = FieldValue.serverTimestamp();
       await docRef.set(data, SetOptions(merge: true));
 
@@ -156,6 +157,7 @@ class PaymentMethodRepositoryFirestore implements PaymentMethodRepository {
     }
 
     final data = Map<String, dynamic>.from(method);
+    data.remove('balance'); // Race condition'ı önlemek için bakiyeyi ezmeyin
     data['updatedAt'] = FieldValue.serverTimestamp();
 
     // Not: CacheService güncellemesi burada yapılamaz çünkü batch işlemi

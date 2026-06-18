@@ -202,15 +202,28 @@ class PaymentMethodsController extends ChangeNotifier
       final index = _paymentMethods.indexWhere((p) => p.id == method.id);
       if (index != -1) {
         final oldMethod = _paymentMethods[index];
+        final double balanceDelta = method.balance - oldMethod.balance;
         _paymentMethods[index] = method;
         _filtrele();
 
         Future.microtask(() async {
           try {
-            await _paymentMethodRepository.updatePaymentMethod(
-              userId,
-              method.toMap(),
-            );
+            final operations = <BatchOperation>[
+              _paymentMethodRepository.getUpdatePaymentMethodOperation(
+                userId,
+                method.toMap(),
+              ),
+            ];
+            if (balanceDelta != 0) {
+              operations.add(
+                _paymentMethodRepository.getIncrementBalanceOperation(
+                  userId,
+                  method.id,
+                  balanceDelta,
+                ),
+              );
+            }
+            await getIt<BatchService>().commit(operations);
           } catch (e, s) {
             ErrorHandler.logError(
               'PaymentMethodsController.updateMethod Background',

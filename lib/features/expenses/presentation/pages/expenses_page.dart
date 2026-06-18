@@ -279,42 +279,43 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
               .toList(),
           defaultPaymentMethodId: widget.varsayilanOdemeYontemiId,
           initialDate: _controller.secilenAy,
-          onSave: (
-            name,
-            amount,
-            category,
-            date,
-            paymentMethodId,
-            paraBirimi,
-          ) async {
-            try {
-              // Doğrudan controller'ın clean metodunu kullan
-              await _controller.harcamaEkleVeyaDuzenle(
-                name: name,
-                amount: amount,
-                category: category,
-                date: date,
-                paymentMethodId: paymentMethodId,
-                duzenlenecekHarcama: duzenlenecekHarcama,
-                eskiOdemeYontemiId: eskiOdemeYontemiId,
-                eskiTutar: eskiTutar,
-                aramaMetni: tArama.text,
-                onResetLazyLoading: resetLazyLoading,
-              );
+          onSave:
+              (
+                name,
+                amount,
+                category,
+                date,
+                paymentMethodId,
+                paraBirimi,
+              ) async {
+                try {
+                  // Doğrudan controller'ın clean metodunu kullan
+                  await _controller.harcamaEkleVeyaDuzenle(
+                    name: name,
+                    amount: amount,
+                    category: category,
+                    date: date,
+                    paymentMethodId: paymentMethodId,
+                    duzenlenecekHarcama: duzenlenecekHarcama,
+                    eskiOdemeYontemiId: eskiOdemeYontemiId,
+                    eskiTutar: eskiTutar,
+                    aramaMetni: tArama.text,
+                    onResetLazyLoading: resetLazyLoading,
+                  );
 
-              if (duzenlenecekHarcama == null) {
-                if (!mounted) return;
-                if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
-                  MoneyAnimationOverlay.show(context);
+                  if (duzenlenecekHarcama == null) {
+                    if (!mounted) return;
+                    if (context.read<ThemeManager>().isMoneyAnimationEnabled) {
+                      MoneyAnimationOverlay.show(context);
+                    }
+                  }
+                } catch (e) {
+                  if (!mounted) return;
+                  if (e is AppException) {
+                    ErrorHandler.handleAppException(context, e);
+                  }
                 }
-              }
-            } catch (e) {
-              if (!mounted) return;
-              if (e is AppException) {
-                ErrorHandler.handleAppException(context, e);
-              }
-            }
-          },
+              },
         ),
       ),
     );
@@ -483,8 +484,9 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
               );
             }
           } catch (e) {
-            if (mounted) {
-              ErrorHandler.handleAppException(context, e is AppException ? e : Exception(e.toString()));
+            if (!mounted) return;
+            if (e is AppException) {
+              ErrorHandler.handleAppException(context, e);
             }
           }
         },
@@ -539,7 +541,9 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
                 name: harcama['isim'],
                 amount: yeniTutar,
                 category: harcama['kategori'],
-                date: DateTime.tryParse(harcama['tarih'].toString()) ?? DateTime.now(),
+                date:
+                    DateTime.tryParse(harcama['tarih'].toString()) ??
+                    DateTime.now(),
                 paymentMethodId: harcama['odemeYontemiId'],
                 duzenlenecekHarcama: harcama,
                 eskiOdemeYontemiId: harcama['odemeYontemiId'],
