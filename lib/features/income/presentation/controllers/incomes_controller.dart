@@ -251,6 +251,20 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
   void _startIncomesStream() {
     _incomesSubscription?.cancel();
 
+    // Önce cache'den anında yükle (Firestore stream gelmeden UI dolsun)
+    final cached = _incomeRepository.getIncomes(userId).where((i) {
+      if (i['isDeleted'] == true) return false;
+      final tarih = DateTime.tryParse(i['date'].toString());
+      if (tarih == null) return false;
+      return tarih.year == _secilenAy.year && tarih.month == _secilenAy.month;
+    }).toList();
+
+    if (cached.isNotEmpty && _tumGelirler.isEmpty) {
+      _tumGelirler = cached.map((m) => Income.fromMap(m)).toList();
+      _isLoading = false;
+      filtreleVeGoster();
+    }
+
     _incomesSubscription = _incomeRepository
         .watchIncomesByMonth(userId, _secilenAy)
         .listen((data) {

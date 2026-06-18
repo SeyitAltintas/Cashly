@@ -276,18 +276,40 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
     _expensesSubscription?.cancel();
     _incomesSubscription?.cancel();
 
-    // EC-10: Ay değiştiğinde, eski ayın verilerinin yeni ay yüklenene kadar ekranda kalmasını (Data Bleeding) engelle.
-    _tumHarcamalar = [];
-    _tumGelirler = [];
-    notifyListeners();
-
     final expenseRepo = getIt<ExpenseRepository>();
     final incomeRepo = getIt<IncomeRepository>();
 
+    // OPTIMISTIC UI: Stream'in ilk veriyi atmasını beklemeden, verileri Hive Cache'den
+    // senkron olarak çekip 0-kare yükleme hızını sağlıyoruz.
+    try {
+      final allExpenses = expenseRepo.getExpenses(userId);
+      _tumHarcamalar = allExpenses.where((h) {
+        if (h['silindi'] == true) return false;
+        final date = DateTime.tryParse(h['tarih']?.toString() ?? '');
+        return date != null && date.year == _secilenAy.year && date.month == _secilenAy.month;
+      }).toList();
+
+      final allIncomesRaw = incomeRepo.getIncomes(userId);
+      _tumGelirler = allIncomesRaw.map((m) => Income.fromMap(m)).where((g) {
+        return g.date.year == _secilenAy.year && g.date.month == _secilenAy.month;
+      }).toList();
+    } catch (e) {
+      _tumHarcamalar = [];
+      _tumGelirler = [];
+    }
+    notifyListeners();
+
+    bool isFirstExpenseEmission = true;
     _expensesSubscription = expenseRepo
         .watchExpensesByMonth(userId, _secilenAy)
         .listen(
           (expenses) {
+            if (isFirstExpenseEmission) {
+              isFirstExpenseEmission = false;
+              // Flicker önleme: Eğer Firestore'un ilk cache yayını boşsa ama bizim Hive cache'de
+              // veri varsa, bu boş yayını yoksay. Ağdan gelen 2. yayını bekle.
+              if (expenses.isEmpty && _tumHarcamalar.isNotEmpty) return;
+            }
             _tumHarcamalar = expenses;
             notifyListeners();
           },
@@ -295,13 +317,17 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
           cancelOnError: false,
         );
 
+    bool isFirstIncomeEmission = true;
     _incomesSubscription = incomeRepo
         .watchIncomesByMonth(userId, _secilenAy)
         .listen(
           (incomesMap) {
-            _tumGelirler = incomesMap
-                .map((map) => Income.fromMap(map))
-                .toList();
+            final newIncomes = incomesMap.map((map) => Income.fromMap(map)).toList();
+            if (isFirstIncomeEmission) {
+              isFirstIncomeEmission = false;
+              if (newIncomes.isEmpty && _tumGelirler.isNotEmpty) return;
+            }
+            _tumGelirler = newIncomes;
             notifyListeners();
           },
           onError: (e, s) => _logStreamError('watchIncomesByMonth', e, s),
@@ -318,37 +344,51 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
     final assetRepo = getIt<AssetRepository>();
     final paymentRepo = getIt<PaymentMethodRepository>();
 
+    bool isFirstAssetsEmission = true;
     _assetsSubscription = assetRepo
         .watchAssets(userId)
         .listen(
           (assetsMap) {
-            _varliklar = assetsMap.map((map) => Asset.fromMap(map)).toList();
+            final newAssets = assetsMap.map((map) => Asset.fromMap(map)).toList();
+            if (isFirstAssetsEmission) {
+              isFirstAssetsEmission = false;
+              if (newAssets.isEmpty && _varliklar.isNotEmpty) return;
+            }
+            _varliklar = newAssets;
             notifyListeners();
           },
           onError: (e, s) => _logStreamError('watchAssets', e, s),
           cancelOnError: false,
         );
 
+    bool isFirstPmEmission = true;
     _paymentMethodsSubscription = paymentRepo
         .watchPaymentMethods(userId)
         .listen(
           (methodsMap) {
-            _tumOdemeYontemleri = methodsMap
-                .map((map) => PaymentMethod.fromMap(map))
-                .toList();
+            final newPms = methodsMap.map((map) => PaymentMethod.fromMap(map)).toList();
+            if (isFirstPmEmission) {
+              isFirstPmEmission = false;
+              if (newPms.isEmpty && _tumOdemeYontemleri.isNotEmpty) return;
+            }
+            _tumOdemeYontemleri = newPms;
             notifyListeners();
           },
           onError: (e, s) => _logStreamError('watchPaymentMethods', e, s),
           cancelOnError: false,
         );
 
+    bool isFirstTransferEmission = true;
     _transfersSubscription = paymentRepo
         .watchTransfers(userId)
         .listen(
           (transfersMap) {
-            _tumTransferler = transfersMap
-                .map((map) => Transfer.fromMap(map))
-                .toList();
+            final newTransfers = transfersMap.map((map) => Transfer.fromMap(map)).toList();
+            if (isFirstTransferEmission) {
+              isFirstTransferEmission = false;
+              if (newTransfers.isEmpty && _tumTransferler.isNotEmpty) return;
+            }
+            _tumTransferler = newTransfers;
             notifyListeners();
           },
           onError: (e, s) => _logStreamError('watchTransfers', e, s),

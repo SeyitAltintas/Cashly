@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../../../../core/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
@@ -619,7 +618,9 @@ class AnalysisController extends ChangeNotifier with SafeNotifierMixin {
       currentCurrency: cur.currentCurrency,
     );
 
-    final result = await compute(_calculateAnalysisWorker, payload);
+    // Performans Optimizasyonu: "compute" (Isolate) kullanımı özellikle debug modunda
+    // ciddi gecikmeye yol açar. Ana thread üzerinde senkron hesaplamak 0-frame delay sağlar.
+    final result = await _calculateAnalysisWorker(payload);
 
     // Sadece en son başlatılan compute'un sonucunu kabul et
     if (!_isDisposed && generation == _computeGeneration) {

@@ -162,13 +162,9 @@ class ExpensesController extends ChangeNotifier
     _expensesSubscription = _expenseRepository
         .watchExpensesByMonth(userId, _secilenAy)
         .listen((data) {
-          // Debounce: çok hızlı gelen stream event'lerini birleştir (titreme önler)
-          _streamDebounce?.cancel();
-          _streamDebounce = Timer(const Duration(milliseconds: 300), () {
-            _tumHarcamalar = data;
-            _isLoading = false;
-            filtreleVeGoster();
-          });
+          _tumHarcamalar = data;
+          _isLoading = false;
+          filtreleVeGoster();
         });
   }
 
@@ -216,15 +212,17 @@ class ExpensesController extends ChangeNotifier
     }
   }
 
-  // ===== FİLTRELEME =====
-
-  /// Harcamaları filtrele ve sırala
   Future<void> filtreleVeGoster({
     String aramaMetni = '',
     Function(int)? onResetLazyLoading,
   }) async {
     final params = ExpenseFilterParams(_tumHarcamalar, _secilenAy, aramaMetni);
-    final filteredList = await compute(_computeFilterExpenses, params);
+    
+    // Performans İyileştirmesi: "compute" (Isolate) kullanımı, özellikle debug modunda 
+    // yeni bir thread oluşturmak için 1-2 saniye gecikmeye neden olur. Aylık harcama listesi
+    // (genelde <1000 öğe) ana thread'de 1ms'den kısa sürede filtrelenir. 
+    // Bu yüzden doğrudan çağırıyoruz (0-frame delay için).
+    final filteredList = _computeFilterExpenses(params);
 
     _gosterilenHarcamalar = filteredList;
     onResetLazyLoading?.call(filteredList.length);

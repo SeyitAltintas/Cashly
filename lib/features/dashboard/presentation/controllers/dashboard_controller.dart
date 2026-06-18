@@ -511,8 +511,10 @@ class DashboardController extends ChangeNotifier with SafeNotifierMixin {
       currentCurrency: service.currentCurrency,
     );
 
-    // FPS Optimizasyonu: Main thread'i bloklamamak için hesaplamaları arka plan isolate'ine gönderiyoruz.
-    _result = await compute(_calculateDashboardWorker, payload);
+    // Performans Optimizasyonu: "compute" (Isolate) kullanımı özellikle debug modunda
+    // 1-2 saniyelik bir gecikmeye yol açıyor. Veri seti küçük olduğu için
+    // ana thread üzerinde senkron hesaplamak 0-frame delay sağlar.
+    _result = _calculateDashboardWorker(payload);
 
     if (!_disposed) notifyListeners();
   }

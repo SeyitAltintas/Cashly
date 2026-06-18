@@ -92,7 +92,26 @@ class IncomeRepositoryFirestore implements IncomeRepository {
         .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();
+          final newMonthIncomes =
+              snapshot.docs.map((doc) => _sanitizeMap(doc.data())).toList();
+
+          // Global cache'e bu ayın verilerini merge et
+          final cacheKey = 'incomes_$userId';
+          final cached =
+              CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+
+          // Eski bu aya ait verileri sil
+          cached.removeWhere((i) {
+            final tarih = DateTime.tryParse(i['date'].toString());
+            if (tarih == null) return false;
+            return tarih.year == month.year && tarih.month == month.month;
+          });
+
+          // Yeni verileri ekle
+          cached.addAll(newMonthIncomes);
+          CacheService.set(cacheKey, cached);
+
+          return newMonthIncomes;
         });
   }
 

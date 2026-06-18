@@ -82,9 +82,8 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
 
     initLazyLoading();
 
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) _controller.stopLoading();
-    });
+    // Firebase snapshot çok hızlı geldiği için manuel bir skeleton gecikmesine gerek yok.
+    // Eğer Firestore önbelleği varsa saniyesinde dolar, yoksa ağdan gelir.
   }
 
   @override

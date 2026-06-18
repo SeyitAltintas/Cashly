@@ -82,7 +82,7 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
     // Widget prop'larından veriyi controller'a yükle
     _controller.initData(widget.paymentMethods, widget.deletedPaymentMethods);
 
-    Future.delayed(const Duration(milliseconds: 300), () {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _controller.stopLoading();
     });
   }

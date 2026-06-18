@@ -1,64 +1,117 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-/// Basit in-memory cache servisi
-/// Sık erişilen verileri bellekte tutarak disk I/O'yu azaltır
+/// Basit persistent cache servisi
+/// Sık erişilen verileri bellekte ve diskte tutarak 0-frame gecikme sağlar
 class CacheService {
   CacheService._();
 
-  /// Cache deposu
+  static const String _boxName = 'app_cache_box';
   static final Map<String, _CacheEntry> _cache = {};
-
-  /// Varsayılan cache süresi (5 dakika)
   static const Duration defaultTtl = Duration(minutes: 5);
 
-  /// Cache'den veri okur
-  /// [key] - Cache anahtarı
-  /// Döndürür: Geçerli cache değeri veya null
+  static Future<void> init() async {
+    final box = await Hive.openBox(_boxName);
+    
+    // Diskten belleğe yükle
+    for (final key in box.keys) {
+      try {
+        final jsonStr = box.get(key);
+        if (jsonStr != null) {
+          final map = jsonDecode(jsonStr);
+          final expiresAt = DateTime.tryParse(map['expiresAt'] ?? '');
+          
+          if (expiresAt != null) {
+            if (DateTime.now().isAfter(expiresAt)) {
+              box.delete(key);
+            } else {
+              _cache[key.toString()] = _CacheEntry(
+                value: map['value'],
+                expiresAt: expiresAt,
+              );
+            }
+          }
+        }
+      } catch (e) {
+        // Hatalı/Eski formatları temizle
+        box.delete(key);
+      }
+    }
+  }
+
   static T? get<T>(String key) {
     final entry = _cache[key];
     if (entry == null) return null;
 
-    // Süresi dolmuş mu kontrol et
     if (entry.isExpired) {
       _cache.remove(key);
+      try {
+        if (Hive.isBoxOpen(_boxName)) {
+          Hive.box(_boxName).delete(key);
+        }
+      } catch (_) {}
       return null;
     }
 
-    return entry.value as T?;
-  }
-
-  /// Cache'e veri yazar
-  /// [key] - Cache anahtarı
-  /// [value] - Saklanacak değer
-  /// [ttl] - Geçerlilik süresi (varsayılan: 5 dakika)
-  static void set<T>(String key, T value, {Duration? ttl}) {
-    _cache[key] = _CacheEntry(
-      value: value,
-      expiresAt: DateTime.now().add(ttl ?? defaultTtl),
-    );
-  }
-
-  /// Belirli bir anahtarı cache'den siler
-  static void invalidate(String key) {
-    _cache.remove(key);
-  }
-
-  /// Belirli bir prefix ile başlayan tüm anahtarları siler
-  static void invalidateByPrefix(String prefix) {
-    final keysToRemove = _cache.keys
-        .where((k) => k.startsWith(prefix))
-        .toList();
-    for (final key in keysToRemove) {
-      _cache.remove(key);
+    try {
+      if (T.toString().contains('List<Map<String, dynamic>>')) {
+        return (entry.value as List)
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList() as T;
+      }
+      return entry.value as T?;
+    } catch (e) {
+      return entry.value as T?;
     }
   }
 
-  /// Tüm cache'i temizler
-  static void clear() {
-    _cache.clear();
+  static void set<T>(String key, T value, {Duration? ttl}) {
+    final entry = _CacheEntry(
+      value: value,
+      expiresAt: DateTime.now().add(ttl ?? defaultTtl),
+    );
+    _cache[key] = entry;
+    
+    try {
+      if (Hive.isBoxOpen(_boxName)) {
+        Hive.box(_boxName).put(
+          key,
+          jsonEncode({
+            'value': value,
+            'expiresAt': entry.expiresAt.toIso8601String(),
+          }),
+        );
+      }
+    } catch (e) {
+      // Sadece JSON'a çevrilebilenleri diskte sakla, diğerleri RAM'de kalır
+    }
   }
 
-  /// Cache içeriğini debug için gösterir
+  static void invalidate(String key) {
+    _cache.remove(key);
+    try {
+      if (Hive.isBoxOpen(_boxName)) Hive.box(_boxName).delete(key);
+    } catch (_) {}
+  }
+
+  static void invalidateByPrefix(String prefix) {
+    final keysToRemove = _cache.keys.where((k) => k.startsWith(prefix)).toList();
+    for (final key in keysToRemove) {
+      _cache.remove(key);
+      try {
+        if (Hive.isBoxOpen(_boxName)) Hive.box(_boxName).delete(key);
+      } catch (_) {}
+    }
+  }
+
+  static void clear() {
+    _cache.clear();
+    try {
+      if (Hive.isBoxOpen(_boxName)) Hive.box(_boxName).clear();
+    } catch (_) {}
+  }
+
   static void debugPrintCache() {
     debugPrint('=== Cache Contents ===');
     for (final entry in _cache.entries) {
@@ -70,13 +123,11 @@ class CacheService {
   }
 }
 
-/// Cache girdisi
 class _CacheEntry {
   final dynamic value;
   final DateTime expiresAt;
 
   _CacheEntry({required this.value, required this.expiresAt});
 
-  /// Süre dolmuş mu?
   bool get isExpired => DateTime.now().isAfter(expiresAt);
 }

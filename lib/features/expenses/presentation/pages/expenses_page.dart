@@ -85,12 +85,8 @@ class _ExpensesPageState extends State<ExpensesPage> with LazyLoadingMixin {
     initLazyLoading();
     _controller.loadData();
 
-    // Kısa skeleton animasyonu için 300ms bekle
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        _controller.stopLoading();
-      }
-    });
+    // Firebase snapshot çok hızlı geldiği için manuel bir skeleton gecikmesine gerek yok.
+    // Eğer Firestore önbelleği varsa saniyesinde dolar, yoksa ağdan gelir.
   }
 
   @override

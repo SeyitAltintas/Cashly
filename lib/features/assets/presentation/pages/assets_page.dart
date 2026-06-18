@@ -84,7 +84,7 @@ class _AssetsPageState extends State<AssetsPage> with LazyLoadingMixin {
     initLazyLoading();
 
     // Kısa bir gecikme ile loading state'i kapat (skeleton gösterimi için)
-    Future.delayed(const Duration(milliseconds: 300), () {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _controller.stopLoading();
     });
   }

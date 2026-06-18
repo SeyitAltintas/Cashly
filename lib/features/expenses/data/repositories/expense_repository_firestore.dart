@@ -86,11 +86,29 @@ class ExpenseRepositoryFirestore implements ExpenseRepository {
         .orderBy('tarih', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs.map((doc) {
+          final newMonthExpenses = snapshot.docs.map((doc) {
             final data = doc.data();
             _convertTimestampToString(data);
             return data;
           }).toList();
+
+          // Global cache'e bu ayın verilerini merge et
+          final cacheKey = 'expenses_$userId';
+          final cached =
+              CacheService.get<List<Map<String, dynamic>>>(cacheKey) ?? [];
+
+          // Eski bu aya ait verileri sil
+          cached.removeWhere((e) {
+            final tarih = DateTime.tryParse(e['tarih'].toString());
+            if (tarih == null) return false;
+            return tarih.year == month.year && tarih.month == month.month;
+          });
+
+          // Yeni verileri ekle
+          cached.addAll(newMonthExpenses);
+          CacheService.set(cacheKey, cached);
+
+          return newMonthExpenses;
         });
   }
 
