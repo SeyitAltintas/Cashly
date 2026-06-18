@@ -12,7 +12,6 @@ mixin ExpenseBinMixin on ChangeNotifier {
   ExpenseRepository get expenseRepository;
   String get userId;
   void refresh();
-  Future<void> savePaymentMethodsInternal();
   List<PaymentMethod> get tumOdemeYontemleri;
   List<Map<String, dynamic>> get tumHarcamalar;
 

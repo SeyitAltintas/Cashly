@@ -295,11 +295,7 @@ class IncomesController extends ChangeNotifier with SafeNotifierMixin {
 
   // saveIncomes metodu deprecate edildi, tekil işlemler kullanılıyor
 
-  Future<void> savePaymentMethods() async {
-    for (var pm in _tumOdemeYontemleri) {
-      await _paymentMethodRepository.updatePaymentMethod(userId, pm.toMap());
-    }
-  }
+  // savePaymentMethods metodu (tüm listeyi ezen tehlikeli metod) silindi.
 
   // ===== AY GEÇİŞLERİ =====
 

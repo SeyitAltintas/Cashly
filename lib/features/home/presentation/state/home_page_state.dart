@@ -514,10 +514,14 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
         _tumOdemeYontemleri[fromIndex] = fromPm.copyWith(
           balance: fromYeniBakiye,
         );
+        final fromDelta = fromPm.type == 'kredi'
+            ? convertedTransferAmountFrom
+            : -convertedTransferAmountFrom;
         operations.add(
-          pmRepo.getUpdatePaymentMethodOperation(
+          pmRepo.getIncrementBalanceOperation(
             userId,
-            _tumOdemeYontemleri[fromIndex].toMap(),
+            fromPm.id,
+            fromDelta,
           ),
         );
 
@@ -530,10 +534,14 @@ class HomePageState extends ChangeNotifier with SafeNotifierMixin {
             ? toPm.balance - convertedTransferAmountTo
             : toPm.balance + convertedTransferAmountTo;
         _tumOdemeYontemleri[toIndex] = toPm.copyWith(balance: toYeniBakiye);
+        final toDelta = toPm.type == 'kredi'
+            ? -convertedTransferAmountTo
+            : convertedTransferAmountTo;
         operations.add(
-          pmRepo.getUpdatePaymentMethodOperation(
+          pmRepo.getIncrementBalanceOperation(
             userId,
-            _tumOdemeYontemleri[toIndex].toMap(),
+            toPm.id,
+            toDelta,
           ),
         );
 
