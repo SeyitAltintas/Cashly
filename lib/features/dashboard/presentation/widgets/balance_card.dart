@@ -10,6 +10,7 @@ import '../../../../core/services/haptic_service.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../controllers/dashboard_controller.dart';
 import 'dashboard_card_container.dart';
+
 /// Toplam Bakiye Kartı Widget'ı
 /// Dashboard'da toplam finansal durumu gösterir
 class BalanceCard extends StatefulWidget {
