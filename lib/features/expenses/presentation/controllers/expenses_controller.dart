@@ -561,8 +561,11 @@ class ExpensesController extends ChangeNotifier
             }
           }
 
-          if (paymentMethodId != null &&
-              paymentMethodId != eskiOdemeYontemiId) {
+          // Yeni ödeme yöntemine tutarı uygula.
+          // Not: paymentMethodId == eskiOdemeYontemiId (aynı kart, farklı tutar)
+          // durumunda da çalışması gerekir. Yukarıdaki eski tutar iade
+          // operasyonuyla birlikte net fark doğru uygulanır.
+          if (paymentMethodId != null) {
             final pmIdx = _tumOdemeYontemleri.indexWhere(
               (p) => p.id == paymentMethodId,
             );
@@ -1052,8 +1055,11 @@ class ExpensesController extends ChangeNotifier
             }
           }
 
-          if (paymentMethodId != null &&
-              paymentMethodId != eskiOdemeYontemiId) {
+          // Yeni ödeme yöntemine tutarı uygula.
+          // Not: paymentMethodId == eskiOdemeYontemiId (aynı kart, farklı tutar)
+          // durumunda da çalışması gerekir. Yukarıdaki eski tutar iade
+          // operasyonuyla birlikte net fark doğru uygulanır.
+          if (paymentMethodId != null) {
             final pmIdx = _tumOdemeYontemleri.indexWhere(
               (p) => p.id == paymentMethodId,
             );

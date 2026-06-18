@@ -374,7 +374,9 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
       final date = DateTime.tryParse(h['tarih']?.toString() ?? '');
       if (h['odemeYontemiId'] == pm.id && date != null && date.month == now.month && date.year == now.year) {
         final amount = (h['tutar'] as num?)?.toDouble() ?? 0;
-        totalExpense += cur.convert(amount, cur.currentCurrency, cur.currentCurrency);
+        // Harcamanın kendi para birimini kullan (örn. USD girilmiş harcama TL'ye çevrilir)
+        final expenseCurrency = h['paraBirimi']?.toString() ?? cur.currentCurrency;
+        totalExpense += cur.convert(amount, expenseCurrency, cur.currentCurrency);
       }
     }
 
