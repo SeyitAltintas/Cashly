@@ -132,7 +132,6 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
 
     final rankData = widget.streakData ?? RankData.empty();
     final rankTier = RankTiers.fromXp(rankData.totalXp);
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
       padding: EdgeInsets.only(
@@ -231,7 +230,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                             overflow: TextOverflow.ellipsis,
                           ),
                         const SizedBox(height: 8),
-                        // XP Bilgisi
+                        // XP ve Seri Bilgisi
                         Row(
                           children: [
                             Icon(
@@ -244,6 +243,32 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                               '${rankData.totalXp} XP',
                               style: TextStyle(
                                 color: rankTier.primaryColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Container(
+                              width: 4,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.3),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            const Icon(
+                              Icons.local_fire_department,
+                              size: 16,
+                              color: Color(0xFFFF6B35),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${rankData.currentStreak} Gün Seri',
+                              style: const TextStyle(
+                                color: Color(0xFFFF6B35),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),

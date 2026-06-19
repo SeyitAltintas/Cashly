@@ -42,11 +42,7 @@ class _StreakPageState extends State<StreakPage> {
     }
   }
 
-  void _showTierDetails(
-    BuildContext context,
-    RankTier tier,
-    bool isUnlocked,
-  ) {
+  void _showTierDetails(BuildContext context, RankTier tier, bool isUnlocked) {
     HapticService.lightImpact();
     final isCurrent = _controller.currentRank.level == tier.level;
 
@@ -110,9 +106,6 @@ class _StreakPageState extends State<StreakPage> {
                   StreakStatsRow(streakData: rankData),
                   const SizedBox(height: 28),
 
-                  // XP Kazanma Rehberi
-                  _XpGuideCard(),
-                  const SizedBox(height: 28),
 
                   // Tüm Rank Kademeleri
                   const _SectionTitle(title: 'Rank Kademeleri'),
@@ -138,122 +131,6 @@ class _StreakPageState extends State<StreakPage> {
   }
 }
 
-/// XP Kazanma Rehberi Kartı
-class _XpGuideCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF42A5F5).withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFF42A5F5).withValues(alpha: 0.25),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              Icon(Icons.star, color: Color(0xFF42A5F5), size: 18),
-              SizedBox(width: 8),
-              Text(
-                'XP Nasıl Kazanılır?',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF42A5F5),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _XpRow(
-            icon: Icons.login,
-            label: 'Günlük giriş',
-            xp: '+${RankTiers.dailyLoginXp} XP',
-          ),
-          _XpRow(
-            icon: Icons.local_fire_department,
-            label: '7 günlük seri bonusu',
-            xp: '+${RankTiers.weeklyStreakBonusXp} XP',
-          ),
-          _XpRow(
-            icon: Icons.emoji_events,
-            label: '30 günlük seri bonusu',
-            xp: '+${RankTiers.monthlyStreakBonusXp} XP',
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '⚡ XP her yıl sıfırlanır.',
-            style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.5),
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _XpRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String xp;
-
-  const _XpRow({
-    required this.icon,
-    required this.label,
-    required this.xp,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: const Color(0xFF42A5F5)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.75),
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: const Color(0xFF42A5F5).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              xp,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF42A5F5),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 /// Bölüm başlığı widget'ı
 class _SectionTitle extends StatelessWidget {
@@ -314,7 +191,9 @@ class _RankTierDetailsSheetState extends State<_RankTierDetailsSheet>
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).brightness == Brightness.dark 
+            ? const Color(0xFF18181B) 
+            : Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -325,10 +204,9 @@ class _RankTierDetailsSheetState extends State<_RankTierDetailsSheet>
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.2),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -372,10 +250,9 @@ class _RankTierDetailsSheetState extends State<_RankTierDetailsSheet>
               fontWeight: FontWeight.w800,
               color: widget.isUnlocked
                   ? widget.tier.primaryColor
-                  : Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.4),
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.4),
             ),
           ),
           const SizedBox(height: 8),
@@ -384,55 +261,32 @@ class _RankTierDetailsSheetState extends State<_RankTierDetailsSheet>
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.65),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.65),
             ),
           ),
           const SizedBox(height: 20),
 
           // Durum badge
-          Container(
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            decoration: BoxDecoration(
-              color: widget.isCurrent
-                  ? widget.tier.primaryColor.withValues(alpha: 0.15)
-                  : widget.isUnlocked
-                      ? const Color(0xFF4CAF50).withValues(alpha: 0.15)
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: widget.isCurrent
-                    ? widget.tier.primaryColor.withValues(alpha: 0.4)
-                    : widget.isUnlocked
-                        ? const Color(0xFF4CAF50).withValues(alpha: 0.4)
-                        : Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.15),
-              ),
-            ),
             child: Text(
               widget.isCurrent
                   ? '✨ Mevcut Rank'
                   : widget.isUnlocked
-                      ? '✅ Kazanıldı'
-                      : '🔒 ${widget.tier.requiredXp} XP gerekli',
+                  ? '✅ Kazanıldı'
+                  : '🔒 ${widget.tier.requiredXp} XP gerekli',
               style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
                 color: widget.isCurrent
                     ? widget.tier.primaryColor
                     : widget.isUnlocked
-                        ? const Color(0xFF4CAF50)
-                        : Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.5),
+                    ? const Color(0xFF4CAF50)
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
           ),

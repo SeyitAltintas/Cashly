@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import '../../data/constants/streak_badges.dart';
+import '../../../dashboard/presentation/widgets/dashboard_card_container.dart';
 
 /// Rank sisteminin nasıl çalıştığını açıklayan yardım sayfası
 class StreakHelpPage extends StatelessWidget {
@@ -21,6 +22,7 @@ class StreakHelpPage extends StatelessWidget {
           children: [
             // Başlık
             _InfoCard(
+              isPrimary: true,
               icon: Icons.emoji_events,
               iconColor: const Color(0xFFFFB300),
               title: 'Rank Sistemi',
@@ -95,31 +97,28 @@ class StreakHelpPage extends StatelessWidget {
               customContent: Column(
                 children: RankTiers.allTiers.map((tier) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(vertical: 6),
                     child: Row(
                       children: [
                         Container(
-                          width: 28, // non-interactive
-                          height: 28, // non-interactive
+                          width: 32, // non-interactive
+                          height: 32, // non-interactive
                           decoration: BoxDecoration(
-                            color: tier.primaryColor.withValues(alpha: 0.15),
+                            color: tier.primaryColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: tier.primaryColor.withValues(alpha: 0.3),
-                            ),
                           ),
                           child: Center(
                             child: Text(
                               '${tier.level}',
                               style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
                                 color: tier.primaryColor,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             tier.name,
@@ -135,8 +134,10 @@ class StreakHelpPage extends StatelessWidget {
                               ? 'Başlangıç'
                               : '${tier.requiredXp} XP',
                           style: TextStyle(
-                            fontSize: 12,
-                            color: tier.primaryColor,
+                            fontSize: 13,
+                            color: tier.level == 1
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : tier.primaryColor,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -160,6 +161,7 @@ class _InfoCard extends StatelessWidget {
   final String title;
   final String? content;
   final Widget? customContent;
+  final bool isPrimary;
 
   const _InfoCard({
     required this.icon,
@@ -167,54 +169,58 @@ class _InfoCard extends StatelessWidget {
     required this.title,
     this.content,
     this.customContent,
+    this.isPrimary = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16), // non-interactive
-      decoration: BoxDecoration(
-        color: iconColor.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: iconColor.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: iconColor, size: 20), // non-interactive
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: iconColor,
-                ),
+    final innerContent = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
               ),
-            ],
-          ),
-          if (content != null) ...[
-            const SizedBox(height: 10),
-            Text(
-              content!,
-              style: TextStyle(
-                fontSize: 14,
-                height: 1.6,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              child: Icon(icon, color: iconColor, size: 22), // non-interactive
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
-          if (customContent != null) ...[
-            const SizedBox(height: 10),
-            customContent!,
-          ],
+        ),
+        if (content != null) ...[
+          const SizedBox(height: 14),
+          Text(
+            content!,
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.5,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
         ],
-      ),
+        if (customContent != null) ...[
+          const SizedBox(height: 14),
+          customContent!,
+        ],
+      ],
+    );
+
+    return DashboardCardContainer(
+      padding: const EdgeInsets.all(20),
+      borderWidth: 1.5,
+      child: innerContent,
     );
   }
 }
@@ -235,35 +241,39 @@ class _XpInfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: color), // non-interactive
-          const SizedBox(width: 10),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              icon,
+              size: 16,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ), // non-interactive
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.75),
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              xp,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
+          Text(
+            xp,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: color,
             ),
           ),
         ],

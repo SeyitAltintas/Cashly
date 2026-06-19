@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../../data/constants/streak_badges.dart';
 import '../controllers/streak_controller.dart';
+import '../../../dashboard/presentation/widgets/dashboard_card_container.dart';
 
 /// 9 rank kademesini gösteren grid
 /// Kilitli ranklar bulanık/gri görünür, kazanılan ranklar parlak
-class BadgeGridView extends StatelessWidget {
+class BadgeGridView extends StatefulWidget {
   final StreakController controller;
   final void Function(BuildContext, RankTier, bool) onBadgeTap;
 
@@ -16,31 +17,60 @@ class BadgeGridView extends StatelessWidget {
   });
 
   @override
+  State<BadgeGridView> createState() => _BadgeGridViewState();
+}
+
+class _BadgeGridViewState extends State<BadgeGridView> {
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    final currentLevel = widget.controller.currentRank.level;
+    final currentIndex = (currentLevel - 1).clamp(0, RankTiers.allTiers.length - 1);
+    
+    // Her kart 110px genişlikte ve 12px boşluğa sahip (toplam 122px).
+    // Mevcut kartı ekranın biraz daha ortasına yakın göstermek için - 100px offset uyguluyoruz.
+    double initialOffset = (currentIndex * 122.0) - 100.0;
+    if (initialOffset < 0) initialOffset = 0.0;
+    
+    _scrollController = ScrollController(initialScrollOffset: initialOffset);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     const tiers = RankTiers.allTiers;
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 0.75,
-      ),
-      itemCount: tiers.length,
-      itemBuilder: (context, index) {
-        final tier = tiers[index];
-        final isUnlocked = controller.isTierUnlocked(tier);
-        final isCurrent = controller.currentRank.level == tier.level;
+    return SizedBox(
+      height: 110,
+      child: ListView.separated(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
+        itemCount: tiers.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final tier = tiers[index];
+          final isUnlocked = widget.controller.isTierUnlocked(tier);
+          final isCurrent = widget.controller.currentRank.level == tier.level;
 
-        return _RankTierCard(
-          tier: tier,
-          isUnlocked: isUnlocked,
-          isCurrent: isCurrent,
-          onTap: () => onBadgeTap(context, tier, isUnlocked),
-        );
-      },
+          return SizedBox(
+            width: 110,
+            child: _RankTierCard(
+              tier: tier,
+              isUnlocked: isUnlocked,
+              isCurrent: isCurrent,
+              onTap: () => widget.onBadgeTap(context, tier, isUnlocked),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -60,35 +90,18 @@ class _RankTierCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return DashboardCardContainer(
+      padding: EdgeInsets.zero,
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        decoration: BoxDecoration(
-          color: isUnlocked
-              ? tier.primaryColor.withValues(alpha: 0.1)
-              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isCurrent
-                ? tier.primaryColor
-                : isUnlocked
-                ? tier.primaryColor.withValues(alpha: 0.35)
-                : Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.1),
-            width: isCurrent ? 2 : 1,
-          ),
-          boxShadow: isCurrent
-              ? [
-                  BoxShadow(
-                    color: tier.glowColor.withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : null,
-        ),
+      borderWidth: isCurrent ? 2.5 : 1.5,
+      borderColor: isCurrent
+          ? tier.primaryColor
+          : isUnlocked
+          ? tier.primaryColor.withValues(alpha: 0.35)
+          : null,
+      backgroundColor: isUnlocked
+          ? tier.primaryColor.withValues(alpha: 0.1)
+          : null,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -138,28 +151,8 @@ class _RankTierCard extends StatelessWidget {
                       ).colorScheme.onSurface.withValues(alpha: 0.3),
               ),
             ),
-            // Mevcut rank etiketi
-            if (isCurrent) ...[
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: tier.primaryColor,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'Mevcut',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
           ],
         ),
-      ),
-    );
+      );
   }
 }

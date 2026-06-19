@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controllers/streak_controller.dart';
+import '../../../dashboard/presentation/widgets/dashboard_card_container.dart';
 
 /// Rank sistemi başarımları listesi
 class AchievementsList extends StatelessWidget {
@@ -39,40 +40,52 @@ class AchievementsList extends StatelessWidget {
         'earned': data.longestStreak >= 3,
       },
       {
-        'icon': Icons.calendar_month,
-        'title': 'Düzenli Kullanıcı',
-        'description': '10 gün uygulamayı kullandın.',
-        'earned': data.totalLoginDays >= 10,
-      },
-      {
         'icon': Icons.star,
         'title': 'Haftalık Seri',
         'description': '7 gün üst üste giriş yaptın.',
         'earned': data.longestStreak >= 7,
       },
       {
+        'icon': Icons.school,
+        'title': 'Finansal Çırak',
+        'description': '100 XP toplayarak Çırak kademesine yükseldin.',
+        'earned': data.totalXp >= 100,
+      },
+      {
         'icon': Icons.trending_up,
-        'title': 'Süreklilik Ustası',
+        'title': 'Aylık Seri',
         'description': '30 gün üst üste giriş yaptın.',
         'earned': data.longestStreak >= 30,
       },
       {
+        'icon': Icons.military_tech,
+        'title': 'Finansal Uzman',
+        'description': '900 XP toplayarak Uzman kademesine ulaştın.',
+        'earned': data.totalXp >= 900,
+      },
+      {
         'icon': Icons.all_inclusive,
-        'title': 'Cashly Bağımlısı',
-        'description': '100 gün uygulamayı kullandın.',
+        'title': '100 Günlük Serüven',
+        'description': 'Toplam 100 gün uygulamaya giriş yaptın.',
         'earned': data.totalLoginDays >= 100,
       },
       {
-        'icon': Icons.workspace_premium,
-        'title': 'Büyük Başarı',
-        'description': '1000 XP\'ye ulaştın.',
-        'earned': data.totalXp >= 1000,
+        'icon': Icons.auto_awesome,
+        'title': 'Cashly Efsanesi',
+        'description': '3600 XP toplayarak Efsane kademesine yükseldin.',
+        'earned': data.totalXp >= 3600,
       },
       {
-        'icon': Icons.emoji_events,
-        'title': 'XP Koleksiyoncusu',
-        'description': '10.000 XP\'ye ulaştın.',
-        'earned': data.totalXp >= 10000,
+        'icon': Icons.calendar_month,
+        'title': 'Yılın Seri Ustası',
+        'description': 'Toplam 365 gün uygulamaya giriş yaptın.',
+        'earned': data.totalLoginDays >= 365,
+      },
+      {
+        'icon': Icons.diamond,
+        'title': 'Grandmaster',
+        'description': '6000 XP ile en yüksek kademeye ulaştın!',
+        'earned': data.totalXp >= 6000,
       },
     ];
   }
@@ -95,22 +108,15 @@ class _AchievementTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Container(
+      child: DashboardCardContainer(
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: isEarned
-              ? const Color(0xFF4CAF50).withValues(alpha: 0.08)
-              : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isEarned
-                ? const Color(0xFF4CAF50).withValues(alpha: 0.3)
-                : Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.08),
-          ),
-        ),
+        borderWidth: 1.5,
+        backgroundColor: isEarned
+            ? const Color(0xFF4CAF50).withValues(alpha: 0.08)
+            : null,
+        borderColor: isEarned
+            ? const Color(0xFF4CAF50).withValues(alpha: 0.3)
+            : null,
         child: Row(
           children: [
             Container(

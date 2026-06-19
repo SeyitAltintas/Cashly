@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../../data/models/streak_model.dart';
 import '../../data/constants/streak_badges.dart';
+import '../../../dashboard/presentation/widgets/dashboard_card_container.dart';
 
 /// Rank sayfasının üst kartı
 /// Mevcut rank, XP ve progress bar gösterir
@@ -26,7 +27,7 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
       vsync: this,
       duration: const Duration(milliseconds: 2500),
     )..repeat(reverse: true);
-    
+
     _lottieController = AnimationController(vsync: this);
   }
 
@@ -49,36 +50,9 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
       builder: (context, child) {
         final glow = _glowController.value;
 
-        return Container(
-          width: double.infinity,
+        return DashboardCardContainer(
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                rank.primaryColor.withValues(alpha: 0.25 + glow * 0.08),
-                rank.glowColor.withValues(alpha: 0.15 + glow * 0.05),
-                Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: Color.lerp(
-                rank.primaryColor.withValues(alpha: 0.4),
-                rank.glowColor.withValues(alpha: 0.8),
-                glow,
-              )!,
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: rank.glowColor.withValues(alpha: 0.15 + glow * 0.1),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
+          borderWidth: 1.5,
           child: Column(
             children: [
               // Rank Lottie animasyonu + bilgileri
@@ -125,19 +99,47 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
                           rank.description,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.65),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.65),
                           ),
                         ),
                         const SizedBox(height: 8),
-                        // Toplam XP
-                        _XpBadge(
-                          xp: widget.streakData.totalXp,
-                          color: rank.primaryColor,
-                          glowColor: rank.glowColor,
-                          glowValue: glow,
+                        Row(
+                          children: [
+                            Text(
+                              '⭐ ${widget.streakData.totalXp} XP',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Color.lerp(
+                                  rank.primaryColor,
+                                  rank.glowColor,
+                                  glow,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Container(
+                              width: 4,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.3),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              '🔥 ${widget.streakData.currentStreak} Gün Seri',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFFF6B35),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -164,10 +166,9 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.45),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.45),
                       ),
                     ),
                   ],
@@ -180,11 +181,7 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
                     minHeight: 10,
                     backgroundColor: rank.primaryColor.withValues(alpha: 0.15),
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      Color.lerp(
-                        rank.primaryColor,
-                        rank.glowColor,
-                        glow,
-                      )!,
+                      Color.lerp(rank.primaryColor, rank.glowColor, glow)!,
                     ),
                   ),
                 ),
@@ -195,10 +192,9 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
                     '$xpToNext XP kaldı',
                     style: TextStyle(
                       fontSize: 11,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
@@ -236,43 +232,3 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
   }
 }
 
-class _XpBadge extends StatelessWidget {
-  final int xp;
-  final Color color;
-  final Color glowColor;
-  final double glowValue;
-
-  const _XpBadge({
-    required this.xp,
-    required this.color,
-    required this.glowColor,
-    required this.glowValue,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Color.lerp(
-            color.withValues(alpha: 0.4),
-            glowColor.withValues(alpha: 0.8),
-            glowValue,
-          )!,
-          width: 1,
-        ),
-      ),
-      child: Text(
-        '⭐ $xp XP',
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: Color.lerp(color, glowColor, glowValue),
-        ),
-      ),
-    );
-  }
-}
