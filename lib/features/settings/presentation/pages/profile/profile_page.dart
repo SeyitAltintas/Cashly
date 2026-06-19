@@ -10,8 +10,10 @@ import 'package:cashly/core/services/haptic_service.dart';
 import 'package:cashly/core/services/mock_data_service.dart';
 import 'package:cashly/core/services/cloud_sync_service.dart';
 import '../../../../streak/data/models/streak_model.dart';
+import '../../../../streak/data/constants/streak_badges.dart';
 import '../../../../streak/presentation/widgets/rank_frame_widget.dart';
 import '../../../../streak/presentation/pages/streak_page.dart';
+import '../../../../dashboard/presentation/widgets/dashboard_card_container.dart';
 
 class ProfilSayfasi extends StatefulWidget {
   final AuthController authController;
@@ -138,126 +140,103 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Profil Bilgileri - Modern Tasarım
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.8)
-                  : Theme.of(
-                      context,
-                    ).colorScheme.surface.withValues(alpha: 0.65),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.06),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.black.withValues(alpha: 0.2)
-                      : Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.05),
-                  blurRadius: 32,
-                  offset: const Offset(0, 12),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: Stack(
+          DashboardCardContainer(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            child: IntrinsicHeight(
+              child: Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Row(
-                      children: [
-                        // Profil Resmi + Rank Çerçevesi (Sol)
-                        Column(
-                          children: [
-                            RankFrameWidget(
-                              rankData: widget.streakData ?? RankData.empty(),
-                              profileImagePath: widget
-                                  .authController
-                                  .currentUser
-                                  ?.profileImage,
-                              size: 72,
-                              onTap: () {
-                                HapticService.lightImpact();
-                                Navigator.push(
-                                  context,
-                                  PageRouteBuilder(
-                                    pageBuilder:
-                                        (
-                                          context,
-                                          animation,
-                                          secondaryAnimation,
-                                        ) => StreakPage(
-                                          streakData:
-                                              widget.streakData ??
-                                              RankData.empty(),
-                                        ),
-                                    transitionsBuilder:
-                                        (
-                                          context,
-                                          animation,
-                                          secondaryAnimation,
-                                          child,
-                                        ) {
-                                          return FadeTransition(
-                                            opacity: animation,
-                                            child: child,
-                                          );
-                                        },
-                                    transitionDuration: const Duration(
-                                      milliseconds: 300,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 16),
-                        // Kullanıcı Bilgileri (Sağ)
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.authController.currentUser?.name ??
-                                    context.l10n.user,
-                                style: TextStyle(
-                                  color: Theme.of(
+                  // Sol Taraf: Animasyon ve Rank Yazısı
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      RankFrameWidget(
+                        rankData: widget.streakData ?? RankData.empty(),
+                        profileImagePath:
+                            widget.authController.currentUser?.profileImage,
+                        size: 72,
+                        onTap: () {
+                          HapticService.lightImpact();
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      StreakPage(
+                                        streakData:
+                                            widget.streakData ??
+                                            RankData.empty(),
+                                      ),
+                              transitionsBuilder:
+                                  (
                                     context,
-                                  ).colorScheme.onSurface,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.3,
-                                ),
+                                    animation,
+                                    secondaryAnimation,
+                                    child,
+                                  ) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    );
+                                  },
+                              transitionDuration: const Duration(
+                                milliseconds: 300,
                               ),
-                              const SizedBox(height: 3),
-                              if (widget.authController.currentUser?.email !=
-                                  null)
-                                Text(
-                                  widget.authController.currentUser!.email,
-                                  style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.7),
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              const SizedBox(height: 8),
-                              // Mini Rank Badge
-                              RankNameBadge(
-                                rankData: widget.streakData ?? RankData.empty(),
-                              ),
-                            ],
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        RankTiers.fromXp(
+                          (widget.streakData ?? RankData.empty()).totalXp,
+                        ).name,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: RankTiers.fromXp(
+                            (widget.streakData ?? RankData.empty()).totalXp,
+                          ).primaryColor,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 20),
+                  // Araya Dikey Çizgi
+                  Container(
+                    width: 1,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  ),
+                  const SizedBox(width: 20),
+                  // Sağ Taraf: Kullanıcı Bilgileri
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          widget.authController.currentUser?.name ??
+                              context.l10n.user,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.3,
                           ),
                         ),
+                        const SizedBox(height: 4),
+                        if (widget.authController.currentUser?.email != null)
+                          Text(
+                            widget.authController.currentUser!.email,
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              fontSize: 14,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -280,25 +259,8 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           const SizedBox(height: 12),
 
           // Hesap seçenekleri kartı
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.08),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+          DashboardCardContainer(
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
                 // Kullanıcı Bilgileri
@@ -363,26 +325,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           ),
           const SizedBox(height: 12),
 
-          // Destek kartı
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.08),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+          // Tercihler Kartı
+          DashboardCardContainer(
+            padding: EdgeInsets.zero,
             child: _buildProfileTile(
               context: context,
               icon: Icons.info_outline,
