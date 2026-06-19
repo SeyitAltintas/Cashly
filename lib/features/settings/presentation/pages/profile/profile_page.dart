@@ -129,6 +129,11 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    final rankData = widget.streakData ?? RankData.empty();
+    final rankTier = RankTiers.fromXp(rankData.totalXp);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return SingleChildScrollView(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 16.0,
@@ -139,9 +144,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Profil Bilgileri - Modern Tasarım
+          // Profil Bilgileri - Sade Tasarım
           DashboardCardContainer(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
             child: IntrinsicHeight(
               child: Row(
                 children: [
@@ -150,7 +155,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       RankFrameWidget(
-                        rankData: widget.streakData ?? RankData.empty(),
+                        rankData: rankData,
                         profileImagePath:
                             widget.authController.currentUser?.profileImage,
                         size: 72,
@@ -161,11 +166,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                             PageRouteBuilder(
                               pageBuilder:
                                   (context, animation, secondaryAnimation) =>
-                                      StreakPage(
-                                        streakData:
-                                            widget.streakData ??
-                                            RankData.empty(),
-                                      ),
+                                      StreakPage(streakData: rankData),
                               transitionsBuilder:
                                   (
                                     context,
@@ -185,31 +186,21 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                           );
                         },
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        RankTiers.fromXp(
-                          (widget.streakData ?? RankData.empty()).totalXp,
-                        ).name,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: RankTiers.fromXp(
-                            (widget.streakData ?? RankData.empty()).totalXp,
-                          ).primaryColor,
-                          letterSpacing: 0.5,
+                      Transform.translate(
+                        offset: const Offset(0, -12),
+                        child: Text(
+                          rankTier.name,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: rankTier.primaryColor,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(width: 20),
-                  // Araya Dikey Çizgi
-                  Container(
-                    width: 1,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.1),
-                  ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 40),
                   // Sağ Taraf: Kullanıcı Bilgileri
                   Expanded(
                     child: Column(
@@ -236,7 +227,29 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                               ).colorScheme.onSurface.withValues(alpha: 0.7),
                               fontSize: 14,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
+                        const SizedBox(height: 8),
+                        // XP Bilgisi
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.stars_rounded,
+                              size: 16,
+                              color: rankTier.primaryColor,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${rankData.totalXp} XP',
+                              style: TextStyle(
+                                color: rankTier.primaryColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
