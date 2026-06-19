@@ -16,6 +16,7 @@ import 'package:cashly/core/constants/color_constants.dart';
 import '../widgets/realistic_payment_card.dart';
 import 'payment_method_recycle_bin_page.dart';
 import 'add_payment_method_page.dart';
+import 'payment_method_detail_page.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 
 import '../controllers/payment_methods_controller.dart';
@@ -277,7 +278,27 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
       controller: _controller,
       onDelete: widget.onDelete,
       onEdit: widget.onEdit,
-      onCardTap: widget.onCardTap,
+      onCardTap: widget.onCardTap ?? (pm) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PaymentMethodDetailPage(
+              paymentMethod: pm,
+              harcamalar: widget.harcamalar,
+              gelirler: widget.gelirler,
+              transferler: widget.transferler,
+              tumOdemeYontemleri: _controller.paymentMethods,
+              controller: _controller,
+              onDelete: (deletedPm) {
+                widget.onDelete(deletedPm);
+              },
+              onEdit: (editedPm) {
+                widget.onEdit(editedPm);
+              },
+            ),
+          ),
+        );
+      },
       onAddCard: () {
         Navigator.push(
           context,

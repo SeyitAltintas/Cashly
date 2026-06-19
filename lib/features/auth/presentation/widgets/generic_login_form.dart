@@ -102,7 +102,10 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
               backgroundColor: Colors.transparent,
               elevation: 0,
               leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios, color: Theme.of(context).colorScheme.onSurface),
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 onPressed: widget.onBackToPinLogin,
               ),
             )
@@ -133,62 +136,63 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
                 ),
                 const SizedBox(height: 40),
                 // Form Container (Glassmorphism)
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.black.withValues(alpha: 0.37)
-                          : Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 32,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? const Color(0xFF1E1E1E).withValues(alpha: 0.6)
-                            : Colors.white.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white.withValues(alpha: 0.1)
-                              : Colors.black.withValues(alpha: 0.1),
-                          width: 1,
-                        ),
+                            ? Colors.black.withValues(alpha: 0.37)
+                            : Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 32,
+                        offset: const Offset(0, 8),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Email Field
-                          _buildEmailField(),
-                          const SizedBox(height: 20),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFF1E1E1E).withValues(alpha: 0.6)
+                              : Colors.white.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : Colors.black.withValues(alpha: 0.1),
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Email Field
+                            _buildEmailField(),
+                            const SizedBox(height: 20),
 
-                          // PIN Field
-                          _buildPinField(),
-                          const SizedBox(height: 40),
+                            // PIN Field
+                            _buildPinField(),
+                            const SizedBox(height: 40),
 
-                          // Login Button
-                          _buildLoginButton(),
-                        ],
+                            // Login Button
+                            _buildLoginButton(),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // Kayıt Ol ve Şifremi Unuttum butonları
-              _buildActionButtons(),
-            ],
-          ),
+                // Kayıt Ol ve Şifremi Unuttum butonları
+                _buildActionButtons(),
+              ],
+            ),
           ),
         ),
       ),
@@ -221,31 +225,35 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
             fillColor: Theme.of(context).brightness == Brightness.dark
                 ? const Color(0xFF2A2A2A)
                 : Colors.white.withValues(alpha: 0.8),
-        prefixIcon: Icon(
-          Icons.email_outlined,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: Theme.of(context).brightness == Brightness.light
-              ? BorderSide(color: Colors.black.withValues(alpha: 0.1))
-              : BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary,
-            width: 1.5,
-          ),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
-        ),
+            prefixIcon: Icon(
+              Icons.email_outlined,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: Theme.of(context).brightness == Brightness.light
+                  ? BorderSide(color: Colors.black.withValues(alpha: 0.1))
+                  : BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
             errorStyle: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
         ),
@@ -286,56 +294,60 @@ class _GenericLoginFormState extends State<GenericLoginForm> {
             fillColor: Theme.of(context).brightness == Brightness.dark
                 ? const Color(0xFF2A2A2A)
                 : Colors.white.withValues(alpha: 0.8),
-        hintStyle: TextStyle(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.54),
-          letterSpacing: 2,
-        ),
-        counterText: "",
-        prefixIcon: Icon(
-          Icons.lock_outline,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _isPinVisible ? Icons.visibility : Icons.visibility_off,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.90),
-            size: 20,
+            hintStyle: TextStyle(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.54),
+              letterSpacing: 2,
+            ),
+            counterText: "",
+            prefixIcon: Icon(
+              Icons.lock_outline,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isPinVisible ? Icons.visibility : Icons.visibility_off,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.90),
+                size: 20,
+              ),
+              onPressed: () {
+                _formState.togglePinVisibility();
+              },
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: Theme.of(context).brightness == Brightness.light
+                  ? BorderSide(color: Colors.black.withValues(alpha: 0.1))
+                  : BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+            errorStyle: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+              fontSize: 12,
+            ),
           ),
-          onPressed: () {
-            _formState.togglePinVisibility();
-          },
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: Theme.of(context).brightness == Brightness.light
-              ? BorderSide(color: Colors.black.withValues(alpha: 0.1))
-              : BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary,
-            width: 1.5,
-          ),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
-        ),
-          errorStyle: TextStyle(
-            color: Theme.of(context).colorScheme.error,
-            fontSize: 12,
-          ),
-        ),
-      ),
       ],
     );
   }

@@ -233,30 +233,17 @@ class _UserLoginFormState extends State<UserLoginForm> {
 
   Widget _buildProfileAvatar() {
     return Container(
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.primaryContainer.withValues(
-              alpha: 0.2,
-            ),
-            blurRadius: 30,
-            spreadRadius: 10,
-          ),
-        ],
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.1),
-            width: 2,
-          ),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.black.withValues(alpha: 0.1),
+          width: 2,
         ),
-        child: CircleAvatar(
+      ),
+      child: CircleAvatar(
           radius: 50,
           backgroundColor:
               Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -269,7 +256,6 @@ class _UserLoginFormState extends State<UserLoginForm> {
                 )
               : null,
         ),
-      ),
     );
   }
 
@@ -310,7 +296,7 @@ class _UserLoginFormState extends State<UserLoginForm> {
                 controller: _pinController,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
-                  fontSize: 22,
+                  fontSize: 20,
                   letterSpacing: 6,
                 ),
                 keyboardType: TextInputType.number,

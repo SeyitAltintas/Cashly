@@ -73,19 +73,26 @@ class CacheService {
     );
     _cache[key] = entry;
     
-    try {
-      if (Hive.isBoxOpen(_boxName)) {
-        Hive.box(_boxName).put(
-          key,
-          jsonEncode({
-            'value': value,
-            'expiresAt': entry.expiresAt.toIso8601String(),
-          }),
-        );
-      }
-    } catch (e) {
-      // Sadece JSON'a çevrilebilenleri diskte sakla, diğerleri RAM'de kalır
+    if (Hive.isBoxOpen(_boxName)) {
+      // GÜVENLİK/PERFORMANS YAMASI (ANR FIX): 
+      // jsonEncode senkron çalışarak ana thread'i bloke ettiği için ANR'a sebep oluyordu.
+      // Compute ile ayrı bir Isolate'e taşıyoruz. (Memory cache hemen güncellenir, disk yazması arkada asenkron biter.)
+      compute(_encodeJson, {
+        'value': value,
+        'expiresAt': entry.expiresAt.toIso8601String(),
+      }).then((jsonStr) {
+        try {
+          if (Hive.isBoxOpen(_boxName)) {
+            Hive.box(_boxName).put(key, jsonStr);
+          }
+        } catch (_) {}
+      }).catchError((_) {});
     }
+  }
+
+  // Top-level function for compute
+  static String _encodeJson(Map<String, dynamic> data) {
+    return jsonEncode(data);
   }
 
   static void invalidate(String key) {

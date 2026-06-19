@@ -17,7 +17,6 @@ import 'package:cashly/features/analysis/presentation/pages/analysis_page.dart';
 
 import 'package:cashly/features/payment_methods/presentation/pages/payment_methods_page.dart';
 import 'package:cashly/features/payment_methods/presentation/pages/transfer_page.dart';
-import 'package:cashly/features/payment_methods/presentation/pages/payment_method_detail_page.dart';
 import 'package:cashly/features/payment_methods/domain/repositories/payment_method_repository.dart';
 import 'package:cashly/features/payment_methods/data/models/payment_method_model.dart';
 import 'package:cashly/features/payment_methods/data/models/transfer_model.dart';
@@ -340,37 +339,6 @@ class HomeNavigationHelper {
               );
               newList.add(pm);
               state.tumOdemeYontemleri = newList;
-            },
-            onCardTap: (pm) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PaymentMethodDetailPage(
-                    paymentMethod: pm,
-                    harcamalar: state.tumHarcamalar,
-                    gelirler: state.tumGelirler,
-                    transferler: state.tumTransferler,
-                    tumOdemeYontemleri: state.tumOdemeYontemleri,
-                    onDelete: (deletedPm) {
-                      final i = state.tumOdemeYontemleri.indexWhere((p) => p.id == deletedPm.id);
-                      if (i != -1) {
-                        final updatedPm = deletedPm.copyWith(isDeleted: true);
-                        final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
-                        newList[i] = updatedPm;
-                        state.tumOdemeYontemleri = newList;
-                      }
-                    },
-                    onEdit: (editedPm) {
-                      final i = state.tumOdemeYontemleri.indexWhere((p) => p.id == editedPm.id);
-                      if (i != -1) {
-                        final newList = List<PaymentMethod>.from(state.tumOdemeYontemleri);
-                        newList[i] = editedPm;
-                        state.tumOdemeYontemleri = newList;
-                      }
-                    },
-                  ),
-                ),
-              );
             },
           ),
         ),

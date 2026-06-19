@@ -187,10 +187,22 @@ class _GreetingSection extends StatelessWidget {
             selector: (context, controller) => controller.profileImage,
             builder: (context, profileImage, child) {
               if (profileImage != null && profileImage.isNotEmpty) {
-                return CircleAvatar(
-                  radius: 28,
-                  backgroundImage: ImageUtils.getProfileImageProvider(
-                    profileImage,
+                return Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.1),
+                      width: 2,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 28,
+                    backgroundImage: ImageUtils.getProfileImageProvider(
+                      profileImage,
+                    ),
                   ),
                 );
               }
