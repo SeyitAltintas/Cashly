@@ -101,6 +101,7 @@ class _RankTierCard extends StatelessWidget {
                   child: Lottie.asset(
                     tier.lottieAsset,
                     fit: BoxFit.contain,
+                    repeat: false,
                     frameRate: const FrameRate(60),
                   ),
                 ),

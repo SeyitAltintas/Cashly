@@ -119,8 +119,8 @@ class _RankFrameWidgetState extends State<RankFrameWidget>
                   onLoaded: (composition) {
                     // Lottie'nin orijinal süresini composition'dan alır
                     _lottieController.duration = composition.duration;
-                    // Bir kez oynatır ve son karede kalmasını sağlar
-                    _lottieController.forward();
+                    // Baştan sona oynar, sondan başa sarar ve sürekli döngüde kalır
+                    _lottieController.repeat(reverse: true);
                   },
                 ),
               ),

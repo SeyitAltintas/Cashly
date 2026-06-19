@@ -15,8 +15,9 @@ class StreakHeaderCard extends StatefulWidget {
 }
 
 class _StreakHeaderCardState extends State<StreakHeaderCard>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _glowController;
+  late AnimationController _lottieController;
 
   @override
   void initState() {
@@ -25,11 +26,14 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
       vsync: this,
       duration: const Duration(milliseconds: 2500),
     )..repeat(reverse: true);
+    
+    _lottieController = AnimationController(vsync: this);
   }
 
   @override
   void dispose() {
     _glowController.dispose();
+    _lottieController.dispose();
     super.dispose();
   }
 
@@ -87,8 +91,13 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
                     child: RepaintBoundary(
                       child: Lottie.asset(
                         rank.lottieAsset,
+                        controller: _lottieController,
                         fit: BoxFit.contain,
                         frameRate: const FrameRate(60),
+                        onLoaded: (composition) {
+                          _lottieController.duration = composition.duration;
+                          _lottieController.forward();
+                        },
                       ),
                     ),
                   ),

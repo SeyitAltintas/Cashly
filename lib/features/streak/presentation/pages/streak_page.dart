@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../data/models/streak_model.dart';
@@ -274,7 +275,7 @@ class _SectionTitle extends StatelessWidget {
 }
 
 /// Rank Kademesi Detay Bottom Sheet
-class _RankTierDetailsSheet extends StatelessWidget {
+class _RankTierDetailsSheet extends StatefulWidget {
   final RankTier tier;
   final bool isUnlocked;
   final bool isCurrent;
@@ -286,6 +287,26 @@ class _RankTierDetailsSheet extends StatelessWidget {
     required this.isCurrent,
     required this.currentXp,
   });
+
+  @override
+  State<_RankTierDetailsSheet> createState() => _RankTierDetailsSheetState();
+}
+
+class _RankTierDetailsSheetState extends State<_RankTierDetailsSheet>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _lottieController;
+
+  @override
+  void initState() {
+    super.initState();
+    _lottieController = AnimationController(vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _lottieController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -313,24 +334,44 @@ class _RankTierDetailsSheet extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
+          // Sürekli tekrar eden detay lottie animasyonu
+          SizedBox(
+            width: 120,
+            height: 120,
+            child: RepaintBoundary(
+              child: Lottie.asset(
+                widget.tier.lottieAsset,
+                controller: _lottieController,
+                fit: BoxFit.contain,
+                frameRate: const FrameRate(60),
+                onLoaded: (composition) {
+                  _lottieController.duration = composition.duration;
+                  // Baştan sona oynar, sondan başa sarar ve döngüye girer
+                  _lottieController.repeat(reverse: true);
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // Rank adı ve seviyesi
           Text(
-            'Seviye ${tier.level}',
+            'Seviye ${widget.tier.level}',
             style: TextStyle(
               fontSize: 13,
-              color: tier.primaryColor,
+              color: widget.tier.primaryColor,
               fontWeight: FontWeight.w600,
               letterSpacing: 1,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            tier.name,
+            widget.tier.name,
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w800,
-              color: isUnlocked
-                  ? tier.primaryColor
+              color: widget.isUnlocked
+                  ? widget.tier.primaryColor
                   : Theme.of(context)
                       .colorScheme
                       .onSurface
@@ -339,7 +380,7 @@ class _RankTierDetailsSheet extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            tier.description,
+            widget.tier.description,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
@@ -355,9 +396,9 @@ class _RankTierDetailsSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             decoration: BoxDecoration(
-              color: isCurrent
-                  ? tier.primaryColor.withValues(alpha: 0.15)
-                  : isUnlocked
+              color: widget.isCurrent
+                  ? widget.tier.primaryColor.withValues(alpha: 0.15)
+                  : widget.isUnlocked
                       ? const Color(0xFF4CAF50).withValues(alpha: 0.15)
                       : Theme.of(context)
                           .colorScheme
@@ -365,9 +406,9 @@ class _RankTierDetailsSheet extends StatelessWidget {
                           .withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isCurrent
-                    ? tier.primaryColor.withValues(alpha: 0.4)
-                    : isUnlocked
+                color: widget.isCurrent
+                    ? widget.tier.primaryColor.withValues(alpha: 0.4)
+                    : widget.isUnlocked
                         ? const Color(0xFF4CAF50).withValues(alpha: 0.4)
                         : Theme.of(context)
                             .colorScheme
@@ -376,17 +417,17 @@ class _RankTierDetailsSheet extends StatelessWidget {
               ),
             ),
             child: Text(
-              isCurrent
+              widget.isCurrent
                   ? '✨ Mevcut Rank'
-                  : isUnlocked
+                  : widget.isUnlocked
                       ? '✅ Kazanıldı'
-                      : '🔒 ${tier.requiredXp} XP gerekli',
+                      : '🔒 ${widget.tier.requiredXp} XP gerekli',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: isCurrent
-                    ? tier.primaryColor
-                    : isUnlocked
+                color: widget.isCurrent
+                    ? widget.tier.primaryColor
+                    : widget.isUnlocked
                         ? const Color(0xFF4CAF50)
                         : Theme.of(context)
                             .colorScheme
