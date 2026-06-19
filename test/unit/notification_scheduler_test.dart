@@ -43,12 +43,13 @@ void main() {
     });
 
     test('seri verisi alınabilmeli', () {
-      final streakData = StreakData(
+      final streakData = RankData(
+        totalXp: 150,
         currentStreak: 5,
         longestStreak: 10,
         lastLoginDate: DateTime.now().toIso8601String(),
         totalLoginDays: 30,
-        earnedBadges: const [],
+        lastResetYear: DateTime.now().year,
       );
 
       when(() => mockStreakRepo.getStreakData('user')).thenReturn(streakData);
@@ -56,16 +57,18 @@ void main() {
       final result = mockStreakRepo.getStreakData('user');
       expect(result.currentStreak, 5);
       expect(result.longestStreak, 10);
+      expect(result.totalXp, 150);
     });
 
     test('bugün işlem girilmişse hatırlatma atlanmalı', () {
       final today = DateTime.now();
-      final streakData = StreakData(
+      final streakData = RankData(
+        totalXp: 30,
         currentStreak: 3,
         longestStreak: 5,
         lastLoginDate: today.toIso8601String(),
         totalLoginDays: 10,
-        earnedBadges: const [],
+        lastResetYear: today.year,
       );
 
       when(() => mockStreakRepo.getStreakData('user')).thenReturn(streakData);
@@ -105,12 +108,13 @@ void main() {
     });
 
     test('aktif seri yoksa uyarı gönderilmemeli', () {
-      const streakData = StreakData(
+      const streakData = RankData(
+        totalXp: 0,
         currentStreak: 0,
         longestStreak: 5,
         lastLoginDate: '',
         totalLoginDays: 5,
-        earnedBadges: [],
+        lastResetYear: 2025,
       );
 
       when(() => mockStreakRepo.getStreakData('user')).thenReturn(streakData);

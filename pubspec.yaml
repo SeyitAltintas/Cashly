@@ -83,6 +83,7 @@ flutter:
   assets:
     - assets/image/
     - assets/lottie/
+    - assets/lottie/rank/
     - assets/google_fonts/
     - assets/fonts/
 

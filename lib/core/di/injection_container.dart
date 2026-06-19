@@ -224,7 +224,7 @@ Future<void> initializeDependencies() async {
     () => AddTransfer(getIt<PaymentMethodRepository>()),
   );
 
-  // Streak Use Cases
+  // Rank Use Cases
   getIt.registerLazySingleton<GetStreakData>(
     () => GetStreakData(getIt<StreakRepository>()),
   );
@@ -232,9 +232,6 @@ Future<void> initializeDependencies() async {
     () => CheckAndUpdateStreak(),
   );
   getIt.registerLazySingleton<SaveStreakData>(() => SaveStreakData());
-  getIt.registerLazySingleton<UseFreeze>(
-    () => UseFreeze(getIt<StreakRepository>()),
-  );
 
   // Dashboard Use Cases
   getIt.registerLazySingleton<CalculateTotalBalance>(

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../../data/models/streak_model.dart';
+import '../../data/constants/streak_badges.dart';
 import '../pages/streak_page.dart';
-import 'package:cashly/core/extensions/l10n_extensions.dart';
 
-/// Dashboard'da gösterilecek seri widget'ı
-/// Animasyonlu ateş maskotu ve seri sayısını gösterir
+/// Dashboard ve profil'de gösterilecek mini rank göstergesi
+/// Lottie animasyonu + rank adı + XP progress bar içerir
 class StreakWidget extends StatefulWidget {
-  final StreakData streakData;
+  final RankData streakData;
 
   const StreakWidget({super.key, required this.streakData});
 
@@ -36,103 +36,106 @@ class _StreakWidgetState extends State<StreakWidget>
 
   @override
   Widget build(BuildContext context) {
-    final streak = widget.streakData.currentStreak;
-    final hasStreak = streak > 0;
+    final rank = RankTiers.fromXp(widget.streakData.totalXp);
+    final progress = RankTiers.progressToNext(widget.streakData.totalXp);
+    final nextRank = RankTiers.nextTierFrom(widget.streakData.totalXp);
 
     return GestureDetector(
-      onTap: () => _navigateToStreakPage(context),
+      onTap: () => _navigateToRankPage(context),
       child: AnimatedBuilder(
         animation: _glowController,
         builder: (context, child) {
           final glowValue = _glowController.value;
           return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
             decoration: BoxDecoration(
-              // Cam efekti (glassmorphism)
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+              color: rank.primaryColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: Color.lerp(
-                  const Color(0xFFFF6B35).withValues(alpha: 0.4),
-                  const Color(0xFFFFD700).withValues(alpha: 0.8),
+                  rank.primaryColor.withValues(alpha: 0.5),
+                  rank.glowColor.withValues(alpha: 0.9),
                   glowValue,
                 )!,
                 width: 1.5,
               ),
-              boxShadow: hasStreak
-                  ? [
-                      // Dış parıldama
-                      BoxShadow(
-                        color: const Color(
-                          0xFFFF6B35,
-                        ).withValues(alpha: 0.2 + glowValue * 0.2),
-                        blurRadius: 6,
-                        spreadRadius: 0,
-                      ),
-                      // İç gölge
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
-                        blurRadius: 6,
-                        offset: const Offset(0, 4),
-                      ),
-                    ]
-                  : null,
+              boxShadow: [
+                BoxShadow(
+                  color: rank.glowColor.withValues(
+                    alpha: 0.15 + glowValue * 0.15,
+                  ),
+                  blurRadius: 8,
+                  spreadRadius: 0,
+                ),
+              ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Lottie animasyonlu ateş maskotu
+                // Mini Lottie rank animasyonu
                 SizedBox(
-                  width: 32,
-                  height: 32,
-                  // FPS Optimizasyonu: Animasyonun tüm parent widget'ı repaint etmesini engeller
+                  width: 36,
+                  height: 36,
                   child: RepaintBoundary(
                     child: Lottie.asset(
-                      'assets/lottie/money_flame.json',
+                      rank.lottieAsset,
                       fit: BoxFit.contain,
-                      // FPS Optimizasyonu: Animasyonu 60 FPS'e sabitleyerek aşırı CPU ve batarya tüketimini engeller
                       frameRate: const FrameRate(60),
                     ),
                   ),
                 ),
-                const SizedBox(width: 6),
-                // Seri sayısı ve gün etiketi
+                const SizedBox(width: 8),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Seri sayısı - büyük ve kalın
+                    // Rank adı
                     Text(
-                      _formatStreak(streak),
+                      rank.name,
                       style: TextStyle(
-                        fontSize: streak >= 1000 ? 16 : 20,
-                        fontWeight: FontWeight.w900,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
                         color: Color.lerp(
-                          const Color(0xFFFF6B35),
-                          const Color(0xFFFFD700),
+                          rank.primaryColor,
+                          rank.glowColor,
                           glowValue,
                         ),
                         height: 1,
-                        shadows: [
-                          Shadow(
-                            color: const Color(
-                              0xFFFF6B35,
-                            ).withValues(alpha: 0.5),
-                            blurRadius: 8,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    // XP Progress bar
+                    if (nextRank != null) ...[
+                      SizedBox(
+                        width: 72,
+                        height: 4,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(2),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            backgroundColor: rank.primaryColor.withValues(alpha: 0.2),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Color.lerp(
+                                rank.primaryColor,
+                                rank.glowColor,
+                                glowValue,
+                              )!,
+                            ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                    // Gün etiketi - küçük
-                    Text(
-                      context.l10n.day,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                        height: 1.2,
+                    ] else ...[
+                      // Max rank
+                      Text(
+                        'MAX',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: rank.glowColor,
+                          letterSpacing: 1,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ],
@@ -143,19 +146,7 @@ class _StreakWidgetState extends State<StreakWidget>
     );
   }
 
-  /// Büyük sayıları kısaltır: 1000 → 1K, 10000 → 10K
-  String _formatStreak(int streak) {
-    if (streak >= 1000000) {
-      return '${(streak / 1000000).toStringAsFixed(1)}M';
-    } else if (streak >= 10000) {
-      return '${(streak / 1000).toStringAsFixed(0)}K';
-    } else if (streak >= 1000) {
-      return '${(streak / 1000).toStringAsFixed(1)}K';
-    }
-    return '$streak';
-  }
-
-  void _navigateToStreakPage(BuildContext context) {
+  void _navigateToRankPage(BuildContext context) {
     Navigator.push(
       context,
       PageRouteBuilder(

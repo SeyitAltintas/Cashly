@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:cashly/core/extensions/l10n_extensions.dart';
+import 'package:lottie/lottie.dart';
 import '../../data/constants/streak_badges.dart';
 import '../controllers/streak_controller.dart';
 
-/// Rozet grid'ini gösteren widget — const item builder ile optimize edilmiş
+/// 9 rank kademesini gösteren grid
+/// Kilitli ranklar bulanık/gri görünür, kazanılan ranklar parlak
 class BadgeGridView extends StatelessWidget {
   final StreakController controller;
-  final void Function(BuildContext, StreakBadge, bool) onBadgeTap;
+  final void Function(BuildContext, RankTier, bool) onBadgeTap;
 
   const BadgeGridView({
     super.key,
@@ -16,38 +17,44 @@ class BadgeGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const tiers = RankTiers.allTiers;
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
+        crossAxisCount: 3,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.8,
+        childAspectRatio: 0.75,
       ),
-      itemCount: controller.allBadges.length,
+      itemCount: tiers.length,
       itemBuilder: (context, index) {
-        final badge = controller.allBadges[index];
-        final isEarned = controller.isBadgeEarned(badge);
-        return _BadgeItem(
-          badge: badge,
-          isEarned: isEarned,
-          onTap: () => onBadgeTap(context, badge, isEarned),
+        final tier = tiers[index];
+        final isUnlocked = controller.isTierUnlocked(tier);
+        final isCurrent = controller.currentRank.level == tier.level;
+
+        return _RankTierCard(
+          tier: tier,
+          isUnlocked: isUnlocked,
+          isCurrent: isCurrent,
+          onTap: () => onBadgeTap(context, tier, isUnlocked),
         );
       },
     );
   }
 }
 
-/// Tek rozet kartı — const constructor ile rebuild optimize edildi
-class _BadgeItem extends StatelessWidget {
-  final StreakBadge badge;
-  final bool isEarned;
+class _RankTierCard extends StatelessWidget {
+  final RankTier tier;
+  final bool isUnlocked;
+  final bool isCurrent;
   final VoidCallback onTap;
 
-  const _BadgeItem({
-    required this.badge,
-    required this.isEarned,
+  const _RankTierCard({
+    required this.tier,
+    required this.isUnlocked,
+    required this.isCurrent,
     required this.onTap,
   });
 
@@ -55,54 +62,104 @@ class _BadgeItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
-          color: isEarned
-              ? badge.color.withValues(alpha: 0.2)
-              : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
+          color: isUnlocked
+              ? tier.primaryColor.withValues(alpha: 0.1)
+              : Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isEarned
-                ? badge.color.withValues(alpha: 0.5)
-                : Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.1),
-            width: 1,
+            color: isCurrent
+                ? tier.primaryColor
+                : isUnlocked
+                    ? tier.primaryColor.withValues(alpha: 0.35)
+                    : Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.1),
+            width: isCurrent ? 2 : 1,
           ),
+          boxShadow: isCurrent
+              ? [
+                  BoxShadow(
+                    color: tier.glowColor.withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              badge.icon,
-              color: isEarned
-                  ? badge.color
-                  : Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.3),
-              size: 28,
-            ),
-            const SizedBox(height: 4),
+            // Lottie veya kilitli icon
+            if (isUnlocked)
+              SizedBox(
+                width: 60,
+                height: 60,
+                child: RepaintBoundary(
+                  child: Lottie.asset(
+                    tier.lottieAsset,
+                    fit: BoxFit.contain,
+                    frameRate: const FrameRate(60),
+                  ),
+                ),
+              )
+            else
+              Container(
+                width: 60,
+                height: 60,
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.lock_outline,
+                  size: 28,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.25),
+                ),
+              ),
+            const SizedBox(height: 6),
+            // Rank adı
             Text(
-              badge.emoji,
+              tier.name,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 16,
-                color: isEarned ? null : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                fontSize: 11,
+                fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
+                color: isUnlocked
+                    ? (isCurrent ? tier.primaryColor : Theme.of(context).colorScheme.onSurface)
+                    : Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.3),
               ),
             ),
-            const SizedBox(height: 2),
-            Text(
-              '${badge.requiredStreak}${context.l10n.dShort}',
-              style: TextStyle(
-                fontSize: 10,
-                color: isEarned
-                    ? badge.color
-                    : Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.4),
+            // Mevcut rank etiketi
+            if (isCurrent) ...[
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: tier.primaryColor,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text(
+                  'Mevcut',
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

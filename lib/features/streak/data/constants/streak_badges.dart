@@ -1,203 +1,228 @@
 import 'package:flutter/material.dart';
-import 'package:cashly/core/extensions/l10n_extensions.dart';
 
-/// Rozet tanımı
-class StreakBadge {
-  /// Rozet benzersiz kimliği
+/// Rank kademesi tanımı
+class RankTier {
+  /// Rank seviyesi (1-9)
+  final int level;
+
+  /// Rank benzersiz kimliği
   final String id;
 
-  /// Rozet adı
+  /// Rank adı (Türkçe)
   final String name;
 
-  /// Rozet açıklaması
+  /// Rank açıklaması
   final String description;
 
-  /// Gereken minimum seri sayısı
-  final int requiredStreak;
+  /// Gerekli minimum XP
+  final int requiredXp;
 
-  /// Rozet ikonu
-  final IconData icon;
+  /// Lottie animasyon dosyası yolu
+  final String lottieAsset;
 
-  /// Rozet rengi
-  final Color color;
+  /// Ana renk
+  final Color primaryColor;
 
-  /// Rozet emoji
-  final String emoji;
+  /// Parıldama rengi
+  final Color glowColor;
 
-  const StreakBadge({
+  const RankTier({
+    required this.level,
     required this.id,
     required this.name,
     required this.description,
-    required this.requiredStreak,
-    required this.icon,
-    required this.color,
-    required this.emoji,
+    required this.requiredXp,
+    required this.lottieAsset,
+    required this.primaryColor,
+    required this.glowColor,
   });
 }
 
-/// Tüm rozetlerin tanımları
-class StreakBadges {
-  StreakBadges._();
+/// Tüm rank kademelerinin tanımları
+class RankTiers {
+  RankTiers._();
 
-  /// Ateş Başlangıcı - 3 gün
-  static const atesBaslangici = StreakBadge(
-    id: 'ates_baslangici',
-    name: 'Ateş Başlangıcı',
-    description: '3 gün üst üste giriş yaptın!',
-    requiredStreak: 3,
-    icon: Icons.local_fire_department,
-    color: Color(0xFFFF6B35),
-    emoji: '🔥',
+  // ===== 9 RANK KADEMESİ =====
+
+  static const acemi = RankTier(
+    level: 1,
+    id: 'acemi',
+    name: 'Acemi',
+    description: 'Cashly yolculuğunuz başlıyor!',
+    requiredXp: 0,
+    lottieAsset: 'assets/lottie/rank/level_1_silver.json',
+    primaryColor: Color(0xFF9E9E9E),
+    glowColor: Color(0xFFBDBDBD),
   );
 
-  /// Haftalık Yıldız - 7 gün
-  static const haftalikYildiz = StreakBadge(
-    id: 'haftalik_yildiz',
-    name: 'Haftalık Yıldız',
-    description: '7 gün üst üste giriş yaptın!',
-    requiredStreak: 7,
-    icon: Icons.star,
-    color: Color(0xFFFFD700),
-    emoji: '⭐',
+  static const merakli = RankTier(
+    level: 2,
+    id: 'merakli',
+    name: 'Meraklı',
+    description: 'Finansal dünyayı keşfetmeye başladınız.',
+    requiredXp: 500,
+    lottieAsset: 'assets/lottie/rank/level_2_silver.json',
+    primaryColor: Color(0xFF78909C),
+    glowColor: Color(0xFF90A4AE),
   );
 
-  /// Kararlı - 14 gün
-  static const kararli = StreakBadge(
-    id: 'kararli',
-    name: 'Kararlı',
-    description: '2 hafta boyunca her gün giriş yaptın!',
-    requiredStreak: 14,
-    icon: Icons.fitness_center,
-    color: Color(0xFF4FC3F7),
-    emoji: '💪',
+  static const mudavim = RankTier(
+    level: 3,
+    id: 'mudavim',
+    name: 'Müdavim',
+    description: 'Düzenli kullanıcı olma yolundasınız.',
+    requiredXp: 1500,
+    lottieAsset: 'assets/lottie/rank/level_3_gold.json',
+    primaryColor: Color(0xFFFFA726),
+    glowColor: Color(0xFFFFD54F),
   );
 
-  /// Aylık Şampiyon - 30 gün
-  static const aylikSampiyon = StreakBadge(
-    id: 'aylik_sampiyon',
-    name: 'Aylık Şampiyon',
-    description: '1 ay boyunca her gün giriş yaptın!',
-    requiredStreak: 30,
-    icon: Icons.military_tech,
-    color: Color(0xFFFFB300),
-    emoji: '🏅',
+  static const aliskIn = RankTier(
+    level: 4,
+    id: 'aliskın',
+    name: 'Alışkın',
+    description: 'Cashly artık alışkanlığınız oldu!',
+    requiredXp: 3500,
+    lottieAsset: 'assets/lottie/rank/level_4_gold.json',
+    primaryColor: Color(0xFFFFB300),
+    glowColor: Color(0xFFFFCA28),
   );
 
-  /// Süper Seri - 60 gün
-  static const superSeri = StreakBadge(
-    id: 'super_seri',
-    name: 'Süper Seri',
-    description: '2 ay boyunca her gün giriş yaptın!',
-    requiredStreak: 60,
-    icon: Icons.diamond,
-    color: Color(0xFF9C27B0),
-    emoji: '💎',
+  static const tutkun = RankTier(
+    level: 5,
+    id: 'tutkun',
+    name: 'Tutkun',
+    description: 'Finansal tutkunuz fark yaratıyor.',
+    requiredXp: 7000,
+    lottieAsset: 'assets/lottie/rank/level_5_gold.json',
+    primaryColor: Color(0xFFFF8F00),
+    glowColor: Color(0xFFFFA000),
   );
 
-  /// Seri Ustası - 100 gün
-  static const seriUstasi = StreakBadge(
-    id: 'seri_ustasi',
-    name: 'Seri Ustası',
-    description: '100 gün üst üste giriş yaptın!',
-    requiredStreak: 100,
-    icon: Icons.workspace_premium,
-    color: Color(0xFFE53935),
-    emoji: '👑',
+  static const sadik = RankTier(
+    level: 6,
+    id: 'sadık',
+    name: 'Sadık',
+    description: 'Cashly\'ye olan bağlılığınız takdire şayan.',
+    requiredXp: 12000,
+    lottieAsset: 'assets/lottie/rank/level_6_gold.json',
+    primaryColor: Color(0xFFE65100),
+    glowColor: Color(0xFFFF6D00),
   );
 
-  /// Efsane - 365 gün
-  static const efsane = StreakBadge(
-    id: 'efsane',
-    name: 'Efsane',
-    description: '1 yıl boyunca her gün giriş yaptın!',
-    requiredStreak: 365,
-    icon: Icons.emoji_events,
-    color: Color(0xFF78909C),
-    emoji: '🏆',
+  static const kidemli = RankTier(
+    level: 7,
+    id: 'kidemli',
+    name: 'Kıdemli',
+    description: 'Deneyimli bir Cashly kullanıcısısınız.',
+    requiredXp: 20000,
+    lottieAsset: 'assets/lottie/rank/level_7_gold.json',
+    primaryColor: Color(0xFFAD1457),
+    glowColor: Color(0xFFE91E63),
   );
 
-  /// Tüm rozetler listesi (sıralı)
-  static const List<StreakBadge> allBadges = [
-    atesBaslangici,
-    haftalikYildiz,
-    kararli,
-    aylikSampiyon,
-    superSeri,
-    seriUstasi,
-    efsane,
+  static const vazgecilmez = RankTier(
+    level: 8,
+    id: 'vazgecilmez',
+    name: 'Vazgeçilmez',
+    description: 'Cashly sizin için vazgeçilmez, siz Cashly için!',
+    requiredXp: 35000,
+    lottieAsset: 'assets/lottie/rank/level_8_purple.json',
+    primaryColor: Color(0xFF6A1B9A),
+    glowColor: Color(0xFF9C27B0),
+  );
+
+  static const cashlyEfsanesi = RankTier(
+    level: 9,
+    id: 'cashly_efsanesi',
+    name: 'Cashly Efsanesi',
+    description: 'Finansal özgürlüğün zirvesine ulaştınız. Efsanesiniz!',
+    requiredXp: 55000,
+    lottieAsset: 'assets/lottie/rank/level_9_puple.json',
+    primaryColor: Color(0xFF4A148C),
+    glowColor: Color(0xFF7B1FA2),
+  );
+
+  /// Tüm ranklar listesi (sıralı)
+  static const List<RankTier> allTiers = [
+    acemi,
+    merakli,
+    mudavim,
+    aliskIn,
+    tutkun,
+    sadik,
+    kidemli,
+    vazgecilmez,
+    cashlyEfsanesi,
   ];
 
-  /// Kimliğe göre rozet bul
-  static StreakBadge? getBadgeById(String id) {
+  // ===== XP KAZANMA DEĞERLERİ =====
+
+  /// Günlük giriş XP'si
+  static const int dailyLoginXp = 10;
+
+  /// 7 günlük seri bonus XP'si
+  static const int weeklyStreakBonusXp = 30;
+
+  /// 30 günlük seri bonus XP'si
+  static const int monthlyStreakBonusXp = 100;
+
+  // ===== YARDIMCI METODLAR =====
+
+  /// XP'ye göre mevcut rank tier'ını getir
+  static RankTier fromXp(int xp) {
+    RankTier current = allTiers.first;
+    for (final tier in allTiers) {
+      if (xp >= tier.requiredXp) {
+        current = tier;
+      } else {
+        break;
+      }
+    }
+    return current;
+  }
+
+  /// Bir sonraki rank tier'ını getir (null = max rank)
+  static RankTier? nextTierFrom(int xp) {
+    final current = fromXp(xp);
+    final nextLevel = current.level + 1;
     try {
-      return allBadges.firstWhere((badge) => badge.id == id);
+      return allTiers.firstWhere((t) => t.level == nextLevel);
     } catch (_) {
       return null;
     }
   }
 
-  /// Belirli bir seri sayısı için kazanılan rozetleri getir
-  static List<StreakBadge> getEarnedBadges(int streakCount) {
-    return allBadges
-        .where((badge) => streakCount >= badge.requiredStreak)
-        .toList();
-  }
-
-  /// Bir sonraki kazanılacak rozeti getir
-  static StreakBadge? getNextBadge(int streakCount) {
+  /// ID'ye göre rank tier'ı bul
+  static RankTier? getById(String id) {
     try {
-      return allBadges.firstWhere(
-        (badge) => streakCount < badge.requiredStreak,
-      );
+      return allTiers.firstWhere((t) => t.id == id);
     } catch (_) {
-      return null; // Tüm rozetler kazanıldı
-    }
-  }
-}
-
-/// Rozetleri mevcut dile çevirmek için eklenti
-extension StreakBadgeL10n on StreakBadge {
-  String localizedName(BuildContext context) {
-    final l10n = context.l10n;
-    switch (id) {
-      case 'ates_baslangici':
-        return l10n.badgeFireStarterName;
-      case 'haftalik_yildiz':
-        return l10n.badgeWeeklyStarName;
-      case 'kararli':
-        return l10n.badgeSteadyName;
-      case 'aylik_sampiyon':
-        return l10n.badgeMonthlyChampName;
-      case 'super_seri':
-        return l10n.badgeSuperStreakName;
-      case 'seri_ustasi':
-        return l10n.badgeStreakMasterName;
-      case 'efsane':
-        return l10n.badgeLegendName;
-      default:
-        return name;
+      return null;
     }
   }
 
-  String localizedDescription(BuildContext context) {
-    final l10n = context.l10n;
-    switch (id) {
-      case 'ates_baslangici':
-        return l10n.badgeFireStarterDesc;
-      case 'haftalik_yildiz':
-        return l10n.badgeWeeklyStarDesc;
-      case 'kararli':
-        return l10n.badgeSteadyDesc;
-      case 'aylik_sampiyon':
-        return l10n.badgeMonthlyChampDesc;
-      case 'super_seri':
-        return l10n.badgeSuperStreakDesc;
-      case 'seri_ustasi':
-        return l10n.badgeStreakMasterDesc;
-      case 'efsane':
-        return l10n.badgeLegendDesc;
-      default:
-        return description;
-    }
+  /// Sonraki rank'a olan XP yüzdesini hesapla (0.0 - 1.0)
+  static double progressToNext(int xp) {
+    final current = fromXp(xp);
+    final next = nextTierFrom(xp);
+    if (next == null) return 1.0;
+
+    final xpInCurrentTier = xp - current.requiredXp;
+    final xpNeededForNext = next.requiredXp - current.requiredXp;
+    if (xpNeededForNext <= 0) return 1.0;
+
+    return (xpInCurrentTier / xpNeededForNext).clamp(0.0, 1.0);
+  }
+
+  /// Sonraki rank'a kalan XP miktarı
+  static int xpToNextTier(int xp) {
+    final next = nextTierFrom(xp);
+    if (next == null) return 0;
+    return (next.requiredXp - xp).clamp(0, next.requiredXp);
   }
 }
+
+// Backward compatibility alias
+typedef StreakBadge = RankTier;
+typedef StreakBadges = RankTiers;

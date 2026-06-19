@@ -1,4 +1,4 @@
-/// Streak feature barrel file
+/// Streak/Rank feature barrel file
 library;
 
 // Data
@@ -19,3 +19,4 @@ export 'presentation/controllers/streak_controller.dart';
 // Presentation - Widgets
 export 'presentation/widgets/streak_widget.dart';
 export 'presentation/widgets/streak_celebration_dialog.dart';
+export 'presentation/widgets/rank_frame_widget.dart';

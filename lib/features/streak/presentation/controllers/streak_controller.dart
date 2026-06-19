@@ -2,25 +2,22 @@ import 'package:flutter/material.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/domain/usecases/streak_usecases.dart';
 import '../../data/models/streak_model.dart';
-import '../../data/services/streak_service.dart';
 import '../../data/constants/streak_badges.dart';
-import 'package:cashly/core/extensions/l10n_extensions.dart';
+import '../../data/services/streak_service.dart';
 import 'package:cashly/core/mixins/safe_notifier_mixin.dart';
 
-/// Streak Controller
-/// Seri sayfası için ChangeNotifier tabanlı state yönetimi sağlar.
-/// Rozet hesaplamaları, başarım listesi ve freeze yönetimini merkezi olarak yönetir.
-/// Use Case entegrasyonu ile Clean Architecture prensiplerini destekler.
+/// Rank Controller
+/// XP birikimi, rank hesaplamaları ve seri yönetimini merkezi olarak yönetir.
 class StreakController extends ChangeNotifier with SafeNotifierMixin {
   // ===== USE CASES =====
-  late final GetStreakData _getStreakData;
-  late final CheckAndUpdateStreak _checkAndUpdateStreak;
-  late final UseFreeze _useFreeze;
+  late final GetStreakData _getRankData;
+  late final CheckAndUpdateStreak _checkAndUpdateRank;
 
   // ===== STATE =====
 
-  StreakData _streakData = StreakData.empty();
-  StreakData get streakData => _streakData;
+  RankData _rankData = RankData.empty();
+  /// Rank verisi (eski ad: streakData — backward compat)
+  RankData get streakData => _rankData;
 
   String? _userId;
   String? get userId => _userId;
@@ -36,112 +33,57 @@ class StreakController extends ChangeNotifier with SafeNotifierMixin {
 
   void _initUseCases() {
     try {
-      _getStreakData = getIt<GetStreakData>();
-      _checkAndUpdateStreak = getIt<CheckAndUpdateStreak>();
-      _useFreeze = getIt<UseFreeze>();
+      _getRankData = getIt<GetStreakData>();
+      _checkAndUpdateRank = getIt<CheckAndUpdateStreak>();
     } catch (e) {
-      // DI henüz hazır değilse (test ortamı vb.)
-      debugPrint('StreakController: Use case init hatası - $e');
+      debugPrint('RankController: Use case init hatası - $e');
     }
   }
 
-  // ===== HESAPLAMALAR =====
+  // ===== RANK HESAPLAMALARI =====
 
-  /// Kazanılan rozetler
-  List<StreakBadge> get earnedBadges =>
-      StreakBadges.getEarnedBadges(_streakData.currentStreak);
+  /// Mevcut rank kademesi
+  RankTier get currentRank => RankTiers.fromXp(_rankData.totalXp);
 
-  /// Sonraki rozet (varsa)
-  StreakBadge? get nextBadge =>
-      StreakBadges.getNextBadge(_streakData.currentStreak);
+  /// Bir sonraki rank kademesi (null = max rank)
+  RankTier? get nextRank => RankTiers.nextTierFrom(_rankData.totalXp);
 
-  /// Tüm rozetler
-  List<StreakBadge> get allBadges => StreakBadges.allBadges;
+  /// Sonraki rank'a ilerleme yüzdesi (0.0 - 1.0)
+  double get progressToNextRank => RankTiers.progressToNext(_rankData.totalXp);
 
-  /// Sonraki freeze'e kalan gün
-  int get nextFreezeIn => 7 - (_streakData.currentStreak % 7);
+  /// Sonraki rank'a kalan XP
+  int get xpToNextRank => RankTiers.xpToNextTier(_rankData.totalXp);
 
-  /// Sonraki rozete kalan gün
-  int get daysToNextBadge {
-    final next = nextBadge;
-    if (next == null) return 0;
-    return next.requiredStreak - _streakData.currentStreak;
+  /// Tüm rank kademeleri
+  List<RankTier> get allTiers => RankTiers.allTiers;
+
+  /// Belirli bir rank kazanıldı mı?
+  bool isTierUnlocked(RankTier tier) {
+    return _rankData.totalXp >= tier.requiredXp;
   }
 
-  /// Sonraki rozet ilerleme yüzdesi (0.0 - 1.0)
-  double get nextBadgeProgress {
-    final next = nextBadge;
-    if (next == null) return 1.0;
-    return _streakData.currentStreak / next.requiredStreak;
-  }
+  // ===== SERİ HESAPLAMALARI =====
 
-  /// Rozetin kazanılıp kazanılmadığını kontrol et
-  bool isBadgeEarned(StreakBadge badge) {
-    return earnedBadges.contains(badge);
-  }
-
-  /// Başarılar listesi
-  List<Map<String, dynamic>> getAchievements(BuildContext context) => [
-    {
-      'icon': Icons.play_arrow,
-      'title': context.l10n.firstStep,
-      'description': context.l10n.firstStepDesc,
-      'earned': _streakData.totalLoginDays >= 1,
-    },
-    {
-      'icon': Icons.local_fire_department,
-      'title': context.l10n.streakStarter,
-      'description': context.l10n.streakStarterDesc,
-      'earned': _streakData.longestStreak >= 3,
-    },
-    {
-      'icon': Icons.ac_unit,
-      'title': context.l10n.streakFreeze,
-      'description': context.l10n.streakFreezeDescAction,
-      'earned': _streakData.totalFreezesUsed >= 1,
-    },
-    {
-      'icon': Icons.calendar_month,
-      'title': context.l10n.regularUser,
-      'description': context.l10n.regularUserDesc,
-      'earned': _streakData.totalLoginDays >= 10,
-    },
-    {
-      'icon': Icons.trending_up,
-      'title': context.l10n.continuityMaster,
-      'description': context.l10n.continuityMasterDesc,
-      'earned': _streakData.longestStreak >= 30,
-    },
-    {
-      'icon': Icons.all_inclusive,
-      'title': context.l10n.financialGuru,
-      'description': context.l10n.financialGuruDesc,
-      'earned': _streakData.totalLoginDays >= 100,
-    },
-  ];
-
-  /// Kazanılan başarı sayısı
-  int getEarnedAchievementsCount(BuildContext context) =>
-      getAchievements(context).where((a) => a['earned'] == true).length;
-
-  /// Toplam başarı sayısı
-  int getTotalAchievementsCount(BuildContext context) =>
-      getAchievements(context).length;
+  /// Seri bilgisi için backward compat getter'lar
+  int get currentStreak => _rankData.currentStreak;
+  int get longestStreak => _rankData.longestStreak;
+  int get totalXp => _rankData.totalXp;
+  int get totalLoginDays => _rankData.totalLoginDays;
 
   // ===== USE CASE METODLARI =====
 
-  /// Streak verisini repository'den getir (Use Case)
+  /// Rank verisini getir
   void loadStreakData(String userId) {
     _userId = userId;
     try {
-      _streakData = _getStreakData(GetStreakDataParams(userId: userId));
+      _rankData = _getRankData(GetStreakDataParams(userId: userId));
       notifyListeners();
     } catch (e) {
-      debugPrint('StreakController: loadStreakData hatası - $e');
+      debugPrint('RankController: loadRankData hatası - $e');
     }
   }
 
-  /// Streak'i kontrol et ve güncelle (Use Case)
+  /// Rank'ı kontrol et ve güncelle
   Future<StreakResult?> checkAndUpdate() async {
     if (_userId == null) return null;
 
@@ -149,42 +91,14 @@ class StreakController extends ChangeNotifier with SafeNotifierMixin {
     notifyListeners();
 
     try {
-      final result = await _checkAndUpdateStreak(
+      final result = await _checkAndUpdateRank(
         CheckAndUpdateStreakParams(userId: _userId!),
       );
-
-      // Streak verisini güncelle
       loadStreakData(_userId!);
-
       return result;
     } catch (e) {
-      debugPrint('StreakController: checkAndUpdate hatası - $e');
+      debugPrint('RankController: checkAndUpdate hatası - $e');
       return null;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  /// Dondurucu kullan (Use Case)
-  Future<bool> useFreeze() async {
-    if (_userId == null) return false;
-
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      final result = await _useFreeze(UseFreezeParams(userId: _userId!));
-
-      if (result != null) {
-        _streakData = result;
-        notifyListeners();
-        return true;
-      }
-      return false;
-    } catch (e) {
-      debugPrint('StreakController: useFreeze hatası - $e');
-      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -203,9 +117,9 @@ class StreakController extends ChangeNotifier with SafeNotifierMixin {
     }
   }
 
-  /// Streak verisini güncelle (manuel)
-  void updateStreakData(StreakData data) {
-    _streakData = data;
+  /// Rank verisini güncelle (manuel)
+  void updateStreakData(RankData data) {
+    _rankData = data;
     notifyListeners();
   }
 

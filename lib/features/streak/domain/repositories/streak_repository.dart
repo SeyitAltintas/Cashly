@@ -1,14 +1,13 @@
 import '../../data/models/streak_model.dart';
 
-/// Seri (Streak) repository interface (Domain Layer)
-/// Günlük giriş serisini takip eden veri erişim kontratı
+/// Rank repository interface (Domain Layer)
 abstract class StreakRepository {
-  /// Kullanıcının seri verisini getirir
-  StreakData getStreakData(String userId);
+  /// Kullanıcının rank verisini getirir
+  RankData getStreakData(String userId);
 
-  /// Kullanıcının seri verisini kaydeder
-  Future<void> saveStreakData(String userId, StreakData data);
+  /// Kullanıcının rank verisini kaydeder
+  Future<void> saveStreakData(String userId, RankData data);
 
-  /// Streak box'ını başlatır
+  /// Rank box'ını başlatır
   Future<void> initialize();
 }

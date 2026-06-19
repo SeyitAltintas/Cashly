@@ -6,60 +6,57 @@ import 'package:cashly/core/services/secure_storage_service.dart';
 import '../models/streak_model.dart';
 import '../constants/streak_badges.dart';
 
-/// Seri güncelleme sonucu
-/// Seri verisi ve artış bilgisini içerir
+/// Rank güncelleme sonucu
 class StreakResult {
-  final StreakData data;
-  final bool streakIncreased; // Seri bu giriş ile arttı mı?
-  final int previousStreak; // Önceki seri değeri
+  final RankData data;
+  final bool streakIncreased;
+  final int previousStreak;
+  final bool rankedUp;
+  final RankTier? newRank;
 
   const StreakResult({
     required this.data,
     required this.streakIncreased,
     required this.previousStreak,
+    this.rankedUp = false,
+    this.newRank,
   });
 }
 
-/// Seri (Streak) yönetim servisi
-/// Günlük giriş serisini takip eder ve günceller
+/// Rank (XP + Seri) yönetim servisi
+/// Günlük giriş serisi ve XP'yi takip eder
 class StreakService {
   StreakService._();
 
   static const String _boxName = 'streak_box';
-  static const String _logName = 'StreakService';
+  static const String _logName = 'RankService';
 
-  /// Her 7 günlük seride 1 dondurucu kazanılır
-  static const int _freezeRewardInterval = 7;
+  // ===== VERİ OKUMA / YAZMA =====
 
-  /// Maksimum biriktirilebilir dondurucu sayısı
-  static const int _maxFreezeCount = 3;
-
-  /// Seri verisini getir
-  static StreakData getStreakData(String userId) {
+  /// Rank verisini getir
+  static RankData getStreakData(String userId) {
     try {
       final box = Hive.box(_boxName);
       final data = box.get('streak_$userId');
-      if (data == null) return StreakData.empty();
-      return StreakData.fromMap(Map<String, dynamic>.from(data));
+      if (data == null) return RankData.empty();
+      return RankData.fromMap(Map<String, dynamic>.from(data));
     } catch (e, stackTrace) {
       developer.log(
-        'Seri verisi okunurken hata',
+        'Rank verisi okunurken hata',
         name: _logName,
         error: e,
         stackTrace: stackTrace,
       );
-      return StreakData.empty();
+      return RankData.empty();
     }
   }
 
-  /// Seri verisini kaydet (Hive + Firestore)
-  static Future<void> saveStreakData(String userId, StreakData data) async {
+  /// Rank verisini kaydet (Hive + Firestore)
+  static Future<void> saveStreakData(String userId, RankData data) async {
     try {
-      // 1. Hive'a hizli yaz (UI aninda guncellenir)
       final box = Hive.box(_boxName);
       await box.put('streak_$userId', data.toMap());
 
-      // 2. Firebase oturumu varsa buluta da yaz (fire-and-forget)
       if (FirebaseAuth.instance.currentUser != null) {
         FirebaseFirestore.instance
             .collection('users')
@@ -68,17 +65,17 @@ class StreakService {
             .doc('data')
             .set(data.toMap())
             .catchError((e) {
-              developer.log('Streak Firestore yazilamadi: $e', name: _logName);
+              developer.log('Rank Firestore yazılamadı: $e', name: _logName);
             });
       }
 
       developer.log(
-        'Seri verisi kaydedildi: streak=${data.currentStreak}, userId=$userId',
+        'Rank verisi kaydedildi: xp=${data.totalXp}, streak=${data.currentStreak}',
         name: _logName,
       );
     } catch (e, stackTrace) {
       developer.log(
-        'Seri verisi kaydedilirken hata',
+        'Rank verisi kaydedilirken hata',
         name: _logName,
         error: e,
         stackTrace: stackTrace,
@@ -86,8 +83,7 @@ class StreakService {
     }
   }
 
-  /// Firestore'dan streak verisini cek ve Hive'a yaz
-  /// Giris yapildiginda cagirilir - cihaz degisiminde streak'i geri yukler
+  /// Firestore'dan rank verisini çek ve Hive'a yaz
   static Future<void> syncFromCloud(String userId) async {
     if (userId.isEmpty) return;
     try {
@@ -99,58 +95,68 @@ class StreakService {
           .get()
           .timeout(const Duration(seconds: 10));
 
-      if (doc.exists && doc.data() != null) {
-        final cloudData = StreakData.fromMap(doc.data()!);
-        final localData = getStreakData(userId);
+      if (!doc.exists || doc.data() == null) return;
 
-        bool shouldUpdateFromCloud = false;
+      final cloudData = RankData.fromMap(doc.data()!);
+      final localData = getStreakData(userId);
 
-        if (localData.lastLoginDate.isEmpty) {
-          shouldUpdateFromCloud = true;
-        } else if (cloudData.lastLoginDate.isNotEmpty) {
-          final cloudDate = DateTime.tryParse(cloudData.lastLoginDate);
-          final localDate = DateTime.tryParse(localData.lastLoginDate);
+      if (!_cloudDataWins(cloudData, localData)) return;
 
-          if (cloudDate != null && localDate != null) {
-            if (cloudDate.isAfter(localDate)) {
-              // Buluttaki tarih daha yeniyse (örn: başka cihazda giriş yapılmış)
-              shouldUpdateFromCloud = true;
-            } else if (cloudDate.isAtSameMomentAs(localDate) &&
-                cloudData.currentStreak > localData.currentStreak) {
-              // Aynı gün ama buluttaki seri daha yüksekse
-              shouldUpdateFromCloud = true;
-            }
-          } else if (cloudData.currentStreak > localData.currentStreak) {
-            shouldUpdateFromCloud = true;
-          }
-        } else if (cloudData.currentStreak > localData.currentStreak) {
-          shouldUpdateFromCloud = true;
-        }
-
-        if (shouldUpdateFromCloud) {
-          final box = Hive.box(_boxName);
-          await box.put('streak_$userId', cloudData.toMap());
-          developer.log(
-            'Streak buluttan yuklendi: ${cloudData.currentStreak} gun',
-            name: _logName,
-          );
-        }
-      }
+      final box = Hive.box(_boxName);
+      await box.put('streak_$userId', cloudData.toMap());
+      developer.log(
+        'Rank buluttan yüklendi: ${cloudData.totalXp} XP',
+        name: _logName,
+      );
     } catch (e) {
-      developer.log('Streak sync hatasi (offline?): $e', name: _logName);
+      developer.log('Rank sync hatası (offline?): $e', name: _logName);
     }
   }
 
-  /// Uygulama açıldığında seriyi kontrol et ve güncelle
-  /// Gün içinde birden fazla giriş yapılsa bile sadece bir kere sayılır
-  /// StreakResult döndürür - seri artışını kontrol edebilirsiniz
+  /// Bulut verisinin yerel veriye göre öncelikli olup olmadığını belirler
+  static bool _cloudDataWins(RankData cloud, RankData local) {
+    if (local.lastLoginDate.isEmpty) return true;
+    if (cloud.lastLoginDate.isEmpty) return false;
+
+    final cloudDate = DateTime.tryParse(cloud.lastLoginDate);
+    final localDate = DateTime.tryParse(local.lastLoginDate);
+
+    if (cloudDate == null || localDate == null) {
+      return cloud.totalXp > local.totalXp;
+    }
+    if (cloudDate.isAfter(localDate)) return true;
+    if (cloudDate.isAtSameMomentAs(localDate)) {
+      return cloud.totalXp > local.totalXp;
+    }
+    return false;
+  }
+
+  // ===== ANA GÜNCELLEME MANTIĞI =====
+
+  /// Uygulama açıldığında rank/seri kontrol et ve güncelle
   static Future<StreakResult> checkAndUpdateStreak(String userId) async {
-    final currentData = getStreakData(userId);
+    var currentData = getStreakData(userId);
     final today = _getDateString(DateTime.now());
+    final currentYear = DateTime.now().year;
+
+    // --- YILLIK RESET KONTROLÜ ---
+    if (currentData.lastResetYear < currentYear) {
+      developer.log(
+        'Yıllık XP reset: ${currentData.lastResetYear} → $currentYear',
+        name: _logName,
+      );
+      currentData = currentData.copyWith(
+        totalXp: 0,
+        lastResetYear: currentYear,
+      );
+      await saveStreakData(userId, currentData);
+    }
+
     final lastLogin = currentData.lastLoginDate;
     final previousStreak = currentData.currentStreak;
+    final previousRank = RankTiers.fromXp(currentData.totalXp);
 
-    // Bugün zaten giriş yaptıysa, mevcut veriyi döndür (artış yok)
+    // Bugün zaten giriş yaptıysa, artış yok
     if (lastLogin == today) {
       return StreakResult(
         data: currentData,
@@ -159,139 +165,105 @@ class StreakService {
       );
     }
 
-    // Yeni seri verisi hesapla
-    StreakData newData;
+    // Yeni veriyi hesapla
+    RankData newData;
     bool streakIncreased = false;
+    int earnedXp = 0;
 
     if (lastLogin.isEmpty) {
       // İlk giriş
-      newData = StreakData(
+      earnedXp = RankTiers.dailyLoginXp;
+      newData = RankData(
+        totalXp: currentData.totalXp + earnedXp,
         currentStreak: 1,
         longestStreak: 1,
         lastLoginDate: today,
         totalLoginDays: 1,
-        earnedBadges: [],
-        freezeCount: 1, // İlk giriş için 1 dondurucu
-        usedFreezeToday: false,
-        totalFreezesUsed: 0,
+        lastResetYear: currentData.lastResetYear,
       );
-      streakIncreased = true; // İlk giriş de artış sayılır
+      streakIncreased = true;
     } else {
       final lastDate = DateTime.parse(lastLogin);
       final todayDate = DateTime.parse(today);
       final difference = todayDate.difference(lastDate).inDays;
 
       if (difference <= 0) {
-        // Saat geriye alınmış veya saat dilimi değişmiş olabilir. Seriyi bozma.
         return StreakResult(
           data: currentData,
           streakIncreased: false,
           previousStreak: previousStreak,
         );
       } else if (difference == 1) {
-        // Dün giriş yaptı, seri devam ediyor
+        // Seri devam ediyor
         final newStreak = currentData.currentStreak + 1;
         final newLongest = newStreak > currentData.longestStreak
             ? newStreak
             : currentData.longestStreak;
 
-        // Her 7 günlük seride 1 dondurucu kazanılır (max 3)
-        int newFreezeCount = currentData.freezeCount;
-        if (newStreak > 0 && newStreak % _freezeRewardInterval == 0) {
-          newFreezeCount = (newFreezeCount + 1).clamp(0, _maxFreezeCount);
+        earnedXp = RankTiers.dailyLoginXp;
+
+        // 7 günlük seri bonusu
+        if (newStreak % 7 == 0) {
+          earnedXp += RankTiers.weeklyStreakBonusXp;
+          developer.log('7 günlük seri bonusu: +${RankTiers.weeklyStreakBonusXp} XP', name: _logName);
+        }
+
+        // 30 günlük seri bonusu
+        if (newStreak % 30 == 0) {
+          earnedXp += RankTiers.monthlyStreakBonusXp;
+          developer.log('30 günlük seri bonusu: +${RankTiers.monthlyStreakBonusXp} XP', name: _logName);
         }
 
         newData = currentData.copyWith(
+          totalXp: currentData.totalXp + earnedXp,
           currentStreak: newStreak,
           longestStreak: newLongest,
           lastLoginDate: today,
           totalLoginDays: currentData.totalLoginDays + 1,
-          freezeCount: newFreezeCount,
-          usedFreezeToday: false,
         );
         streakIncreased = true;
       } else {
-        // difference > 1 (Bir veya daha fazla gün atlandı)
-        final missedDays = difference - 1;
-
-        if (currentData.freezeCount >= missedDays) {
-          // Yeterli dondurucu var - seriyi koru!
-          final newStreak =
-              currentData.currentStreak + 1; // Sadece bugünün girişi eklenir
-          final newLongest = newStreak > currentData.longestStreak
-              ? newStreak
-              : currentData.longestStreak;
-
-          newData = currentData.copyWith(
-            currentStreak: newStreak,
-            longestStreak: newLongest,
-            lastLoginDate: today,
-            totalLoginDays: currentData.totalLoginDays + 1,
-            freezeCount:
-                currentData.freezeCount -
-                missedDays, // Kullanılan dondurucuları düş
-            usedFreezeToday: true,
-            totalFreezesUsed: currentData.totalFreezesUsed + missedDays,
-          );
-          streakIncreased = true; // Korunan seri de artış sayılır
-        } else {
-          // Birden fazla gün atlandı ve yeterli dondurucu yok, seri sıfırlanıyor
-          newData = currentData.copyWith(
-            currentStreak: 1,
-            lastLoginDate: today,
-            totalLoginDays: currentData.totalLoginDays + 1,
-            usedFreezeToday: false,
-          );
-          streakIncreased = true; // Sıfırlandıktan sonra 1'e döndü
-        }
+        // Seri kırıldı (difference > 1)
+        earnedXp = RankTiers.dailyLoginXp;
+        newData = currentData.copyWith(
+          totalXp: currentData.totalXp + earnedXp,
+          currentStreak: 1,
+          lastLoginDate: today,
+          totalLoginDays: currentData.totalLoginDays + 1,
+        );
+        streakIncreased = true;
       }
     }
 
-    // Yeni kazanılan rozetleri kontrol et
-    final earnedBadgeIds = _checkNewBadges(
-      currentData.earnedBadges,
-      newData.currentStreak,
+    // Rank atlama kontrolü
+    final newRank = RankTiers.fromXp(newData.totalXp);
+    final rankedUp = newRank.level > previousRank.level;
+
+    developer.log(
+      'Rank güncellendi: +$earnedXp XP → toplam ${newData.totalXp} XP | '
+      'Rank: ${newRank.name}${rankedUp ? ' 🎉 RANK UP!' : ''}',
+      name: _logName,
     );
 
-    if (earnedBadgeIds.isNotEmpty) {
-      newData = newData.copyWith(
-        earnedBadges: [...newData.earnedBadges, ...earnedBadgeIds],
-      );
-    }
-
-    // Veriyi kaydet
     await saveStreakData(userId, newData);
 
     return StreakResult(
       data: newData,
       streakIncreased: streakIncreased,
       previousStreak: previousStreak,
+      rankedUp: rankedUp,
+      newRank: rankedUp ? newRank : null,
     );
   }
 
-  /// Yeni kazanılan rozetleri kontrol et
-  static List<String> _checkNewBadges(
-    List<String> currentBadges,
-    int streakCount,
-  ) {
-    final newBadges = <String>[];
-
-    for (final badge in StreakBadges.allBadges) {
-      if (streakCount >= badge.requiredStreak &&
-          !currentBadges.contains(badge.id)) {
-        newBadges.add(badge.id);
-      }
-    }
-
-    return newBadges;
-  }
+  // ===== YARDIMCI METODLAR =====
 
   /// Tarih string'i oluştur (YYYY-MM-DD formatında)
   static String _getDateString(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
-  /// Streak box'ını başlat
+  /// Rank box'ını başlat
   static Future<void> initialize() async {
     if (!Hive.isBoxOpen(_boxName)) {
       await SecureStorageService.openSecureBox(_boxName);

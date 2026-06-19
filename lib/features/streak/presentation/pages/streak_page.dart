@@ -1,23 +1,20 @@
+// ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/di/injection_container.dart';
-import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../data/models/streak_model.dart';
 import '../../data/constants/streak_badges.dart';
-import 'streak_help_page.dart';
 import '../controllers/streak_controller.dart';
 import '../widgets/streak_header_card.dart';
 import '../widgets/streak_stats_row.dart';
-import '../widgets/streak_freeze_card.dart';
 import '../widgets/badge_grid_view.dart';
 import '../widgets/achievements_list.dart';
-import 'package:cashly/core/constants/color_constants.dart';
+import 'streak_help_page.dart';
 
-/// Seri detay sayfası
-/// Mevcut seri, rozetler ve başarıları gösterir
-/// Widget'lara bölünerek refactor edilmiştir (811 satır → compose pattern)
+/// Rank Detay Sayfası
+/// Mevcut rank, XP geçmişi, tüm rank kademeleri ve başarımları gösterir
 class StreakPage extends StatefulWidget {
-  final StreakData streakData;
+  final RankData streakData;
 
   const StreakPage({super.key, required this.streakData});
 
@@ -43,105 +40,22 @@ class _StreakPageState extends State<StreakPage> {
     }
   }
 
-  void _showBadgeDetails(
+  void _showTierDetails(
     BuildContext context,
-    StreakBadge badge,
-    bool isEarned,
+    RankTier tier,
+    bool isUnlocked,
   ) {
+    final isCurrent = _controller.currentRank.level == tier.level;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: isEarned
-                    ? badge.color.withValues(alpha: 0.2)
-                    : Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                badge.icon,
-                color: isEarned
-                    ? badge.color
-                    : Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.3),
-                size: 48,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '${badge.emoji} ${badge.localizedName(context)}',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              badge.localizedDescription(context),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: isEarned
-                    ? ColorConstants.yesil.withValues(alpha: 0.2)
-                    : Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                isEarned
-                    ? context.l10n.earned
-                    : context.l10n.requiredStreakDays(badge.requiredStreak),
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: isEarned
-                      ? ColorConstants.yesil
-                      : Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
+      builder: (context) => _RankTierDetailsSheet(
+        tier: tier,
+        isUnlocked: isUnlocked,
+        isCurrent: isCurrent,
+        currentXp: widget.streakData.totalXp,
       ),
     );
   }
@@ -152,21 +66,22 @@ class _StreakPageState extends State<StreakPage> {
       value: _controller,
       child: Builder(
         builder: (context) {
-          final controller = context.read<StreakController>();
           context.select((StreakController c) => c.streakData);
-          context.select((StreakController c) => c.nextBadge);
 
-          final streakData = controller.streakData;
+          final rankData = _controller.streakData;
 
           return Scaffold(
             appBar: AppBar(
-              title: Text(context.l10n.streakInfo),
+              title: const Text('Rank Bilgileri'),
               backgroundColor: Colors.transparent,
               elevation: 0,
               actions: [
                 IconButton(
-                  icon: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.onSurface),
-                  tooltip: context.l10n.howStreakWorks,
+                  icon: Icon(
+                    Icons.help_outline,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  tooltip: 'Rank Sistemi Nasıl Çalışır?',
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -181,49 +96,156 @@ class _StreakPageState extends State<StreakPage> {
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Mevcut Seri Kartı
-                  StreakHeaderCard(streakData: streakData),
-                  const SizedBox(height: 24),
+                  // Rank Header Kartı (Lottie + XP + Progress)
+                  StreakHeaderCard(streakData: rankData),
+                  const SizedBox(height: 20),
 
-                  // İstatistikler
-                  StreakStatsRow(streakData: streakData),
-                  const SizedBox(height: 16),
+                  // Seri İstatistikleri
+                  StreakStatsRow(streakData: rankData),
+                  const SizedBox(height: 28),
 
-                  // Dondurucu Kartı
-                  StreakFreezeCard(
-                    streakData: streakData,
-                    nextFreezeIn: controller.nextFreezeIn,
-                  ),
-                  const SizedBox(height: 32),
+                  // XP Kazanma Rehberi
+                  _XpGuideCard(),
+                  const SizedBox(height: 28),
 
-                  // Sonraki Rozet
-                  if (controller.nextBadge != null) ...[
-                    StreakNextBadgeSection(controller: controller),
-                    const SizedBox(height: 32),
-                  ],
-
-                  // Rozetler Başlığı
-                  _SectionTitle(title: context.l10n.badges),
-                  const SizedBox(height: 16),
-
-                  // Rozet Grid
+                  // Tüm Rank Kademeleri
+                  const _SectionTitle(title: 'Rank Kademeleri'),
+                  const SizedBox(height: 14),
                   BadgeGridView(
-                    controller: controller,
-                    onBadgeTap: _showBadgeDetails,
+                    controller: _controller,
+                    onBadgeTap: _showTierDetails,
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
 
-                  // Başarılar
-                  _SectionTitle(title: context.l10n.achievements),
-                  const SizedBox(height: 16),
-                  AchievementsList(controller: controller),
+                  // Başarımlar
+                  const _SectionTitle(title: 'Başarımlar'),
+                  const SizedBox(height: 14),
+                  AchievementsList(controller: _controller),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// XP Kazanma Rehberi Kartı
+class _XpGuideCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF42A5F5).withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF42A5F5).withValues(alpha: 0.25),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.star, color: Color(0xFF42A5F5), size: 18),
+              SizedBox(width: 8),
+              Text(
+                'XP Nasıl Kazanılır?',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF42A5F5),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _XpRow(
+            icon: Icons.login,
+            label: 'Günlük giriş',
+            xp: '+${RankTiers.dailyLoginXp} XP',
+          ),
+          _XpRow(
+            icon: Icons.local_fire_department,
+            label: '7 günlük seri bonusu',
+            xp: '+${RankTiers.weeklyStreakBonusXp} XP',
+          ),
+          _XpRow(
+            icon: Icons.emoji_events,
+            label: '30 günlük seri bonusu',
+            xp: '+${RankTiers.monthlyStreakBonusXp} XP',
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '⚡ XP her yıl sıfırlanır.',
+            style: TextStyle(
+              fontSize: 11,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.5),
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _XpRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String xp;
+
+  const _XpRow({
+    required this.icon,
+    required this.label,
+    required this.xp,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: const Color(0xFF42A5F5)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.75),
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: const Color(0xFF42A5F5).withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              xp,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF42A5F5),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -237,16 +259,151 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
+}
+
+/// Rank Kademesi Detay Bottom Sheet
+class _RankTierDetailsSheet extends StatelessWidget {
+  final RankTier tier;
+  final bool isUnlocked;
+  final bool isCurrent;
+  final int currentXp;
+
+  const _RankTierDetailsSheet({
+    required this.tier,
+    required this.isUnlocked,
+    required this.isCurrent,
+    required this.currentXp,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Drag handle
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Rank adı ve seviyesi
+          Text(
+            'Seviye ${tier.level}',
+            style: TextStyle(
+              fontSize: 13,
+              color: tier.primaryColor,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            tier.name,
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: isUnlocked
+                  ? tier.primaryColor
+                  : Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.4),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            tier.description,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 15,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.65),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Durum badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            decoration: BoxDecoration(
+              color: isCurrent
+                  ? tier.primaryColor.withValues(alpha: 0.15)
+                  : isUnlocked
+                      ? const Color(0xFF4CAF50).withValues(alpha: 0.15)
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isCurrent
+                    ? tier.primaryColor.withValues(alpha: 0.4)
+                    : isUnlocked
+                        ? const Color(0xFF4CAF50).withValues(alpha: 0.4)
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.15),
+              ),
+            ),
+            child: Text(
+              isCurrent
+                  ? '✨ Mevcut Rank'
+                  : isUnlocked
+                      ? '✅ Kazanıldı'
+                      : '🔒 ${tier.requiredXp} XP gerekli',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isCurrent
+                    ? tier.primaryColor
+                    : isUnlocked
+                        ? const Color(0xFF4CAF50)
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+}
+
+// StreakNextBadgeSection artık kullanılmıyor ancak import uyumluluğu için stub bırakıldı
+class StreakNextBadgeSection extends StatelessWidget {
+  final StreakController controller;
+  const StreakNextBadgeSection({super.key, required this.controller});
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.shrink();
 }

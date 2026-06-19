@@ -1,8 +1,8 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
-import 'package:cashly/core/extensions/l10n_extensions.dart';
+import '../../data/constants/streak_badges.dart';
 
-/// Seri özelliği hakkında bilgi sayfası
-/// Accordion menü ile tüm özellikleri açıklar
+/// Rank sisteminin nasıl çalıştığını açıklayan yardım sayfası
 class StreakHelpPage extends StatelessWidget {
   const StreakHelpPage({super.key});
 
@@ -10,188 +10,263 @@ class StreakHelpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.l10n.howStreakWorks),
+        title: const Text('Rank Sistemi Nedir?'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Başlık kartı
-            _buildHeaderCard(context),
-            const SizedBox(height: 24),
+            // Başlık
+            _InfoCard(
+              icon: Icons.emoji_events,
+              iconColor: const Color(0xFFFFB300),
+              title: 'Rank Sistemi',
+              content:
+                  'Cashly\'de her gün giriş yaparak ve seri oluşturarak XP kazanırsın. '
+                  'Yeterli XP biriktirdiğinde bir üst rank kademesine yükselirsin. '
+                  'Toplam 9 rank kademesi mevcuttur.',
+            ),
+            const SizedBox(height: 16),
 
-            // Accordion menüler
-            _buildExpansionTile(
-              context,
+            // XP Kazanma
+            _InfoCard(
+              icon: Icons.star,
+              iconColor: const Color(0xFF42A5F5),
+              title: 'XP Nasıl Kazanılır?',
+              content: null,
+              customContent: Column(
+                children: [
+                  _XpInfoRow(
+                    icon: Icons.login,
+                    label: 'Her gün giriş yap',
+                    xp: '+${RankTiers.dailyLoginXp} XP',
+                    color: const Color(0xFF42A5F5),
+                  ),
+                  _XpInfoRow(
+                    icon: Icons.local_fire_department,
+                    label: '7 günlük seri oluştur',
+                    xp: '+${RankTiers.weeklyStreakBonusXp} XP bonus',
+                    color: const Color(0xFFFF6B35),
+                  ),
+                  _XpInfoRow(
+                    icon: Icons.emoji_events,
+                    label: '30 günlük seri oluştur',
+                    xp: '+${RankTiers.monthlyStreakBonusXp} XP bonus',
+                    color: const Color(0xFFFFB300),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Seri sistemi
+            _InfoCard(
               icon: Icons.local_fire_department,
               iconColor: const Color(0xFFFF6B35),
-              title: context.l10n.streakWhatIsIt,
-              content: context.l10n.streakDescription,
+              title: 'Seri (Streak) Nedir?',
+              content:
+                  'Her gün uygulamaya giriş yaparak serinizi sürdürürsünüz. '
+                  'Bir gün giriş yapmazsanız seri sıfırlanır. '
+                  'Ancak XP\'niz korunmaya devam eder, seri kırılsa bile!',
             ),
+            const SizedBox(height: 16),
 
-            _buildExpansionTile(
-              context,
-              icon: Icons.ac_unit,
-              iconColor: const Color(0xFF00BCD4),
-              title: context.l10n.streakFreezeWhatIsIt,
-              content: context.l10n.streakFreezeDescription,
-            ),
-
-            _buildExpansionTile(
-              context,
-              icon: Icons.military_tech,
-              iconColor: const Color(0xFFFFD700),
-              title: context.l10n.badges,
-              content: context.l10n.badgesDescription,
-            ),
-
-            _buildExpansionTile(
-              context,
-              icon: Icons.emoji_events,
+            // Yıllık reset
+            _InfoCard(
+              icon: Icons.refresh,
               iconColor: const Color(0xFF9C27B0),
-              title: context.l10n.achievements,
-              content: context.l10n.achievementsDescription,
+              title: 'Yıllık XP Sıfırlaması',
+              content:
+                  'Her yıl başında XP\'niz sıfırlanır ve en düşük rank olan '
+                  '"Acemi"\'den tekrar başlarsınız. Bu, her yıl yeni bir meydan '
+                  'okuma olması içindir. Seri kaydınız ve başarımlarınız korunur.',
             ),
+            const SizedBox(height: 16),
 
-            _buildExpansionTile(
-              context,
-              icon: Icons.bar_chart,
+            // Rank kademeleri
+            _InfoCard(
+              icon: Icons.layers,
               iconColor: const Color(0xFF4CAF50),
-              title: context.l10n.statisticsTitle,
-              content: context.l10n.statisticsDescription,
+              title: 'Rank Kademeleri',
+              content: null,
+              customContent: Column(
+                children: RankTiers.allTiers.map((tier) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: tier.primaryColor.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: tier.primaryColor.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${tier.level}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: tier.primaryColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            tier.name,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          tier.level == 1
+                              ? 'Başlangıç'
+                              : '${tier.requiredXp} XP',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: tier.primaryColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
-
-            _buildExpansionTile(
-              context,
-              icon: Icons.tips_and_updates,
-              iconColor: const Color(0xFFFF9800),
-              title: context.l10n.tipsTitle,
-              content: context.l10n.tipsDescription,
-            ),
-
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildHeaderCard(BuildContext context) {
+class _InfoCard extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String? content;
+  final Widget? customContent;
+
+  const _InfoCard({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    this.content,
+    this.customContent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFFFF6B35).withValues(alpha: 0.2),
-            const Color(0xFFFF8C00).withValues(alpha: 0.1),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFFF6B35).withValues(alpha: 0.3),
-        ),
+        color: iconColor.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: iconColor.withValues(alpha: 0.2)),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
-            Icons.local_fire_department,
-            size: 48,
-            color: Color(0xFFFF6B35),
+          Row(
+            children: [
+              Icon(icon, color: iconColor, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: iconColor,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            context.l10n.streakSystem,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurface,
+          if (content != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              content!,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.6,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            context.l10n.streakSystemSubtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
+          ],
+          if (customContent != null) ...[
+            const SizedBox(height: 10),
+            customContent!,
+          ],
         ],
       ),
     );
   }
+}
 
-  Widget _buildExpansionTile(
-    BuildContext context, {
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String content,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
-        ),
-      ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          leading: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: iconColor, size: 24),
-          ),
-          title: Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          iconColor: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.5),
-          collapsedIconColor: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          collapsedShape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Text(
-                content.trim(),
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.6,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.8),
-                ),
+class _XpInfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String xp;
+  final Color color;
+
+  const _XpInfoRow({
+    required this.icon,
+    required this.label,
+    required this.xp,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.75),
               ),
             ),
-          ],
-        ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              xp,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -6,58 +6,55 @@ import '../services/streak_service.dart';
 import '../../../../core/services/network_service.dart';
 import 'package:cashly/core/services/error_logger_service.dart';
 
-/// Streak repository - Firestore implementasyonu
+/// Rank repository - Firestore implementasyonu
 ///
 /// Koleksiyon yapısı:
-///   users/{uid}/streak/data → streak dokümanı (tek doküman)
+///   users/{uid}/streak/data → rank dokümanı (tek doküman)
 class StreakRepositoryFirestore implements StreakRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  DocumentReference _streakDoc(String userId) => _firestore
+  DocumentReference _rankDoc(String userId) => _firestore
       .collection('users')
       .doc(userId)
       .collection('streak')
       .doc('data');
 
   @override
-  StreakData getStreakData(String userId) {
-    // Hive'daki güncel streak'i döndür (StreakService kaynak of truth'tur).
-    // Eski implementasyon daima StreakData.empty() döndürüyordu → 0 gün hatası.
+  RankData getStreakData(String userId) {
     return StreakService.getStreakData(userId);
   }
 
-  /// Firestore'dan streak verisini çeker
-  Future<StreakData> fetchStreakData(String userId) async {
+  /// Firestore'dan rank verisini çeker
+  Future<RankData> fetchRankData(String userId) async {
     try {
       final getOptions = NetworkService().isOffline
           ? const GetOptions(source: Source.cache)
           : const GetOptions();
-      final doc = await _streakDoc(userId).get(getOptions);
-      if (!doc.exists) return StreakData.empty();
+      final doc = await _rankDoc(userId).get(getOptions);
+      if (!doc.exists) return RankData.empty();
       final data = Map<String, dynamic>.from(doc.data() as Map);
-      // Firestore'a özgü alanları temizle
       data.remove('updatedAt');
-      return StreakData.fromMap(data);
+      return RankData.fromMap(data);
     } catch (e, stackTrace) {
-      debugPrint('Firestore streak verisi getirilirken hata: $e');
+      debugPrint('Firestore rank verisi getirilirken hata: $e');
       ErrorLoggerService.logError(
-        'Firestore streak verisi getirilirken hata: $e',
+        'Firestore rank verisi getirilirken hata: $e',
         stackTrace: stackTrace.toString(),
       );
-      return StreakData.empty();
+      return RankData.empty();
     }
   }
 
   @override
-  Future<void> saveStreakData(String userId, StreakData data) async {
+  Future<void> saveStreakData(String userId, RankData data) async {
     try {
       final map = data.toMap();
       map['updatedAt'] = FieldValue.serverTimestamp();
-      await _streakDoc(userId).set(map);
+      await _rankDoc(userId).set(map);
     } catch (e, stackTrace) {
-      debugPrint('Firestore streak verisi kaydedilirken hata: $e');
+      debugPrint('Firestore rank verisi kaydedilirken hata: $e');
       ErrorLoggerService.logError(
-        'Firestore streak verisi kaydedilirken hata: $e',
+        'Firestore rank verisi kaydedilirken hata: $e',
         stackTrace: stackTrace.toString(),
       );
       rethrow;

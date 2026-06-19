@@ -2,368 +2,361 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cashly/features/streak/data/models/streak_model.dart';
 import 'package:cashly/features/streak/data/constants/streak_badges.dart';
 
-/// StreakService iş mantığı testleri
-/// Seri artışı, dondurucu (freeze), rozet kazanma ve seri kırılma senaryoları
-///
-/// Not: StreakService static ve Hive'a bağımlı olduğu için
-/// burada mantığı birebir simüle ediyoruz (pure logic testing)
+/// RankData ve RankTiers — Servis mantığı unit testleri
+/// Not: StreakService Hive ve Firebase gerektirdiği için
+/// sadece model mantığı ve hesaplama fonksiyonları test edilir.
 void main() {
-  group('Streak Mantığı — Seri Artışı', () {
-    test('İlk giriş: seri 1 olur, longestStreak 1 olur', () {
-      const today = '2024-06-15';
-      final data = StreakData.empty();
+  // ============================================================
+  // RANK DATA — TEMEL YAPISAL TESTLER
+  // ============================================================
+  group('RankData — Temel Yapı', () {
+    test('RankData.empty() tüm varsayılan değerleri doğru set eder', () {
+      final data = RankData.empty();
+      expect(data.totalXp, 0);
+      expect(data.currentStreak, 0);
+      expect(data.longestStreak, 0);
+      expect(data.lastLoginDate, '');
+      expect(data.totalLoginDays, 0);
+      expect(data.lastResetYear, DateTime.now().year);
+    });
 
-      // İlk giriş simülasyonu
-      expect(data.lastLoginDate, isEmpty);
+    test('RankData constructor tüm alanları doğru alır', () {
+      const data = RankData(
+        totalXp: 1500,
+        currentStreak: 7,
+        longestStreak: 30,
+        lastLoginDate: '2025-01-15',
+        totalLoginDays: 50,
+        lastResetYear: 2025,
+      );
+      expect(data.totalXp, 1500);
+      expect(data.currentStreak, 7);
+      expect(data.longestStreak, 30);
+      expect(data.lastLoginDate, '2025-01-15');
+      expect(data.totalLoginDays, 50);
+      expect(data.lastResetYear, 2025);
+    });
+  });
 
-      const newData = StreakData(
+  // ============================================================
+  // RANK DATA — MAP DÖNÜŞÜMÜ
+  // ============================================================
+  group('RankData — toMap/fromMap round-trip', () {
+    test('tüm alanlar korunur', () {
+      const original = RankData(
+        totalXp: 7000,
+        currentStreak: 30,
+        longestStreak: 45,
+        lastLoginDate: '2025-06-01',
+        totalLoginDays: 100,
+        lastResetYear: 2025,
+      );
+      final restored = RankData.fromMap(original.toMap());
+
+      expect(restored.totalXp, original.totalXp);
+      expect(restored.currentStreak, original.currentStreak);
+      expect(restored.longestStreak, original.longestStreak);
+      expect(restored.lastLoginDate, original.lastLoginDate);
+      expect(restored.totalLoginDays, original.totalLoginDays);
+      expect(restored.lastResetYear, original.lastResetYear);
+    });
+
+    test('fromMap boş map → varsayılan değerler', () {
+      final data = RankData.fromMap({});
+      expect(data.totalXp, 0);
+      expect(data.currentStreak, 0);
+      expect(data.longestStreak, 0);
+      expect(data.lastLoginDate, '');
+    });
+
+    test('fromMap kısmi map → eksik alanlar varsayılan', () {
+      final data = RankData.fromMap({
+        'totalXp': 500,
+        'currentStreak': 5,
+      });
+      expect(data.totalXp, 500);
+      expect(data.currentStreak, 5);
+      expect(data.longestStreak, 0); // varsayılan
+    });
+  });
+
+  // ============================================================
+  // RANK DATA — copyWith
+  // ============================================================
+  group('RankData — copyWith', () {
+    test('yalnızca belirtilen alanlar değişir', () {
+      const original = RankData(
+        totalXp: 500,
+        currentStreak: 5,
+        longestStreak: 10,
+        lastLoginDate: '2025-01-01',
+        totalLoginDays: 20,
+        lastResetYear: 2025,
+      );
+
+      final updated = original.copyWith(totalXp: 1500, currentStreak: 6);
+
+      expect(updated.totalXp, 1500);
+      expect(updated.currentStreak, 6);
+      expect(updated.longestStreak, 10); // değişmedi
+      expect(updated.lastLoginDate, '2025-01-01'); // değişmedi
+      expect(updated.totalLoginDays, 20); // değişmedi
+    });
+
+    test('longestStreak güncellenir', () {
+      final data = RankData.empty();
+      final updated = data.copyWith(longestStreak: 15);
+      expect(updated.longestStreak, 15);
+    });
+
+    test('lastResetYear güncellenir', () {
+      final data = RankData.empty();
+      final updated = data.copyWith(lastResetYear: 2026);
+      expect(updated.lastResetYear, 2026);
+    });
+  });
+
+  // ============================================================
+  // RANK DATA — Streak Mantığı (Günlük giriş simülasyonu)
+  // ============================================================
+  group('RankData — Streak Mantığı Simülasyonu', () {
+    test('ilk giriş: seri 1, totalLoginDays 1 olur', () {
+      final data = RankData.empty().copyWith(
+        totalXp: RankTiers.dailyLoginXp,
         currentStreak: 1,
         longestStreak: 1,
-        lastLoginDate: today,
+        lastLoginDate: '2025-01-01',
         totalLoginDays: 1,
-        earnedBadges: [],
-        freezeCount: 1,
-        usedFreezeToday: false,
-        totalFreezesUsed: 0,
       );
-
-      expect(newData.currentStreak, equals(1));
-      expect(newData.longestStreak, equals(1));
-      expect(newData.totalLoginDays, equals(1));
-      expect(newData.freezeCount, equals(1));
+      expect(data.currentStreak, 1);
+      expect(data.longestStreak, 1);
+      expect(data.totalXp, RankTiers.dailyLoginXp);
     });
 
-    test('Ardışık gün: seri 1 artar', () {
-      final yesterday = DateTime(2024, 6, 14);
-      final today = DateTime(2024, 6, 15);
-      final difference = today.difference(yesterday).inDays;
+    test('ardışık günlerde seri artar', () {
+      var data = RankData.empty();
 
-      expect(difference, equals(1));
-
-      const currentData = StreakData(
-        currentStreak: 5,
-        longestStreak: 10,
-        lastLoginDate: '2024-06-14',
-        totalLoginDays: 20,
-        earnedBadges: ['ates_baslangici'],
-      );
-
-      // difference == 1 → seri devam
-      final newStreak = currentData.currentStreak + 1;
-      final newLongest = newStreak > currentData.longestStreak
-          ? newStreak
-          : currentData.longestStreak;
-
-      expect(newStreak, equals(6));
-      expect(newLongest, equals(10)); // 6 < 10, değişmez
-    });
-
-    test('Ardışık gün + longestStreak aşıldığında güncellenir', () {
-      const currentData = StreakData(
-        currentStreak: 9,
-        longestStreak: 9,
-        lastLoginDate: '2024-06-14',
-        totalLoginDays: 30,
-        earnedBadges: [],
-      );
-
-      final newStreak = currentData.currentStreak + 1;
-      final newLongest = newStreak > currentData.longestStreak
-          ? newStreak
-          : currentData.longestStreak;
-
-      expect(newStreak, equals(10));
-      expect(newLongest, equals(10)); // 10 >= 9, güncellendi
-    });
-
-    test('Aynı gün tekrar giriş: seri artmaz', () {
-      const today = '2024-06-15';
-      const currentData = StreakData(
-        currentStreak: 5,
-        longestStreak: 10,
-        lastLoginDate: today,
-        totalLoginDays: 20,
-        earnedBadges: [],
-      );
-
-      // lastLoginDate == today → seri artmaz
-      expect(currentData.lastLoginDate, equals(today));
-      // Service'de bu durumda mevcut veri döner, streakIncreased = false
-    });
-  });
-
-  group('Streak Mantığı — Seri Kırılma', () {
-    test('2+ gün atlanırsa ve dondurucu yoksa seri sıfırlanır', () {
-      final lastDate = DateTime(2024, 6, 12);
-      final today = DateTime(2024, 6, 15);
-      final difference = today.difference(lastDate).inDays;
-
-      expect(difference, equals(3)); // 3 gün fark
-
-      const currentData = StreakData(
-        currentStreak: 15,
-        longestStreak: 15,
-        lastLoginDate: '2024-06-12',
-        totalLoginDays: 30,
-        earnedBadges: ['ates_baslangici', 'haftalik_yildiz', 'kararli'],
-        freezeCount: 0, // Dondurucu yok!
-      );
-
-      // difference > 2 || !canUseFreeze → seri sıfırlanır
-      expect(currentData.canUseFreeze, isFalse);
-
-      final newData = currentData.copyWith(
+      // 1. gün
+      data = data.copyWith(
+        totalXp: data.totalXp + RankTiers.dailyLoginXp,
         currentStreak: 1,
-        lastLoginDate: '2024-06-15',
-        totalLoginDays: currentData.totalLoginDays + 1,
+        longestStreak: 1,
+        lastLoginDate: '2025-01-01',
+        totalLoginDays: 1,
       );
 
-      expect(newData.currentStreak, equals(1));
-      expect(newData.longestStreak, equals(15)); // longestStreak korunur
-      expect(newData.totalLoginDays, equals(31));
-      expect(newData.earnedBadges.length, equals(3)); // Rozetler korunur
-    });
-  });
-
-  group('Streak Mantığı — Dondurucu (Freeze)', () {
-    test('1 gün atlanır + dondurucu var → seri korunur', () {
-      final lastDate = DateTime(2024, 6, 13);
-      final today = DateTime(2024, 6, 15);
-      final difference = today.difference(lastDate).inDays;
-
-      expect(difference, equals(2)); // Tam 1 gün atlanmış (14 atlandı)
-
-      const currentData = StreakData(
-        currentStreak: 10,
-        longestStreak: 10,
-        lastLoginDate: '2024-06-13',
-        totalLoginDays: 25,
-        earnedBadges: [],
-        freezeCount: 2,
+      // 2. gün
+      data = data.copyWith(
+        totalXp: data.totalXp + RankTiers.dailyLoginXp,
+        currentStreak: 2,
+        longestStreak: 2,
+        lastLoginDate: '2025-01-02',
+        totalLoginDays: 2,
       );
 
-      expect(currentData.canUseFreeze, isTrue);
+      expect(data.currentStreak, 2);
+      expect(data.totalXp, RankTiers.dailyLoginXp * 2);
+    });
 
-      // Dondurucu kullanılarak seri korunuyor
-      final newData = currentData.copyWith(
-        currentStreak: currentData.currentStreak + 1,
-        longestStreak: 11, // 11 > 10
-        lastLoginDate: '2024-06-15',
-        totalLoginDays: currentData.totalLoginDays + 1,
-        freezeCount: currentData.freezeCount - 1, // 2 → 1
-        usedFreezeToday: true,
-        totalFreezesUsed: currentData.totalFreezesUsed + 1,
+    test('7 günlük seri bonus XP verir', () {
+      const xpWith7DayBonus = RankTiers.dailyLoginXp * 7 + RankTiers.weeklyStreakBonusXp;
+      final data = RankData.empty().copyWith(
+        totalXp: xpWith7DayBonus,
+        currentStreak: 7,
+        longestStreak: 7,
+        lastLoginDate: '2025-01-07',
+        totalLoginDays: 7,
       );
-
-      expect(newData.currentStreak, equals(11));
-      expect(newData.freezeCount, equals(1));
-      expect(newData.usedFreezeToday, isTrue);
+      expect(data.totalXp, xpWith7DayBonus);
+      expect(data.currentStreak, 7);
     });
 
-    test('1 gün atlanır + dondurucu yok → seri sıfırlanır', () {
-      const currentData = StreakData(
-        currentStreak: 10,
-        longestStreak: 10,
-        lastLoginDate: '2024-06-13',
-        totalLoginDays: 25,
-        earnedBadges: [],
-        freezeCount: 0, // Dondurucu YOK
-      );
-
-      // difference == 2 ama canUseFreeze == false
-      expect(currentData.canUseFreeze, isFalse);
-
-      // Seri sıfırlanır
-      final newData = currentData.copyWith(
-        currentStreak: 1,
-        lastLoginDate: '2024-06-15',
-        totalLoginDays: currentData.totalLoginDays + 1,
-      );
-
-      expect(newData.currentStreak, equals(1));
-      expect(newData.longestStreak, equals(10)); // korunur
+    test('30 günlük seri bonus XP verir', () {
+      const xpWith30DayBonus =
+          RankTiers.dailyLoginXp * 30 +
+          (RankTiers.weeklyStreakBonusXp * 4) + // 7,14,21,28. günlerde
+          RankTiers.monthlyStreakBonusXp; // 30. günde
+      // XP en az bu kadar olmalı
+      expect(xpWith30DayBonus, greaterThan(RankTiers.dailyLoginXp * 30));
     });
 
-    test('Her 7 günlük seride 1 dondurucu kazanılır (max 3)', () {
-      // 7. gün → dondurucu kazanılır
-      const freezeRewardInterval = 7;
-      const maxFreezeCount = 3;
-
-      int freezeCount = 0;
-
-      for (int streak = 1; streak <= 28; streak++) {
-        if (streak > 0 && streak % freezeRewardInterval == 0) {
-          freezeCount = (freezeCount + 1).clamp(0, maxFreezeCount);
-        }
-      }
-
-      // 7, 14, 21, 28 → 4 ödül ama max 3
-      expect(freezeCount, equals(maxFreezeCount));
-    });
-
-    test('canUseFreeze doğru çalışır', () {
-      expect(
-        const StreakData(
-          currentStreak: 5,
-          longestStreak: 5,
-          lastLoginDate: '',
-          totalLoginDays: 5,
-          earnedBadges: [],
-          freezeCount: 1,
-        ).canUseFreeze,
-        isTrue,
-      );
-
-      expect(
-        const StreakData(
-          currentStreak: 5,
-          longestStreak: 5,
-          lastLoginDate: '',
-          totalLoginDays: 5,
-          earnedBadges: [],
-          freezeCount: 0,
-        ).canUseFreeze,
-        isFalse,
-      );
-    });
-  });
-
-  group('Streak Mantığı — Rozet Kazanma', () {
-    test('3 günlük seri → ates_baslangici rozeti', () {
-      final earned = StreakBadges.getEarnedBadges(3);
-      expect(earned.any((b) => b.id == 'ates_baslangici'), isTrue);
-      expect(earned.any((b) => b.id == 'haftalik_yildiz'), isFalse);
-    });
-
-    test('7 günlük seri → haftalik_yildiz rozeti', () {
-      final earned = StreakBadges.getEarnedBadges(7);
-      expect(earned.length, equals(2)); // ates + haftalik
-      expect(earned.any((b) => b.id == 'haftalik_yildiz'), isTrue);
-    });
-
-    test('30 günlük seri → 4 rozet', () {
-      final earned = StreakBadges.getEarnedBadges(30);
-      // ates(3) + haftalik(7) + kararli(14) + aylik(30) = 4
-      expect(earned.length, equals(4));
-    });
-
-    test('365 günlük seri → tüm 7 rozet', () {
-      final earned = StreakBadges.getEarnedBadges(365);
-      expect(earned.length, equals(7));
-    });
-
-    test('1 günlük seri → henüz rozet yok', () {
-      final earned = StreakBadges.getEarnedBadges(1);
-      expect(earned, isEmpty);
-    });
-
-    test('getNextBadge doğru sonraki rozeti döndürür', () {
-      final next = StreakBadges.getNextBadge(5);
-      expect(next?.id, equals('haftalik_yildiz')); // 7 gerekiyor, 5 var
-
-      final nextAt14 = StreakBadges.getNextBadge(14);
-      expect(nextAt14?.id, equals('aylik_sampiyon')); // 30 gerekiyor
-
-      final nextAtMax = StreakBadges.getNextBadge(365);
-      expect(nextAtMax, isNull); // Tüm rozetler kazanıldı
-    });
-
-    test('getBadgeById var olan ID ile çalışır', () {
-      expect(
-        StreakBadges.getBadgeById('ates_baslangici')?.requiredStreak,
-        equals(3),
-      );
-      expect(StreakBadges.getBadgeById('efsane')?.requiredStreak, equals(365));
-    });
-
-    test('getBadgeById olmayan ID ile null döner', () {
-      expect(StreakBadges.getBadgeById('olmayan_rozet'), isNull);
-    });
-
-    test('Yeni rozetler: zaten kazanılanlar tekrar kazanılmaz', () {
-      const currentBadges = ['ates_baslangici'];
-      const streakCount = 7;
-
-      final newBadges = <String>[];
-      for (final badge in StreakBadges.allBadges) {
-        if (streakCount >= badge.requiredStreak &&
-            !currentBadges.contains(badge.id)) {
-          newBadges.add(badge.id);
-        }
-      }
-
-      expect(newBadges.contains('ates_baslangici'), isFalse);
-      expect(newBadges.contains('haftalik_yildiz'), isTrue);
-    });
-  });
-
-  group('StreakData Model — Serialization', () {
-    test('toMap/fromMap round-trip veri kaybetmez', () {
-      const original = StreakData(
-        currentStreak: 15,
+    test('seri kırılırsa currentStreak 1 olur, longestStreak korunur', () {
+      const initial = RankData(
+        totalXp: 500,
+        currentStreak: 30,
         longestStreak: 30,
-        lastLoginDate: '2024-06-15',
-        totalLoginDays: 45,
-        earnedBadges: ['ates_baslangici', 'haftalik_yildiz'],
-        freezeCount: 2,
-        usedFreezeToday: true,
-        totalFreezesUsed: 3,
+        lastLoginDate: '2025-01-01',
+        totalLoginDays: 30,
+        lastResetYear: 2025,
       );
 
-      final map = original.toMap();
-      final restored = StreakData.fromMap(map);
-
-      expect(restored.currentStreak, equals(original.currentStreak));
-      expect(restored.longestStreak, equals(original.longestStreak));
-      expect(restored.lastLoginDate, equals(original.lastLoginDate));
-      expect(restored.totalLoginDays, equals(original.totalLoginDays));
-      expect(restored.earnedBadges, equals(original.earnedBadges));
-      expect(restored.freezeCount, equals(original.freezeCount));
-      expect(restored.usedFreezeToday, equals(original.usedFreezeToday));
-      expect(restored.totalFreezesUsed, equals(original.totalFreezesUsed));
-    });
-
-    test('fromMap eksik alanlar için varsayılan değerler', () {
-      final data = StreakData.fromMap({});
-
-      expect(data.currentStreak, equals(0));
-      expect(data.longestStreak, equals(0));
-      expect(data.lastLoginDate, equals(''));
-      expect(data.totalLoginDays, equals(0));
-      expect(data.earnedBadges, isEmpty);
-      expect(data.freezeCount, equals(1)); // Varsayılan 1
-      expect(data.usedFreezeToday, isFalse);
-      expect(data.totalFreezesUsed, equals(0));
-    });
-
-    test('empty factory doğru default değerler üretir', () {
-      final data = StreakData.empty();
-
-      expect(data.currentStreak, equals(0));
-      expect(data.longestStreak, equals(0));
-      expect(data.lastLoginDate, isEmpty);
-      expect(data.totalLoginDays, equals(0));
-      expect(data.earnedBadges, isEmpty);
-      expect(data.freezeCount, equals(1));
-      expect(data.canUseFreeze, isTrue);
-    });
-
-    test('copyWith sadece belirtilen alanları değiştirir', () {
-      const original = StreakData(
-        currentStreak: 5,
-        longestStreak: 10,
-        lastLoginDate: '2024-06-15',
-        totalLoginDays: 20,
-        earnedBadges: ['ates_baslangici'],
-        freezeCount: 2,
+      // 2 gün sonra giriş yapıldı (seri kırıldı)
+      final data = initial.copyWith(
+        totalXp: initial.totalXp + RankTiers.dailyLoginXp,
+        currentStreak: 1,
+        lastLoginDate: '2025-01-03',
+        totalLoginDays: initial.totalLoginDays + 1,
       );
 
-      final modified = original.copyWith(currentStreak: 6);
+      expect(data.currentStreak, 1);
+      expect(data.longestStreak, 30); // korundu
+      expect(data.totalXp, 510); // sadece günlük XP eklendi
+    });
+  });
 
-      expect(modified.currentStreak, equals(6));
-      expect(modified.longestStreak, equals(10)); // Değişmedi
-      expect(modified.earnedBadges.length, equals(1)); // Değişmedi
-      expect(modified.freezeCount, equals(2)); // Değişmedi
+  // ============================================================
+  // RANK TIERS — XP BAZLI RANK HESAPLAMA
+  // ============================================================
+  group('RankTiers — fromXp', () {
+    test('her rank kademesi için doğru rank döner', () {
+      expect(RankTiers.fromXp(0).level, 1);    // Acemi
+      expect(RankTiers.fromXp(500).level, 2);  // Meraklı
+      expect(RankTiers.fromXp(1500).level, 3); // Müdavim
+      expect(RankTiers.fromXp(3500).level, 4); // Alışkın
+      expect(RankTiers.fromXp(7000).level, 5); // Tutkun
+      expect(RankTiers.fromXp(12000).level, 6); // Sadık
+      expect(RankTiers.fromXp(20000).level, 7); // Kıdemli
+      expect(RankTiers.fromXp(35000).level, 8); // Vazgeçilmez
+      expect(RankTiers.fromXp(55000).level, 9); // Cashly Efsanesi
+    });
+
+    test('rank eşiğinin 1 XP altında önceki rank döner', () {
+      expect(RankTiers.fromXp(499).level, 1);   // 500-1 = hâlâ Acemi
+      expect(RankTiers.fromXp(1499).level, 2);  // 1500-1 = hâlâ Meraklı
+      expect(RankTiers.fromXp(54999).level, 8); // 55000-1 = hâlâ Vazgeçilmez
+    });
+
+    test('çok yüksek XP max rank döner', () {
+      expect(RankTiers.fromXp(999999).level, 9);
+    });
+  });
+
+  group('RankTiers — nextTierFrom', () {
+    test('her rank için sonraki rank doğru', () {
+      expect(RankTiers.nextTierFrom(0)?.level, 2);
+      expect(RankTiers.nextTierFrom(500)?.level, 3);
+      expect(RankTiers.nextTierFrom(1500)?.level, 4);
+      expect(RankTiers.nextTierFrom(35000)?.level, 9);
+    });
+
+    test('max rank null döner', () {
+      expect(RankTiers.nextTierFrom(55000), isNull);
+      expect(RankTiers.nextTierFrom(100000), isNull);
+    });
+  });
+
+  group('RankTiers — progressToNext', () {
+    test('tam eşikte 0.0 ilerleme', () {
+      expect(RankTiers.progressToNext(0), equals(0.0));
+    });
+
+    test('iki rank arası doğru yüzde', () {
+      // Acemi(0) → Meraklı(500): 250 XP = %50
+      expect(RankTiers.progressToNext(250), closeTo(0.5, 0.01));
+    });
+
+    test('max rankta 1.0', () {
+      expect(RankTiers.progressToNext(55000), equals(1.0));
+    });
+
+    test('her zaman 0.0 ile 1.0 arasında', () {
+      for (final xp in [0, 499, 500, 7000, 54999, 55000, 100000]) {
+        final p = RankTiers.progressToNext(xp);
+        expect(p, inInclusiveRange(0.0, 1.0),
+            reason: 'xp=$xp için progress=$p geçersiz');
+      }
+    });
+  });
+
+  group('RankTiers — xpToNextTier', () {
+    test('Acemi → Meraklı: 500 XP gerekli', () {
+      expect(RankTiers.xpToNextTier(0), 500);
+    });
+
+    test('250 XP varsa 250 kaldı', () {
+      expect(RankTiers.xpToNextTier(250), 250);
+    });
+
+    test('max rankta 0 kaldı', () {
+      expect(RankTiers.xpToNextTier(55000), 0);
+    });
+  });
+
+  group('RankTiers — getById', () {
+    test('geçerli ID → doğru tier', () {
+      expect(RankTiers.getById('acemi')?.level, 1);
+      expect(RankTiers.getById('merakli')?.level, 2);
+      expect(RankTiers.getById('cashly_efsanesi')?.level, 9);
+    });
+
+    test('geçersiz ID → null', () {
+      expect(RankTiers.getById('bilinmeyen'), isNull);
+      expect(RankTiers.getById(''), isNull);
+    });
+  });
+
+  group('RankTiers — allTiers yapısı', () {
+    test('9 kademe mevcuttur', () {
+      expect(RankTiers.allTiers.length, 9);
+    });
+
+    test('kademeler sıralı ve XP artan', () {
+      const tiers = RankTiers.allTiers;
+      for (int i = 1; i < tiers.length; i++) {
+        expect(tiers[i].level, tiers[i - 1].level + 1);
+        expect(tiers[i].requiredXp, greaterThan(tiers[i - 1].requiredXp));
+      }
+    });
+
+    test('ilk kademe 0 XP, son kademe 55000 XP', () {
+      expect(RankTiers.allTiers.first.requiredXp, 0);
+      expect(RankTiers.allTiers.last.requiredXp, 55000);
+    });
+
+    test('tüm kademelerin Lottie asset yolu mevcut', () {
+      for (final tier in RankTiers.allTiers) {
+        expect(tier.lottieAsset, startsWith('assets/lottie/rank/'));
+        expect(tier.lottieAsset, endsWith('.json'));
+      }
+    });
+  });
+
+  // ============================================================
+  // YILLIK RESET MANTIĞI (Model düzeyinde)
+  // ============================================================
+  group('Yıllık Reset Mantığı', () {
+    test('geçen yıl kaydedilmiş veri: lastResetYear farklıdır', () {
+      const data = RankData(
+        totalXp: 5000,
+        currentStreak: 10,
+        longestStreak: 30,
+        lastLoginDate: '2024-12-31',
+        totalLoginDays: 100,
+        lastResetYear: 2024,
+      );
+      final currentYear = DateTime.now().year;
+      expect(data.lastResetYear, lessThan(currentYear));
+    });
+
+    test('reset sonrası XP 0, streak korunur', () {
+      const data = RankData(
+        totalXp: 5000,
+        currentStreak: 10,
+        longestStreak: 30,
+        lastLoginDate: '2024-12-31',
+        totalLoginDays: 100,
+        lastResetYear: 2024,
+      );
+
+      final resetData = data.copyWith(
+        totalXp: 0,
+        lastResetYear: DateTime.now().year,
+      );
+
+      expect(resetData.totalXp, 0);
+      expect(resetData.currentStreak, 10); // seri korundu
+      expect(resetData.longestStreak, 30); // en uzun seri korundu
+      expect(resetData.lastResetYear, DateTime.now().year);
     });
   });
 }

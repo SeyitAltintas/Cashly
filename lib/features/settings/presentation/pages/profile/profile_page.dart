@@ -7,11 +7,11 @@ import 'package:cashly/features/auth/presentation/pages/login_page.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/services/haptic_service.dart';
-import 'package:cashly/core/utils/image_utils.dart';
 import 'package:cashly/core/services/mock_data_service.dart';
 import 'package:cashly/core/services/cloud_sync_service.dart';
 import '../../../../streak/data/models/streak_model.dart';
-import '../../../../streak/presentation/widgets/streak_widget.dart';
+import '../../../../streak/presentation/widgets/rank_frame_widget.dart';
+import '../../../../streak/presentation/pages/streak_page.dart';
 
 class ProfilSayfasi extends StatefulWidget {
   final AuthController authController;
@@ -173,62 +173,57 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                     padding: const EdgeInsets.all(24),
                     child: Row(
                       children: [
-                        // Profil Resmi (Sol)
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Theme.of(context).brightness ==
-                                      Brightness.dark
-                                  ? Colors.white.withValues(alpha: 0.1)
-                                  : Colors.black.withValues(alpha: 0.1),
-                              width: 2,
-                            ),
-                          ),
-                          child: CircleAvatar(
-                            radius: 40,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerHighest,
-                            backgroundImage:
-                                (widget
-                                        .authController
-                                        .currentUser
-                                        ?.profileImage
-                                        ?.isNotEmpty ??
-                                    false)
-                                ? ImageUtils.getProfileImageProvider(
-                                    widget
-                                        .authController
-                                        .currentUser!
-                                        .profileImage,
-                                  )
-                                : null,
-                            child:
-                                (widget
-                                        .authController
-                                        .currentUser
-                                        ?.profileImage
-                                        ?.isEmpty ??
-                                    true)
-                                ? Icon(
-                                    Icons.person,
-                                    size: 40,
-                                    color: Theme.of(
+                        // Profil Resmi + Rank Çerçevesi (Sol)
+                        Column(
+                          children: [
+                            RankFrameWidget(
+                              rankData: widget.streakData ?? RankData.empty(),
+                              profileImagePath:
+                                  widget
+                                      .authController
+                                      .currentUser
+                                      ?.profileImage,
+                              size: 72,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder:
+                                        (
+                                          context,
+                                          animation,
+                                          secondaryAnimation,
+                                        ) => StreakPage(
+                                          streakData:
+                                              widget.streakData ??
+                                              RankData.empty(),
+                                        ),
+                                    transitionsBuilder: (
                                       context,
-                                    ).colorScheme.onSurface,
-                                  )
-                                : null,
-                          ),
+                                      animation,
+                                      secondaryAnimation,
+                                      child,
+                                    ) {
+                                      return FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      );
+                                    },
+                                    transitionDuration: const Duration(
+                                      milliseconds: 300,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 20),
+                        const SizedBox(width: 16),
                         // Kullanıcı Bilgileri (Sağ)
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Kullanıcı Adı
                               Text(
                                 widget.authController.currentUser?.name ??
                                     context.l10n.user,
@@ -236,13 +231,12 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                                   color: Theme.of(
                                     context,
                                   ).colorScheme.onSurface,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.5,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.3,
                                 ),
                               ),
-                              const SizedBox(height: 4),
-                              // E-posta
+                              const SizedBox(height: 3),
                               if (widget.authController.currentUser?.email !=
                                   null)
                                 Text(
@@ -251,18 +245,19 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                                     color: Theme.of(context)
                                         .colorScheme
                                         .onSurface
-                                        .withValues(alpha: 0.8),
-                                    fontSize: 14,
+                                        .withValues(alpha: 0.7),
+                                    fontSize: 13,
                                   ),
                                 ),
+                              const SizedBox(height: 8),
+                              // Mini Rank Badge
+                              RankNameBadge(
+                                rankData:
+                                    widget.streakData ?? RankData.empty(),
+                              ),
                             ],
                           ),
                         ),
-                        if (widget.streakData != null)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 12),
-                            child: StreakWidget(streakData: widget.streakData!),
-                          ),
                       ],
                     ),
                   ),

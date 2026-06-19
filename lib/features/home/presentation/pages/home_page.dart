@@ -114,9 +114,10 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   // Bekleyen kutlama popup'ı için flag
   bool _pendingCelebration = false;
   int _pendingStreakCount = 0;
+  dynamic _pendingNewRank; // RankTier?
 
-  /// Seri kontrolü yapar ve günceller
-  /// Seri artarsa kutlama dialog'u gösterir
+  /// Rank/Seri kontrolü yapar ve günceller
+  /// Rank atlarsa rank-up kutlaması, seri artarsa normal kutlama gösterir
   Future<void> _seriKontrol() async {
     final userId = widget.authController.currentUser?.id;
     if (userId == null) return;
@@ -125,11 +126,17 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     if (mounted) {
       _homeState.streakData = result.data;
 
-      // Seri arttıysa kutlama için işaretle
-      if (result.streakIncreased && result.data.currentStreak > 0) {
+      if (result.rankedUp && result.newRank != null) {
+        // Rank atladı — özel rank-up kutlaması
         _pendingCelebration = true;
         _pendingStreakCount = result.data.currentStreak;
-        // Popup'ı göster
+        _pendingNewRank = result.newRank;
+        _showCelebrationIfPending();
+      } else if (result.streakIncreased && result.data.currentStreak > 0) {
+        // Normal seri artışı kutlaması
+        _pendingCelebration = true;
+        _pendingStreakCount = result.data.currentStreak;
+        _pendingNewRank = null;
         _showCelebrationIfPending();
       }
     }
@@ -139,9 +146,16 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
   void _showCelebrationIfPending() {
     if (_pendingCelebration && mounted) {
       _pendingCelebration = false;
+      final newRank = _pendingNewRank;
+      final streakCount = _pendingStreakCount;
+      _pendingNewRank = null;
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
-          StreakCelebrationDialog.show(context, _pendingStreakCount);
+          if (newRank != null) {
+            StreakCelebrationDialog.showRankUp(context, streakCount, newRank);
+          } else {
+            StreakCelebrationDialog.show(context, streakCount);
+          }
         }
       });
     }

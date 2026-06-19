@@ -1,7 +1,10 @@
-/// Seri (Streak) veri modeli
-/// Kullanıcının günlük giriş serisini takip eder
-class StreakData {
-  /// Mevcut seri sayısı
+/// Rank (Sıralama) veri modeli
+/// Kullanıcının XP birikimini ve giriş serisini takip eder
+class RankData {
+  /// Toplam kazanılan XP (yıllık reset olur)
+  final int totalXp;
+
+  /// Mevcut giriş serisi
   final int currentStreak;
 
   /// En uzun seri kaydı
@@ -13,102 +16,79 @@ class StreakData {
   /// Toplam giriş günü sayısı
   final int totalLoginDays;
 
-  /// Kazanılan rozet ID'leri
-  final List<String> earnedBadges;
+  /// XP'nin son sıfırlandığı yıl (yıllık reset için)
+  final int lastResetYear;
 
-  /// Kalan dondurucu (freeze) sayısı
-  /// Bir gün atlanırsa seriyi korumak için kullanılır
-  final int freezeCount;
-
-  /// Bugün dondurucu kullanıldı mı
-  final bool usedFreezeToday;
-
-  /// Toplam kullanılan dondurucu sayısı
-  final int totalFreezesUsed;
-
-  const StreakData({
+  const RankData({
+    required this.totalXp,
     required this.currentStreak,
     required this.longestStreak,
     required this.lastLoginDate,
     required this.totalLoginDays,
-    required this.earnedBadges,
-    this.freezeCount = 1, // Varsayılan 1 dondurucu ile başla
-    this.usedFreezeToday = false,
-    this.totalFreezesUsed = 0,
+    required this.lastResetYear,
   });
 
   /// Boş/yeni kullanıcı için varsayılan değerler
-  factory StreakData.empty() {
-    return const StreakData(
+  factory RankData.empty() {
+    return RankData(
+      totalXp: 0,
       currentStreak: 0,
       longestStreak: 0,
       lastLoginDate: '',
       totalLoginDays: 0,
-      earnedBadges: [],
-      freezeCount: 1, // Yeni kullanıcıya 1 dondurucu ver
-      usedFreezeToday: false,
-      totalFreezesUsed: 0,
+      lastResetYear: DateTime.now().year,
     );
   }
 
-  /// Map'ten StreakData oluştur
-  factory StreakData.fromMap(Map<String, dynamic> map) {
-    return StreakData(
+  /// Map'ten RankData oluştur
+  factory RankData.fromMap(Map<String, dynamic> map) {
+    return RankData(
+      totalXp: map['totalXp'] as int? ?? 0,
       currentStreak: map['currentStreak'] as int? ?? 0,
       longestStreak: map['longestStreak'] as int? ?? 0,
       lastLoginDate: map['lastLoginDate'] as String? ?? '',
       totalLoginDays: map['totalLoginDays'] as int? ?? 0,
-      earnedBadges: List<String>.from(map['earnedBadges'] ?? []),
-      freezeCount: map['freezeCount'] as int? ?? 1,
-      usedFreezeToday: map['usedFreezeToday'] as bool? ?? false,
-      totalFreezesUsed: map['totalFreezesUsed'] as int? ?? 0,
+      lastResetYear: map['lastResetYear'] as int? ?? DateTime.now().year,
     );
   }
 
-  /// StreakData'yı Map'e dönüştür
+  /// RankData'yı Map'e dönüştür
   Map<String, dynamic> toMap() {
     return {
+      'totalXp': totalXp,
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
       'lastLoginDate': lastLoginDate,
       'totalLoginDays': totalLoginDays,
-      'earnedBadges': earnedBadges,
-      'freezeCount': freezeCount,
-      'usedFreezeToday': usedFreezeToday,
-      'totalFreezesUsed': totalFreezesUsed,
+      'lastResetYear': lastResetYear,
     };
   }
 
   /// Güncellenmiş kopya oluştur
-  StreakData copyWith({
+  RankData copyWith({
+    int? totalXp,
     int? currentStreak,
     int? longestStreak,
     String? lastLoginDate,
     int? totalLoginDays,
-    List<String>? earnedBadges,
-    int? freezeCount,
-    bool? usedFreezeToday,
-    int? totalFreezesUsed,
+    int? lastResetYear,
   }) {
-    return StreakData(
+    return RankData(
+      totalXp: totalXp ?? this.totalXp,
       currentStreak: currentStreak ?? this.currentStreak,
       longestStreak: longestStreak ?? this.longestStreak,
       lastLoginDate: lastLoginDate ?? this.lastLoginDate,
       totalLoginDays: totalLoginDays ?? this.totalLoginDays,
-      earnedBadges: earnedBadges ?? this.earnedBadges,
-      freezeCount: freezeCount ?? this.freezeCount,
-      usedFreezeToday: usedFreezeToday ?? this.usedFreezeToday,
-      totalFreezesUsed: totalFreezesUsed ?? this.totalFreezesUsed,
+      lastResetYear: lastResetYear ?? this.lastResetYear,
     );
   }
 
-  /// Dondurucu kullanılabilir mi?
-  bool get canUseFreeze => freezeCount > 0;
-
   @override
   String toString() {
-    return 'StreakData(current: $currentStreak, longest: $longestStreak, '
-        'lastLogin: $lastLoginDate, totalDays: $totalLoginDays, '
-        'freezeCount: $freezeCount)';
+    return 'RankData(totalXp: $totalXp, streak: $currentStreak, '
+        'longest: $longestStreak, lastLogin: $lastLoginDate)';
   }
 }
+
+// Backward compatibility: eski streak referansları için alias
+typedef StreakData = RankData;

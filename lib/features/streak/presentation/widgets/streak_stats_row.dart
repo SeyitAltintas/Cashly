@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../data/models/streak_model.dart';
 
-/// İstatistik satırı: En uzun seri ve toplam giriş sayısı
+/// Rank sayfası istatistik satırı
+/// Günlük seri, toplam gün ve XP bilgilerini gösterir
 class StreakStatsRow extends StatelessWidget {
-  final StreakData streakData;
+  final RankData streakData;
 
   const StreakStatsRow({super.key, required this.streakData});
 
@@ -14,19 +14,31 @@ class StreakStatsRow extends StatelessWidget {
       children: [
         Expanded(
           child: _StatCard(
-            icon: Icons.emoji_events,
-            value: '${streakData.longestStreak}',
-            label: context.l10n.longestStreak,
-            color: const Color(0xFFFFD700),
+            icon: Icons.local_fire_department,
+            iconColor: const Color(0xFFFF6B35),
+            label: 'Güncel Seri',
+            value: '${streakData.currentStreak}',
+            unit: 'gün',
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 12),
         Expanded(
           child: _StatCard(
             icon: Icons.calendar_today,
+            iconColor: const Color(0xFF42A5F5),
+            label: 'Toplam Gün',
             value: '${streakData.totalLoginDays}',
-            label: context.l10n.totalLogins,
-            color: const Color(0xFF4FC3F7),
+            unit: 'gün',
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _StatCard(
+            icon: Icons.emoji_events,
+            iconColor: const Color(0xFFFFB300),
+            label: 'En Uzun Seri',
+            value: '${streakData.longestStreak}',
+            unit: 'gün',
           ),
         ),
       ],
@@ -36,46 +48,76 @@ class StreakStatsRow extends StatelessWidget {
 
 class _StatCard extends StatelessWidget {
   final IconData icon;
-  final String value;
+  final Color iconColor;
   final String label;
-  final Color color;
+  final String value;
+  final String unit;
 
   const _StatCard({
     required this.icon,
-    required this.value,
+    required this.iconColor,
     required this.label,
-    required this.color,
+    required this.value,
+    required this.unit,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+        border: Border.all(
+          color: Theme.of(context)
+              .colorScheme
+              .onSurface
+              .withValues(alpha: 0.08),
+        ),
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 32),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+          Icon(icon, color: iconColor, size: 22),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurface,
+                  height: 1,
+                ),
+              ),
+              const SizedBox(width: 2),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Text(
+                  unit,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             label,
+            textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.6),
+              fontSize: 10,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.5),
             ),
           ),
         ],
