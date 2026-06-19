@@ -178,13 +178,13 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                           children: [
                             RankFrameWidget(
                               rankData: widget.streakData ?? RankData.empty(),
-                              profileImagePath:
-                                  widget
-                                      .authController
-                                      .currentUser
-                                      ?.profileImage,
+                              profileImagePath: widget
+                                  .authController
+                                  .currentUser
+                                  ?.profileImage,
                               size: 72,
                               onTap: () {
+                                HapticService.lightImpact();
                                 Navigator.push(
                                   context,
                                   PageRouteBuilder(
@@ -198,17 +198,18 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                                               widget.streakData ??
                                               RankData.empty(),
                                         ),
-                                    transitionsBuilder: (
-                                      context,
-                                      animation,
-                                      secondaryAnimation,
-                                      child,
-                                    ) {
-                                      return FadeTransition(
-                                        opacity: animation,
-                                        child: child,
-                                      );
-                                    },
+                                    transitionsBuilder:
+                                        (
+                                          context,
+                                          animation,
+                                          secondaryAnimation,
+                                          child,
+                                        ) {
+                                          return FadeTransition(
+                                            opacity: animation,
+                                            child: child,
+                                          );
+                                        },
                                     transitionDuration: const Duration(
                                       milliseconds: 300,
                                     ),
@@ -252,8 +253,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                               const SizedBox(height: 8),
                               // Mini Rank Badge
                               RankNameBadge(
-                                rankData:
-                                    widget.streakData ?? RankData.empty(),
+                                rankData: widget.streakData ?? RankData.empty(),
                               ),
                             ],
                           ),

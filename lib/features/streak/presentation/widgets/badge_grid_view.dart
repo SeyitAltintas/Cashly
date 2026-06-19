@@ -67,20 +67,16 @@ class _RankTierCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isUnlocked
               ? tier.primaryColor.withValues(alpha: 0.1)
-              : Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.04),
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isCurrent
                 ? tier.primaryColor
                 : isUnlocked
-                    ? tier.primaryColor.withValues(alpha: 0.35)
-                    : Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.1),
+                ? tier.primaryColor.withValues(alpha: 0.35)
+                : Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.1),
             width: isCurrent ? 2 : 1,
           ),
           boxShadow: isCurrent
@@ -117,10 +113,9 @@ class _RankTierCard extends StatelessWidget {
                 child: Icon(
                   Icons.lock_outline,
                   size: 28,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.25),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.25),
                 ),
               ),
             const SizedBox(height: 6),
@@ -131,14 +126,15 @@ class _RankTierCard extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
                 color: isUnlocked
-                    ? (isCurrent ? tier.primaryColor : Theme.of(context).colorScheme.onSurface)
-                    : Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.3),
+                    ? (isCurrent
+                          ? tier.primaryColor
+                          : Theme.of(context).colorScheme.onSurface)
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.3),
               ),
             ),
             // Mevcut rank etiketi
@@ -153,7 +149,7 @@ class _RankTierCard extends StatelessWidget {
                 child: const Text(
                   'Mevcut',
                   style: TextStyle(
-                    fontSize: 9,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),

@@ -8,6 +8,7 @@ import '../controllers/streak_controller.dart';
 import '../widgets/streak_header_card.dart';
 import '../widgets/streak_stats_row.dart';
 import '../widgets/badge_grid_view.dart';
+import '../../../../core/services/haptic_service.dart';
 import '../widgets/achievements_list.dart';
 import 'streak_help_page.dart';
 
@@ -45,6 +46,7 @@ class _StreakPageState extends State<StreakPage> {
     RankTier tier,
     bool isUnlocked,
   ) {
+    HapticService.lightImpact();
     final isCurrent = _controller.currentRank.level == tier.level;
 
     showModalBottomSheet(
@@ -83,6 +85,7 @@ class _StreakPageState extends State<StreakPage> {
                   ),
                   tooltip: 'Rank Sistemi Nasıl Çalışır?',
                   onPressed: () {
+                    HapticService.lightImpact();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -185,7 +188,7 @@ class _XpGuideCard extends StatelessWidget {
           Text(
             '⚡ XP her yıl sıfırlanır.',
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               color: Theme.of(context)
                   .colorScheme
                   .onSurface

@@ -57,10 +57,10 @@ class RankTiers {
 
   static const merakli = RankTier(
     level: 2,
-    id: 'merakli',
-    name: 'Meraklı',
-    description: 'Finansal dünyayı keşfetmeye başladınız.',
-    requiredXp: 500,
+    id: 'cirak',
+    name: 'Çırak',
+    description: 'İlk adımlarınızı attınız, harika bir başlangıç!',
+    requiredXp: 100,
     lottieAsset: 'assets/lottie/rank/level_2_silver.json',
     primaryColor: Color(0xFF78909C),
     glowColor: Color(0xFF90A4AE),
@@ -68,10 +68,10 @@ class RankTiers {
 
   static const mudavim = RankTier(
     level: 3,
-    id: 'mudavim',
-    name: 'Müdavim',
-    description: 'Düzenli kullanıcı olma yolundasınız.',
-    requiredXp: 1500,
+    id: 'maceraci',
+    name: 'Maceracı',
+    description: 'Finansal kontrolün önemini kavramaya başladınız.',
+    requiredXp: 400,
     lottieAsset: 'assets/lottie/rank/level_3_gold.json',
     primaryColor: Color(0xFFFFA726),
     glowColor: Color(0xFFFFD54F),
@@ -79,10 +79,10 @@ class RankTiers {
 
   static const aliskIn = RankTier(
     level: 4,
-    id: 'aliskın',
-    name: 'Alışkın',
-    description: 'Cashly artık alışkanlığınız oldu!',
-    requiredXp: 3500,
+    id: 'uzman',
+    name: 'Uzman',
+    description: 'Harcamalarınızı yönetmekte ustalaşıyorsunuz.',
+    requiredXp: 900,
     lottieAsset: 'assets/lottie/rank/level_4_gold.json',
     primaryColor: Color(0xFFFFB300),
     glowColor: Color(0xFFFFCA28),
@@ -90,10 +90,10 @@ class RankTiers {
 
   static const tutkun = RankTier(
     level: 5,
-    id: 'tutkun',
-    name: 'Tutkun',
-    description: 'Finansal tutkunuz fark yaratıyor.',
-    requiredXp: 7000,
+    id: 'sovalye',
+    name: 'Şövalye',
+    description: 'Bütçenizin yılmaz bir koruyucususunuz.',
+    requiredXp: 1600,
     lottieAsset: 'assets/lottie/rank/level_5_gold.json',
     primaryColor: Color(0xFFFF8F00),
     glowColor: Color(0xFFFFA000),
@@ -101,10 +101,10 @@ class RankTiers {
 
   static const sadik = RankTier(
     level: 6,
-    id: 'sadık',
-    name: 'Sadık',
-    description: 'Cashly\'ye olan bağlılığınız takdire şayan.',
-    requiredXp: 12000,
+    id: 'kahraman',
+    name: 'Kahraman',
+    description: 'Finansal hedeflerinize ulaşmada gerçek bir kahramansınız.',
+    requiredXp: 2500,
     lottieAsset: 'assets/lottie/rank/level_6_gold.json',
     primaryColor: Color(0xFFE65100),
     glowColor: Color(0xFFFF6D00),
@@ -112,10 +112,10 @@ class RankTiers {
 
   static const kidemli = RankTier(
     level: 7,
-    id: 'kidemli',
-    name: 'Kıdemli',
-    description: 'Deneyimli bir Cashly kullanıcısısınız.',
-    requiredXp: 20000,
+    id: 'efsane',
+    name: 'Efsane',
+    description: 'Uzun süreli tutarlılığınızla bir efsaneye dönüşüyorsunuz.',
+    requiredXp: 3600,
     lottieAsset: 'assets/lottie/rank/level_7_gold.json',
     primaryColor: Color(0xFFAD1457),
     glowColor: Color(0xFFE91E63),
@@ -123,10 +123,10 @@ class RankTiers {
 
   static const vazgecilmez = RankTier(
     level: 8,
-    id: 'vazgecilmez',
-    name: 'Vazgeçilmez',
-    description: 'Cashly sizin için vazgeçilmez, siz Cashly için!',
-    requiredXp: 35000,
+    id: 'usta',
+    name: 'Usta',
+    description: 'Finansal yönetimin en ince detaylarına kadar ustalaştınız.',
+    requiredXp: 4900,
     lottieAsset: 'assets/lottie/rank/level_8_purple.json',
     primaryColor: Color(0xFF6A1B9A),
     glowColor: Color(0xFF9C27B0),
@@ -134,10 +134,10 @@ class RankTiers {
 
   static const cashlyEfsanesi = RankTier(
     level: 9,
-    id: 'cashly_efsanesi',
-    name: 'Cashly Efsanesi',
-    description: 'Finansal özgürlüğün zirvesine ulaştınız. Efsanesiniz!',
-    requiredXp: 55000,
+    id: 'grandmaster',
+    name: 'Grandmaster',
+    description: 'Zirvedesiniz! Bütçe yönetiminde size rakip yok.',
+    requiredXp: 6000,
     lottieAsset: 'assets/lottie/rank/level_9_puple.json',
     primaryColor: Color(0xFF4A148C),
     glowColor: Color(0xFF7B1FA2),

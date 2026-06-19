@@ -99,8 +99,8 @@ class StreakHelpPage extends StatelessWidget {
                     child: Row(
                       children: [
                         Container(
-                          width: 28,
-                          height: 28,
+                          width: 28, // non-interactive
+                          height: 28, // non-interactive
                           decoration: BoxDecoration(
                             color: tier.primaryColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
@@ -173,7 +173,7 @@ class _InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16), // non-interactive
       decoration: BoxDecoration(
         color: iconColor.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
@@ -184,7 +184,7 @@ class _InfoCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, color: iconColor, size: 20),
+              Icon(icon, color: iconColor, size: 20), // non-interactive
               const SizedBox(width: 8),
               Text(
                 title,
@@ -238,7 +238,7 @@ class _XpInfoRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: color),
+          Icon(icon, size: 18, color: color), // non-interactive
           const SizedBox(width: 10),
           Expanded(
             child: Text(
