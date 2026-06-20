@@ -25,7 +25,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
         title: Text(l10n.languageSettings),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -73,23 +75,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
             const SizedBox(height: 24),
 
             // Language List
-            Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.08),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
+            Card(
+              margin: EdgeInsets.zero,
               child: Column(
                 children: LocaleManager.supportedLocales.map((locale) {
                   final isSelected =
@@ -160,7 +147,9 @@ class _LanguageTile extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.15)
                       : Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.08),
@@ -182,7 +171,9 @@ class _LanguageTile extends StatelessWidget {
                     Text(
                       LocaleManager.getDisplayName(locale),
                       style: TextStyle(
-                        color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurface,
                         fontSize: 16,
                         fontWeight: isSelected
                             ? FontWeight.w600
@@ -207,7 +198,9 @@ class _LanguageTile extends StatelessWidget {
                   duration: const Duration(milliseconds: 300),
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

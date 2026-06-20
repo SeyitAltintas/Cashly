@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../../data/models/streak_model.dart';
 import '../../data/constants/streak_badges.dart';
-import '../../../dashboard/presentation/widgets/dashboard_card_container.dart';
+
 
 /// Rank sayfasının üst kartı
 /// Mevcut rank, XP ve progress bar gösterir
@@ -50,10 +50,11 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
       builder: (context, child) {
         final glow = _glowController.value;
 
-        return DashboardCardContainer(
-          padding: const EdgeInsets.all(24),
-          borderWidth: 1.5,
-          child: Column(
+        return Card(
+          margin: EdgeInsets.zero,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
             children: [
               // Rank Lottie animasyonu + bilgileri
               Row(
@@ -229,6 +230,7 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
                 ),
               ],
             ],
+          ),
           ),
         );
       },

@@ -13,7 +13,6 @@ import '../../../../streak/data/models/streak_model.dart';
 import '../../../../streak/data/constants/streak_badges.dart';
 import '../../../../streak/presentation/widgets/rank_frame_widget.dart';
 import '../../../../streak/presentation/pages/streak_page.dart';
-import '../../../../dashboard/presentation/widgets/dashboard_card_container.dart';
 import '../../../../streak/presentation/controllers/streak_controller.dart';
 import 'package:cashly/core/di/injection_container.dart';
 
@@ -158,9 +157,10 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
 
     final rankData = _localRankData ?? widget.streakData ?? RankData.empty();
     final rankTier = RankTiers.fromXp(rankData.totalXp);
-    
+
     final rankColor = Theme.of(context).brightness == Brightness.dark
-        ? Color.lerp(rankTier.glowColor, Colors.white, 0.3) ?? rankTier.glowColor
+        ? Color.lerp(rankTier.glowColor, Colors.white, 0.3) ??
+              rankTier.glowColor
         : rankTier.primaryColor;
 
     return SingleChildScrollView(
@@ -174,141 +174,144 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Profil Bilgileri - Sade Tasarım
-          DashboardCardContainer(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-            child: IntrinsicHeight(
-              child: Row(
-                children: [
-                  // Sol Taraf: Animasyon ve Rank Yazısı
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      RankFrameWidget(
-                        rankData: rankData,
-                        profileImagePath:
-                            widget.authController.currentUser?.profileImage,
-                        size: 72,
-                        onTap: () {
-                          HapticService.lightImpact();
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      StreakPage(streakData: rankData),
-                              transitionsBuilder:
-                                  (
-                                    context,
-                                    animation,
-                                    secondaryAnimation,
-                                    child,
-                                  ) {
-                                    return FadeTransition(
-                                      opacity: animation,
-                                      child: child,
-                                    );
-                                  },
-                              transitionDuration: const Duration(
-                                milliseconds: 300,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      Transform.translate(
-                        offset: const Offset(0, -12),
-                        child: Text(
-                          rankTier.name,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: rankColor,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 40),
-                  // Sağ Taraf: Kullanıcı Bilgileri
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+              child: IntrinsicHeight(
+                child: Row(
+                  children: [
+                    // Sol Taraf: Animasyon ve Rank Yazısı
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          widget.authController.currentUser?.name ??
-                              context.l10n.user,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.3,
-                          ),
+                        RankFrameWidget(
+                          rankData: rankData,
+                          profileImagePath:
+                              widget.authController.currentUser?.profileImage,
+                          size: 72,
+                          onTap: () {
+                            HapticService.lightImpact();
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        StreakPage(streakData: rankData),
+                                transitionsBuilder:
+                                    (
+                                      context,
+                                      animation,
+                                      secondaryAnimation,
+                                      child,
+                                    ) {
+                                      return FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      );
+                                    },
+                                transitionDuration: const Duration(
+                                  milliseconds: 300,
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                        const SizedBox(height: 4),
-                        if (widget.authController.currentUser?.email != null)
-                          Text(
-                            widget.authController.currentUser!.email,
+                        Transform.translate(
+                          offset: const Offset(0, -12),
+                          child: Text(
+                            rankTier.name,
                             style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.7),
                               fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: rankColor,
+                              letterSpacing: 0.5,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        const SizedBox(height: 8),
-                        // XP ve Seri Bilgisi
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.stars_rounded,
-                                  size: 16,
-                                  color: rankColor,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${rankData.totalXp} XP',
-                                  style: TextStyle(
-                                    color: rankColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.local_fire_department,
-                                  size: 16,
-                                  color: Color(0xFFFF6B35),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${rankData.currentStreak} Gün Seri',
-                                  style: const TextStyle(
-                                    color: Color(0xFFFF6B35),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 40),
+                    // Sağ Taraf: Kullanıcı Bilgileri
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            widget.authController.currentUser?.name ??
+                                context.l10n.user,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          if (widget.authController.currentUser?.email != null)
+                            Text(
+                              widget.authController.currentUser!.email,
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                                fontSize: 14,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          const SizedBox(height: 8),
+                          // XP ve Seri Bilgisi
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.stars_rounded,
+                                    size: 16,
+                                    color: rankColor,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${rankData.totalXp} XP',
+                                    style: TextStyle(
+                                      color: rankColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.local_fire_department,
+                                    size: 16,
+                                    color: Color(0xFFFF6B35),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${rankData.currentStreak} Gün Seri',
+                                    style: const TextStyle(
+                                      color: Color(0xFFFF6B35),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -318,7 +321,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           Text(
             context.l10n.account,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.4),
               fontSize: 13,
               fontWeight: FontWeight.w400,
               letterSpacing: 0.5,
@@ -327,8 +332,8 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           const SizedBox(height: 12),
 
           // Hesap seçenekleri kartı
-          DashboardCardContainer(
-            padding: EdgeInsets.zero,
+          Card(
+            margin: EdgeInsets.zero,
             child: Column(
               children: [
                 // Kullanıcı Bilgileri
@@ -385,7 +390,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           Text(
             context.l10n.support,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.4),
               fontSize: 13,
               fontWeight: FontWeight.w400,
               letterSpacing: 0.5,
@@ -394,8 +401,8 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           const SizedBox(height: 12),
 
           // Tercihler Kartı
-          DashboardCardContainer(
-            padding: EdgeInsets.zero,
+          Card(
+            margin: EdgeInsets.zero,
             child: _buildProfileTile(
               context: context,
               icon: Icons.info_outline,
@@ -419,7 +426,9 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           Text(
             context.l10n.session,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.4),
               fontSize: 13,
               fontWeight: FontWeight.w400,
               letterSpacing: 0.5,
@@ -428,8 +437,8 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           const SizedBox(height: 12),
 
           // Çıkış yap kartı
-          DashboardCardContainer(
-            padding: EdgeInsets.zero,
+          Card(
+            margin: EdgeInsets.zero,
             child: _buildProfileTile(
               context: context,
               icon: Icons.logout,
@@ -569,18 +578,18 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
               )
             : null,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               // İkon container
               Container(
-                width: 42,
-                height: 42,
+                width: 46,
+                height: 46,
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: iconColor, size: 22),
+                child: Icon(icon, color: iconColor, size: 24),
               ),
               const SizedBox(width: 14),
               // Başlık ve alt başlık
@@ -605,7 +614,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        fontSize: 12,
+                        fontSize: 13,
                       ),
                     ),
                   ],

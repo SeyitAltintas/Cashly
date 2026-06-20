@@ -399,7 +399,7 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                 : Column(
                     children: [
                       // Özet Kartı
-                      if (!gelirAramaModuContext)
+                      if (!gelirAramaModuContext) ...[
                         IncomeSummaryCard(
                           ayIsmi: ayIsmi,
                           toplamGelir: hesaplananToplamGelir,
@@ -411,6 +411,8 @@ class _IncomesPageState extends State<IncomesPage> with LazyLoadingMixin {
                             (IncomesController c) => c.incomeTarget,
                           ),
                         ),
+                        const SizedBox(height: 16),
+                      ],
 
                       // Gelir listesi
                       Expanded(

@@ -37,17 +37,17 @@ class SettingsTile extends StatelessWidget {
               )
             : null,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Container(
-                width: 42,
-                height: 42,
+                width: 46,
+                height: 46,
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: iconColor, size: 22),
+                child: Icon(icon, color: iconColor, size: 24),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -69,7 +69,7 @@ class SettingsTile extends StatelessWidget {
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        fontSize: 12,
+                        fontSize: 13,
                       ),
                     ),
                   ],

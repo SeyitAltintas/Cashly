@@ -60,7 +60,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
         // İzin verildiyse bildirimleri planla
         await _scheduler.rescheduleAll();
         if (mounted) {
-          _showSnackBar(context.l10n.notificationsEnabled, ColorConstants.yesil);
+          _showSnackBar(
+            context.l10n.notificationsEnabled,
+            ColorConstants.yesil,
+          );
         }
       }
     }
@@ -132,7 +135,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
         title: Text(context.l10n.notifications),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -213,7 +218,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
         decoration: BoxDecoration(
           color: ColorConstants.turuncuVurgu.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3)),
+          border: Border.all(
+            color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3),
+          ),
         ),
         child: Row(
           children: [
@@ -313,7 +320,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
             allEnabled ? context.l10n.turnOffAll : context.l10n.turnOnAll,
             style: TextStyle(
               color: _hasPermission
-                  ? (allEnabled ? ColorConstants.kirmiziVurgu : ColorConstants.yesil)
+                  ? (allEnabled
+                        ? ColorConstants.kirmiziVurgu
+                        : ColorConstants.yesil)
                   : Colors.grey,
               fontSize: 12,
               fontWeight: FontWeight.w400,
@@ -325,16 +334,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
   }
 
   Widget _buildNotificationScenarios(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.08),
-        ),
-      ),
+    return Card(
+      margin: EdgeInsets.zero,
       child: Column(
         children: [
           _buildScenarioTile(
@@ -400,16 +401,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage>
   }
 
   Widget _buildScheduleSettings(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.08),
-        ),
-      ),
+    return Card(
+      margin: EdgeInsets.zero,
       child: Column(
         children: [
           // Seri hatırlatıcı saati

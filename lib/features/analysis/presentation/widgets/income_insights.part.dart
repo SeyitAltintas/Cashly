@@ -106,7 +106,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
           const SizedBox(height: 16),
           Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : const Color(0xFFF8F9FA),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
@@ -326,7 +326,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : const Color(0xFFF8F9FA),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: Theme.of(
@@ -501,7 +501,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : const Color(0xFFF8F9FA),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: Theme.of(
@@ -663,7 +663,7 @@ extension IncomeInsightsExtension on _AnalysisPageState {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : const Color(0xFFF8F9FA),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: Theme.of(

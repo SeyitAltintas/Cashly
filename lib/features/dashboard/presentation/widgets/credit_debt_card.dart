@@ -6,7 +6,7 @@ import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../controllers/dashboard_controller.dart';
-import 'dashboard_card_container.dart';
+
 /// Kredi Kartı Borç Kartı Widget'ı
 /// Dashboard'da toplam kredi kartı borcunu gösterir
 class CreditDebtCard extends StatelessWidget {
@@ -25,43 +25,47 @@ class CreditDebtCard extends StatelessWidget {
 
     return AnimatedCard(
       delay: 150,
-      child: DashboardCardContainer(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.credit_card,
+                  color: ColorConstants.kirmiziVurgu,
+                  size: 24,
+                ),
               ),
-              child: const Icon(
-                Icons.credit_card,
-                color: ColorConstants.kirmiziVurgu,
-                size: 24,
+              const SizedBox(height: 12),
+              Text(
+                context.l10n.creditCardDebt,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              context.l10n.creditCardDebt,
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              const SizedBox(height: 4),
+              ObscuredAmountText(
+                CurrencyFormatter.formatInteger(totalDebt),
+                isObscured: isObscured,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: ColorConstants.kirmiziVurgu,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            ObscuredAmountText(
-              CurrencyFormatter.formatInteger(totalDebt),
-              isObscured: isObscured,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: ColorConstants.kirmiziVurgu,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

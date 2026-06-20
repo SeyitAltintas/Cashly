@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/models/streak_model.dart';
-import '../../../dashboard/presentation/widgets/dashboard_card_container.dart';
+
 
 /// Rank sayfası istatistik satırı
 /// Günlük seri, toplam gün ve XP bilgilerini gösterir
@@ -59,10 +59,11 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DashboardCardContainer(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
-      borderWidth: 1.5,
-      child: Column(
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
+        child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, color: iconColor, size: 20),
@@ -90,6 +91,7 @@ class _StatCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

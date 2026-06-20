@@ -13,7 +13,9 @@ class AppearancePage extends StatelessWidget {
         title: Text(context.l10n.appearance),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -61,23 +63,8 @@ class AppearancePage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Ayarlar Listesi
-            Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.08),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
+            Card(
+              margin: EdgeInsets.zero,
               child: Column(
                 children: [
                   // Tema
@@ -96,7 +83,12 @@ class AppearancePage extends StatelessWidget {
                       );
                     },
                   ),
-                  Divider(height: 1, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
+                  Divider(
+                    height: 1,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.1),
+                  ),
                   // Animasyonlar
                   _buildSettingsTile(
                     context: context,
@@ -136,18 +128,19 @@ class AppearancePage extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                width: 46,
+                height: 46,
                 decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: iconColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: iconColor),
+                child: Icon(icon, color: iconColor, size: 24),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,16 +149,17 @@ class AppearancePage extends StatelessWidget {
                       title,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       subtitle,
                       style: TextStyle(
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
                         fontSize: 13,
                       ),
                     ),

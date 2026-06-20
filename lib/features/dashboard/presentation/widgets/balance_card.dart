@@ -9,7 +9,6 @@ import '../../../../core/services/currency_service.dart';
 import '../../../../core/services/haptic_service.dart';
 import '../../../payment_methods/data/models/payment_method_model.dart';
 import '../controllers/dashboard_controller.dart';
-import 'dashboard_card_container.dart';
 
 /// Toplam Bakiye Kartı Widget'ı
 /// Dashboard'da toplam finansal durumu gösterir
@@ -111,8 +110,8 @@ class _BalanceCardState extends State<BalanceCard> {
 
     return AnimatedCard(
       delay: 100,
-      child: DashboardCardContainer(
-        padding: EdgeInsets.zero,
+      child: Card(
+        margin: EdgeInsets.zero,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Stack(

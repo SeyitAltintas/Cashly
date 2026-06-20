@@ -614,21 +614,13 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
       },
       child: GestureDetector(
         onTap: () => _islemDuzenle(index),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.1),
-            ),
-          ),
-          child: Row(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
             children: [
               Container(
                 width: 48,
@@ -680,7 +672,9 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
               ),
             ],
           ),
+          ),
         ),
+      ),
       ),
     );
   }

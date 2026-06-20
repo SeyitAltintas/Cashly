@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import '../../data/constants/streak_badges.dart';
-import '../../../dashboard/presentation/widgets/dashboard_card_container.dart';
+
 
 /// Rank sisteminin nasıl çalıştığını açıklayan yardım sayfası
 class StreakHelpPage extends StatelessWidget {
@@ -217,10 +217,12 @@ class _InfoCard extends StatelessWidget {
       ],
     );
 
-    return DashboardCardContainer(
-      padding: const EdgeInsets.all(20),
-      borderWidth: 1.5,
-      child: innerContent,
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: innerContent,
+      ),
     );
   }
 }

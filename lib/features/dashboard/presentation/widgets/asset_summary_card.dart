@@ -7,7 +7,7 @@ import '../../../assets/data/models/asset_model.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../controllers/dashboard_controller.dart';
-import 'dashboard_card_container.dart';
+
 /// Varlık Özeti Kartı Widget'ı
 /// Toplam varlık değerini gösterir
 class AssetSummaryCard extends StatelessWidget {
@@ -32,44 +32,52 @@ class AssetSummaryCard extends StatelessWidget {
 
     return AnimatedCard(
       delay: 400,
-      child: DashboardCardContainer(
-        onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: ColorConstants.maviVurgu.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.diamond_outlined,
-                color: ColorConstants.maviVurgu,
-                size: 24,
-              ),
+      child: Card(
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: ColorConstants.maviVurgu.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.diamond_outlined,
+                    color: ColorConstants.maviVurgu,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  context.l10n.totalAsset,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                ObscuredAmountText(
+                  CurrencyFormatter.formatInteger(totalAssets),
+                  isObscured: isObscured,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: ColorConstants.maviVurgu,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              context.l10n.totalAsset,
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            const SizedBox(height: 4),
-            ObscuredAmountText(
-              CurrencyFormatter.formatInteger(totalAssets),
-              isObscured: isObscured,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: ColorConstants.maviVurgu,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

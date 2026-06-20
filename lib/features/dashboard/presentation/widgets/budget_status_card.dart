@@ -4,7 +4,6 @@ import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../../../../core/constants/color_constants.dart';
-import 'dashboard_card_container.dart';
 
 class BudgetStatusCard extends StatelessWidget {
   final String? title;
@@ -36,101 +35,109 @@ class BudgetStatusCard extends StatelessWidget {
 
     return AnimatedCard(
       delay: 200,
-      child: DashboardCardContainer(
-        onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Card(
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title ?? context.l10n.thisMonth,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                if (onTap != null)
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: 20,
-                    color: onSurfaceColor.withValues(alpha: 0.4),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildSummaryItem(
-                    context,
-                    icon: Icons.arrow_downward,
-                    iconColor: ColorConstants.kirmiziVurgu,
-                    label: context.l10n.expense,
-                    value: CurrencyFormatter.formatInteger(monthlyExpense),
-                    isObscured: isObscured,
-                    valueColor: ColorConstants.kirmiziVurgu,
-                  ),
-                ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: onSurfaceColor.withValues(alpha: 0.1),
-                ),
-                Expanded(
-                  child: _buildSummaryItem(
-                    context,
-                    icon: Icons.arrow_upward,
-                    iconColor: ColorConstants.yesil,
-                    label: context.l10n.income,
-                    value: CurrencyFormatter.formatInteger(monthlyIncome),
-                    isObscured: isObscured,
-                    valueColor: ColorConstants.yesil,
-                  ),
-                ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: onSurfaceColor.withValues(alpha: 0.1),
-                ),
-                Expanded(
-                  child: _buildSummaryItem(
-                    context,
-                    icon: netDiff >= 0
-                        ? Icons.trending_up
-                        : Icons.trending_down,
-                    iconColor: netDiff >= 0
-                        ? ColorConstants.yesil
-                        : ColorConstants.kirmiziVurgu,
-                    label: context.l10n.net,
-                    value: CurrencyFormatter.formatIntegerSigned(
-                      netDiff,
-                      showPlus: true,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title ?? context.l10n.thisMonth,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
-                    isObscured: isObscured,
-                    valueColor: netDiff >= 0
-                        ? ColorConstants.yesil
-                        : ColorConstants.kirmiziVurgu,
-                  ),
+                    if (onTap != null)
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        size: 20,
+                        color: onSurfaceColor.withValues(alpha: 0.4),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildSummaryItem(
+                        context,
+                        icon: Icons.arrow_downward,
+                        iconColor: ColorConstants.kirmiziVurgu,
+                        label: context.l10n.expense,
+                        value: CurrencyFormatter.formatInteger(monthlyExpense),
+                        isObscured: isObscured,
+                        valueColor: ColorConstants.kirmiziVurgu,
+                      ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: onSurfaceColor.withValues(alpha: 0.1),
+                    ),
+                    Expanded(
+                      child: _buildSummaryItem(
+                        context,
+                        icon: Icons.arrow_upward,
+                        iconColor: ColorConstants.yesil,
+                        label: context.l10n.income,
+                        value: CurrencyFormatter.formatInteger(monthlyIncome),
+                        isObscured: isObscured,
+                        valueColor: ColorConstants.yesil,
+                      ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: onSurfaceColor.withValues(alpha: 0.1),
+                    ),
+                    Expanded(
+                      child: _buildSummaryItem(
+                        context,
+                        icon: netDiff >= 0
+                            ? Icons.trending_up
+                            : Icons.trending_down,
+                        iconColor: netDiff >= 0
+                            ? ColorConstants.yesil
+                            : ColorConstants.kirmiziVurgu,
+                        label: context.l10n.net,
+                        value: CurrencyFormatter.formatIntegerSigned(
+                          netDiff,
+                          showPlus: true,
+                        ),
+                        isObscured: isObscured,
+                        valueColor: netDiff >= 0
+                            ? ColorConstants.yesil
+                            : ColorConstants.kirmiziVurgu,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  height: 1,
+                  width: double.infinity,
+                  color: onSurfaceColor.withValues(alpha: 0.1),
+                ),
+                const SizedBox(height: 16),
+                _buildBudgetProgress(
+                  context,
+                  monthlyExpense,
+                  butceLimiti,
+                  isObscured,
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Container(
-              height: 1,
-              width: double.infinity,
-              color: onSurfaceColor.withValues(alpha: 0.1),
-            ),
-            const SizedBox(height: 16),
-            _buildBudgetProgress(
-              context,
-              monthlyExpense,
-              butceLimiti,
-              isObscured,
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -68,7 +68,9 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
           title: Text(context.l10n.settings),
           backgroundColor: Colors.transparent,
           elevation: 0,
-          iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+          iconTheme: IconThemeData(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context, _needsRefresh),
@@ -98,23 +100,8 @@ class _AyarlarSayfasiState extends State<AyarlarSayfasi> {
   }
 
   Widget _buildSettingsContainer(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.08),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return Card(
+      margin: EdgeInsets.zero,
       child: Column(
         children: [
           SettingsTile(

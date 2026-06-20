@@ -155,13 +155,16 @@ class AppTheme {
         height: 65,
         labelTextStyle: const WidgetStatePropertyAll(TextStyle(fontSize: 12)),
       ),
-      cardTheme: const CardThemeData(
-        color: Color(0xFF1E1E1E),
-        elevation: 8,
-        shadowColor: Color(0x4D000000), // Koyu temaya uygun yumuşak gölge
+      cardTheme: CardThemeData(
+        color: const Color(0xFF2A2A2A).withValues(alpha: 0.3),
+        elevation: 0,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.05),
+            width: 1,
+          ),
         ),
       ),
       dialogTheme: const DialogThemeData(
@@ -414,15 +417,16 @@ class AppTheme {
           return const TextStyle(fontSize: 12, color: Color(0x8A1E1E2C));
         }),
       ),
-      cardTheme: const CardThemeData(
-        color: Colors.white,
-        elevation: 8,
-        shadowColor: Color(
-          0x1A000000,
-        ), // Yumuşak geniş gölge efekti (Neo-morphism)
+      cardTheme: CardThemeData(
+        color: const Color(0xFFF8F9FA),
+        elevation: 0,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          side: BorderSide(
+            color: const Color(0xFF1E1E2C).withValues(alpha: 0.05),
+            width: 1,
+          ),
         ),
       ),
       dialogTheme: const DialogThemeData(

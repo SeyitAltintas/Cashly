@@ -78,10 +78,16 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
         title: Text(context.l10n.voiceAssistant),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onSurface))
+          ? Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -128,66 +134,64 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                   const SizedBox(height: 24),
 
                   // Sesli geri bildirim ayarı
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.1),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          _sesliGeriBildirimAktif
-                              ? Icons.volume_up
-                              : Icons.volume_off,
-                          color: _sesliGeriBildirimAktif
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                context.l10n.voiceFeedbackLabel,
-                                style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Text(
-                                _sesliGeriBildirimAktif
-                                    ? context.l10n.on
-                                    : context.l10n.off,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.6),
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
+                  Card(
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _sesliGeriBildirimAktif
+                                ? Icons.volume_up
+                                : Icons.volume_off,
+                            color: _sesliGeriBildirimAktif
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.5),
                           ),
-                        ),
-                        Switch(
-                          value: _sesliGeriBildirimAktif,
-                          onChanged: _ayariDegistir,
-                          activeTrackColor: ColorConstants.yesil.withValues(alpha: 0.5),
-                          activeThumbColor: ColorConstants.yesil,
-                          inactiveTrackColor: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3),
-                          inactiveThumbColor: ColorConstants.kirmiziVurgu,
-                        ),
-                      ],
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  context.l10n.voiceFeedbackLabel,
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  _sesliGeriBildirimAktif
+                                      ? context.l10n.on
+                                      : context.l10n.off,
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            value: _sesliGeriBildirimAktif,
+                            onChanged: _ayariDegistir,
+                            activeTrackColor: ColorConstants.yesil.withValues(
+                              alpha: 0.5,
+                            ),
+                            activeThumbColor: ColorConstants.yesil,
+                            inactiveTrackColor: ColorConstants.kirmiziVurgu
+                                .withValues(alpha: 0.3),
+                            inactiveThumbColor: ColorConstants.kirmiziVurgu,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
@@ -205,7 +209,10 @@ class _VoiceAssistantPageState extends State<VoiceAssistantPage> {
                           ),
                         );
                       },
-                      icon: Icon(Icons.list_alt, color: Theme.of(context).colorScheme.onPrimary),
+                      icon: Icon(
+                        Icons.list_alt,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
                       label: Text(
                         context.l10n.viewAllVoiceCommands,
                         style: TextStyle(

@@ -6,7 +6,7 @@ import '../../../../core/widgets/animated_card.dart';
 import '../../../../core/widgets/obscured_amount_text.dart';
 import '../../../../core/extensions/l10n_extensions.dart';
 import '../controllers/dashboard_controller.dart';
-import 'dashboard_card_container.dart';
+
 /// Son İşlemler Kartı Widget'ı
 /// Harcama, gelir ve transferlerdeki son işlemleri gösterir
 class RecentTransactionsCard extends StatelessWidget {
@@ -60,27 +60,31 @@ class RecentTransactionsCard extends StatelessWidget {
 
     return AnimatedCard(
       delay: 500,
-      child: DashboardCardContainer(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.l10n.recentTransactions,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.onSurface,
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.l10n.recentTransactions,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            if (recentTransactions.isEmpty)
-              _buildEmptyState(context)
-            else
-              ...recentTransactions.map(
-                (transaction) =>
-                    _buildTransactionItem(context, transaction, isObscured),
-              ),
-          ],
+              const SizedBox(height: 16),
+              if (recentTransactions.isEmpty)
+                _buildEmptyState(context)
+              else
+                ...recentTransactions.map(
+                  (transaction) =>
+                      _buildTransactionItem(context, transaction, isObscured),
+                ),
+            ],
+          ),
         ),
       ),
     );

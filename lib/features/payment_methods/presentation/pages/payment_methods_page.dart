@@ -71,7 +71,6 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
   // Controller - DI'dan alınır
   late final PaymentMethodsController _controller;
 
-
   @override
   void initState() {
     super.initState();
@@ -278,27 +277,29 @@ class _PaymentMethodsPageState extends State<PaymentMethodsPage> {
       controller: _controller,
       onDelete: widget.onDelete,
       onEdit: widget.onEdit,
-      onCardTap: widget.onCardTap ?? (pm) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PaymentMethodDetailPage(
-              paymentMethod: pm,
-              harcamalar: widget.harcamalar,
-              gelirler: widget.gelirler,
-              transferler: widget.transferler,
-              tumOdemeYontemleri: _controller.paymentMethods,
-              controller: _controller,
-              onDelete: (deletedPm) {
-                widget.onDelete(deletedPm);
-              },
-              onEdit: (editedPm) {
-                widget.onEdit(editedPm);
-              },
-            ),
-          ),
-        );
-      },
+      onCardTap:
+          widget.onCardTap ??
+          (pm) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PaymentMethodDetailPage(
+                  paymentMethod: pm,
+                  harcamalar: widget.harcamalar,
+                  gelirler: widget.gelirler,
+                  transferler: widget.transferler,
+                  tumOdemeYontemleri: _controller.paymentMethods,
+                  controller: _controller,
+                  onDelete: (deletedPm) {
+                    widget.onDelete(deletedPm);
+                  },
+                  onEdit: (editedPm) {
+                    widget.onEdit(editedPm);
+                  },
+                ),
+              ),
+            );
+          },
       onAddCard: () {
         Navigator.push(
           context,
@@ -379,7 +380,6 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
   int _currentIndex = 0;
   late PageController _pageController;
 
-
   Widget _buildCardAnalysis(PaymentMethod pm) {
     final now = DateTime.now();
     double totalIncome = 0;
@@ -387,17 +387,27 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
     final cur = getIt<CurrencyService>();
 
     for (var g in widget.gelirler) {
-      if (g.paymentMethodId == pm.id && g.date.month == now.month && g.date.year == now.year) {
+      if (g.paymentMethodId == pm.id &&
+          g.date.month == now.month &&
+          g.date.year == now.year) {
         totalIncome += cur.convert(g.amount, g.paraBirimi, cur.currentCurrency);
       }
     }
     for (var h in widget.harcamalar) {
       final date = DateTime.tryParse(h['tarih']?.toString() ?? '');
-      if (h['odemeYontemiId'] == pm.id && date != null && date.month == now.month && date.year == now.year) {
+      if (h['odemeYontemiId'] == pm.id &&
+          date != null &&
+          date.month == now.month &&
+          date.year == now.year) {
         final amount = (h['tutar'] as num?)?.toDouble() ?? 0;
         // Harcamanın kendi para birimini kullan (örn. USD girilmiş harcama TL'ye çevrilir)
-        final expenseCurrency = h['paraBirimi']?.toString() ?? cur.currentCurrency;
-        totalExpense += cur.convert(amount, expenseCurrency, cur.currentCurrency);
+        final expenseCurrency =
+            h['paraBirimi']?.toString() ?? cur.currentCurrency;
+        totalExpense += cur.convert(
+          amount,
+          expenseCurrency,
+          cur.currentCurrency,
+        );
       }
     }
 
@@ -405,60 +415,95 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
     final incomeRatio = total > 0 ? totalIncome / total : 0.5;
     final expenseRatio = total > 0 ? totalExpense / total : 0.5;
 
-    return Container(
-      margin: const EdgeInsets.only(top: 24),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Bu Ayki Durum',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Text(
+                'Bu Ayki Durum',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Gelir', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
-                  const SizedBox(height: 4),
-                  Text(CurrencyFormatter.format(totalIncome), style: const TextStyle(fontWeight: FontWeight.w500, color: ColorConstants.yesil)),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Gelir',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        CurrencyFormatter.format(totalIncome),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: ColorConstants.yesil,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Gider',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        CurrencyFormatter.format(totalExpense),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: ColorConstants.kirmiziVurgu,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text('Gider', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
-                  const SizedBox(height: 4),
-                  Text(CurrencyFormatter.format(totalExpense), style: const TextStyle(fontWeight: FontWeight.w500, color: ColorConstants.kirmiziVurgu)),
-                ],
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: (incomeRatio * 100).toInt(),
+                      child: Container(height: 8, color: ColorConstants.yesil),
+                    ),
+                    Expanded(
+                      flex: (expenseRatio * 100).toInt(),
+                      child: Container(
+                        height: 8,
+                        color: ColorConstants.kirmiziVurgu,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: Row(
-              children: [
-                Expanded(flex: (incomeRatio * 100).toInt(), child: Container(height: 8, color: ColorConstants.yesil)),
-                Expanded(flex: (expenseRatio * 100).toInt(), child: Container(height: 8, color: ColorConstants.kirmiziVurgu)),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -469,62 +514,92 @@ class _PaymentMethodSliderState extends State<PaymentMethodSlider> {
 
     for (var g in widget.gelirler) {
       if (g.paymentMethodId == pm.id) {
-        recent.add({'title': g.name, 'amount': g.amount, 'date': g.date, 'type': 'gelir', 'currency': g.paraBirimi});
+        recent.add({
+          'title': g.name,
+          'amount': g.amount,
+          'date': g.date,
+          'type': 'gelir',
+          'currency': g.paraBirimi,
+        });
       }
     }
     for (var h in widget.harcamalar) {
       if (h['odemeYontemiId'] == pm.id && h['silindi'] != true) {
         final date = DateTime.tryParse(h['tarih']?.toString() ?? '');
         if (date != null) {
-          recent.add({'title': h['isim'] ?? 'Harcama', 'amount': (h['tutar'] as num?)?.toDouble() ?? 0.0, 'date': date, 'type': 'gider', 'currency': cur.currentCurrency});
+          recent.add({
+            'title': h['isim'] ?? 'Harcama',
+            'amount': (h['tutar'] as num?)?.toDouble() ?? 0.0,
+            'date': date,
+            'type': 'gider',
+            'currency': cur.currentCurrency,
+          });
         }
       }
     }
 
-    recent.sort((a, b) => (b['date'] as DateTime).compareTo(a['date'] as DateTime));
+    recent.sort(
+      (a, b) => (b['date'] as DateTime).compareTo(a['date'] as DateTime),
+    );
     final top3 = recent.take(3).toList();
 
     if (top3.isEmpty) return const SizedBox();
 
-    return Container(
-      margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Son Islemler',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 16),
-          ...top3.map((t) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(child: Text(t['title'] as String, style: const TextStyle(fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                Text(
-                  (t['type'] == 'gelir' ? '+' : '-') + CurrencyFormatter.format(cur.convert(t['amount'] as double, t['currency'] as String, cur.currentCurrency)),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: t['type'] == 'gelir' ? ColorConstants.yesil : Theme.of(context).colorScheme.onSurface,
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Son Islemler',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ...top3.map(
+                (t) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          t['title'] as String,
+                          style: const TextStyle(fontWeight: FontWeight.w500),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        (t['type'] == 'gelir' ? '+' : '-') +
+                            CurrencyFormatter.format(
+                              cur.convert(
+                                t['amount'] as double,
+                                t['currency'] as String,
+                                cur.currentCurrency,
+                              ),
+                            ),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: t['type'] == 'gelir'
+                              ? ColorConstants.yesil
+                              : Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          )),
-        ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

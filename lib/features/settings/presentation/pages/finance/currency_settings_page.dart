@@ -41,16 +41,8 @@ class CurrencySettingsPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.08),
-                  ),
-                ),
+              Card(
+                margin: EdgeInsets.zero,
                 child: Column(
                   children: currencies.keys.map((code) {
                     final symbol = currencies[code]!;
@@ -69,7 +61,8 @@ class CurrencySettingsPage extends StatelessWidget {
                             height: 40,
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
+                                  ? Theme.of(context).colorScheme.primary
+                                        .withValues(alpha: 0.15)
                                   : Theme.of(context).colorScheme.onSurface
                                         .withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(10),
@@ -93,7 +86,9 @@ class CurrencySettingsPage extends StatelessWidget {
                               fontWeight: isSelected
                                   ? FontWeight.bold
                                   : FontWeight.normal,
-                              color: isSelected ? Theme.of(context).colorScheme.primary : null,
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : null,
                             ),
                           ),
                           trailing: isSelected

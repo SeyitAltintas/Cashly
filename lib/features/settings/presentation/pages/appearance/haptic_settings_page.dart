@@ -65,7 +65,9 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
         title: Text(context.l10n.hapticFeedback),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -101,7 +103,9 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
             decoration: BoxDecoration(
               color: ColorConstants.maviVurgu.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: ColorConstants.maviVurgu.withValues(alpha: 0.2)),
+              border: Border.all(
+                color: ColorConstants.maviVurgu.withValues(alpha: 0.2),
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,16 +181,24 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
       decoration: BoxDecoration(
         color: ColorConstants.turuncuVurgu.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: ColorConstants.turuncuVurgu.withValues(alpha: 0.3),
+        ),
       ),
       child: Row(
         children: [
-          const Icon(Icons.warning_amber_rounded, color: ColorConstants.turuncuVurgu),
+          const Icon(
+            Icons.warning_amber_rounded,
+            color: ColorConstants.turuncuVurgu,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               context.l10n.hapticNoVibrator,
-              style: const TextStyle(color: ColorConstants.turuncuVurgu, fontSize: 13),
+              style: const TextStyle(
+                color: ColorConstants.turuncuVurgu,
+                fontSize: 13,
+              ),
             ),
           ),
         ],
@@ -195,16 +207,8 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
   }
 
   Widget _buildMasterSwitch(BuildContext context, bool value) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.08),
-        ),
-      ),
+    return Card(
+      margin: EdgeInsets.zero,
       child: SwitchListTile(
         activeTrackColor: ColorConstants.yesil.withValues(alpha: 0.5),
         activeThumbColor: ColorConstants.yesil,
@@ -214,7 +218,8 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
         secondary: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: (value ? ColorConstants.yesil : ColorConstants.kirmiziVurgu).withValues(alpha: 0.1),
+            color: (value ? ColorConstants.yesil : ColorConstants.kirmiziVurgu)
+                .withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(
@@ -246,16 +251,8 @@ class _HapticSettingsPageState extends State<HapticSettingsPage> {
   }
 
   Widget _buildDetailedSettings(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.08),
-        ),
-      ),
+    return Card(
+      margin: EdgeInsets.zero,
       child: Column(
         children: [
           _buildSettingTile(
