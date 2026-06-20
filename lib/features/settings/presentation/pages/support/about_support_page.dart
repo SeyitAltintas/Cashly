@@ -351,21 +351,9 @@ class _AboutSupportPageState extends State<AboutSupportPage>
   // ============================================================================
 
   Widget _buildFaqSection(ThemeData theme) {
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: List.generate(_getFaqItems(context).length, (index) {
           final faq = _getFaqItems(context)[index];
@@ -511,21 +499,9 @@ class _AboutSupportPageState extends State<AboutSupportPage>
   }
 
   Widget _buildCardGroup(ThemeData theme, {required List<Widget> children}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
       child: Column(children: children),
     );
   }

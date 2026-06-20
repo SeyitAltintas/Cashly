@@ -711,7 +711,6 @@ class _KategoriYonetimiSayfasiState extends State<KategoriYonetimiSayfasi> {
 
                   return Card(
                     key: Key('kategori_${kategori['isim']}_$index'),
-                    color: Theme.of(context).colorScheme.surface,
                     margin: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
                       leading: Icon(

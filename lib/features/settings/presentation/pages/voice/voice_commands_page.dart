@@ -257,16 +257,10 @@ class VoiceCommandsPage extends StatelessWidget {
         ? PageThemeColors.getIconColor(iconIndex)
         : Theme.of(context).colorScheme.primary;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
-        ),
-      ),
+    return Card(
+      margin: const EdgeInsets.only(bottom: 0),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -333,6 +327,7 @@ class VoiceCommandsPage extends StatelessWidget {
                 .toList(),
           ),
         ],
+      ),
       ),
     );
   }

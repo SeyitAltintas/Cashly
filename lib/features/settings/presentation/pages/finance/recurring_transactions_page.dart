@@ -472,20 +472,10 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Bilgi Kartı
-          Container(
+          Card(
             margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.3),
-              ),
-            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Icon(
@@ -503,6 +493,7 @@ class _RecurringTransactionsPageState extends State<RecurringTransactionsPage> {
                   ),
                 ),
               ],
+            ),
             ),
           ),
 

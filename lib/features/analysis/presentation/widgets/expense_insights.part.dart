@@ -82,25 +82,9 @@ extension ExpenseInsightsExtension on _AnalysisPageState {
             ),
           ),
           const SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : const Color(0xFFF8F9FA),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.1),
-              ),
-            ),
+          Card(
+            margin: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
             child: Column(
               children: List.generate(top3.length, (index) {
                 final expense = top3[index];

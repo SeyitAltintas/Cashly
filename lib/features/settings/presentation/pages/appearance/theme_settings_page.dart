@@ -46,25 +46,9 @@ class ThemeSettingsPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.08),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
+                Card(
+                  margin: EdgeInsets.zero,
+                  clipBehavior: Clip.antiAlias,
                   child: RadioGroup<ThemeMode>(
                     groupValue: themeManager.themeMode,
                     onChanged: (ThemeMode? value) {

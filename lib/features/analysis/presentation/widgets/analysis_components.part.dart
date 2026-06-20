@@ -8,16 +8,12 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
     required String title,
     required String message,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-        ),
-      ),
-      child: Row(
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
@@ -53,6 +49,7 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -180,16 +177,14 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
       }
     }
 
-    return Container(
-      width: 170,
+    return Card(
       margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
-      ),
-      child: Column(
+      clipBehavior: Clip.antiAlias,
+      child: SizedBox(
+        width: 170,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -242,6 +237,8 @@ extension AnalysisComponentsExtension on _AnalysisPageState {
             ),
           ),
         ],
+      ),
+      ),
       ),
     );
   }

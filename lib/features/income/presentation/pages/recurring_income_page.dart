@@ -515,20 +515,10 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Bilgi Kartı
-          Container(
+          Card(
             margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.3),
-              ),
-            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Icon(
@@ -547,6 +537,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
                 ),
               ],
             ),
+          ),
           ),
 
           // Liste
@@ -661,20 +652,10 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
       },
       child: GestureDetector(
         onTap: () => _gelirDuzenle(index),
-        child: Container(
+        child: Card(
           margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.2),
-            ),
-          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Container(
@@ -732,6 +713,7 @@ class _RecurringIncomePageState extends State<RecurringIncomePage> {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

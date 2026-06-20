@@ -346,22 +346,11 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
         body: Column(
           children: [
             // Bilgilendirme kartı
-            Container(
+            Card(
               margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.surface.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.1),
-                  width: 0.5,
-                ),
-              ),
-              child: Row(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
@@ -393,6 +382,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                   ),
                 ],
               ),
+              ),
             ),
 
             // Kategori listesi
@@ -407,27 +397,14 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                   final hasLimit = limit > 0;
                   final iconColor = _getCategoryColor(index);
 
-                  return Container(
+                  return Card(
                     margin: const EdgeInsets.only(bottom: 8),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => _showEditDialog(isim, limit),
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.surface.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.onSurface
-                                  .withValues(alpha: hasLimit ? 0.15 : 0.08),
-                              width: 0.5,
-                            ),
-                          ),
-                          child: Row(
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: () => _showEditDialog(isim, limit),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
                             children: [
                               Container(
                                 width: 48,
@@ -487,7 +464,6 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                             ],
                           ),
                         ),
-                      ),
                     ),
                   );
                 },
