@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:cashly/features/streak/data/services/streak_service.dart';
+import 'package:cashly/features/streak/data/models/streak_model.dart';
 
 /// Geliştirici ve test amaçlı gerçekçi sahte veri üreticisi.
 ///
@@ -253,6 +255,9 @@ class MockDataService {
 
     // 5. Streak Sahte Verisi
     final streakData = _generateStreakData(now);
+
+    // Lokal veritabanını da (Hive) zorla güncelle ki UI anında tepki versin
+    await StreakService.saveStreakData(userId, RankData.fromMap(streakData));
 
     // Bakiyelerdeki son manuel düşüşleri ödeme yöntemlerine yansıt
     for (int i = 0; i < paymentMethods.length; i++) {

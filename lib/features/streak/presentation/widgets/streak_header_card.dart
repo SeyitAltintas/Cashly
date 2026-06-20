@@ -105,7 +105,8 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Row(
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Text(
                               '⭐ ${widget.streakData.totalXp} XP',

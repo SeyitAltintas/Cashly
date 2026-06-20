@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../../data/constants/streak_badges.dart';
@@ -20,6 +21,20 @@ class RankTimeline extends StatefulWidget {
 
 class _RankTimelineState extends State<RankTimeline> {
   late ScrollController _scrollController;
+
+  // Yollar için Aurora/Gökkuşağı tarzı özel renk paleti
+  // (Acemi'den Grandmaster'a doğru görsel zenginlik katar)
+  static const List<Color> _pathColors = [
+    Color(0xFF81D4FA), // 1. Acemi (Açık Mavi)
+    Color(0xFF29B6F6), // 2. Çırak (Mavi)
+    Color(0xFF26A69A), // 3. Maceracı (Zümrüt)
+    Color(0xFF66BB6A), // 4. Uzman (Yeşil)
+    Color(0xFFFFCA28), // 5. Şövalye (Altın)
+    Color(0xFFFF7043), // 6. Kahraman (Mercan/Turuncu)
+    Color(0xFFEC407A), // 7. Efsane (Pembe)
+    Color(0xFFAB47BC), // 8. Usta (Mor)
+    Color(0xFF7E57C2), // 9. Grandmaster (Koyu Mor)
+  ];
 
   @override
   void initState() {
@@ -72,32 +87,35 @@ class _RankTimelineState extends State<RankTimeline> {
           context,
         ).colorScheme.onSurface.withValues(alpha: 0.1);
 
+        // Yollar için özel tanımlanmış palet rengi
+        final Color nodePathColor = _pathColors[index];
+
         // Üst Çizgi Doluluk Oranı (Sonraki ranka)
         double topFill = 0.0;
-        Color topPathColor = lockedLineColor;
+        Color topTargetColor = lockedLineColor;
         bool isTopProgress = false;
 
         if (isNextUnlocked) {
           topFill = 1.0;
-          topPathColor = tiers[index + 1].primaryColor;
+          topTargetColor = _pathColors[index + 1];
         } else if (isCurrent) {
           topFill = (progress * 2).clamp(0.0, 1.0);
-          topPathColor = progressColor;
+          topTargetColor = progressColor;
           isTopProgress = true;
         }
 
         // Alt Çizgi Doluluk Oranı (Önceki ranktan)
         double bottomFill = 0.0;
-        Color bottomPathColor = lockedLineColor;
+        Color bottomSourceColor = lockedLineColor;
         bool isBottomProgress = false;
 
         if (isUnlocked) {
           bottomFill = 1.0;
-          bottomPathColor = tier.primaryColor;
+          bottomSourceColor = index > 0 ? _pathColors[index - 1] : nodePathColor;
         } else if (index > 0 &&
             widget.controller.currentRank.level == tiers[index - 1].level) {
           bottomFill = ((progress - 0.5) * 2).clamp(0.0, 1.0);
-          bottomPathColor = progressColor;
+          bottomSourceColor = progressColor;
           isBottomProgress = true;
         }
 
@@ -123,8 +141,9 @@ class _RankTimelineState extends State<RankTimeline> {
                     isLast: isLast,
                     topFill: topFill,
                     bottomFill: bottomFill,
-                    topColor: topPathColor,
-                    bottomColor: bottomPathColor,
+                    nodeColor: nodePathColor,
+                    topTargetColor: topTargetColor,
+                    bottomSourceColor: bottomSourceColor,
                     lockedColor: lockedLineColor,
                     isTopProgress: isTopProgress,
                     isBottomProgress: isBottomProgress,
@@ -274,8 +293,9 @@ class _PathPainter extends CustomPainter {
 
   final double topFill;
   final double bottomFill;
-  final Color topColor;
-  final Color bottomColor;
+  final Color nodeColor;
+  final Color topTargetColor;
+  final Color bottomSourceColor;
 
   final Color lockedColor;
   final bool isTopProgress;
@@ -287,8 +307,9 @@ class _PathPainter extends CustomPainter {
     required this.isLast,
     required this.topFill,
     required this.bottomFill,
-    required this.topColor,
-    required this.bottomColor,
+    required this.nodeColor,
+    required this.topTargetColor,
+    required this.bottomSourceColor,
     required this.lockedColor,
     required this.isTopProgress,
     required this.isBottomProgress,
@@ -327,7 +348,11 @@ class _PathPainter extends CustomPainter {
       // İlerleme yolu (Yeşil veya tamamlanmış)
       if (bottomFill > 0.0) {
         final fillPaint = Paint()
-          ..color = bottomColor
+          ..shader = ui.Gradient.linear(
+            Offset(midX, size.height),
+            Offset(nodeX, nodeY),
+            [Color.lerp(bottomSourceColor, nodeColor, 0.5)!, nodeColor],
+          )
           ..strokeWidth = 10
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round;
@@ -366,7 +391,11 @@ class _PathPainter extends CustomPainter {
       // İlerleme yolu (Yeşil veya tamamlanmış)
       if (topFill > 0.0) {
         final fillPaint = Paint()
-          ..color = topColor
+          ..shader = ui.Gradient.linear(
+            Offset(nodeX, nodeY),
+            Offset(midX, 0),
+            [nodeColor, Color.lerp(nodeColor, topTargetColor, 0.5)!],
+          )
           ..strokeWidth = 10
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round;

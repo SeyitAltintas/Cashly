@@ -14,6 +14,8 @@ import '../../../../streak/data/constants/streak_badges.dart';
 import '../../../../streak/presentation/widgets/rank_frame_widget.dart';
 import '../../../../streak/presentation/pages/streak_page.dart';
 import '../../../../dashboard/presentation/widgets/dashboard_card_container.dart';
+import '../../../../streak/presentation/controllers/streak_controller.dart';
+import 'package:cashly/core/di/injection_container.dart';
 
 class ProfilSayfasi extends StatefulWidget {
   final AuthController authController;
@@ -38,6 +40,25 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
   @override
   bool get wantKeepAlive => true;
   bool _mockLoading = false;
+  RankData? _localRankData;
+
+  @override
+  void initState() {
+    super.initState();
+    // widget.streakData ile geliniyorsa controller'a da set et
+    if (widget.streakData != null) {
+      _localRankData = widget.streakData;
+    }
+  }
+
+  @override
+  void didUpdateWidget(ProfilSayfasi oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.streakData != widget.streakData &&
+        widget.streakData != null) {
+      setState(() => _localRankData = widget.streakData);
+    }
+  }
 
   Future<void> _generateMockData() async {
     final userId = widget.authController.currentUser?.id;
@@ -48,6 +69,10 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
       await MockDataService().generateMockData(userId);
       await CloudSyncService.syncAllUserData(userId);
       if (mounted) {
+        // Streak controller'a userId ver ve veriyi yenile
+        getIt<StreakController>().loadStreakData(userId);
+        final freshData = getIt<StreakController>().streakData;
+        setState(() => _localRankData = freshData);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✓ Sahte veriler oluşturuldu!'),
@@ -110,6 +135,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
             backgroundColor: ColorConstants.yesil,
           ),
         );
+        getIt<StreakController>().refresh();
         widget.onRefresh?.call();
       }
     } catch (e) {
@@ -130,7 +156,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
   Widget build(BuildContext context) {
     super.build(context);
 
-    final rankData = widget.streakData ?? RankData.empty();
+    final rankData = _localRankData ?? widget.streakData ?? RankData.empty();
     final rankTier = RankTiers.fromXp(rankData.totalXp);
 
     return SingleChildScrollView(
@@ -231,47 +257,47 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                           ),
                         const SizedBox(height: 8),
                         // XP ve Seri Bilgisi
-                        Row(
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.stars_rounded,
-                              size: 16,
-                              color: rankTier.primaryColor,
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.stars_rounded,
+                                  size: 16,
+                                  color: rankTier.primaryColor,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${rankData.totalXp} XP',
+                                  style: TextStyle(
+                                    color: rankTier.primaryColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${rankData.totalXp} XP',
-                              style: TextStyle(
-                                color: rankTier.primaryColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Container(
-                              width: 4,
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.3),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            const Icon(
-                              Icons.local_fire_department,
-                              size: 16,
-                              color: Color(0xFFFF6B35),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${rankData.currentStreak} Gün Seri',
-                              style: const TextStyle(
-                                color: Color(0xFFFF6B35),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.local_fire_department,
+                                  size: 16,
+                                  color: Color(0xFFFF6B35),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${rankData.currentStreak} Gün Seri',
+                                  style: const TextStyle(
+                                    color: Color(0xFFFF6B35),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -526,6 +552,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
               ],
             ),
           ),
+          const SizedBox(height: 24),
         ],
       ),
     );
