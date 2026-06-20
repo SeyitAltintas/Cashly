@@ -86,11 +86,9 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
-                            color: Color.lerp(
-                              rank.primaryColor,
-                              rank.glowColor,
-                              glow,
-                            ),
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Color.lerp(rank.glowColor, Colors.white, 0.25 + (glow * 0.15))
+                                : Color.lerp(rank.primaryColor, rank.glowColor, glow),
                             letterSpacing: 0.5,
                           ),
                         ),
@@ -113,11 +111,9 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: Color.lerp(
-                                  rank.primaryColor,
-                                  rank.glowColor,
-                                  glow,
-                                ),
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Color.lerp(rank.glowColor, Colors.white, 0.25 + (glow * 0.15))
+                                    : Color.lerp(rank.primaryColor, rank.glowColor, glow),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -207,11 +203,18 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        rank.primaryColor.withValues(alpha: 0.3),
-                        rank.glowColor.withValues(alpha: 0.3),
+                        rank.primaryColor.withValues(alpha: 0.85),
+                        rank.glowColor,
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: rank.glowColor.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: const Text(
                     '🏆 En Yüksek Rank • Cashly Efsanesi',

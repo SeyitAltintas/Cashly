@@ -699,14 +699,8 @@ class MockDataService {
     final longestStreak = currentStreak + _random.nextInt(30);
     final totalLoginDays = longestStreak + 20 + _random.nextInt(100);
     
-    // Yeni sisteme göre gerçekçi XP hesabı
-    // Günlük giriş: 10 XP, Haftalık bonus: 30 XP, Aylık bonus: 100 XP
-    int calculatedXp = totalLoginDays * 10;
-    calculatedXp += (totalLoginDays ~/ 7) * 30;
-    calculatedXp += (totalLoginDays ~/ 30) * 100;
-    
-    // Biraz da rastgele görevlerden XP kazanmış olsun
-    calculatedXp += _random.nextInt(500);
+    // UI testleri için tamamen rastgele rank üret (Her seviyeyi test edebilmek için 0-7500 XP arası)
+    int calculatedXp = _random.nextInt(7500);
 
     return {
       'totalXp': calculatedXp, // Rütbeyi belirleyen asıl değer

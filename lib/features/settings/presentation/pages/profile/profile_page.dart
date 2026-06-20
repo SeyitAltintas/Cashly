@@ -158,6 +158,10 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
 
     final rankData = _localRankData ?? widget.streakData ?? RankData.empty();
     final rankTier = RankTiers.fromXp(rankData.totalXp);
+    
+    final rankColor = Theme.of(context).brightness == Brightness.dark
+        ? Color.lerp(rankTier.glowColor, Colors.white, 0.3) ?? rankTier.glowColor
+        : rankTier.primaryColor;
 
     return SingleChildScrollView(
       padding: EdgeInsets.only(
@@ -218,7 +222,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: rankTier.primaryColor,
+                            color: rankColor,
                             letterSpacing: 0.5,
                           ),
                         ),
@@ -266,13 +270,13 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                                 Icon(
                                   Icons.stars_rounded,
                                   size: 16,
-                                  color: rankTier.primaryColor,
+                                  color: rankColor,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
                                   '${rankData.totalXp} XP',
                                   style: TextStyle(
-                                    color: rankTier.primaryColor,
+                                    color: rankColor,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -424,25 +428,8 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
           const SizedBox(height: 12),
 
           // Çıkış yap kartı
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.08),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+          DashboardCardContainer(
+            padding: EdgeInsets.zero,
             child: _buildProfileTile(
               context: context,
               icon: Icons.logout,

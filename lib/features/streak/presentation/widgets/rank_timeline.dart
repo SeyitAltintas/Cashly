@@ -64,6 +64,7 @@ class _RankTimelineState extends State<RankTimeline> {
     return ListView.builder(
       controller: _scrollController,
       reverse: true, // Candy Crush mantığı (Aşağıdan yukarı)
+      itemExtent: 180, // Sabit yükseklik ile Layout performansını (O(1)) dramatik şekilde artırır
       padding: const EdgeInsets.only(
         bottom: 60,
         top:
@@ -127,17 +128,19 @@ class _RankTimelineState extends State<RankTimeline> {
         final double nodeX = isLeft ? screenWidth * 0.25 : screenWidth * 0.75;
         const double nodeY = 180 * 0.425; // 76.5
 
-        return SizedBox(
-          height: 180, // Düğüm ve yollar için sabit yükseklik
+        return RepaintBoundary(
+          child: SizedBox(
+            height: 180, // Düğüm ve yollar için sabit yükseklik
           child: Stack(
             clipBehavior: Clip.none,
             children: [
               // --- KIVRIMLI YOL ÇİZİMİ ---
               Positioned.fill(
-                child: CustomPaint(
-                  painter: _PathPainter(
-                    isLeft: isLeft,
-                    isFirst: isFirst,
+                child: RepaintBoundary(
+                  child: CustomPaint(
+                    painter: _PathPainter(
+                      isLeft: isLeft,
+                      isFirst: isFirst,
                     isLast: isLast,
                     topFill: topFill,
                     bottomFill: bottomFill,
@@ -149,6 +152,7 @@ class _RankTimelineState extends State<RankTimeline> {
                     isBottomProgress: isBottomProgress,
                   ),
                 ),
+              ),
               ),
 
               // --- DEVASA RANK DÜĞÜMÜ VE YÜZEN METİNLER ---
@@ -174,7 +178,7 @@ class _RankTimelineState extends State<RankTimeline> {
                           ).colorScheme.surface, // Her zaman arka plan rengi
                           border: Border.all(
                             color: isUnlocked
-                                ? tier.primaryColor
+                                ? nodePathColor
                                 : Theme.of(context).colorScheme.onSurface
                                       .withValues(alpha: 0.10),
                             width: 3, // Çerçeve kalınlığı 5'ten 3'e düşürüldü
@@ -182,20 +186,20 @@ class _RankTimelineState extends State<RankTimeline> {
                           boxShadow: isCurrent
                               ? [
                                   BoxShadow(
-                                    color: tier.primaryColor.withValues(
-                                      alpha: 0.35,
+                                    color: nodePathColor.withValues(
+                                      alpha: 0.25,
                                     ), // Parlama opaklığı azaltıldı
                                     blurRadius:
-                                        12, // Parlama yayılımı azaltıldı
+                                        8, // Parlama yayılımı azaltıldı (Performans için)
                                     spreadRadius:
-                                        1, // Parlama kalınlığı azaltıldı
+                                        0, // Parlama kalınlığı azaltıldı
                                   ),
                                 ]
                               : [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
                                   ),
                                 ],
                         ),
@@ -233,7 +237,7 @@ class _RankTimelineState extends State<RankTimeline> {
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: isUnlocked
-                            ? tier.primaryColor
+                            ? nodePathColor
                             : Theme.of(
                                 context,
                               ).colorScheme.onSurface.withValues(alpha: 0.4),
@@ -250,7 +254,7 @@ class _RankTimelineState extends State<RankTimeline> {
                           Icon(
                             Icons.check_circle_rounded,
                             size: 16,
-                            color: tier.primaryColor,
+                            color: nodePathColor,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -258,7 +262,7 @@ class _RankTimelineState extends State<RankTimeline> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
-                              color: tier.primaryColor,
+                              color: nodePathColor,
                             ),
                           ),
                         ],
@@ -279,7 +283,8 @@ class _RankTimelineState extends State<RankTimeline> {
               ),
             ],
           ),
-        );
+        ),
+      );
       },
     );
   }

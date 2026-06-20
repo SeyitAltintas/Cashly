@@ -202,20 +202,20 @@ class _UserLoginFormState extends State<UserLoginForm> {
                           width: 1,
                         ),
                       ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // PIN Girişi ve Biyometrik Buton
-                        _buildPinInputRow(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // PIN Girişi ve Biyometrik Buton
+                          _buildPinInputRow(),
 
-                        // PIN Hata Mesajı
-                        if (_pinErrorMessage != null) _buildErrorMessage(),
-                        const SizedBox(height: 24),
+                          // PIN Hata Mesajı
+                          if (_pinErrorMessage != null) _buildErrorMessage(),
+                          const SizedBox(height: 24),
 
-                        // Giriş Butonu
-                        _buildLoginButton(),
-                      ],
-                    ),
+                          // Giriş Butonu
+                          _buildLoginButton(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -244,18 +244,17 @@ class _UserLoginFormState extends State<UserLoginForm> {
         ),
       ),
       child: CircleAvatar(
-          radius: 50,
-          backgroundColor:
-              Theme.of(context).colorScheme.surfaceContainerHighest,
-          backgroundImage: _cachedProfileImage,
-          child: (widget.targetUser.profileImage?.isEmpty ?? true)
-              ? Icon(
-                  Icons.person,
-                  size: 60,
-                  color: Theme.of(context).colorScheme.onSurface,
-                )
-              : null,
-        ),
+        radius: 50,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        backgroundImage: _cachedProfileImage,
+        child: (widget.targetUser.profileImage?.isEmpty ?? true)
+            ? Icon(
+                Icons.person,
+                size: 60,
+                color: Theme.of(context).colorScheme.onSurface,
+              )
+            : null,
+      ),
     );
   }
 
@@ -312,7 +311,6 @@ class _UserLoginFormState extends State<UserLoginForm> {
                     horizontal: 10,
                     vertical: 16,
                   ),
-                  hintText: "● ● ● ● ● ●",
                   hintStyle: TextStyle(
                     color: Theme.of(
                       context,
