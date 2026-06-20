@@ -29,12 +29,8 @@ class SecuritySection extends StatelessWidget {
 
         // Biyometrik Giriş
         if (isBiometricAvailable)
-          Container(
+          Card(
             margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-            ),
             child: ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(10),
@@ -115,8 +111,7 @@ class SecuritySection extends StatelessWidget {
     final iconColor = PageThemeColors.getIconColor(colorIndex);
 
     return Card(
-      color: Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.only(bottom: 0),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),

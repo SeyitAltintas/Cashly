@@ -21,16 +21,9 @@ class BudgetSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.15),
-          width: 0.5,
-        ),
-      ),
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
