@@ -156,7 +156,7 @@ class AppTheme {
         labelTextStyle: const WidgetStatePropertyAll(TextStyle(fontSize: 12)),
       ),
       cardTheme: CardThemeData(
-        color: const Color(0xFF2A2A2A).withValues(alpha: 0.3),
+        color: const Color(0xFF2A2A2A).withValues(alpha: 0.2),
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
