@@ -24,11 +24,13 @@ class _RankTimelineState extends State<RankTimeline> {
   @override
   void initState() {
     super.initState();
-    int currentIndex = RankTiers.allTiers.indexWhere((t) => t.level == widget.controller.currentRank.level);
+    int currentIndex = RankTiers.allTiers.indexWhere(
+      (t) => t.level == widget.controller.currentRank.level,
+    );
     double initialOffset = 0.0;
     if (currentIndex > 0) {
       // Her bir tile 180 piksel yükseklikte
-      initialOffset = (currentIndex * 180.0) - 60.0; 
+      initialOffset = (currentIndex * 180.0) - 60.0;
       if (initialOffset < 0) initialOffset = 0.0;
     }
     _scrollController = ScrollController(initialScrollOffset: initialOffset);
@@ -47,18 +49,57 @@ class _RankTimelineState extends State<RankTimeline> {
     return ListView.builder(
       controller: _scrollController,
       reverse: true, // Candy Crush mantığı (Aşağıdan yukarı)
-      padding: const EdgeInsets.only(bottom: 60, top: 260), // Üstteki kartların arkasında kalması için pay
+      padding: const EdgeInsets.only(
+        bottom: 60,
+        top: 260,
+      ), // Üstteki kartların arkasında kalması için pay
       itemCount: tiers.length,
       itemBuilder: (context, index) {
         final tier = tiers[index];
         final isUnlocked = widget.controller.isTierUnlocked(tier);
         final isCurrent = widget.controller.currentRank.level == tier.level;
-        final isFirst = index == 0; 
-        final isLast = index == tiers.length - 1; 
-        final isNextUnlocked = index + 1 < tiers.length 
-            ? widget.controller.isTierUnlocked(tiers[index + 1]) 
+        final isFirst = index == 0;
+        final isLast = index == tiers.length - 1;
+        final isNextUnlocked = index + 1 < tiers.length
+            ? widget.controller.isTierUnlocked(tiers[index + 1])
             : false;
-            
+
+        // XP Progress
+        double progress = RankTiers.progressToNext(widget.controller.totalXp);
+        const Color progressColor = Color(0xFF4CAF50); // Mat yeşil
+        final Color lockedLineColor = Theme.of(
+          context,
+        ).colorScheme.onSurface.withValues(alpha: 0.1);
+
+        // Üst Çizgi Doluluk Oranı (Sonraki ranka)
+        double topFill = 0.0;
+        Color topPathColor = lockedLineColor;
+        bool isTopProgress = false;
+
+        if (isNextUnlocked) {
+          topFill = 1.0;
+          topPathColor = tiers[index + 1].primaryColor;
+        } else if (isCurrent) {
+          topFill = (progress * 2).clamp(0.0, 1.0);
+          topPathColor = progressColor;
+          isTopProgress = true;
+        }
+
+        // Alt Çizgi Doluluk Oranı (Önceki ranktan)
+        double bottomFill = 0.0;
+        Color bottomPathColor = lockedLineColor;
+        bool isBottomProgress = false;
+
+        if (isUnlocked) {
+          bottomFill = 1.0;
+          bottomPathColor = tier.primaryColor;
+        } else if (index > 0 &&
+            widget.controller.currentRank.level == tiers[index - 1].level) {
+          bottomFill = ((progress - 0.5) * 2).clamp(0.0, 1.0);
+          bottomPathColor = progressColor;
+          isBottomProgress = true;
+        }
+
         // Çift sayılar solda, tek sayılar sağda
         final isLeft = index % 2 == 0;
 
@@ -73,18 +114,22 @@ class _RankTimelineState extends State<RankTimeline> {
                     isLeft: isLeft,
                     isFirst: isFirst,
                     isLast: isLast,
-                    isUnlocked: isUnlocked,
-                    isNextUnlocked: isNextUnlocked,
-                    currentColor: tier.primaryColor,
-                    nextColor: isLast ? Colors.transparent : tiers[index + 1].primaryColor,
-                    lockedColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                    topFill: topFill,
+                    bottomFill: bottomFill,
+                    topColor: topPathColor,
+                    bottomColor: bottomPathColor,
+                    lockedColor: lockedLineColor,
+                    isTopProgress: isTopProgress,
+                    isBottomProgress: isBottomProgress,
                   ),
                 ),
               ),
-              
+
               // --- DEVASA RANK DÜĞÜMÜ VE METİNLER ---
               Align(
-                alignment: isLeft ? const Alignment(-0.5, 0) : const Alignment(0.5, 0),
+                alignment: isLeft
+                    ? const Alignment(-0.5, 0)
+                    : const Alignment(0.5, 0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -92,83 +137,93 @@ class _RankTimelineState extends State<RankTimeline> {
                     GestureDetector(
                       onTap: () => widget.onTierTap(context, tier, isUnlocked),
                       child: Container(
-                        width: 90,
-                        height: 90,
+                        width: 70,
+                        height: 70,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Theme.of(context).colorScheme.surface, // Her zaman arka plan rengi
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surface, // Her zaman arka plan rengi
                           border: Border.all(
-                            color: isUnlocked 
-                                ? tier.primaryColor 
-                                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.15),
-                            width: 5,
+                            color: isUnlocked
+                                ? tier.primaryColor
+                                : Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.10),
+                            width: 3, // Çerçeve kalınlığı 5'ten 3'e düşürüldü
                           ),
-                          boxShadow: isCurrent 
+                          boxShadow: isCurrent
                               ? [
                                   BoxShadow(
-                                    color: tier.primaryColor.withValues(alpha: 0.5), 
-                                    blurRadius: 20, 
-                                    spreadRadius: 4
-                                  )
-                                ] 
+                                    color: tier.primaryColor.withValues(
+                                      alpha: 0.35,
+                                    ), // Parlama opaklığı azaltıldı
+                                    blurRadius:
+                                        12, // Parlama yayılımı azaltıldı
+                                    spreadRadius:
+                                        1, // Parlama kalınlığı azaltıldı
+                                  ),
+                                ]
                               : [
                                   BoxShadow(
                                     color: Colors.black.withValues(alpha: 0.1),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
-                                  )
+                                  ),
                                 ],
                         ),
                         child: ClipOval(
                           child: isUnlocked
                               ? Padding(
-                                  padding: const EdgeInsets.all(12.0), // Animasyonun kenarlardan kırpılmasını engeller
+                                  padding: const EdgeInsets.all(
+                                    12.0,
+                                  ), // Animasyonun kenarlardan kırpılmasını engeller
                                   child: RepaintBoundary(
                                     child: Lottie.asset(
                                       tier.lottieAsset,
-                                      fit: BoxFit.contain, // cover yerine contain kullanıldı
-                                      repeat: false, // Animasyon 1 kere oynar ve son karede durur
+                                      fit: BoxFit
+                                          .contain, // cover yerine contain kullanıldı
+                                      repeat:
+                                          false, // Animasyon 1 kere oynar ve son karede durur
                                     ),
                                   ),
                                 )
                               : Icon(
                                   Icons.lock_rounded,
                                   size: 36,
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.2),
                                 ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // Yüzen Metin Etiketleri
                     Text(
                       tier.name,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
-                        color: isUnlocked 
-                            ? tier.primaryColor 
-                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                        color: isUnlocked
+                            ? tier.primaryColor
+                            : Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.4),
                       ),
                     ),
                     const SizedBox(height: 4),
-                    
+
                     if (isCurrent)
-                      Text(
-                        'Şu An Buradasın',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: tier.primaryColor,
-                          letterSpacing: 0.5,
-                        ),
-                      )
+                      const SizedBox.shrink() // Şuan Buradasın yazısı kaldırıldı
                     else if (isUnlocked)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.check_circle_rounded, size: 16, color: tier.primaryColor),
+                          Icon(
+                            Icons.check_circle_rounded,
+                            size: 16,
+                            color: tier.primaryColor,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Tamamlandı',
@@ -186,7 +241,9 @@ class _RankTimelineState extends State<RankTimeline> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.4),
                         ),
                       ),
                   ],
@@ -205,74 +262,126 @@ class _PathPainter extends CustomPainter {
   final bool isLeft;
   final bool isFirst;
   final bool isLast;
-  final bool isUnlocked;
-  final bool isNextUnlocked;
-  final Color currentColor;
-  final Color nextColor;
+
+  final double topFill;
+  final double bottomFill;
+  final Color topColor;
+  final Color bottomColor;
+
   final Color lockedColor;
+  final bool isTopProgress;
+  final bool isBottomProgress;
 
   _PathPainter({
     required this.isLeft,
     required this.isFirst,
     required this.isLast,
-    required this.isUnlocked,
-    required this.isNextUnlocked,
-    required this.currentColor,
-    required this.nextColor,
+    required this.topFill,
+    required this.bottomFill,
+    required this.topColor,
+    required this.bottomColor,
     required this.lockedColor,
+    required this.isTopProgress,
+    required this.isBottomProgress,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final double midX = size.width / 2;
-    // Node hizalaması Alignment(-0.5, 0) veya Alignment(0.5, 0) yapılmıştı.
-    // -0.5 = %25 genişlik, 0.5 = %75 genişlik.
     final double nodeX = isLeft ? size.width * 0.25 : size.width * 0.75;
     final double centerY = size.height / 2;
 
     // Alt Çizgi (Aşağıdaki/Önceki düğüme bağlanan yol)
     if (!isFirst) {
-      final paint = Paint()
-        ..color = isUnlocked ? currentColor : lockedColor
+      Path basePath = Path();
+      basePath.moveTo(midX, size.height);
+      basePath.cubicTo(
+        midX,
+        centerY + (centerY / 2),
+        nodeX,
+        centerY + (centerY / 2),
+        nodeX,
+        centerY,
+      );
+
+      // Kilitli arkaplan yolu
+      final lockedPaint = Paint()
+        ..color = lockedColor
         ..strokeWidth = 10
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
+      canvas.drawPath(basePath, lockedPaint);
 
-      Path path = Path();
-      path.moveTo(nodeX, centerY);
-      // Yumuşak bir S-Kıvrımı ile merkeze in
-      path.cubicTo(
-        nodeX, centerY + (centerY / 2),
-        midX, centerY + (centerY / 2),
-        midX, size.height,
-      );
-      canvas.drawPath(path, paint);
+      // İlerleme yolu (Yeşil veya tamamlanmış)
+      if (bottomFill > 0.0) {
+        final fillPaint = Paint()
+          ..color = bottomColor
+          ..strokeWidth = 10
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round;
+
+        if (!isBottomProgress && bottomFill >= 1.0) {
+          // Tamamen açık rank
+          canvas.drawPath(basePath, fillPaint);
+        } else {
+          // Kısmi doluluk (Mat yeşil) - Ölü bölgeyi (sonraki düğüm) hesapla
+          final metrics = basePath.computeMetrics().first;
+          final totalLen = metrics.length;
+          const deadZone = 35.0; // Kilitli düğümün yarıçapı (70 / 2)
+          final visibleLen = totalLen - deadZone;
+
+          final extractLen = visibleLen * bottomFill;
+          final extractPath = metrics.extractPath(0.0, extractLen);
+          canvas.drawPath(extractPath, fillPaint);
+        }
+      }
     }
 
     // Üst Çizgi (Yukarıdaki/Sonraki düğüme bağlanan yol)
     if (!isLast) {
-      final paint = Paint()
-        ..color = isNextUnlocked ? nextColor : lockedColor
+      Path basePath = Path();
+      basePath.moveTo(nodeX, centerY);
+      basePath.cubicTo(nodeX, centerY / 2, midX, centerY / 2, midX, 0);
+
+      // Kilitli arkaplan yolu
+      final lockedPaint = Paint()
+        ..color = lockedColor
         ..strokeWidth = 10
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
+      canvas.drawPath(basePath, lockedPaint);
 
-      Path path = Path();
-      path.moveTo(nodeX, centerY);
-      // Yumuşak bir S-Kıvrımı ile merkeze çık
-      path.cubicTo(
-        nodeX, centerY / 2,
-        midX, centerY / 2,
-        midX, 0,
-      );
-      canvas.drawPath(path, paint);
+      // İlerleme yolu (Yeşil veya tamamlanmış)
+      if (topFill > 0.0) {
+        final fillPaint = Paint()
+          ..color = topColor
+          ..strokeWidth = 10
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round;
+
+        if (!isTopProgress && topFill >= 1.0) {
+          // Tamamen açık rank
+          canvas.drawPath(basePath, fillPaint);
+        } else {
+          // Kısmi doluluk (Mat yeşil) - Ölü bölgeyi (mevcut düğüm) hesapla
+          final metrics = basePath.computeMetrics().first;
+          final totalLen = metrics.length;
+          const deadZone = 35.0; // Mevcut düğümün yarıçapı (70 / 2)
+          final visibleLen = totalLen - deadZone;
+
+          // Dead zone'u her zaman çiziyoruz ki çizgi düğümün kenarından çıksın
+          final extractLen = deadZone + (visibleLen * topFill);
+          final extractPath = metrics.extractPath(0.0, extractLen);
+          canvas.drawPath(extractPath, fillPaint);
+        }
+      }
     }
   }
 
   @override
   bool shouldRepaint(covariant _PathPainter oldDelegate) {
     return oldDelegate.isLeft != isLeft ||
-        oldDelegate.isUnlocked != isUnlocked ||
-        oldDelegate.isNextUnlocked != isNextUnlocked;
+        oldDelegate.topFill != topFill ||
+        oldDelegate.bottomFill != bottomFill;
   }
 }

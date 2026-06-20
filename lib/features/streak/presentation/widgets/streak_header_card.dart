@@ -75,7 +75,7 @@ class _StreakHeaderCardState extends State<StreakHeaderCard>
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 32), // Bilgileri sağa kaydırmak için 16'dan 32'ye çıkarıldı
                   // Rank bilgileri
                   Expanded(
                     child: Column(
