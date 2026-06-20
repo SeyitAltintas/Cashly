@@ -693,7 +693,18 @@ class MockDataService {
     final currentStreak = 5 + _random.nextInt(20);
     final longestStreak = currentStreak + _random.nextInt(30);
     final totalLoginDays = longestStreak + 20 + _random.nextInt(100);
+    
+    // Yeni sisteme göre gerçekçi XP hesabı
+    // Günlük giriş: 10 XP, Haftalık bonus: 30 XP, Aylık bonus: 100 XP
+    int calculatedXp = totalLoginDays * 10;
+    calculatedXp += (totalLoginDays ~/ 7) * 30;
+    calculatedXp += (totalLoginDays ~/ 30) * 100;
+    
+    // Biraz da rastgele görevlerden XP kazanmış olsun
+    calculatedXp += _random.nextInt(500);
+
     return {
+      'totalXp': calculatedXp, // Rütbeyi belirleyen asıl değer
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
       'lastLoginDate': now.toIso8601String().split('T')[0],

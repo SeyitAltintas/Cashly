@@ -51,7 +51,8 @@ class _RankTimelineState extends State<RankTimeline> {
       reverse: true, // Candy Crush mantığı (Aşağıdan yukarı)
       padding: const EdgeInsets.only(
         bottom: 60,
-        top: 260,
+        top:
+            350, // Grandmaster'ın daha rahat görülebilmesi için üst boşluk artırıldı
       ), // Üstteki kartların arkasında kalması için pay
       itemCount: tiers.length,
       itemBuilder: (context, index) {
@@ -103,9 +104,15 @@ class _RankTimelineState extends State<RankTimeline> {
         // Çift sayılar solda, tek sayılar sağda
         final isLeft = index % 2 == 0;
 
+        // Düğümün ve yolların matematiksel merkezleri
+        final screenWidth = MediaQuery.of(context).size.width;
+        final double nodeX = isLeft ? screenWidth * 0.25 : screenWidth * 0.75;
+        const double nodeY = 180 * 0.425; // 76.5
+
         return SizedBox(
           height: 180, // Düğüm ve yollar için sabit yükseklik
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               // --- KIVRIMLI YOL ÇİZİMİ ---
               Positioned.fill(
@@ -125,11 +132,13 @@ class _RankTimelineState extends State<RankTimeline> {
                 ),
               ),
 
-              // --- DEVASA RANK DÜĞÜMÜ VE METİNLER ---
-              Align(
-                alignment: isLeft
-                    ? const Alignment(-0.5, 0)
-                    : const Alignment(0.5, 0),
+              // --- DEVASA RANK DÜĞÜMÜ VE YÜZEN METİNLER ---
+              Positioned(
+                left: nodeX - 70, // 140 genişliğindeki kutuyu tam merkeze oturt
+                top:
+                    nodeY -
+                    35, // 70 yüksekliğindeki düğümün merkezini nodeY'ye oturt
+                width: 140, // Metinlerin sığması için yeterli genişlik
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -212,11 +221,11 @@ class _RankTimelineState extends State<RankTimeline> {
                       ),
                     ),
                     const SizedBox(height: 4),
-
                     if (isCurrent)
                       const SizedBox.shrink() // Şuan Buradasın yazısı kaldırıldı
                     else if (isUnlocked)
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
@@ -289,7 +298,10 @@ class _PathPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final double midX = size.width / 2;
     final double nodeX = isLeft ? size.width * 0.25 : size.width * 0.75;
-    final double centerY = size.height / 2;
+
+    // Align(y: -0.15) kullanıldığı için düğümün tam merkezi:
+    // ( -0.15 + 1 ) / 2 = 0.425
+    final double nodeY = size.height * 0.425;
 
     // Alt Çizgi (Aşağıdaki/Önceki düğüme bağlanan yol)
     if (!isFirst) {
@@ -297,11 +309,11 @@ class _PathPainter extends CustomPainter {
       basePath.moveTo(midX, size.height);
       basePath.cubicTo(
         midX,
-        centerY + (centerY / 2),
+        nodeY + (size.height - nodeY) / 2, // Eğimi orantılı dağıt
         nodeX,
-        centerY + (centerY / 2),
+        nodeY + (size.height - nodeY) / 2,
         nodeX,
-        centerY,
+        nodeY,
       );
 
       // Kilitli arkaplan yolu
@@ -340,8 +352,8 @@ class _PathPainter extends CustomPainter {
     // Üst Çizgi (Yukarıdaki/Sonraki düğüme bağlanan yol)
     if (!isLast) {
       Path basePath = Path();
-      basePath.moveTo(nodeX, centerY);
-      basePath.cubicTo(nodeX, centerY / 2, midX, centerY / 2, midX, 0);
+      basePath.moveTo(nodeX, nodeY);
+      basePath.cubicTo(nodeX, nodeY / 2, midX, nodeY / 2, midX, 0);
 
       // Kilitli arkaplan yolu
       final lockedPaint = Paint()
