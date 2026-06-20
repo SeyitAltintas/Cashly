@@ -8,9 +8,8 @@ import '../../data/constants/streak_badges.dart';
 import '../controllers/streak_controller.dart';
 import '../widgets/streak_header_card.dart';
 import '../widgets/streak_stats_row.dart';
-import '../widgets/badge_grid_view.dart';
 import '../../../../core/services/haptic_service.dart';
-import '../widgets/achievements_list.dart';
+import '../widgets/rank_timeline.dart';
 import 'streak_help_page.dart';
 
 /// Rank Detay Sayfası
@@ -93,59 +92,58 @@ class _StreakPageState extends State<StreakPage> {
                 ),
               ],
             ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Rank Header Kartı (Lottie + XP + Progress)
-                  StreakHeaderCard(streakData: rankData),
-                  const SizedBox(height: 20),
-
-                  // Seri İstatistikleri
-                  StreakStatsRow(streakData: rankData),
-                  const SizedBox(height: 28),
-
-
-                  // Tüm Rank Kademeleri
-                  const _SectionTitle(title: 'Rank Kademeleri'),
-                  const SizedBox(height: 14),
-                  BadgeGridView(
-                    controller: _controller,
-                    onBadgeTap: _showTierDetails,
+            body: Stack(
+              children: [
+                // Arka plan: Rank Yolculuğu
+                Positioned.fill(
+                  child: ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Colors.white],
+                        stops: [
+                          0.0,
+                          0.35,
+                        ], // Üst kartların bittiği yere kadar kaybolur
+                      ).createShader(bounds);
+                    },
+                    blendMode: BlendMode.dstIn,
+                    child: RankTimeline(
+                      controller: _controller,
+                      onTierTap: _showTierDetails,
+                    ),
                   ),
-                  const SizedBox(height: 28),
+                ),
 
-                  // Başarımlar
-                  const _SectionTitle(title: 'Başarımlar'),
-                  const SizedBox(height: 14),
-                  AchievementsList(controller: _controller),
-                  const SizedBox(height: 20),
-                ],
-              ),
+                // Ön plan: Üst Kartlar (Sabit)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 20,
+                      left: 20,
+                      right: 20,
+                      bottom: 8,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Rank Header Kartı (Lottie + XP + Progress)
+                        StreakHeaderCard(streakData: rankData),
+                        const SizedBox(height: 20),
+                        // Seri İstatistikleri
+                        StreakStatsRow(streakData: rankData),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-
-/// Bölüm başlığı widget'ı
-class _SectionTitle extends StatelessWidget {
-  final String title;
-
-  const _SectionTitle({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.w600,
-        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
@@ -191,8 +189,8 @@ class _RankTierDetailsSheetState extends State<_RankTierDetailsSheet>
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark 
-            ? const Color(0xFF18181B) 
+        color: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF18181B)
             : Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
