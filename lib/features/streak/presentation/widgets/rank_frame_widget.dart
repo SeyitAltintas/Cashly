@@ -3,6 +3,7 @@ import 'package:lottie/lottie.dart';
 import '../../data/constants/streak_badges.dart';
 import '../../data/models/streak_model.dart';
 import 'package:cashly/core/utils/image_utils.dart';
+import 'package:cashly/core/widgets/shimmer_loading.dart';
 
 /// Profil fotoğrafını rank Lottie animasyonuyla çerçeveleyen widget
 /// Valorant tarzında: animasyon çerçevesi profil fotoğrafının üzerine overlay olarak render edilir
@@ -28,6 +29,7 @@ class _RankFrameWidgetState extends State<RankFrameWidget>
     with TickerProviderStateMixin {
   late AnimationController _glowController;
   late AnimationController _lottieController;
+  bool _isLottieLoaded = false;
 
   @override
   void initState() {
@@ -117,6 +119,11 @@ class _RankFrameWidgetState extends State<RankFrameWidget>
                   alignment: Alignment.center,
                   frameRate: const FrameRate(60),
                   onLoaded: (composition) {
+                    if (mounted) {
+                      setState(() {
+                        _isLottieLoaded = true;
+                      });
+                    }
                     // Lottie'nin orijinal süresini composition'dan alır
                     _lottieController.duration = composition.duration;
                     // Baştan sona oynar, sondan başa sarar ve sürekli döngüde kalır
@@ -134,6 +141,13 @@ class _RankFrameWidgetState extends State<RankFrameWidget>
   }
 
   Widget _buildProfileAvatar(double size, RankTier rank, BuildContext context) {
+    if (!_isLottieLoaded) {
+      return Shimmer.auto(
+        context: context,
+        child: ShimmerCircle(size: size),
+      );
+    }
+
     final hasImage =
         widget.profileImagePath != null && widget.profileImagePath!.isNotEmpty;
     final provider = hasImage

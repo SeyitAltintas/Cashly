@@ -5,6 +5,9 @@ import 'package:cashly/core/services/cloud_sync_service.dart';
 import 'package:cashly/core/di/injection_container.dart';
 import 'package:cashly/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:cashly/features/streak/presentation/controllers/streak_controller.dart';
+import 'package:cashly/features/streak/presentation/widgets/streak_celebration_dialog.dart';
+import 'package:cashly/features/streak/presentation/widgets/streak_broken_dialog.dart';
+import 'package:cashly/features/streak/data/constants/streak_badges.dart';
 import 'error_logs_page.dart';
 
 class DeveloperToolsPage extends StatefulWidget {
@@ -16,6 +19,7 @@ class DeveloperToolsPage extends StatefulWidget {
 
 class _DeveloperToolsPageState extends State<DeveloperToolsPage> {
   bool _mockLoading = false;
+  int _rankTestIndex = 0;
 
   Future<void> _generateMockData() async {
     final userId = getIt<AuthController>().currentUser?.id;
@@ -228,6 +232,106 @@ class _DeveloperToolsPageState extends State<DeveloperToolsPage> {
                         ),
                       ],
                     ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Pop-up Test Section
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.orange.withValues(alpha: 0.25),
+                ),
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(
+                        Icons.animation,
+                        color: Colors.orange,
+                        size: 18,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Pop-up Ekran Testleri',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Seri kutlama ve kırılma ekranlarını test edin.',
+                    style: TextStyle(
+                      color: Colors.orange.withValues(alpha: 0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          final tier = RankTiers.allTiers[_rankTestIndex];
+                          StreakCelebrationDialog.showRankUp(
+                            context,
+                            tier.requiredXp ~/ 10, // örnek streak sayısı
+                            tier,
+                          );
+                          setState(() {
+                            _rankTestIndex = (_rankTestIndex + 1) % RankTiers.allTiers.length;
+                          });
+                        },
+                        icon: const Icon(Icons.star, size: 18),
+                        label: const Text('Rütbe Atlama Testi'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.orange,
+                          side: BorderSide(
+                            color: Colors.orange.withValues(alpha: 0.4),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          StreakCelebrationDialog.show(context, 15);
+                        },
+                        icon: const Icon(Icons.local_fire_department, size: 18),
+                        label: const Text('Seri Devam Testi'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.orange,
+                          side: BorderSide(
+                            color: Colors.orange.withValues(alpha: 0.4),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          StreakBrokenDialog.show(context, 15);
+                        },
+                        icon: const Icon(Icons.heart_broken, size: 18),
+                        label: const Text('Kırılma Testi'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: ColorConstants.kirmiziVurgu,
+                          side: BorderSide(
+                            color: ColorConstants.kirmiziVurgu.withValues(alpha: 0.4),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

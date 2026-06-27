@@ -1988,5 +1988,49 @@
     }
   },
   "cancelTransfer": "Cancel Transfer",
-  "cancelTransferConfirmation": "Are you sure you want to cancel this pending transfer?"
+  "cancelTransferConfirmation": "Are you sure you want to cancel this pending transfer?",
+  "rankUpTitle": "🎉 RANK UP!",
+  "streakBrokenTitle": "💔 STREAK BROKEN!",
+  "streakBrokenHeadline": "Oh no, your {days} day\nstreak is broken!",
+  "@streakBrokenHeadline": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakBrokenDescription": "Are you about to lose your streak?\nWatch an ad now and continue\nwhere you left off!",
+  "watchAdToSaveStreak": "Watch Ad and Save Streak",
+  "startFromZero": "No, I want to start from 0",
+  "streakMsgStart": "Great start! 🚀",
+  "streakMsg3Days": "Three days in a row! Keep going! 💪",
+  "streakMsg1Week": "One week! Amazing! ⭐",
+  "streakMsg2Weeks": "Two weeks! It's a habit now! 🔥",
+  "streakMsg1Month": "One month! Incredible! 🏆",
+  "streakMsg100Days": "100 days! You are a legend! 👑",
+  "streakMsgMonthly": "{days} days! You're awesome! 🎊",
+  "@streakMsgMonthly": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakMsgWeekly": "{days} days! Super streak! 💫",
+  "@streakMsgWeekly": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakMsgDynamic": "Your streak continues! {days} days! 🔥",
+  "@streakMsgDynamic": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakDayWord": "DAY"
 }

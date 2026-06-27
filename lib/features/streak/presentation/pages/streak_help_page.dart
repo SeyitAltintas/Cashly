@@ -71,8 +71,9 @@ class StreakHelpPage extends StatelessWidget {
               title: 'Seri (Streak) Nedir?',
               content:
                   'Her gün uygulamaya giriş yaparak serinizi sürdürürsünüz. '
-                  'Bir gün giriş yapmazsanız seri sıfırlanır. '
-                  'Ancak XP\'niz korunmaya devam eder, seri kırılsa bile!',
+                  'Ancak günlük telaşta unutursanız diye 3 güne kadar esnekliğiniz (güvenli liman) var. '
+                  'Yani tam 3 gün boyunca hiç giriş yapmazsanız seriniz sıfırlanır. '
+                  'Merak etmeyin; seri kırılsa bile rütbeniz ve XP\'niz korunmaya devam eder!',
             ),
             const SizedBox(height: 16),
 

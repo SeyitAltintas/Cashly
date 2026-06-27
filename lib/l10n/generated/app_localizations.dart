@@ -7841,6 +7841,102 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Bu bekleyen transferi iptal etmek istediğinize emin misiniz?'**
   String get cancelTransferConfirmation;
+
+  /// No description provided for @rankUpTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'🎉 RÜTBE ATLADIN!'**
+  String get rankUpTitle;
+
+  /// No description provided for @streakBrokenTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'💔 SERİN BOZULDU!'**
+  String get streakBrokenTitle;
+
+  /// No description provided for @streakBrokenHeadline.
+  ///
+  /// In tr, this message translates to:
+  /// **'Eyvah, {days} günlük\nserin bozuldu!'**
+  String streakBrokenHeadline(int days);
+
+  /// No description provided for @streakBrokenDescription.
+  ///
+  /// In tr, this message translates to:
+  /// **'Serini kaybetmek üzere misin?\nHemen bir reklam izle ve serini\nkaldığı yerden devam ettir!'**
+  String get streakBrokenDescription;
+
+  /// No description provided for @watchAdToSaveStreak.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklam İzle ve Serini Kurtar'**
+  String get watchAdToSaveStreak;
+
+  /// No description provided for @startFromZero.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hayır, 0\'dan Başlamak İstiyorum'**
+  String get startFromZero;
+
+  /// No description provided for @streakMsgStart.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harika bir başlangıç! 🚀'**
+  String get streakMsgStart;
+
+  /// No description provided for @streakMsg3Days.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üç gün arka arkaya! Devam et! 💪'**
+  String get streakMsg3Days;
+
+  /// No description provided for @streakMsg1Week.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir hafta! Muhteşem! ⭐'**
+  String get streakMsg1Week;
+
+  /// No description provided for @streakMsg2Weeks.
+  ///
+  /// In tr, this message translates to:
+  /// **'İki hafta! Alışkanlık oldu! 🔥'**
+  String get streakMsg2Weeks;
+
+  /// No description provided for @streakMsg1Month.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir ay! İnanılmaz! 🏆'**
+  String get streakMsg1Month;
+
+  /// No description provided for @streakMsg100Days.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tam 100 gün! Efsanesin! 👑'**
+  String get streakMsg100Days;
+
+  /// No description provided for @streakMsgMonthly.
+  ///
+  /// In tr, this message translates to:
+  /// **'{days} gün! Harikasın! 🎊'**
+  String streakMsgMonthly(int days);
+
+  /// No description provided for @streakMsgWeekly.
+  ///
+  /// In tr, this message translates to:
+  /// **'{days} gün! Süper seri! 💫'**
+  String streakMsgWeekly(int days);
+
+  /// No description provided for @streakMsgDynamic.
+  ///
+  /// In tr, this message translates to:
+  /// **'Serin devam ediyor! {days} gün! 🔥'**
+  String streakMsgDynamic(int days);
+
+  /// No description provided for @streakDayWord.
+  ///
+  /// In tr, this message translates to:
+  /// **'GÜN'**
+  String get streakDayWord;
 }
 
 class _AppLocalizationsDelegate

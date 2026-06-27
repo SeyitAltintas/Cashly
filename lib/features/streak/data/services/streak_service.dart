@@ -13,6 +13,8 @@ class StreakResult {
   final int previousStreak;
   final bool rankedUp;
   final RankTier? newRank;
+  /// Seri 3 günden fazla girilmeyip kırıldıysa true
+  final bool streakBroken;
 
   const StreakResult({
     required this.data,
@@ -20,6 +22,7 @@ class StreakResult {
     required this.previousStreak,
     this.rankedUp = false,
     this.newRank,
+    this.streakBroken = false,
   });
 }
 
@@ -193,8 +196,8 @@ class StreakService {
           streakIncreased: false,
           previousStreak: previousStreak,
         );
-      } else if (difference == 1) {
-        // Seri devam ediyor
+      } else if (difference <= 3) {
+        // Seri devam ediyor (3 güne kadar esneklik)
         final newStreak = currentData.currentStreak + 1;
         final newLongest = newStreak > currentData.longestStreak
             ? newStreak
@@ -223,7 +226,7 @@ class StreakService {
         );
         streakIncreased = true;
       } else {
-        // Seri kırıldı (difference > 1)
+        // Seri kırıldı (difference > 3)
         earnedXp = RankTiers.dailyLoginXp;
         newData = currentData.copyWith(
           totalXp: currentData.totalXp + earnedXp,
@@ -231,7 +234,22 @@ class StreakService {
           lastLoginDate: today,
           totalLoginDays: currentData.totalLoginDays + 1,
         );
-        streakIncreased = true;
+        // streakBroken işareti aşağıda StreakResult'a ekleniyor
+        await saveStreakData(userId, newData);
+        final newRankBroken = RankTiers.fromXp(newData.totalXp);
+        final rankedUpBroken = newRankBroken.level > previousRank.level;
+        developer.log(
+          'Seri kırıldı: previousStreak=$previousStreak | +$earnedXp XP',
+          name: _logName,
+        );
+        return StreakResult(
+          data: newData,
+          streakIncreased: false,
+          previousStreak: previousStreak,
+          rankedUp: rankedUpBroken,
+          newRank: rankedUpBroken ? newRankBroken : null,
+          streakBroken: previousStreak > 0,
+        );
       }
     }
 

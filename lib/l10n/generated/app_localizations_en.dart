@@ -4219,4 +4219,61 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get cancelTransferConfirmation =>
       'Are you sure you want to cancel this pending transfer?';
+
+  @override
+  String get rankUpTitle => '🎉 RANK UP!';
+
+  @override
+  String get streakBrokenTitle => '💔 STREAK BROKEN!';
+
+  @override
+  String streakBrokenHeadline(int days) {
+    return 'Oh no, your $days day\nstreak is broken!';
+  }
+
+  @override
+  String get streakBrokenDescription =>
+      'Are you about to lose your streak?\nWatch an ad now and continue\nwhere you left off!';
+
+  @override
+  String get watchAdToSaveStreak => 'Watch Ad and Save Streak';
+
+  @override
+  String get startFromZero => 'No, I want to start from 0';
+
+  @override
+  String get streakMsgStart => 'Great start! 🚀';
+
+  @override
+  String get streakMsg3Days => 'Three days in a row! Keep going! 💪';
+
+  @override
+  String get streakMsg1Week => 'One week! Amazing! ⭐';
+
+  @override
+  String get streakMsg2Weeks => 'Two weeks! It\'s a habit now! 🔥';
+
+  @override
+  String get streakMsg1Month => 'One month! Incredible! 🏆';
+
+  @override
+  String get streakMsg100Days => '100 days! You are a legend! 👑';
+
+  @override
+  String streakMsgMonthly(int days) {
+    return '$days days! You\'re awesome! 🎊';
+  }
+
+  @override
+  String streakMsgWeekly(int days) {
+    return '$days days! Super streak! 💫';
+  }
+
+  @override
+  String streakMsgDynamic(int days) {
+    return 'Your streak continues! $days days! 🔥';
+  }
+
+  @override
+  String get streakDayWord => 'DAY';
 }

@@ -43,7 +43,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
     super.initState();
     // widget.streakData ile geliniyorsa controller'a da set et
     if (widget.streakData != null) {
-      _localRankData = widget.streakData as RankData?;
+      _localRankData = widget.streakData;
     }
     getIt<StreakController>().addListener(_onStreakChanged);
   }

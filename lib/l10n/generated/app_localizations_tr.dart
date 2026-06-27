@@ -4218,4 +4218,61 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get cancelTransferConfirmation =>
       'Bu bekleyen transferi iptal etmek istediğinize emin misiniz?';
+
+  @override
+  String get rankUpTitle => '🎉 RÜTBE ATLADIN!';
+
+  @override
+  String get streakBrokenTitle => '💔 SERİN BOZULDU!';
+
+  @override
+  String streakBrokenHeadline(int days) {
+    return 'Eyvah, $days günlük\nserin bozuldu!';
+  }
+
+  @override
+  String get streakBrokenDescription =>
+      'Serini kaybetmek üzere misin?\nHemen bir reklam izle ve serini\nkaldığı yerden devam ettir!';
+
+  @override
+  String get watchAdToSaveStreak => 'Reklam İzle ve Serini Kurtar';
+
+  @override
+  String get startFromZero => 'Hayır, 0\'dan Başlamak İstiyorum';
+
+  @override
+  String get streakMsgStart => 'Harika bir başlangıç! 🚀';
+
+  @override
+  String get streakMsg3Days => 'Üç gün arka arkaya! Devam et! 💪';
+
+  @override
+  String get streakMsg1Week => 'Bir hafta! Muhteşem! ⭐';
+
+  @override
+  String get streakMsg2Weeks => 'İki hafta! Alışkanlık oldu! 🔥';
+
+  @override
+  String get streakMsg1Month => 'Bir ay! İnanılmaz! 🏆';
+
+  @override
+  String get streakMsg100Days => 'Tam 100 gün! Efsanesin! 👑';
+
+  @override
+  String streakMsgMonthly(int days) {
+    return '$days gün! Harikasın! 🎊';
+  }
+
+  @override
+  String streakMsgWeekly(int days) {
+    return '$days gün! Süper seri! 💫';
+  }
+
+  @override
+  String streakMsgDynamic(int days) {
+    return 'Serin devam ediyor! $days gün! 🔥';
+  }
+
+  @override
+  String get streakDayWord => 'GÜN';
 }

@@ -1988,5 +1988,49 @@
     }
   },
   "cancelTransfer": "Transferi İptal Et",
-  "cancelTransferConfirmation": "Bu bekleyen transferi iptal etmek istediğinize emin misiniz?"
+  "cancelTransferConfirmation": "Bu bekleyen transferi iptal etmek istediğinize emin misiniz?",
+  "rankUpTitle": "🎉 RÜTBE ATLADIN!",
+  "streakBrokenTitle": "💔 SERİN BOZULDU!",
+  "streakBrokenHeadline": "Eyvah, {days} günlük\nserin bozuldu!",
+  "@streakBrokenHeadline": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakBrokenDescription": "Serini kaybetmek üzere misin?\nHemen bir reklam izle ve serini\nkaldığı yerden devam ettir!",
+  "watchAdToSaveStreak": "Reklam İzle ve Serini Kurtar",
+  "startFromZero": "Hayır, 0'dan Başlamak İstiyorum",
+  "streakMsgStart": "Harika bir başlangıç! 🚀",
+  "streakMsg3Days": "Üç gün arka arkaya! Devam et! 💪",
+  "streakMsg1Week": "Bir hafta! Muhteşem! ⭐",
+  "streakMsg2Weeks": "İki hafta! Alışkanlık oldu! 🔥",
+  "streakMsg1Month": "Bir ay! İnanılmaz! 🏆",
+  "streakMsg100Days": "Tam 100 gün! Efsanesin! 👑",
+  "streakMsgMonthly": "{days} gün! Harikasın! 🎊",
+  "@streakMsgMonthly": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakMsgWeekly": "{days} gün! Süper seri! 💫",
+  "@streakMsgWeekly": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakMsgDynamic": "Serin devam ediyor! {days} gün! 🔥",
+  "@streakMsgDynamic": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "streakDayWord": "GÜN"
 }

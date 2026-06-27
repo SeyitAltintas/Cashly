@@ -21,6 +21,7 @@ import 'package:cashly/features/home/presentation/widgets/home_app_bar.dart';
 import 'package:cashly/features/home/presentation/widgets/home_bottom_nav.dart';
 import 'package:cashly/features/streak/data/models/streak_model.dart';
 import 'package:cashly/features/streak/presentation/widgets/streak_celebration_dialog.dart';
+import 'package:cashly/features/streak/presentation/widgets/streak_broken_dialog.dart';
 
 // Repository imports
 import 'package:cashly/features/streak/data/services/streak_service.dart';
@@ -126,7 +127,14 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
     if (mounted) {
       _homeState.streakData = result.data;
 
-      if (result.rankedUp && result.newRank != null) {
+      if (result.streakBroken && result.previousStreak > 0) {
+        // Seri kırıldı — özel uyarı popup'u göster
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) {
+            StreakBrokenDialog.show(context, result.previousStreak);
+          }
+        });
+      } else if (result.rankedUp && result.newRank != null) {
         // Rank atladı — özel rank-up kutlaması
         _pendingCelebration = true;
         _pendingStreakCount = result.data.currentStreak;

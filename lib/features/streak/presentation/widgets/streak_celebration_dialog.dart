@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/services/haptic_service.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../core/theme/theme_manager.dart';
+import '../../../../core/utils/image_utils.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../dashboard/presentation/controllers/dashboard_controller.dart';
 import '../../data/constants/streak_badges.dart';
 
 /// Rank atlandığında veya seri arttığında gösterilen kutlama dialog'u
@@ -51,8 +55,7 @@ class StreakCelebrationDialog extends StatefulWidget {
       useRootNavigator: true,
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor:
-          Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
+      barrierColor: Colors.black.withValues(alpha: 0.85),
       transitionDuration: const Duration(milliseconds: 400),
       pageBuilder: (dialogContext, animation, secondaryAnimation) {
         return StreakCelebrationDialog(
@@ -62,8 +65,7 @@ class StreakCelebrationDialog extends StatefulWidget {
             if (dialogContext.mounted) {
               final route = ModalRoute.of(dialogContext);
               if (route != null && route.isCurrent) {
-                final nav =
-                    Navigator.of(dialogContext, rootNavigator: true);
+                final nav = Navigator.of(dialogContext, rootNavigator: true);
                 if (nav.canPop()) nav.pop();
               }
             }
@@ -119,12 +121,9 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
     unawaited(_startCelebrationHaptics());
 
     // Rank up için 4 saniye, normal seri için 3 saniye
-    _dismissTimer = Timer(
-      Duration(seconds: _isRankUp ? 4 : 3),
-      () {
-        if (mounted) widget.onDismiss?.call();
-      },
-    );
+    _dismissTimer = Timer(Duration(seconds: _isRankUp ? 4 : 3), () {
+      if (mounted) widget.onDismiss?.call();
+    });
   }
 
   Future<void> _startCelebrationHaptics() async {
@@ -155,12 +154,7 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
       child: Material(
         color: Colors.transparent,
         child: Center(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) {
-              return _isRankUp ? _buildRankUpContent() : _buildStreakContent();
-            },
-          ),
+          child: _isRankUp ? _buildRankUpContent() : _buildStreakContent(),
         ),
       ),
     );
@@ -168,56 +162,126 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
 
   Widget _buildRankUpContent() {
     final rank = widget.newRank!;
+    final profileImage = getIt<DashboardController>().profileImage;
+
+    double getAvatarRadius(int level) {
+      double ratio;
+      switch (level) {
+        case 1:
+        case 2:
+          ratio = 0.85;
+          break;
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+          ratio = 0.88;
+          break;
+        case 7:
+        case 9:
+          ratio = 0.75;
+          break;
+        case 8:
+          ratio = 0.77;
+          break;
+        default:
+          ratio = 0.85;
+      }
+      return ((250 / 2.4) * ratio) / 2;
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         // Rank Lottie animasyonu
-        Transform.scale(
-          scale: _scaleAnimation.value,
+        ScaleTransition(
+          scale: _scaleAnimation,
           child: SizedBox(
-            width: 180,
-            height: 180,
-            child: Lottie.asset(
-              rank.lottieAsset,
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        Opacity(
-          opacity: _textAnimation.value,
-          child: Transform.translate(
-            offset: Offset(0, 20 * (1 - _textAnimation.value)),
-            child: Column(
+            width: 250,
+            height: 250,
+            child: Stack(
+              alignment: Alignment.center,
               children: [
-                // "RANK UP!" etiketi
+                // Arka plan ışığı (Glow)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 6,
-                  ),
+                  width: 150,
+                  height: 150,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [rank.primaryColor, rank.glowColor],
-                    ),
-                    borderRadius: BorderRadius.circular(20),
+                    shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: rank.glowColor.withValues(alpha: 0.5),
-                        blurRadius: 16,
+                        color: rank.glowColor.withValues(alpha: 0.6),
+                        blurRadius: 80,
+                        spreadRadius: 20,
                       ),
                     ],
                   ),
-                  child: const Text(
-                    '🎉 RANK UP!',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: 2,
+                ),
+                Lottie.asset(
+                  rank.lottieAsset,
+                  fit: BoxFit.contain,
+                  repeat: false,
+                ),
+                if (profileImage != null && profileImage.isNotEmpty)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: rank.glowColor.withValues(alpha: 0.8),
+                        width: 2.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ],
                     ),
+                    child: ClipOval(
+                      child: CircleAvatar(
+                        radius: getAvatarRadius(rank.level),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                        backgroundImage: ImageUtils.getProfileImageProvider(
+                          profileImage,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Rank up başlığı
+        FadeTransition(
+          opacity: _textAnimation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.5),
+              end: Offset.zero,
+            ).animate(_textAnimation),
+            child: Column(
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.rankUpTitle,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: rank.primaryColor,
+                    letterSpacing: 2,
+                    shadows: [
+                      Shadow(
+                        color: rank.glowColor.withValues(alpha: 0.8),
+                        blurRadius: 12,
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -227,7 +291,7 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
                   rank.name,
                   style: TextStyle(
                     fontSize: 36,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                     color: rank.primaryColor,
                     shadows: [
                       Shadow(
@@ -244,10 +308,9 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.75),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.75),
                   ),
                 ),
               ],
@@ -264,15 +327,12 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Transform.scale(
-          scale: _scaleAnimation.value,
+        ScaleTransition(
+          scale: _scaleAnimation,
           child: SizedBox(
             width: 200,
             height: 200,
-            child: Lottie.asset(
-              'assets/lottie/Fire.json',
-              fit: BoxFit.contain,
-            ),
+            child: Lottie.asset('assets/lottie/Fire.json', fit: BoxFit.contain),
           ),
         ),
         const SizedBox(height: 24),
@@ -292,20 +352,15 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
                     fontWeight: FontWeight.w900,
                     color: Color(0xFFFF6B35),
                     height: 1,
-                    shadows: [
-                      Shadow(
-                        color: Color(0x80FF6B35),
-                        blurRadius: 20,
-                      ),
-                    ],
+                    shadows: [Shadow(color: Color(0x80FF6B35), blurRadius: 20)],
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 12),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
-                    'GÜN',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.streakDayWord,
+                    style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w500,
                       color: Colors.white70,
@@ -318,16 +373,15 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
         ),
         const SizedBox(height: 16),
 
-        Opacity(
-          opacity: _textAnimation.value,
+        FadeTransition(
+          opacity: _textAnimation,
           child: Text(
-            _streakMessage(streak),
+            _streakMessage(context, streak),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w400,
-              color:
-                  Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
@@ -335,15 +389,16 @@ class _StreakCelebrationDialogState extends State<StreakCelebrationDialog>
     );
   }
 
-  String _streakMessage(int streak) {
-    if (streak == 1) return 'Harika bir başlangıç! 🚀';
-    if (streak == 3) return 'Üç gün arka arkaya! Devam et! 💪';
-    if (streak == 7) return 'Bir hafta! Muhteşem! ⭐';
-    if (streak == 14) return 'İki hafta! Alışkanlık oldu! 🔥';
-    if (streak == 30) return 'Bir ay! İnanılmaz! 🏆';
-    if (streak == 100) return 'Tam 100 gün! Efsanesin! 👑';
-    if (streak % 30 == 0) return '$streak gün! Harikasın! 🎊';
-    if (streak % 7 == 0) return '$streak gün! Süper seri! 💫';
-    return 'Serin devam ediyor! $streak gün! 🔥';
+  String _streakMessage(BuildContext context, int streak) {
+    final l10n = AppLocalizations.of(context)!;
+    if (streak == 1) return l10n.streakMsgStart;
+    if (streak == 3) return l10n.streakMsg3Days;
+    if (streak == 7) return l10n.streakMsg1Week;
+    if (streak == 14) return l10n.streakMsg2Weeks;
+    if (streak == 30) return l10n.streakMsg1Month;
+    if (streak == 100) return l10n.streakMsg100Days;
+    if (streak % 30 == 0) return l10n.streakMsgMonthly(streak);
+    if (streak % 7 == 0) return l10n.streakMsgWeekly(streak);
+    return l10n.streakMsgDynamic(streak);
   }
 }
