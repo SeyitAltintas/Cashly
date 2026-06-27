@@ -60,7 +60,7 @@ void main() {
       expect(result.totalXp, 150);
     });
 
-    test('bugün işlem girilmişse hatırlatma atlanmalı', () {
+    test('bugün uygulamaya girilmişse hatırlatma atlanmalı', () {
       final today = DateTime.now();
       final streakData = RankData(
         totalXp: 30,
