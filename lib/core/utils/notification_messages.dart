@@ -158,7 +158,7 @@ class NotificationMessages {
     final l = _l10n(context);
     final prefix = _namePrefix(userName);
     final messages = [
-      l?.notifRecurring1(prefix, name, amount) ?? "${prefix}$name için $amount ödemen yarın. Şimdiden hatırlatayım dedim.",
+      l?.notifRecurring1(prefix, name, amount) ?? "$prefix$name için $amount ödemen yarın. Şimdiden hatırlatayım dedim.",
       l?.notifRecurring2(name, amount) ?? "Yarın $name için $amount ödemen gerekiyor, gözden kaçmasın.",
       l?.notifRecurring3(name, amount) ?? "$amount tutarındaki $name işleminin zamanı geldi.",
       l?.notifRecurring4(prefix, name, amount) ?? "${prefix}bütçeni buna göre ayarlamayı unutma: $name ($amount) yarın gerçekleşecek.",

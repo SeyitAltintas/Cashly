@@ -13,6 +13,9 @@ import 'notification_service.dart';
 /// Zamanlanmış bildirimlerin yönetimi
 /// Seri hatırlatıcı, aylık özet, tekrarlayan işlem hatırlatıcıları
 class NotificationScheduler {
+  // Hive'da kullanıcı verisi bu key ile saklanıyor
+  static const String _userId = 'user';
+
   final NotificationService _notificationService;
   final NotificationSettingsRepository _settingsRepo;
   final StreakRepository? _streakRepo;
@@ -55,7 +58,7 @@ class NotificationScheduler {
     bool todayHasLogin = false;
     if (_streakRepo != null) {
       try {
-        final streakData = _streakRepo.getStreakData('user');
+        final streakData = _streakRepo.getStreakData(_userId);
         streakDays = streakData.currentStreak;
 
         // Bugün uygulamaya girilmiş mi kontrol et
@@ -121,7 +124,7 @@ class NotificationScheduler {
     }
 
     notificationLogger.logSchedule(
-      scheduleName: 'streakReminder_7days',
+      scheduleName: 'streakReminder_4days',
       scheduledTime: now,
       notificationId: NotificationIds.streakReminderBase,
       success: true,
@@ -178,7 +181,7 @@ class NotificationScheduler {
     // Dinamik aylık toplam harcamayı hesapla
     double monthlyTotal = 0;
     try {
-      final harcamalar = getIt<ExpenseRepository>().getExpenses('user');
+      final harcamalar = getIt<ExpenseRepository>().getExpenses(_userId);
       final currentMonth = now.month;
       final currentYear = now.year;
 
@@ -335,7 +338,7 @@ class NotificationScheduler {
   Future<void> cancelRecurringTransactionReminder(String transactionId) async {
     final notificationId =
         NotificationIds.recurringReminderBase +
-        transactionId.hashCode.abs() % 1000;
+        transactionId.hashCode.abs() % 10000;
     await _notificationService.cancelNotification(notificationId);
     notificationLogger.logOperation(
       operation: 'cancelRecurringTransaction',
@@ -358,7 +361,7 @@ class NotificationScheduler {
     DateTime? lastLoginDate;
     if (_streakRepo != null) {
       try {
-        final streakData = _streakRepo.getStreakData('user');
+        final streakData = _streakRepo.getStreakData(_userId);
         streakDays = streakData.currentStreak;
 
         // Son giriş tarihini al
@@ -442,7 +445,7 @@ class NotificationScheduler {
     String topCategory = '';
     double topAmount = 0;
     try {
-      final harcamalar = getIt<ExpenseRepository>().getExpenses('user');
+      final harcamalar = getIt<ExpenseRepository>().getExpenses(_userId);
       final weekStart = DateTime.now().subtract(const Duration(days: 7));
 
       // Kategoriye göre harcamaları grupla
@@ -509,24 +512,16 @@ class NotificationScheduler {
     await _notificationService.cancelAllNotifications();
 
     // Seri hatırlatıcı
-    if (_settingsRepo.isStreakReminderEnabled()) {
-      await scheduleStreakReminder();
-    }
+    await scheduleStreakReminder();
 
     // Aylık özet
-    if (_settingsRepo.isMonthlySummaryEnabled()) {
-      await scheduleMonthlySummary();
-    }
+    await scheduleMonthlySummary();
 
     // Seri kırılma uyarısı
-    if (_settingsRepo.isStreakBreakWarningEnabled()) {
-      await scheduleStreakBreakWarning();
-    }
+    await scheduleStreakBreakWarning();
 
     // Haftalık mini özet
-    if (_settingsRepo.isWeeklyMiniSummaryEnabled()) {
-      await scheduleWeeklyMiniSummary();
-    }
+    await scheduleWeeklyMiniSummary();
 
     notificationLogger.info('Tüm zamanlanmış bildirimler yeniden planlandı');
   }
