@@ -140,20 +140,6 @@ class StreakService {
   static Future<StreakResult> checkAndUpdateStreak(String userId) async {
     var currentData = getStreakData(userId);
     final today = _getDateString(DateTime.now());
-    final currentYear = DateTime.now().year;
-
-    // --- YILLIK RESET KONTROLÜ ---
-    if (currentData.lastResetYear < currentYear) {
-      developer.log(
-        'Yıllık XP reset: ${currentData.lastResetYear} → $currentYear',
-        name: _logName,
-      );
-      currentData = currentData.copyWith(
-        totalXp: 0,
-        lastResetYear: currentYear,
-      );
-      await saveStreakData(userId, currentData);
-    }
 
     final lastLogin = currentData.lastLoginDate;
     final previousStreak = currentData.currentStreak;

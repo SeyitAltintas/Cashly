@@ -26,17 +26,17 @@ enum NotificationType {
 class NotificationIds {
   NotificationIds._();
 
-  /// Seri hatırlatıcı ID
-  static const int streakReminder = 1000;
+  /// Seri hatırlatıcı ID (1000 - 1006 arası kullanılacak)
+  static const int streakReminderBase = 1000;
 
   /// Aylık özet ID
-  static const int monthlySummary = 1001;
+  static const int monthlySummary = 1010;
 
   /// Seri kırılma uyarısı ID
-  static const int streakBreakWarning = 1002;
+  static const int streakBreakWarning = 1011;
 
   /// Haftalık mini özet ID
-  static const int weeklyMiniSummary = 1003;
+  static const int weeklyMiniSummary = 1012;
 
   /// Tekrarlayan işlem hatırlatıcıları için başlangıç ID
   static const int recurringReminderBase = 4000;

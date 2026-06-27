@@ -1,9 +1,11 @@
 import 'package:timezone/timezone.dart' as tz;
+import 'package:firebase_auth/firebase_auth.dart';
 import '../domain/notification_types.dart';
 import '../repositories/notification_settings_repository.dart';
 import '../../features/expenses/domain/repositories/expense_repository.dart';
 import '../di/injection_container.dart';
 import '../utils/notification_logger.dart';
+import '../utils/notification_messages.dart';
 import '../../features/streak/domain/repositories/streak_repository.dart';
 import 'currency_service.dart';
 import 'notification_service.dart';
@@ -28,6 +30,16 @@ class NotificationScheduler {
                ? getIt<StreakRepository>()
                : null);
 
+  /// Mevcut kullanıcının adını getirir (ilk ismini alır)
+  String? get _userName {
+    final user = FirebaseAuth.instance.currentUser;
+    final name = user?.displayName;
+    if (name != null && name.trim().isNotEmpty) {
+      return name.trim().split(' ').first;
+    }
+    return null;
+  }
+
   /// Seri hatırlatıcısını planla
   /// Her gün belirlenen saatte "Bugün işlem girmediniz" hatırlatması
   Future<void> scheduleStreakReminder() async {
@@ -38,15 +50,15 @@ class NotificationScheduler {
 
     final (hour, minute) = _settingsRepo.getStreakReminderTime();
 
-    // Dinamik seri gün sayısını al ve bugün işlem kontrolü
+    // Dinamik seri gün sayısını al ve bugün giriş kontrolü
     int streakDays = 0;
-    bool todayHasTransaction = false;
+    bool todayHasLogin = false;
     if (_streakRepo != null) {
       try {
         final streakData = _streakRepo.getStreakData('user');
         streakDays = streakData.currentStreak;
 
-        // Bugün işlem girilmiş mi kontrol et
+        // Bugün uygulamaya girilmiş mi kontrol et
         final today = DateTime.now();
         final lastLoginStr = streakData.lastLoginDate;
         if (lastLoginStr.isNotEmpty) {
@@ -55,7 +67,7 @@ class NotificationScheduler {
               lastLogin.year == today.year &&
               lastLogin.month == today.month &&
               lastLogin.day == today.day) {
-            todayHasTransaction = true;
+            todayHasLogin = true;
           }
         }
       } catch (e) {
@@ -66,51 +78,66 @@ class NotificationScheduler {
       }
     }
 
-    // Bugün işlem girilmişse hatırlatma gönderme
-    if (todayHasTransaction) {
-      notificationLogger.debug(
-        'Seri hatırlatıcı atlandı: Bugün işlem girilmiş',
-      );
-      return;
-    }
-
     // Mesajı seri durumuna göre ayarla
+    final String title = NotificationMessages.getStreakReminderTitle();
     final String body = streakDays > 0
-        ? 'Bugün henüz işlem girmediniz. $streakDays günlük serinizi kaybetmeyin!'
-        : 'Bugün henüz işlem girmediniz. Serinizi başlatın!';
+        ? NotificationMessages.getStreakReminderWithStreak(
+            streakDays,
+            _userName,
+          )
+        : NotificationMessages.getStreakReminderWithoutStreak(_userName);
 
-    await _notificationService.scheduleDailyNotification(
-      id: NotificationIds.streakReminder,
-      title: '🔥 Serinizi Koruyun!',
-      body: body,
-      hour: hour,
-      minute: minute,
-      type: NotificationType.streakReminder,
-      payload: 'streak_reminder',
-    );
+    final now = DateTime.now();
 
-    notificationLogger.logSchedule(
-      scheduleName: 'streakReminder',
-      scheduledTime: DateTime(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
+    // Grace period (3 gün) hesaba katılarak, önümüzdeki 4 gün (0..3) için bildirim planla.
+    // 4. gün seri zaten kırılmış olacağı için hatırlatıcı gönderilmez.
+    for (int i = 0; i <= 3; i++) {
+      // Eğer bugün giriş yapıldıysa ve i == 0 ise bugünün bildirimini atla
+      if (i == 0 && todayHasLogin) {
+        continue;
+      }
+
+      var scheduledDate = DateTime(
+        now.year,
+        now.month,
+        now.day + i,
         hour,
         minute,
-      ),
-      notificationId: NotificationIds.streakReminder,
+      );
+
+      // Eğer planlanan zaman geçmişteyse (bugün için saati geçtiyse) atla
+      if (scheduledDate.isBefore(now)) {
+        continue;
+      }
+
+      await _notificationService.scheduleNotification(
+        id: NotificationIds.streakReminderBase + i,
+        title: title,
+        body: body,
+        scheduledDate: scheduledDate,
+        type: NotificationType.streakReminder,
+        payload: 'streak_reminder',
+      );
+    }
+
+    notificationLogger.logSchedule(
+      scheduleName: 'streakReminder_7days',
+      scheduledTime: now,
+      notificationId: NotificationIds.streakReminderBase,
       success: true,
     );
   }
 
   /// Seri hatırlatıcısını iptal et
   Future<void> cancelStreakReminder() async {
-    await _notificationService.cancelNotification(
-      NotificationIds.streakReminder,
-    );
+    for (int i = 0; i < 7; i++) {
+      await _notificationService.cancelNotification(
+        NotificationIds.streakReminderBase + i,
+      );
+    }
     notificationLogger.logOperation(
       operation: 'cancelStreakReminder',
-      notificationId: NotificationIds.streakReminder,
+      notificationId: NotificationIds.streakReminderBase,
       success: true,
     );
   }
@@ -174,9 +201,14 @@ class NotificationScheduler {
     }
 
     // Mesajı duruma göre ayarla
+    final String formattedTotal =
+        '${getIt<CurrencyService>().currentSymbol}${monthlyTotal.toStringAsFixed(0)}';
     final String body = monthlyTotal > 0
-        ? 'Bu ay ${getIt<CurrencyService>().currentSymbol}${monthlyTotal.toStringAsFixed(0)} harcadınız. Detaylar için tıklayın.'
-        : 'Bu ayki finansal durumunuzu görüntülemek için tıklayın.';
+        ? NotificationMessages.getMonthlySummaryWithSpending(
+            formattedTotal,
+            _userName,
+          )
+        : NotificationMessages.getMonthlySummaryWithoutSpending(_userName);
 
     await _notificationService.scheduleNotification(
       id: NotificationIds.monthlySummary,
@@ -274,13 +306,18 @@ class NotificationScheduler {
         transactionId.hashCode.abs() %
             10000; // 10000'e çıkardık, çakışma azaltma
 
-    final formattedAmount = amount.toStringAsFixed(2);
+    final formattedAmount =
+        '${getIt<CurrencyService>().currentSymbol}${amount.toStringAsFixed(2)}';
+    final String body = NotificationMessages.getRecurringReminder(
+      transactionName,
+      formattedAmount,
+      _userName,
+    );
 
     await _notificationService.scheduleNotification(
       id: notificationId,
       title: '💸 Ödeme Yaklaşıyor',
-      body:
-          '$transactionName için ${getIt<CurrencyService>().currentSymbol}$formattedAmount ödemeniz yarın.',
+      body: body,
       scheduledDate: scheduledDate,
       type: NotificationType.recurringReminder,
       payload: 'recurring_$transactionId',
@@ -308,7 +345,7 @@ class NotificationScheduler {
     );
   }
 
-  /// Seri kırılma uyarısını zamanla (her gün 22:00)
+  /// Seri kırılma uyarısını zamanla (son işlemden 3 gün sonra 22:00)
   /// Sadece aktif seri varsa gönderilir
   Future<void> scheduleStreakBreakWarning() async {
     if (!_settingsRepo.isStreakBreakWarningEnabled()) {
@@ -318,23 +355,16 @@ class NotificationScheduler {
 
     // Seri kontrolü - seri yoksa uyarı gönderme
     int streakDays = 0;
-    bool todayHasTransaction = false;
+    DateTime? lastLoginDate;
     if (_streakRepo != null) {
       try {
         final streakData = _streakRepo.getStreakData('user');
         streakDays = streakData.currentStreak;
 
-        // Bugün işlem girilmiş mi kontrol et
-        final today = DateTime.now();
+        // Son giriş tarihini al
         final lastLoginStr = streakData.lastLoginDate;
         if (lastLoginStr.isNotEmpty) {
-          final lastLogin = DateTime.tryParse(lastLoginStr);
-          if (lastLogin != null &&
-              lastLogin.year == today.year &&
-              lastLogin.month == today.month &&
-              lastLogin.day == today.day) {
-            todayHasTransaction = true;
-          }
+          lastLoginDate = DateTime.tryParse(lastLoginStr);
         }
       } catch (e) {
         notificationLogger.warning(
@@ -344,46 +374,41 @@ class NotificationScheduler {
       }
     }
 
-    // Seri 0 ise veya bugün işlem girilmişse uyarı gönderme
-    if (streakDays == 0) {
+    // Seri 0 ise veya giriş yapılmamışsa uyarı gönderme
+    if (streakDays == 0 || lastLoginDate == null) {
       notificationLogger.debug('Seri kırılma uyarısı atlandı: Aktif seri yok');
       return;
     }
 
-    if (todayHasTransaction) {
-      notificationLogger.debug(
-        'Seri kırılma uyarısı atlandı: Bugün işlem girilmiş',
-      );
-      return;
-    }
-
-    final now = tz.TZDateTime.now(tz.local);
-    var scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      22, // 22:00
+    // 3 günlük esneklik (grace period) son günü 22:00
+    final warningDate = DateTime(
+      lastLoginDate.year,
+      lastLoginDate.month,
+      lastLoginDate.day + 3,
+      22,
       0,
     );
 
-    // Eğer saat geçtiyse yarına planla
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    final now = DateTime.now();
+
+    // Eğer uyarı zamanı geçmişse atla
+    if (warningDate.isBefore(now)) {
+      notificationLogger.debug('Seri kırılma uyarısı atlandı: Zamanı geçmiş');
+      return;
     }
 
     await _notificationService.scheduleNotification(
       id: NotificationIds.streakBreakWarning,
-      title: '🚨 Son Şans!',
-      body: 'Seriniz kırılmak üzere! Bugün işlem girmeyi unutmayın.',
-      scheduledDate: scheduledDate,
+      title: NotificationMessages.getStreakBreakWarningTitle(),
+      body: NotificationMessages.getStreakBreakWarning(_userName),
+      scheduledDate: warningDate,
       type: NotificationType.streakBreakWarning,
       payload: 'streak_break_warning',
     );
 
     notificationLogger.logSchedule(
       scheduleName: 'streakBreakWarning',
-      scheduledTime: scheduledDate,
+      scheduledTime: warningDate,
       notificationId: NotificationIds.streakBreakWarning,
       success: true,
     );
@@ -450,9 +475,15 @@ class NotificationScheduler {
     }
 
     // Mesajı duruma göre ayarla
-    final String body = topCategory.isNotEmpty && topAmount > 0
-        ? 'Bu hafta en çok $topCategory kategorisine ${getIt<CurrencyService>().currentSymbol}${topAmount.toStringAsFixed(0)} harcadınız.'
-        : 'Bu hafta en çok hangi kategoride harcama yaptığınızı görün!';
+    final String formattedAmount =
+        '${getIt<CurrencyService>().currentSymbol}${topAmount.toStringAsFixed(0)}';
+    final String body = topAmount > 0
+        ? NotificationMessages.getWeeklySummaryWithSpending(
+            topCategory,
+            formattedAmount,
+            _userName,
+          )
+        : NotificationMessages.getWeeklySummaryWithoutSpending(_userName);
 
     await _notificationService.scheduleNotification(
       id: NotificationIds.weeklyMiniSummary,

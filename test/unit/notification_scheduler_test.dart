@@ -196,10 +196,10 @@ void main() {
 
   group('NotificationIds - Consistency', () {
     test('ID değerleri stabil olmalı', () {
-      expect(NotificationIds.streakReminder, 1000);
-      expect(NotificationIds.monthlySummary, 1001);
-      expect(NotificationIds.streakBreakWarning, 1002);
-      expect(NotificationIds.weeklyMiniSummary, 1003);
+      expect(NotificationIds.streakReminderBase, 1000);
+      expect(NotificationIds.monthlySummary, 1010);
+      expect(NotificationIds.streakBreakWarning, 1011);
+      expect(NotificationIds.weeklyMiniSummary, 1012);
       expect(NotificationIds.recurringReminderBase, 4000);
     });
 
