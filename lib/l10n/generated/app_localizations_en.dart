@@ -4276,4 +4276,240 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get streakDayWord => 'DAY';
+
+  @override
+  String get notifStreakReminderTitle1 => '🔥 Time to Keep Your Streak!';
+
+  @override
+  String get notifStreakReminderTitle2 => '⏰ Daily Reminder!';
+
+  @override
+  String get notifStreakReminderTitle3 => '👋 Hello from Cashly';
+
+  @override
+  String get notifStreakReminderTitle4 => '🏃 Consistency Is Everything';
+
+  @override
+  String get notifStreakReminderTitle5 => '✨ Don\'t Waste the Day';
+
+  @override
+  String get notifStreakBreakWarnTitle1 => '🚨 Last Chance!';
+
+  @override
+  String get notifStreakBreakWarnTitle2 => '⚠️ Your Streak Is in Danger!';
+
+  @override
+  String get notifStreakBreakWarnTitle3 => '⏳ Time Is Running Out!';
+
+  @override
+  String get notifStreakBreakWarnTitle4 => '🥶 Your Effort Is About to Freeze!';
+
+  @override
+  String notifStreakWithStreak1(String prefix, int days) {
+    return '${prefix}you haven\'t stopped by Cashly today. You don\'t want to lose your $days-day streak, do you?';
+  }
+
+  @override
+  String notifStreakWithStreak2(int days) {
+    return 'Keep the fire alive! 🔥 Log in to protect your $days-day streak.';
+  }
+
+  @override
+  String notifStreakWithStreak3(String prefix, int days) {
+    return '${prefix}you\'ve been amazing for $days days! How about adding one more?';
+  }
+
+  @override
+  String notifStreakWithStreak4(int days) {
+    return 'Consistency breeds success. Ready to add another day to your $days-day streak?';
+  }
+
+  @override
+  String notifStreakWithStreak5(int days) {
+    return 'The day is almost over! Don\'t waste your $days-day progress.';
+  }
+
+  @override
+  String notifStreakWithStreak6(int days) {
+    return '$days days of consistency — that\'s no small thing! We\'re waiting for today\'s visit.';
+  }
+
+  @override
+  String notifStreakWithStreak7(int days) {
+    return 'Cashly loves being part of your daily routine. 🙌 Keep going — $days days and counting!';
+  }
+
+  @override
+  String notifStreakNoStreak1(String prefix) {
+    return '${prefix}you haven\'t visited Cashly today. Start your streak right now!';
+  }
+
+  @override
+  String get notifStreakNoStreak2 =>
+      'It\'s the perfect time for a fresh start! Take a look at your budget in the app.';
+
+  @override
+  String notifStreakNoStreak3(String prefix) {
+    return '${prefix}your finances are in your hands. Take your first step today and start a new streak!';
+  }
+
+  @override
+  String get notifStreakNoStreak4 =>
+      'Tracking your expenses reduces stress. See what\'s happening in Cashly today.';
+
+  @override
+  String get notifStreakNoStreak5 =>
+      'Every great streak starts with one day. Today could be that day! 🌱';
+
+  @override
+  String get notifStreakNoStreak6 =>
+      'One small step, one big difference. Give Cashly a quick visit today.';
+
+  @override
+  String notifStreakBreakWarn1(String prefix) {
+    return '${prefix}your streak is about to end! Don\'t forget to log in to Cashly today.';
+  }
+
+  @override
+  String get notifStreakBreakWarn2 =>
+      'Heads up! Your grace period is almost over. Log in before your streak resets.';
+
+  @override
+  String notifStreakBreakWarn3(String prefix) {
+    return '${prefix}last call! All that hard work is about to go to waste. You can still save it!';
+  }
+
+  @override
+  String get notifStreakBreakWarn4 =>
+      'It\'s slipping away... One login is all it takes to save your streak!';
+
+  @override
+  String get notifStreakBreakWarn5 =>
+      'Don\'t let all that effort vanish. Take a few seconds and save your streak! ⚡';
+
+  @override
+  String get notifStreakBreakWarn6 =>
+      'Not the right time? Come anyway — your streak needs you. 😅';
+
+  @override
+  String notifMonthlyWithSpending1(String prefix, String amount) {
+    return '${prefix}you spent $amount this month. Tap for a detailed breakdown.';
+  }
+
+  @override
+  String notifMonthlyWithSpending2(String amount) {
+    return 'Your monthly financial report is ready! Total spending: $amount. Want to take a look?';
+  }
+
+  @override
+  String notifMonthlyWithSpending3(String amount) {
+    return 'Another month down. You spent $amount in total. Curious where it all went?';
+  }
+
+  @override
+  String notifMonthlyWithSpending4(String prefix, String amount) {
+    return '${prefix}here\'s your monthly report card: $amount spent. Let\'s check your income-expense balance together.';
+  }
+
+  @override
+  String notifMonthlyWithSpending5(String amount) {
+    return 'Month\'s over. $amount spent. How\'s your budget looking?';
+  }
+
+  @override
+  String notifMonthlyWithSpending6(String amount) {
+    return 'Monthly summary is in! The numbers might surprise you — you spent $amount this month.';
+  }
+
+  @override
+  String get notifMonthlyNoSpending1 =>
+      'Tap to view your financial summary for this month.';
+
+  @override
+  String notifMonthlyNoSpending2(String prefix) {
+    return '${prefix}your monthly report is ready! How did you manage your budget this month? Tap to find out.';
+  }
+
+  @override
+  String get notifMonthlyNoSpending3 =>
+      'Before the new month begins, let\'s review how the last one went.';
+
+  @override
+  String get notifMonthlyNoSpending4 =>
+      'Your monthly summary is waiting. How did this month go?';
+
+  @override
+  String notifWeeklyWithSpending1(
+    String prefix,
+    String category,
+    String amount,
+  ) {
+    return '${prefix}it looks like $category ($amount) took the biggest bite out of your wallet this week. Time to check?';
+  }
+
+  @override
+  String notifWeeklyWithSpending2(String category, String amount) {
+    return 'This week\'s top spender: $category at $amount. Check your weekly summary.';
+  }
+
+  @override
+  String notifWeeklyWithSpending3(
+    String prefix,
+    String category,
+    String amount,
+  ) {
+    return '${prefix}last week\'s biggest expense: $amount on $category. Want to see the details?';
+  }
+
+  @override
+  String notifWeeklyWithSpending4(String category, String amount) {
+    return 'Your weekly summary shows you spent a bit heavily on $category ($amount) this week.';
+  }
+
+  @override
+  String notifWeeklyWithSpending5(String category, String amount) {
+    return '7-day recap: $category leads with $amount in spending. Ready for next week?';
+  }
+
+  @override
+  String get notifWeeklyNoSpending1 =>
+      'See which category you spent the most in this week!';
+
+  @override
+  String notifWeeklyNoSpending2(String prefix) {
+    return '${prefix}time to check your weekly budget. See what\'s changed.';
+  }
+
+  @override
+  String get notifWeeklyNoSpending3 =>
+      'Your financial summary for the past 7 days is waiting in Cashly.';
+
+  @override
+  String get notifWeeklyNoSpending4 =>
+      'Weekly report is ready! Where did your money go this week?';
+
+  @override
+  String notifRecurring1(String prefix, String name, String amount) {
+    return '${prefix}your $name payment of $amount is due tomorrow. Just a heads-up!';
+  }
+
+  @override
+  String notifRecurring2(String name, String amount) {
+    return 'Tomorrow you have a $amount payment for $name — don\'t miss it.';
+  }
+
+  @override
+  String notifRecurring3(String name, String amount) {
+    return 'It\'s time for your $name payment of $amount.';
+  }
+
+  @override
+  String notifRecurring4(String prefix, String name, String amount) {
+    return '${prefix}don\'t forget to plan for this: $name ($amount) is due tomorrow.';
+  }
+
+  @override
+  String notifRecurring5(String name, String amount) {
+    return 'Payment approaching! $amount for $name will be deducted from your account tomorrow.';
+  }
 }

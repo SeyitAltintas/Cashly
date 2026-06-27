@@ -4275,4 +4275,240 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get streakDayWord => 'GÜN';
+
+  @override
+  String get notifStreakReminderTitle1 => '🔥 Serini Koruma Zamanı!';
+
+  @override
+  String get notifStreakReminderTitle2 => '⏰ Günlük Hatırlatma!';
+
+  @override
+  String get notifStreakReminderTitle3 => '👋 Cashly\'den Selamlar';
+
+  @override
+  String get notifStreakReminderTitle4 => '🏃 İstikrar Her Şeydir';
+
+  @override
+  String get notifStreakReminderTitle5 => '✨ Günü Boş Geçmeyelim';
+
+  @override
+  String get notifStreakBreakWarnTitle1 => '🚨 Son Şansın!';
+
+  @override
+  String get notifStreakBreakWarnTitle2 => '⚠️ Serin Tehlikede!';
+
+  @override
+  String get notifStreakBreakWarnTitle3 => '⏳ Zaman Daralıyor!';
+
+  @override
+  String get notifStreakBreakWarnTitle4 => '🥶 Emeğin Donmak Üzere!';
+
+  @override
+  String notifStreakWithStreak1(String prefix, int days) {
+    return '${prefix}bugün Cashly\'e henüz uğramadın. $days günlük serini kaybetmek istemezsin, değil mi?';
+  }
+
+  @override
+  String notifStreakWithStreak2(int days) {
+    return 'Ateş sönmesin! 🔥 $days günlük serini korumak için hemen giriş yap.';
+  }
+
+  @override
+  String notifStreakWithStreak3(String prefix, int days) {
+    return '${prefix}tam $days gündür harikasın! Bugünkü girişini de yapıp seriyi uzatmaya ne dersin?';
+  }
+
+  @override
+  String notifStreakWithStreak4(int days) {
+    return 'İstikrar başarıyı getirir. $days günlük emeğine bir gün daha eklemeye hazır mısın?';
+  }
+
+  @override
+  String notifStreakWithStreak5(int days) {
+    return 'Günün bitmesine az kaldı! $days günlük harika gidişatını boşa harcama.';
+  }
+
+  @override
+  String notifStreakWithStreak6(int days) {
+    return '$days gün boyunca tutarlılık gösterdin, bu küçük bir şey değil! Bugünkü ziyaretini bekliyoruz.';
+  }
+
+  @override
+  String notifStreakWithStreak7(int days) {
+    return 'Cashly günlük rutininin bir parçası olmayı seviyor. 🙌 $days günlük seride devam!';
+  }
+
+  @override
+  String notifStreakNoStreak1(String prefix) {
+    return '${prefix}bugün Cashly\'e henüz uğramadın. Serini hemen başlat!';
+  }
+
+  @override
+  String get notifStreakNoStreak2 =>
+      'Yeni bir başlangıç yapmanın tam zamanı! Bütçeni kontrol etmek için uygulamaya göz at.';
+
+  @override
+  String notifStreakNoStreak3(String prefix) {
+    return '${prefix}finansal kontrol senin elinde. Hadi bugün ilk adımını atarak yeni bir seri başlat!';
+  }
+
+  @override
+  String get notifStreakNoStreak4 =>
+      'Harcamalarını takip etmek stresi azaltır. Bugün Cashly\'de neler olduğuna bir bak.';
+
+  @override
+  String get notifStreakNoStreak5 =>
+      'Her büyük seri bir günle başlar. Bugün o gün olabilir! 🌱';
+
+  @override
+  String get notifStreakNoStreak6 =>
+      'Küçük bir adım, büyük bir fark. Bugün Cashly\'ye uğramayı dene.';
+
+  @override
+  String notifStreakBreakWarn1(String prefix) {
+    return '${prefix}serin kırılmak üzere! Bugün Cashly\'e girmeyi unutma lütfen.';
+  }
+
+  @override
+  String get notifStreakBreakWarn2 =>
+      'Dikkat! Esneklik sürenin sonuna geldin. Serin sıfırlanmadan hemen giriş yap.';
+
+  @override
+  String notifStreakBreakWarn3(String prefix) {
+    return '${prefix}son çağrı! Onca gündür biriktirdiğin emeğin çöpe gitmek üzere. Kurtarabilirsin!';
+  }
+
+  @override
+  String get notifStreakBreakWarn4 =>
+      'Gidiyor, gitmek üzere... Serini son anda kurtarmak için sadece bir giriş yeterli!';
+
+  @override
+  String get notifStreakBreakWarn5 =>
+      'Bu kadar emek boşa gitmesin. Birkaç saniyeni ayır, serini kurtar! ⚡';
+
+  @override
+  String get notifStreakBreakWarn6 =>
+      'Bugün mü? Tam zamanı değil mi? Yine de uğra, serin sana muhtaç. 😅';
+
+  @override
+  String notifMonthlyWithSpending1(String prefix, String amount) {
+    return '${prefix}bu ay $amount harcadın. Detaylı analiz için hemen tıkla.';
+  }
+
+  @override
+  String notifMonthlyWithSpending2(String amount) {
+    return 'Aylık finansal raporun hazır! Toplam harcaman: $amount. Göz atmak ister misin?';
+  }
+
+  @override
+  String notifMonthlyWithSpending3(String amount) {
+    return 'Koca bir ay daha geride kaldı. Toplamda $amount harcamışsın. Nerelere gittiğini merak ediyor musun?';
+  }
+
+  @override
+  String notifMonthlyWithSpending4(String prefix, String amount) {
+    return '${prefix}işte bu ayın karnesi: $amount harcama. Gelir-gider dengeni birlikte inceleyelim.';
+  }
+
+  @override
+  String notifMonthlyWithSpending5(String amount) {
+    return 'Ay sona erdi. $amount harcandı. Bütçen nasıl? Bir bak.';
+  }
+
+  @override
+  String notifMonthlyWithSpending6(String amount) {
+    return 'Aylık özet hazır! Rakamlar seni şaşırtabilir — $amount harcadın bu ay.';
+  }
+
+  @override
+  String get notifMonthlyNoSpending1 =>
+      'Bu ayki finansal durumunu görüntülemek için tıkla.';
+
+  @override
+  String notifMonthlyNoSpending2(String prefix) {
+    return '${prefix}aylık raporun hazır! Bu ay bütçeni nasıl yönettin? Görmek için dokun.';
+  }
+
+  @override
+  String get notifMonthlyNoSpending3 =>
+      'Yeni bir aya girmeden önce geride bıraktığın ayın genel bir değerlendirmesini yapalım.';
+
+  @override
+  String get notifMonthlyNoSpending4 =>
+      'Aylık özetin seni bekliyor. Nasıl geçti bu ay?';
+
+  @override
+  String notifWeeklyWithSpending1(
+    String prefix,
+    String category,
+    String amount,
+  ) {
+    return '${prefix}bu hafta cüzdanını en çok $category ($amount) yormuş. Kontrol zamanı geldi sanki?';
+  }
+
+  @override
+  String notifWeeklyWithSpending2(String category, String amount) {
+    return 'Haftanın harcama şampiyonu belli oldu: $category kategorisinde toplam $amount harcadın.';
+  }
+
+  @override
+  String notifWeeklyWithSpending3(
+    String prefix,
+    String category,
+    String amount,
+  ) {
+    return '${prefix}geçen haftanın en büyük gider kalemi: $amount ile $category. Detayları incelemek ister misin?';
+  }
+
+  @override
+  String notifWeeklyWithSpending4(String category, String amount) {
+    return 'Haftalık özetine göre bu hafta $category kategorisine biraz fazla yüklenmişiz ($amount).';
+  }
+
+  @override
+  String notifWeeklyWithSpending5(String category, String amount) {
+    return '7 günün özeti: $category liderliğinde $amount harcama. Sonraki haftaya hazır mısın?';
+  }
+
+  @override
+  String get notifWeeklyNoSpending1 =>
+      'Bu hafta en çok hangi kategoride harcama yaptığını gör!';
+
+  @override
+  String notifWeeklyNoSpending2(String prefix) {
+    return '${prefix}haftalık bütçe durumunu kontrol etme vakti. Neler değişmiş bir göz at.';
+  }
+
+  @override
+  String get notifWeeklyNoSpending3 =>
+      'Geçtiğimiz 7 günün finansal özeti Cashly\'de seni bekliyor.';
+
+  @override
+  String get notifWeeklyNoSpending4 =>
+      'Haftalık rapor hazır! Nereye harcadın bu hafta?';
+
+  @override
+  String notifRecurring1(String prefix, String name, String amount) {
+    return '$prefix$name için $amount ödemen yarın. Şimdiden hatırlatayım dedim.';
+  }
+
+  @override
+  String notifRecurring2(String name, String amount) {
+    return 'Yarın $name için $amount ödemen gerekiyor, gözden kaçmasın.';
+  }
+
+  @override
+  String notifRecurring3(String name, String amount) {
+    return '$amount tutarındaki $name işleminin zamanı geldi.';
+  }
+
+  @override
+  String notifRecurring4(String prefix, String name, String amount) {
+    return '${prefix}bütçeni buna göre ayarlamayı unutma: $name ($amount) yarın gerçekleşecek.';
+  }
+
+  @override
+  String notifRecurring5(String name, String amount) {
+    return 'Ödeme zamanı yaklaşıyor! $name için $amount yarın hesabından çıkacak.';
+  }
 }

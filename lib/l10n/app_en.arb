@@ -2032,5 +2032,230 @@
       }
     }
   },
-  "streakDayWord": "DAY"
-}
+  "streakDayWord": "DAY",
+
+  "notifStreakReminderTitle1": "🔥 Time to Keep Your Streak!",
+  "notifStreakReminderTitle2": "⏰ Daily Reminder!",
+  "notifStreakReminderTitle3": "👋 Hello from Cashly",
+  "notifStreakReminderTitle4": "🏃 Consistency Is Everything",
+  "notifStreakReminderTitle5": "✨ Don't Waste the Day",
+
+  "notifStreakBreakWarnTitle1": "🚨 Last Chance!",
+  "notifStreakBreakWarnTitle2": "⚠️ Your Streak Is in Danger!",
+  "notifStreakBreakWarnTitle3": "⏳ Time Is Running Out!",
+  "notifStreakBreakWarnTitle4": "🥶 Your Effort Is About to Freeze!",
+
+  "notifStreakWithStreak1": "{prefix}you haven't stopped by Cashly today. You don't want to lose your {days}-day streak, do you?",
+  "@notifStreakWithStreak1": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "days": { "type": "int" }
+    }
+  },
+  "notifStreakWithStreak2": "Keep the fire alive! 🔥 Log in to protect your {days}-day streak.",
+  "@notifStreakWithStreak2": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "notifStreakWithStreak3": "{prefix}you've been amazing for {days} days! How about adding one more?",
+  "@notifStreakWithStreak3": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "days": { "type": "int" }
+    }
+  },
+  "notifStreakWithStreak4": "Consistency breeds success. Ready to add another day to your {days}-day streak?",
+  "@notifStreakWithStreak4": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "notifStreakWithStreak5": "The day is almost over! Don't waste your {days}-day progress.",
+  "@notifStreakWithStreak5": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "notifStreakWithStreak6": "{days} days of consistency — that's no small thing! We're waiting for today's visit.",
+  "@notifStreakWithStreak6": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "notifStreakWithStreak7": "Cashly loves being part of your daily routine. 🙌 Keep going — {days} days and counting!",
+  "@notifStreakWithStreak7": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+
+  "notifStreakNoStreak1": "{prefix}you haven't visited Cashly today. Start your streak right now!",
+  "@notifStreakNoStreak1": {
+    "placeholders": {
+      "prefix": { "type": "String" }
+    }
+  },
+  "notifStreakNoStreak2": "It's the perfect time for a fresh start! Take a look at your budget in the app.",
+  "notifStreakNoStreak3": "{prefix}your finances are in your hands. Take your first step today and start a new streak!",
+  "@notifStreakNoStreak3": {
+    "placeholders": {
+      "prefix": { "type": "String" }
+    }
+  },
+  "notifStreakNoStreak4": "Tracking your expenses reduces stress. See what's happening in Cashly today.",
+  "notifStreakNoStreak5": "Every great streak starts with one day. Today could be that day! 🌱",
+  "notifStreakNoStreak6": "One small step, one big difference. Give Cashly a quick visit today.",
+
+  "notifStreakBreakWarn1": "{prefix}your streak is about to end! Don't forget to log in to Cashly today.",
+  "@notifStreakBreakWarn1": {
+    "placeholders": {
+      "prefix": { "type": "String" }
+    }
+  },
+  "notifStreakBreakWarn2": "Heads up! Your grace period is almost over. Log in before your streak resets.",
+  "notifStreakBreakWarn3": "{prefix}last call! All that hard work is about to go to waste. You can still save it!",
+  "@notifStreakBreakWarn3": {
+    "placeholders": {
+      "prefix": { "type": "String" }
+    }
+  },
+  "notifStreakBreakWarn4": "It's slipping away... One login is all it takes to save your streak!",
+  "notifStreakBreakWarn5": "Don't let all that effort vanish. Take a few seconds and save your streak! ⚡",
+  "notifStreakBreakWarn6": "Not the right time? Come anyway — your streak needs you. 😅",
+
+  "notifMonthlyWithSpending1": "{prefix}you spent {amount} this month. Tap for a detailed breakdown.",
+  "@notifMonthlyWithSpending1": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifMonthlyWithSpending2": "Your monthly financial report is ready! Total spending: {amount}. Want to take a look?",
+  "@notifMonthlyWithSpending2": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "notifMonthlyWithSpending3": "Another month down. You spent {amount} in total. Curious where it all went?",
+  "@notifMonthlyWithSpending3": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "notifMonthlyWithSpending4": "{prefix}here's your monthly report card: {amount} spent. Let's check your income-expense balance together.",
+  "@notifMonthlyWithSpending4": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifMonthlyWithSpending5": "Month's over. {amount} spent. How's your budget looking?",
+  "@notifMonthlyWithSpending5": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "notifMonthlyWithSpending6": "Monthly summary is in! The numbers might surprise you — you spent {amount} this month.",
+  "@notifMonthlyWithSpending6": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+
+  "notifMonthlyNoSpending1": "Tap to view your financial summary for this month.",
+  "notifMonthlyNoSpending2": "{prefix}your monthly report is ready! How did you manage your budget this month? Tap to find out.",
+  "@notifMonthlyNoSpending2": {
+    "placeholders": {
+      "prefix": { "type": "String" }
+    }
+  },
+  "notifMonthlyNoSpending3": "Before the new month begins, let's review how the last one went.",
+  "notifMonthlyNoSpending4": "Your monthly summary is waiting. How did this month go?",
+
+  "notifWeeklyWithSpending1": "{prefix}it looks like {category} ({amount}) took the biggest bite out of your wallet this week. Time to check?",
+  "@notifWeeklyWithSpending1": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "category": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifWeeklyWithSpending2": "This week's top spender: {category} at {amount}. Check your weekly summary.",
+  "@notifWeeklyWithSpending2": {
+    "placeholders": {
+      "category": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifWeeklyWithSpending3": "{prefix}last week's biggest expense: {amount} on {category}. Want to see the details?",
+  "@notifWeeklyWithSpending3": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "category": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifWeeklyWithSpending4": "Your weekly summary shows you spent a bit heavily on {category} ({amount}) this week.",
+  "@notifWeeklyWithSpending4": {
+    "placeholders": {
+      "category": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifWeeklyWithSpending5": "7-day recap: {category} leads with {amount} in spending. Ready for next week?",
+  "@notifWeeklyWithSpending5": {
+    "placeholders": {
+      "category": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+
+  "notifWeeklyNoSpending1": "See which category you spent the most in this week!",
+  "notifWeeklyNoSpending2": "{prefix}time to check your weekly budget. See what's changed.",
+  "@notifWeeklyNoSpending2": {
+    "placeholders": {
+      "prefix": { "type": "String" }
+    }
+  },
+  "notifWeeklyNoSpending3": "Your financial summary for the past 7 days is waiting in Cashly.",
+  "notifWeeklyNoSpending4": "Weekly report is ready! Where did your money go this week?",
+
+  "notifRecurring1": "{prefix}your {name} payment of {amount} is due tomorrow. Just a heads-up!",
+  "@notifRecurring1": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifRecurring2": "Tomorrow you have a {amount} payment for {name} — don't miss it.",
+  "@notifRecurring2": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifRecurring3": "It's time for your {name} payment of {amount}.",
+  "@notifRecurring3": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifRecurring4": "{prefix}don't forget to plan for this: {name} ({amount}) is due tomorrow.",
+  "@notifRecurring4": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifRecurring5": "Payment approaching! {amount} for {name} will be deducted from your account tomorrow.",
+  "@notifRecurring5": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  }
+}

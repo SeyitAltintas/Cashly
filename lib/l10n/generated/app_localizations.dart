@@ -7937,6 +7937,326 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'GÜN'**
   String get streakDayWord;
+
+  /// No description provided for @notifStreakReminderTitle1.
+  ///
+  /// In tr, this message translates to:
+  /// **'🔥 Serini Koruma Zamanı!'**
+  String get notifStreakReminderTitle1;
+
+  /// No description provided for @notifStreakReminderTitle2.
+  ///
+  /// In tr, this message translates to:
+  /// **'⏰ Günlük Hatırlatma!'**
+  String get notifStreakReminderTitle2;
+
+  /// No description provided for @notifStreakReminderTitle3.
+  ///
+  /// In tr, this message translates to:
+  /// **'👋 Cashly\'den Selamlar'**
+  String get notifStreakReminderTitle3;
+
+  /// No description provided for @notifStreakReminderTitle4.
+  ///
+  /// In tr, this message translates to:
+  /// **'🏃 İstikrar Her Şeydir'**
+  String get notifStreakReminderTitle4;
+
+  /// No description provided for @notifStreakReminderTitle5.
+  ///
+  /// In tr, this message translates to:
+  /// **'✨ Günü Boş Geçmeyelim'**
+  String get notifStreakReminderTitle5;
+
+  /// No description provided for @notifStreakBreakWarnTitle1.
+  ///
+  /// In tr, this message translates to:
+  /// **'🚨 Son Şansın!'**
+  String get notifStreakBreakWarnTitle1;
+
+  /// No description provided for @notifStreakBreakWarnTitle2.
+  ///
+  /// In tr, this message translates to:
+  /// **'⚠️ Serin Tehlikede!'**
+  String get notifStreakBreakWarnTitle2;
+
+  /// No description provided for @notifStreakBreakWarnTitle3.
+  ///
+  /// In tr, this message translates to:
+  /// **'⏳ Zaman Daralıyor!'**
+  String get notifStreakBreakWarnTitle3;
+
+  /// No description provided for @notifStreakBreakWarnTitle4.
+  ///
+  /// In tr, this message translates to:
+  /// **'🥶 Emeğin Donmak Üzere!'**
+  String get notifStreakBreakWarnTitle4;
+
+  /// No description provided for @notifStreakWithStreak1.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}bugün Cashly\'e henüz uğramadın. {days} günlük serini kaybetmek istemezsin, değil mi?'**
+  String notifStreakWithStreak1(String prefix, int days);
+
+  /// No description provided for @notifStreakWithStreak2.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ateş sönmesin! 🔥 {days} günlük serini korumak için hemen giriş yap.'**
+  String notifStreakWithStreak2(int days);
+
+  /// No description provided for @notifStreakWithStreak3.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}tam {days} gündür harikasın! Bugünkü girişini de yapıp seriyi uzatmaya ne dersin?'**
+  String notifStreakWithStreak3(String prefix, int days);
+
+  /// No description provided for @notifStreakWithStreak4.
+  ///
+  /// In tr, this message translates to:
+  /// **'İstikrar başarıyı getirir. {days} günlük emeğine bir gün daha eklemeye hazır mısın?'**
+  String notifStreakWithStreak4(int days);
+
+  /// No description provided for @notifStreakWithStreak5.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günün bitmesine az kaldı! {days} günlük harika gidişatını boşa harcama.'**
+  String notifStreakWithStreak5(int days);
+
+  /// No description provided for @notifStreakWithStreak6.
+  ///
+  /// In tr, this message translates to:
+  /// **'{days} gün boyunca tutarlılık gösterdin, bu küçük bir şey değil! Bugünkü ziyaretini bekliyoruz.'**
+  String notifStreakWithStreak6(int days);
+
+  /// No description provided for @notifStreakWithStreak7.
+  ///
+  /// In tr, this message translates to:
+  /// **'Cashly günlük rutininin bir parçası olmayı seviyor. 🙌 {days} günlük seride devam!'**
+  String notifStreakWithStreak7(int days);
+
+  /// No description provided for @notifStreakNoStreak1.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}bugün Cashly\'e henüz uğramadın. Serini hemen başlat!'**
+  String notifStreakNoStreak1(String prefix);
+
+  /// No description provided for @notifStreakNoStreak2.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni bir başlangıç yapmanın tam zamanı! Bütçeni kontrol etmek için uygulamaya göz at.'**
+  String get notifStreakNoStreak2;
+
+  /// No description provided for @notifStreakNoStreak3.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}finansal kontrol senin elinde. Hadi bugün ilk adımını atarak yeni bir seri başlat!'**
+  String notifStreakNoStreak3(String prefix);
+
+  /// No description provided for @notifStreakNoStreak4.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harcamalarını takip etmek stresi azaltır. Bugün Cashly\'de neler olduğuna bir bak.'**
+  String get notifStreakNoStreak4;
+
+  /// No description provided for @notifStreakNoStreak5.
+  ///
+  /// In tr, this message translates to:
+  /// **'Her büyük seri bir günle başlar. Bugün o gün olabilir! 🌱'**
+  String get notifStreakNoStreak5;
+
+  /// No description provided for @notifStreakNoStreak6.
+  ///
+  /// In tr, this message translates to:
+  /// **'Küçük bir adım, büyük bir fark. Bugün Cashly\'ye uğramayı dene.'**
+  String get notifStreakNoStreak6;
+
+  /// No description provided for @notifStreakBreakWarn1.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}serin kırılmak üzere! Bugün Cashly\'e girmeyi unutma lütfen.'**
+  String notifStreakBreakWarn1(String prefix);
+
+  /// No description provided for @notifStreakBreakWarn2.
+  ///
+  /// In tr, this message translates to:
+  /// **'Dikkat! Esneklik sürenin sonuna geldin. Serin sıfırlanmadan hemen giriş yap.'**
+  String get notifStreakBreakWarn2;
+
+  /// No description provided for @notifStreakBreakWarn3.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}son çağrı! Onca gündür biriktirdiğin emeğin çöpe gitmek üzere. Kurtarabilirsin!'**
+  String notifStreakBreakWarn3(String prefix);
+
+  /// No description provided for @notifStreakBreakWarn4.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gidiyor, gitmek üzere... Serini son anda kurtarmak için sadece bir giriş yeterli!'**
+  String get notifStreakBreakWarn4;
+
+  /// No description provided for @notifStreakBreakWarn5.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu kadar emek boşa gitmesin. Birkaç saniyeni ayır, serini kurtar! ⚡'**
+  String get notifStreakBreakWarn5;
+
+  /// No description provided for @notifStreakBreakWarn6.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bugün mü? Tam zamanı değil mi? Yine de uğra, serin sana muhtaç. 😅'**
+  String get notifStreakBreakWarn6;
+
+  /// No description provided for @notifMonthlyWithSpending1.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}bu ay {amount} harcadın. Detaylı analiz için hemen tıkla.'**
+  String notifMonthlyWithSpending1(String prefix, String amount);
+
+  /// No description provided for @notifMonthlyWithSpending2.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık finansal raporun hazır! Toplam harcaman: {amount}. Göz atmak ister misin?'**
+  String notifMonthlyWithSpending2(String amount);
+
+  /// No description provided for @notifMonthlyWithSpending3.
+  ///
+  /// In tr, this message translates to:
+  /// **'Koca bir ay daha geride kaldı. Toplamda {amount} harcamışsın. Nerelere gittiğini merak ediyor musun?'**
+  String notifMonthlyWithSpending3(String amount);
+
+  /// No description provided for @notifMonthlyWithSpending4.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}işte bu ayın karnesi: {amount} harcama. Gelir-gider dengeni birlikte inceleyelim.'**
+  String notifMonthlyWithSpending4(String prefix, String amount);
+
+  /// No description provided for @notifMonthlyWithSpending5.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ay sona erdi. {amount} harcandı. Bütçen nasıl? Bir bak.'**
+  String notifMonthlyWithSpending5(String amount);
+
+  /// No description provided for @notifMonthlyWithSpending6.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık özet hazır! Rakamlar seni şaşırtabilir — {amount} harcadın bu ay.'**
+  String notifMonthlyWithSpending6(String amount);
+
+  /// No description provided for @notifMonthlyNoSpending1.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu ayki finansal durumunu görüntülemek için tıkla.'**
+  String get notifMonthlyNoSpending1;
+
+  /// No description provided for @notifMonthlyNoSpending2.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}aylık raporun hazır! Bu ay bütçeni nasıl yönettin? Görmek için dokun.'**
+  String notifMonthlyNoSpending2(String prefix);
+
+  /// No description provided for @notifMonthlyNoSpending3.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni bir aya girmeden önce geride bıraktığın ayın genel bir değerlendirmesini yapalım.'**
+  String get notifMonthlyNoSpending3;
+
+  /// No description provided for @notifMonthlyNoSpending4.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık özetin seni bekliyor. Nasıl geçti bu ay?'**
+  String get notifMonthlyNoSpending4;
+
+  /// No description provided for @notifWeeklyWithSpending1.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}bu hafta cüzdanını en çok {category} ({amount}) yormuş. Kontrol zamanı geldi sanki?'**
+  String notifWeeklyWithSpending1(
+    String prefix,
+    String category,
+    String amount,
+  );
+
+  /// No description provided for @notifWeeklyWithSpending2.
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftanın harcama şampiyonu belli oldu: {category} kategorisinde toplam {amount} harcadın.'**
+  String notifWeeklyWithSpending2(String category, String amount);
+
+  /// No description provided for @notifWeeklyWithSpending3.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}geçen haftanın en büyük gider kalemi: {amount} ile {category}. Detayları incelemek ister misin?'**
+  String notifWeeklyWithSpending3(
+    String prefix,
+    String category,
+    String amount,
+  );
+
+  /// No description provided for @notifWeeklyWithSpending4.
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftalık özetine göre bu hafta {category} kategorisine biraz fazla yüklenmişiz ({amount}).'**
+  String notifWeeklyWithSpending4(String category, String amount);
+
+  /// No description provided for @notifWeeklyWithSpending5.
+  ///
+  /// In tr, this message translates to:
+  /// **'7 günün özeti: {category} liderliğinde {amount} harcama. Sonraki haftaya hazır mısın?'**
+  String notifWeeklyWithSpending5(String category, String amount);
+
+  /// No description provided for @notifWeeklyNoSpending1.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu hafta en çok hangi kategoride harcama yaptığını gör!'**
+  String get notifWeeklyNoSpending1;
+
+  /// No description provided for @notifWeeklyNoSpending2.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}haftalık bütçe durumunu kontrol etme vakti. Neler değişmiş bir göz at.'**
+  String notifWeeklyNoSpending2(String prefix);
+
+  /// No description provided for @notifWeeklyNoSpending3.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçtiğimiz 7 günün finansal özeti Cashly\'de seni bekliyor.'**
+  String get notifWeeklyNoSpending3;
+
+  /// No description provided for @notifWeeklyNoSpending4.
+  ///
+  /// In tr, this message translates to:
+  /// **'Haftalık rapor hazır! Nereye harcadın bu hafta?'**
+  String get notifWeeklyNoSpending4;
+
+  /// No description provided for @notifRecurring1.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}{name} için {amount} ödemen yarın. Şimdiden hatırlatayım dedim.'**
+  String notifRecurring1(String prefix, String name, String amount);
+
+  /// No description provided for @notifRecurring2.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yarın {name} için {amount} ödemen gerekiyor, gözden kaçmasın.'**
+  String notifRecurring2(String name, String amount);
+
+  /// No description provided for @notifRecurring3.
+  ///
+  /// In tr, this message translates to:
+  /// **'{amount} tutarındaki {name} işleminin zamanı geldi.'**
+  String notifRecurring3(String name, String amount);
+
+  /// No description provided for @notifRecurring4.
+  ///
+  /// In tr, this message translates to:
+  /// **'{prefix}bütçeni buna göre ayarlamayı unutma: {name} ({amount}) yarın gerçekleşecek.'**
+  String notifRecurring4(String prefix, String name, String amount);
+
+  /// No description provided for @notifRecurring5.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ödeme zamanı yaklaşıyor! {name} için {amount} yarın hesabından çıkacak.'**
+  String notifRecurring5(String name, String amount);
 }
 
 class _AppLocalizationsDelegate

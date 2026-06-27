@@ -2032,5 +2032,230 @@
       }
     }
   },
-  "streakDayWord": "GÜN"
-}
+  "streakDayWord": "GÜN",
+
+  "notifStreakReminderTitle1": "🔥 Serini Koruma Zamanı!",
+  "notifStreakReminderTitle2": "⏰ Günlük Hatırlatma!",
+  "notifStreakReminderTitle3": "👋 Cashly'den Selamlar",
+  "notifStreakReminderTitle4": "🏃 İstikrar Her Şeydir",
+  "notifStreakReminderTitle5": "✨ Günü Boş Geçmeyelim",
+
+  "notifStreakBreakWarnTitle1": "🚨 Son Şansın!",
+  "notifStreakBreakWarnTitle2": "⚠️ Serin Tehlikede!",
+  "notifStreakBreakWarnTitle3": "⏳ Zaman Daralıyor!",
+  "notifStreakBreakWarnTitle4": "🥶 Emeğin Donmak Üzere!",
+
+  "notifStreakWithStreak1": "{prefix}bugün Cashly'e henüz uğramadın. {days} günlük serini kaybetmek istemezsin, değil mi?",
+  "@notifStreakWithStreak1": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "days": { "type": "int" }
+    }
+  },
+  "notifStreakWithStreak2": "Ateş sönmesin! 🔥 {days} günlük serini korumak için hemen giriş yap.",
+  "@notifStreakWithStreak2": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "notifStreakWithStreak3": "{prefix}tam {days} gündür harikasın! Bugünkü girişini de yapıp seriyi uzatmaya ne dersin?",
+  "@notifStreakWithStreak3": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "days": { "type": "int" }
+    }
+  },
+  "notifStreakWithStreak4": "İstikrar başarıyı getirir. {days} günlük emeğine bir gün daha eklemeye hazır mısın?",
+  "@notifStreakWithStreak4": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "notifStreakWithStreak5": "Günün bitmesine az kaldı! {days} günlük harika gidişatını boşa harcama.",
+  "@notifStreakWithStreak5": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "notifStreakWithStreak6": "{days} gün boyunca tutarlılık gösterdin, bu küçük bir şey değil! Bugünkü ziyaretini bekliyoruz.",
+  "@notifStreakWithStreak6": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "notifStreakWithStreak7": "Cashly günlük rutininin bir parçası olmayı seviyor. 🙌 {days} günlük seride devam!",
+  "@notifStreakWithStreak7": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+
+  "notifStreakNoStreak1": "{prefix}bugün Cashly'e henüz uğramadın. Serini hemen başlat!",
+  "@notifStreakNoStreak1": {
+    "placeholders": {
+      "prefix": { "type": "String" }
+    }
+  },
+  "notifStreakNoStreak2": "Yeni bir başlangıç yapmanın tam zamanı! Bütçeni kontrol etmek için uygulamaya göz at.",
+  "notifStreakNoStreak3": "{prefix}finansal kontrol senin elinde. Hadi bugün ilk adımını atarak yeni bir seri başlat!",
+  "@notifStreakNoStreak3": {
+    "placeholders": {
+      "prefix": { "type": "String" }
+    }
+  },
+  "notifStreakNoStreak4": "Harcamalarını takip etmek stresi azaltır. Bugün Cashly'de neler olduğuna bir bak.",
+  "notifStreakNoStreak5": "Her büyük seri bir günle başlar. Bugün o gün olabilir! 🌱",
+  "notifStreakNoStreak6": "Küçük bir adım, büyük bir fark. Bugün Cashly'ye uğramayı dene.",
+
+  "notifStreakBreakWarn1": "{prefix}serin kırılmak üzere! Bugün Cashly'e girmeyi unutma lütfen.",
+  "@notifStreakBreakWarn1": {
+    "placeholders": {
+      "prefix": { "type": "String" }
+    }
+  },
+  "notifStreakBreakWarn2": "Dikkat! Esneklik sürenin sonuna geldin. Serin sıfırlanmadan hemen giriş yap.",
+  "notifStreakBreakWarn3": "{prefix}son çağrı! Onca gündür biriktirdiğin emeğin çöpe gitmek üzere. Kurtarabilirsin!",
+  "@notifStreakBreakWarn3": {
+    "placeholders": {
+      "prefix": { "type": "String" }
+    }
+  },
+  "notifStreakBreakWarn4": "Gidiyor, gitmek üzere... Serini son anda kurtarmak için sadece bir giriş yeterli!",
+  "notifStreakBreakWarn5": "Bu kadar emek boşa gitmesin. Birkaç saniyeni ayır, serini kurtar! ⚡",
+  "notifStreakBreakWarn6": "Bugün mü? Tam zamanı değil mi? Yine de uğra, serin sana muhtaç. 😅",
+
+  "notifMonthlyWithSpending1": "{prefix}bu ay {amount} harcadın. Detaylı analiz için hemen tıkla.",
+  "@notifMonthlyWithSpending1": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifMonthlyWithSpending2": "Aylık finansal raporun hazır! Toplam harcaman: {amount}. Göz atmak ister misin?",
+  "@notifMonthlyWithSpending2": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "notifMonthlyWithSpending3": "Koca bir ay daha geride kaldı. Toplamda {amount} harcamışsın. Nerelere gittiğini merak ediyor musun?",
+  "@notifMonthlyWithSpending3": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "notifMonthlyWithSpending4": "{prefix}işte bu ayın karnesi: {amount} harcama. Gelir-gider dengeni birlikte inceleyelim.",
+  "@notifMonthlyWithSpending4": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifMonthlyWithSpending5": "Ay sona erdi. {amount} harcandı. Bütçen nasıl? Bir bak.",
+  "@notifMonthlyWithSpending5": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "notifMonthlyWithSpending6": "Aylık özet hazır! Rakamlar seni şaşırtabilir — {amount} harcadın bu ay.",
+  "@notifMonthlyWithSpending6": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+
+  "notifMonthlyNoSpending1": "Bu ayki finansal durumunu görüntülemek için tıkla.",
+  "notifMonthlyNoSpending2": "{prefix}aylık raporun hazır! Bu ay bütçeni nasıl yönettin? Görmek için dokun.",
+  "@notifMonthlyNoSpending2": {
+    "placeholders": {
+      "prefix": { "type": "String" }
+    }
+  },
+  "notifMonthlyNoSpending3": "Yeni bir aya girmeden önce geride bıraktığın ayın genel bir değerlendirmesini yapalım.",
+  "notifMonthlyNoSpending4": "Aylık özetin seni bekliyor. Nasıl geçti bu ay?",
+
+  "notifWeeklyWithSpending1": "{prefix}bu hafta cüzdanını en çok {category} ({amount}) yormuş. Kontrol zamanı geldi sanki?",
+  "@notifWeeklyWithSpending1": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "category": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifWeeklyWithSpending2": "Haftanın harcama şampiyonu belli oldu: {category} kategorisinde toplam {amount} harcadın.",
+  "@notifWeeklyWithSpending2": {
+    "placeholders": {
+      "category": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifWeeklyWithSpending3": "{prefix}geçen haftanın en büyük gider kalemi: {amount} ile {category}. Detayları incelemek ister misin?",
+  "@notifWeeklyWithSpending3": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "category": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifWeeklyWithSpending4": "Haftalık özetine göre bu hafta {category} kategorisine biraz fazla yüklenmişiz ({amount}).",
+  "@notifWeeklyWithSpending4": {
+    "placeholders": {
+      "category": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifWeeklyWithSpending5": "7 günün özeti: {category} liderliğinde {amount} harcama. Sonraki haftaya hazır mısın?",
+  "@notifWeeklyWithSpending5": {
+    "placeholders": {
+      "category": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+
+  "notifWeeklyNoSpending1": "Bu hafta en çok hangi kategoride harcama yaptığını gör!",
+  "notifWeeklyNoSpending2": "{prefix}haftalık bütçe durumunu kontrol etme vakti. Neler değişmiş bir göz at.",
+  "@notifWeeklyNoSpending2": {
+    "placeholders": {
+      "prefix": { "type": "String" }
+    }
+  },
+  "notifWeeklyNoSpending3": "Geçtiğimiz 7 günün finansal özeti Cashly'de seni bekliyor.",
+  "notifWeeklyNoSpending4": "Haftalık rapor hazır! Nereye harcadın bu hafta?",
+
+  "notifRecurring1": "{prefix}{name} için {amount} ödemen yarın. Şimdiden hatırlatayım dedim.",
+  "@notifRecurring1": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifRecurring2": "Yarın {name} için {amount} ödemen gerekiyor, gözden kaçmasın.",
+  "@notifRecurring2": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifRecurring3": "{amount} tutarındaki {name} işleminin zamanı geldi.",
+  "@notifRecurring3": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifRecurring4": "{prefix}bütçeni buna göre ayarlamayı unutma: {name} ({amount}) yarın gerçekleşecek.",
+  "@notifRecurring4": {
+    "placeholders": {
+      "prefix": { "type": "String" },
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "notifRecurring5": "Ödeme zamanı yaklaşıyor! {name} için {amount} yarın hesabından çıkacak.",
+  "@notifRecurring5": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  }
+}
