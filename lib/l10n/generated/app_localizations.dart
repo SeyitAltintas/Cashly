@@ -2018,6 +2018,18 @@ abstract class AppLocalizations {
   /// **'Harcama eklerken para yağmuru efekti'**
   String get moneyAnimationDescription;
 
+  /// No description provided for @streakAnimation.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri Kutlaması'**
+  String get streakAnimation;
+
+  /// No description provided for @streakAnimationDescription.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri arttığında gösterilen tebrik animasyonu'**
+  String get streakAnimationDescription;
+
   /// No description provided for @animationPreferences.
   ///
   /// In tr, this message translates to:

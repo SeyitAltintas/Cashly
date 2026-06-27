@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/services/haptic_service.dart';
+import '../../../../core/theme/theme_manager.dart';
 import '../../data/constants/streak_badges.dart';
 
 /// Rank atlandığında veya seri arttığında gösterilen kutlama dialog'u
@@ -40,6 +42,10 @@ class StreakCelebrationDialog extends StatefulWidget {
     int streakCount,
     RankTier? newRank,
   ) {
+    if (!context.read<ThemeManager>().isStreakAnimationEnabled) {
+      return Future.value();
+    }
+
     return showGeneralDialog(
       context: context,
       useRootNavigator: true,

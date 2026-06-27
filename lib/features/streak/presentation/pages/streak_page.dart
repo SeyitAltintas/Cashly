@@ -30,14 +30,18 @@ class _StreakPageState extends State<StreakPage> {
   void initState() {
     super.initState();
     _controller = getIt<StreakController>();
-    _controller.updateStreakData(widget.streakData);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.updateStreakData(widget.streakData);
+    });
   }
 
   @override
   void didUpdateWidget(StreakPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.streakData != widget.streakData) {
-      _controller.updateStreakData(widget.streakData);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _controller.updateStreakData(widget.streakData);
+      });
     }
   }
 

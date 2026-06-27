@@ -372,6 +372,8 @@
   "hapticError": "Hata Titreşimi",
   "moneyAnimation": "Para Animasyonu",
   "moneyAnimationDescription": "Harcama eklerken para yağmuru efekti",
+  "streakAnimation": "Seri Kutlaması",
+  "streakAnimationDescription": "Seri arttığında gösterilen tebrik animasyonu",
   "animationPreferences": "Animasyon Tercihleri",
   "animationPreferencesDescription": "Uygulama içi animasyonları yönetin",
   "showMoneyRain": "Para Yağmuru Göster",

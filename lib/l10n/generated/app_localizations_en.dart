@@ -1009,6 +1009,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Money rain effect when adding expenses';
 
   @override
+  String get streakAnimation => 'Streak Celebration';
+
+  @override
+  String get streakAnimationDescription =>
+      'Congratulatory animation shown when streak increases';
+
+  @override
   String get animationPreferences => 'Animation Preferences';
 
   @override

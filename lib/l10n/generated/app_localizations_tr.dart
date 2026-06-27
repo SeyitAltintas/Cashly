@@ -1008,6 +1008,13 @@ class AppLocalizationsTr extends AppLocalizations {
       'Harcama eklerken para yağmuru efekti';
 
   @override
+  String get streakAnimation => 'Seri Kutlaması';
+
+  @override
+  String get streakAnimationDescription =>
+      'Seri arttığında gösterilen tebrik animasyonu';
+
+  @override
   String get animationPreferences => 'Animasyon Tercihleri';
 
   @override

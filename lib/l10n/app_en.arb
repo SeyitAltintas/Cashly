@@ -372,6 +372,8 @@
   "hapticError": "Error Vibration",
   "moneyAnimation": "Money Animation",
   "moneyAnimationDescription": "Money rain effect when adding expenses",
+  "streakAnimation": "Streak Celebration",
+  "streakAnimationDescription": "Congratulatory animation shown when streak increases",
   "animationPreferences": "Animation Preferences",
   "animationPreferencesDescription": "Manage in-app animations",
   "showMoneyRain": "Show Money Rain",

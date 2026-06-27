@@ -4,7 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import '../../../../../core/services/haptic_service.dart';
 import 'package:cashly/core/constants/color_constants.dart';
-import 'error_logs_page.dart';
+import 'developer_tools_page.dart';
 
 /// Hakkında & Destek Sayfası
 /// Uygulama bilgileri, yasal metinler, SSS ve paylaşım
@@ -321,14 +321,14 @@ class _AboutSupportPageState extends State<AboutSupportPage>
       children: [
         _buildTile(
           theme,
-          icon: Icons.bug_report_outlined,
-          iconColor: ColorConstants.kirmiziVurgu,
-          title: 'Sistem Hata Kayıtları',
-          subtitle: 'Geliştirici için hata kayıtlarını görüntüleyin',
+          icon: Icons.science_outlined,
+          iconColor: Colors.deepPurple,
+          title: 'Geliştirici Araçları',
+          subtitle: 'Sahte veri yönetimi ve hata kayıtları',
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ErrorLogsPage()),
+              MaterialPageRoute(builder: (context) => const DeveloperToolsPage()),
             );
           },
         ),

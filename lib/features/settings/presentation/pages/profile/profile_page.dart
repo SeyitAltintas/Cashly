@@ -7,14 +7,12 @@ import 'package:cashly/features/auth/presentation/pages/login_page.dart';
 import 'package:cashly/core/constants/color_constants.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/services/haptic_service.dart';
-import 'package:cashly/core/services/mock_data_service.dart';
-import 'package:cashly/core/services/cloud_sync_service.dart';
+import '../../../../streak/presentation/controllers/streak_controller.dart';
+import 'package:cashly/core/di/injection_container.dart';
 import '../../../../streak/data/models/streak_model.dart';
 import '../../../../streak/data/constants/streak_badges.dart';
 import '../../../../streak/presentation/widgets/rank_frame_widget.dart';
 import '../../../../streak/presentation/pages/streak_page.dart';
-import '../../../../streak/presentation/controllers/streak_controller.dart';
-import 'package:cashly/core/di/injection_container.dart';
 
 class ProfilSayfasi extends StatefulWidget {
   final AuthController authController;
@@ -38,7 +36,6 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-  bool _mockLoading = false;
   RankData? _localRankData;
 
   @override
@@ -46,7 +43,22 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
     super.initState();
     // widget.streakData ile geliniyorsa controller'a da set et
     if (widget.streakData != null) {
-      _localRankData = widget.streakData;
+      _localRankData = widget.streakData as RankData?;
+    }
+    getIt<StreakController>().addListener(_onStreakChanged);
+  }
+
+  @override
+  void dispose() {
+    getIt<StreakController>().removeListener(_onStreakChanged);
+    super.dispose();
+  }
+
+  void _onStreakChanged() {
+    if (mounted) {
+      setState(() {
+        _localRankData = getIt<StreakController>().streakData;
+      });
     }
   }
 
@@ -56,98 +68,6 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
     if (oldWidget.streakData != widget.streakData &&
         widget.streakData != null) {
       setState(() => _localRankData = widget.streakData);
-    }
-  }
-
-  Future<void> _generateMockData() async {
-    final userId = widget.authController.currentUser?.id;
-    if (userId == null) return;
-
-    setState(() => _mockLoading = true);
-    try {
-      await MockDataService().generateMockData(userId);
-      await CloudSyncService.syncAllUserData(userId);
-      if (mounted) {
-        // Streak controller'a userId ver ve veriyi yenile
-        getIt<StreakController>().loadStreakData(userId);
-        final freshData = getIt<StreakController>().streakData;
-        setState(() => _localRankData = freshData);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✓ Sahte veriler oluşturuldu!'),
-            backgroundColor: ColorConstants.yesil,
-          ),
-        );
-        widget.onRefresh?.call();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Hata: $e'),
-            backgroundColor: ColorConstants.kirmiziVurgu,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _mockLoading = false);
-    }
-  }
-
-  Future<void> _clearMockData() async {
-    final userId = widget.authController.currentUser?.id;
-    if (userId == null) return;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Mock Verileri Temizle'),
-        content: const Text(
-          'Sahte veriler silinecek. Gerçek verileriniz korunur.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('İptal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
-              'Sil',
-              style: TextStyle(color: ColorConstants.kirmiziVurgu),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-
-    setState(() => _mockLoading = true);
-    try {
-      await MockDataService().clearMockData(userId);
-      await CloudSyncService.syncAllUserData(userId);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✓ Sahte veriler temizlendi!'),
-            backgroundColor: ColorConstants.yesil,
-          ),
-        );
-        getIt<StreakController>().refresh();
-        widget.onRefresh?.call();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Hata: $e'),
-            backgroundColor: ColorConstants.kirmiziVurgu,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _mockLoading = false);
     }
   }
 
@@ -459,93 +379,6 @@ class _ProfilSayfasiState extends State<ProfilSayfasi>
                 }
               },
               isLast: true,
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // ===== GELİŞTİRİCİ ARAÇLARI =====
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.deepPurple.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.deepPurple.withValues(alpha: 0.25),
-              ),
-            ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(
-                      Icons.science_outlined,
-                      color: Colors.deepPurple,
-                      size: 18,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Geliştirici Araçları',
-                      style: TextStyle(
-                        color: ColorConstants.morVurgu,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Test verisi oluşturmak ve temizlemek için.',
-                  style: TextStyle(
-                    color: Colors.deepPurple.withValues(alpha: 0.6),
-                    fontSize: 11,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (_mockLoading)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8),
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                else
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: _generateMockData,
-                          icon: const Icon(Icons.data_object, size: 18),
-                          label: const Text('Sahte Veri Üret'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: ColorConstants.morVurgu,
-                            side: BorderSide(
-                              color: ColorConstants.morVurgu.withValues(
-                                alpha: 0.4,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      OutlinedButton.icon(
-                        onPressed: _clearMockData,
-                        icon: const Icon(Icons.delete_sweep_outlined, size: 18),
-                        label: const Text('Temizle'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: ColorConstants.kirmiziVurgu,
-                          side: BorderSide(
-                            color: ColorConstants.kirmiziVurgu.withValues(
-                              alpha: 0.4,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
             ),
           ),
           const SizedBox(height: 24),

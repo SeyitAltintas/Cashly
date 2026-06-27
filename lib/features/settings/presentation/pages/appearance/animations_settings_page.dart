@@ -120,6 +120,60 @@ class AnimationsSettingsPage extends StatelessWidget {
                           themeManager.toggleMoneyAnimation(value);
                         },
                       ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Divider(
+                          height: 1,
+                          thickness: 0.5,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      // Seri Kutlaması Switch
+                      SwitchListTile(
+                        activeTrackColor: ColorConstants.yesil.withValues(alpha: 0.5),
+                        activeThumbColor: ColorConstants.yesil,
+                        inactiveTrackColor: ColorConstants.kirmiziVurgu.withValues(alpha: 0.3),
+                        inactiveThumbColor: ColorConstants.kirmiziVurgu,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        secondary: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: ColorConstants.turuncuVurgu.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.local_fire_department,
+                            color: ColorConstants.turuncuVurgu,
+                          ),
+                        ),
+                        title: Text(
+                          context.l10n.streakAnimation,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Text(
+                            context.l10n.streakAnimationDescription,
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        value: themeManager.isStreakAnimationEnabled,
+                        onChanged: (value) {
+                          themeManager.toggleStreakAnimation(value);
+                        },
+                      ),
                     ],
                   );
                 },
