@@ -46,12 +46,10 @@ class _NotesListPageState extends State<NotesListPage> {
   // ─── Silme ──────────────────────────────────────────────────────────────
 
   Future<void> _deleteNote(String id) async {
-    try {
-      await _repository.deleteNote(id);
-      if (mounted) AppSnackBar.success(context, context.l10n.noteDeleteConfirm);
-    } catch (_) {
-      if (mounted) AppSnackBar.error(context, context.l10n.saveFailed);
-    }
+    // EC-7: Exception fırlat ki confirmDismiss catch bloğu çalışsın.
+    // Hata durumunda item geri döner; snackbar confirmDismiss içinde handle edilir.
+    await _repository.deleteNote(id);
+    if (mounted) AppSnackBar.success(context, context.l10n.noteDeleteConfirm);
   }
 
   // ─── Build ──────────────────────────────────────────────────────────────
@@ -178,13 +176,13 @@ class _NoteCard extends StatelessWidget {
       key: ValueKey(note.id),
       direction: DismissDirection.endToStart,
       background: _buildDismissBackground(colorScheme),
-      // confirmDismiss: silme async hata verirse item geri döner, UI tutarlı kalır.
+      // EC-7: confirmDismiss hata yönetimini devralır.
       confirmDismiss: (_) async {
         try {
           await onDelete();
           return true;
         } catch (_) {
-          return false;
+          return false; // item geri döner
         }
       },
       child: Material(
@@ -269,19 +267,24 @@ class _NoteCard extends StatelessWidget {
   }
 
   String _formatDate(BuildContext context, DateTime date) {
+    // EC-1: toLocal() ile UTC → yerel saat dönüşümü; takvim günü bazlı fark.
     final now = DateTime.now();
-    final diff = now.difference(date);
+    final local = date.toLocal();
+    final today = DateTime(now.year, now.month, now.day);
+    final noteDay = DateTime(local.year, local.month, local.day);
+    final diff = today.difference(noteDay).inDays;
 
-    if (diff.inDays == 0) {
-      final h = date.hour.toString().padLeft(2, '0');
-      final m = date.minute.toString().padLeft(2, '0');
+    if (diff <= 0) {
+      // Bugün veya gelecek tarih (saat farkı düzeltmesi)
+      final h = local.hour.toString().padLeft(2, '0');
+      final m = local.minute.toString().padLeft(2, '0');
       return '$h:$m';
-    } else if (diff.inDays == 1) {
+    } else if (diff == 1) {
       return context.l10n.yesterday;
-    } else if (diff.inDays < 7) {
-      return context.l10n.daysAgo(diff.inDays);
+    } else if (diff < 7) {
+      return context.l10n.daysAgo(diff);
     } else {
-      return '${date.day}.${date.month}.${date.year}';
+      return '${local.day}.${local.month}.${local.year}';
     }
   }
 }

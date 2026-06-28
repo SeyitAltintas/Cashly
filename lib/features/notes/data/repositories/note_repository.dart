@@ -49,7 +49,7 @@ class NoteRepository {
     if (_box == null || !_box!.isOpen) return [];
 
     final result = <NoteModel>[];
-    for (final raw in _requireBox.values) {
+    for (final raw in _box!.values) {
       try {
         if (raw is! Map) continue;
         result.add(NoteModel.fromMap(Map<String, dynamic>.from(raw)));

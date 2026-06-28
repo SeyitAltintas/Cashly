@@ -1,5 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+
+import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -123,7 +126,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
     }
   }
 
-  /// Belgenin ilk satırını başlık olarak çıkarır (max 60 karakter).
+  /// Belgenin ilk satırını başlık olarak çıkarır (max 60 rune — emoji güvenli).
   String _extractTitle() {
     final controller = _controller;
     if (controller == null) return '';
@@ -134,7 +137,9 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
         .map((l) => l.trim())
         .firstWhere((l) => l.isNotEmpty, orElse: () => '');
 
-    return firstLine.length > 60 ? firstLine.substring(0, 60) : firstLine;
+    // EC-3: substring() surrogate pair'i ikiye bölebilir → runes kullan.
+    if (firstLine.runes.length <= 60) return firstLine;
+    return String.fromCharCodes(firstLine.runes.take(60));
   }
 
   Future<void> _saveNote() async {
@@ -194,7 +199,8 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
 
   // ─── Resim İşlemi ───────────────────────────────────────────────────────
 
-  /// Galeriden resim seçer, sıkıştırır ve path döndürür.
+  /// EC-5: Galeriden seçilen resmi Documents dizinine kopyalar.
+  /// Cache silinse veya uygulama güncellense bile resim kaybolmaz.
   Future<String?> _pickAndReturnImagePath(BuildContext context) async {
     try {
       final XFile? picked = await _imagePicker.pickImage(
@@ -208,7 +214,18 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
         maxWidth: _kImageMaxWidth,
         quality: _kImageQuality,
       );
-      return compressed.path;
+
+      // Kalıcı dizine kopyala — cache dosyası silinirse resim hala erişilebilir.
+      final docsDir = await getApplicationDocumentsDirectory();
+      final notesImgDir = Directory('${docsDir.path}/note_images');
+      if (!notesImgDir.existsSync()) notesImgDir.createSync(recursive: true);
+
+      final ext = compressed.path.split('.').last;
+      final fileName = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
+      final dest = File('${notesImgDir.path}/$fileName');
+      await compressed.copy(dest.path);
+
+      return dest.path;
     } catch (_) {
       if (context.mounted) {
         AppSnackBar.error(context, context.l10n.imageLoadError);
@@ -250,6 +267,11 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   }
 
   PreferredSizeWidget _buildAppBar(ColorScheme colorScheme) {
+    // EC-6: Not başlığını AppBar'da dinamik göster.
+    final appBarTitle = widget.title
+        ?? (_note?.title.isNotEmpty == true ? _note!.title : null)
+        ?? context.l10n.noteEditor;
+
     return AppBar(
       backgroundColor: colorScheme.surface,
       elevation: 0,
@@ -264,7 +286,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
         },
       ),
       title: Text(
-        widget.title ?? context.l10n.noteEditor,
+        appBarTitle,
         style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w500,

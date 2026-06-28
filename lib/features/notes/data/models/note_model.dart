@@ -1,3 +1,5 @@
+import 'dart:math';
+
 /// Not modeli — Hive'da JSON string olarak saklanır.
 ///
 /// Tip adapter kullanmak yerine `Map<String, dynamic>` pattern'i tercih edildi.
@@ -51,10 +53,15 @@ class NoteModel {
       );
 
   /// Boş bir not oluşturur — yeni not sayfası açıldığında kullanılır.
-  factory NoteModel.empty() => NoteModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        deltaJson: '[]',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+  /// Benzersiz ID: mikrosaniye + 4 haneli random suffix → çakışmaz.
+  factory NoteModel.empty() {
+    final ts = DateTime.now().microsecondsSinceEpoch;
+    final rnd = Random().nextInt(9000) + 1000; // 1000-9999
+    return NoteModel(
+      id: '${ts}_$rnd',
+      deltaJson: '[]',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
 }
