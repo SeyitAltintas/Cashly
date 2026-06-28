@@ -35,7 +35,7 @@ class NoteEditorPage extends StatefulWidget {
   State<NoteEditorPage> createState() => _NoteEditorPageState();
 }
 
-class _NoteEditorPageState extends State<NoteEditorPage> {
+class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObserver {
   // Nullable: async _loadNote bitmeden dispose gelirse LateInitializationError önlenir.
   QuillController? _controller;
   NoteModel? _note;
@@ -61,16 +61,29 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadNote();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller?.removeListener(_onDocumentChanged);
     _controller?.dispose();
     _editorFocusNode.dispose();
     _editorScrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // EC-22: Uygulama arka plana atıldığında (veya inaktif olduğunda) otomatik kaydet.
+    // Bu, işletim sisteminin bellek açmak için uygulamayı öldürdüğü durumlarda veri kaybını önler.
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      if (_hasUnsavedChanges) {
+        _saveNote();
+      }
+    }
   }
 
   // ─── Veri Yönetimi ──────────────────────────────────────────────────────
@@ -137,7 +150,10 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
     final controller = _controller;
     if (controller == null) return '';
 
-    final plainText = controller.document.toPlainText();
+    // EC-23: Quill resim/embed içerikleri \uFFFC (Object Replacement Character) ile temsil eder.
+    // Başlıkta bu karakterin anlamsız (￼) görünmesini engellemek için temizliyoruz.
+    final plainText = controller.document.toPlainText().replaceAll('\uFFFC', '');
+    
     final firstLine = plainText
         .split('\n')
         .map((l) => l.trim())

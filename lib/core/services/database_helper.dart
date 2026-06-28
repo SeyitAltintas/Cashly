@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'secure_storage_service.dart';
 import '../../features/notes/data/repositories/note_repository.dart';
 
@@ -88,16 +86,10 @@ class DatabaseHelper {
     }
   }
 
-  /// EC-17: Notları ve orphan resim dosyalarını temizler.
+  /// EC-17 & EC-24: Notları ve orphan resim dosyalarını temizler.
   static Future<void> _deleteNotesData() async {
     try {
       await NoteRepository().clearAll();
-      // Orphan resim dosyalarını da sil (EC-18)
-      final docsDir = await getApplicationDocumentsDirectory();
-      final noteImgDir = Directory('${docsDir.path}/note_images');
-      if (await noteImgDir.exists()) {
-        await noteImgDir.delete(recursive: true);
-      }
     } catch (e) {
       debugPrint('Not verileri silinirken hata: $e');
       // Notlar silinmese bile ana silme işlemini durdurmuyoruz.

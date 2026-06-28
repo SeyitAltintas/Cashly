@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/note_model.dart';
 
 /// Hive tabanlı not deposu.
@@ -161,9 +162,21 @@ class NoteRepository {
   }
 
   /// Tüm notları siler.
+  /// EC-24: Ayrıca tüm not resimlerini (note_images dizini) de siler.
   Future<void> clearAll() async {
     await init();
     await _requireBox.clear();
+    
+    try {
+      final docsDir = await getApplicationDocumentsDirectory();
+      final noteImgDir = Directory('${docsDir.path}/note_images');
+      if (await noteImgDir.exists()) {
+        await noteImgDir.delete(recursive: true);
+        debugPrint('EC-24: Tüm not resimleri silindi.');
+      }
+    } catch (e) {
+      debugPrint('EC-24: Resim klasörü silinemedi: $e');
+    }
   }
 
   // ─── İstatistik ──────────────────────────────────────────────────────────
