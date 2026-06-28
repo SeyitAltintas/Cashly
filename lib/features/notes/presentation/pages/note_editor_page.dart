@@ -153,6 +153,13 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
     final controller = _controller;
     if (_isSaving || note == null || controller == null) return;
 
+    // EC-19: Sadece \n içeren belgeyi kaydetme — içerik yok demektir.
+    final plainText = controller.document.toPlainText().trim();
+    if (plainText.isEmpty) {
+      if (mounted) AppSnackBar.info(context, context.l10n.noteEditorHint);
+      return;
+    }
+
     setState(() => _isSaving = true);
 
     try {

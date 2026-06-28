@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/note_model.dart';
@@ -124,9 +126,38 @@ class NoteRepository {
   // ─── Silme ───────────────────────────────────────────────────────────────
 
   /// Notu siler. Bulunamazsa sessizce geçer.
+  /// EC-18: Not içindeki yerel resim dosyalarını da temizler (orphan önleme).
   Future<void> deleteNote(String id) async {
     await init();
+    // Silmeden önce delta'yı oku, yerel path'leri topla.
+    final note = getNoteById(id);
     await _requireBox.delete(id);
+    if (note != null) {
+      _deleteLocalImages(note.deltaJson); // fire-and-forget, hata fırlatsın
+    }
+  }
+
+  /// Delta JSON içinden yerel resim path'lerini bulup siler.
+  static Future<void> _deleteLocalImages(String deltaJson) async {
+    try {
+      final ops = jsonDecode(deltaJson) as List<dynamic>;
+      for (final op in ops) {
+        if (op is! Map) continue;
+        final insert = op['insert'];
+        if (insert is! Map) continue;
+        final imgPath = insert['image'];
+        if (imgPath is! String) continue;
+        if (imgPath.startsWith('http')) continue; // uzak URL, atla
+        final file = File(imgPath);
+        if (await file.exists()) {
+          await file.delete();
+          debugPrint('EC-18: Orphan resim silindi → $imgPath');
+        }
+      }
+    } catch (e) {
+      debugPrint('EC-18: Resim temizleme hatası: $e');
+      // Sessizce geç — resim silme başarısız olsa bile not silindi.
+    }
   }
 
   /// Tüm notları siler.

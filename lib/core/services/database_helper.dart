@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 import 'secure_storage_service.dart';
+import '../../features/notes/data/repositories/note_repository.dart';
 
 /// Veritabanı Yardımcı Sınıfı
 ///
@@ -75,10 +78,29 @@ class DatabaseHelper {
       // Ayarlar
       await _box.delete('sesli_geri_bildirim_$userId');
 
+      // EC-17: Notlar ve not resimleri de silinir.
+      await _deleteNotesData();
+
       debugPrint('✓ Tüm kullanıcı verileri silindi: $userId');
     } catch (e) {
       debugPrint('Kullanıcı verileri silinirken hata: $e');
       rethrow;
+    }
+  }
+
+  /// EC-17: Notları ve orphan resim dosyalarını temizler.
+  static Future<void> _deleteNotesData() async {
+    try {
+      await NoteRepository().clearAll();
+      // Orphan resim dosyalarını da sil (EC-18)
+      final docsDir = await getApplicationDocumentsDirectory();
+      final noteImgDir = Directory('${docsDir.path}/note_images');
+      if (await noteImgDir.exists()) {
+        await noteImgDir.delete(recursive: true);
+      }
+    } catch (e) {
+      debugPrint('Not verileri silinirken hata: $e');
+      // Notlar silinmese bile ana silme işlemini durdurmuyoruz.
     }
   }
 
@@ -106,6 +128,9 @@ class DatabaseHelper {
       await _box.delete('gelirler_$userId');
       await _box.delete('gelir_kategorileri_$userId');
       await _box.delete('tekrarlayan_gelirler_$userId');
+
+      // EC-17: Notlar ve not resimleri "tüm verilerimi sil"de de temizlenir.
+      await _deleteNotesData();
 
       // NOT: Ayarlar (sesli geri bildirim vb.) silinmez.
 
