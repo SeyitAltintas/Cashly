@@ -5660,6 +5660,24 @@ abstract class AppLocalizations {
   /// **'Resim yüklenemedi'**
   String get imageLoadError;
 
+  /// No description provided for @unsavedChangesTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Değişiklikler atılsın mı?'**
+  String get unsavedChangesTitle;
+
+  /// No description provided for @unsavedChangesMessage.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydedilmemiş değişiklikler var. Çıkmak istediğinizden emin misiniz?'**
+  String get unsavedChangesMessage;
+
+  /// No description provided for @discardChanges.
+  ///
+  /// In tr, this message translates to:
+  /// **'Değişiklikleri At'**
+  String get discardChanges;
+
   /// No description provided for @cardType.
   ///
   /// In tr, this message translates to:

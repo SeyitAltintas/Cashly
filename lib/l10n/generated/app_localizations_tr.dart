@@ -3025,6 +3025,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get imageLoadError => 'Resim yüklenemedi';
 
   @override
+  String get unsavedChangesTitle => 'Değişiklikler atılsın mı?';
+
+  @override
+  String get unsavedChangesMessage =>
+      'Kaydedilmemiş değişiklikler var. Çıkmak istediğinizden emin misiniz?';
+
+  @override
+  String get discardChanges => 'Değişiklikleri At';
+
+  @override
   String get cardType => 'Kart Tipi';
 
   @override

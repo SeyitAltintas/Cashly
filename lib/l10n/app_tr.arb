@@ -1366,6 +1366,9 @@
     }
   },
   "imageLoadError": "Resim yüklenemedi",
+  "unsavedChangesTitle": "Değişiklikler atılsın mı?",
+  "unsavedChangesMessage": "Kaydedilmemiş değişiklikler var. Çıkmak istediğinizden emin misiniz?",
+  "discardChanges": "Değişiklikleri At",
   "cardType": "Kart Tipi",
   "nameLabel": "İsim",
   "bankCardName": "Banka/Kart Adı",

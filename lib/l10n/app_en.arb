@@ -1347,6 +1347,9 @@
     }
   },
   "imageLoadError": "Image could not be loaded",
+  "unsavedChangesTitle": "Discard changes?",
+  "unsavedChangesMessage": "You have unsaved changes. Are you sure you want to leave?",
+  "discardChanges": "Discard",
   "cardType": "Card Type",
   "nameLabel": "Name",
   "bankCardName": "Bank/Card Name",

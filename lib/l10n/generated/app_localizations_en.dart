@@ -3023,6 +3023,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imageLoadError => 'Image could not be loaded';
 
   @override
+  String get unsavedChangesTitle => 'Discard changes?';
+
+  @override
+  String get unsavedChangesMessage =>
+      'You have unsaved changes. Are you sure you want to leave?';
+
+  @override
+  String get discardChanges => 'Discard';
+
+  @override
   String get cardType => 'Card Type';
 
   @override

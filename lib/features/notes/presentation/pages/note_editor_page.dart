@@ -33,19 +33,21 @@ class NoteEditorPage extends StatefulWidget {
 }
 
 class _NoteEditorPageState extends State<NoteEditorPage> {
-  // Nullable yapıldı: async _loadNote tamamlanmadan dispose gelirse LateInitializationError önlenir.
+  // Nullable: async _loadNote bitmeden dispose gelirse LateInitializationError önlenir.
   QuillController? _controller;
   NoteModel? _note;
 
   final FocusNode _editorFocusNode = FocusNode();
   final ScrollController _editorScrollController = ScrollController();
-  // Not: QuillSimpleToolbar kendi içinde QuillToolbarArrowIndicatedButtonList
-  // ile yatay overflow'u ok butonlarıyla yönetir — dış ScrollController gerekmez.
   final ImagePicker _imagePicker = ImagePicker();
   final NoteRepository _repository = NoteRepository();
 
   bool _isSaving = false;
   bool _isLoading = true;
+
+  /// Kullanıcı yükleme sonrası değişiklik yaptı mı?
+  /// PopScope buna bakarak "kaydetmeden çık?" diyaloğunu tetikler.
+  bool _hasUnsavedChanges = false;
 
   // ─── Lifecycle ──────────────────────────────────────────────────────────
 
@@ -57,6 +59,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
 
   @override
   void dispose() {
+    _controller?.removeListener(_onDocumentChanged);
     _controller?.dispose();
     _editorFocusNode.dispose();
     _editorScrollController.dispose();
@@ -84,6 +87,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
     }
 
     final controller = _buildController(note.deltaJson);
+    controller.addListener(_onDocumentChanged);
 
     // mounted kontrolü: dispose erken çağrılmışsa state güncelleme yapma.
     if (!mounted) {
@@ -112,6 +116,27 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
     );
   }
 
+  /// Her belge değişikliğinde kaydedilmemiş değişiklik işareti set edilir.
+  void _onDocumentChanged() {
+    if (!_hasUnsavedChanges && mounted) {
+      setState(() => _hasUnsavedChanges = true);
+    }
+  }
+
+  /// Belgenin ilk satırını başlık olarak çıkarır (max 60 karakter).
+  String _extractTitle() {
+    final controller = _controller;
+    if (controller == null) return '';
+
+    final plainText = controller.document.toPlainText();
+    final firstLine = plainText
+        .split('\n')
+        .map((l) => l.trim())
+        .firstWhere((l) => l.isNotEmpty, orElse: () => '');
+
+    return firstLine.length > 60 ? firstLine.substring(0, 60) : firstLine;
+  }
+
   Future<void> _saveNote() async {
     final note = _note;
     final controller = _controller;
@@ -121,12 +146,16 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
 
     try {
       final deltaJson = jsonEncode(controller.document.toDelta().toJson());
+      final title = _extractTitle();
       await _repository.updateNote(
         id: note.id,
         deltaJson: deltaJson,
-        title: note.title,
+        title: title,
       );
-      if (mounted) AppSnackBar.success(context, context.l10n.noteSaved);
+      if (mounted) {
+        setState(() => _hasUnsavedChanges = false);
+        AppSnackBar.success(context, context.l10n.noteSaved);
+      }
     } catch (_) {
       if (mounted) AppSnackBar.error(context, context.l10n.saveFailed);
     } finally {
@@ -134,10 +163,38 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
     }
   }
 
+  // ─── Geri Dönme Uyarısı ─────────────────────────────────────────────────
+
+  /// Kaydedilmemiş değişiklik varsa onay diyaloğu gösterir.
+  Future<bool> _confirmDiscard() async {
+    if (!_hasUnsavedChanges) return true;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.l10n.unsavedChangesTitle),
+        content: Text(context.l10n.unsavedChangesMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(context.l10n.cancel),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(context.l10n.discardChanges),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
   // ─── Resim İşlemi ───────────────────────────────────────────────────────
 
   /// Galeriden resim seçer, sıkıştırır ve path döndürür.
-  /// [QuillToolbarImageConfig.onRequestPickImage] callback'i için.
   Future<String?> _pickAndReturnImagePath(BuildContext context) async {
     try {
       final XFile? picked = await _imagePicker.pickImage(
@@ -169,15 +226,25 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
 
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: _buildAppBar(colorScheme),
-      body: Column(
-        children: [
-          _buildToolbar(colorScheme, controller),
-          const Divider(height: 1, thickness: 0.5),
-          Expanded(child: _buildEditor(colorScheme, controller)),
-        ],
+    return PopScope(
+      // Kaydedilmemiş değişiklik varsa sistem geri tuşunu engelle.
+      canPop: !_hasUnsavedChanges,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final navigator = Navigator.of(context); // await öncesi yakala
+        final shouldPop = await _confirmDiscard();
+        if (shouldPop && mounted) navigator.pop();
+      },
+      child: Scaffold(
+        backgroundColor: colorScheme.surface,
+        appBar: _buildAppBar(colorScheme),
+        body: Column(
+          children: [
+            _buildToolbar(colorScheme, controller),
+            const Divider(height: 1, thickness: 0.5),
+            Expanded(child: _buildEditor(colorScheme, controller)),
+          ],
+        ),
       ),
     );
   }
@@ -190,7 +257,11 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
         tooltip: context.l10n.back,
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () async {
+          final navigator = Navigator.of(context); // await öncesi yakala
+          final shouldPop = await _confirmDiscard();
+          if (shouldPop && mounted) navigator.pop();
+        },
       ),
       title: Text(
         widget.title ?? context.l10n.noteEditor,
