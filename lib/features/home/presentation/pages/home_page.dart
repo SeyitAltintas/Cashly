@@ -28,6 +28,7 @@ import 'package:cashly/features/streak/data/services/streak_service.dart';
 import '../state/home_page_state.dart';
 import 'package:cashly/core/widgets/shimmer_loading.dart';
 import 'package:cashly/features/home/presentation/utils/home_navigation_helper.dart';
+import 'package:cashly/features/notes/presentation/pages/notes_list_page.dart';
 
 /// Yeni 3 sekmeli ana navigasyon sayfası
 /// Araçlar (0), Dashboard (1), Profil (2)
@@ -332,6 +333,11 @@ class _AnaSayfaState extends State<AnaSayfa> with WidgetsBindingObserver {
             replace: replace,
             initialDate: initialDate,
           ),
+      onNotesPressed: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const NotesListPage(),
+        ),
+      ),
     );
   }
 

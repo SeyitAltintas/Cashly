@@ -1321,6 +1321,32 @@
   "paymentMethodsSubtitle": "Bank cards and cash accounts",
   "analysisSubtitle": "Expense and income statistics",
   "transferSubtitle": "Money transfer between accounts",
+  "back": "Back",
+  "notepad": "Notepad",
+  "notepadSubtitle": "Rich text notes",
+  "noteEditor": "Note Editor",
+  "noteEditorHint": "Start writing your note...",
+  "noteSaved": "Note saved",
+  "saveFailed": "Could not save note",
+  "notesList": "Notes",
+  "notesEmpty": "No notes yet. Tap + to create one.",
+  "noteDeleteConfirm": "Note deleted",
+  "noteUntitled": "Untitled Note",
+  "noteLastEdited": "Edited {date}",
+  "@noteLastEdited": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "newNote": "New Note",
+  "yesterday": "yesterday",
+  "daysAgo": "{count} days ago",
+  "@daysAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "imageLoadError": "Image could not be loaded",
   "cardType": "Card Type",
   "nameLabel": "Name",
   "bankCardName": "Bank/Card Name",

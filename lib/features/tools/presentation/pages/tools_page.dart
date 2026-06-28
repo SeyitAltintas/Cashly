@@ -15,6 +15,7 @@ class ToolsPage extends StatefulWidget {
   final VoidCallback onTransferPressed;
   final VoidCallback? onExpensesPressed;
   final VoidCallback? onIncomesPressed;
+  final VoidCallback? onNotesPressed;
 
   const ToolsPage({
     super.key,
@@ -24,6 +25,7 @@ class ToolsPage extends StatefulWidget {
     required this.onTransferPressed,
     this.onExpensesPressed,
     this.onIncomesPressed,
+    this.onNotesPressed,
   });
 
   @override
@@ -170,6 +172,25 @@ class _ToolsPageState extends State<ToolsPage>
                           onTap: () {
                             HapticService.lightImpact();
                             widget.onTransferPressed();
+                          },
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Not Defteri Bölümü
+                        _buildSectionTitle(
+                          context,
+                          context.l10n.notepad,
+                        ),
+                        const SizedBox(height: 14),
+                        _FinanceListTile(
+                          icon: Icons.edit_note_rounded,
+                          title: context.l10n.notepad,
+                          subtitle: context.l10n.notepadSubtitle,
+                          iconColor: const Color(0xFF00ACC1),
+                          onTap: () {
+                            HapticService.lightImpact();
+                            widget.onNotesPressed?.call();
                           },
                         ),
 

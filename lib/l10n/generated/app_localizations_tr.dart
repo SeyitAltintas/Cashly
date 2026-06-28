@@ -1067,7 +1067,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get today => 'Bugün';
 
   @override
-  String get yesterday => 'Dün';
+  String get yesterday => 'dün';
 
   @override
   String get thisWeek => 'Bu Hafta';
@@ -2973,6 +2973,56 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get transferSubtitle => 'Hesaplar arası para aktarımı';
+
+  @override
+  String get back => 'Geri';
+
+  @override
+  String get notepad => 'Not Defteri';
+
+  @override
+  String get notepadSubtitle => 'Zengin metin notları';
+
+  @override
+  String get noteEditor => 'Not Editörü';
+
+  @override
+  String get noteEditorHint => 'Notunuzu yazmaya başlayın...';
+
+  @override
+  String get noteSaved => 'Not kaydedildi';
+
+  @override
+  String get saveFailed => 'Not kaydedilemedi';
+
+  @override
+  String get notesList => 'Notlar';
+
+  @override
+  String get notesEmpty =>
+      'Henüz not yok. Yeni not eklemek için + düğmesine dokunun.';
+
+  @override
+  String get noteDeleteConfirm => 'Not silindi';
+
+  @override
+  String get noteUntitled => 'Başlıksız Not';
+
+  @override
+  String noteLastEdited(String date) {
+    return '$date tarihinde düzenlendi';
+  }
+
+  @override
+  String get newNote => 'Yeni Not';
+
+  @override
+  String daysAgo(int count) {
+    return '$count gün önce';
+  }
+
+  @override
+  String get imageLoadError => 'Resim yüklenemedi';
 
   @override
   String get cardType => 'Kart Tipi';

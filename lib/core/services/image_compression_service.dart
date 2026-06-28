@@ -19,6 +19,35 @@ class ImageCompressionService {
   factory ImageCompressionService() => _instance;
   ImageCompressionService._internal();
 
+  /// Not editörü için statik kolaylık metodu.
+  ///
+  /// [file] dosyasını sıkıştırıp geçici bir [File] olarak döndürür.
+  /// Hata durumunda orijinal dosyayı güvenle döndürür.
+  static Future<File> compress(
+    File file, {
+    int maxWidth = defaultMaxWidth,
+    int quality = defaultQuality,
+  }) async {
+    final service = ImageCompressionService();
+    final compressed = await service.compressImage(
+      file,
+      maxWidth: maxWidth,
+      quality: quality,
+    );
+    if (compressed == null) return file;
+
+    try {
+      // Geçici dizine kaydet
+      final dir = file.parent;
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final out = File('${dir.path}/note_img_$ts.jpg');
+      await out.writeAsBytes(compressed);
+      return out;
+    } catch (_) {
+      return file;
+    }
+  }
+
   /// Resmi sıkıştır ve boyutlandır
   ///
   /// [imageFile] - Sıkıştırılacak resim dosyası

@@ -2135,7 +2135,7 @@ abstract class AppLocalizations {
   /// No description provided for @yesterday.
   ///
   /// In tr, this message translates to:
-  /// **'Dün'**
+  /// **'dün'**
   String get yesterday;
 
   /// No description provided for @thisWeek.
@@ -5569,6 +5569,96 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Hesaplar arası para aktarımı'**
   String get transferSubtitle;
+
+  /// No description provided for @back.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geri'**
+  String get back;
+
+  /// No description provided for @notepad.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not Defteri'**
+  String get notepad;
+
+  /// No description provided for @notepadSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Zengin metin notları'**
+  String get notepadSubtitle;
+
+  /// No description provided for @noteEditor.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not Editörü'**
+  String get noteEditor;
+
+  /// No description provided for @noteEditorHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notunuzu yazmaya başlayın...'**
+  String get noteEditorHint;
+
+  /// No description provided for @noteSaved.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not kaydedildi'**
+  String get noteSaved;
+
+  /// No description provided for @saveFailed.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not kaydedilemedi'**
+  String get saveFailed;
+
+  /// No description provided for @notesList.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notlar'**
+  String get notesList;
+
+  /// No description provided for @notesEmpty.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz not yok. Yeni not eklemek için + düğmesine dokunun.'**
+  String get notesEmpty;
+
+  /// No description provided for @noteDeleteConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not silindi'**
+  String get noteDeleteConfirm;
+
+  /// No description provided for @noteUntitled.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlıksız Not'**
+  String get noteUntitled;
+
+  /// No description provided for @noteLastEdited.
+  ///
+  /// In tr, this message translates to:
+  /// **'{date} tarihinde düzenlendi'**
+  String noteLastEdited(String date);
+
+  /// No description provided for @newNote.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni Not'**
+  String get newNote;
+
+  /// No description provided for @daysAgo.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} gün önce'**
+  String daysAgo(int count);
+
+  /// No description provided for @imageLoadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Resim yüklenemedi'**
+  String get imageLoadError;
 
   /// No description provided for @cardType.
   ///

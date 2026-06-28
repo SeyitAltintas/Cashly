@@ -1067,7 +1067,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get today => 'Today';
 
   @override
-  String get yesterday => 'Yesterday';
+  String get yesterday => 'yesterday';
 
   @override
   String get thisWeek => 'This Week';
@@ -2972,6 +2972,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transferSubtitle => 'Money transfer between accounts';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get notepad => 'Notepad';
+
+  @override
+  String get notepadSubtitle => 'Rich text notes';
+
+  @override
+  String get noteEditor => 'Note Editor';
+
+  @override
+  String get noteEditorHint => 'Start writing your note...';
+
+  @override
+  String get noteSaved => 'Note saved';
+
+  @override
+  String get saveFailed => 'Could not save note';
+
+  @override
+  String get notesList => 'Notes';
+
+  @override
+  String get notesEmpty => 'No notes yet. Tap + to create one.';
+
+  @override
+  String get noteDeleteConfirm => 'Note deleted';
+
+  @override
+  String get noteUntitled => 'Untitled Note';
+
+  @override
+  String noteLastEdited(String date) {
+    return 'Edited $date';
+  }
+
+  @override
+  String get newNote => 'New Note';
+
+  @override
+  String daysAgo(int count) {
+    return '$count days ago';
+  }
+
+  @override
+  String get imageLoadError => 'Image could not be loaded';
 
   @override
   String get cardType => 'Card Type';

@@ -1340,6 +1340,32 @@
   "paymentMethodsSubtitle": "Banka kartları ve nakit hesapları",
   "analysisSubtitle": "Harcama ve gelir istatistikleri",
   "transferSubtitle": "Hesaplar arası para aktarımı",
+  "back": "Geri",
+  "notepad": "Not Defteri",
+  "notepadSubtitle": "Zengin metin notları",
+  "noteEditor": "Not Editörü",
+  "noteEditorHint": "Notunuzu yazmaya başlayın...",
+  "noteSaved": "Not kaydedildi",
+  "saveFailed": "Not kaydedilemedi",
+  "notesList": "Notlar",
+  "notesEmpty": "Henüz not yok. Yeni not eklemek için + düğmesine dokunun.",
+  "noteDeleteConfirm": "Not silindi",
+  "noteUntitled": "Başlıksız Not",
+  "noteLastEdited": "{date} tarihinde düzenlendi",
+  "@noteLastEdited": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "newNote": "Yeni Not",
+  "yesterday": "dün",
+  "daysAgo": "{count} gün önce",
+  "@daysAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "imageLoadError": "Resim yüklenemedi",
   "cardType": "Kart Tipi",
   "nameLabel": "İsim",
   "bankCardName": "Banka/Kart Adı",
