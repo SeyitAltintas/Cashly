@@ -67,7 +67,14 @@ class NoteRepository {
   }) async {
     await init();
 
-    final existing = getNoteById(id) ?? NoteModel.empty();
+    // NoteModel.empty() yeni bir ID üretir — bunun yerine sabit ID ile fallback.
+    final existing = getNoteById(id) ?? NoteModel(
+      id: id,
+      deltaJson: '[]',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
     final updated = existing.copyWith(
       deltaJson: deltaJson,
       title: title ?? existing.title,
