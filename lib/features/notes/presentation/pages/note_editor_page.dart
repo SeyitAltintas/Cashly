@@ -120,7 +120,9 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   }
 
   /// Her belge değişikliğinde kaydedilmemiş değişiklik işareti set edilir.
+  /// EC-12: Yükleme sırasında Quill'in kendi olaylarını filtrele.
   void _onDocumentChanged() {
+    if (_isLoading) return; // yükleme bitmeden tetiklenen event — görmezden gel
     if (!_hasUnsavedChanges && mounted) {
       setState(() => _hasUnsavedChanges = true);
     }

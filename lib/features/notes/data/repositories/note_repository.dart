@@ -11,6 +11,12 @@ import '../models/note_model.dart';
 class NoteRepository {
   static const String _boxName = 'notes';
 
+  // EC-8: Singleton — NotesListPage ve NoteEditorPage aynı instance'ı paylaşır.
+  // Hive box'u iki kez açma riski ortadan kalkar.
+  static final NoteRepository _instance = NoteRepository._internal();
+  factory NoteRepository() => _instance;
+  NoteRepository._internal();
+
   Box? _box;
 
   /// Eş zamanlı init() çağrılarında race condition önleyici.
@@ -65,7 +71,7 @@ class NoteRepository {
     if (_box == null || !_box!.isOpen) return null;
 
     try {
-      final raw = _requireBox.get(id);
+      final raw = _box!.get(id); // EC-11: _requireBox yerine tutarlı _box!
       if (raw == null || raw is! Map) return null;
       return NoteModel.fromMap(Map<String, dynamic>.from(raw));
     } catch (_) {

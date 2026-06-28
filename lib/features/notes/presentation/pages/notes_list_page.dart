@@ -176,12 +176,15 @@ class _NoteCard extends StatelessWidget {
       key: ValueKey(note.id),
       direction: DismissDirection.endToStart,
       background: _buildDismissBackground(colorScheme),
-      // EC-7: confirmDismiss hata yönetimini devralır.
+      // EC-9: Hata durumunda snackbar göster; false dönerse item geri gelir.
       confirmDismiss: (_) async {
         try {
           await onDelete();
           return true;
         } catch (_) {
+          if (context.mounted) {
+            AppSnackBar.error(context, context.l10n.saveFailed);
+          }
           return false; // item geri döner
         }
       },

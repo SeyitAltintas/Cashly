@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui' as ui;
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
@@ -21,8 +22,11 @@ class ImageCompressionService {
 
   /// Not editörü için statik kolaylık metodu.
   ///
-  /// [file] dosyasını sıkıştırıp geçici bir [File] olarak döndürür.
+  /// [file] dosyasını sıkıştırıp [File] olarak döndürür.
   /// Hata durumunda orijinal dosyayı güvenle döndürür.
+  ///
+  /// EC-10: Intermediate dosya system temp dizinine yazılır;
+  /// orijinal klasör kirletilmez.
   static Future<File> compress(
     File file, {
     int maxWidth = defaultMaxWidth,
@@ -37,10 +41,10 @@ class ImageCompressionService {
     if (compressed == null) return file;
 
     try {
-      // Geçici dizine kaydet
-      final dir = file.parent;
+      // EC-10: Orijinal klasör yerine sistem temp dizinine yaz.
+      final tmpDir = await getTemporaryDirectory();
       final ts = DateTime.now().millisecondsSinceEpoch;
-      final out = File('${dir.path}/note_img_$ts.jpg');
+      final out = File('${tmpDir.path}/note_img_$ts.jpg');
       await out.writeAsBytes(compressed);
       return out;
     } catch (_) {
