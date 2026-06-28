@@ -12,6 +12,7 @@ import 'firebase_options.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'l10n/generated/app_localizations.dart';
 import 'core/services/database_helper.dart';
 import 'core/services/error_logger_service.dart';
@@ -356,6 +357,7 @@ class _CashlyAppState extends State<CashlyApp> with WidgetsBindingObserver {
           locale: localeManager.locale,
           localizationsDelegates: const [
             AppLocalizations.delegate,
+            FlutterQuillLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
