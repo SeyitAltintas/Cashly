@@ -58,7 +58,9 @@ class NoteRepository {
     for (final raw in _box!.values) {
       try {
         if (raw is! Map) continue;
-        result.add(NoteModel.fromMap(Map<String, dynamic>.from(raw)));
+        final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
+        if (note.id.isEmpty) continue; // EC-16: bozuk id, atla
+        result.add(note);
       } catch (_) {
         // Bozuk Hive girdisi — atla, listeyi bozmaya bırakma.
       }
@@ -88,26 +90,30 @@ class NoteRepository {
   }
 
   /// Sadece delta ve başlık günceller; createdAt değişmez.
+  ///
+  /// [originalCreatedAt]: Editor'den iletilir. Not dışardan silinmişse
+  /// yeniden oluşturulurken orijinal tarih korunur (EC-16).
   Future<NoteModel> updateNote({
     required String id,
     required String deltaJson,
     String? title,
+    DateTime? originalCreatedAt,
   }) async {
     await init();
 
     // NoteModel.empty() yeni bir ID üretir — bunun yerine sabit ID ile fallback.
-    final existing =
-        getNoteById(id) ??
-        NoteModel(
-          id: id,
-          deltaJson: '[]',
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
+    final existing = getNoteById(id);
+    final fallback = NoteModel(
+      id: id,
+      deltaJson: '[]',
+      // EC-16: Editorden geçilen gerçek tarih; yoksa şimdi.
+      createdAt: originalCreatedAt ?? DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
 
-    final updated = existing.copyWith(
+    final updated = (existing ?? fallback).copyWith(
       deltaJson: deltaJson,
-      title: title ?? existing.title,
+      title: title ?? (existing?.title ?? ''),
       updatedAt: DateTime.now(),
     );
 

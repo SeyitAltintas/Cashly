@@ -52,6 +52,10 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   /// PopScope buna bakarak "kaydetmeden çık?" diyaloğunu tetikler.
   bool _hasUnsavedChanges = false;
 
+  /// EC-13: Aynı anda iki diyalog açılmasını önler
+  /// (AppBar geri + PopScope aynı anda tetiklenirse).
+  bool _isConfirmingDiscard = false;
+
   // ─── Lifecycle ──────────────────────────────────────────────────────────
 
   @override
@@ -158,6 +162,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
         id: note.id,
         deltaJson: deltaJson,
         title: title,
+        originalCreatedAt: note.createdAt, // EC-16: orijinal tarihi koru
       );
       if (mounted) {
         setState(() => _hasUnsavedChanges = false);
@@ -173,30 +178,36 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   // ─── Geri Dönme Uyarısı ─────────────────────────────────────────────────
 
   /// Kaydedilmemiş değişiklik varsa onay diyaloğu gösterir.
+  /// EC-13: eş zamanlı çağrılarda ikinci çağrı erken çıkar.
   Future<bool> _confirmDiscard() async {
     if (!_hasUnsavedChanges) return true;
-
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(context.l10n.unsavedChangesTitle),
-        content: Text(context.l10n.unsavedChangesMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(context.l10n.cancel),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
+    if (_isConfirmingDiscard) return false; // zaten diyalog açık
+    _isConfirmingDiscard = true;
+    try {
+      final result = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(context.l10n.unsavedChangesTitle),
+          content: Text(context.l10n.unsavedChangesMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(context.l10n.cancel),
             ),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(context.l10n.discardChanges),
-          ),
-        ],
-      ),
-    );
-    return result ?? false;
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(context.l10n.discardChanges),
+            ),
+          ],
+        ),
+      );
+      return result ?? false;
+    } finally {
+      _isConfirmingDiscard = false;
+    }
   }
 
   // ─── Resim İşlemi ───────────────────────────────────────────────────────
@@ -222,7 +233,9 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
       final notesImgDir = Directory('${docsDir.path}/note_images');
       if (!notesImgDir.existsSync()) notesImgDir.createSync(recursive: true);
 
-      final ext = compressed.path.split('.').last;
+      // EC-14: Uzantsız dosyalarda split('.').last tamamı alır → 'jpg' fallback.
+      final parts = compressed.path.split('.');
+      final ext = parts.length > 1 ? parts.last : 'jpg';
       final fileName = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesImgDir.path}/$fileName');
       await compressed.copy(dest.path);
@@ -401,6 +414,37 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
                   return FileImage(File(imageUrl));
                 }
                 return NetworkImage(imageUrl);
+              },
+              // EC-15: Eksik/bozuk dosyada Flutter'in kirık ikon yerine
+              // kullanıcı dostu ikon gösterilir.
+              imageErrorWidgetBuilder: (context, imageUrl, error) {
+                return Container(
+                  width: 120,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.broken_image_outlined,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35),
+                        size: 28,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        context.l10n.imageLoadError,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                          fontFamily: 'Inter',
+                        ),
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
           ),

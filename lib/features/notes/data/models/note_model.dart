@@ -45,7 +45,7 @@ class NoteModel {
       };
 
   factory NoteModel.fromMap(Map<String, dynamic> map) => NoteModel(
-        id: map['id'] as String,
+        id: (map['id'] as String?) ?? '',   // EC-16: null-safe cast; '' → catch'e düşer
         title: (map['title'] as String?) ?? '',
         deltaJson: (map['deltaJson'] as String?) ?? '[]',
         createdAt: DateTime.parse(map['createdAt'] as String),
