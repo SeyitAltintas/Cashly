@@ -38,12 +38,8 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
 
   final FocusNode _editorFocusNode = FocusNode();
   final ScrollController _editorScrollController = ScrollController();
-
-  /// Toolbar yatay kaydırma kontrolcüsü.
-  /// multiRowsDisplay: false ile tek satırda sığmayan butonlar
-  /// SingleChildScrollView ile yatayda kaydırılabilir olur.
-  final ScrollController _toolbarScrollController = ScrollController();
-
+  // Not: QuillSimpleToolbar kendi içinde QuillToolbarArrowIndicatedButtonList
+  // ile yatay overflow'u ok butonlarıyla yönetir — dış ScrollController gerekmez.
   final ImagePicker _imagePicker = ImagePicker();
   final NoteRepository _repository = NoteRepository();
 
@@ -63,7 +59,6 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
     _controller.dispose();
     _editorFocusNode.dispose();
     _editorScrollController.dispose();
-    _toolbarScrollController.dispose();
     super.dispose();
   }
 
@@ -208,14 +203,9 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   }
 
   Widget _buildToolbar(ColorScheme colorScheme) {
-    return SizedBox(
-      height: kToolbarHeight,
-      child: SingleChildScrollView(
-        controller: _toolbarScrollController,
-        scrollDirection: Axis.horizontal,
-        child: Container(
-          color: colorScheme.surface,
-          child: QuillSimpleToolbar(
+    return Container(
+      color: colorScheme.surface,
+      child: QuillSimpleToolbar(
             controller: _controller,
             config: QuillSimpleToolbarConfig(
               buttonOptions: const QuillSimpleToolbarButtonOptions(
@@ -264,12 +254,10 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
                     onRequestPickImage: _pickAndReturnImagePath,
                   ),
                 ),
-              ),
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildEditor(ColorScheme colorScheme) {
