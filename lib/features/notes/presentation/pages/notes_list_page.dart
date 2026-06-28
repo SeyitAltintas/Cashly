@@ -46,8 +46,12 @@ class _NotesListPageState extends State<NotesListPage> {
   // ─── Silme ──────────────────────────────────────────────────────────────
 
   Future<void> _deleteNote(String id) async {
-    await _repository.deleteNote(id);
-    if (mounted) AppSnackBar.success(context, context.l10n.noteDeleteConfirm);
+    try {
+      await _repository.deleteNote(id);
+      if (mounted) AppSnackBar.success(context, context.l10n.noteDeleteConfirm);
+    } catch (_) {
+      if (mounted) AppSnackBar.error(context, context.l10n.saveFailed);
+    }
   }
 
   // ─── Build ──────────────────────────────────────────────────────────────
@@ -157,7 +161,7 @@ class _NotesListPageState extends State<NotesListPage> {
 class _NoteCard extends StatelessWidget {
   final NoteModel note;
   final VoidCallback onTap;
-  final VoidCallback onDelete;
+  final Future<void> Function() onDelete;
 
   const _NoteCard({
     required this.note,
@@ -174,7 +178,15 @@ class _NoteCard extends StatelessWidget {
       key: ValueKey(note.id),
       direction: DismissDirection.endToStart,
       background: _buildDismissBackground(colorScheme),
-      onDismissed: (_) => onDelete(),
+      // confirmDismiss: silme async hata verirse item geri döner, UI tutarlı kalır.
+      confirmDismiss: (_) async {
+        try {
+          await onDelete();
+          return true;
+        } catch (_) {
+          return false;
+        }
+      },
       child: Material(
         color: Colors.transparent,
         child: InkWell(

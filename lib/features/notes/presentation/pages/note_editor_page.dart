@@ -33,8 +33,9 @@ class NoteEditorPage extends StatefulWidget {
 }
 
 class _NoteEditorPageState extends State<NoteEditorPage> {
-  late final QuillController _controller;
-  late final NoteModel _note;
+  // Nullable yapıldı: async _loadNote tamamlanmadan dispose gelirse LateInitializationError önlenir.
+  QuillController? _controller;
+  NoteModel? _note;
 
   final FocusNode _editorFocusNode = FocusNode();
   final ScrollController _editorScrollController = ScrollController();
@@ -56,7 +57,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     _editorFocusNode.dispose();
     _editorScrollController.dispose();
     super.dispose();
@@ -67,14 +68,34 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   Future<void> _loadNote() async {
     await _repository.init();
 
-    final NoteModel note = widget.noteId != null
-        ? (_repository.getNoteById(widget.noteId!) ?? NoteModel.empty())
-        : NoteModel.empty();
+    // Edge case: noteId verildi ama Hive'da kayıt yok (silinmiş olabilir).
+    // NoteModel.empty() yerine noteId'yi sabit tutan model oluşturulur.
+    final NoteModel note;
+    if (widget.noteId != null) {
+      note = _repository.getNoteById(widget.noteId!) ??
+          NoteModel(
+            id: widget.noteId!,
+            deltaJson: '[]',
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+    } else {
+      note = NoteModel.empty();
+    }
 
-    _note = note;
-    _controller = _buildController(note.deltaJson);
+    final controller = _buildController(note.deltaJson);
 
-    if (mounted) setState(() => _isLoading = false);
+    // mounted kontrolü: dispose erken çağrılmışsa state güncelleme yapma.
+    if (!mounted) {
+      controller.dispose();
+      return;
+    }
+
+    setState(() {
+      _note = note;
+      _controller = controller;
+      _isLoading = false;
+    });
   }
 
   QuillController _buildController(String deltaJson) {
@@ -92,15 +113,18 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   }
 
   Future<void> _saveNote() async {
-    if (_isSaving) return;
+    final note = _note;
+    final controller = _controller;
+    if (_isSaving || note == null || controller == null) return;
+
     setState(() => _isSaving = true);
 
     try {
-      final deltaJson = jsonEncode(_controller.document.toDelta().toJson());
+      final deltaJson = jsonEncode(controller.document.toDelta().toJson());
       await _repository.updateNote(
-        id: _note.id,
+        id: note.id,
         deltaJson: deltaJson,
-        title: _note.title,
+        title: note.title,
       );
       if (mounted) AppSnackBar.success(context, context.l10n.noteSaved);
     } catch (_) {
@@ -140,7 +164,8 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const _LoadingScaffold();
+    final controller = _controller;
+    if (_isLoading || controller == null) return const _LoadingScaffold();
 
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -149,9 +174,9 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
       appBar: _buildAppBar(colorScheme),
       body: Column(
         children: [
-          _buildToolbar(colorScheme),
+          _buildToolbar(colorScheme, controller),
           const Divider(height: 1, thickness: 0.5),
-          Expanded(child: _buildEditor(colorScheme)),
+          Expanded(child: _buildEditor(colorScheme, controller)),
         ],
       ),
     );
@@ -202,71 +227,71 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
     );
   }
 
-  Widget _buildToolbar(ColorScheme colorScheme) {
+  Widget _buildToolbar(ColorScheme colorScheme, QuillController controller) {
     return Container(
       color: colorScheme.surface,
       child: QuillSimpleToolbar(
-            controller: _controller,
-            config: QuillSimpleToolbarConfig(
-              buttonOptions: const QuillSimpleToolbarButtonOptions(
-                base: QuillToolbarBaseButtonOptions(
-                  iconTheme: QuillIconTheme(
-                    iconButtonUnselectedData: IconButtonData(
-                      style: ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
+        controller: controller,
+        config: QuillSimpleToolbarConfig(
+          buttonOptions: const QuillSimpleToolbarButtonOptions(
+            base: QuillToolbarBaseButtonOptions(
+              iconTheme: QuillIconTheme(
+                iconButtonUnselectedData: IconButtonData(
+                  style: ButtonStyle(
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
               ),
-              showDividers: true,
-              showFontFamily: false,
-              showFontSize: true,
-              showBoldButton: true,
-              showItalicButton: true,
-              showSmallButton: false,
-              showUnderLineButton: true,
-              showLineHeightButton: false,
-              showStrikeThrough: true,
-              showInlineCode: true,
-              showColorButton: true,
-              showBackgroundColorButton: true,
-              showClearFormat: true,
-              showAlignmentButtons: true,
-              showLeftAlignment: true,
-              showCenterAlignment: true,
-              showRightAlignment: true,
-              showJustifyAlignment: true,
-              showHeaderStyle: true,
-              showListNumbers: true,
-              showListBullets: true,
-              showListCheck: true,
-              showCodeBlock: true,
-              showQuote: true,
-              showIndent: true,
-              showLink: true,
-              showUndo: true,
-              showRedo: true,
-              multiRowsDisplay: false,
-              embedButtons: FlutterQuillEmbeds.toolbarButtons(
-                imageButtonOptions: QuillToolbarImageButtonOptions(
-                  imageButtonConfig: QuillToolbarImageConfig(
-                    onRequestPickImage: _pickAndReturnImagePath,
-                  ),
-                ),
+            ),
+          ),
+          showDividers: true,
+          showFontFamily: false,
+          showFontSize: true,
+          showBoldButton: true,
+          showItalicButton: true,
+          showSmallButton: false,
+          showUnderLineButton: true,
+          showLineHeightButton: false,
+          showStrikeThrough: true,
+          showInlineCode: true,
+          showColorButton: true,
+          showBackgroundColorButton: true,
+          showClearFormat: true,
+          showAlignmentButtons: true,
+          showLeftAlignment: true,
+          showCenterAlignment: true,
+          showRightAlignment: true,
+          showJustifyAlignment: true,
+          showHeaderStyle: true,
+          showListNumbers: true,
+          showListBullets: true,
+          showListCheck: true,
+          showCodeBlock: true,
+          showQuote: true,
+          showIndent: true,
+          showLink: true,
+          showUndo: true,
+          showRedo: true,
+          multiRowsDisplay: false,
+          embedButtons: FlutterQuillEmbeds.toolbarButtons(
+            imageButtonOptions: QuillToolbarImageButtonOptions(
+              imageButtonConfig: QuillToolbarImageConfig(
+                onRequestPickImage: _pickAndReturnImagePath,
+              ),
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
-  Widget _buildEditor(ColorScheme colorScheme) {
+  Widget _buildEditor(ColorScheme colorScheme, QuillController controller) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return QuillEditor(
       focusNode: _editorFocusNode,
       scrollController: _editorScrollController,
-      controller: _controller,
+      controller: controller,
       config: QuillEditorConfig(
         scrollable: true,
         expands: true,
