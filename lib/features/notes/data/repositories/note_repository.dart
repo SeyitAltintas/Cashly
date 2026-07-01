@@ -35,6 +35,8 @@ class NoteRepository {
 
   Future<void> _openBox_() async {
     _box = await Hive.openBox(_boxName);
+    // Arka planda orphan resimleri temizle (EC-25)
+    cleanOrphanImages();
   }
 
   /// [ValueListenableBuilder] ile kullanım için Hive Listenable döndürür.
@@ -50,7 +52,7 @@ class NoteRepository {
   }
 
   // ─── Kullanıcı Tercihleri ────────────────────────────────────────────────
-  
+
   bool get isGridView {
     if (_box == null || !_box!.isOpen) return false;
     return _box!.get('prefs_is_grid_view', defaultValue: false) as bool;
@@ -77,7 +79,7 @@ class NoteRepository {
         if (note.id.isEmpty) continue; // EC-16: bozuk id, atla
         // Özel key'leri filtrele
         if (note.id == 'prefs_is_grid_view') continue;
-        
+
         result.add(note);
       } catch (_) {
         // Bozuk Hive girdisi — atla, listeyi bozmaya bırakma.
@@ -185,7 +187,7 @@ class NoteRepository {
   Future<void> clearAll() async {
     await init();
     await _requireBox.clear();
-    
+
     try {
       final docsDir = await getApplicationDocumentsDirectory();
       final noteImgDir = Directory('${docsDir.path}/note_images');
@@ -198,7 +200,56 @@ class NoteRepository {
     }
   }
 
+  /// Sistemdeki (note_images klasöründeki) ancak Hive'daki hiçbir notta kullanılmayan
+  /// yetim (orphan) resimleri bulup siler. (EC-25)
+  Future<void> cleanOrphanImages() async {
+    try {
+      final docsDir = await getApplicationDocumentsDirectory();
+      final imgDir = Directory('${docsDir.path}/note_images');
+      if (!await imgDir.exists()) return;
+
+      // 1. Hive'daki tüm notların deltaJson'larından aktif resim yollarını topla
+      final activePaths = <String>{};
+      final notes = getAllNotes();
+      for (final note in notes) {
+        try {
+          final ops = jsonDecode(note.deltaJson) as List<dynamic>;
+          for (final op in ops) {
+            if (op is! Map) continue;
+            final insert = op['insert'];
+            if (insert is! Map) continue;
+            final imgPath = insert['image'];
+            if (imgPath is String && !imgPath.startsWith('http')) {
+              // Path ayırıcı farklılıklarını (Windows \ vs Unix /) eşitle
+              activePaths.add(File(imgPath).path);
+            }
+          }
+        } catch (_) {}
+      }
+
+      // 2. Klasördeki tüm dosyaları gez, aktif listede olmayanları sil
+      final files = imgDir.listSync();
+      for (final entity in files) {
+        if (entity is File) {
+          if (!activePaths.contains(entity.path)) {
+            await entity.delete();
+            debugPrint('EC-25: Orphan resim silindi → ${entity.path}');
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('EC-25: Orphan temizleme hatası: $e');
+    }
+  }
+
   // ─── İstatistik ──────────────────────────────────────────────────────────
 
-  int get noteCount => (_box == null || !_box!.isOpen) ? 0 : _requireBox.length;
+  int get noteCount {
+    if (_box == null || !_box!.isOpen) return 0;
+    int count = _requireBox.length;
+    if (_requireBox.containsKey('prefs_is_grid_view')) {
+      count -= 1;
+    }
+    return count;
+  }
 }
