@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -28,17 +29,28 @@ const int _kImageQuality = 78;
 class NoteEditorPage extends StatefulWidget {
   final String? noteId;
   final String? title;
+  final String heroTag;
 
-  const NoteEditorPage({super.key, this.noteId, this.title});
+  const NoteEditorPage({
+    super.key,
+    this.noteId,
+    this.title,
+    required this.heroTag,
+  });
 
   @override
   State<NoteEditorPage> createState() => _NoteEditorPageState();
 }
 
-class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObserver {
+class _NoteEditorPageState extends State<NoteEditorPage>
+    with WidgetsBindingObserver {
   // Nullable: async _loadNote bitmeden dispose gelirse LateInitializationError önlenir.
   QuillController? _controller;
   NoteModel? _note;
+  int? _selectedColor;
+
+  Timer? _autoSaveTimer;
+  final TextEditingController _titleController = TextEditingController();
 
   final FocusNode _editorFocusNode = FocusNode();
   final ScrollController _editorScrollController = ScrollController();
@@ -51,10 +63,6 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
   /// Kullanıcı yükleme sonrası değişiklik yaptı mı?
   /// PopScope buna bakarak "kaydetmeden çık?" diyaloğunu tetikler.
   bool _hasUnsavedChanges = false;
-
-  /// EC-13: Aynı anda iki diyalog açılmasını önler
-  /// (AppBar geri + PopScope aynı anda tetiklenirse).
-  bool _isConfirmingDiscard = false;
 
   // ─── Lifecycle ──────────────────────────────────────────────────────────
 
@@ -69,6 +77,8 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _controller?.removeListener(_onDocumentChanged);
+    _autoSaveTimer?.cancel();
+    _titleController.dispose();
     _controller?.dispose();
     _editorFocusNode.dispose();
     _editorScrollController.dispose();
@@ -79,7 +89,8 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // EC-22: Uygulama arka plana atıldığında (veya inaktif olduğunda) otomatik kaydet.
     // Bu, işletim sisteminin bellek açmak için uygulamayı öldürdüğü durumlarda veri kaybını önler.
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
       if (_hasUnsavedChanges) {
         _saveNote();
       }
@@ -95,7 +106,8 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
     // NoteModel.empty() yerine noteId'yi sabit tutan model oluşturulur.
     final NoteModel note;
     if (widget.noteId != null) {
-      note = _repository.getNoteById(widget.noteId!) ??
+      note =
+          _repository.getNoteById(widget.noteId!) ??
           NoteModel(
             id: widget.noteId!,
             deltaJson: '[]',
@@ -118,7 +130,10 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
     setState(() {
       _note = note;
       _controller = controller;
+      _selectedColor = note.color;
       _isLoading = false;
+      _titleController.text = note.title;
+      _titleController.addListener(_scheduleAutoSave);
     });
   }
 
@@ -140,28 +155,21 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
   /// EC-12: Yükleme sırasında Quill'in kendi olaylarını filtrele.
   void _onDocumentChanged() {
     if (_isLoading) return; // yükleme bitmeden tetiklenen event — görmezden gel
+    _markUnsaved();
+    _scheduleAutoSave();
+  }
+
+  void _markUnsaved() {
     if (!_hasUnsavedChanges && mounted) {
       setState(() => _hasUnsavedChanges = true);
     }
   }
 
-  /// Belgenin ilk satırını başlık olarak çıkarır (max 60 rune — emoji güvenli).
-  String _extractTitle() {
-    final controller = _controller;
-    if (controller == null) return '';
-
-    // EC-23: Quill resim/embed içerikleri \uFFFC (Object Replacement Character) ile temsil eder.
-    // Başlıkta bu karakterin anlamsız (￼) görünmesini engellemek için temizliyoruz.
-    final plainText = controller.document.toPlainText().replaceAll('\uFFFC', '');
-    
-    final firstLine = plainText
-        .split('\n')
-        .map((l) => l.trim())
-        .firstWhere((l) => l.isNotEmpty, orElse: () => '');
-
-    // EC-3: substring() surrogate pair'i ikiye bölebilir → runes kullan.
-    if (firstLine.runes.length <= 60) return firstLine;
-    return String.fromCharCodes(firstLine.runes.take(60));
+  void _scheduleAutoSave() {
+    _autoSaveTimer?.cancel();
+    _autoSaveTimer = Timer(const Duration(seconds: 1), () {
+      if (mounted) _saveNote();
+    });
   }
 
   Future<void> _saveNote() async {
@@ -171,25 +179,31 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
 
     // EC-19: Sadece \n içeren belgeyi kaydetme — içerik yok demektir.
     final plainText = controller.document.toPlainText().trim();
-    if (plainText.isEmpty) {
-      if (mounted) AppSnackBar.info(context, context.l10n.noteEditorHint);
+    final title = _titleController.text.trim();
+    if (plainText.isEmpty && title.isEmpty) {
       return;
     }
 
-    setState(() => _isSaving = true);
+    if (mounted) {
+      setState(() => _isSaving = true);
+    } else {
+      _isSaving = true;
+    }
 
     try {
       final deltaJson = jsonEncode(controller.document.toDelta().toJson());
-      final title = _extractTitle();
+      final title = _titleController.text.trim();
       await _repository.updateNote(
         id: note.id,
         deltaJson: deltaJson,
         title: title,
+        color: _selectedColor,
+        clearColor: _selectedColor == null,
         originalCreatedAt: note.createdAt, // EC-16: orijinal tarihi koru
       );
       if (mounted) {
         setState(() => _hasUnsavedChanges = false);
-        AppSnackBar.success(context, context.l10n.noteSaved);
+        // Sessiz otomatik kayıt (seamless save)
       }
     } catch (_) {
       if (mounted) AppSnackBar.error(context, context.l10n.saveFailed);
@@ -198,39 +212,53 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
     }
   }
 
-  // ─── Geri Dönme Uyarısı ─────────────────────────────────────────────────
+  // ─── Renk Seçimi ────────────────────────────────────────────────────────
 
-  /// Kaydedilmemiş değişiklik varsa onay diyaloğu gösterir.
-  /// EC-13: eş zamanlı çağrılarda ikinci çağrı erken çıkar.
-  Future<bool> _confirmDiscard() async {
-    if (!_hasUnsavedChanges) return true;
-    if (_isConfirmingDiscard) return false; // zaten diyalog açık
-    _isConfirmingDiscard = true;
-    try {
-      final result = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(context.l10n.unsavedChangesTitle),
-          content: Text(context.l10n.unsavedChangesMessage),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(context.l10n.cancel),
+  static const List<Color> _noteColors = [
+    Color(0xFFFFF9C4), // Sarı
+    Color(0xFFB2DFDB), // Yeşil
+    Color(0xFFBBDEFB), // Mavi
+    Color(0xFFF8BBD0), // Pembe
+    Color(0xFFE1BEE7), // Mor
+  ];
+
+  void _showColorPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            child: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              alignment: WrapAlignment.center,
+              children: [
+                _ColorOption(
+                  color: null,
+                  isSelected: _selectedColor == null,
+                  onTap: () {
+                    setState(() => _selectedColor = null);
+                    _markUnsaved();
+                    Navigator.pop(context);
+                  },
+                ),
+                for (final color in _noteColors)
+                  _ColorOption(
+                    color: color,
+                    isSelected: _selectedColor == color.toARGB32(),
+                    onTap: () {
+                      setState(() => _selectedColor = color.toARGB32());
+                      _markUnsaved();
+                      Navigator.pop(context);
+                    },
+                  ),
+              ],
             ),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
-              ),
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: Text(context.l10n.discardChanges),
-            ),
-          ],
-        ),
-      );
-      return result ?? false;
-    } finally {
-      _isConfirmingDiscard = false;
-    }
+          ),
+        );
+      },
+    );
   }
 
   // ─── Resim İşlemi ───────────────────────────────────────────────────────
@@ -259,7 +287,8 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
       // EC-14: Uzantsız dosyalarda split('.').last tamamı alır → 'jpg' fallback.
       final parts = compressed.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'jpg';
-      final fileName = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
+      final fileName =
+          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesImgDir.path}/$fileName');
       await compressed.copy(dest.path);
 
@@ -280,90 +309,172 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
     if (_isLoading || controller == null) return const _LoadingScaffold();
 
     final colorScheme = Theme.of(context).colorScheme;
+    final bgColor = _selectedColor != null
+        ? Color(_selectedColor!)
+        : colorScheme.surface;
 
     return PopScope(
-      // Kaydedilmemiş değişiklik varsa sistem geri tuşunu engelle.
-      canPop: !_hasUnsavedChanges,
-      onPopInvokedWithResult: (didPop, _) async {
-        if (didPop) return;
-        final navigator = Navigator.of(context); // await öncesi yakala
-        final shouldPop = await _confirmDiscard();
-        if (shouldPop && mounted) navigator.pop();
+      canPop: true,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) return;
+        _saveNote();
       },
-      child: Scaffold(
-        backgroundColor: colorScheme.surface,
-        appBar: _buildAppBar(colorScheme),
-        body: Column(
-          children: [
-            _buildToolbar(colorScheme, controller),
-            const Divider(height: 1, thickness: 0.5),
-            Expanded(child: _buildEditor(colorScheme, controller)),
-          ],
+      child: Hero(
+        tag: widget.heroTag,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+          color: bgColor,
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: _buildAppBar(colorScheme),
+            body: Stack(
+              children: [
+                Column(
+                  children: [
+                    _buildTitleField(colorScheme),
+                    _buildDateInfo(colorScheme),
+                    Expanded(child: _buildEditor(colorScheme, controller)),
+                  ],
+                ),
+                Positioned(
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                  child: _buildFloatingToolbar(colorScheme, controller),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitleField(ColorScheme colorScheme) {
+    final fgColor = _selectedColor != null
+        ? Colors.black87
+        : colorScheme.onSurface;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+      child: TextField(
+        controller: _titleController,
+        style: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.w700,
+          color: fgColor,
+          fontFamily: 'Inter',
+          letterSpacing: -0.5,
+        ),
+        decoration: InputDecoration(
+          hintText: context.l10n.noteEditorHint,
+          hintStyle: TextStyle(color: fgColor.withValues(alpha: 0.3)),
+          border: InputBorder.none,
+          isDense: true,
+          contentPadding: EdgeInsets.zero,
+        ),
+        maxLines: null,
+        textInputAction: TextInputAction.next,
+      ),
+    );
+  }
+
+  Widget _buildDateInfo(ColorScheme colorScheme) {
+    final fgColor = _selectedColor != null
+        ? Colors.black87
+        : colorScheme.onSurface;
+    final date = _note?.updatedAt ?? DateTime.now();
+    final timeString =
+        '${date.hour.toString().padLeft(2, "0")}:${date.minute.toString().padLeft(2, "0")}';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          'Son düzenleme: $timeString',
+          style: TextStyle(
+            fontSize: 12,
+            color: fgColor.withValues(alpha: 0.5),
+            fontFamily: 'Inter',
+          ),
         ),
       ),
     );
   }
 
   PreferredSizeWidget _buildAppBar(ColorScheme colorScheme) {
-    // EC-6: Not başlığını AppBar'da dinamik göster.
-    final appBarTitle = widget.title
-        ?? (_note?.title.isNotEmpty == true ? _note!.title : null)
-        ?? context.l10n.noteEditor;
+    final fgColor = _selectedColor != null
+        ? Colors.black87
+        : colorScheme.onSurface;
 
     return AppBar(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
+      iconTheme: IconThemeData(color: fgColor),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
         tooltip: context.l10n.back,
-        onPressed: () async {
-          final navigator = Navigator.of(context); // await öncesi yakala
-          final shouldPop = await _confirmDiscard();
-          if (shouldPop && mounted) navigator.pop();
+        onPressed: () {
+          FocusScope.of(context).unfocus();
+          Navigator.of(context).pop();
         },
       ),
-      title: Text(
-        appBarTitle,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-          color: colorScheme.onSurface,
-          fontFamily: 'Inter',
-        ),
-      ),
-      centerTitle: false,
       actions: [
+        IconButton(
+          icon: Icon(Icons.color_lens_outlined, color: fgColor),
+          onPressed: _showColorPicker,
+        ),
         if (_isSaving)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: fgColor.withValues(alpha: 0.5),
+              ),
             ),
           )
         else
-          TextButton.icon(
-            onPressed: _saveNote,
-            icon: const Icon(Icons.check_rounded, size: 18),
-            label: Text(
-              context.l10n.save,
-              style: const TextStyle(fontFamily: 'Inter'),
-            ),
-            style: TextButton.styleFrom(foregroundColor: colorScheme.primary),
+          IconButton(
+            icon: Icon(Icons.check_rounded, color: fgColor),
+            onPressed: () {
+              FocusScope.of(context).unfocus();
+              Navigator.of(context).pop();
+            },
           ),
-        const SizedBox(width: 4),
       ],
     );
   }
 
-  Widget _buildToolbar(ColorScheme colorScheme, QuillController controller) {
+  Widget _buildFloatingToolbar(
+    ColorScheme colorScheme,
+    QuillController controller,
+  ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+
     return Container(
-      color: colorScheme.surface,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: QuillSimpleToolbar(
         controller: controller,
         config: QuillSimpleToolbarConfig(
+          color: Colors.transparent,
           buttonOptions: const QuillSimpleToolbarButtonOptions(
             base: QuillToolbarBaseButtonOptions(
               iconTheme: QuillIconTheme(
@@ -453,7 +564,9 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
                     children: [
                       Icon(
                         Icons.broken_image_outlined,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.35),
                         size: 28,
                       ),
                       const SizedBox(height: 4),
@@ -461,7 +574,9 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
                         context.l10n.imageLoadError,
                         style: TextStyle(
                           fontSize: 10,
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.4),
                           fontFamily: 'Inter',
                         ),
                       ),
@@ -472,13 +587,16 @@ class _NoteEditorPageState extends State<NoteEditorPage> with WidgetsBindingObse
             ),
           ),
         ],
-        customStyles: _buildEditorStyles(colorScheme, isDark),
+        customStyles: _buildEditorStyles(
+          colorScheme,
+          isDark && _selectedColor == null,
+        ),
       ),
     );
   }
 
   DefaultStyles _buildEditorStyles(ColorScheme cs, bool isDark) {
-    final bodyColor = cs.onSurface;
+    final bodyColor = _selectedColor != null ? Colors.black87 : cs.onSurface;
 
     return DefaultStyles(
       paragraph: DefaultTextBlockStyle(
@@ -599,5 +717,55 @@ class _LoadingScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(body: Center(child: CircularProgressIndicator()));
+  }
+}
+
+class _ColorOption extends StatelessWidget {
+  final Color? color;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ColorOption({
+    this.color,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color ?? (isDark ? const Color(0xFF2C2C2C) : Colors.white),
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.outlineVariant,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: isSelected
+            ? Icon(
+                Icons.check,
+                color: color == null
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Colors.black54,
+              )
+            : (color == null
+                  ? Icon(
+                      Icons.format_color_reset_outlined,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    )
+                  : null),
+      ),
+    );
   }
 }

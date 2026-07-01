@@ -9,6 +9,7 @@ class NoteModel {
     required this.id,
     required this.deltaJson,
     this.title = '',
+    this.color,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -19,18 +20,24 @@ class NoteModel {
   /// flutter_quill Delta formatındaki JSON string
   final String deltaJson;
 
+  /// Notun özel arka plan rengi (null ise varsayılan tema rengi)
+  final int? color;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
   NoteModel copyWith({
     String? title,
     String? deltaJson,
+    int? color,
+    bool clearColor = false,
     DateTime? updatedAt,
   }) {
     return NoteModel(
       id: id,
       title: title ?? this.title,
       deltaJson: deltaJson ?? this.deltaJson,
+      color: clearColor ? null : (color ?? this.color),
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -40,6 +47,7 @@ class NoteModel {
         'id': id,
         'title': title,
         'deltaJson': deltaJson,
+        'color': color,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
       };
@@ -48,6 +56,7 @@ class NoteModel {
         id: (map['id'] as String?) ?? '',   // EC-16: null-safe cast; '' → catch'e düşer
         title: (map['title'] as String?) ?? '',
         deltaJson: (map['deltaJson'] as String?) ?? '[]',
+        color: map['color'] as int?,
         createdAt: DateTime.parse(map['createdAt'] as String),
         updatedAt: DateTime.parse(map['updatedAt'] as String),
       );
@@ -60,6 +69,7 @@ class NoteModel {
     return NoteModel(
       id: '${ts}_$rnd',
       deltaJson: '[]',
+      color: null,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );

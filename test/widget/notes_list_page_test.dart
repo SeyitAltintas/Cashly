@@ -41,16 +41,16 @@ void main() {
   });
 
   Widget createWidgetUnderTest() {
-    return MaterialApp(
-      localizationsDelegates: const [
+    return const MaterialApp(
+      localizationsDelegates: [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         FlutterQuillLocalizations.delegate,
       ],
-      supportedLocales: const [Locale('en')],
-      home: const NotesListPage(),
+      supportedLocales: [Locale('en')],
+      home: NotesListPage(),
     );
   }
 
@@ -125,13 +125,13 @@ void main() {
       await tester.runAsync(() async => await repository.saveNote(note));
 
       await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('To Be Deleted'), findsOneWidget);
       expect(repository.noteCount, 1);
 
       // Swipe to delete
-      await tester.drag(find.text('To Be Deleted'), const Offset(-500.0, 0.0));
+      await tester.fling(find.byType(Dismissible).first, const Offset(-500.0, 0.0), 1000.0, warnIfMissed: false);
       await tester.pumpAndSettle();
 
       // Check it was deleted

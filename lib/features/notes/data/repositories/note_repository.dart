@@ -49,6 +49,18 @@ class NoteRepository {
     return _box!;
   }
 
+  // ─── Kullanıcı Tercihleri ────────────────────────────────────────────────
+  
+  bool get isGridView {
+    if (_box == null || !_box!.isOpen) return false;
+    return _box!.get('prefs_is_grid_view', defaultValue: false) as bool;
+  }
+
+  Future<void> setGridView(bool value) async {
+    await init();
+    await _requireBox.put('prefs_is_grid_view', value);
+  }
+
   // ─── Okuma ───────────────────────────────────────────────────────────────
 
   /// Tüm notları güncelleme tarihine göre sıralı döndürür.
@@ -63,6 +75,9 @@ class NoteRepository {
         if (raw is! Map) continue;
         final note = NoteModel.fromMap(Map<String, dynamic>.from(raw));
         if (note.id.isEmpty) continue; // EC-16: bozuk id, atla
+        // Özel key'leri filtrele
+        if (note.id == 'prefs_is_grid_view') continue;
+        
         result.add(note);
       } catch (_) {
         // Bozuk Hive girdisi — atla, listeyi bozmaya bırakma.
@@ -100,6 +115,8 @@ class NoteRepository {
     required String id,
     required String deltaJson,
     String? title,
+    int? color,
+    bool clearColor = false,
     DateTime? originalCreatedAt,
   }) async {
     await init();
@@ -117,6 +134,8 @@ class NoteRepository {
     final updated = (existing ?? fallback).copyWith(
       deltaJson: deltaJson,
       title: title ?? (existing?.title ?? ''),
+      color: color,
+      clearColor: clearColor,
       updatedAt: DateTime.now(),
     );
 

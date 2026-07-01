@@ -48,14 +48,12 @@ void main() {
         FlutterQuillLocalizations.delegate,
       ],
       supportedLocales: const [Locale('en')],
-      home: NoteEditorPage(noteId: noteId),
+      home: NoteEditorPage(noteId: noteId, heroTag: 'test_tag'),
     );
   }
 
   group('NoteEditorPage Widget Tests', () {
-    testWidgets('Initializes with empty state when no noteId is provided', (
-      tester,
-    ) async {
+    testWidgets('Initializes with empty state when no noteId is provided', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
       for (int i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 50));
@@ -63,7 +61,7 @@ void main() {
       }
 
       expect(find.byType(QuillEditor), findsOneWidget);
-      expect(find.text('Note Editor'), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
 
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 100));
@@ -82,7 +80,8 @@ void main() {
         if (find.byType(QuillEditor).evaluate().isNotEmpty) break;
       }
 
-      expect(find.text('Existing Note'), findsWidgets);
+      final titleFinder = find.byType(TextField);
+      expect(tester.widget<TextField>(titleFinder).controller?.text, 'Existing Note');
 
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 100));
@@ -95,96 +94,53 @@ void main() {
         if (find.byType(QuillEditor).evaluate().isNotEmpty) break;
       }
 
-      await tester.tap(find.byIcon(Icons.check_rounded));
+      // Tap back button, which tries to save
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.byType(SnackBar), findsOneWidget);
       expect(repository.noteCount, 0);
 
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 100));
     });
 
-    testWidgets(
-      'Displays unsaved changes dialog when navigating back (EC-13)',
-      (tester) async {
-        await tester.pumpWidget(createWidgetUnderTest());
-        for (int i = 0; i < 10; i++) {
-          await tester.pump(const Duration(milliseconds: 50));
-          if (find.byType(QuillEditor).evaluate().isNotEmpty) break;
-        }
-
-        // Simulate typing to trigger unsaved changes
-        final editor = tester.widget<QuillEditor>(find.byType(QuillEditor));
-        editor.controller.replaceText(0, 0, 'Unsaved changes', null);
-        await tester.pump();
-
-        await tester.tap(find.byTooltip('Back'));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 500));
-
-        expect(find.byType(AlertDialog), findsOneWidget);
-
-        await tester.tap(find.text('Cancel'));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 500));
-
-        expect(find.byType(AlertDialog), findsNothing);
-        expect(find.byType(QuillEditor), findsOneWidget);
-
-        await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 500));
-
-        await tester.tap(find.text('Discard'));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 500));
-
-        expect(find.byType(NoteEditorPage), findsNothing);
-      },
-    );
-
-    testWidgets(
-      'Saves note with proper title extraction including emojis (EC-23)',
-      (tester) async {
-        final note = NoteModel.empty().copyWith(
-          title: 'Old Title',
-          deltaJson: '[{"insert":"🚀 My Cool Note\\nThis is the body.\\n"}]',
-        );
-        await tester.runAsync(() async => await repository.saveNote(note));
-
-        await tester.pumpWidget(createWidgetUnderTest(noteId: note.id));
-        for (int i = 0; i < 10; i++) {
-          await tester.pump(const Duration(milliseconds: 50));
-          if (find.byType(QuillEditor).evaluate().isNotEmpty) break;
-        }
-
-        // No need to modify the document; just save it to test title extraction.
-
-        await tester.tap(find.byIcon(Icons.check_rounded));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 100));
-
-        expect(repository.noteCount, 1);
-        final savedNotes = repository.getAllNotes();
-        expect(savedNotes.first.title, '🚀 My Cool Note');
-
-        await tester.pumpWidget(const SizedBox());
-        await tester.pump(const Duration(milliseconds: 100));
-      },
-    );
-
-    testWidgets('Autosaves when app goes to background (EC-22)', (
-      tester,
-    ) async {
+    testWidgets('Navigating back automatically saves the note', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
       for (int i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 50));
         if (find.byType(QuillEditor).evaluate().isNotEmpty) break;
       }
 
-      // Simulate typing to trigger unsaved changes
+      // Type title
+      await tester.enterText(find.byType(TextField), 'Auto Save Title');
+      
+      // Type body
+      final editor = tester.widget<QuillEditor>(find.byType(QuillEditor));
+      editor.controller.replaceText(0, 0, 'Some body content', null);
+      await tester.pump();
+
+      // Navigate back
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500)); // wait for pop
+
+      expect(repository.noteCount, 1);
+      final savedNotes = repository.getAllNotes();
+      expect(savedNotes.first.title, 'Auto Save Title');
+    });
+
+    testWidgets('Autosaves when app goes to background (EC-22)', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      for (int i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+        if (find.byType(QuillEditor).evaluate().isNotEmpty) break;
+      }
+
+      // Type title
+      await tester.enterText(find.byType(TextField), 'Background Save Title');
+      
+      // Type body
       final editor = tester.widget<QuillEditor>(find.byType(QuillEditor));
       editor.controller.replaceText(0, 0, 'Autosave test', null);
       await tester.pump();
@@ -200,7 +156,7 @@ void main() {
 
       expect(repository.noteCount, 1);
       final savedNotes = repository.getAllNotes();
-      expect(savedNotes.first.title, 'Autosave test');
+      expect(savedNotes.first.title, 'Background Save Title');
 
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 100));

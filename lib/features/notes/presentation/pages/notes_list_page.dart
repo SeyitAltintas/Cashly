@@ -4,6 +4,7 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/features/notes/data/models/note_model.dart';
 import 'package:cashly/features/notes/data/repositories/note_repository.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'note_editor_page.dart';
 
 /// Kayıtlı notların listelendiği sayfa.
@@ -35,9 +36,10 @@ class _NotesListPageState extends State<NotesListPage> {
   // ─── Navigasyon ─────────────────────────────────────────────────────────
 
   Future<void> _openNote(String? noteId) async {
+    final tag = noteId != null ? 'note_hero_$noteId' : 'note_hero_new';
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => NoteEditorPage(noteId: noteId),
+        builder: (_) => NoteEditorPage(noteId: noteId, heroTag: tag),
       ),
     );
     // Hive listenable otomatik günceller — setState gerekmez.
@@ -86,6 +88,20 @@ class _NotesListPageState extends State<NotesListPage> {
         ),
       ),
       centerTitle: false,
+      actions: [
+        if (_isReady)
+          ValueListenableBuilder<Box>(
+            valueListenable: _repository.listenable(),
+            builder: (context, box, _) {
+              final isGrid = _repository.isGridView;
+              return IconButton(
+                icon: Icon(isGrid ? Icons.view_agenda_rounded : Icons.grid_view_rounded, size: 22),
+                onPressed: () => _repository.setGridView(!isGrid),
+              );
+            },
+          ),
+        const SizedBox(width: 4),
+      ],
     );
   }
 
@@ -95,7 +111,27 @@ class _NotesListPageState extends State<NotesListPage> {
       builder: (context, box, _) {
         final notes = _repository.getAllNotes();
 
+        final isGrid = _repository.isGridView;
+
         if (notes.isEmpty) return _buildEmptyState(colorScheme);
+
+        if (isGrid) {
+          return MasonryGridView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+            gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+            ),
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            itemCount: notes.length,
+            itemBuilder: (context, index) => _NoteCard(
+              note: notes[index],
+              isGrid: true,
+              onTap: () => _openNote(notes[index].id),
+              onDelete: () => _deleteNote(notes[index].id),
+            ),
+          );
+        }
 
         return ListView.separated(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
@@ -103,6 +139,7 @@ class _NotesListPageState extends State<NotesListPage> {
           separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) => _NoteCard(
             note: notes[index],
+            isGrid: false,
             onTap: () => _openNote(notes[index].id),
             onDelete: () => _deleteNote(notes[index].id),
           ),
@@ -142,6 +179,7 @@ class _NotesListPageState extends State<NotesListPage> {
 
   Widget _buildFab(ColorScheme colorScheme) {
     return FloatingActionButton.extended(
+      heroTag: 'note_hero_new',
       onPressed: () => _openNote(null),
       backgroundColor: colorScheme.primary,
       foregroundColor: colorScheme.onPrimary,
@@ -158,11 +196,13 @@ class _NotesListPageState extends State<NotesListPage> {
 
 class _NoteCard extends StatelessWidget {
   final NoteModel note;
+  final bool isGrid;
   final VoidCallback onTap;
   final Future<void> Function() onDelete;
 
   const _NoteCard({
     required this.note,
+    this.isGrid = false,
     required this.onTap,
     required this.onDelete,
   });
@@ -188,37 +228,52 @@ class _NoteCard extends StatelessWidget {
           return false; // item geri döner
         }
       },
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Ink(
-            decoration: BoxDecoration(
-              color: isDark
-                  ? colorScheme.surfaceContainerHigh
-                  : colorScheme.surfaceContainerLowest,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                width: 0.8,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: Row(
-                children: [
-                  Expanded(child: _buildContent(context, colorScheme)),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: 20,
-                    color: colorScheme.onSurface.withValues(alpha: 0.3),
-                  ),
+      child: Hero(
+        tag: 'note_hero_${note.id}',
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: Ink(
+              decoration: BoxDecoration(
+                color: note.color != null 
+                    ? Color(note.color!) 
+                    : (isDark
+                        ? colorScheme.surfaceContainerHigh
+                        : colorScheme.surfaceContainerLowest),
+                borderRadius: BorderRadius.circular(16),
+                border: isDark ? Border.all(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ) : null,
+                boxShadow: [
+                  if (!isDark && note.color == null)
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
                 ],
               ),
+              child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: isGrid 
+                ? _buildContent(context, colorScheme)
+                : Row(
+                    children: [
+                      Expanded(child: _buildContent(context, colorScheme)),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        size: 20,
+                        color: colorScheme.onSurface.withValues(alpha: 0.3),
+                      ),
+                    ],
+                  ),
             ),
           ),
         ),
+      ),
       ),
     );
   }
@@ -235,21 +290,22 @@ class _NoteCard extends StatelessWidget {
       children: [
         Text(
           title,
-          maxLines: 1,
+          maxLines: isGrid ? 5 : 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-            color: colorScheme.onSurface,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: note.color != null ? Colors.black87 : colorScheme.onSurface,
             fontFamily: 'Inter',
           ),
         ),
-        const SizedBox(height: 4),
+        if (isGrid) const SizedBox(height: 12),
+        if (!isGrid) const SizedBox(height: 4),
         Text(
           context.l10n.noteLastEdited(dateStr),
           style: TextStyle(
             fontSize: 12,
-            color: colorScheme.onSurface.withValues(alpha: 0.45),
+            color: note.color != null ? Colors.black54 : colorScheme.onSurface.withValues(alpha: 0.45),
             fontFamily: 'Inter',
           ),
         ),
