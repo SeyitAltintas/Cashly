@@ -1,8 +1,10 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cashly/features/streak/data/services/streak_service.dart';
 import 'package:cashly/features/streak/data/models/streak_model.dart';
+import 'package:cashly/features/notes/data/repositories/note_repository.dart';
+import 'package:cashly/features/notes/data/models/note_model.dart';
 
 /// Geliştirici ve test amaçlı gerçekçi sahte veri üreticisi.
 ///
@@ -255,6 +257,14 @@ class MockDataService {
 
     // 5. Streak Sahte Verisi
     final streakData = _generateStreakData(now);
+
+    // 6. Notlar Sahte Verisi
+    final noteRepo = NoteRepository();
+    await noteRepo.init();
+    final mockNotes = _generateMockNotes(now);
+    for (final note in mockNotes) {
+      await noteRepo.saveNote(note);
+    }
 
     // Lokal veritabanını da (Hive) zorla güncelle ki UI anında tepki versin
     await StreakService.saveStreakData(userId, RankData.fromMap(streakData));
@@ -698,7 +708,7 @@ class MockDataService {
     final currentStreak = 5 + _random.nextInt(20);
     final longestStreak = currentStreak + _random.nextInt(30);
     final totalLoginDays = longestStreak + 20 + _random.nextInt(100);
-    
+
     // UI testleri için tamamen rastgele rank üret (Her seviyeyi test edebilmek için 0-7500 XP arası)
     int calculatedXp = _random.nextInt(7500);
 
@@ -945,6 +955,16 @@ class MockDataService {
     debugPrint('[MockDataService] Mock veriler temizleniyor...');
     final userDoc = _firestore.collection('users').doc(userId);
 
+    // Local Notları temizle
+    final noteRepo = NoteRepository();
+    await noteRepo.init();
+    final allNotes = noteRepo.getAllNotes();
+    for (final note in allNotes) {
+      if (note.id.startsWith('mock_note_')) {
+        await noteRepo.deleteNote(note.id);
+      }
+    }
+
     // Koleksiyon dökümanları (mock_ prefix'li olanlar)
     final collections = [
       'expenses',
@@ -1005,5 +1025,64 @@ class MockDataService {
     }
 
     debugPrint('[MockDataService] Mock veriler temizlendi.');
+  }
+
+  List<NoteModel> _generateMockNotes(DateTime now) {
+    final titles = [
+      'Alışveriş Listesi',
+      'Projeler ve Fikirler',
+      'Okunacak Kitaplar',
+      'Toplantı Notları',
+      'Yatırım Stratejisi',
+      'Seyahat Planı',
+      'Günün Sözü',
+      'Antrenman Programı',
+      'Yemek Tarifi',
+      'Kişisel Gelişim',
+    ];
+    final mockNotesContents = [
+      '[{"insert":"Günlük Plan - Pazartesi\\n","attributes":{"header":1}},{"insert":"Bugün halledilmesi gereken önemli işler var. Özellikle faturaların yatırılması gerekiyor. Elektrik faturası bu ay çok yüksek gelmiş, incelemem lazım.\\nMarket alışverişi listesi:\\n"},{"insert":"Domates","attributes":{"list":"bullet"}},{"insert":"\\n"},{"insert":"Salatalık","attributes":{"list":"bullet"}},{"insert":"\\n"},{"insert":"Yumurta (30\'lu)","attributes":{"list":"bullet"}},{"insert":"\\n"},{"insert":"Süt (Laktoksuz)","attributes":{"list":"bullet"}},{"insert":"\\n"},{"insert":"Ayrıca arabayı yıkamaya götürmem lazım. Sonra da spora geçeceğim. \\n"}]',
+      '[{"insert":"Projeler ve Fikirler\\n","attributes":{"header":2}},{"insert":"Yeni bir mobil uygulama fikri geldi aklıma. İnsanların günlük su tüketimini takip edebilecekleri, oyunlaştırılmış bir yapı. Adını "},{"insert":"WaterQuest","attributes":{"bold":true}},{"insert":" koyabilirim.\\n\\nÖzellikler:\\n- Kullanıcılar kendi avatarlarını seçebilecek.\\n- İçtikleri her bardak su için XP kazanacaklar.\\n- Arkadaşlarıyla liderlik tablosunda yarışabilecekler.\\n\\nYapılacak ilk iş, bir tasarım prototipi hazırlamak. "},{"insert":"Figma","attributes":{"italic":true}},{"insert":" üzerinden tasarımlara başlayacağım yarın sabah.\\n"}]',
+      '[{"insert":"Okunacak Kitaplar Listesi\\n","attributes":{"header":2}},{"insert":"Bu yıl bitirmeyi hedeflediğim kitapların listesi:\\n1. Atomik Alışkanlıklar - James Clear\\n2. 1984 - George Orwell\\n3. Sefiller - Victor Hugo\\n4. Sapiens - Yuval Noah Harari\\n\\nSapiens\'e geçen hafta başladım, gerçekten ufuk açıcı bir kitap. İnsanın tarihsel gelişimini sadece biyolojik değil sosyolojik ve psikolojik olarak da harika özetlemiş.\\n"}]',
+      '[{"insert":"Toplantı Notları - 15 Ekim\\n","attributes":{"header":3}},{"insert":"Toplantı katılımcıları: Ali, Ayşe, Mehmet.\\n\\nKonu: Yıl sonu bütçe değerlendirmesi.\\n\\nNotlar:\\n- Pazarlama bütçesinde %15\'lik bir artış planlanıyor.\\n- Yeni yıl kampanyası için ajansla görüşülecek. "},{"insert":"Acil!","attributes":{"bold":true,"color":"#ff0000"}},{"insert":"\\n- Sunucu maliyetlerini düşürmek için bulut sağlayıcısı ile yeniden pazarlık yapılacak.\\n\\nMehmet Bey gelecek hafta için detaylı bir rapor hazırlayacak.\\n"}]',
+      '[{"insert":"Yatırım Stratejisi 2026\\n","attributes":{"header":2}},{"insert":"Piyasalardaki dalgalanmalar nedeniyle portföyü biraz daha defansif hale getirmek mantıklı olabilir.\\n- "},{"insert":"Altın (XAU):","attributes":{"bold":true}},{"insert":" Portföyün %20\'si altına kaydırılabilir. Güvenli liman olmaya devam ediyor.\\n- "},{"insert":"Kripto (BTC):","attributes":{"bold":true}},{"insert":" Riskli varlıklar için %10\'luk bir dilim ayrıldı. Kısa vadeli al-sat yerine uzun vadeli tutmak daha mantıklı görünüyor.\\n- "},{"insert":"Hisse Senetleri:","attributes":{"bold":true}},{"insert":" Teknoloji hisselerindeki düşüşü alım fırsatı olarak değerlendireceğim.\\n\\nNot: Yatırım tavsiyesi değildir, tamamen kendi analizim!\\n"}]',
+      '[{"insert":"Seyahat Planı: İtalya Rüyası\\n","attributes":{"header":1}},{"insert":"Gelecek yaz için harika bir İtalya rotası çıkardım:\\n\\n1. Gün: Roma\\nKolezyum, Pantheon, Trevi Çeşmesi. Akşam Trastevere\'de pizza.\\n2. Gün: Floransa\\nUffizi Galerisi, Duomo. Toskana şarap tadımı.\\n3. Gün: Venedik\\nSan Marco Meydanı, Gondol turu. Akşam Büyük Kanal\'da yürüyüş.\\n\\nBütçe:\\nUçak biletleri yaklaşık 15.000 TL tutuyor. Konaklama için Airbnb seçeneklerini değerlendirmem lazım.\\n"}]',
+      '[{"insert":"Günün Sözü ve Motivasyon\\n","attributes":{"header":2}},{"insert":"\\"Hiçbir şeyden asla vazgeçme; çünkü vazgeçenler, yalnızca yenilgiyi kabul edenlerdir.\\"\\n\\nBugün kendimi biraz yorgun hissetsem de hedeflerimden vazgeçmeye niyetim yok. Küçük adımlarla da olsa ilerlemeye devam edeceğim. Dün dündür, bugün yeni bir gün. Başarabilirim!\\n"}]',
+      '[{"insert":"Fitness Antrenman Programı\\n","attributes":{"header":2}},{"insert":"Pazartesi: Göğüs & Arka Kol\\n- Bench Press 4x10\\n- Incline Dumbbell Press 3x12\\n- Triceps Pushdown 4x12\\n\\nÇarşamba: Sırt & Pazu\\n- Lat Pulldown 4x10\\n- Barbell Row 3x12\\n- Bicep Curl 4x12\\n\\nCuma: Bacak & Omuz\\n- Squat 4x10\\n- Leg Press 3x12\\n- Overhead Press 4x10\\n\\n"}]',
+      '[{"insert":"Yemek Tarifi: Fırında Somon\\n","attributes":{"header":2}},{"insert":"Malzemeler:\\n- 2 dilim somon fileto\\n- 1 adet limon\\n- 2 diş sarımsak\\n- Zeytinyağı, tuz, karabiber, kekik\\n\\nHazırlanışı:\\n1. Somonları yıkayıp kurulayın.\\n2. Zeytinyağı, ezilmiş sarımsak ve baharatlarla bir sos hazırlayıp somonların her yerine sürün.\\n3. Üzerine limon dilimleri yerleştirin.\\n4. Önceden ısıtılmış 200 derece fırında 20-25 dakika pişirin.\\n\\nAfiyet olsun! Yanına bol yeşillikli bir salata çok iyi gider.\\n"}]',
+      '[{"insert":"Kişisel Gelişim Notları\\n","attributes":{"header":1}},{"insert":"Kendimi geliştirmek için bu ay odaklanacağım konular:\\n\\n1. "},{"insert":"Yabancı Dil:","attributes":{"bold":true}},{"insert":" Her gün en az 30 dakika İngilizce pratik yapılacak. Duolingo veya Cambly kullanılabilir.\\n2. "},{"insert":"Yazılım:","attributes":{"bold":true}},{"insert":" Flutter ile yeni baştan bir proje geliştirmeye başlanacak. Durum yönetimi olarak Riverpod veya Bloc derinlemesine öğrenilecek.\\n3. "},{"insert":"Meditasyon:","attributes":{"bold":true}},{"insert":" Sabahları uyandığımda 10 dakika nefes egzersizi ve meditasyon yapılacak. Stres yönetimi için çok önemli.\\n"}]',
+    ];
+
+    final colors = [
+      null,
+      0xFFFFCDD2,
+      0xFFC8E6C9,
+      0xFFBBDEFB,
+      0xFFFFF9C4,
+      0xFFE1BEE7,
+      null,
+      null,
+      0xFFB2DFDB,
+      0xFFFFE0B2,
+    ];
+
+    final notes = <NoteModel>[];
+    for (int i = 0; i < 10; i++) {
+      notes.add(
+        NoteModel(
+          id: 'mock_note_${i}_${_random.nextInt(99999)}',
+          title: titles[i],
+          deltaJson: mockNotesContents[i],
+          color: colors[i],
+          createdAt: now.subtract(
+            Duration(days: _random.nextInt(60), hours: _random.nextInt(24)),
+          ),
+          updatedAt: now.subtract(
+            Duration(days: _random.nextInt(10), hours: _random.nextInt(24)),
+          ),
+        ),
+      );
+    }
+    return notes;
   }
 }
