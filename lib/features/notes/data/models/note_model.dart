@@ -11,6 +11,7 @@ class NoteModel {
     this.title = '',
     this.color,
     this.isPinned = false,
+    this.categoryId,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -26,6 +27,9 @@ class NoteModel {
   
   final bool isPinned;
 
+  /// Notun dahil olduğu kategori (etiket) ID'si
+  final String? categoryId;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -35,6 +39,8 @@ class NoteModel {
     int? color,
     bool clearColor = false,
     bool? isPinned,
+    String? categoryId,
+    bool clearCategory = false,
     DateTime? updatedAt,
   }) {
     return NoteModel(
@@ -43,6 +49,7 @@ class NoteModel {
       deltaJson: deltaJson ?? this.deltaJson,
       color: clearColor ? null : (color ?? this.color),
       isPinned: isPinned ?? this.isPinned,
+      categoryId: clearCategory ? null : (categoryId ?? this.categoryId),
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -54,6 +61,7 @@ class NoteModel {
         'deltaJson': deltaJson,
         'color': color,
         'isPinned': isPinned,
+        'categoryId': categoryId,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
       };
@@ -64,6 +72,10 @@ class NoteModel {
         deltaJson: (map['deltaJson'] as String?) ?? '[]',
         color: map['color'] as int?,
         isPinned: (map['isPinned'] as bool?) ?? false,
+        categoryId: map['categoryId'] as String? ?? 
+            ((map['categoryIds'] as List<dynamic>?)?.isNotEmpty == true 
+                ? (map['categoryIds'] as List<dynamic>).first.toString() 
+                : null),
         createdAt: DateTime.parse(map['createdAt'] as String),
         updatedAt: DateTime.parse(map['updatedAt'] as String),
       );
@@ -76,6 +88,7 @@ class NoteModel {
       deltaJson: '[]',
       color: null,
       isPinned: false,
+      categoryId: null,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );

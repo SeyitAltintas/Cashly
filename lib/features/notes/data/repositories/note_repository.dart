@@ -133,6 +133,28 @@ class NoteRepository {
     }
   }
 
+  /// Removes a specific category from all notes that have it.
+  Future<void> removeCategoryFromNotes(String categoryId) async {
+    await init();
+    final updates = <String, Map<String, dynamic>>{};
+    
+    for (final key in _requireBox.keys) {
+      if (key == 'prefs_is_grid_view') continue;
+      final raw = _requireBox.get(key);
+      if (raw is Map) {
+        final noteMap = Map<String, dynamic>.from(raw);
+        if (noteMap['categoryId'] == categoryId) {
+          noteMap['categoryId'] = null;
+          updates[key as String] = noteMap;
+        }
+      }
+    }
+    
+    if (updates.isNotEmpty) {
+      await _requireBox.putAll(updates);
+    }
+  }
+
   /// Sadece delta ve başlık günceller; createdAt değişmez.
   ///
   /// [originalCreatedAt]: Editor'den iletilir. Not dışardan silinmişse
@@ -143,30 +165,39 @@ class NoteRepository {
     String? title,
     int? color,
     bool clearColor = false,
+    String? categoryId,
+    bool clearCategory = false,
     DateTime? originalCreatedAt,
   }) async {
     await init();
 
     // NoteModel.empty() yeni bir ID üretir — bunun yerine sabit ID ile fallback.
-    final existing = getNoteById(id);
-    final fallback = NoteModel(
-      id: id,
-      deltaJson: '[]',
-      // EC-16: Editorden geçilen gerçek tarih; yoksa şimdi.
-      createdAt: originalCreatedAt ?? DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
+    var note = getNoteById(id) ??
+        NoteModel(
+          id: id,
+          title: '',
+          deltaJson: deltaJson,
+          createdAt: originalCreatedAt ?? DateTime.now(),
+          updatedAt: DateTime.now(),
+          categoryId: null,
+        );
 
-    final updated = (existing ?? fallback).copyWith(
+    note = note.copyWith(
       deltaJson: deltaJson,
-      title: title ?? (existing?.title ?? ''),
-      color: color,
-      clearColor: clearColor,
+      title: title,
       updatedAt: DateTime.now(),
+      color: clearColor ? null : color,
+      categoryId: clearCategory ? null : categoryId,
     );
+    if (clearCategory) {
+      note = note.copyWith(clearCategory: true);
+    }
+    if (clearColor) {
+      note = note.copyWith(clearColor: true);
+    }
 
-    await _requireBox.put(id, updated.toMap());
-    return updated;
+    await saveNote(note);
+    return note;
   }
 
   // ─── Silme ───────────────────────────────────────────────────────────────

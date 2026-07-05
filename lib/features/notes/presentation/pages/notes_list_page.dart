@@ -4,7 +4,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/features/notes/data/models/note_model.dart';
+import 'package:cashly/features/notes/data/models/note_category_model.dart';
 import 'package:cashly/features/notes/data/repositories/note_repository.dart';
+import 'package:cashly/features/notes/data/repositories/note_category_repository.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'note_editor_page.dart';
 
@@ -21,7 +23,11 @@ class NotesListPage extends StatefulWidget {
 
 class _NotesListPageState extends State<NotesListPage> {
   final NoteRepository _repository = NoteRepository();
+  final NoteCategoryRepository _categoryRepository = NoteCategoryRepository();
   bool _isReady = false;
+  List<NoteCategoryModel> _allCategories = [];
+
+  String? _selectedFilterId;
 
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
@@ -84,7 +90,13 @@ class _NotesListPageState extends State<NotesListPage> {
 
   Future<void> _initRepository() async {
     await _repository.init();
-    if (mounted) setState(() => _isReady = true);
+    await _categoryRepository.init();
+    if (mounted) {
+      setState(() {
+        _allCategories = _categoryRepository.getAllCategories();
+        _isReady = true;
+      });
+    }
   }
 
   // ─── Navigasyon ─────────────────────────────────────────────────────────
@@ -103,13 +115,17 @@ class _NotesListPageState extends State<NotesListPage> {
 
   Widget _buildBottomActionBar(ColorScheme colorScheme) {
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
-    final barHeight = 64.0 + bottomPadding;
+    final barHeight = 72.0 + bottomPadding;
 
     bool allPinned = false;
     if (_isSelectionMode) {
       final selectedNotes = _repository.getAllNotes().where((n) => _selectedNoteIds.contains(n.id));
       allPinned = selectedNotes.isNotEmpty && selectedNotes.every((n) => n.isPinned);
     }
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF121212) : Colors.white;
+    final iconColor = isDark ? Colors.white70 : Colors.black87;
 
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 250),
@@ -120,7 +136,7 @@ class _NotesListPageState extends State<NotesListPage> {
       height: barHeight,
       child: Container(
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHigh,
+          color: bgColor,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -133,27 +149,71 @@ class _NotesListPageState extends State<NotesListPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            TextButton.icon(
-              onPressed: () async {
+            _buildBottomAction(
+              icon: Icons.lock_outline_rounded,
+              label: 'Gizle',
+              color: iconColor,
+              onTap: () {},
+            ),
+            _buildBottomAction(
+              icon: allPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
+              label: allPinned ? context.l10n.unpinNote : context.l10n.pinNote,
+              color: iconColor,
+              onTap: () async {
                 final ids = _selectedNoteIds.toList();
                 final newState = !allPinned;
-                _clearSelection();
                 await _repository.setPinStateForNotes(ids, newState);
               },
-              icon: Icon(allPinned ? Icons.push_pin_outlined : Icons.push_pin_rounded, color: colorScheme.onSurface),
-              label: Text(allPinned ? context.l10n.unpinNote : context.l10n.pinNote, style: TextStyle(color: colorScheme.onSurface, fontFamily: 'Inter', fontWeight: FontWeight.w600)),
             ),
-            TextButton.icon(
-              onPressed: () async {
+            _buildBottomAction(
+              icon: Icons.drive_file_move_outline,
+              label: 'Şuraya taşı',
+              color: iconColor,
+              onTap: () {
+                _showBulkAssignTagDialog(colorScheme);
+              },
+            ),
+            _buildBottomAction(
+              icon: Icons.delete_outline_rounded,
+              label: context.l10n.delete,
+              color: iconColor,
+              onTap: () async {
                 final ids = _selectedNoteIds.toList();
                 _clearSelection();
                 await _repository.deleteNotes(ids);
                 if (mounted) AppSnackBar.success(context, context.l10n.noteDeleteConfirm);
               },
-              icon: Icon(Icons.delete_outline_rounded, color: colorScheme.error),
-              label: Text(context.l10n.delete, style: TextStyle(color: colorScheme.error, fontFamily: 'Inter', fontWeight: FontWeight.w600)),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomAction({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: color, size: 24),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(color: color, fontSize: 12, fontFamily: 'Inter', fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -217,6 +277,7 @@ class _NotesListPageState extends State<NotesListPage> {
                 Column(
                   children: [
                     _buildSearchBar(colorScheme),
+                    _buildFilterChips(colorScheme),
                     Expanded(child: _buildBody(colorScheme)),
                   ],
                 ),
@@ -308,6 +369,12 @@ class _NotesListPageState extends State<NotesListPage> {
             final contentMatch = _extractPlainText(note.deltaJson).contains(_searchQuery);
             return titleMatch || contentMatch;
           }).toList();
+        }
+
+        if (_selectedFilterId == 'pinned') {
+          notes = notes.where((note) => note.isPinned).toList();
+        } else if (_selectedFilterId != null) {
+          notes = notes.where((note) => note.categoryId == _selectedFilterId).toList();
         }
 
         final isGrid = _repository.isGridView;
@@ -403,6 +470,315 @@ class _NotesListPageState extends State<NotesListPage> {
         context.l10n.newNote,
         style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500),
       ),
+    );
+  }
+
+  Widget _buildFilterChips(ColorScheme colorScheme) {
+    if (_isSelectionMode) return const SizedBox.shrink();
+
+    return SizedBox(
+      height: 48,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: [
+          _buildChip(
+            label: context.l10n.allNotesFilter, 
+            isSelected: _selectedFilterId == null,
+            onSelected: (_) {
+              setState(() {
+                _selectedFilterId = null;
+              });
+            },
+            colorScheme: colorScheme,
+          ),
+          const SizedBox(width: 8),
+          _buildChip(
+            label: context.l10n.pinnedNotesFilter, 
+            isSelected: _selectedFilterId == 'pinned',
+            onSelected: (_) {
+              setState(() {
+                _selectedFilterId = 'pinned';
+              });
+            },
+            colorScheme: colorScheme,
+          ),
+
+          const SizedBox(width: 8),
+          for (final cat in _allCategories) ...[
+            GestureDetector(
+              onLongPress: () => _showDeleteCategoryDialog(cat),
+              child: _buildChip(
+                label: cat.name,
+                isSelected: _selectedFilterId == cat.id,
+                onSelected: (_) {
+                  setState(() {
+                    _selectedFilterId = cat.id;
+                  });
+                },
+                colorScheme: colorScheme,
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
+          ActionChip(
+            label: Text('+ ${context.l10n.newNoteTag}', style: const TextStyle(fontFamily: 'Inter', fontSize: 13)),
+            onPressed: _showCreateCategoryDialog,
+            backgroundColor: colorScheme.surface,
+            side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChip({
+    required String label,
+    required bool isSelected,
+    required ValueChanged<bool> onSelected,
+    required ColorScheme colorScheme,
+  }) {
+    return FilterChip(
+      label: Text(label, style: TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500)),
+      selected: isSelected,
+      onSelected: onSelected,
+      showCheckmark: false,
+      backgroundColor: colorScheme.surface,
+      selectedColor: colorScheme.primaryContainer,
+      side: isSelected ? BorderSide.none : BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+    );
+  }
+
+  void _showDeleteCategoryDialog(NoteCategoryModel cat) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+          contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+          actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          title: const Text('Kategoriyi Sil', style: TextStyle(fontFamily: 'Inter', fontSize: 20, fontWeight: FontWeight.w700)),
+          content: Text(
+            '"${cat.name}" kategorisini silmek istediğinize emin misiniz?\n\nBu kategoriye ait notlar silinmeyecek, sadece kategorisiz kalacaktır.',
+            style: TextStyle(fontFamily: 'Inter', color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8), fontSize: 15),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text(context.l10n.cancel, style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
+            ),
+            FilledButton(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                await _categoryRepository.deleteCategory(cat.id);
+                await _repository.removeCategoryFromNotes(cat.id);
+                setState(() {
+                  if (_selectedFilterId == cat.id) _selectedFilterId = null;
+                  _allCategories = _categoryRepository.getAllCategories();
+                });
+                if (mounted) AppSnackBar.success(context, 'Kategori silindi');
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text(context.l10n.delete, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      }
+    );
+  }
+
+  void _showCreateCategoryDialog() {
+    final TextEditingController nameController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+              contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+              actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+              title: Text(context.l10n.newNoteTag, style: const TextStyle(fontFamily: 'Inter', fontSize: 20, fontWeight: FontWeight.w700)),
+              content: SizedBox(
+                width: 360,
+                child: TextField(
+                  controller: nameController,
+                  autofocus: true,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    hintText: context.l10n.tagName,
+                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                    filled: true,
+                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text(context.l10n.cancel, style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    if (nameController.text.trim().isNotEmpty) {
+                      final newCat = NoteCategoryModel.create(
+                        name: nameController.text.trim(),
+                      );
+                      await _categoryRepository.saveCategory(newCat);
+                      setState(() {
+                        _allCategories = _categoryRepository.getAllCategories();
+                      });
+                      if (!ctx.mounted) return;
+                      Navigator.pop(ctx);
+                    }
+                  },
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text(context.l10n.createNoteTag, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold)),
+                ),
+              ],
+            );
+          }
+        );
+      }
+    );
+  }
+
+  void _showBulkAssignTagDialog(ColorScheme colorScheme) {
+    if (_allCategories.isEmpty) {
+      // It's okay to proceed because they might want to just remove the category
+      // AppSnackBar.error(context, context.l10n.tagAssignWarning);
+      // return;
+    }
+    
+    // Basit bir tag seçim dialogu
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
+              title: Text(context.l10n.assignTag, style: const TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w600)),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _allCategories.length,
+                        itemBuilder: (context, index) {
+                          final cat = _allCategories[index];
+                          return ListTile(
+                            title: Row(
+                              children: [
+                                Text(cat.name, style: const TextStyle(fontFamily: 'Inter')),
+                              ],
+                            ),
+                            onTap: () async {
+                              if (!ctx.mounted) return;
+                              Navigator.pop(ctx);
+                              final ids = _selectedNoteIds.toList();
+                              for (final id in ids) {
+                                final note = _repository.getNoteById(id);
+                                if (note != null) {
+                                  if (note.categoryId != cat.id) {
+                                    await _repository.updateNote(
+                                      id: note.id,
+                                      deltaJson: note.deltaJson,
+                                      title: note.title,
+                                      color: note.color,
+                                      clearColor: note.color == null,
+                                      categoryId: cat.id,
+                                      originalCreatedAt: note.createdAt,
+                                    );
+                                  }
+                                }
+                              }
+                              _clearSelection();
+                              if (context.mounted) {
+                                AppSnackBar.success(context, context.l10n.tagAssignedSuccess);
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    if (_selectedNoteIds.any((id) => _repository.getNoteById(id)?.categoryId != null)) ...[
+                      const Divider(),
+                      ListTile(
+                        leading: Icon(Icons.layers_clear, color: colorScheme.error),
+                        title: Text(context.l10n.removeCategory, style: TextStyle(fontFamily: 'Inter', color: colorScheme.error)),
+                        onTap: () async {
+                          if (!ctx.mounted) return;
+                          Navigator.pop(ctx);
+                          final ids = _selectedNoteIds.toList();
+                          for (final id in ids) {
+                            final note = _repository.getNoteById(id);
+                            if (note != null && note.categoryId != null) {
+                              await _repository.updateNote(
+                                id: note.id,
+                                deltaJson: note.deltaJson,
+                                title: note.title,
+                                color: note.color,
+                                clearColor: note.color == null,
+                                categoryId: null,
+                                clearCategory: true,
+                                originalCreatedAt: note.createdAt,
+                              );
+                            }
+                          }
+                          _clearSelection();
+                          if (context.mounted) {
+                            AppSnackBar.success(context, context.l10n.tagAssignedSuccess);
+                          }
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(context.l10n.cancel, style: const TextStyle(fontFamily: 'Inter')),
+                ),
+              ],
+            );
+          }
+        );
+      }
     );
   }
 }

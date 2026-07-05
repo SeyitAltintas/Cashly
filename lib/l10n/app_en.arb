@@ -1348,6 +1348,19 @@
       "count": { "type": "String" }
     }
   },
+  "noteTags": "Categories",
+  "addNoteTag": "Select Category",
+  "newNoteTag": "New Category",
+  "createNoteTag": "Create New Category",
+  "noTagsYet": "No categories yet.",
+  "tagName": "Category Name",
+  "tagColorOptional": "Color (Optional)",
+  "assignTag": "Assign Category",
+  "allNotesFilter": "All",
+  "pinnedNotesFilter": "Pinned",
+  "tagAssignWarning": "You must create a category first.",
+  "tagAssignedSuccess": "Category successfully assigned",
+  "removeCategory": "Remove Category",
   "yesterday": "yesterday",
   "daysAgo": "{count} days ago",
   "@daysAgo": {

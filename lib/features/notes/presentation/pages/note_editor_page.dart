@@ -13,7 +13,9 @@ import 'package:cashly/core/extensions/l10n_extensions.dart';
 import 'package:cashly/core/services/image_compression_service.dart';
 import 'package:cashly/core/widgets/app_snackbar.dart';
 import 'package:cashly/features/notes/data/models/note_model.dart';
+import 'package:cashly/features/notes/data/models/note_category_model.dart';
 import 'package:cashly/features/notes/data/repositories/note_repository.dart';
+import 'package:cashly/features/notes/data/repositories/note_category_repository.dart';
 
 // ─── Sabitler ───────────────────────────────────────────────────────────────
 
@@ -52,6 +54,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   Timer? _autoSaveTimer;
   final TextEditingController _titleController = TextEditingController();
 
+  StreamSubscription? _docSubscription;
+
   final FocusNode _editorFocusNode = FocusNode();
   final FocusNode _titleFocusNode = FocusNode();
   final ScrollController _editorScrollController = ScrollController();
@@ -61,6 +65,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   bool _isMediaMode = false;
   final ImagePicker _imagePicker = ImagePicker();
   final NoteRepository _repository = NoteRepository();
+  final NoteCategoryRepository _categoryRepository = NoteCategoryRepository();
+  List<NoteCategoryModel> _allCategories = [];
 
   bool _isSaving = false;
   bool _isLoading = true;
@@ -78,6 +84,16 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _editorFocusNode.addListener(_onFocusChange);
     _titleFocusNode.addListener(_onFocusChange);
     _loadNote();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    await _categoryRepository.init();
+    if (mounted) {
+      setState(() {
+        _allCategories = _categoryRepository.getAllCategories();
+      });
+    }
   }
 
   void _onFocusChange() {
@@ -92,6 +108,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     WidgetsBinding.instance.removeObserver(this);
     _controller?.removeListener(_onDocumentChanged);
     _autoSaveTimer?.cancel();
+    _docSubscription?.cancel();
     _titleController.dispose();
     _controller?.dispose();
     _editorFocusNode.removeListener(_onFocusChange);
@@ -136,7 +153,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
 
     final controller = _buildController(note.deltaJson);
-    controller.addListener(_onDocumentChanged);
+    _docSubscription = controller.document.changes.listen((_) {
+      if (_isLoading) return;
+      _markUnsaved();
+      _scheduleAutoSave();
+    });
 
     // mounted kontrolü: dispose erken çağrılmışsa state güncelleme yapma.
     if (!mounted) {
@@ -150,7 +171,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _selectedColor = note.color;
       _isLoading = false;
       _titleController.text = note.title;
-      _titleController.addListener(_scheduleAutoSave);
     });
   }
 
@@ -169,12 +189,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   }
 
   /// Her belge değişikliğinde kaydedilmemiş değişiklik işareti set edilir.
-  /// EC-12: Yükleme sırasında Quill'in kendi olaylarını filtrele.
-  void _onDocumentChanged() {
-    if (_isLoading) return; // yükleme bitmeden tetiklenen event — görmezden gel
-    _markUnsaved();
-    _scheduleAutoSave();
-  }
+  /// Artık kullanılmıyor (StreamSubscription kullanılıyor).
+  void _onDocumentChanged() {}
 
   void _markUnsaved() {
     if (!_hasUnsavedChanges && mounted) {
@@ -454,25 +470,25 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   void _insertMedia(String path, bool isVideo) {
     if (_controller == null) return;
-    
+
     final index = _controller!.selection.baseOffset;
     final length = _controller!.selection.extentOffset - index;
-    
+
     if (length > 0) {
       _controller!.document.delete(index, length);
     }
-    
+
     _controller!.document.insert(
-      index, 
+      index,
       isVideo ? BlockEmbed.video(path) : BlockEmbed.image(path),
     );
-    
+
     _controller!.document.insert(index + 1, '\n');
     _controller!.updateSelection(
-      TextSelection.collapsed(offset: index + 2), 
+      TextSelection.collapsed(offset: index + 2),
       ChangeSource.local,
     );
-    
+
     _markUnsaved();
   }
 
@@ -480,10 +496,15 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     final selection = _controller!.selection;
     String selectedText = '';
     if (selection.isValid && !selection.isCollapsed) {
-      selectedText = _controller!.document.getPlainText(selection.start, selection.end - selection.start);
+      selectedText = _controller!.document.getPlainText(
+        selection.start,
+        selection.end - selection.start,
+      );
     }
-    
-    final TextEditingController textController = TextEditingController(text: selectedText);
+
+    final TextEditingController textController = TextEditingController(
+      text: selectedText,
+    );
     final TextEditingController linkController = TextEditingController();
 
     showDialog(
@@ -491,8 +512,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       builder: (context) {
         final cs = Theme.of(context).colorScheme;
         return AlertDialog(
-          backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
-          title: const Text('Bağlantı Ekle', style: TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w600)),
+          backgroundColor: Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF1E1E1E)
+              : Colors.white,
+          title: const Text(
+            'Bağlantı Ekle',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
@@ -502,9 +532,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   controller: textController,
                   decoration: InputDecoration(
                     labelText: 'Görünecek Metin (İsteğe Bağlı)',
-                    labelStyle: const TextStyle(fontFamily: 'Inter', fontSize: 14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    labelStyle: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -513,9 +551,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   decoration: InputDecoration(
                     labelText: 'Web Bağlantısı (URL)',
                     hintText: 'https://...',
-                    labelStyle: const TextStyle(fontFamily: 'Inter', fontSize: 14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    labelStyle: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                 ),
               ],
@@ -524,7 +570,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('İptal', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.6), fontFamily: 'Inter')),
+              child: Text(
+                'İptal',
+                style: TextStyle(
+                  color: cs.onSurface.withValues(alpha: 0.6),
+                  fontFamily: 'Inter',
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -533,23 +585,52 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 if (url.isNotEmpty) {
                   if (selection.isValid && !selection.isCollapsed) {
                     if (text.isNotEmpty && text != selectedText) {
-                      _controller!.replaceText(selection.start, selection.end - selection.start, text, TextSelection.collapsed(offset: selection.start + text.length));
-                      _controller!.formatText(selection.start, text.length, LinkAttribute(url));
+                      _controller!.replaceText(
+                        selection.start,
+                        selection.end - selection.start,
+                        text,
+                        TextSelection.collapsed(
+                          offset: selection.start + text.length,
+                        ),
+                      );
+                      _controller!.formatText(
+                        selection.start,
+                        text.length,
+                        LinkAttribute(url),
+                      );
                     } else {
                       _controller!.formatSelection(LinkAttribute(url));
                     }
                   } else {
                     final insertText = text.isNotEmpty ? text : url;
-                    final index = selection.isValid ? selection.baseOffset : _controller!.document.length;
+                    final index = selection.isValid
+                        ? selection.baseOffset
+                        : _controller!.document.length;
                     _controller!.document.insert(index, insertText);
-                    _controller!.formatText(index, insertText.length, LinkAttribute(url));
-                    _controller!.updateSelection(TextSelection.collapsed(offset: index + insertText.length), ChangeSource.local);
+                    _controller!.formatText(
+                      index,
+                      insertText.length,
+                      LinkAttribute(url),
+                    );
+                    _controller!.updateSelection(
+                      TextSelection.collapsed(
+                        offset: index + insertText.length,
+                      ),
+                      ChangeSource.local,
+                    );
                   }
                   _markUnsaved();
                 }
                 Navigator.pop(context);
               },
-              child: Text('Ekle', style: TextStyle(color: cs.primary, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+              child: Text(
+                'Ekle',
+                style: TextStyle(
+                  color: cs.primary,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Inter',
+                ),
+              ),
             ),
           ],
         );
@@ -557,7 +638,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  Future<String?> _pickAndReturnImagePathFromCamera(BuildContext context) async {
+  Future<String?> _pickAndReturnImagePathFromCamera(
+    BuildContext context,
+  ) async {
     try {
       final XFile? picked = await _imagePicker.pickImage(
         source: ImageSource.camera,
@@ -577,7 +660,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
       final parts = compressed.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'jpg';
-      final fileName = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
+      final fileName =
+          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesImgDir.path}/$fileName');
       await compressed.copy(dest.path);
 
@@ -590,7 +674,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
   }
 
-  Future<String?> _pickAndReturnVideoPathFromCamera(BuildContext context) async {
+  Future<String?> _pickAndReturnVideoPathFromCamera(
+    BuildContext context,
+  ) async {
     try {
       final XFile? picked = await _imagePicker.pickVideo(
         source: ImageSource.camera,
@@ -603,7 +689,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
       final parts = picked.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'mp4';
-      final fileName = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
+      final fileName =
+          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesVidDir.path}/$fileName');
       await File(picked.path).copy(dest.path);
 
@@ -627,7 +714,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             children: [
               ListTile(
                 leading: Icon(Icons.camera_alt_outlined, color: cs.primary),
-                title: const Text('Fotoğraf Çek', style: TextStyle(fontFamily: 'Inter')),
+                title: const Text(
+                  'Fotoğraf Çek',
+                  style: TextStyle(fontFamily: 'Inter'),
+                ),
                 onTap: () async {
                   Navigator.pop(context);
                   final path = await _pickAndReturnImagePathFromCamera(context);
@@ -636,7 +726,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ),
               ListTile(
                 leading: Icon(Icons.videocam_outlined, color: cs.primary),
-                title: const Text('Video Çek', style: TextStyle(fontFamily: 'Inter')),
+                title: const Text(
+                  'Video Çek',
+                  style: TextStyle(fontFamily: 'Inter'),
+                ),
                 onTap: () async {
                   Navigator.pop(context);
                   final path = await _pickAndReturnVideoPathFromCamera(context);
@@ -694,6 +787,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     children: [
                       _buildTitleField(colorScheme),
                       _buildDateInfo(colorScheme),
+                      _buildCategoryTags(
+                        colorScheme,
+                        _getTextColor(colorScheme),
+                      ),
                       Expanded(
                         child: Theme(
                           data: Theme.of(context).copyWith(
@@ -779,7 +876,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           border: InputBorder.none,
           isDense: true,
           contentPadding: EdgeInsets.zero,
+          filled: false,
         ),
+        onChanged: (_) {
+          _markUnsaved();
+          _scheduleAutoSave();
+        },
         maxLines: null,
         textInputAction: TextInputAction.next,
       ),
@@ -799,12 +901,342 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         child: Text(
           'Son düzenleme: $timeString',
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 13,
             color: fgColor.withValues(alpha: 0.5),
             fontFamily: 'Inter',
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCategoryTags(ColorScheme colorScheme, Color fgColor) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: GestureDetector(
+          onTap: () => _showCategoryPicker(context, colorScheme, fgColor),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Icon(
+                Icons.label_outline,
+                size: 18,
+                color: fgColor.withValues(alpha: 0.6),
+              ),
+              if (_note?.categoryId == null)
+                Text(
+                  context.l10n.addNoteTag,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: fgColor.withValues(alpha: 0.6),
+                    fontFamily: 'Inter',
+                  ),
+                )
+              else if (_allCategories.any((c) => c.id == _note!.categoryId))
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: fgColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    _allCategories
+                        .firstWhere((c) => c.id == _note!.categoryId)
+                        .name,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: fgColor,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCategoryPicker(
+    BuildContext context,
+    ColorScheme colorScheme,
+    Color fgColor,
+  ) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E1E1E)
+                  : Colors.white,
+              title: Text(
+                context.l10n.noteTags,
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_allCategories.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          context.l10n.noTagsYet,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                          ),
+                        ),
+                      )
+                    else
+                      Flexible(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _allCategories.length,
+                          itemBuilder: (context, index) {
+                            final cat = _allCategories[index];
+                            return ListTile(
+                              title: Row(
+                                children: [
+                                  Text(
+                                    cat.name,
+                                    style: const TextStyle(fontFamily: 'Inter'),
+                                  ),
+                                ],
+                              ),
+                              trailing: Icon(
+                                _note?.categoryId == cat.id
+                                    ? Icons.radio_button_checked
+                                    : Icons.radio_button_unchecked,
+                                color: _note?.categoryId == cat.id
+                                    ? colorScheme.primary
+                                    : null,
+                              ),
+                              onTap: () {
+                                setDialogState(() {
+                                  setState(() {
+                                    final newVal = _note?.categoryId == cat.id
+                                        ? null
+                                        : cat.id;
+                                    _note = _note?.copyWith(
+                                      categoryId: newVal,
+                                      clearCategory: newVal == null,
+                                    );
+                                    _markUnsaved();
+                                  });
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    const Divider(),
+                    if (_note?.categoryId != null) ...[
+                      ListTile(
+                        leading: Icon(
+                          Icons.layers_clear,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        title: Text(
+                          context.l10n.removeCategory,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                        onTap: () {
+                          setDialogState(() {
+                            setState(() {
+                              _note = _note?.copyWith(
+                                categoryId: null,
+                                clearCategory: true,
+                              );
+                              _markUnsaved();
+                            });
+                          });
+                          Navigator.pop(ctx);
+                        },
+                      ),
+                      const Divider(),
+                    ],
+                    ListTile(
+                      leading: const Icon(Icons.add),
+                      title: Text(
+                        context.l10n.createNoteTag,
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        _showCreateCategoryDialog();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(
+                    context.l10n.ok,
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showCreateCategoryDialog() {
+    final TextEditingController nameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E1E1E)
+                  : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+              contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+              actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+              title: Text(
+                context.l10n.newNoteTag,
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              content: SizedBox(
+                width: 360,
+                child: TextField(
+                  controller: nameController,
+                  autofocus: true,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    hintText: context.l10n.tagName,
+                    hintStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withValues(alpha: 0.3),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    context.l10n.cancel,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    if (nameController.text.trim().isNotEmpty) {
+                      final newCat = NoteCategoryModel.create(
+                        name: nameController.text.trim(),
+                      );
+                      await _categoryRepository.saveCategory(newCat);
+                      await _loadCategories();
+                      if (mounted) {
+                        setState(() {
+                          _note = _note?.copyWith(categoryId: newCat.id);
+                          _markUnsaved();
+                        });
+                      }
+                      if (!ctx.mounted) return;
+                      Navigator.pop(ctx);
+                    }
+                  },
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    context.l10n.createNoteTag,
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -839,8 +1271,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           ? fgColor
                           : fgColor.withValues(alpha: 0.3),
                     ),
-                    onPressed:
-                        _controller!.hasUndo ? () => _controller!.undo() : null,
+                    onPressed: _controller!.hasUndo
+                        ? () => _controller!.undo()
+                        : null,
                     tooltip: 'Geri Al',
                   ),
                   IconButton(
@@ -850,8 +1283,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           ? fgColor
                           : fgColor.withValues(alpha: 0.3),
                     ),
-                    onPressed:
-                        _controller!.hasRedo ? () => _controller!.redo() : null,
+                    onPressed: _controller!.hasRedo
+                        ? () => _controller!.redo()
+                        : null,
                     tooltip: 'İleri Al',
                   ),
                 ],
@@ -932,80 +1366,80 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             child: Row(
               children: [
                 QuillSimpleToolbar(
-            controller: controller,
-            config: QuillSimpleToolbarConfig(
-              color: Colors.transparent,
-              headerStyleType: HeaderStyleType.buttons,
-              buttonOptions: const QuillSimpleToolbarButtonOptions(
-                base: QuillToolbarBaseButtonOptions(
-                  iconTheme: QuillIconTheme(
-                    iconButtonUnselectedData: IconButtonData(
-                      style: ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  controller: controller,
+                  config: QuillSimpleToolbarConfig(
+                    color: Colors.transparent,
+                    headerStyleType: HeaderStyleType.buttons,
+                    buttonOptions: const QuillSimpleToolbarButtonOptions(
+                      base: QuillToolbarBaseButtonOptions(
+                        iconTheme: QuillIconTheme(
+                          iconButtonUnselectedData: IconButtonData(
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
+                    customButtons: [
+                      QuillToolbarCustomButtonOptions(
+                        icon: Text(
+                          'A-',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                        tooltip: 'Yazı Boyutunu Küçült',
+                        onPressed: _decreaseFontSize,
+                      ),
+                      QuillToolbarCustomButtonOptions(
+                        icon: Text(
+                          'A+',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                        tooltip: 'Yazı Boyutunu Büyüt',
+                        onPressed: _increaseFontSize,
+                      ),
+                    ],
+                    showDividers: true,
+                    showFontFamily: false,
+                    showFontSize: false,
+                    showBoldButton: true,
+                    showItalicButton: true,
+                    showSmallButton: false,
+                    showUnderLineButton: true,
+                    showLineHeightButton: false,
+                    showStrikeThrough: true,
+                    showInlineCode: true,
+                    showCodeBlock: true,
+                    showSubscript: true,
+                    showSuperscript: true,
+                    showColorButton: true,
+                    showBackgroundColorButton: true,
+                    showClearFormat: true,
+                    showAlignmentButtons: false,
+                    showLeftAlignment: true,
+                    showCenterAlignment: true,
+                    showRightAlignment: true,
+                    showJustifyAlignment: true,
+                    showHeaderStyle: true,
+                    showListNumbers: true,
+                    showListBullets: true,
+                    showListCheck: true,
+                    showQuote: true,
+                    showIndent: true,
+                    showLink: false,
+                    showUndo: false,
+                    showRedo: false,
+                    multiRowsDisplay: true,
                   ),
                 ),
-              ),
-              customButtons: [
-                QuillToolbarCustomButtonOptions(
-                  icon: Text(
-                    'A-',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                  tooltip: 'Yazı Boyutunu Küçült',
-                  onPressed: _decreaseFontSize,
-                ),
-                QuillToolbarCustomButtonOptions(
-                  icon: Text(
-                    'A+',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                  tooltip: 'Yazı Boyutunu Büyüt',
-                  onPressed: _increaseFontSize,
-                ),
-              ],
-              showDividers: true,
-              showFontFamily: false,
-              showFontSize: false,
-              showBoldButton: true,
-              showItalicButton: true,
-              showSmallButton: false,
-              showUnderLineButton: true,
-              showLineHeightButton: false,
-              showStrikeThrough: true,
-              showInlineCode: true,
-              showCodeBlock: true,
-              showSubscript: true,
-              showSuperscript: true,
-              showColorButton: true,
-              showBackgroundColorButton: true,
-              showClearFormat: true,
-              showAlignmentButtons: false,
-              showLeftAlignment: true,
-              showCenterAlignment: true,
-              showRightAlignment: true,
-              showJustifyAlignment: true,
-              showHeaderStyle: true,
-              showListNumbers: true,
-              showListBullets: true,
-              showListCheck: true,
-              showQuote: true,
-              showIndent: true,
-              showLink: false,
-              showUndo: false,
-              showRedo: false,
-              multiRowsDisplay: true,
-            ),
-            ),
               ],
             ),
           ),
@@ -1129,61 +1563,61 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   onPressed: _showCameraOptionsDialog,
                 ),
                 QuillSimpleToolbar(
-            controller: controller,
-            config: QuillSimpleToolbarConfig(
-              color: Colors.transparent,
-              buttonOptions: const QuillSimpleToolbarButtonOptions(
-                base: QuillToolbarBaseButtonOptions(
-                  iconTheme: QuillIconTheme(
-                    iconButtonUnselectedData: IconButtonData(
-                      style: ButtonStyle(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  controller: controller,
+                  config: QuillSimpleToolbarConfig(
+                    color: Colors.transparent,
+                    buttonOptions: const QuillSimpleToolbarButtonOptions(
+                      base: QuillToolbarBaseButtonOptions(
+                        iconTheme: QuillIconTheme(
+                          iconButtonUnselectedData: IconButtonData(
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    showDividers: true,
+                    showFontFamily: false,
+                    showFontSize: false,
+                    showBoldButton: false,
+                    showItalicButton: false,
+                    showSmallButton: false,
+                    showUnderLineButton: false,
+                    showLineHeightButton: false,
+                    showStrikeThrough: false,
+                    showInlineCode: false,
+                    showCodeBlock: false,
+                    showSubscript: false,
+                    showSuperscript: false,
+                    showColorButton: false,
+                    showBackgroundColorButton: false,
+                    showClearFormat: false,
+                    showAlignmentButtons: false,
+                    showLeftAlignment: false,
+                    showCenterAlignment: false,
+                    showRightAlignment: false,
+                    showJustifyAlignment: false,
+                    showHeaderStyle: false,
+                    showListNumbers: false,
+                    showListBullets: false,
+                    showListCheck: false,
+                    showQuote: false,
+                    showIndent: false,
+                    showLink: false,
+                    showUndo: false,
+                    showRedo: false,
+                    showSearchButton: false,
+                    multiRowsDisplay: true,
+                    embedButtons: FlutterQuillEmbeds.toolbarButtons(
+                      imageButtonOptions: QuillToolbarImageButtonOptions(
+                        imageButtonConfig: QuillToolbarImageConfig(
+                          onRequestPickImage: _pickAndReturnImagePath,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              showDividers: true,
-              showFontFamily: false,
-              showFontSize: false,
-              showBoldButton: false,
-              showItalicButton: false,
-              showSmallButton: false,
-              showUnderLineButton: false,
-              showLineHeightButton: false,
-              showStrikeThrough: false,
-              showInlineCode: false,
-              showCodeBlock: false,
-              showSubscript: false,
-              showSuperscript: false,
-              showColorButton: false,
-              showBackgroundColorButton: false,
-              showClearFormat: false,
-              showAlignmentButtons: false,
-              showLeftAlignment: false,
-              showCenterAlignment: false,
-              showRightAlignment: false,
-              showJustifyAlignment: false,
-              showHeaderStyle: false,
-              showListNumbers: false,
-              showListBullets: false,
-              showListCheck: false,
-              showQuote: false,
-              showIndent: false,
-              showLink: false,
-              showUndo: false,
-              showRedo: false,
-              showSearchButton: false,
-              multiRowsDisplay: true,
-              embedButtons: FlutterQuillEmbeds.toolbarButtons(
-                imageButtonOptions: QuillToolbarImageButtonOptions(
-                  imageButtonConfig: QuillToolbarImageConfig(
-                    onRequestPickImage: _pickAndReturnImagePath,
-                  ),
-                ),
-              ),
-            ),
-          ),
               ],
             ),
           ),
@@ -1227,8 +1661,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           child: _isFormatMode
               ? formatToolbar
               : _isMediaMode
-                  ? mediaToolbar
-                  : mainToolbar,
+              ? mediaToolbar
+              : mainToolbar,
         ),
       ),
     );
@@ -1250,8 +1684,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         linkActionPickerDelegate: (context, link, node) async {
           final result = await showModalBottomSheet<LinkMenuAction>(
             context: context,
-            backgroundColor: Theme.of(context).brightness == Brightness.dark 
-                ? const Color(0xFF1E1E1E) 
+            backgroundColor: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF1E1E1E)
                 : Colors.white,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -1279,18 +1713,43 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ),
                       ListTile(
                         leading: const Icon(Icons.open_in_new_rounded),
-                        title: const Text('Bağlantıyı aç', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500)),
-                        onTap: () => Navigator.pop(context, LinkMenuAction.launch),
+                        title: const Text(
+                          'Bağlantıyı aç',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onTap: () =>
+                            Navigator.pop(context, LinkMenuAction.launch),
                       ),
                       ListTile(
                         leading: const Icon(Icons.copy_rounded),
-                        title: const Text('Bağlantıyı kopyala', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500)),
-                        onTap: () => Navigator.pop(context, LinkMenuAction.copy),
+                        title: const Text(
+                          'Bağlantıyı kopyala',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onTap: () =>
+                            Navigator.pop(context, LinkMenuAction.copy),
                       ),
                       ListTile(
-                        leading: const Icon(Icons.link_off_rounded, color: Colors.redAccent),
-                        title: const Text('Bağlantıyı kaldır', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, color: Colors.redAccent)),
-                        onTap: () => Navigator.pop(context, LinkMenuAction.remove),
+                        leading: const Icon(
+                          Icons.link_off_rounded,
+                          color: Colors.redAccent,
+                        ),
+                        title: const Text(
+                          'Bağlantıyı kaldır',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w500,
+                            color: Colors.redAccent,
+                          ),
+                        ),
+                        onTap: () =>
+                            Navigator.pop(context, LinkMenuAction.remove),
                       ),
                     ],
                   ),

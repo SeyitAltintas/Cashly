@@ -3031,6 +3031,45 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get noteTags => 'Kategoriler';
+
+  @override
+  String get addNoteTag => 'Kategori Seç';
+
+  @override
+  String get newNoteTag => 'Yeni Kategori';
+
+  @override
+  String get createNoteTag => 'Yeni Kategori Oluştur';
+
+  @override
+  String get noTagsYet => 'Henüz kategori yok.';
+
+  @override
+  String get tagName => 'Kategori Adı';
+
+  @override
+  String get tagColorOptional => 'Renk (Opsiyonel)';
+
+  @override
+  String get assignTag => 'Kategori Ata';
+
+  @override
+  String get allNotesFilter => 'Tümü';
+
+  @override
+  String get pinnedNotesFilter => 'Sabitlenenler';
+
+  @override
+  String get tagAssignWarning => 'Önce bir kategori oluşturmalısınız.';
+
+  @override
+  String get tagAssignedSuccess => 'Kategori başarıyla atandı';
+
+  @override
+  String get removeCategory => 'Kategoriyi Kaldır';
+
+  @override
   String daysAgo(int count) {
     return '$count gün önce';
   }

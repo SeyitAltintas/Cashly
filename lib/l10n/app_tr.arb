@@ -1367,6 +1367,19 @@
       "count": { "type": "String" }
     }
   },
+  "noteTags": "Kategoriler",
+  "addNoteTag": "Kategori Seç",
+  "newNoteTag": "Yeni Kategori",
+  "createNoteTag": "Yeni Kategori Oluştur",
+  "noTagsYet": "Henüz kategori yok.",
+  "tagName": "Kategori Adı",
+  "tagColorOptional": "Renk (Opsiyonel)",
+  "assignTag": "Kategori Ata",
+  "allNotesFilter": "Tümü",
+  "pinnedNotesFilter": "Sabitlenenler",
+  "tagAssignWarning": "Önce bir kategori oluşturmalısınız.",
+  "tagAssignedSuccess": "Kategori başarıyla atandı",
+  "removeCategory": "Kategoriyi Kaldır",
   "yesterday": "dün",
   "daysAgo": "{count} gün önce",
   "@daysAgo": {

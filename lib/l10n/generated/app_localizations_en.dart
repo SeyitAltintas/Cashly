@@ -3029,6 +3029,45 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get noteTags => 'Categories';
+
+  @override
+  String get addNoteTag => 'Select Category';
+
+  @override
+  String get newNoteTag => 'New Category';
+
+  @override
+  String get createNoteTag => 'Create New Category';
+
+  @override
+  String get noTagsYet => 'No categories yet.';
+
+  @override
+  String get tagName => 'Category Name';
+
+  @override
+  String get tagColorOptional => 'Color (Optional)';
+
+  @override
+  String get assignTag => 'Assign Category';
+
+  @override
+  String get allNotesFilter => 'All';
+
+  @override
+  String get pinnedNotesFilter => 'Pinned';
+
+  @override
+  String get tagAssignWarning => 'You must create a category first.';
+
+  @override
+  String get tagAssignedSuccess => 'Category successfully assigned';
+
+  @override
+  String get removeCategory => 'Remove Category';
+
+  @override
   String daysAgo(int count) {
     return '$count days ago';
   }

@@ -5672,6 +5672,84 @@ abstract class AppLocalizations {
   /// **'{count} Seçildi'**
   String notesSelectedCount(String count);
 
+  /// No description provided for @noteTags.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategoriler'**
+  String get noteTags;
+
+  /// No description provided for @addNoteTag.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori Seç'**
+  String get addNoteTag;
+
+  /// No description provided for @newNoteTag.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni Kategori'**
+  String get newNoteTag;
+
+  /// No description provided for @createNoteTag.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni Kategori Oluştur'**
+  String get createNoteTag;
+
+  /// No description provided for @noTagsYet.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz kategori yok.'**
+  String get noTagsYet;
+
+  /// No description provided for @tagName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori Adı'**
+  String get tagName;
+
+  /// No description provided for @tagColorOptional.
+  ///
+  /// In tr, this message translates to:
+  /// **'Renk (Opsiyonel)'**
+  String get tagColorOptional;
+
+  /// No description provided for @assignTag.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori Ata'**
+  String get assignTag;
+
+  /// No description provided for @allNotesFilter.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tümü'**
+  String get allNotesFilter;
+
+  /// No description provided for @pinnedNotesFilter.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sabitlenenler'**
+  String get pinnedNotesFilter;
+
+  /// No description provided for @tagAssignWarning.
+  ///
+  /// In tr, this message translates to:
+  /// **'Önce bir kategori oluşturmalısınız.'**
+  String get tagAssignWarning;
+
+  /// No description provided for @tagAssignedSuccess.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori başarıyla atandı'**
+  String get tagAssignedSuccess;
+
+  /// No description provided for @removeCategory.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategoriyi Kaldır'**
+  String get removeCategory;
+
   /// No description provided for @daysAgo.
   ///
   /// In tr, this message translates to:
