@@ -1339,6 +1339,15 @@
     }
   },
   "newNote": "New Note",
+  "searchNotes": "Search notes...",
+  "pinNote": "Pin",
+  "unpinNote": "Unpin",
+  "notesSelectedCount": "{count} Selected",
+  "@notesSelectedCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
   "yesterday": "yesterday",
   "daysAgo": "{count} days ago",
   "@daysAgo": {

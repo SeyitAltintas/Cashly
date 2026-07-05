@@ -141,7 +141,7 @@ class _NotesListPageState extends State<NotesListPage> {
                 await _repository.setPinStateForNotes(ids, newState);
               },
               icon: Icon(allPinned ? Icons.push_pin_outlined : Icons.push_pin_rounded, color: colorScheme.onSurface),
-              label: Text(allPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle', style: TextStyle(color: colorScheme.onSurface, fontFamily: 'Inter', fontWeight: FontWeight.w600)),
+              label: Text(allPinned ? context.l10n.unpinNote : context.l10n.pinNote, style: TextStyle(color: colorScheme.onSurface, fontFamily: 'Inter', fontWeight: FontWeight.w600)),
             ),
             TextButton.icon(
               onPressed: () async {
@@ -169,7 +169,7 @@ class _NotesListPageState extends State<NotesListPage> {
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: '${context.l10n.search}...',
+          hintText: context.l10n.searchNotes,
           prefixIcon: Icon(Icons.search_rounded, color: colorScheme.onSurface.withValues(alpha: 0.5), size: 22),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
@@ -241,7 +241,7 @@ class _NotesListPageState extends State<NotesListPage> {
           onPressed: _clearSelection,
         ),
         title: Text(
-          '${_selectedNoteIds.length} Seçildi',
+          context.l10n.notesSelectedCount(_selectedNoteIds.length.toString()),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,

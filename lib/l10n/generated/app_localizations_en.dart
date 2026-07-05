@@ -3015,6 +3015,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newNote => 'New Note';
 
   @override
+  String get searchNotes => 'Search notes...';
+
+  @override
+  String get pinNote => 'Pin';
+
+  @override
+  String get unpinNote => 'Unpin';
+
+  @override
+  String notesSelectedCount(String count) {
+    return '$count Selected';
+  }
+
+  @override
   String daysAgo(int count) {
     return '$count days ago';
   }

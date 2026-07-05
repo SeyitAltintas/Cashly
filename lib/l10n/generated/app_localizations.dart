@@ -5648,6 +5648,30 @@ abstract class AppLocalizations {
   /// **'Yeni Not'**
   String get newNote;
 
+  /// No description provided for @searchNotes.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notlarda Ara...'**
+  String get searchNotes;
+
+  /// No description provided for @pinNote.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sabitle'**
+  String get pinNote;
+
+  /// No description provided for @unpinNote.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sabitlemeyi Kaldır'**
+  String get unpinNote;
+
+  /// No description provided for @notesSelectedCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} Seçildi'**
+  String notesSelectedCount(String count);
+
   /// No description provided for @daysAgo.
   ///
   /// In tr, this message translates to:

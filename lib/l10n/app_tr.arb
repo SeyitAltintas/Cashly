@@ -1358,6 +1358,15 @@
     }
   },
   "newNote": "Yeni Not",
+  "searchNotes": "Notlarda Ara...",
+  "pinNote": "Sabitle",
+  "unpinNote": "Sabitlemeyi Kaldır",
+  "notesSelectedCount": "{count} Seçildi",
+  "@notesSelectedCount": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
   "yesterday": "dün",
   "daysAgo": "{count} gün önce",
   "@daysAgo": {

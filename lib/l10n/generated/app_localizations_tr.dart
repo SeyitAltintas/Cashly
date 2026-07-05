@@ -3017,6 +3017,20 @@ class AppLocalizationsTr extends AppLocalizations {
   String get newNote => 'Yeni Not';
 
   @override
+  String get searchNotes => 'Notlarda Ara...';
+
+  @override
+  String get pinNote => 'Sabitle';
+
+  @override
+  String get unpinNote => 'Sabitlemeyi Kaldır';
+
+  @override
+  String notesSelectedCount(String count) {
+    return '$count Seçildi';
+  }
+
+  @override
   String daysAgo(int count) {
     return '$count gün önce';
   }
