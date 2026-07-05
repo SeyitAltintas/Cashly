@@ -221,7 +221,7 @@ class NoteRepository {
     }
   }
 
-  /// Delta JSON içinden yerel resim path'lerini bulup siler.
+  /// Delta JSON içinden yerel resim ve video path'lerini bulup siler.
   static Future<void> _deleteLocalImages(String deltaJson) async {
     try {
       final ops = jsonDecode(deltaJson) as List<dynamic>;
@@ -229,23 +229,23 @@ class NoteRepository {
         if (op is! Map) continue;
         final insert = op['insert'];
         if (insert is! Map) continue;
-        final imgPath = insert['image'];
-        if (imgPath is! String) continue;
-        if (imgPath.startsWith('http')) continue; // uzak URL, atla
-        final file = File(imgPath);
+        final mediaPath = insert['image'] ?? insert['video'];
+        if (mediaPath is! String) continue;
+        if (mediaPath.startsWith('http')) continue; // uzak URL, atla
+        final file = File(mediaPath);
         if (await file.exists()) {
           await file.delete();
-          debugPrint('EC-18: Orphan resim silindi → $imgPath');
+          debugPrint('EC-18: Orphan medya silindi → $mediaPath');
         }
       }
     } catch (e) {
-      debugPrint('EC-18: Resim temizleme hatası: $e');
-      // Sessizce geç — resim silme başarısız olsa bile not silindi.
+      debugPrint('EC-18: Medya temizleme hatası: $e');
+      // Sessizce geç — silme başarısız olsa bile not silindi.
     }
   }
 
   /// Tüm notları siler.
-  /// EC-24: Ayrıca tüm not resimlerini (note_images dizini) de siler.
+  /// EC-24: Ayrıca tüm not resimlerini ve videolarını da siler.
   Future<void> clearAll() async {
     await init();
     await _requireBox.clear();
@@ -257,20 +257,26 @@ class NoteRepository {
         await noteImgDir.delete(recursive: true);
         debugPrint('EC-24: Tüm not resimleri silindi.');
       }
+      
+      final noteVidDir = Directory('${docsDir.path}/notes_videos');
+      if (await noteVidDir.exists()) {
+        await noteVidDir.delete(recursive: true);
+        debugPrint('EC-24: Tüm not videoları silindi.');
+      }
     } catch (e) {
-      debugPrint('EC-24: Resim klasörü silinemedi: $e');
+      debugPrint('EC-24: Medya klasörü silinemedi: $e');
     }
   }
 
-  /// Sistemdeki (note_images klasöründeki) ancak Hive'daki hiçbir notta kullanılmayan
-  /// yetim (orphan) resimleri bulup siler. (EC-25)
+  /// Sistemdeki ancak Hive'daki hiçbir notta kullanılmayan
+  /// yetim (orphan) medyaları bulup siler. (EC-25)
   Future<void> cleanOrphanImages() async {
     try {
       final docsDir = await getApplicationDocumentsDirectory();
       final imgDir = Directory('${docsDir.path}/note_images');
-      if (!await imgDir.exists()) return;
+      final vidDir = Directory('${docsDir.path}/notes_videos');
 
-      // 1. Hive'daki tüm notların deltaJson'larından aktif resim yollarını topla
+      // 1. Hive'daki tüm notların deltaJson'larından aktif medya yollarını topla
       final activePaths = <String>{};
       final notes = getAllNotes();
       for (final note in notes) {
@@ -280,22 +286,32 @@ class NoteRepository {
             if (op is! Map) continue;
             final insert = op['insert'];
             if (insert is! Map) continue;
-            final imgPath = insert['image'];
-            if (imgPath is String && !imgPath.startsWith('http')) {
+            final mediaPath = insert['image'] ?? insert['video'];
+            if (mediaPath is String && !mediaPath.startsWith('http')) {
               // Path ayırıcı farklılıklarını (Windows \ vs Unix /) eşitle
-              activePaths.add(File(imgPath).path);
+              activePaths.add(File(mediaPath).path);
             }
           }
         } catch (_) {}
       }
 
-      // 2. Klasördeki tüm dosyaları gez, aktif listede olmayanları sil
-      final files = imgDir.listSync();
-      for (final entity in files) {
-        if (entity is File) {
-          if (!activePaths.contains(entity.path)) {
+      // 2. Klasörlerdeki tüm dosyaları gez, aktif listede olmayanları sil
+      if (await imgDir.exists()) {
+        final files = imgDir.listSync();
+        for (final entity in files) {
+          if (entity is File && !activePaths.contains(entity.path)) {
             await entity.delete();
             debugPrint('EC-25: Orphan resim silindi → ${entity.path}');
+          }
+        }
+      }
+      
+      if (await vidDir.exists()) {
+        final files = vidDir.listSync();
+        for (final entity in files) {
+          if (entity is File && !activePaths.contains(entity.path)) {
+            await entity.delete();
+            debugPrint('EC-25: Orphan video silindi → ${entity.path}');
           }
         }
       }

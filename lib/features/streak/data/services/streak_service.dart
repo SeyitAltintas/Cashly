@@ -172,8 +172,10 @@ class StreakService {
       );
       streakIncreased = true;
     } else {
-      final lastDate = DateTime.parse(lastLogin);
-      final todayDate = DateTime.parse(today);
+      final lastDateLocal = DateTime.parse(lastLogin);
+      final todayDateLocal = DateTime.parse(today);
+      final lastDate = DateTime.utc(lastDateLocal.year, lastDateLocal.month, lastDateLocal.day);
+      final todayDate = DateTime.utc(todayDateLocal.year, todayDateLocal.month, todayDateLocal.day);
       final difference = todayDate.difference(lastDate).inDays;
 
       if (difference <= 0) {

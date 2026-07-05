@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/user_entity.dart';
@@ -47,12 +47,18 @@ class AuthController extends ChangeNotifier with SafeNotifierMixin {
   Future<void> checkAuth() async {
     _setLoading(true);
     try {
+      final savedUser = await _authRepository.getCurrentUser();
+
       // Edge Case Fix (Security): Privacy Policy gereği uygulama her açılışta PIN sormalıdır.
-      // Bu yüzden _currentUser'ı null bırakıyoruz ki AppRouter bizi /login sayfasına yönlendirsin.
-      _currentUser = null;
+      // Ancak geliştirme ortamında (kDebugMode) hot restart atarken sürekli PIN sormaması için
+      // debug modda mevcut kullanıcıyı otomatik olarak oturum açmış varsayıyoruz.
+      if (kDebugMode && savedUser != null) {
+        _currentUser = savedUser;
+      } else {
+        _currentUser = null;
+      }
 
       // Bildirimleri tazelemek için kayıtlı kullanıcıyı alıp işlem yapabiliriz
-      final savedUser = await _authRepository.getCurrentUser();
       if (savedUser != null && getIt.isRegistered<NotificationScheduler>()) {
         // Edge Case Fix: App launch'ı (Splash screen kapanışını) bloklamamak için
         // bildirimleri yeniden planlama işlemini arka planda fire-and-forget başlatıyoruz.

@@ -69,10 +69,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   List<NoteCategoryModel> _allCategories = [];
 
   bool _isSaving = false;
+  bool _saveQueued = false;
   bool _isLoading = true;
 
   /// Kullanıcı yükleme sonrası değişiklik yaptı mı?
-  /// PopScope buna bakarak "kaydetmeden çık?" diyaloğunu tetikler.
+  /// PopScope buna bakarak otomatik kayıt ve çıkış sürecini tetikler.
   bool _hasUnsavedChanges = false;
 
   // ─── Lifecycle ──────────────────────────────────────────────────────────
@@ -106,7 +107,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _controller?.removeListener(_onDocumentChanged);
     _autoSaveTimer?.cancel();
     _docSubscription?.cancel();
     _titleController.dispose();
@@ -188,10 +188,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  /// Her belge değişikliğinde kaydedilmemiş değişiklik işareti set edilir.
-  /// Artık kullanılmıyor (StreamSubscription kullanılıyor).
-  void _onDocumentChanged() {}
-
   void _markUnsaved() {
     if (!_hasUnsavedChanges && mounted) {
       setState(() => _hasUnsavedChanges = true);
@@ -201,19 +197,36 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   void _scheduleAutoSave() {
     _autoSaveTimer?.cancel();
     _autoSaveTimer = Timer(const Duration(seconds: 1), () {
-      if (mounted) _saveNote();
+      if (mounted) {
+        _saveNote();
+      }
     });
   }
 
   Future<void> _saveNote() async {
     final note = _note;
     final controller = _controller;
-    if (_isSaving || note == null || controller == null) return;
+    if (note == null || controller == null) return;
 
-    // EC-19: Sadece \n içeren belgeyi kaydetme — içerik yok demektir.
+    if (_isSaving) {
+      _saveQueued = true;
+      return;
+    }
+
+    // EC-19: Sadece \n içeren ve medya barındırmayan belgeyi kaydetme
     final plainText = controller.document.toPlainText().trim();
     final title = _titleController.text.trim();
-    if (plainText.isEmpty && title.isEmpty) {
+    
+    // Medya içerip içermediğini kontrol et
+    final delta = controller.document.toDelta();
+    final hasEmbed = delta.toList().any((op) => op.isInsert && op.data is Map);
+
+    if (plainText.isEmpty && title.isEmpty && !hasEmbed) {
+      if (mounted) {
+        setState(() => _hasUnsavedChanges = false);
+      }
+      // Rebuild'i beklemek için bir frame atla, böylece PopScope canPop: true olur
+      await Future.delayed(Duration.zero);
       return;
     }
 
@@ -225,11 +238,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
     try {
       final deltaJson = jsonEncode(controller.document.toDelta().toJson());
-      final title = _titleController.text.trim();
+      final updatedTitle = _titleController.text.trim();
       await _repository.updateNote(
         id: note.id,
         deltaJson: deltaJson,
-        title: title,
+        title: updatedTitle,
         color: _selectedColor,
         clearColor: _selectedColor == null,
         originalCreatedAt: note.createdAt, // EC-16: orijinal tarihi koru
@@ -239,9 +252,22 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         // Sessiz otomatik kayıt (seamless save)
       }
     } catch (_) {
-      if (mounted) AppSnackBar.error(context, context.l10n.saveFailed);
+      // EC-SAVE-ERR: Kayıt başarısız. Hata gösterilir ve canPop=true yapılır
+      // böylece kullanıcı editorde sıkışmaz.
+      if (mounted) {
+        AppSnackBar.error(context, context.l10n.saveFailed);
+        setState(() => _hasUnsavedChanges = false);
+      }
     } finally {
-      if (mounted) setState(() => _isSaving = false);
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+      if (_saveQueued) {
+        _saveQueued = false;
+        if (mounted) {
+          _saveNote();
+        }
+      }
     }
   }
 
@@ -430,6 +456,28 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   // ─── Resim İşlemi ───────────────────────────────────────────────────────
 
+  Future<String?> _pickAndReturnVideoPath(BuildContext context) async {
+    try {
+      final picked = await _imagePicker.pickVideo(source: ImageSource.gallery);
+      if (picked == null) return null;
+      
+      final appDir = await getApplicationDocumentsDirectory();
+      final notesVidDir = Directory('${appDir.path}/notes_videos');
+      if (!await notesVidDir.exists()) {
+        await notesVidDir.create(recursive: true);
+      }
+      final parts = picked.path.split('.');
+      final ext = parts.length > 1 ? parts.last : 'mp4';
+      final fileName = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
+      final dest = File('${notesVidDir.path}/$fileName');
+      await File(picked.path).copy(dest.path);
+      return dest.path;
+    } catch (e) {
+      debugPrint('Video pick error: $e');
+      return null;
+    }
+  }
+
   /// EC-5: Galeriden seçilen resmi Documents dizinine kopyalar.
   /// Cache silinse veya uygulama güncellense bile resim kaybolmaz.
   Future<String?> _pickAndReturnImagePath(BuildContext context) async {
@@ -469,22 +517,23 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   }
 
   void _insertMedia(String path, bool isVideo) {
-    if (_controller == null) return;
+    final c = _controller;
+    if (c == null) return;
 
-    final index = _controller!.selection.baseOffset;
-    final length = _controller!.selection.extentOffset - index;
+    final index = c.selection.baseOffset;
+    final length = c.selection.extentOffset - index;
 
     if (length > 0) {
-      _controller!.document.delete(index, length);
+      c.document.delete(index, length);
     }
 
-    _controller!.document.insert(
+    c.document.insert(
       index,
       isVideo ? BlockEmbed.video(path) : BlockEmbed.image(path),
     );
 
-    _controller!.document.insert(index + 1, '\n');
-    _controller!.updateSelection(
+    c.document.insert(index + 1, '\n');
+    c.updateSelection(
       TextSelection.collapsed(offset: index + 2),
       ChangeSource.local,
     );
@@ -764,10 +813,20 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
 
     return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) return;
-        _saveNote();
+      canPop: !_hasUnsavedChanges,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        
+        if (_hasUnsavedChanges) {
+          await _saveNote();
+          if (mounted && !_hasUnsavedChanges) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                Navigator.of(context).pop();
+              }
+            });
+          }
+        }
       },
       child: Hero(
         tag: widget.heroTag,
@@ -890,9 +949,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   Widget _buildDateInfo(ColorScheme colorScheme) {
     final fgColor = _getTextColor(colorScheme);
-    final date = _note?.updatedAt ?? DateTime.now();
+    // EC-TIMEZONE: toLocal() ile UTC → yerel saat dönüşümü garantilenir.
+    final date = (_note?.updatedAt ?? DateTime.now()).toLocal();
     final timeString =
-        '${date.hour.toString().padLeft(2, "0")}:${date.minute.toString().padLeft(2, "0")}';
+        '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
@@ -1029,18 +1089,22 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                                     : null,
                               ),
                               onTap: () {
+                                final newVal = _note?.categoryId == cat.id
+                                    ? null
+                                    : cat.id;
+                                // EC-NESTED-SETSTATE: _markUnsaved setState içinde
+                                // bambaşka bir setState çağırmak yerine değişikliği
+                                // doğrudan dış setState içinde yap.
                                 setDialogState(() {
                                   setState(() {
-                                    final newVal = _note?.categoryId == cat.id
-                                        ? null
-                                        : cat.id;
                                     _note = _note?.copyWith(
                                       categoryId: newVal,
                                       clearCategory: newVal == null,
                                     );
-                                    _markUnsaved();
+                                    _hasUnsavedChanges = true;
                                   });
                                 });
+                                _scheduleAutoSave();
                               },
                             );
                           },
@@ -1062,15 +1126,18 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           ),
                         ),
                         onTap: () {
+                          // EC-NESTED-SETSTATE: _markUnsaved setState içinde
+                          // başka bir setState çağırmamak için doğrudan atama.
                           setDialogState(() {
                             setState(() {
                               _note = _note?.copyWith(
                                 categoryId: null,
                                 clearCategory: true,
                               );
-                              _markUnsaved();
+                              _hasUnsavedChanges = true;
                             });
                           });
+                          _scheduleAutoSave();
                           Navigator.pop(ctx);
                         },
                       ),
@@ -1176,7 +1243,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(ctx),
+                  onPressed: () {
+                    nameController.dispose();
+                    Navigator.pop(ctx);
+                  },
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -1199,10 +1269,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 ),
                 FilledButton(
                   onPressed: () async {
-                    if (nameController.text.trim().isNotEmpty) {
-                      final newCat = NoteCategoryModel.create(
-                        name: nameController.text.trim(),
-                      );
+                    final name = nameController.text.trim();
+                    if (name.isNotEmpty) {
+                      final newCat = NoteCategoryModel.create(name: name);
                       await _categoryRepository.saveCategory(newCat);
                       await _loadCategories();
                       if (mounted) {
@@ -1211,6 +1280,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           _markUnsaved();
                         });
                       }
+                      nameController.dispose();
                       if (!ctx.mounted) return;
                       Navigator.pop(ctx);
                     }
@@ -1309,11 +1379,18 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             ),
           )
         else
+          // EC-CHECK-BTN: check butonu kaydetmeden çıkmayı önler;
+          // _saveNote() çalıştırılır ve sonra sayfa kapatılır.
           IconButton(
             icon: Icon(Icons.check_rounded, color: fgColor),
-            onPressed: () {
+            onPressed: () async {
               FocusScope.of(context).unfocus();
-              Navigator.of(context).pop();
+              if (_hasUnsavedChanges) {
+                await _saveNote();
+              }
+              if (mounted) {
+                Navigator.of(context).pop();
+              }
             },
           ),
       ],
@@ -1613,6 +1690,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       imageButtonOptions: QuillToolbarImageButtonOptions(
                         imageButtonConfig: QuillToolbarImageConfig(
                           onRequestPickImage: _pickAndReturnImagePath,
+                        ),
+                      ),
+                      videoButtonOptions: QuillToolbarVideoButtonOptions(
+                        videoConfig: QuillToolbarVideoConfig(
+                          onRequestPickVideo: _pickAndReturnVideoPath,
                         ),
                       ),
                     ),

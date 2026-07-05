@@ -73,6 +73,10 @@ class _NotesListPageState extends State<NotesListPage> {
     _initRepository();
   }
 
+  String _toTurkishLowerCase(String value) {
+    return value.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase();
+  }
+
   String _extractPlainText(String deltaJson) {
     try {
       final list = jsonDecode(deltaJson) as List;
@@ -82,10 +86,30 @@ class _NotesListPageState extends State<NotesListPage> {
           buffer.write(item['insert']);
         }
       }
-      return buffer.toString().toLowerCase();
+      return _toTurkishLowerCase(buffer.toString());
     } catch (e) {
-      return deltaJson.toLowerCase();
+      return _toTurkishLowerCase(deltaJson);
     }
+  }
+
+  /// Mevcut arama ve filtre durumuna göre görünen notları döndürür.
+  /// [_selectAll] ve [_buildAppBar] bununla çalışmalı — yoksa arama
+  /// modundayken görünmeyen notlar da seçilir (EC-SELECT-FILTER).
+  List<NoteModel> _getVisibleNotes() {
+    List<NoteModel> notes = _repository.getAllNotes();
+    if (_searchQuery.isNotEmpty) {
+      notes = notes.where((note) {
+        final titleMatch = _toTurkishLowerCase(note.title).contains(_searchQuery);
+        final contentMatch = _extractPlainText(note.deltaJson).contains(_searchQuery);
+        return titleMatch || contentMatch;
+      }).toList();
+    }
+    if (_selectedFilterId == 'pinned') {
+      notes = notes.where((note) => note.isPinned).toList();
+    } else if (_selectedFilterId != null) {
+      notes = notes.where((note) => note.categoryId == _selectedFilterId).toList();
+    }
+    return notes;
   }
 
   Future<void> _initRepository() async {
@@ -119,8 +143,11 @@ class _NotesListPageState extends State<NotesListPage> {
 
     bool allPinned = false;
     if (_isSelectionMode) {
-      final selectedNotes = _repository.getAllNotes().where((n) => _selectedNoteIds.contains(n.id));
-      allPinned = selectedNotes.isNotEmpty && selectedNotes.every((n) => n.isPinned);
+      final selectedNotes = _repository.getAllNotes().where(
+        (n) => _selectedNoteIds.contains(n.id),
+      );
+      allPinned =
+          selectedNotes.isNotEmpty && selectedNotes.every((n) => n.isPinned);
     }
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -156,7 +183,9 @@ class _NotesListPageState extends State<NotesListPage> {
               onTap: () {},
             ),
             _buildBottomAction(
-              icon: allPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
+              icon: allPinned
+                  ? Icons.push_pin_rounded
+                  : Icons.push_pin_outlined,
               label: allPinned ? context.l10n.unpinNote : context.l10n.pinNote,
               color: iconColor,
               onTap: () async {
@@ -179,9 +208,40 @@ class _NotesListPageState extends State<NotesListPage> {
               color: iconColor,
               onTap: () async {
                 final ids = _selectedNoteIds.toList();
-                _clearSelection();
-                await _repository.deleteNotes(ids);
-                if (mounted) AppSnackBar.success(context, context.l10n.noteDeleteConfirm);
+
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(context.l10n.warning),
+                    content: Text(
+                      '${ids.length} notu silmek istediğinize emin misiniz?',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text(context.l10n.cancel),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
+                        ),
+                        child: Text(context.l10n.delete),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm == true) {
+                  _clearSelection();
+                  await _repository.deleteNotes(ids);
+                  if (mounted) {
+                    AppSnackBar.success(
+                      context,
+                      context.l10n.noteDeleteConfirm,
+                    );
+                  }
+                }
               },
             ),
           ],
@@ -210,7 +270,12 @@ class _NotesListPageState extends State<NotesListPage> {
               const SizedBox(height: 4),
               Text(
                 label,
-                style: TextStyle(color: color, fontSize: 12, fontFamily: 'Inter', fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -230,7 +295,11 @@ class _NotesListPageState extends State<NotesListPage> {
         controller: _searchController,
         decoration: InputDecoration(
           hintText: context.l10n.searchNotes,
-          prefixIcon: Icon(Icons.search_rounded, color: colorScheme.onSurface.withValues(alpha: 0.5), size: 22),
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            color: colorScheme.onSurface.withValues(alpha: 0.5),
+            size: 22,
+          ),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear_rounded, size: 20),
@@ -257,7 +326,7 @@ class _NotesListPageState extends State<NotesListPage> {
         ),
         onChanged: (value) {
           setState(() {
-            _searchQuery = value.toLowerCase();
+            _searchQuery = _toTurkishLowerCase(value);
           });
         },
       ),
@@ -271,7 +340,7 @@ class _NotesListPageState extends State<NotesListPage> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: _buildAppBar(colorScheme),
-      body: _isReady 
+      body: _isReady
           ? Stack(
               children: [
                 Column(
@@ -283,7 +352,7 @@ class _NotesListPageState extends State<NotesListPage> {
                 ),
                 _buildBottomActionBar(colorScheme),
               ],
-            ) 
+            )
           : _buildLoading(),
       floatingActionButton: _isSelectionMode ? null : _buildFab(colorScheme),
     );
@@ -291,8 +360,12 @@ class _NotesListPageState extends State<NotesListPage> {
 
   PreferredSizeWidget _buildAppBar(ColorScheme colorScheme) {
     if (_isSelectionMode) {
-      final notes = _repository.getAllNotes();
-      final allSelected = _selectedNoteIds.length == notes.length && notes.isNotEmpty;
+      // EC-SELECT-FILTER: Filtrelenmiş/aranmış notları kullan;
+      // tüm notları değil sadece görünenleri seç.
+      final visibleNotes = _getVisibleNotes();
+      final allSelected =
+          visibleNotes.isNotEmpty &&
+          visibleNotes.every((n) => _selectedNoteIds.contains(n.id));
       return AppBar(
         backgroundColor: colorScheme.surface,
         elevation: 0,
@@ -313,8 +386,11 @@ class _NotesListPageState extends State<NotesListPage> {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: Icon(allSelected ? Icons.deselect_rounded : Icons.select_all_rounded, size: 22),
-            onPressed: () => _selectAll(notes),
+            icon: Icon(
+              allSelected ? Icons.deselect_rounded : Icons.select_all_rounded,
+              size: 22,
+            ),
+            onPressed: () => _selectAll(visibleNotes),
           ),
           const SizedBox(width: 4),
         ],
@@ -347,7 +423,10 @@ class _NotesListPageState extends State<NotesListPage> {
             builder: (context, box, _) {
               final isGrid = _repository.isGridView;
               return IconButton(
-                icon: Icon(isGrid ? Icons.view_agenda_rounded : Icons.grid_view_rounded, size: 22),
+                icon: Icon(
+                  isGrid ? Icons.view_agenda_rounded : Icons.grid_view_rounded,
+                  size: 22,
+                ),
                 onPressed: () => _repository.setGridView(!isGrid),
               );
             },
@@ -365,8 +444,12 @@ class _NotesListPageState extends State<NotesListPage> {
 
         if (_searchQuery.isNotEmpty) {
           notes = notes.where((note) {
-            final titleMatch = note.title.toLowerCase().contains(_searchQuery);
-            final contentMatch = _extractPlainText(note.deltaJson).contains(_searchQuery);
+            final titleMatch = _toTurkishLowerCase(
+              note.title,
+            ).contains(_searchQuery);
+            final contentMatch = _extractPlainText(
+              note.deltaJson,
+            ).contains(_searchQuery);
             return titleMatch || contentMatch;
           }).toList();
         }
@@ -374,7 +457,9 @@ class _NotesListPageState extends State<NotesListPage> {
         if (_selectedFilterId == 'pinned') {
           notes = notes.where((note) => note.isPinned).toList();
         } else if (_selectedFilterId != null) {
-          notes = notes.where((note) => note.categoryId == _selectedFilterId).toList();
+          notes = notes
+              .where((note) => note.categoryId == _selectedFilterId)
+              .toList();
         }
 
         final isGrid = _repository.isGridView;
@@ -468,7 +553,10 @@ class _NotesListPageState extends State<NotesListPage> {
       icon: const Icon(Icons.add_rounded),
       label: Text(
         context.l10n.newNote,
-        style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500),
+        style: const TextStyle(
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
@@ -483,7 +571,7 @@ class _NotesListPageState extends State<NotesListPage> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
           _buildChip(
-            label: context.l10n.allNotesFilter, 
+            label: context.l10n.allNotesFilter,
             isSelected: _selectedFilterId == null,
             onSelected: (_) {
               setState(() {
@@ -494,7 +582,7 @@ class _NotesListPageState extends State<NotesListPage> {
           ),
           const SizedBox(width: 8),
           _buildChip(
-            label: context.l10n.pinnedNotesFilter, 
+            label: context.l10n.pinnedNotesFilter,
             isSelected: _selectedFilterId == 'pinned',
             onSelected: (_) {
               setState(() {
@@ -522,7 +610,10 @@ class _NotesListPageState extends State<NotesListPage> {
             const SizedBox(width: 8),
           ],
           ActionChip(
-            label: Text('+ ${context.l10n.newNoteTag}', style: const TextStyle(fontFamily: 'Inter', fontSize: 13)),
+            label: Text(
+              '+ ${context.l10n.newNoteTag}',
+              style: const TextStyle(fontFamily: 'Inter', fontSize: 13),
+            ),
             onPressed: _showCreateCategoryDialog,
             backgroundColor: colorScheme.surface,
             side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
@@ -539,13 +630,22 @@ class _NotesListPageState extends State<NotesListPage> {
     required ColorScheme colorScheme,
   }) {
     return FilterChip(
-      label: Text(label, style: TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500)),
+      label: Text(
+        label,
+        style: TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 13,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+        ),
+      ),
       selected: isSelected,
       onSelected: onSelected,
       showCheckmark: false,
       backgroundColor: colorScheme.surface,
       selectedColor: colorScheme.primaryContainer,
-      side: isSelected ? BorderSide.none : BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+      side: isSelected
+          ? BorderSide.none
+          : BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
     );
   }
 
@@ -554,65 +654,119 @@ class _NotesListPageState extends State<NotesListPage> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF1E1E1E)
+              : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
           contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
           actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-          title: const Text('Kategoriyi Sil', style: TextStyle(fontFamily: 'Inter', fontSize: 20, fontWeight: FontWeight.w700)),
+          title: const Text(
+            'Kategoriyi Sil',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           content: Text(
             '"${cat.name}" kategorisini silmek istediğinize emin misiniz?\n\nBu kategoriye ait notlar silinmeyecek, sadece kategorisiz kalacaktır.',
-            style: TextStyle(fontFamily: 'Inter', color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8), fontSize: 15),
+            style: TextStyle(
+              fontFamily: 'Inter',
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.8),
+              fontSize: 15,
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              child: Text(context.l10n.cancel, style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
+              child: Text(
+                context.l10n.cancel,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
             ),
             FilledButton(
               onPressed: () async {
                 Navigator.pop(ctx);
                 await _categoryRepository.deleteCategory(cat.id);
                 await _repository.removeCategoryFromNotes(cat.id);
+                if (!mounted) return;
                 setState(() {
                   if (_selectedFilterId == cat.id) _selectedFilterId = null;
                   _allCategories = _categoryRepository.getAllCategories();
                 });
-                if (mounted) AppSnackBar.success(context, 'Kategori silindi');
+                AppSnackBar.success(context, 'Kategori silindi');
               },
               style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.error,
                 foregroundColor: Theme.of(context).colorScheme.onError,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              child: Text(context.l10n.delete, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold)),
+              child: Text(
+                context.l10n.delete,
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         );
-      }
+      },
     );
   }
 
   void _showCreateCategoryDialog() {
     final TextEditingController nameController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              backgroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E1E1E)
+                  : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
               titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
               contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
               actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-              title: Text(context.l10n.newNoteTag, style: const TextStyle(fontFamily: 'Inter', fontSize: 20, fontWeight: FontWeight.w700)),
+              title: Text(
+                context.l10n.newNoteTag,
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               content: SizedBox(
                 width: 360,
                 child: TextField(
@@ -621,18 +775,31 @@ class _NotesListPageState extends State<NotesListPage> {
                   textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
                     hintText: context.l10n.tagName,
-                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                    hintStyle: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
                     filled: true,
-                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    fillColor: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withValues(alpha: 0.3),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                   ),
                 ),
               ),
@@ -640,10 +807,24 @@ class _NotesListPageState extends State<NotesListPage> {
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
                   style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: Text(context.l10n.cancel, style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
+                  child: Text(
+                    context.l10n.cancel,
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
                 ),
                 FilledButton(
                   onPressed: () async {
@@ -660,26 +841,42 @@ class _NotesListPageState extends State<NotesListPage> {
                     }
                   },
                   style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: Text(context.l10n.createNoteTag, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold)),
+                  child: Text(
+                    context.l10n.createNoteTag,
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             );
-          }
+          },
         );
-      }
+      },
     );
   }
 
   void _showBulkAssignTagDialog(ColorScheme colorScheme) {
-    if (_allCategories.isEmpty) {
-      // It's okay to proceed because they might want to just remove the category
-      // AppSnackBar.error(context, context.l10n.tagAssignWarning);
-      // return;
+    final bool hasAnyTagAssigned = _selectedNoteIds.any(
+      (id) => _repository.getNoteById(id)?.categoryId != null,
+    );
+
+    if (_allCategories.isEmpty && !hasAnyTagAssigned) {
+      if (context.mounted) {
+        AppSnackBar.error(context, 'Henüz bir etiketiniz bulunmamaktadır.');
+      }
+      return;
     }
-    
+
     // Basit bir tag seçim dialogu
     showDialog(
       context: context,
@@ -687,8 +884,17 @@ class _NotesListPageState extends State<NotesListPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
-              title: Text(context.l10n.assignTag, style: const TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w600)),
+              backgroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E1E1E)
+                  : Colors.white,
+              title: Text(
+                context.l10n.assignTag,
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               content: SizedBox(
                 width: double.maxFinite,
                 child: Column(
@@ -703,7 +909,10 @@ class _NotesListPageState extends State<NotesListPage> {
                           return ListTile(
                             title: Row(
                               children: [
-                                Text(cat.name, style: const TextStyle(fontFamily: 'Inter')),
+                                Text(
+                                  cat.name,
+                                  style: const TextStyle(fontFamily: 'Inter'),
+                                ),
                               ],
                             ),
                             onTap: () async {
@@ -726,20 +935,33 @@ class _NotesListPageState extends State<NotesListPage> {
                                   }
                                 }
                               }
+                              if (!context.mounted) return;
                               _clearSelection();
-                              if (context.mounted) {
-                                AppSnackBar.success(context, context.l10n.tagAssignedSuccess);
-                              }
+                              AppSnackBar.success(
+                                context,
+                                context.l10n.tagAssignedSuccess,
+                              );
                             },
                           );
                         },
                       ),
                     ),
-                    if (_selectedNoteIds.any((id) => _repository.getNoteById(id)?.categoryId != null)) ...[
+                    if (_selectedNoteIds.any(
+                      (id) => _repository.getNoteById(id)?.categoryId != null,
+                    )) ...[
                       const Divider(),
                       ListTile(
-                        leading: Icon(Icons.layers_clear, color: colorScheme.error),
-                        title: Text(context.l10n.removeCategory, style: TextStyle(fontFamily: 'Inter', color: colorScheme.error)),
+                        leading: Icon(
+                          Icons.layers_clear,
+                          color: colorScheme.error,
+                        ),
+                        title: Text(
+                          context.l10n.removeCategory,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: colorScheme.error,
+                          ),
+                        ),
                         onTap: () async {
                           if (!ctx.mounted) return;
                           Navigator.pop(ctx);
@@ -759,10 +981,12 @@ class _NotesListPageState extends State<NotesListPage> {
                               );
                             }
                           }
+                          if (!context.mounted) return;
                           _clearSelection();
-                          if (context.mounted) {
-                            AppSnackBar.success(context, context.l10n.tagAssignedSuccess);
-                          }
+                          AppSnackBar.success(
+                            context,
+                            context.l10n.tagAssignedSuccess,
+                          );
                         },
                       ),
                     ],
@@ -772,13 +996,16 @@ class _NotesListPageState extends State<NotesListPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: Text(context.l10n.cancel, style: const TextStyle(fontFamily: 'Inter')),
+                  child: Text(
+                    context.l10n.cancel,
+                    style: const TextStyle(fontFamily: 'Inter'),
+                  ),
                 ),
               ],
             );
-          }
+          },
         );
-      }
+      },
     );
   }
 }
@@ -822,18 +1049,20 @@ class _NoteCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           child: Ink(
             decoration: BoxDecoration(
-              color: note.color != null 
-                  ? Color(note.color!) 
+              color: note.color != null
+                  ? Color(note.color!)
                   : (isDark
-                      ? colorScheme.surfaceContainerHigh
-                      : colorScheme.surfaceContainerLowest),
+                        ? colorScheme.surfaceContainerHigh
+                        : colorScheme.surfaceContainerLowest),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected 
-                    ? colorScheme.primary 
-                    : (isDark 
-                        ? colorScheme.outlineVariant.withValues(alpha: 0.3) 
-                        : Colors.black.withValues(alpha: 0.08)), // Pastel renklerde belli olması için ince ve saydam bir siyah
+                color: isSelected
+                    ? colorScheme.primary
+                    : (isDark
+                          ? colorScheme.outlineVariant.withValues(alpha: 0.3)
+                          : Colors.black.withValues(
+                              alpha: 0.08,
+                            )), // Pastel renklerde belli olması için ince ve saydam bir siyah
                 width: borderWidth,
               ),
               boxShadow: [
@@ -850,20 +1079,27 @@ class _NoteCard extends StatelessWidget {
             child: Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
-                  child: isGrid 
-                    ? _buildContent(context, colorScheme)
-                    : Row(
-                        children: [
-                          Expanded(child: _buildContent(context, colorScheme)),
-                          if (!isSelectionMode)
-                            Icon(
-                              Icons.chevron_right_rounded,
-                              size: 20,
-                              color: colorScheme.onSurface.withValues(alpha: 0.3),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: verticalPadding,
+                  ),
+                  child: isGrid
+                      ? _buildContent(context, colorScheme)
+                      : Row(
+                          children: [
+                            Expanded(
+                              child: _buildContent(context, colorScheme),
                             ),
-                        ],
-                      ),
+                            if (!isSelectionMode)
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                size: 20,
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.3,
+                                ),
+                              ),
+                          ],
+                        ),
                 ),
                 if (isSelectionMode)
                   Positioned(
@@ -873,16 +1109,22 @@ class _NoteCard extends StatelessWidget {
                       padding: const EdgeInsets.all(2),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: isSelected ? colorScheme.primary : colorScheme.surface,
+                        color: isSelected
+                            ? colorScheme.primary
+                            : colorScheme.surface,
                         border: Border.all(
-                          color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.3),
+                          color: isSelected
+                              ? colorScheme.primary
+                              : colorScheme.onSurface.withValues(alpha: 0.3),
                           width: 2,
                         ),
                       ),
                       child: Icon(
                         Icons.check_rounded,
                         size: 14,
-                        color: isSelected ? colorScheme.onPrimary : Colors.transparent,
+                        color: isSelected
+                            ? colorScheme.onPrimary
+                            : Colors.transparent,
                       ),
                     ),
                   ),
@@ -895,12 +1137,10 @@ class _NoteCard extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context, ColorScheme colorScheme) {
-    final title = note.title.isEmpty
-        ? context.l10n.noteUntitled
-        : note.title;
+    final title = note.title.isEmpty ? context.l10n.noteUntitled : note.title;
 
     final dateStr = _formatDate(context, note.updatedAt);
-    
+
     final snippet = _extractPlainText(note.deltaJson);
 
     return Column(
@@ -918,7 +1158,9 @@ class _NoteCard extends StatelessWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -0.3,
-                  color: note.color != null ? Colors.black87 : colorScheme.onSurface,
+                  color: note.color != null
+                      ? Colors.black87
+                      : colorScheme.onSurface,
                   fontFamily: 'Inter',
                 ),
               ),
@@ -928,7 +1170,9 @@ class _NoteCard extends StatelessWidget {
               Icon(
                 Icons.push_pin_rounded,
                 size: 16,
-                color: note.color != null ? Colors.black87.withValues(alpha: 0.7) : colorScheme.onSurface.withValues(alpha: 0.7),
+                color: note.color != null
+                    ? Colors.black87.withValues(alpha: 0.7)
+                    : colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ],
           ],
@@ -940,7 +1184,9 @@ class _NoteCard extends StatelessWidget {
             height: 2,
             width: 24,
             decoration: BoxDecoration(
-              color: note.color != null ? Colors.black.withValues(alpha: 0.08) : colorScheme.onSurface.withValues(alpha: 0.08),
+              color: note.color != null
+                  ? Colors.black.withValues(alpha: 0.08)
+                  : colorScheme.onSurface.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(1),
             ),
           ),
@@ -952,7 +1198,9 @@ class _NoteCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               height: 1.5,
-              color: note.color != null ? Colors.black87.withValues(alpha: 0.7) : colorScheme.onSurface.withValues(alpha: 0.7),
+              color: note.color != null
+                  ? Colors.black87.withValues(alpha: 0.7)
+                  : colorScheme.onSurface.withValues(alpha: 0.7),
               fontFamily: 'Inter',
             ),
           ),
@@ -966,7 +1214,9 @@ class _NoteCard extends StatelessWidget {
             Icon(
               Icons.schedule_rounded,
               size: 13,
-              color: note.color != null ? Colors.black45 : colorScheme.onSurface.withValues(alpha: 0.4),
+              color: note.color != null
+                  ? Colors.black45
+                  : colorScheme.onSurface.withValues(alpha: 0.4),
             ),
             const SizedBox(width: 4),
             Expanded(
@@ -974,7 +1224,9 @@ class _NoteCard extends StatelessWidget {
                 context.l10n.noteLastEdited(dateStr),
                 style: TextStyle(
                   fontSize: 12,
-                  color: note.color != null ? Colors.black54 : colorScheme.onSurface.withValues(alpha: 0.45),
+                  color: note.color != null
+                      ? Colors.black54
+                      : colorScheme.onSurface.withValues(alpha: 0.45),
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w500,
                 ),

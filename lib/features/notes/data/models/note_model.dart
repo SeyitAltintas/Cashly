@@ -76,8 +76,12 @@ class NoteModel {
             ((map['categoryIds'] as List<dynamic>?)?.isNotEmpty == true 
                 ? (map['categoryIds'] as List<dynamic>).first.toString() 
                 : null),
-        createdAt: DateTime.parse(map['createdAt'] as String),
-        updatedAt: DateTime.parse(map['updatedAt'] as String),
+        createdAt: map['createdAt'] != null 
+            ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now() 
+            : DateTime.now(),
+        updatedAt: map['updatedAt'] != null 
+            ? DateTime.tryParse(map['updatedAt'].toString()) ?? DateTime.now() 
+            : DateTime.now(),
       );
 
   factory NoteModel.empty() {
