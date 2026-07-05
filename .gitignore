@@ -65,3 +65,6 @@ macos/Runner/GoogleService-Info.plist
 # DevTools and debugging
 devtoolshatalari/
 scratch_analyze.py
+
+# Graphify
+graphify-out/

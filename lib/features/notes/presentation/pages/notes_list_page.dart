@@ -99,15 +99,21 @@ class _NotesListPageState extends State<NotesListPage> {
     List<NoteModel> notes = _repository.getAllNotes();
     if (_searchQuery.isNotEmpty) {
       notes = notes.where((note) {
-        final titleMatch = _toTurkishLowerCase(note.title).contains(_searchQuery);
-        final contentMatch = _extractPlainText(note.deltaJson).contains(_searchQuery);
+        final titleMatch = _toTurkishLowerCase(
+          note.title,
+        ).contains(_searchQuery);
+        final contentMatch = _extractPlainText(
+          note.deltaJson,
+        ).contains(_searchQuery);
         return titleMatch || contentMatch;
       }).toList();
     }
     if (_selectedFilterId == 'pinned') {
       notes = notes.where((note) => note.isPinned).toList();
     } else if (_selectedFilterId != null) {
-      notes = notes.where((note) => note.categoryId == _selectedFilterId).toList();
+      notes = notes
+          .where((note) => note.categoryId == _selectedFilterId)
+          .toList();
     }
     return notes;
   }
@@ -337,24 +343,27 @@ class _NotesListPageState extends State<NotesListPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: _buildAppBar(colorScheme),
-      body: _isReady
-          ? Stack(
-              children: [
-                Column(
-                  children: [
-                    _buildSearchBar(colorScheme),
-                    _buildFilterChips(colorScheme),
-                    Expanded(child: _buildBody(colorScheme)),
-                  ],
-                ),
-                _buildBottomActionBar(colorScheme),
-              ],
-            )
-          : _buildLoading(),
-      floatingActionButton: _isSelectionMode ? null : _buildFab(colorScheme),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: colorScheme.surface,
+        appBar: _buildAppBar(colorScheme),
+        body: _isReady
+            ? Stack(
+                children: [
+                  Column(
+                    children: [
+                      _buildSearchBar(colorScheme),
+                      _buildFilterChips(colorScheme),
+                      Expanded(child: _buildBody(colorScheme)),
+                    ],
+                  ),
+                  _buildBottomActionBar(colorScheme),
+                ],
+              )
+            : _buildLoading(),
+        floatingActionButton: _isSelectionMode ? null : _buildFab(colorScheme),
+      ),
     );
   }
 
@@ -468,6 +477,7 @@ class _NotesListPageState extends State<NotesListPage> {
 
         if (isGrid) {
           return MasonryGridView.builder(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
             gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
@@ -493,6 +503,7 @@ class _NotesListPageState extends State<NotesListPage> {
         }
 
         return ListView.separated(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
           itemCount: notes.length,
           separatorBuilder: (context, index) => const SizedBox(height: 12),
