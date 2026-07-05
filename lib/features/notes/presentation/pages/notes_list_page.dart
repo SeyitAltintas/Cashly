@@ -23,6 +23,9 @@ class _NotesListPageState extends State<NotesListPage> {
   final NoteRepository _repository = NoteRepository();
   bool _isReady = false;
 
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
   final Set<String> _selectedNoteIds = {};
   bool get _isSelectionMode => _selectedNoteIds.isNotEmpty;
 
@@ -53,9 +56,30 @@ class _NotesListPageState extends State<NotesListPage> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _initRepository();
+  }
+
+  String _extractPlainText(String deltaJson) {
+    try {
+      final list = jsonDecode(deltaJson) as List;
+      final buffer = StringBuffer();
+      for (final item in list) {
+        if (item is Map && item['insert'] is String) {
+          buffer.write(item['insert']);
+        }
+      }
+      return buffer.toString().toLowerCase();
+    } catch (e) {
+      return deltaJson.toLowerCase();
+    }
   }
 
   Future<void> _initRepository() async {
@@ -137,6 +161,49 @@ class _NotesListPageState extends State<NotesListPage> {
 
   // ─── Build ──────────────────────────────────────────────────────────────
 
+  Widget _buildSearchBar(ColorScheme colorScheme) {
+    if (_isSelectionMode) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: '${context.l10n.search}...',
+          prefixIcon: Icon(Icons.search_rounded, color: colorScheme.onSurface.withValues(alpha: 0.5), size: 22),
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear_rounded, size: 20),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+        ),
+        style: TextStyle(
+          fontSize: 16,
+          color: colorScheme.onSurface,
+          fontFamily: 'Inter',
+        ),
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value.toLowerCase();
+          });
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -147,7 +214,12 @@ class _NotesListPageState extends State<NotesListPage> {
       body: _isReady 
           ? Stack(
               children: [
-                _buildBody(colorScheme),
+                Column(
+                  children: [
+                    _buildSearchBar(colorScheme),
+                    Expanded(child: _buildBody(colorScheme)),
+                  ],
+                ),
                 _buildBottomActionBar(colorScheme),
               ],
             ) 
@@ -228,7 +300,15 @@ class _NotesListPageState extends State<NotesListPage> {
     return ValueListenableBuilder<Box>(
       valueListenable: _repository.listenable(),
       builder: (context, box, _) {
-        final notes = _repository.getAllNotes();
+        List<NoteModel> notes = _repository.getAllNotes();
+
+        if (_searchQuery.isNotEmpty) {
+          notes = notes.where((note) {
+            final titleMatch = note.title.toLowerCase().contains(_searchQuery);
+            final contentMatch = _extractPlainText(note.deltaJson).contains(_searchQuery);
+            return titleMatch || contentMatch;
+          }).toList();
+        }
 
         final isGrid = _repository.isGridView;
 
