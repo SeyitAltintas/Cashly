@@ -122,6 +122,17 @@ class NoteRepository {
     }
   }
 
+  /// Çoklu not sabitleme/kaldırma.
+  Future<void> setPinStateForNotes(List<String> ids, bool isPinned) async {
+    await init();
+    for (final id in ids) {
+      final note = getNoteById(id);
+      if (note != null) {
+        await saveNote(note.copyWith(isPinned: isPinned));
+      }
+    }
+  }
+
   /// Sadece delta ve başlık günceller; createdAt değişmez.
   ///
   /// [originalCreatedAt]: Editor'den iletilir. Not dışardan silinmişse
@@ -169,6 +180,13 @@ class NoteRepository {
     await _requireBox.delete(id);
     if (note != null) {
       _deleteLocalImages(note.deltaJson); // fire-and-forget, hata fırlatsın
+    }
+  }
+
+  /// Çoklu not silme.
+  Future<void> deleteNotes(List<String> ids) async {
+    for (final id in ids) {
+      await deleteNote(id);
     }
   }
 

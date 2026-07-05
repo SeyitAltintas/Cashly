@@ -23,6 +23,35 @@ class _NotesListPageState extends State<NotesListPage> {
   final NoteRepository _repository = NoteRepository();
   bool _isReady = false;
 
+  final Set<String> _selectedNoteIds = {};
+  bool get _isSelectionMode => _selectedNoteIds.isNotEmpty;
+
+  void _toggleSelection(String id) {
+    setState(() {
+      if (_selectedNoteIds.contains(id)) {
+        _selectedNoteIds.remove(id);
+      } else {
+        _selectedNoteIds.add(id);
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() {
+      _selectedNoteIds.clear();
+    });
+  }
+
+  void _selectAll(List<NoteModel> notes) {
+    setState(() {
+      if (_selectedNoteIds.length == notes.length) {
+        _selectedNoteIds.clear();
+      } else {
+        _selectedNoteIds.addAll(notes.map((n) => n.id));
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -46,61 +75,63 @@ class _NotesListPageState extends State<NotesListPage> {
     // Hive listenable otomatik günceller — setState gerekmez.
   }
 
-  // ─── Silme ve Seçenekler ────────────────────────────────────────────────
+  // ─── Bottom Action Bar (Toplu İşlem) ────────────────────────────────────
 
-  Future<void> _deleteNote(String id) async {
-    try {
-      await _repository.deleteNote(id);
-      if (mounted) AppSnackBar.success(context, context.l10n.noteDeleteConfirm);
-    } catch (_) {
-      if (mounted) AppSnackBar.error(context, context.l10n.saveFailed);
+  Widget _buildBottomActionBar(ColorScheme colorScheme) {
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
+    final barHeight = 64.0 + bottomPadding;
+
+    bool allPinned = false;
+    if (_isSelectionMode) {
+      final selectedNotes = _repository.getAllNotes().where((n) => _selectedNoteIds.contains(n.id));
+      allPinned = selectedNotes.isNotEmpty && selectedNotes.every((n) => n.isPinned);
     }
-  }
 
-  void _showNoteOptions(NoteModel note) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+      bottom: _isSelectionMode ? 0 : -barHeight,
+      left: 0,
+      right: 0,
+      height: barHeight,
+      child: Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHigh,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        padding: EdgeInsets.only(bottom: bottomPadding),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            TextButton.icon(
+              onPressed: () async {
+                final ids = _selectedNoteIds.toList();
+                final newState = !allPinned;
+                _clearSelection();
+                await _repository.setPinStateForNotes(ids, newState);
+              },
+              icon: Icon(allPinned ? Icons.push_pin_outlined : Icons.push_pin_rounded, color: colorScheme.onSurface),
+              label: Text(allPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle', style: TextStyle(color: colorScheme.onSurface, fontFamily: 'Inter', fontWeight: FontWeight.w600)),
+            ),
+            TextButton.icon(
+              onPressed: () async {
+                final ids = _selectedNoteIds.toList();
+                _clearSelection();
+                await _repository.deleteNotes(ids);
+                if (mounted) AppSnackBar.success(context, context.l10n.noteDeleteConfirm);
+              },
+              icon: Icon(Icons.delete_outline_rounded, color: colorScheme.error),
+              label: Text(context.l10n.delete, style: TextStyle(color: colorScheme.error, fontFamily: 'Inter', fontWeight: FontWeight.w600)),
+            ),
+          ],
+        ),
       ),
-      builder: (context) {
-        final colorScheme = Theme.of(context).colorScheme;
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                leading: Icon(note.isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined),
-                title: Text(note.isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle', style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500)),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _repository.togglePin(note.id);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.delete_outline_rounded, color: colorScheme.error),
-                title: Text(context.l10n.delete, style: TextStyle(color: colorScheme.error, fontFamily: 'Inter', fontWeight: FontWeight.w500)),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _deleteNote(note.id);
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
     );
   }
 
@@ -113,12 +144,50 @@ class _NotesListPageState extends State<NotesListPage> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: _buildAppBar(colorScheme),
-      body: _isReady ? _buildBody(colorScheme) : _buildLoading(),
-      floatingActionButton: _buildFab(colorScheme),
+      body: _isReady 
+          ? Stack(
+              children: [
+                _buildBody(colorScheme),
+                _buildBottomActionBar(colorScheme),
+              ],
+            ) 
+          : _buildLoading(),
+      floatingActionButton: _isSelectionMode ? null : _buildFab(colorScheme),
     );
   }
 
   PreferredSizeWidget _buildAppBar(ColorScheme colorScheme) {
+    if (_isSelectionMode) {
+      final notes = _repository.getAllNotes();
+      final allSelected = _selectedNoteIds.length == notes.length && notes.isNotEmpty;
+      return AppBar(
+        backgroundColor: colorScheme.surface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close_rounded, size: 22),
+          onPressed: _clearSelection,
+        ),
+        title: Text(
+          '${_selectedNoteIds.length} Seçildi',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+            fontFamily: 'Inter',
+          ),
+        ),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            icon: Icon(allSelected ? Icons.deselect_rounded : Icons.select_all_rounded, size: 22),
+            onPressed: () => _selectAll(notes),
+          ),
+          const SizedBox(width: 4),
+        ],
+      );
+    }
+
     return AppBar(
       backgroundColor: colorScheme.surface,
       elevation: 0,
@@ -171,14 +240,22 @@ class _NotesListPageState extends State<NotesListPage> {
             gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
             ),
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
             itemCount: notes.length,
             itemBuilder: (context, index) => _NoteCard(
               note: notes[index],
               isGrid: true,
-              onTap: () => _openNote(notes[index].id),
-              onLongPress: () => _showNoteOptions(notes[index]),
+              isSelected: _selectedNoteIds.contains(notes[index].id),
+              isSelectionMode: _isSelectionMode,
+              onTap: () {
+                if (_isSelectionMode) {
+                  _toggleSelection(notes[index].id);
+                } else {
+                  _openNote(notes[index].id);
+                }
+              },
+              onLongPress: () => _toggleSelection(notes[index].id),
             ),
           );
         }
@@ -186,12 +263,20 @@ class _NotesListPageState extends State<NotesListPage> {
         return ListView.separated(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
           itemCount: notes.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 8),
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) => _NoteCard(
             note: notes[index],
             isGrid: false,
-            onTap: () => _openNote(notes[index].id),
-            onLongPress: () => _showNoteOptions(notes[index]),
+            isSelected: _selectedNoteIds.contains(notes[index].id),
+            isSelectionMode: _isSelectionMode,
+            onTap: () {
+              if (_isSelectionMode) {
+                _toggleSelection(notes[index].id);
+              } else {
+                _openNote(notes[index].id);
+              }
+            },
+            onLongPress: () => _toggleSelection(notes[index].id),
           ),
         );
       },
@@ -247,12 +332,16 @@ class _NotesListPageState extends State<NotesListPage> {
 class _NoteCard extends StatelessWidget {
   final NoteModel note;
   final bool isGrid;
+  final bool isSelected;
+  final bool isSelectionMode;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
 
   const _NoteCard({
     required this.note,
     this.isGrid = false,
+    this.isSelected = false,
+    this.isSelectionMode = false,
     required this.onTap,
     required this.onLongPress,
   });
@@ -261,6 +350,11 @@ class _NoteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final double borderWidth = isSelected ? 2.0 : 1.0;
+    final double horizontalPadding = 16.0 - borderWidth;
+    final double verticalPadding = 14.0 - borderWidth;
+    final double checkmarkOffset = 12.0 - borderWidth;
 
     return Hero(
       tag: 'note_hero_${note.id}',
@@ -278,10 +372,14 @@ class _NoteCard extends StatelessWidget {
                       ? colorScheme.surfaceContainerHigh
                       : colorScheme.surfaceContainerLowest),
               borderRadius: BorderRadius.circular(16),
-              border: isDark ? Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-                width: 1,
-              ) : null,
+              border: Border.all(
+                color: isSelected 
+                    ? colorScheme.primary 
+                    : (isDark 
+                        ? colorScheme.outlineVariant.withValues(alpha: 0.3) 
+                        : Colors.black.withValues(alpha: 0.08)), // Pastel renklerde belli olması için ince ve saydam bir siyah
+                width: borderWidth,
+              ),
               boxShadow: [
                 if (!isDark)
                   BoxShadow(
@@ -293,20 +391,46 @@ class _NoteCard extends StatelessWidget {
                   ),
               ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: isGrid 
-                ? _buildContent(context, colorScheme)
-                : Row(
-                    children: [
-                      Expanded(child: _buildContent(context, colorScheme)),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        size: 20,
-                        color: colorScheme.onSurface.withValues(alpha: 0.3),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
+                  child: isGrid 
+                    ? _buildContent(context, colorScheme)
+                    : Row(
+                        children: [
+                          Expanded(child: _buildContent(context, colorScheme)),
+                          if (!isSelectionMode)
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              size: 20,
+                              color: colorScheme.onSurface.withValues(alpha: 0.3),
+                            ),
+                        ],
                       ),
-                    ],
+                ),
+                if (isSelectionMode)
+                  Positioned(
+                    bottom: checkmarkOffset,
+                    right: checkmarkOffset,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isSelected ? colorScheme.primary : colorScheme.surface,
+                        border: Border.all(
+                          color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.3),
+                          width: 2,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.check_rounded,
+                        size: 14,
+                        color: isSelected ? colorScheme.onPrimary : Colors.transparent,
+                      ),
+                    ),
                   ),
+              ],
             ),
           ),
         ),
