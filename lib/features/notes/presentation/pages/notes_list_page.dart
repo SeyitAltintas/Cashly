@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:cashly/core/extensions/l10n_extensions.dart';
@@ -45,13 +46,62 @@ class _NotesListPageState extends State<NotesListPage> {
     // Hive listenable otomatik günceller — setState gerekmez.
   }
 
-  // ─── Silme ──────────────────────────────────────────────────────────────
+  // ─── Silme ve Seçenekler ────────────────────────────────────────────────
 
   Future<void> _deleteNote(String id) async {
-    // EC-7: Exception fırlat ki confirmDismiss catch bloğu çalışsın.
-    // Hata durumunda item geri döner; snackbar confirmDismiss içinde handle edilir.
-    await _repository.deleteNote(id);
-    if (mounted) AppSnackBar.success(context, context.l10n.noteDeleteConfirm);
+    try {
+      await _repository.deleteNote(id);
+      if (mounted) AppSnackBar.success(context, context.l10n.noteDeleteConfirm);
+    } catch (_) {
+      if (mounted) AppSnackBar.error(context, context.l10n.saveFailed);
+    }
+  }
+
+  void _showNoteOptions(NoteModel note) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        final colorScheme = Theme.of(context).colorScheme;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: Icon(note.isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined),
+                title: Text(note.isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle', style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500)),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _repository.togglePin(note.id);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete_outline_rounded, color: colorScheme.error),
+                title: Text(context.l10n.delete, style: TextStyle(color: colorScheme.error, fontFamily: 'Inter', fontWeight: FontWeight.w500)),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _deleteNote(note.id);
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   // ─── Build ──────────────────────────────────────────────────────────────
@@ -128,7 +178,7 @@ class _NotesListPageState extends State<NotesListPage> {
               note: notes[index],
               isGrid: true,
               onTap: () => _openNote(notes[index].id),
-              onDelete: () => _deleteNote(notes[index].id),
+              onLongPress: () => _showNoteOptions(notes[index]),
             ),
           );
         }
@@ -141,7 +191,7 @@ class _NotesListPageState extends State<NotesListPage> {
             note: notes[index],
             isGrid: false,
             onTap: () => _openNote(notes[index].id),
-            onDelete: () => _deleteNote(notes[index].id),
+            onLongPress: () => _showNoteOptions(notes[index]),
           ),
         );
       },
@@ -198,13 +248,13 @@ class _NoteCard extends StatelessWidget {
   final NoteModel note;
   final bool isGrid;
   final VoidCallback onTap;
-  final Future<void> Function() onDelete;
+  final VoidCallback onLongPress;
 
   const _NoteCard({
     required this.note,
     this.isGrid = false,
     required this.onTap,
-    required this.onDelete,
+    required this.onLongPress,
   });
 
   @override
@@ -212,51 +262,38 @@ class _NoteCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Dismissible(
-      key: ValueKey(note.id),
-      direction: DismissDirection.endToStart,
-      background: _buildDismissBackground(colorScheme),
-      // EC-9: Hata durumunda snackbar göster; false dönerse item geri gelir.
-      confirmDismiss: (_) async {
-        try {
-          await onDelete();
-          return true;
-        } catch (_) {
-          if (context.mounted) {
-            AppSnackBar.error(context, context.l10n.saveFailed);
-          }
-          return false; // item geri döner
-        }
-      },
-      child: Hero(
-        tag: 'note_hero_${note.id}',
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(16),
-            child: Ink(
-              decoration: BoxDecoration(
-                color: note.color != null 
-                    ? Color(note.color!) 
-                    : (isDark
-                        ? colorScheme.surfaceContainerHigh
-                        : colorScheme.surfaceContainerLowest),
-                borderRadius: BorderRadius.circular(16),
-                border: isDark ? Border.all(
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-                  width: 1,
-                ) : null,
-                boxShadow: [
-                  if (!isDark && note.color == null)
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                ],
-              ),
-              child: Padding(
+    return Hero(
+      tag: 'note_hero_${note.id}',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: onLongPress,
+          borderRadius: BorderRadius.circular(16),
+          child: Ink(
+            decoration: BoxDecoration(
+              color: note.color != null 
+                  ? Color(note.color!) 
+                  : (isDark
+                      ? colorScheme.surfaceContainerHigh
+                      : colorScheme.surfaceContainerLowest),
+              borderRadius: BorderRadius.circular(16),
+              border: isDark ? Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                width: 1,
+              ) : null,
+              boxShadow: [
+                if (!isDark)
+                  BoxShadow(
+                    color: note.color != null
+                        ? Color(note.color!).withValues(alpha: 0.35)
+                        : colorScheme.shadow.withValues(alpha: 0.06),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+              ],
+            ),
+            child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: isGrid 
                 ? _buildContent(context, colorScheme)
@@ -274,7 +311,6 @@ class _NoteCard extends StatelessWidget {
           ),
         ),
       ),
-      ),
     );
   }
 
@@ -284,46 +320,114 @@ class _NoteCard extends StatelessWidget {
         : note.title;
 
     final dateStr = _formatDate(context, note.updatedAt);
+    
+    final snippet = _extractPlainText(note.deltaJson);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          maxLines: isGrid ? 5 : 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: note.color != null ? Colors.black87 : colorScheme.onSurface,
-            fontFamily: 'Inter',
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                maxLines: isGrid ? 2 : 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.3,
+                  color: note.color != null ? Colors.black87 : colorScheme.onSurface,
+                  fontFamily: 'Inter',
+                ),
+              ),
+            ),
+            if (note.isPinned) ...[
+              const SizedBox(width: 8),
+              Icon(
+                Icons.push_pin_rounded,
+                size: 16,
+                color: note.color != null ? Colors.black87.withValues(alpha: 0.7) : colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ],
+          ],
         ),
-        if (isGrid) const SizedBox(height: 12),
-        if (!isGrid) const SizedBox(height: 4),
-        Text(
-          context.l10n.noteLastEdited(dateStr),
-          style: TextStyle(
-            fontSize: 12,
-            color: note.color != null ? Colors.black54 : colorScheme.onSurface.withValues(alpha: 0.45),
-            fontFamily: 'Inter',
+        if (snippet.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          // Zarif ayırıcı çizgi
+          Container(
+            height: 2,
+            width: 24,
+            decoration: BoxDecoration(
+              color: note.color != null ? Colors.black.withValues(alpha: 0.08) : colorScheme.onSurface.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(1),
+            ),
           ),
+          const SizedBox(height: 8),
+          Text(
+            snippet,
+            maxLines: isGrid ? 8 : 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.5,
+              color: note.color != null ? Colors.black87.withValues(alpha: 0.7) : colorScheme.onSurface.withValues(alpha: 0.7),
+              fontFamily: 'Inter',
+            ),
+          ),
+        ],
+        if (isGrid) const SizedBox(height: 14),
+        if (!isGrid) const SizedBox(height: 10),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.schedule_rounded,
+              size: 13,
+              color: note.color != null ? Colors.black45 : colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                context.l10n.noteLastEdited(dateStr),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: note.color != null ? Colors.black54 : colorScheme.onSurface.withValues(alpha: 0.45),
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  Widget _buildDismissBackground(ColorScheme colorScheme) {
-    return Container(
-      alignment: Alignment.centerRight,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: colorScheme.error.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Icon(Icons.delete_outline_rounded, color: colorScheme.error, size: 22),
-    );
+  String _extractPlainText(String deltaJson) {
+    if (deltaJson.isEmpty || deltaJson == '[]') return '';
+    try {
+      final List<dynamic> ops = jsonDecode(deltaJson);
+      final buffer = StringBuffer();
+      for (final op in ops) {
+        if (op is Map<String, dynamic> && op.containsKey('insert')) {
+          final insert = op['insert'];
+          if (insert is String) {
+            buffer.write(insert);
+          }
+        }
+      }
+      return buffer.toString().trim();
+    } catch (_) {
+      return '';
+    }
   }
+
+  // Dismissible background removed
 
   String _formatDate(BuildContext context, DateTime date) {
     // EC-1: toLocal() ile UTC → yerel saat dönüşümü; takvim günü bazlı fark.

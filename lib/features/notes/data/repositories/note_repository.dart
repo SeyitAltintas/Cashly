@@ -85,7 +85,12 @@ class NoteRepository {
         // Bozuk Hive girdisi — atla, listeyi bozmaya bırakma.
       }
     }
-    return result..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    result.sort((a, b) {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return b.updatedAt.compareTo(a.updatedAt);
+    });
+    return result;
   }
 
   /// ID'ye göre tek not getirir. Bulunamazsa veya bozuksa null döner.
@@ -107,6 +112,14 @@ class NoteRepository {
   Future<void> saveNote(NoteModel note) async {
     await init();
     await _requireBox.put(note.id, note.toMap());
+  }
+
+  /// Notun sabitlenme durumunu değiştirir.
+  Future<void> togglePin(String id) async {
+    final note = getNoteById(id);
+    if (note != null) {
+      await saveNote(note.copyWith(isPinned: !note.isPinned));
+    }
   }
 
   /// Sadece delta ve başlık günceller; createdAt değişmez.

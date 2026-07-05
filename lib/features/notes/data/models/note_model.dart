@@ -10,6 +10,7 @@ class NoteModel {
     required this.deltaJson,
     this.title = '',
     this.color,
+    this.isPinned = false,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -22,6 +23,8 @@ class NoteModel {
 
   /// Notun özel arka plan rengi (null ise varsayılan tema rengi)
   final int? color;
+  
+  final bool isPinned;
 
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -31,6 +34,7 @@ class NoteModel {
     String? deltaJson,
     int? color,
     bool clearColor = false,
+    bool? isPinned,
     DateTime? updatedAt,
   }) {
     return NoteModel(
@@ -38,6 +42,7 @@ class NoteModel {
       title: title ?? this.title,
       deltaJson: deltaJson ?? this.deltaJson,
       color: clearColor ? null : (color ?? this.color),
+      isPinned: isPinned ?? this.isPinned,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -48,28 +53,29 @@ class NoteModel {
         'title': title,
         'deltaJson': deltaJson,
         'color': color,
+        'isPinned': isPinned,
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
       };
 
   factory NoteModel.fromMap(Map<String, dynamic> map) => NoteModel(
-        id: (map['id'] as String?) ?? '',   // EC-16: null-safe cast; '' → catch'e düşer
+        id: (map['id'] as String?) ?? '',
         title: (map['title'] as String?) ?? '',
         deltaJson: (map['deltaJson'] as String?) ?? '[]',
         color: map['color'] as int?,
+        isPinned: (map['isPinned'] as bool?) ?? false,
         createdAt: DateTime.parse(map['createdAt'] as String),
         updatedAt: DateTime.parse(map['updatedAt'] as String),
       );
 
-  /// Boş bir not oluşturur — yeni not sayfası açıldığında kullanılır.
-  /// Benzersiz ID: mikrosaniye + 4 haneli random suffix → çakışmaz.
   factory NoteModel.empty() {
     final ts = DateTime.now().microsecondsSinceEpoch;
-    final rnd = Random().nextInt(9000) + 1000; // 1000-9999
+    final rnd = Random().nextInt(9000) + 1000;
     return NoteModel(
       id: '${ts}_$rnd',
       deltaJson: '[]',
       color: null,
+      isPinned: false,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
