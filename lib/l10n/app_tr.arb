@@ -1351,7 +1351,7 @@
   "notesEmpty": "Henüz not yok. Yeni not eklemek için + düğmesine dokunun.",
   "noteDeleteConfirm": "Not silindi",
   "noteUntitled": "Başlıksız Not",
-  "noteLastEdited": "{date} tarihinde düzenlendi",
+  "noteLastEdited": "Son düzenleme: {date}",
   "@noteLastEdited": {
     "placeholders": {
       "date": { "type": "String" }

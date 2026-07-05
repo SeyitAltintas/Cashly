@@ -1332,7 +1332,7 @@
   "notesEmpty": "No notes yet. Tap + to create one.",
   "noteDeleteConfirm": "Note deleted",
   "noteUntitled": "Untitled Note",
-  "noteLastEdited": "Edited {date}",
+  "noteLastEdited": "Last edited: {date}",
   "@noteLastEdited": {
     "placeholders": {
       "date": { "type": "String" }

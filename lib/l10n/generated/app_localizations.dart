@@ -5639,7 +5639,7 @@ abstract class AppLocalizations {
   /// No description provided for @noteLastEdited.
   ///
   /// In tr, this message translates to:
-  /// **'{date} tarihinde düzenlendi'**
+  /// **'Son düzenleme: {date}'**
   String noteLastEdited(String date);
 
   /// No description provided for @newNote.

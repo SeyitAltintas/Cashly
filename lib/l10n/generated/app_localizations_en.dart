@@ -3008,7 +3008,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String noteLastEdited(String date) {
-    return 'Edited $date';
+    return 'Last edited: $date';
   }
 
   @override

@@ -3010,7 +3010,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String noteLastEdited(String date) {
-    return '$date tarihinde düzenlendi';
+    return 'Son düzenleme: $date';
   }
 
   @override
