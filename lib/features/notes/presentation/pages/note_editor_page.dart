@@ -941,7 +941,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           letterSpacing: -0.5,
         ),
         decoration: InputDecoration(
-          hintText: context.l10n.noteEditorHint,
+          hintText: context.l10n.noteUntitled,
           hintStyle: TextStyle(color: fgColor.withValues(alpha: 0.3)),
           border: InputBorder.none,
           isDense: true,
