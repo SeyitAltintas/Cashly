@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -17,17 +17,17 @@ import 'package:cashly/features/notes/data/models/note_category_model.dart';
 import 'package:cashly/features/notes/data/repositories/note_repository.dart';
 import 'package:cashly/features/notes/data/repositories/note_category_repository.dart';
 
-// ─── Sabitler ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Sabitler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const int _kImageMaxWidth = 1280;
 const int _kImageQuality = 78;
 
-// ─── Widget ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-/// Zengin metin not editörü sayfası.
+/// Zengin metin not editÃ¶rÃ¼ sayfasÄ±.
 ///
-/// [noteId] verilirse mevcut notu yükler ve günceller.
-/// Verilmezse yeni bir not oluşturur.
+/// [noteId] verilirse mevcut notu yÃ¼kler ve gÃ¼nceller.
+/// Verilmezse yeni bir not oluÅŸturur.
 class NoteEditorPage extends StatefulWidget {
   final String? noteId;
   final String? title;
@@ -46,7 +46,7 @@ class NoteEditorPage extends StatefulWidget {
 
 class _NoteEditorPageState extends State<NoteEditorPage>
     with WidgetsBindingObserver {
-  // Nullable: async _loadNote bitmeden dispose gelirse LateInitializationError önlenir.
+  // Nullable: async _loadNote bitmeden dispose gelirse LateInitializationError Ã¶nlenir.
   QuillController? _controller;
   NoteModel? _note;
   int? _selectedColor;
@@ -72,11 +72,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   bool _saveQueued = false;
   bool _isLoading = true;
 
-  /// Kullanıcı yükleme sonrası değişiklik yaptı mı?
-  /// PopScope buna bakarak otomatik kayıt ve çıkış sürecini tetikler.
+  /// KullanÄ±cÄ± yÃ¼kleme sonrasÄ± deÄŸiÅŸiklik yaptÄ± mÄ±?
+  /// PopScope buna bakarak otomatik kayÄ±t ve Ã§Ä±kÄ±ÅŸ sÃ¼recini tetikler.
   bool _hasUnsavedChanges = false;
 
-  // ─── Lifecycle ──────────────────────────────────────────────────────────
+  // â”€â”€â”€ Lifecycle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   @override
   void initState() {
@@ -121,8 +121,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // EC-22: Uygulama arka plana atıldığında (veya inaktif olduğunda) otomatik kaydet.
-    // Bu, işletim sisteminin bellek açmak için uygulamayı öldürdüğü durumlarda veri kaybını önler.
+    // EC-22: Uygulama arka plana atÄ±ldÄ±ÄŸÄ±nda (veya inaktif olduÄŸunda) otomatik kaydet.
+    // Bu, iÅŸletim sisteminin bellek aÃ§mak iÃ§in uygulamayÄ± Ã¶ldÃ¼rdÃ¼ÄŸÃ¼ durumlarda veri kaybÄ±nÄ± Ã¶nler.
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
       if (_hasUnsavedChanges) {
@@ -131,13 +131,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
   }
 
-  // ─── Veri Yönetimi ──────────────────────────────────────────────────────
+  // â”€â”€â”€ Veri YÃ¶netimi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Future<void> _loadNote() async {
     await _repository.init();
 
-    // Edge case: noteId verildi ama Hive'da kayıt yok (silinmiş olabilir).
-    // NoteModel.empty() yerine noteId'yi sabit tutan model oluşturulur.
+    // Edge case: noteId verildi ama Hive'da kayÄ±t yok (silinmiÅŸ olabilir).
+    // NoteModel.empty() yerine noteId'yi sabit tutan model oluÅŸturulur.
     final NoteModel note;
     if (widget.noteId != null) {
       note =
@@ -159,7 +159,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _scheduleAutoSave();
     });
 
-    // mounted kontrolü: dispose erken çağrılmışsa state güncelleme yapma.
+    // mounted kontrolÃ¼: dispose erken Ã§aÄŸrÄ±lmÄ±ÅŸsa state gÃ¼ncelleme yapma.
     if (!mounted) {
       controller.dispose();
       return;
@@ -173,7 +173,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _titleController.text = note.title;
     });
 
-    // 6. Akıllı Klavye ve Odak: Yeni not oluşturuluyorsa klavyeyi otomatik aç
+    // 6. AkÄ±llÄ± Klavye ve Odak: Yeni not oluÅŸturuluyorsa klavyeyi otomatik aÃ§
     if (widget.noteId == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -222,11 +222,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       return;
     }
 
-    // EC-19: Sadece \n içeren ve medya barındırmayan belgeyi kaydetme
+    // EC-19: Sadece \n iÃ§eren ve medya barÄ±ndÄ±rmayan belgeyi kaydetme
     final plainText = controller.document.toPlainText().trim();
     final title = _titleController.text.trim();
     
-    // Medya içerip içermediğini kontrol et
+    // Medya iÃ§erip iÃ§ermediÄŸini kontrol et
     final delta = controller.document.toDelta();
     final hasEmbed = delta.toList().any((op) => op.isInsert && op.data is Map);
 
@@ -234,7 +234,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       if (mounted) {
         setState(() => _hasUnsavedChanges = false);
       }
-      // Rebuild'i beklemek için bir frame atla, böylece PopScope canPop: true olur
+      // Rebuild'i beklemek iÃ§in bir frame atla, bÃ¶ylece PopScope canPop: true olur
       await Future.delayed(Duration.zero);
       return;
     }
@@ -254,15 +254,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         title: updatedTitle,
         color: _selectedColor,
         clearColor: _selectedColor == null,
+        categoryId: _note?.categoryId,
+        clearCategory: _note?.categoryId == null,
         originalCreatedAt: note.createdAt, // EC-16: orijinal tarihi koru
       );
       if (mounted) {
         setState(() => _hasUnsavedChanges = false);
-        // Sessiz otomatik kayıt (seamless save)
+        // Sessiz otomatik kayÄ±t (seamless save)
       }
     } catch (_) {
-      // EC-SAVE-ERR: Kayıt başarısız. Hata gösterilir ve canPop=true yapılır
-      // böylece kullanıcı editorde sıkışmaz.
+      // EC-SAVE-ERR: KayÄ±t baÅŸarÄ±sÄ±z. Hata gÃ¶sterilir ve canPop=true yapÄ±lÄ±r
+      // bÃ¶ylece kullanÄ±cÄ± editorde sÄ±kÄ±ÅŸmaz.
       if (mounted) {
         AppSnackBar.error(context, context.l10n.saveFailed);
         setState(() => _hasUnsavedChanges = false);
@@ -280,13 +282,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
   }
 
-  // ─── Renk Seçimi ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Renk SeÃ§imi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   static const List<Color> _lightNoteColors = [
     Color(0xFFFDFBF7), // Pamuk
     Color(0xFFF0F7F4), // Nane
     Color(0xFFF0F4F8), // Buz
-    Color(0xFFFFF0F0), // Gül
+    Color(0xFFFFF0F0), // GÃ¼l
     Color(0xFFF4F0F7), // Lavanta
   ];
 
@@ -294,7 +296,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     Color(0xFF242424), // Koyu Gri
     Color(0xFF142C23), // Koyu Nane
     Color(0xFF122236), // Koyu Mavi
-    Color(0xFF33161A), // Koyu Gül
+    Color(0xFF33161A), // Koyu GÃ¼l
     Color(0xFF261933), // Koyu Lavanta
   ];
 
@@ -318,7 +320,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           'Koyu Pamuk',
           'Koyu Nane',
           'Koyu Mavi',
-          'Koyu Gül',
+          'Koyu GÃ¼l',
           'Koyu Lavanta',
         ];
 
@@ -366,7 +368,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             ),
                           ),
                           const SizedBox(width: 8),
-                          // "Varsayılan" küçük chip butonu
+                          // "VarsayÄ±lan" kÃ¼Ã§Ã¼k chip butonu
                           GestureDetector(
                             onTap: () {
                               setState(() => _selectedColor = null);
@@ -392,7 +394,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                                 ),
                               ),
                               child: Text(
-                                'Varsayılan',
+                                'VarsayÄ±lan',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: _selectedColor == null
@@ -459,11 +461,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     'Pamuk',
     'Nane',
     'Buz',
-    'Gül',
+    'GÃ¼l',
     'Lavanta',
   ];
 
-  // ─── Resim İşlemi ───────────────────────────────────────────────────────
+  // â”€â”€â”€ Resim Ä°ÅŸlemi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Future<String?> _pickAndReturnVideoPath(BuildContext context) async {
     try {
@@ -487,8 +489,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
   }
 
-  /// EC-5: Galeriden seçilen resmi Documents dizinine kopyalar.
-  /// Cache silinse veya uygulama güncellense bile resim kaybolmaz.
+  /// EC-5: Galeriden seÃ§ilen resmi Documents dizinine kopyalar.
+  /// Cache silinse veya uygulama gÃ¼ncellense bile resim kaybolmaz.
   Future<String?> _pickAndReturnImagePath(BuildContext context) async {
     try {
       final XFile? picked = await _imagePicker.pickImage(
@@ -503,12 +505,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         quality: _kImageQuality,
       );
 
-      // Kalıcı dizine kopyala — cache dosyası silinirse resim hala erişilebilir.
+      // KalÄ±cÄ± dizine kopyala â€” cache dosyasÄ± silinirse resim hala eriÅŸilebilir.
       final docsDir = await getApplicationDocumentsDirectory();
       final notesImgDir = Directory('${docsDir.path}/note_images');
       if (!notesImgDir.existsSync()) notesImgDir.createSync(recursive: true);
 
-      // EC-14: Uzantsız dosyalarda split('.').last tamamı alır → 'jpg' fallback.
+      // EC-14: UzantsÄ±z dosyalarda split('.').last tamamÄ± alÄ±r â†’ 'jpg' fallback.
       final parts = compressed.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'jpg';
       final fileName =
@@ -574,7 +576,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ? const Color(0xFF1E1E1E)
               : Colors.white,
           title: const Text(
-            'Bağlantı Ekle',
+            'BaÄŸlantÄ± Ekle',
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 18,
@@ -589,7 +591,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 TextField(
                   controller: textController,
                   decoration: InputDecoration(
-                    labelText: 'Görünecek Metin (İsteğe Bağlı)',
+                    labelText: 'GÃ¶rÃ¼necek Metin (Ä°steÄŸe BaÄŸlÄ±)',
                     labelStyle: const TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 14,
@@ -607,7 +609,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 TextField(
                   controller: linkController,
                   decoration: InputDecoration(
-                    labelText: 'Web Bağlantısı (URL)',
+                    labelText: 'Web BaÄŸlantÄ±sÄ± (URL)',
                     hintText: 'https://...',
                     labelStyle: const TextStyle(
                       fontFamily: 'Inter',
@@ -629,7 +631,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                'İptal',
+                'Ä°ptal',
                 style: TextStyle(
                   color: cs.onSurface.withValues(alpha: 0.6),
                   fontFamily: 'Inter',
@@ -755,7 +757,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       return dest.path;
     } catch (_) {
       if (context.mounted) {
-        AppSnackBar.error(context, 'Video yüklenirken hata oluştu');
+        AppSnackBar.error(context, 'Video yÃ¼klenirken hata oluÅŸtu');
       }
       return null;
     }
@@ -773,7 +775,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ListTile(
                 leading: Icon(Icons.camera_alt_outlined, color: cs.primary),
                 title: const Text(
-                  'Fotoğraf Çek',
+                  'FotoÄŸraf Ã‡ek',
                   style: TextStyle(fontFamily: 'Inter'),
                 ),
                 onTap: () async {
@@ -785,7 +787,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ListTile(
                 leading: Icon(Icons.videocam_outlined, color: cs.primary),
                 title: const Text(
-                  'Video Çek',
+                  'Video Ã‡ek',
                   style: TextStyle(fontFamily: 'Inter'),
                 ),
                 onTap: () async {
@@ -801,7 +803,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  // ─── Build ──────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Build â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   @override
   Widget build(BuildContext context) {
@@ -812,7 +814,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     final bgColor =
         _getAdaptiveColor(context, _selectedColor) ?? colorScheme.surface;
 
-    // Cursor rengi: arka plana göre uyarlanır
+    // Cursor rengi: arka plana gÃ¶re uyarlanÄ±r
     final Color cursorColor;
     if (_selectedColor != null) {
       final bg = _getAdaptiveColor(context, _selectedColor)!;
@@ -875,7 +877,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ),
                     ],
                   ),
-                  // Toolbar: klavyenin hemen üstünde konumlandır
+                  // Toolbar: klavyenin hemen Ã¼stÃ¼nde konumlandÄ±r
                   Positioned(
                     bottom: 16,
                     left: 16,
@@ -958,7 +960,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   Widget _buildDateInfo(ColorScheme colorScheme) {
     final fgColor = _getTextColor(colorScheme);
-    // EC-TIMEZONE: toLocal() ile UTC → yerel saat dönüşümü garantilenir.
+    // EC-TIMEZONE: toLocal() ile UTC â†’ yerel saat dÃ¶nÃ¼ÅŸÃ¼mÃ¼ garantilenir.
     final date = (_note?.updatedAt ?? DateTime.now()).toLocal();
     final timeString =
         '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
@@ -968,7 +970,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          'Son düzenleme: $timeString',
+          'Son dÃ¼zenleme: $timeString',
           style: TextStyle(
             fontSize: 13,
             color: fgColor.withValues(alpha: 0.5),
@@ -1224,133 +1226,20 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   }
 
   void _showCreateCategoryDialog() {
-    final TextEditingController nameController = TextEditingController();
-
     showDialog(
       context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              backgroundColor: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF1E1E1E)
-                  : Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-              contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-              actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-              title: Text(
-                context.l10n.newNoteTag,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              content: SizedBox(
-                width: 360,
-                child: TextField(
-                  controller: nameController,
-                  autofocus: true,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    hintText: context.l10n.tagName,
-                    hintStyle: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.5),
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest
-                        .withValues(alpha: 0.3),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 2,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    nameController.dispose();
-                    Navigator.pop(ctx);
-                  },
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    context.l10n.cancel,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ),
-                FilledButton(
-                  onPressed: () async {
-                    final name = nameController.text.trim();
-                    if (name.isNotEmpty) {
-                      final newCat = NoteCategoryModel.create(name: name);
-                      await _categoryRepository.saveCategory(newCat);
-                      await _loadCategories();
-                      if (mounted) {
-                        setState(() {
-                          _note = _note?.copyWith(categoryId: newCat.id);
-                          _markUnsaved();
-                        });
-                      }
-                      nameController.dispose();
-                      if (!ctx.mounted) return;
-                      Navigator.pop(ctx);
-                    }
-                  },
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    context.l10n.createNoteTag,
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      builder: (ctx) => _CreateCategoryDialog(
+        onCategoryCreated: (newCat) async {
+          await _categoryRepository.saveCategory(newCat);
+          await _loadCategories();
+          if (mounted) {
+            setState(() {
+              _note = _note?.copyWith(categoryId: newCat.id);
+              _markUnsaved();
+            });
+          }
+        },
+      ),
     );
   }
 
@@ -1400,7 +1289,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     onPressed: _controller!.hasRedo
                         ? () => _controller!.redo()
                         : null,
-                    tooltip: 'İleri Al',
+                    tooltip: 'Ä°leri Al',
                   ),
                 ],
               );
@@ -1423,8 +1312,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             ),
           )
         else
-          // EC-CHECK-BTN: check butonu kaydetmeden çıkmayı önler;
-          // _saveNote() çalıştırılır ve sonra sayfa kapatılır.
+          // EC-CHECK-BTN: check butonu kaydetmeden Ã§Ä±kmayÄ± Ã¶nler;
+          // _saveNote() Ã§alÄ±ÅŸtÄ±rÄ±lÄ±r ve sonra sayfa kapatÄ±lÄ±r.
           IconButton(
             icon: Icon(Icons.check_rounded, color: fgColor),
             onPressed: () async {
@@ -1512,7 +1401,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             color: colorScheme.onSurface,
                           ),
                         ),
-                        tooltip: 'Yazı Boyutunu Küçült',
+                        tooltip: 'YazÄ± Boyutunu KÃ¼Ã§Ã¼lt',
                         onPressed: _decreaseFontSize,
                       ),
                       QuillToolbarCustomButtonOptions(
@@ -1524,7 +1413,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             color: colorScheme.onSurface,
                           ),
                         ),
-                        tooltip: 'Yazı Boyutunu Büyüt',
+                        tooltip: 'YazÄ± Boyutunu BÃ¼yÃ¼t',
                         onPressed: _increaseFontSize,
                       ),
                     ],
@@ -1612,7 +1501,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             padding: const EdgeInsets.only(right: 4),
             child: IconButton(
               icon: const Icon(Icons.link_rounded, size: 20),
-              tooltip: 'Bağlantı Ekle',
+              tooltip: 'BaÄŸlantÄ± Ekle',
               onPressed: _showCustomTextLinkDialog,
             ),
           ),
@@ -1840,7 +1729,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ListTile(
                         leading: const Icon(Icons.open_in_new_rounded),
                         title: const Text(
-                          'Bağlantıyı aç',
+                          'BaÄŸlantÄ±yÄ± aÃ§',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w500,
@@ -1852,7 +1741,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ListTile(
                         leading: const Icon(Icons.copy_rounded),
                         title: const Text(
-                          'Bağlantıyı kopyala',
+                          'BaÄŸlantÄ±yÄ± kopyala',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w500,
@@ -1867,7 +1756,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           color: Colors.redAccent,
                         ),
                         title: const Text(
-                          'Bağlantıyı kaldır',
+                          'BaÄŸlantÄ±yÄ± kaldÄ±r',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w500,
@@ -1894,8 +1783,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 }
                 return NetworkImage(imageUrl);
               },
-              // EC-15: Eksik/bozuk dosyada Flutter'in kirık ikon yerine
-              // kullanıcı dostu ikon gösterilir.
+              // EC-15: Eksik/bozuk dosyada Flutter'in kirÄ±k ikon yerine
+              // kullanÄ±cÄ± dostu ikon gÃ¶sterilir.
               imageErrorWidgetBuilder: (context, imageUrl, error) {
                 return Container(
                   width: 120,
@@ -2060,7 +1949,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   }
 }
 
-// ─── Yardımcı Widget ────────────────────────────────────────────────────────
+// â”€â”€â”€ YardÄ±mcÄ± Widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _LoadingScaffold extends StatelessWidget {
   const _LoadingScaffold();
@@ -2159,3 +2048,139 @@ class _ColorOption extends StatelessWidget {
     );
   }
 }
+
+class _CreateCategoryDialog extends StatefulWidget {
+  final Future<void> Function(NoteCategoryModel) onCategoryCreated;
+
+  const _CreateCategoryDialog({required this.onCategoryCreated});
+
+  @override
+  State<_CreateCategoryDialog> createState() => _CreateCategoryDialogState();
+}
+
+class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
+  late final TextEditingController _nameController;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? const Color(0xFF1E1E1E)
+          : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+      contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      title: Text(
+        context.l10n.newNoteTag,
+        style: const TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      content: SizedBox(
+        width: 360,
+        child: TextField(
+          controller: _nameController,
+          autofocus: true,
+          textCapitalization: TextCapitalization.words,
+          decoration: InputDecoration(
+            hintText: context.l10n.tagName,
+            hintStyle: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+            filled: true,
+            fillColor: Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withValues(alpha: 0.3),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 2,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isLoading ? null : () => Navigator.pop(context),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: Text(
+            context.l10n.cancel,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+        ),
+        FilledButton(
+          onPressed: _isLoading
+              ? null
+              : () async {
+                  final name = _nameController.text.trim();
+                  if (name.isNotEmpty) {
+                    setState(() => _isLoading = true);
+                    final newCat = NoteCategoryModel.create(name: name);
+                    await widget.onCategoryCreated(newCat);
+                    if (!mounted) return;
+                    Navigator.pop(context);
+                  }
+                },
+          style: FilledButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: _isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(
+                  context.l10n.createNoteTag,
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+}
+
