@@ -1263,60 +1263,29 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   Future<void> _startVoiceDictation() async {
     final controller = _controller;
-    if (controller == null) return;
+    if (controller == null || _isListening) return;
 
-    // Klavyeyi kapat (await öncesinde çağrılmalı — context across async gap uyarısını önler)
+    // Klavyeyi kapat (await öncesinde — context across async gap uyarısını önler)
     FocusScope.of(context).unfocus();
 
     final success = await _speechService.initialize();
     if (!success) {
-      if (mounted) {
-        AppSnackBar.error(context, 'Mikrofon erişimi sağlanamadı.');
-      }
+      if (mounted) AppSnackBar.error(context, 'Mikrofon erişimi sağlanamadı.');
       return;
     }
 
-    if (mounted) setState(() => _isListening = true);
+    if (!mounted) return;
+    setState(() => _isListening = true);
 
     await _speechService.startListening(
       listenFor: const Duration(minutes: 2),
       onResult: (text) {
-        if (!mounted) return;
-        // Interim metni: bir önceki interim'i sil, yenisini ekle
-        final controller = _controller;
-        if (controller == null) return;
-
-        // Bir önceki interim metni geri al
-        if (_interimText.isNotEmpty) {
-          final doc = controller.document;
-          final len = doc.length;
-          // Sondan _interimText.length kadar karakter sil
-          final deleteLen = _interimText.length;
-          final deleteOffset = (len - 1 - deleteLen).clamp(0, len - 1);
-          controller.replaceText(
-            deleteOffset,
-            deleteLen,
-            '',
-            TextSelection.collapsed(offset: deleteOffset),
-          );
-        }
-
-        // Yeni interim metni yaz
-        _interimText = text;
-        if (text.isNotEmpty) {
-          final doc = controller.document;
-          final insertOffset = (doc.length - 1).clamp(0, doc.length);
-          controller.replaceText(
-            insertOffset,
-            0,
-            text,
-            TextSelection.collapsed(offset: insertOffset + text.length),
-          );
-        }
+        if (!mounted || !_isListening) return;
+        _applyInterimText(text);
       },
       onDone: () {
-        if (!mounted) return;
-        // Nihai metin zaten yazıldı, interim'i temizle
+        if (!mounted || !_isListening) return;
+        // Nihai metin zaten yazıldı; interim takip değişkenini temizle
         _interimText = '';
         setState(() => _isListening = false);
         _markUnsaved();
@@ -1325,11 +1294,51 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
+  /// Partial / final tanıma sonucunu Quill dokümanına yansıt.
+  /// Önceki interim bloğu siler, yenisini ekler.
+  void _applyInterimText(String newText) {
+    final controller = _controller;
+    if (controller == null) return;
+
+    // Önceki interim bloğunu sil
+    if (_interimText.isNotEmpty) {
+      final doc = controller.document;
+      final deleteLen = _interimText.length;
+      final deleteOffset = (doc.length - 1 - deleteLen).clamp(0, doc.length - 1);
+      controller.replaceText(
+        deleteOffset,
+        deleteLen,
+        '',
+        TextSelection.collapsed(offset: deleteOffset),
+      );
+    }
+
+    // Yeni metni yaz
+    _interimText = newText;
+    if (newText.isNotEmpty) {
+      final doc = controller.document;
+      final insertOffset = (doc.length - 1).clamp(0, doc.length - 1);
+      controller.replaceText(
+        insertOffset,
+        0,
+        newText,
+        TextSelection.collapsed(offset: insertOffset + newText.length),
+      );
+    }
+  }
+
   Future<void> _stopVoiceDictation() async {
-    await _speechService.stopListening();
+    if (!_isListening) return;
+    // Önce flag'i false yap — onDone callback'in tekrar setState yapmasını engelle
+    setState(() => _isListening = false);
+
+    // Hâlâ dokümanında olan interim metni temizle
+    _applyInterimText('');
     _interimText = '';
+
+    await _speechService.stopListening();
+
     if (mounted) {
-      setState(() => _isListening = false);
       _markUnsaved();
       _scheduleAutoSave();
     }
