@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -17,17 +17,17 @@ import 'package:cashly/features/notes/data/models/note_category_model.dart';
 import 'package:cashly/features/notes/data/repositories/note_repository.dart';
 import 'package:cashly/features/notes/data/repositories/note_category_repository.dart';
 
-// â”€â”€â”€ Sabitler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Sabitler ───────────────────────────────────────────────────────────────
 
 const int _kImageMaxWidth = 1280;
 const int _kImageQuality = 78;
 
-// â”€â”€â”€ Widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Widget ─────────────────────────────────────────────────────────────────
 
-/// Zengin metin not editÃ¶rÃ¼ sayfasÄ±.
+/// Zengin metin not editörü sayfası.
 ///
-/// [noteId] verilirse mevcut notu yÃ¼kler ve gÃ¼nceller.
-/// Verilmezse yeni bir not oluÅŸturur.
+/// [noteId] verilirse mevcut notu yükler ve günceller.
+/// Verilmezse yeni bir not oluşturur.
 class NoteEditorPage extends StatefulWidget {
   final String? noteId;
   final String? title;
@@ -46,7 +46,7 @@ class NoteEditorPage extends StatefulWidget {
 
 class _NoteEditorPageState extends State<NoteEditorPage>
     with WidgetsBindingObserver {
-  // Nullable: async _loadNote bitmeden dispose gelirse LateInitializationError Ã¶nlenir.
+  // Nullable: async _loadNote bitmeden dispose gelirse LateInitializationError önlenir.
   QuillController? _controller;
   NoteModel? _note;
   int? _selectedColor;
@@ -72,11 +72,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   bool _saveQueued = false;
   bool _isLoading = true;
 
-  /// KullanÄ±cÄ± yÃ¼kleme sonrasÄ± deÄŸiÅŸiklik yaptÄ± mÄ±?
-  /// PopScope buna bakarak otomatik kayÄ±t ve Ã§Ä±kÄ±ÅŸ sÃ¼recini tetikler.
+  /// Kullanıcı yükleme sonrası değişiklik yaptı mı?
+  /// PopScope buna bakarak otomatik kayıt ve çıkış sürecini tetikler.
   bool _hasUnsavedChanges = false;
 
-  // â”€â”€â”€ Lifecycle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Lifecycle ──────────────────────────────────────────────────────────
 
   @override
   void initState() {
@@ -121,8 +121,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // EC-22: Uygulama arka plana atÄ±ldÄ±ÄŸÄ±nda (veya inaktif olduÄŸunda) otomatik kaydet.
-    // Bu, iÅŸletim sisteminin bellek aÃ§mak iÃ§in uygulamayÄ± Ã¶ldÃ¼rdÃ¼ÄŸÃ¼ durumlarda veri kaybÄ±nÄ± Ã¶nler.
+    // EC-22: Uygulama arka plana atıldığında (veya inaktif olduğunda) otomatik kaydet.
+    // Bu, işletim sisteminin bellek açmak için uygulamayı öldürdüğü durumlarda veri kaybını önler.
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
       if (_hasUnsavedChanges) {
@@ -131,13 +131,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
   }
 
-  // â”€â”€â”€ Veri YÃ¶netimi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Veri Yönetimi ──────────────────────────────────────────────────────
 
   Future<void> _loadNote() async {
     await _repository.init();
 
-    // Edge case: noteId verildi ama Hive'da kayÄ±t yok (silinmiÅŸ olabilir).
-    // NoteModel.empty() yerine noteId'yi sabit tutan model oluÅŸturulur.
+    // Edge case: noteId verildi ama Hive'da kayıt yok (silinmiş olabilir).
+    // NoteModel.empty() yerine noteId'yi sabit tutan model oluşturulur.
     final NoteModel note;
     if (widget.noteId != null) {
       note =
@@ -159,7 +159,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _scheduleAutoSave();
     });
 
-    // mounted kontrolÃ¼: dispose erken Ã§aÄŸrÄ±lmÄ±ÅŸsa state gÃ¼ncelleme yapma.
+    // mounted kontrolü: dispose erken çağrılmışsa state güncelleme yapma.
     if (!mounted) {
       controller.dispose();
       return;
@@ -173,7 +173,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _titleController.text = note.title;
     });
 
-    // 6. AkÄ±llÄ± Klavye ve Odak: Yeni not oluÅŸturuluyorsa klavyeyi otomatik aÃ§
+    // 6. Akıllı Klavye ve Odak: Yeni not oluşturuluyorsa klavyeyi otomatik aç
     if (widget.noteId == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -222,11 +222,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       return;
     }
 
-    // EC-19: Sadece \n iÃ§eren ve medya barÄ±ndÄ±rmayan belgeyi kaydetme
+    // EC-19: Sadece \n içeren ve medya barındırmayan belgeyi kaydetme
     final plainText = controller.document.toPlainText().trim();
     final title = _titleController.text.trim();
     
-    // Medya iÃ§erip iÃ§ermediÄŸini kontrol et
+    // Medya içerip içermediğini kontrol et
     final delta = controller.document.toDelta();
     final hasEmbed = delta.toList().any((op) => op.isInsert && op.data is Map);
 
@@ -234,7 +234,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       if (mounted) {
         setState(() => _hasUnsavedChanges = false);
       }
-      // Rebuild'i beklemek iÃ§in bir frame atla, bÃ¶ylece PopScope canPop: true olur
+      // Rebuild'i beklemek için bir frame atla, böylece PopScope canPop: true olur
       await Future.delayed(Duration.zero);
       return;
     }
@@ -260,11 +260,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       );
       if (mounted) {
         setState(() => _hasUnsavedChanges = false);
-        // Sessiz otomatik kayÄ±t (seamless save)
+        // Sessiz otomatik kayıt (seamless save)
       }
     } catch (_) {
-      // EC-SAVE-ERR: KayÄ±t baÅŸarÄ±sÄ±z. Hata gÃ¶sterilir ve canPop=true yapÄ±lÄ±r
-      // bÃ¶ylece kullanÄ±cÄ± editorde sÄ±kÄ±ÅŸmaz.
+      // EC-SAVE-ERR: Kayıt başarısız. Hata gösterilir ve canPop=true yapılır
+      // böylece kullanıcı editorde sıkışmaz.
       if (mounted) {
         AppSnackBar.error(context, context.l10n.saveFailed);
         setState(() => _hasUnsavedChanges = false);
@@ -282,13 +282,13 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
   }
 
-  // â”€â”€â”€ Renk SeÃ§imi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Renk Seçimi ────────────────────────────────────────────────────────
 
   static const List<Color> _lightNoteColors = [
     Color(0xFFFDFBF7), // Pamuk
     Color(0xFFF0F7F4), // Nane
     Color(0xFFF0F4F8), // Buz
-    Color(0xFFFFF0F0), // GÃ¼l
+    Color(0xFFFFF0F0), // Gül
     Color(0xFFF4F0F7), // Lavanta
   ];
 
@@ -296,7 +296,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     Color(0xFF242424), // Koyu Gri
     Color(0xFF142C23), // Koyu Nane
     Color(0xFF122236), // Koyu Mavi
-    Color(0xFF33161A), // Koyu GÃ¼l
+    Color(0xFF33161A), // Koyu Gül
     Color(0xFF261933), // Koyu Lavanta
   ];
 
@@ -320,7 +320,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           'Koyu Pamuk',
           'Koyu Nane',
           'Koyu Mavi',
-          'Koyu GÃ¼l',
+          'Koyu Gül',
           'Koyu Lavanta',
         ];
 
@@ -368,7 +368,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             ),
                           ),
                           const SizedBox(width: 8),
-                          // "VarsayÄ±lan" kÃ¼Ã§Ã¼k chip butonu
+                          // "Varsayılan" küçük chip butonu
                           GestureDetector(
                             onTap: () {
                               setState(() => _selectedColor = null);
@@ -394,7 +394,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                                 ),
                               ),
                               child: Text(
-                                'VarsayÄ±lan',
+                                'Varsayılan',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: _selectedColor == null
@@ -461,11 +461,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     'Pamuk',
     'Nane',
     'Buz',
-    'GÃ¼l',
+    'Gül',
     'Lavanta',
   ];
 
-  // â”€â”€â”€ Resim Ä°ÅŸlemi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Resim İşlemi ───────────────────────────────────────────────────────
 
   Future<String?> _pickAndReturnVideoPath(BuildContext context) async {
     try {
@@ -489,8 +489,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
   }
 
-  /// EC-5: Galeriden seÃ§ilen resmi Documents dizinine kopyalar.
-  /// Cache silinse veya uygulama gÃ¼ncellense bile resim kaybolmaz.
+  /// EC-5: Galeriden seçilen resmi Documents dizinine kopyalar.
+  /// Cache silinse veya uygulama güncellense bile resim kaybolmaz.
   Future<String?> _pickAndReturnImagePath(BuildContext context) async {
     try {
       final XFile? picked = await _imagePicker.pickImage(
@@ -505,12 +505,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         quality: _kImageQuality,
       );
 
-      // KalÄ±cÄ± dizine kopyala â€” cache dosyasÄ± silinirse resim hala eriÅŸilebilir.
+      // Kalıcı dizine kopyala — cache dosyası silinirse resim hala erişilebilir.
       final docsDir = await getApplicationDocumentsDirectory();
       final notesImgDir = Directory('${docsDir.path}/note_images');
       if (!notesImgDir.existsSync()) notesImgDir.createSync(recursive: true);
 
-      // EC-14: UzantsÄ±z dosyalarda split('.').last tamamÄ± alÄ±r â†’ 'jpg' fallback.
+      // EC-14: Uzantsız dosyalarda split('.').last tamamı alır → 'jpg' fallback.
       final parts = compressed.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'jpg';
       final fileName =
@@ -576,7 +576,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ? const Color(0xFF1E1E1E)
               : Colors.white,
           title: const Text(
-            'BaÄŸlantÄ± Ekle',
+            'Bağlantı Ekle',
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 18,
@@ -591,7 +591,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 TextField(
                   controller: textController,
                   decoration: InputDecoration(
-                    labelText: 'GÃ¶rÃ¼necek Metin (Ä°steÄŸe BaÄŸlÄ±)',
+                    labelText: 'Görünecek Metin (İsteğe Bağlı)',
                     labelStyle: const TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 14,
@@ -609,7 +609,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 TextField(
                   controller: linkController,
                   decoration: InputDecoration(
-                    labelText: 'Web BaÄŸlantÄ±sÄ± (URL)',
+                    labelText: 'Web Bağlantısı (URL)',
                     hintText: 'https://...',
                     labelStyle: const TextStyle(
                       fontFamily: 'Inter',
@@ -631,7 +631,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                'Ä°ptal',
+                'İptal',
                 style: TextStyle(
                   color: cs.onSurface.withValues(alpha: 0.6),
                   fontFamily: 'Inter',
@@ -757,7 +757,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       return dest.path;
     } catch (_) {
       if (context.mounted) {
-        AppSnackBar.error(context, 'Video yÃ¼klenirken hata oluÅŸtu');
+        AppSnackBar.error(context, 'Video yüklenirken hata oluştu');
       }
       return null;
     }
@@ -775,7 +775,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ListTile(
                 leading: Icon(Icons.camera_alt_outlined, color: cs.primary),
                 title: const Text(
-                  'FotoÄŸraf Ã‡ek',
+                  'Fotoğraf Çek',
                   style: TextStyle(fontFamily: 'Inter'),
                 ),
                 onTap: () async {
@@ -787,7 +787,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ListTile(
                 leading: Icon(Icons.videocam_outlined, color: cs.primary),
                 title: const Text(
-                  'Video Ã‡ek',
+                  'Video Çek',
                   style: TextStyle(fontFamily: 'Inter'),
                 ),
                 onTap: () async {
@@ -803,7 +803,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  // â”€â”€â”€ Build â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Build ──────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -814,7 +814,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     final bgColor =
         _getAdaptiveColor(context, _selectedColor) ?? colorScheme.surface;
 
-    // Cursor rengi: arka plana gÃ¶re uyarlanÄ±r
+    // Cursor rengi: arka plana göre uyarlanır
     final Color cursorColor;
     if (_selectedColor != null) {
       final bg = _getAdaptiveColor(context, _selectedColor)!;
@@ -877,7 +877,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ),
                     ],
                   ),
-                  // Toolbar: klavyenin hemen Ã¼stÃ¼nde konumlandÄ±r
+                  // Toolbar: klavyenin hemen üstünde konumlandır
                   Positioned(
                     bottom: 16,
                     left: 16,
@@ -960,7 +960,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   Widget _buildDateInfo(ColorScheme colorScheme) {
     final fgColor = _getTextColor(colorScheme);
-    // EC-TIMEZONE: toLocal() ile UTC â†’ yerel saat dÃ¶nÃ¼ÅŸÃ¼mÃ¼ garantilenir.
+    // EC-TIMEZONE: toLocal() ile UTC → yerel saat dönüşümü garantilenir.
     final date = (_note?.updatedAt ?? DateTime.now()).toLocal();
     final timeString =
         '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
@@ -970,7 +970,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          'Son dÃ¼zenleme: $timeString',
+          'Son düzenleme: $timeString',
           style: TextStyle(
             fontSize: 13,
             color: fgColor.withValues(alpha: 0.5),
@@ -1289,7 +1289,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     onPressed: _controller!.hasRedo
                         ? () => _controller!.redo()
                         : null,
-                    tooltip: 'Ä°leri Al',
+                    tooltip: 'İleri Al',
                   ),
                 ],
               );
@@ -1312,8 +1312,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             ),
           )
         else
-          // EC-CHECK-BTN: check butonu kaydetmeden Ã§Ä±kmayÄ± Ã¶nler;
-          // _saveNote() Ã§alÄ±ÅŸtÄ±rÄ±lÄ±r ve sonra sayfa kapatÄ±lÄ±r.
+          // EC-CHECK-BTN: check butonu kaydetmeden çıkmayı önler;
+          // _saveNote() çalıştırılır ve sonra sayfa kapatılır.
           IconButton(
             icon: Icon(Icons.check_rounded, color: fgColor),
             onPressed: () async {
@@ -1401,7 +1401,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             color: colorScheme.onSurface,
                           ),
                         ),
-                        tooltip: 'YazÄ± Boyutunu KÃ¼Ã§Ã¼lt',
+                        tooltip: 'Yazı Boyutunu Küçült',
                         onPressed: _decreaseFontSize,
                       ),
                       QuillToolbarCustomButtonOptions(
@@ -1413,7 +1413,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             color: colorScheme.onSurface,
                           ),
                         ),
-                        tooltip: 'YazÄ± Boyutunu BÃ¼yÃ¼t',
+                        tooltip: 'Yazı Boyutunu Büyüt',
                         onPressed: _increaseFontSize,
                       ),
                     ],
@@ -1501,7 +1501,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             padding: const EdgeInsets.only(right: 4),
             child: IconButton(
               icon: const Icon(Icons.link_rounded, size: 20),
-              tooltip: 'BaÄŸlantÄ± Ekle',
+              tooltip: 'Bağlantı Ekle',
               onPressed: _showCustomTextLinkDialog,
             ),
           ),
@@ -1729,7 +1729,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ListTile(
                         leading: const Icon(Icons.open_in_new_rounded),
                         title: const Text(
-                          'BaÄŸlantÄ±yÄ± aÃ§',
+                          'Bağlantıyı aç',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w500,
@@ -1741,7 +1741,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ListTile(
                         leading: const Icon(Icons.copy_rounded),
                         title: const Text(
-                          'BaÄŸlantÄ±yÄ± kopyala',
+                          'Bağlantıyı kopyala',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w500,
@@ -1756,7 +1756,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           color: Colors.redAccent,
                         ),
                         title: const Text(
-                          'BaÄŸlantÄ±yÄ± kaldÄ±r',
+                          'Bağlantıyı kaldır',
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w500,
@@ -1783,8 +1783,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 }
                 return NetworkImage(imageUrl);
               },
-              // EC-15: Eksik/bozuk dosyada Flutter'in kirÄ±k ikon yerine
-              // kullanÄ±cÄ± dostu ikon gÃ¶sterilir.
+              // EC-15: Eksik/bozuk dosyada Flutter'in kirık ikon yerine
+              // kullanıcı dostu ikon gösterilir.
               imageErrorWidgetBuilder: (context, imageUrl, error) {
                 return Container(
                   width: 120,
@@ -1949,7 +1949,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   }
 }
 
-// â”€â”€â”€ YardÄ±mcÄ± Widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Yardımcı Widget ────────────────────────────────────────────────────────
 
 class _LoadingScaffold extends StatelessWidget {
   const _LoadingScaffold();
@@ -2183,4 +2183,3 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
     );
   }
 }
-
