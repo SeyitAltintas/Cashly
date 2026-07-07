@@ -72,7 +72,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   // Speech-to-text
   final SpeechService _speechService = SpeechService();
   bool _isListening = false;
-  String _interimText = ''; // Anlık tanınan metin (henüz yazılmadı)
+  String _interimText = '';   // Son partial metin
+  int _interimOffset = -1;    // Interim metnin başladığı Quill offset'i
 
   bool _isSaving = false;
   bool _saveQueued = false;
@@ -914,6 +915,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ),
                     ),
                   ),
+                // Sesli dikte aktifken gösterilen floating overlay
+                if (_isListening) _buildListeningOverlay(colorScheme),
                 ],
               ),
             ),
@@ -1235,37 +1238,61 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   // ─── Sesli Dikte ────────────────────────────────────────────────────────
 
   Widget _buildMicButton() {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: _isListening
-            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
-            : Colors.transparent,
-      ),
-      child: IconButton(
-        icon: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: Icon(
-            _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
-            key: ValueKey(_isListening),
-            size: 22,
-            color: _isListening
-                ? Theme.of(context).colorScheme.primary
-                : null,
+    return IconButton(
+      icon: const Icon(Icons.mic_none_rounded, size: 22),
+      tooltip: 'Sesle Yaz',
+      onPressed: _startVoiceDictation,
+    );
+  }
+
+  /// Dinleme aktifken ekranın altında gösterilen yuvarlak overlay.
+  Widget _buildListeningOverlay(ColorScheme colorScheme) {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: Container(
+        padding: const EdgeInsets.only(bottom: 32, top: 16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.transparent,
+              Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.95),
+            ],
           ),
         ),
-        tooltip: _isListening ? 'Dinlemeyi Durdur' : 'Sesle Yaz',
-        onPressed: _isListening ? _stopVoiceDictation : _startVoiceDictation,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Dinleniyor...',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: _stopVoiceDictation,
+              child: _PulsingMicButton(colorScheme: colorScheme),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Future<void> _startVoiceDictation() async {
-    final controller = _controller;
-    if (controller == null || _isListening) return;
+    if (_controller == null || _isListening) return;
 
-    // Klavyeyi kapat (await öncesinde — context across async gap uyarısını önler)
+    // Toolbar ve klavyeyi kapat (await öncesinde — context across async gap önle)
+    setState(() {
+      _isFormatMode = false;
+      _isMediaMode = false;
+    });
     FocusScope.of(context).unfocus();
 
     final success = await _speechService.initialize();
@@ -1285,8 +1312,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       },
       onDone: () {
         if (!mounted || !_isListening) return;
-        // Nihai metin zaten yazıldı; interim takip değişkenini temizle
-        _interimText = '';
+        _commitInterimText();
         setState(() => _isListening = false);
         _markUnsaved();
         _scheduleAutoSave();
@@ -1295,46 +1321,50 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   }
 
   /// Partial / final tanıma sonucunu Quill dokümanına yansıt.
-  /// Önceki interim bloğu siler, yenisini ekler.
+  /// Ekleme offsetini (_interimOffset) kesin olarak takip eder.
   void _applyInterimText(String newText) {
     final controller = _controller;
     if (controller == null) return;
 
-    // Önceki interim bloğunu sil
-    if (_interimText.isNotEmpty) {
-      final doc = controller.document;
-      final deleteLen = _interimText.length;
-      final deleteOffset = (doc.length - 1 - deleteLen).clamp(0, doc.length - 1);
+    // Önceki interim bloğunu kesin offsetinden sil
+    if (_interimText.isNotEmpty && _interimOffset >= 0) {
       controller.replaceText(
-        deleteOffset,
-        deleteLen,
+        _interimOffset,
+        _interimText.length,
         '',
-        TextSelection.collapsed(offset: deleteOffset),
+        TextSelection.collapsed(offset: _interimOffset),
       );
+      _interimOffset = -1;
     }
 
-    // Yeni metni yaz
     _interimText = newText;
     if (newText.isNotEmpty) {
       final doc = controller.document;
-      final insertOffset = (doc.length - 1).clamp(0, doc.length - 1);
+      // Quill dokümanı daima \n ile biter; ondan önce ekle
+      _interimOffset = (doc.length - 1).clamp(0, doc.length - 1);
       controller.replaceText(
-        insertOffset,
+        _interimOffset,
         0,
         newText,
-        TextSelection.collapsed(offset: insertOffset + newText.length),
+        TextSelection.collapsed(offset: _interimOffset + newText.length),
       );
     }
   }
 
+  /// Dinleme tamamlandığında (onDone) interim metnini kalıcı yap;
+  /// sadece takip state'ini temizler, dokümandan hiçbir şey silmez.
+  void _commitInterimText() {
+    _interimText = '';
+    _interimOffset = -1;
+  }
+
   Future<void> _stopVoiceDictation() async {
     if (!_isListening) return;
-    // Önce flag'i false yap — onDone callback'in tekrar setState yapmasını engelle
+    // Flag önce false — onDone callback'in tekrar setState yapmasını engelle
     setState(() => _isListening = false);
 
-    // Hâlâ dokümanında olan interim metni temizle
-    _applyInterimText('');
-    _interimText = '';
+    // Yazan ama final olmayan interim metni KALICI yap (silme!)
+    _commitInterimText();
 
     await _speechService.stopListening();
 
@@ -2303,6 +2333,98 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
                 ),
         ),
       ],
+    );
+  }
+}
+
+/// Dinleme sırasında alt ortada gösterilen animasyonlu mikrofon butonu.
+class _PulsingMicButton extends StatefulWidget {
+  final ColorScheme colorScheme;
+
+  const _PulsingMicButton({required this.colorScheme});
+
+  @override
+  State<_PulsingMicButton> createState() => _PulsingMicButtonState();
+}
+
+class _PulsingMicButtonState extends State<_PulsingMicButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnim;
+  late final Animation<double> _opacityAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+
+    _scaleAnim = Tween<double>(begin: 1.0, end: 1.18).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _opacityAnim = Tween<double>(begin: 0.4, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = widget.colorScheme.primary;
+    return SizedBox(
+      width: 80,
+      height: 80,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Pulsing ring
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (_, __) => Transform.scale(
+              scale: _scaleAnim.value,
+              child: Opacity(
+                opacity: _opacityAnim.value,
+                child: Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: primary.withValues(alpha: 0.35),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Mic button
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: primary,
+              boxShadow: [
+                BoxShadow(
+                  color: primary.withValues(alpha: 0.4),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.mic_rounded,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
