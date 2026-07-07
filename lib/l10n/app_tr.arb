@@ -1349,6 +1349,17 @@
   "saveFailed": "Not kaydedilemedi",
   "notesList": "Notlar",
   "notesEmpty": "Henüz not yok. Yeni not eklemek için + düğmesine dokunun.",
+  "notesEmptyTitle": "Not Yok",
+  "notesEmptySubtitle": "İlk notunuzu oluşturmak için aşağıdaki + butonuna dokunun.",
+  "notesSearchEmptyTitle": "Sonuç Bulunamadı",
+  "notesSearchEmptySubtitle": "\"{query}\" için eşleşen bir not bulunamadı.",
+  "@notesSearchEmptySubtitle": {
+    "placeholders": {
+      "query": { "type": "String" }
+    }
+  },
+  "notesFilterEmptyTitle": "Not Bulunamadı",
+  "notesFilterEmptySubtitle": "Bu kategoriye veya filtreye ait notunuz yok.",
   "noteDeleteConfirm": "Not silindi",
   "noteUntitled": "Başlıksız Not",
   "noteLastEdited": "Son düzenleme: {date}",

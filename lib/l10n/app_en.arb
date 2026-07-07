@@ -1330,6 +1330,17 @@
   "saveFailed": "Could not save note",
   "notesList": "Notes",
   "notesEmpty": "No notes yet. Tap + to create one.",
+  "notesEmptyTitle": "No Notes",
+  "notesEmptySubtitle": "Tap the + button below to create your first note.",
+  "notesSearchEmptyTitle": "No Results Found",
+  "notesSearchEmptySubtitle": "No matching notes found for \"{query}\".",
+  "@notesSearchEmptySubtitle": {
+    "placeholders": {
+      "query": { "type": "String" }
+    }
+  },
+  "notesFilterEmptyTitle": "No Notes Found",
+  "notesFilterEmptySubtitle": "You don't have any notes in this category or filter.",
   "noteDeleteConfirm": "Note deleted",
   "noteUntitled": "Untitled Note",
   "noteLastEdited": "Last edited: {date}",

@@ -172,6 +172,15 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _isLoading = false;
       _titleController.text = note.title;
     });
+
+    // 6. Akıllı Klavye ve Odak: Yeni not oluşturuluyorsa klavyeyi otomatik aç
+    if (widget.noteId == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _editorFocusNode.requestFocus();
+        }
+      });
+    }
   }
 
   QuillController _buildController(String deltaJson) {
@@ -1036,16 +1045,21 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
             return AlertDialog(
-              backgroundColor: Theme.of(context).brightness == Brightness.dark
-                  ? const Color(0xFF1E1E1E)
-                  : Colors.white,
+              backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+              contentPadding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
               title: Text(
                 context.l10n.noteTags,
                 style: const TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               content: SizedBox(
@@ -1055,46 +1069,54 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                   children: [
                     if (_allCategories.isEmpty)
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Text(
                           context.l10n.noTagsYet,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 14,
+                            fontSize: 15,
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
+                          textAlign: TextAlign.center,
                         ),
                       )
                     else
                       Flexible(
-                        child: ListView.builder(
+                        child: ListView.separated(
                           shrinkWrap: true,
                           itemCount: _allCategories.length,
+                          separatorBuilder: (context, index) => const SizedBox(height: 4),
                           itemBuilder: (context, index) {
                             final cat = _allCategories[index];
+                            final isSelected = _note?.categoryId == cat.id;
                             return ListTile(
-                              title: Row(
-                                children: [
-                                  Text(
-                                    cat.name,
-                                    style: const TextStyle(fontFamily: 'Inter'),
-                                  ),
-                                ],
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              trailing: Icon(
-                                _note?.categoryId == cat.id
-                                    ? Icons.radio_button_checked
-                                    : Icons.radio_button_unchecked,
-                                color: _note?.categoryId == cat.id
-                                    ? colorScheme.primary
-                                    : null,
+                              leading: Icon(
+                                isSelected ? Icons.label_rounded : Icons.label_outline_rounded,
+                                color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.5),
+                                size: 22,
                               ),
+                              title: Text(
+                                cat.name,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 16,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                  color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                                ),
+                              ),
+                              trailing: isSelected
+                                  ? Icon(
+                                      Icons.check_circle_rounded,
+                                      color: colorScheme.primary,
+                                      size: 22,
+                                    )
+                                  : null,
                               onTap: () {
-                                final newVal = _note?.categoryId == cat.id
-                                    ? null
-                                    : cat.id;
-                                // EC-NESTED-SETSTATE: _markUnsaved setState içinde
-                                // bambaşka bir setState çağırmak yerine değişikliği
-                                // doğrudan dış setState içinde yap.
+                                final newVal = _note?.categoryId == cat.id ? null : cat.id;
                                 setDialogState(() {
                                   setState(() {
                                     _note = _note?.copyWith(
@@ -1110,24 +1132,30 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           },
                         ),
                       ),
-                    const Divider(),
+                    const SizedBox(height: 8),
+                    const Divider(height: 1),
+                    const SizedBox(height: 8),
                     if (_note?.categoryId != null) ...[
                       ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         leading: Icon(
-                          Icons.layers_clear,
+                          Icons.layers_clear_rounded,
                           color: Theme.of(context).colorScheme.error,
+                          size: 22,
                         ),
                         title: Text(
                           context.l10n.removeCategory,
                           style: TextStyle(
                             fontFamily: 'Inter',
+                            fontSize: 16,
                             fontWeight: FontWeight.w500,
                             color: Theme.of(context).colorScheme.error,
                           ),
                         ),
                         onTap: () {
-                          // EC-NESTED-SETSTATE: _markUnsaved setState içinde
-                          // başka bir setState çağırmamak için doğrudan atama.
                           setDialogState(() {
                             setState(() {
                               _note = _note?.copyWith(
@@ -1141,15 +1169,25 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                           Navigator.pop(ctx);
                         },
                       ),
-                      const Divider(),
+                      const SizedBox(height: 4),
                     ],
                     ListTile(
-                      leading: const Icon(Icons.add),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      leading: Icon(
+                        Icons.add_rounded,
+                        color: colorScheme.primary,
+                        size: 24,
+                      ),
                       title: Text(
                         context.l10n.createNoteTag,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'Inter',
-                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.primary,
                         ),
                       ),
                       onTap: () {
@@ -1161,8 +1199,14 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 ),
               ),
               actions: [
-                TextButton(
+                FilledButton(
                   onPressed: () => Navigator.pop(ctx),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   child: Text(
                     context.l10n.ok,
                     style: const TextStyle(

@@ -5624,6 +5624,42 @@ abstract class AppLocalizations {
   /// **'Henüz not yok. Yeni not eklemek için + düğmesine dokunun.'**
   String get notesEmpty;
 
+  /// No description provided for @notesEmptyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not Yok'**
+  String get notesEmptyTitle;
+
+  /// No description provided for @notesEmptySubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk notunuzu oluşturmak için aşağıdaki + butonuna dokunun.'**
+  String get notesEmptySubtitle;
+
+  /// No description provided for @notesSearchEmptyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonuç Bulunamadı'**
+  String get notesSearchEmptyTitle;
+
+  /// No description provided for @notesSearchEmptySubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{query}\" için eşleşen bir not bulunamadı.'**
+  String notesSearchEmptySubtitle(String query);
+
+  /// No description provided for @notesFilterEmptyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not Bulunamadı'**
+  String get notesFilterEmptyTitle;
+
+  /// No description provided for @notesFilterEmptySubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu kategoriye veya filtreye ait notunuz yok.'**
+  String get notesFilterEmptySubtitle;
+
   /// No description provided for @noteDeleteConfirm.
   ///
   /// In tr, this message translates to:

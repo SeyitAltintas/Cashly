@@ -3001,6 +3001,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notesEmpty => 'No notes yet. Tap + to create one.';
 
   @override
+  String get notesEmptyTitle => 'No Notes';
+
+  @override
+  String get notesEmptySubtitle =>
+      'Tap the + button below to create your first note.';
+
+  @override
+  String get notesSearchEmptyTitle => 'No Results Found';
+
+  @override
+  String notesSearchEmptySubtitle(String query) {
+    return 'No matching notes found for \"$query\".';
+  }
+
+  @override
+  String get notesFilterEmptyTitle => 'No Notes Found';
+
+  @override
+  String get notesFilterEmptySubtitle =>
+      'You don\'t have any notes in this category or filter.';
+
+  @override
   String get noteDeleteConfirm => 'Note deleted';
 
   @override

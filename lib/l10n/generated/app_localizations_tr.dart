@@ -3003,6 +3003,28 @@ class AppLocalizationsTr extends AppLocalizations {
       'Henüz not yok. Yeni not eklemek için + düğmesine dokunun.';
 
   @override
+  String get notesEmptyTitle => 'Not Yok';
+
+  @override
+  String get notesEmptySubtitle =>
+      'İlk notunuzu oluşturmak için aşağıdaki + butonuna dokunun.';
+
+  @override
+  String get notesSearchEmptyTitle => 'Sonuç Bulunamadı';
+
+  @override
+  String notesSearchEmptySubtitle(String query) {
+    return '\"$query\" için eşleşen bir not bulunamadı.';
+  }
+
+  @override
+  String get notesFilterEmptyTitle => 'Not Bulunamadı';
+
+  @override
+  String get notesFilterEmptySubtitle =>
+      'Bu kategoriye veya filtreye ait notunuz yok.';
+
+  @override
   String get noteDeleteConfirm => 'Not silindi';
 
   @override
