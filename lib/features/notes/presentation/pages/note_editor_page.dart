@@ -858,34 +858,41 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             resizeToAvoidBottomInset: true,
             appBar: _buildAppBar(colorScheme),
             body: GestureDetector(
-              onTap: () => FocusScope.of(context).unfocus(),
+              onTap: () {
+                // Sesli dikte aktifken dokunma ile klavye açılmasını engelle
+                if (!_isListening) FocusScope.of(context).unfocus();
+              },
               child: Stack(
                 children: [
-                  Column(
-                    children: [
-                      _buildTitleField(colorScheme),
-                      _buildDateInfo(colorScheme),
-                      _buildCategoryTags(
-                        colorScheme,
-                        _getTextColor(colorScheme),
-                      ),
-                      Expanded(
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            textSelectionTheme: TextSelectionThemeData(
-                              cursorColor: cursorColor,
-                              selectionColor: cursorColor.withValues(
-                                alpha: 0.3,
-                              ),
-                              selectionHandleColor: cursorColor,
-                            ),
-                          ),
-                          child: _buildEditor(colorScheme, controller),
+                  // Sesli dikte aktifken editor+title+kategori dokunmaya kapat
+                  IgnorePointer(
+                    ignoring: _isListening,
+                    child: Column(
+                      children: [
+                        _buildTitleField(colorScheme),
+                        _buildDateInfo(colorScheme),
+                        _buildCategoryTags(
+                          colorScheme,
+                          _getTextColor(colorScheme),
                         ),
-                      ),
-                    ],
+                        Expanded(
+                          child: Theme(
+                            data: Theme.of(context).copyWith(
+                              textSelectionTheme: TextSelectionThemeData(
+                                cursorColor: cursorColor,
+                                selectionColor: cursorColor.withValues(
+                                  alpha: 0.3,
+                                ),
+                                selectionHandleColor: cursorColor,
+                              ),
+                            ),
+                            child: _buildEditor(colorScheme, controller),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  // Toolbar: klavyenin hemen üstünde konumlandır
+                  // Toolbar: dinleme aktifken gizle
                   Positioned(
                     bottom: 16,
                     left: 16,
@@ -909,14 +916,14 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                             child: child,
                           ),
                         ),
-                        child: _isEditing
+                        child: _isEditing && !_isListening
                             ? _buildFloatingToolbar(colorScheme, controller)
                             : const SizedBox.shrink(),
                       ),
                     ),
                   ),
-                // Sesli dikte aktifken gösterilen floating overlay
-                if (_isListening) _buildListeningOverlay(colorScheme),
+                  // Sesli dikte aktifken gösterilen floating overlay
+                  if (_isListening) _buildListeningOverlay(colorScheme),
                 ],
               ),
             ),
@@ -1275,11 +1282,56 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               ),
             ),
             const SizedBox(height: 12),
-            GestureDetector(
-              onTap: _stopVoiceDictation,
-              child: _PulsingMicButton(colorScheme: colorScheme),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Mikrofon: durdurmak için
+                GestureDetector(
+                  onTap: _stopVoiceDictation,
+                  child: _PulsingMicButton(colorScheme: colorScheme),
+                ),
+                const SizedBox(width: 20),
+                // Klavye: dikte modundan çıkıp yazımaya geç
+                _buildSwitchToKeyboardButton(colorScheme),
+              ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Dikte modundan çıkıp klavyeyi ve alt menüyü açan buton.
+  Widget _buildSwitchToKeyboardButton(ColorScheme colorScheme) {
+    return Tooltip(
+      message: 'Klavyeye Dön',
+      child: GestureDetector(
+        onTap: () async {
+          await _stopVoiceDictation();
+          if (!mounted) return;
+          // Editoru odakla — klavye ve toolbar otomatik açılır
+          _editorFocusNode.requestFocus();
+        },
+        child: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: colorScheme.surfaceContainerHigh,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.12),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.keyboard_rounded,
+            size: 22,
+            color: colorScheme.onSurface,
+          ),
         ),
       ),
     );
