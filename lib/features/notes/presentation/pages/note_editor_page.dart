@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -854,15 +854,15 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           }
         }
       },
-      child: Hero(
-        tag: widget.heroTag,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-          color: bgColor,
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            resizeToAvoidBottomInset: true,
+      // Hero kaldırıldı: Scaffold içinde SnackBar'ın kendi Hero'su ile çakışıyordu.
+      // ("A Hero widget cannot be the descendant of another Hero widget" assertion)
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+        color: bgColor,
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          resizeToAvoidBottomInset: true,
             appBar: _buildAppBar(colorScheme),
             body: GestureDetector(
               onTap: () {
@@ -936,9 +936,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             ),
           ),
         ),
-      ),
     );
   }
+
 
   Color _getTextColor(ColorScheme colorScheme) {
     final bgColor = _getAdaptiveColor(context, _selectedColor);
