@@ -16,6 +16,7 @@ import 'package:cashly/features/notes/data/models/note_model.dart';
 import 'package:cashly/features/notes/data/models/note_category_model.dart';
 import 'package:cashly/features/notes/data/repositories/note_repository.dart';
 import 'package:cashly/features/notes/data/repositories/note_category_repository.dart';
+import 'package:cashly/core/services/speech/speech_service.dart';
 
 // ─── Sabitler ───────────────────────────────────────────────────────────────
 
@@ -68,6 +69,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   final NoteCategoryRepository _categoryRepository = NoteCategoryRepository();
   List<NoteCategoryModel> _allCategories = [];
 
+  // Speech-to-text
+  final SpeechService _speechService = SpeechService();
+  bool _isListening = false;
+  String _interimText = ''; // Anlık tanınan metin (henüz yazılmadı)
+
   bool _isSaving = false;
   bool _saveQueued = false;
   bool _isLoading = true;
@@ -116,6 +122,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _editorFocusNode.dispose();
     _titleFocusNode.dispose();
     _editorScrollController.dispose();
+    _speechService.dispose();
     super.dispose();
   }
 
@@ -1225,6 +1232,109 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
+  // ─── Sesli Dikte ────────────────────────────────────────────────────────
+
+  Widget _buildMicButton() {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: _isListening
+            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
+            : Colors.transparent,
+      ),
+      child: IconButton(
+        icon: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: Icon(
+            _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+            key: ValueKey(_isListening),
+            size: 22,
+            color: _isListening
+                ? Theme.of(context).colorScheme.primary
+                : null,
+          ),
+        ),
+        tooltip: _isListening ? 'Dinlemeyi Durdur' : 'Sesle Yaz',
+        onPressed: _isListening ? _stopVoiceDictation : _startVoiceDictation,
+      ),
+    );
+  }
+
+  Future<void> _startVoiceDictation() async {
+    final controller = _controller;
+    if (controller == null) return;
+
+    // Klavyeyi kapat (await öncesinde çağrılmalı — context across async gap uyarısını önler)
+    FocusScope.of(context).unfocus();
+
+    final success = await _speechService.initialize();
+    if (!success) {
+      if (mounted) {
+        AppSnackBar.error(context, 'Mikrofon erişimi sağlanamadı.');
+      }
+      return;
+    }
+
+    if (mounted) setState(() => _isListening = true);
+
+    await _speechService.startListening(
+      listenFor: const Duration(minutes: 2),
+      onResult: (text) {
+        if (!mounted) return;
+        // Interim metni: bir önceki interim'i sil, yenisini ekle
+        final controller = _controller;
+        if (controller == null) return;
+
+        // Bir önceki interim metni geri al
+        if (_interimText.isNotEmpty) {
+          final doc = controller.document;
+          final len = doc.length;
+          // Sondan _interimText.length kadar karakter sil
+          final deleteLen = _interimText.length;
+          final deleteOffset = (len - 1 - deleteLen).clamp(0, len - 1);
+          controller.replaceText(
+            deleteOffset,
+            deleteLen,
+            '',
+            TextSelection.collapsed(offset: deleteOffset),
+          );
+        }
+
+        // Yeni interim metni yaz
+        _interimText = text;
+        if (text.isNotEmpty) {
+          final doc = controller.document;
+          final insertOffset = (doc.length - 1).clamp(0, doc.length);
+          controller.replaceText(
+            insertOffset,
+            0,
+            text,
+            TextSelection.collapsed(offset: insertOffset + text.length),
+          );
+        }
+      },
+      onDone: () {
+        if (!mounted) return;
+        // Nihai metin zaten yazıldı, interim'i temizle
+        _interimText = '';
+        setState(() => _isListening = false);
+        _markUnsaved();
+        _scheduleAutoSave();
+      },
+    );
+  }
+
+  Future<void> _stopVoiceDictation() async {
+    await _speechService.stopListening();
+    _interimText = '';
+    if (mounted) {
+      setState(() => _isListening = false);
+      _markUnsaved();
+      _scheduleAutoSave();
+    }
+  }
+
   void _showCreateCategoryDialog() {
     showDialog(
       context: context,
@@ -1504,6 +1614,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
               tooltip: 'Bağlantı Ekle',
               onPressed: _showCustomTextLinkDialog,
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: _buildMicButton(),
           ),
           QuillSimpleToolbar(
             controller: controller,
