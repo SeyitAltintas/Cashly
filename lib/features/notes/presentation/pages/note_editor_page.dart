@@ -72,6 +72,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   // Speech-to-text
   final SpeechService _speechService = SpeechService();
   bool _isListening = false;
+  bool _isRestarting = false; // Eş zamanlı yeniden başlamayı engeller
   String _interimText = ''; // Son partial metin
   int _interimOffset = -1; // Interim metnin başladığı Quill offset'i
 
@@ -1371,13 +1372,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   Future<void> _startVoiceDictation() async {
     if (_controller == null || _isListening) return;
 
-    // Toolbar ve klavyeyi kapat (await öncesinde — context across async gap önle)
+    // Toolbar ve klavyeyi kapat (await öncesinde — context async gap önler)
     setState(() {
       _isFormatMode = false;
       _isMediaMode = false;
     });
-    // Focus node'ları kapat: IgnorePointer dahili focus değişikliklerini engellemez,
-    // bu yüzden canRequestFocus=false ile tam izolasyon sağlanır.
     _editorFocusNode.canRequestFocus = false;
     _titleFocusNode.canRequestFocus = false;
     FocusScope.of(context).unfocus();
@@ -1392,31 +1391,41 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
     if (!mounted) return;
     setState(() => _isListening = true);
+    await _resumeListeningSession();
+  }
+
+  /// Bir dinleme oturumu başlatır. Her cümle bittiğinde otomatik yeniden
+  /// başlar — kullanıcı elle durdurana kadar kapanmaz.
+  Future<void> _resumeListeningSession() async {
+    if (!_isListening || !mounted || _isRestarting) return;
 
     await _speechService.startListening(
-      listenFor: const Duration(minutes: 2),
-      onResult: (text) {
+      onResult: (text, {required bool isFinal}) {
         if (!mounted || !_isListening) return;
-        _applyInterimText(text);
-      },
-      onDone: () {
-        if (!mounted || !_isListening) return;
-        _commitInterimText();
-        setState(() => _isListening = false);
-        // Focus node'ları tekrar aktifleştir
-        _editorFocusNode.canRequestFocus = true;
-        _titleFocusNode.canRequestFocus = true;
-        _markUnsaved();
-        _scheduleAutoSave();
+
+        if (isFinal) {
+          // Final sonuç: metni belgede kalıcı yap ve boşluk ekle
+          if (text.isNotEmpty) _applyInterimText(text);
+          _commitInterimText();
+          _markUnsaved();
+          _scheduleAutoSave();
+          // Yeni cümle için otomatik yeniden başlat (kapatma!)
+          _isRestarting = true;
+          Future.delayed(const Duration(milliseconds: 250), () async {
+            _isRestarting = false;
+            if (mounted && _isListening) await _resumeListeningSession();
+          });
+        } else {
+          // Partial: gerçek zamanlı güncelle
+          _applyInterimText(text);
+        }
       },
     );
   }
 
   /// Partial / final tanıma sonucunu Quill dokümanına yansıt.
-  /// Ekleme offsetini (_interimOffset) kesin olarak takip eder.
   void _applyInterimText(String newText) {
-    // Boş sonucu yok say: konuşma motoru duraksama sırasında boş partial
-    // result gönderebilir; bu durum mevcut metni silerdi.
+    // Boş sonucu yok say: motor duraksama sırasında boş partial gönderebilir.
     if (newText.isEmpty) return;
 
     final controller = _controller;
@@ -1435,7 +1444,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
     _interimText = newText;
     final doc = controller.document;
-    // Quill dokümanı daima \n ile biter; ondan önce ekle
     _interimOffset = (doc.length - 1).clamp(0, doc.length - 1);
     controller.replaceText(
       _interimOffset,
@@ -1445,20 +1453,37 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  /// Dinleme tamamlandığında (onDone) interim metnini kalıcı yap;
-  /// sadece takip state'ini temizler, dokümandan hiçbir şey silmez.
-  void _commitInterimText() {
+  /// Interim metni kalıcı yap ve iki cümle arasına boşluk ekle.
+  void _commitInterimText({bool addSeparator = true}) {
+    if (addSeparator && _interimText.isNotEmpty && _interimOffset >= 0) {
+      // Noktalı virgul / cümle arası boşluk
+      final controller = _controller;
+      if (controller != null) {
+        final spaceOffset = _interimOffset + _interimText.length;
+        final maxOffset = (controller.document.length - 1).clamp(0, controller.document.length - 1);
+        if (spaceOffset <= maxOffset) {
+          controller.replaceText(
+            spaceOffset,
+            0,
+            ' ',
+            TextSelection.collapsed(offset: spaceOffset + 1),
+          );
+        }
+      }
+    }
     _interimText = '';
     _interimOffset = -1;
   }
 
   Future<void> _stopVoiceDictation() async {
     if (!_isListening) return;
-    // Flag önce false — onDone callback'in tekrar setState yapmasını engelle
+    // Flag önce false — restart döngüsünü kır
     setState(() => _isListening = false);
+    _isRestarting = false;
 
-    // Yazan ama final olmayan interim metni KALICI yap (silme!)
-    _commitInterimText();
+    // Bekleyen interim metni sil (cancel— yazilmamis partial)
+    // veya kullanıcı konuyu yarıda bırakmışsa commit et (sessiz kalma)
+    _commitInterimText(addSeparator: false);
 
     // Focus node'ları tekrar aktifleştir
     _editorFocusNode.canRequestFocus = true;

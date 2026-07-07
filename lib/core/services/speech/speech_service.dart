@@ -61,9 +61,8 @@ class SpeechService {
 
   /// Dinlemeyi başlat
   Future<void> startListening({
-    required Function(String text) onResult,
-    required Function() onDone,
-    Duration listenFor = const Duration(seconds: 7),
+    required Function(String text, {required bool isFinal}) onResult,
+    Duration listenFor = const Duration(seconds: 30),
   }) async {
     if (!_isInitialized) {
       bool success = await initialize();
@@ -72,17 +71,17 @@ class SpeechService {
 
     await _speech.listen(
       onResult: (SpeechRecognitionResult result) {
-        onResult(result.recognizedWords);
-        if (result.finalResult) {
-          onDone();
-        }
+        onResult(
+          result.recognizedWords,
+          isFinal: result.finalResult,
+        );
       },
       listenOptions: SpeechListenOptions(
-        cancelOnError: true,
+        cancelOnError: false,
         partialResults: true,
         listenFor: listenFor,
-        pauseFor: const Duration(seconds: 3),
-        localeId: 'tr_TR', // Türkçe
+        pauseFor: const Duration(seconds: 1), // Hızlı commit: 1 saniye duraksama yeterli
+        localeId: 'tr_TR',
       ),
     );
   }

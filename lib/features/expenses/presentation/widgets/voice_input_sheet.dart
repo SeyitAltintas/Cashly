@@ -198,7 +198,7 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
     }
 
     await _speechService.startListening(
-      onResult: (text) {
+      onResult: (text, {required bool isFinal}) {
         if (mounted) {
           // Önce sesli komut olup olmadığını kontrol et
           final commandResult = _speechService.detectVoiceCommand(
@@ -252,15 +252,13 @@ class _VoiceInputSheetState extends State<VoiceInputSheet>
               }
             }
           }
-        }
-      },
-      onDone: () {
-        if (mounted) {
-          if (_controller != null) {
-            _controller!.stopVoiceListening();
-          } else {
-            _localIsListening = false;
-            setState(() {});
+          if (isFinal) {
+            if (_controller != null) {
+              _controller!.stopVoiceListening();
+            } else {
+              _localIsListening = false;
+              setState(() {});
+            }
           }
         }
       },

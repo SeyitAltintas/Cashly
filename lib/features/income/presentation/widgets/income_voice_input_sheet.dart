@@ -146,7 +146,7 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
     }
 
     await _speechService.startListening(
-      onResult: (text) {
+      onResult: (text, {required bool isFinal}) {
         if (mounted) {
           // Gelir için parse et
           final parseResult = _speechService.parseText(
@@ -175,15 +175,13 @@ class _IncomeVoiceInputSheetState extends State<IncomeVoiceInputSheet>
               }
             }
           }
-        }
-      },
-      onDone: () {
-        if (mounted) {
-          if (_controller != null) {
-            _controller!.stopVoiceListening();
-          } else {
-            _localIsListening = false;
-            setState(() {});
+          if (isFinal) {
+            if (_controller != null) {
+              _controller!.stopVoiceListening();
+            } else {
+              _localIsListening = false;
+              setState(() {});
+            }
           }
         }
       },
