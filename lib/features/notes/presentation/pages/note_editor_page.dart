@@ -105,6 +105,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   }
 
   void _onFocusChange() {
+    // Sesli dikte aktifken focus değişikliklerini yok say
+    if (_isListening) return;
     final hasFocus = _editorFocusNode.hasFocus || _titleFocusNode.hasFocus;
     if (_isEditing != hasFocus && mounted) {
       setState(() => _isEditing = hasFocus);
@@ -1374,11 +1376,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       _isFormatMode = false;
       _isMediaMode = false;
     });
+    // Focus node'ları kapat: IgnorePointer dahili focus değişikliklerini engellemez,
+    // bu yüzden canRequestFocus=false ile tam izolasyon sağlanır.
+    _editorFocusNode.canRequestFocus = false;
+    _titleFocusNode.canRequestFocus = false;
     FocusScope.of(context).unfocus();
 
     final success = await _speechService.initialize();
     if (!success) {
       if (mounted) AppSnackBar.error(context, 'Mikrofon erişimi sağlanamadı.');
+      _editorFocusNode.canRequestFocus = true;
+      _titleFocusNode.canRequestFocus = true;
       return;
     }
 
@@ -1395,6 +1403,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         if (!mounted || !_isListening) return;
         _commitInterimText();
         setState(() => _isListening = false);
+        // Focus node'ları tekrar aktifleştir
+        _editorFocusNode.canRequestFocus = true;
+        _titleFocusNode.canRequestFocus = true;
         _markUnsaved();
         _scheduleAutoSave();
       },
@@ -1404,6 +1415,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   /// Partial / final tanıma sonucunu Quill dokümanına yansıt.
   /// Ekleme offsetini (_interimOffset) kesin olarak takip eder.
   void _applyInterimText(String newText) {
+    // Boş sonucu yok say: konuşma motoru duraksama sırasında boş partial
+    // result gönderebilir; bu durum mevcut metni silerdi.
+    if (newText.isEmpty) return;
+
     final controller = _controller;
     if (controller == null) return;
 
@@ -1419,17 +1434,15 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     }
 
     _interimText = newText;
-    if (newText.isNotEmpty) {
-      final doc = controller.document;
-      // Quill dokümanı daima \n ile biter; ondan önce ekle
-      _interimOffset = (doc.length - 1).clamp(0, doc.length - 1);
-      controller.replaceText(
-        _interimOffset,
-        0,
-        newText,
-        TextSelection.collapsed(offset: _interimOffset + newText.length),
-      );
-    }
+    final doc = controller.document;
+    // Quill dokümanı daima \n ile biter; ondan önce ekle
+    _interimOffset = (doc.length - 1).clamp(0, doc.length - 1);
+    controller.replaceText(
+      _interimOffset,
+      0,
+      newText,
+      TextSelection.collapsed(offset: _interimOffset + newText.length),
+    );
   }
 
   /// Dinleme tamamlandığında (onDone) interim metnini kalıcı yap;
@@ -1446,6 +1459,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
     // Yazan ama final olmayan interim metni KALICI yap (silme!)
     _commitInterimText();
+
+    // Focus node'ları tekrar aktifleştir
+    _editorFocusNode.canRequestFocus = true;
+    _titleFocusNode.canRequestFocus = true;
 
     await _speechService.stopListening();
 
