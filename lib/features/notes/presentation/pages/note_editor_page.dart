@@ -72,8 +72,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   // Speech-to-text
   final SpeechService _speechService = SpeechService();
   bool _isListening = false;
-  String _interimText = '';   // Son partial metin
-  int _interimOffset = -1;    // Interim metnin başladığı Quill offset'i
+  String _interimText = ''; // Son partial metin
+  int _interimOffset = -1; // Interim metnin başladığı Quill offset'i
 
   bool _isSaving = false;
   bool _saveQueued = false;
@@ -233,7 +233,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     // EC-19: Sadece \n içeren ve medya barındırmayan belgeyi kaydetme
     final plainText = controller.document.toPlainText().trim();
     final title = _titleController.text.trim();
-    
+
     // Medya içerip içermediğini kontrol et
     final delta = controller.document.toDelta();
     final hasEmbed = delta.toList().any((op) => op.isInsert && op.data is Map);
@@ -479,7 +479,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     try {
       final picked = await _imagePicker.pickVideo(source: ImageSource.gallery);
       if (picked == null) return null;
-      
+
       final appDir = await getApplicationDocumentsDirectory();
       final notesVidDir = Directory('${appDir.path}/notes_videos');
       if (!await notesVidDir.exists()) {
@@ -487,7 +487,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       }
       final parts = picked.path.split('.');
       final ext = parts.length > 1 ? parts.last : 'mp4';
-      final fileName = '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
+      final fileName =
+          '${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(9000) + 1000}.$ext';
       final dest = File('${notesVidDir.path}/$fileName');
       await File(picked.path).copy(dest.path);
       return dest.path;
@@ -835,8 +836,11 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       canPop: !_hasUnsavedChanges,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
-        
+
         if (_hasUnsavedChanges) {
+          // Klavyeyi kapat — pop animasyonu sırasında klavyenin bir sonraki sayfaya
+          // yapışmasını önler (geri tuşu ile çıkışta klavye ekranda asilı kalabilir)
+          FocusScope.of(context).unfocus();
           await _saveNote();
           if (mounted && !_hasUnsavedChanges) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1104,18 +1108,28 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                         child: ListView.separated(
                           shrinkWrap: true,
                           itemCount: _allCategories.length,
-                          separatorBuilder: (context, index) => const SizedBox(height: 4),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 4),
                           itemBuilder: (context, index) {
                             final cat = _allCategories[index];
                             final isSelected = _note?.categoryId == cat.id;
                             return ListTile(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 2,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               leading: Icon(
-                                isSelected ? Icons.label_rounded : Icons.label_outline_rounded,
-                                color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.5),
+                                isSelected
+                                    ? Icons.label_rounded
+                                    : Icons.label_outline_rounded,
+                                color: isSelected
+                                    ? colorScheme.primary
+                                    : colorScheme.onSurface.withValues(
+                                        alpha: 0.5,
+                                      ),
                                 size: 22,
                               ),
                               title: Text(
@@ -1123,8 +1137,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontSize: 16,
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                  color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
+                                  color: isSelected
+                                      ? colorScheme.primary
+                                      : colorScheme.onSurface,
                                 ),
                               ),
                               trailing: isSelected
@@ -1135,7 +1153,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                                     )
                                   : null,
                               onTap: () {
-                                final newVal = _note?.categoryId == cat.id ? null : cat.id;
+                                final newVal = _note?.categoryId == cat.id
+                                    ? null
+                                    : cat.id;
                                 setDialogState(() {
                                   setState(() {
                                     _note = _note?.copyWith(
@@ -1156,7 +1176,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                     const SizedBox(height: 8),
                     if (_note?.categoryId != null) ...[
                       ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 2,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -1191,7 +1214,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       const SizedBox(height: 4),
                     ],
                     ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 2,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -1221,7 +1247,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 FilledButton(
                   onPressed: () => Navigator.pop(ctx),
                   style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -2285,9 +2314,7 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
       backgroundColor: Theme.of(context).brightness == Brightness.dark
           ? const Color(0xFF1E1E1E)
           : Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
       contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
       actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -2308,13 +2335,14 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
           decoration: InputDecoration(
             hintText: context.l10n.tagName,
             hintStyle: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: Theme.of(context)
-                .colorScheme
-                .surfaceContainerHighest
-                .withValues(alpha: 0.3),
+            fillColor: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
@@ -2347,7 +2375,9 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
             style: TextStyle(
               fontFamily: 'Inter',
               fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
         ),
@@ -2361,7 +2391,9 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
                     final newCat = NoteCategoryModel.create(name: name);
                     await widget.onCategoryCreated(newCat);
                     if (!mounted) return;
-                    Navigator.pop(context);
+                    // context'i await öncesinde yerel değişkene al
+                    // (use_build_context_synchronously uyarısını önler)
+                    Navigator.pop(this.context);
                   }
                 },
           style: FilledButton.styleFrom(
@@ -2413,12 +2445,14 @@ class _PulsingMicButtonState extends State<_PulsingMicButton>
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
 
-    _scaleAnim = Tween<double>(begin: 1.0, end: 1.18).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-    _opacityAnim = Tween<double>(begin: 0.4, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _scaleAnim = Tween<double>(
+      begin: 1.0,
+      end: 1.18,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _opacityAnim = Tween<double>(
+      begin: 0.4,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   @override
@@ -2439,7 +2473,7 @@ class _PulsingMicButtonState extends State<_PulsingMicButton>
           // Pulsing ring
           AnimatedBuilder(
             animation: _controller,
-            builder: (_, __) => Transform.scale(
+            builder: (context, child) => Transform.scale(
               scale: _scaleAnim.value,
               child: Opacity(
                 opacity: _opacityAnim.value,
@@ -2469,11 +2503,7 @@ class _PulsingMicButtonState extends State<_PulsingMicButton>
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.mic_rounded,
-              color: Colors.white,
-              size: 30,
-            ),
+            child: const Icon(Icons.mic_rounded, color: Colors.white, size: 30),
           ),
         ],
       ),

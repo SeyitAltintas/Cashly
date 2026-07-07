@@ -1469,7 +1469,8 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
                     final newCat = NoteCategoryModel.create(name: name);
                     await widget.onCategoryCreated(newCat);
                     if (!mounted) return;
-                    Navigator.pop(context);
+                    // State.context kullan (use_build_context_synchronously önlenir)
+                    Navigator.pop(this.context);
                   }
                 },
           style: FilledButton.styleFrom(
