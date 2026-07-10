@@ -1476,10 +1476,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           if (_voiceSilenceRetryCount >= 3) {
             // 3 kere üst üste sessizlik olduysa zorla kapat
             if (mounted) {
-              AppSnackBar.info(
-                context,
-                'Uzun süre sessizlik algılandı, mikrofon kapatıldı.',
-              );
               _stopVoiceDictation();
             }
             return;
