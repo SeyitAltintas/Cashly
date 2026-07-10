@@ -54,6 +54,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   int? _selectedColor;
 
   Timer? _autoSaveTimer;
+  Timer? _voicePauseTimer; // Konuşma duraksamalarını algılamak için
   final TextEditingController _titleController = TextEditingController();
 
   StreamSubscription? _docSubscription;
@@ -121,6 +122,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _autoSaveTimer?.cancel();
+    _voicePauseTimer?.cancel();
     _docSubscription?.cancel();
     _titleController.dispose();
     _controller?.dispose();
@@ -1533,6 +1535,18 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       newText,
       TextSelection.collapsed(offset: _interimOffset + newText.length),
     );
+
+    // Duraksama (Pause) tespiti:
+    // Android SpeechToText bazen isFinal fırlatmadan yeni bir cümleye başlayabilir.
+    // Bu durumda eski cümlenin silinmesini önlemek için 1.2 saniyelik bir timer kuruyoruz.
+    _voicePauseTimer?.cancel();
+    _voicePauseTimer = Timer(const Duration(milliseconds: 1200), () {
+      if (mounted && _isListening && _interimText.isNotEmpty) {
+        _commitInterimText();
+        _markUnsaved();
+        _scheduleAutoSave();
+      }
+    });
   }
 
   /// Interim metni kalıcı yap ve iki cümle arasına boşluk ekle.
@@ -1556,6 +1570,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         }
       }
     }
+    _voicePauseTimer?.cancel();
     _interimText = '';
     _interimOffset = -1;
   }
@@ -1568,6 +1583,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
     // Bekleyen interim metni sil (cancel— yazilmamis partial)
     // veya kullanıcı konuyu yarıda bırakmışsa commit et (sessiz kalma)
+    _voicePauseTimer?.cancel();
     _commitInterimText(addSeparator: false);
 
     // Focus node'ları tekrar aktifleştir
