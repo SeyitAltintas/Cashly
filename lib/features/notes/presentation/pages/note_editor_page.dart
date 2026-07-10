@@ -139,6 +139,9 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     // Bu, işletim sisteminin bellek açmak için uygulamayı öldürdüğü durumlarda veri kaybını önler.
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
+      if (_isListening) {
+        _stopVoiceDictation();
+      }
       if (_hasUnsavedChanges) {
         _saveNote();
       }
