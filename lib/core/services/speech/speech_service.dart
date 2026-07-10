@@ -43,13 +43,19 @@ class SpeechService {
   /// Test için özel handler'larla oluşturma
   SpeechService.withHandlers(this._handlers);
 
+  /// Global status callback (for looping logic)
+  Function(String)? _onStatusCallback;
+
   /// Servisi başlat
   Future<bool> initialize() async {
     if (_isInitialized) return true;
 
     _isInitialized = await _speech.initialize(
       onError: (error) => debugPrint('Speech error: ${error.errorMsg}'),
-      onStatus: (status) => debugPrint('Speech status: $status'),
+      onStatus: (status) {
+        debugPrint('Speech status: $status');
+        _onStatusCallback?.call(status);
+      },
     );
 
     return _isInitialized;
@@ -62,8 +68,11 @@ class SpeechService {
   /// Dinlemeyi başlat
   Future<void> startListening({
     required Function(String text, {required bool isFinal}) onResult,
+    Function(String status)? onStatus,
     Duration listenFor = const Duration(seconds: 30),
   }) async {
+    _onStatusCallback = onStatus;
+
     if (!_isInitialized) {
       bool success = await initialize();
       if (!success) return;
@@ -80,7 +89,7 @@ class SpeechService {
         cancelOnError: false,
         partialResults: true,
         listenFor: listenFor,
-        pauseFor: const Duration(seconds: 1), // Hızlı commit: 1 saniye duraksama yeterli
+        pauseFor: const Duration(seconds: 3), // Güvenli olması için 3 saniye
         localeId: 'tr_TR',
       ),
     );

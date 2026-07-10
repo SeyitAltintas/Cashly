@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -1404,20 +1404,31 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         if (!mounted || !_isListening) return;
 
         if (isFinal) {
-          // Final sonuç: metni belgede kalıcı yap ve boşluk ekle
           if (text.isNotEmpty) _applyInterimText(text);
           _commitInterimText();
           _markUnsaved();
           _scheduleAutoSave();
-          // Yeni cümle için otomatik yeniden başlat (kapatma!)
-          _isRestarting = true;
-          Future.delayed(const Duration(milliseconds: 250), () async {
-            _isRestarting = false;
-            if (mounted && _isListening) await _resumeListeningSession();
-          });
         } else {
-          // Partial: gerçek zamanlı güncelle
           _applyInterimText(text);
+        }
+      },
+      onStatus: (status) {
+        if (!mounted || !_isListening) return;
+        
+        if (status == 'done' || status == 'notListening') {
+          // Motor herhangi bir sebeple durursa (sessizlik, hata, final vs)
+          // Mevcut yazılanları kalıcı yap ve yeniden başlat
+          _commitInterimText();
+          _markUnsaved();
+          _scheduleAutoSave();
+          
+          if (!_isRestarting) {
+            _isRestarting = true;
+            Future.delayed(const Duration(milliseconds: 250), () async {
+              _isRestarting = false;
+              if (mounted && _isListening) await _resumeListeningSession();
+            });
+          }
         }
       },
     );
