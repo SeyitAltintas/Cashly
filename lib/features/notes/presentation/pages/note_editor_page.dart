@@ -77,8 +77,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   bool _isRestarting = false; // Eş zamanlı yeniden başlamayı engeller
   String _interimText = ''; // Son partial metin
   int _interimOffset = -1; // Interim metnin başladığı Quill offset'i
-  int _voiceSilenceRetryCount =
-      0; // Sessizlik durumunda otomatik kapanma sayacı
 
   bool _isSaving = false;
   bool _saveQueued = false;
@@ -1429,7 +1427,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
     final success = await _speechService.initialize();
     if (!success) {
-      if (mounted) AppSnackBar.error(context, 'Mikrofon erişimi sağlanamadı.');
+      if (mounted) {
+        setState(() => _isListening = false);
+        AppSnackBar.error(context, 'Mikrofon erişimi sağlanamadı.');
+      }
       _editorFocusNode.canRequestFocus = true;
       _titleFocusNode.canRequestFocus = true;
       return;
@@ -1437,8 +1438,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
     if (!mounted) return;
     setState(() {
-      _isListening = true;
-      _voiceSilenceRetryCount = 0; // Oturumu başlatırken sayacı sıfırla
     });
     await _resumeListeningSession();
   }
@@ -1451,11 +1450,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     await _speechService.startListening(
       onResult: (text, {required bool isFinal}) {
         if (!mounted || !_isListening) return;
-
-        // Kelime duyulduysa sessizlik sayacını sıfırla
-        if (text.trim().isNotEmpty) {
-          _voiceSilenceRetryCount = 0;
-        }
 
         if (isFinal) {
           if (text.isNotEmpty) _applyInterimText(text);
@@ -1475,16 +1469,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           _markUnsaved();
           _scheduleAutoSave();
 
-          // Sessizlik veya hata nedeniyle kapanmışsa sayacı artır
-          _voiceSilenceRetryCount++;
 
-          if (_voiceSilenceRetryCount >= 3) {
-            // 3 kere üst üste sessizlik olduysa zorla kapat
-            if (mounted) {
-              _stopVoiceDictation();
-            }
-            return;
-          }
 
           if (!_isRestarting) {
             _isRestarting = true;
