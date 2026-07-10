@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:path_provider/path_provider.dart';
 
@@ -75,7 +76,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   bool _isRestarting = false; // Eş zamanlı yeniden başlamayı engeller
   String _interimText = ''; // Son partial metin
   int _interimOffset = -1; // Interim metnin başladığı Quill offset'i
-  int _voiceSilenceRetryCount = 0; // Sessizlik durumunda otomatik kapanma sayacı
+  int _voiceSilenceRetryCount =
+      0; // Sessizlik durumunda otomatik kapanma sayacı
 
   bool _isSaving = false;
   bool _saveQueued = false;
@@ -864,82 +866,81 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         child: Scaffold(
           backgroundColor: Colors.transparent,
           resizeToAvoidBottomInset: true,
-            appBar: _buildAppBar(colorScheme),
-            body: GestureDetector(
-              onTap: () {
-                // Sesli dikte aktifken dokunma ile klavye açılmasını engelle
-                if (!_isListening) FocusScope.of(context).unfocus();
-              },
-              child: Stack(
-                children: [
-                  // Sesli dikte aktifken editor+title+kategori dokunmaya kapat
-                  IgnorePointer(
-                    ignoring: _isListening,
-                    child: Column(
-                      children: [
-                        _buildTitleField(colorScheme),
-                        _buildDateInfo(colorScheme),
-                        _buildCategoryTags(
-                          colorScheme,
-                          _getTextColor(colorScheme),
-                        ),
-                        Expanded(
-                          child: Theme(
-                            data: Theme.of(context).copyWith(
-                              textSelectionTheme: TextSelectionThemeData(
-                                cursorColor: cursorColor,
-                                selectionColor: cursorColor.withValues(
-                                  alpha: 0.3,
-                                ),
-                                selectionHandleColor: cursorColor,
-                              ),
-                            ),
-                            child: _buildEditor(colorScheme, controller),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Toolbar: dinleme aktifken gizle
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    right: 16,
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        transitionBuilder: (child, animation) => FadeTransition(
-                          opacity: animation,
-                          child: SlideTransition(
-                            position:
-                                Tween<Offset>(
-                                  begin: const Offset(0, 0.5),
-                                  end: Offset.zero,
-                                ).animate(
-                                  CurvedAnimation(
-                                    parent: animation,
-                                    curve: Curves.easeOutCubic,
-                                  ),
-                                ),
-                            child: child,
-                          ),
-                        ),
-                        child: _isEditing && !_isListening
-                            ? _buildFloatingToolbar(colorScheme, controller)
-                            : const SizedBox.shrink(),
+          appBar: _buildAppBar(colorScheme),
+          body: GestureDetector(
+            onTap: () {
+              // Sesli dikte aktifken dokunma ile klavye açılmasını engelle
+              if (!_isListening) FocusScope.of(context).unfocus();
+            },
+            child: Stack(
+              children: [
+                // Sesli dikte aktifken editor+title+kategori dokunmaya kapat
+                IgnorePointer(
+                  ignoring: _isListening,
+                  child: Column(
+                    children: [
+                      _buildTitleField(colorScheme),
+                      _buildDateInfo(colorScheme),
+                      _buildCategoryTags(
+                        colorScheme,
+                        _getTextColor(colorScheme),
                       ),
+                      Expanded(
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            textSelectionTheme: TextSelectionThemeData(
+                              cursorColor: cursorColor,
+                              selectionColor: cursorColor.withValues(
+                                alpha: 0.3,
+                              ),
+                              selectionHandleColor: cursorColor,
+                            ),
+                          ),
+                          child: _buildEditor(colorScheme, controller),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Toolbar: dinleme aktifken gizle
+                Positioned(
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                  child: Center(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      transitionBuilder: (child, animation) => FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position:
+                              Tween<Offset>(
+                                begin: const Offset(0, 0.5),
+                                end: Offset.zero,
+                              ).animate(
+                                CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves.easeOutCubic,
+                                ),
+                              ),
+                          child: child,
+                        ),
+                      ),
+                      child: _isEditing && !_isListening
+                          ? _buildFloatingToolbar(colorScheme, controller)
+                          : const SizedBox.shrink(),
                     ),
                   ),
-                  // Sesli dikte aktifken gösterilen floating overlay
-                  if (_isListening) _buildListeningOverlay(colorScheme),
-                ],
-              ),
+                ),
+                // Sesli dikte aktifken gösterilen floating overlay
+                if (_isListening) _buildListeningOverlay(colorScheme),
+              ],
             ),
           ),
         ),
+      ),
     );
   }
-
 
   Color _getTextColor(ColorScheme colorScheme) {
     final bgColor = _getAdaptiveColor(context, _selectedColor);
@@ -1288,48 +1289,87 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   /// Dinleme aktifken ekranın altında gösterilen yuvarlak overlay.
   Widget _buildListeningOverlay(ColorScheme colorScheme) {
     return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      child: Container(
-        padding: const EdgeInsets.only(bottom: 32, top: 16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.transparent,
-              Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.95),
-            ],
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Dinleniyor...',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+      left: 20,
+      right: 20,
+      bottom: 24,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Container(
+            padding: const EdgeInsets.only(left: 20, right: 8, top: 12, bottom: 12),
+            decoration: BoxDecoration(
+              color: colorScheme.surface.withAlpha(190),
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withAlpha(128),
+                width: 1,
               ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Mikrofon: durdurmak için
-                GestureDetector(
-                  onTap: _stopVoiceDictation,
-                  child: _PulsingMicButton(colorScheme: colorScheme),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(25),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
-                const SizedBox(width: 20),
-                // Klavye: dikte modundan çıkıp yazımaya geç
-                _buildSwitchToKeyboardButton(colorScheme),
               ],
             ),
-          ],
+            child: Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      _RecordingIndicator(colorScheme: colorScheme),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Sizi Dinliyorum...',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Duraksadığınızda kaldığı yerden devam eder.',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 11,
+                                color: colorScheme.onSurfaceVariant,
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildSwitchToKeyboardButton(colorScheme),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: _stopVoiceDictation,
+                      child: Transform.scale(
+                        scale: 0.8,
+                        child: _PulsingMicButton(colorScheme: colorScheme),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -1423,25 +1463,28 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       },
       onStatus: (status) {
         if (!mounted || !_isListening) return;
-        
+
         if (status == 'done' || status == 'notListening') {
           // Motor herhangi bir sebeple durursa (sessizlik, hata, final vs)
           _commitInterimText();
           _markUnsaved();
           _scheduleAutoSave();
-          
+
           // Sessizlik veya hata nedeniyle kapanmışsa sayacı artır
           _voiceSilenceRetryCount++;
-          
+
           if (_voiceSilenceRetryCount >= 3) {
             // 3 kere üst üste sessizlik olduysa zorla kapat
             if (mounted) {
-              AppSnackBar.info(context, 'Uzun süre sessizlik algılandı, mikrofon kapatıldı.');
+              AppSnackBar.info(
+                context,
+                'Uzun süre sessizlik algılandı, mikrofon kapatıldı.',
+              );
               _stopVoiceDictation();
             }
             return;
           }
-          
+
           if (!_isRestarting) {
             _isRestarting = true;
             Future.delayed(const Duration(milliseconds: 250), () async {
@@ -1475,7 +1518,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
     _interimText = newText;
     final doc = controller.document;
-    
+
     // Eğer yeni bir cümleye başlıyorsak, imlecin o anki konumunu baz al
     if (_interimOffset < 0) {
       final selection = controller.selection;
@@ -1485,7 +1528,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         _interimOffset = (doc.length - 1).clamp(0, doc.length - 1);
       }
     }
-    
+
     controller.replaceText(
       _interimOffset,
       0,
@@ -1501,7 +1544,10 @@ class _NoteEditorPageState extends State<NoteEditorPage>
       final controller = _controller;
       if (controller != null) {
         final spaceOffset = _interimOffset + _interimText.length;
-        final maxOffset = (controller.document.length - 1).clamp(0, controller.document.length - 1);
+        final maxOffset = (controller.document.length - 1).clamp(
+          0,
+          controller.document.length - 1,
+        );
         if (spaceOffset <= maxOffset) {
           controller.replaceText(
             spaceOffset,
@@ -2602,7 +2648,8 @@ class _RecordingIndicator extends StatefulWidget {
   State<_RecordingIndicator> createState() => _RecordingIndicatorState();
 }
 
-class _RecordingIndicatorState extends State<_RecordingIndicator> with SingleTickerProviderStateMixin {
+class _RecordingIndicatorState extends State<_RecordingIndicator>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
