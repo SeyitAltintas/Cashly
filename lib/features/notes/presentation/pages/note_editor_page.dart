@@ -1509,7 +1509,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         '',
         TextSelection.collapsed(offset: _interimOffset),
       );
-      _interimOffset = -1;
     }
 
     _interimText = newText;
