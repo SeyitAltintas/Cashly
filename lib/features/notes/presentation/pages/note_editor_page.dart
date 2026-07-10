@@ -2593,3 +2593,51 @@ class _PulsingMicButtonState extends State<_PulsingMicButton>
     );
   }
 }
+
+class _RecordingIndicator extends StatefulWidget {
+  final ColorScheme colorScheme;
+  const _RecordingIndicator({required this.colorScheme});
+
+  @override
+  State<_RecordingIndicator> createState() => _RecordingIndicatorState();
+}
+
+class _RecordingIndicatorState extends State<_RecordingIndicator> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _controller,
+      child: Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: widget.colorScheme.error,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: widget.colorScheme.error.withValues(alpha: 0.5),
+              blurRadius: 6,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
