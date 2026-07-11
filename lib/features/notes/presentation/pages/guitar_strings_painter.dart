@@ -59,7 +59,7 @@ class GuitarStringsPainter extends CustomPainter {
           continue;
         }
         final double midDistNorm = (x - cx).abs() / cx;
-        final double stringAmplitude = amplitude * 36.0 * math.cos(midDistNorm * math.pi / 2);
+        final double stringAmplitude = amplitude * 50.0 * math.cos(midDistNorm * math.pi / 2);
         final double vibration = stringAmplitude * math.sin(t + (x / size.width) * math.pi * 3);
         final double finalY = y + vibration;
         if (!started) {
