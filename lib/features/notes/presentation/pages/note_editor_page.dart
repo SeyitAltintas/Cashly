@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:path_provider/path_provider.dart';
 
@@ -2708,7 +2707,7 @@ class _GuitarStringsPainter extends CustomPainter {
     final double cy = size.height / 2;
 
     // Tellerin dikey konumları (eşit aralıklı, merkeze doğru yayılmış)
-    final int stringCount = 5;
+    const int stringCount = 5;
     final double spacing = size.height / (stringCount + 1);
 
     for (int i = 0; i < stringCount; i++) {
