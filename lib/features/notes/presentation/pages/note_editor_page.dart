@@ -1296,7 +1296,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     );
   }
 
-  /// Dinleme aktifken ekranın altında gösterilen yuvarlak overlay.
+  /// Dinleme aktifken ekranın altında gösterilen overlay.
   Widget _buildListeningOverlay(ColorScheme colorScheme) {
     return Positioned(
       left: 0,
@@ -1307,14 +1307,6 @@ class _NoteEditorPageState extends State<NoteEditorPage>
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
           child: Container(
-            padding: EdgeInsets.only(
-              top: 16,
-              bottom: MediaQuery.paddingOf(context).bottom > 0
-                  ? MediaQuery.paddingOf(context).bottom + 12
-                  : 20,
-              left: 20,
-              right: 20,
-            ),
             decoration: BoxDecoration(
               color: colorScheme.surface.withAlpha(240),
               boxShadow: [
@@ -1325,64 +1317,64 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                 ),
               ],
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Drag handle (visual only)
-                Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: colorScheme.outlineVariant.withAlpha(100),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Title
-                Text(
-                  _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.5,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 8), // Azaltıldı
-                // Center Mic Area with Waveforms
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Sol Dalgalar
-                    if (_isListening)
-                      _SideWaveform(colorScheme: colorScheme, reverse: false, soundLevelNotifier: _soundLevelNotifier),
+                    // Drag handle
+                    Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: colorScheme.outlineVariant.withAlpha(100),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
-                    // Merkez Mikrofon
+                    // Title
+                    Text(
+                      _isListening ? 'Sizi Dinliyorum...' : 'Mikrofon Duraklatıldı',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Guitar strings full width with mic button overlaid
                     SizedBox(
-                      width: 140, // Sabit boyut ile titremeyi engelle
-                      height: 140,
+                      height: 120,
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          // Ripples
-                          if (_isListening)
-                            _RippleAnimation(colorScheme: colorScheme),
-
-                          // Main Mic Button
+                          // Guitar strings spanning full width
+                          Positioned.fill(
+                            child: _GuitarStrings(
+                              colorScheme: colorScheme,
+                              soundLevelNotifier: _soundLevelNotifier,
+                              isListening: _isListening,
+                            ),
+                          ),
+                          // Mic button centered on top of strings
                           GestureDetector(
                             onTap: _toggleListening,
                             child: Container(
-                              width: 72, // Biraz küçültüldü
+                              width: 72,
                               height: 72,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: colorScheme.primary,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: colorScheme.primary.withAlpha(100),
-                                    blurRadius: 16,
+                                    color: colorScheme.primary.withAlpha(90),
+                                    blurRadius: 20,
                                     offset: const Offset(0, 6),
                                   ),
                                 ],
@@ -1398,18 +1390,19 @@ class _NoteEditorPageState extends State<NoteEditorPage>
                       ),
                     ),
 
-                    // Sağ Dalgalar
-                    if (_isListening)
-                      _SideWaveform(colorScheme: colorScheme, reverse: true, soundLevelNotifier: _soundLevelNotifier),
+                    const SizedBox(height: 8),
+
+                    // Keyboard button at bottom right
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [_buildSwitchToKeyboardButton(colorScheme)],
+                      ),
+                    ),
                   ],
                 ),
-
-                // Bottom row with keyboard button on the right
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [_buildSwitchToKeyboardButton(colorScheme)],
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -2626,24 +2619,33 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
 }
 
 /// Dinleme sırasında alt ortada gösterilen animasyonlu mikrofon butonu.
-class _RippleAnimation extends StatefulWidget {
+class _GuitarStrings extends StatefulWidget {
   final ColorScheme colorScheme;
-  const _RippleAnimation({required this.colorScheme});
+  final ValueNotifier<double> soundLevelNotifier;
+  final bool isListening;
+
+  const _GuitarStrings({
+    required this.colorScheme,
+    required this.soundLevelNotifier,
+    required this.isListening,
+  });
 
   @override
-  State<_RippleAnimation> createState() => _RippleAnimationState();
+  State<_GuitarStrings> createState() => _GuitarStringsState();
 }
 
-class _RippleAnimationState extends State<_RippleAnimation>
+class _GuitarStringsState extends State<_GuitarStrings>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  // Her telin titreşim fazını takip etmek için
+  final List<double> _phases = [0.0, 0.3, 0.6, 0.9, 1.2];
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 800),
     )..repeat();
   }
 
@@ -2655,129 +2657,123 @@ class _RippleAnimationState extends State<_RippleAnimation>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Stack(
-          alignment: Alignment.center,
-          children: List.generate(3, (index) {
-            final delay = index * 0.33;
-            var progress = _controller.value - delay;
-            if (progress < 0) progress += 1.0;
-
-            final size = 72.0 + (progress * 68.0);
-            final opacity = (1.0 - progress).clamp(0.0, 1.0);
-
-            return Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: widget.colorScheme.primary.withAlpha(
-                    (opacity * 100).toInt(),
-                  ),
-                  width: 2,
-                ),
-                color: widget.colorScheme.primary.withAlpha(
-                  (opacity * 20).toInt(),
-                ),
-              ),
-            );
-          }),
-        );
-      },
-    );
-  }
-}
-
-class _SideWaveform extends StatefulWidget {
-  final ColorScheme colorScheme;
-  final bool reverse;
-  final ValueNotifier<double> soundLevelNotifier;
-  
-  const _SideWaveform({
-    required this.colorScheme, 
-    required this.soundLevelNotifier,
-    this.reverse = false,
-  });
-
-  @override
-  State<_SideWaveform> createState() => _SideWaveformState();
-}
-
-class _SideWaveformState extends State<_SideWaveform>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Toplam bar sayısını artırdık (örneğin 6)
-    const int barCount = 6;
-    
     return ValueListenableBuilder<double>(
       valueListenable: widget.soundLevelNotifier,
-      builder: (context, soundLevel, child) {
-        // Ses seviyesi genelde -50 ile 50 (veya -50 ile 10) arasındadır.
-        // Bunu 0.0 - 1.0 arasına normalize edelim.
-        // Konuşma olmadığında -50 civarı, olduğunda -10 ile 10 arası olabilir.
-        final normalizedSound = ((soundLevel + 50) / 60).clamp(0.0, 1.0);
-        
+      builder: (context, soundLevel, _) {
+        // Ses seviyesini normalize et: -50..0 -> 0.0..1.0
+        final normalized = widget.isListening
+            ? ((soundLevel + 50) / 50).clamp(0.0, 1.0)
+            : 0.0;
+
         return AnimatedBuilder(
           animation: _controller,
           builder: (context, _) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: List.generate(barCount, (index) {
-                // Simetri ayarı
-                final displayIndex = widget.reverse ? (barCount - 1 - index) : index;
-                // Matematiksel animasyon dalgası
-                final phase = (displayIndex * 0.5);
-                final mathWave = (math.sin((_controller.value * math.pi * 2) + phase) + 1) / 2;
-                
-                // Merkezdeki (mikrofona yakın olan) barlar daha uzun
-                final proximityMultiplier = 1.0 - (displayIndex / barCount);
-                
-                // Temel animasyon yüksekliği (sessizken bile hafifçe oynar)
-                final idleHeight = 8.0 + (mathWave * 12.0 * proximityMultiplier);
-                
-                // Sese tepki veren ekstra yükseklik
-                // Ses seviyesi ile dalga matematiğini birleştir
-                final soundHeight = 40.0 * normalizedSound * proximityMultiplier * (mathWave + 0.5);
-                
-                // Toplam boy
-                final height = idleHeight + soundHeight;
-
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2.0),
-                  width: 4,
-                  height: height,
-                  decoration: BoxDecoration(
-                    color: widget.colorScheme.primary.withAlpha((120 + (normalizedSound * 135)).toInt()),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                );
-              }),
+            return CustomPaint(
+              painter: _GuitarStringsPainter(
+                color: widget.colorScheme.primary,
+                progress: _controller.value,
+                amplitude: normalized,
+                phases: _phases,
+                isListening: widget.isListening,
+              ),
+              child: const SizedBox.expand(),
             );
           },
         );
       },
     );
+  }
+}
+
+class _GuitarStringsPainter extends CustomPainter {
+  final Color color;
+  final double progress;
+  final double amplitude;
+  final List<double> phases;
+  final bool isListening;
+
+  _GuitarStringsPainter({
+    required this.color,
+    required this.progress,
+    required this.amplitude,
+    required this.phases,
+    required this.isListening,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Merkez yarıçapı (mikrofon butonu için boşluk bırak)
+    const double micRadius = 44.0;
+    final double cx = size.width / 2;
+    final double cy = size.height / 2;
+
+    // Tellerin dikey konumları (eşit aralıklı, merkeze doğru yayılmış)
+    final int stringCount = 5;
+    final double spacing = size.height / (stringCount + 1);
+
+    for (int i = 0; i < stringCount; i++) {
+      final double y = spacing * (i + 1);
+      final double phase = phases[i];
+
+      // Her telin titreşim frekansı biraz farklı (miktar olarak tel kalınlığını simüle eder)
+      final double freqMultiplier = 1.0 + (i * 0.15);
+      final double t = progress * math.pi * 2 * freqMultiplier + phase;
+
+      // Telin opaklığı: ortadakiler daha belirgin
+      final double opacityBase = 0.3 + (0.4 * (1.0 - ((i - stringCount / 2).abs() / (stringCount / 2))));
+      final double opacity = isListening ? opacityBase + (amplitude * 0.3) : opacityBase;
+
+      final paint = Paint()
+        ..color = color.withValues(alpha: opacity)
+        ..strokeWidth = 1.5 + (amplitude * 1.0)
+        ..strokeCap = StrokeCap.round
+        ..style = PaintingStyle.stroke;
+
+      final path = Path();
+      const int segments = 80;
+      bool started = false;
+
+      for (int s = 0; s <= segments; s++) {
+        final double x = (s / segments) * size.width;
+
+        // Mikrofon bölgesini atla
+        final dx = x - cx;
+        final dy = y - cy;
+        final dist = math.sqrt(dx * dx + dy * dy);
+        if (dist < micRadius) {
+          if (started) {
+            canvas.drawPath(path, paint);
+            path.reset();
+            started = false;
+          }
+          continue;
+        }
+
+        // Telin titreşim amplitüdü ortadan uçlara doğru artar (gerçek tel gibi)
+        // Orta noktadan uzaklık normalize edilmiş
+        final double midDistNorm = (x - cx).abs() / cx;
+        // Titreşim: sinüs dalgası (t zamanına ve konuma bağlı)
+        final double stringAmplitude = amplitude * 22.0 * math.sin(math.pi * (1.0 - midDistNorm));
+        final double vibration = stringAmplitude * math.sin(t + (x / size.width) * math.pi * 3);
+
+        final double finalY = y + vibration;
+
+        if (!started) {
+          path.moveTo(x, finalY);
+          started = true;
+        } else {
+          path.lineTo(x, finalY);
+        }
+      }
+
+      if (started) canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GuitarStringsPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.amplitude != amplitude ||
+        oldDelegate.isListening != isListening;
   }
 }
