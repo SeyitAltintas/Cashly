@@ -1312,17 +1312,12 @@ class _NoteEditorPageState extends State<NoteEditorPage>
             ),
             decoration: BoxDecoration(
               color: colorScheme.surface.withAlpha(220),
-              border: Border(
-                top: BorderSide(
-                  color: colorScheme.outlineVariant.withAlpha(128),
-                  width: 1,
-                ),
-              ),
+              
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(25),
-                  blurRadius: 24,
-                  offset: const Offset(0, -8),
+                  color: Colors.black.withAlpha(15),
+                  blurRadius: 32,
+                  offset: const Offset(0, -4),
                 ),
               ],
             ),
@@ -1393,8 +1388,8 @@ class _NoteEditorPageState extends State<NoteEditorPage>
           _editorFocusNode.requestFocus();
         },
         child: Container(
-          width: 44,
-          height: 44,
+          width: 52,
+          height: 52,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.transparent, // Arkaplanı kaldır
@@ -2673,26 +2668,34 @@ class _PulsingMicButtonState extends State<_PulsingMicButton>
                 ),
               ),
             ),
-          // Mic button
+          // Mic button outer ring
           Container(
             width: 64,
             height: 64,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: primary,
               border: Border.all(
-                color: widget.colorScheme.outlineVariant.withAlpha(80),
-                width: 1,
+                color: primary.withValues(alpha: 0.3),
+                width: 1.5,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: primary.withValues(alpha: 0.4),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
             ),
-            child: const Icon(Icons.mic_rounded, color: Colors.white, size: 30),
+            alignment: Alignment.center,
+            child: Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: primary,
+                boxShadow: [
+                  BoxShadow(
+                    color: primary.withValues(alpha: 0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.mic_rounded, color: Colors.white, size: 28),
+            ),
           ),
         ],
       ),
@@ -2774,7 +2777,7 @@ class _WaveformIndicatorState extends State<_WaveformIndicator>
                 // sinüs dalgası 0 ile 1 arası değer alır
                 final wave =
                     (sin((_controller.value * 2 * pi) + phase) + 1) / 2;
-                final height = 4.0 + (wave * 20.0 * amplitude);
+                final height = 6.0 + (wave * 20.0 * amplitude);
 
                 return Container(
                   margin: EdgeInsets.only(right: index < 3 ? 4 : 0),
