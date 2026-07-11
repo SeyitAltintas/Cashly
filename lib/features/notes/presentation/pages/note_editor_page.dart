@@ -1296,32 +1296,33 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   /// Dinleme aktifken ekranın altında gösterilen yuvarlak overlay.
   Widget _buildListeningOverlay(ColorScheme colorScheme) {
     return Positioned(
-      left: 20,
-      right: 20,
-      bottom: 24,
+      left: 0,
+      right: 0,
+      bottom: 0,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
           child: Container(
-            padding: const EdgeInsets.only(
-              left: 20,
-              right: 8,
-              top: 8,
-              bottom: 8,
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 16,
+              top: 16,
+              bottom: MediaQuery.paddingOf(context).bottom > 0 ? MediaQuery.paddingOf(context).bottom + 8 : 24,
             ),
             decoration: BoxDecoration(
-              color: colorScheme.surface.withAlpha(190),
-              borderRadius: BorderRadius.circular(32),
-              border: Border.all(
-                color: colorScheme.outlineVariant.withAlpha(128),
-                width: 1,
+              color: colorScheme.surface.withAlpha(220),
+              border: Border(
+                top: BorderSide(
+                  color: colorScheme.outlineVariant.withAlpha(128),
+                  width: 1,
+                ),
               ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withAlpha(25),
                   blurRadius: 24,
-                  offset: const Offset(0, 8),
+                  offset: const Offset(0, -8),
                 ),
               ],
             ),
