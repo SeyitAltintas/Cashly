@@ -55,6 +55,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
 
   Timer? _autoSaveTimer;
   Timer? _voicePauseTimer; // Konuşma duraksamalarını algılamak için
+  Timer? _voiceSilenceTimer; // 3 saniyelik sessizlik durumunda mikrofonu kapatmak için
   final TextEditingController _titleController = TextEditingController();
 
   StreamSubscription? _docSubscription;
@@ -122,6 +123,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     WidgetsBinding.instance.removeObserver(this);
     _autoSaveTimer?.cancel();
     _voicePauseTimer?.cancel();
+    _voiceSilenceTimer?.cancel();
     _docSubscription?.cancel();
     _titleController.dispose();
     _controller?.dispose();
@@ -1448,6 +1450,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     _isRestarting = false;
     _voicePauseTimer?.cancel();
     
+    _resetVoiceSilenceTimer();
     await _resumeListeningSession();
   }
 
@@ -1455,10 +1458,16 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   /// başlar — kullanıcı elle durdurana kadar kapanmaz.
   Future<void> _resumeListeningSession() async {
     if (!_isListening || !mounted || _isRestarting) return;
+    
+    _resetVoiceSilenceTimer();
 
     await _speechService.startListening(
       onResult: (text, {required bool isFinal}) {
         if (!mounted || !_isListening) return;
+        
+        if (text.trim().isNotEmpty) {
+          _resetVoiceSilenceTimer();
+        }
 
         if (isFinal) {
           if (text.isNotEmpty) _applyInterimText(text);
@@ -1544,6 +1553,17 @@ class _NoteEditorPageState extends State<NoteEditorPage>
   }
 
   /// Interim metni kalıcı yap ve iki cümle arasına boşluk ekle.
+  void _resetVoiceSilenceTimer() {
+    _voiceSilenceTimer?.cancel();
+    if (!_isListening) return;
+
+    _voiceSilenceTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted && _isListening) {
+        _stopVoiceDictation();
+      }
+    });
+  }
+
   void _commitInterimText({bool addSeparator = true}) {
     if (addSeparator && _interimText.isNotEmpty && _interimOffset >= 0) {
       // Noktalı virgul / cümle arası boşluk
@@ -1592,6 +1612,7 @@ class _NoteEditorPageState extends State<NoteEditorPage>
     // Bekleyen interim metni sil (cancel— yazilmamis partial)
     // veya kullanıcı konuyu yarıda bırakmışsa commit et (sessiz kalma)
     _voicePauseTimer?.cancel();
+    _voiceSilenceTimer?.cancel();
     _commitInterimText(addSeparator: false);
 
     // Focus node'ları tekrar aktifleştir
